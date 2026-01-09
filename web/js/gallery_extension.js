@@ -36,7 +36,7 @@ function $el(tag, propsOrChildren, children) {
 }
 
 app.registerExtension({
-    name: "ComfyUI.SimpleManager",
+    name: "ComfyUI.MeldNexus",
 
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
         if (nodeData.name === "MeldNexus") {
@@ -46,8 +46,8 @@ app.registerExtension({
                 onExecuted?.apply(this, arguments);
 
                 // Refresh content if the gallery is visible
-                if (app.ui.simpleManager?.isVisible()) {
-                    app.ui.simpleManager.refresh();
+                if (app.ui.meldNexus?.isVisible()) {
+                    app.ui.meldNexus.refresh();
                 }
             };
         }
@@ -66,7 +66,7 @@ app.registerExtension({
             displayEl.innerHTML = "Loading...";
             try {
                 // Rule 2: Use api.fetchApi
-                const res = await api.fetchApi("/simple-manager/list");
+                const res = await api.fetchApi("/meld-nexus/list");
                 if (res.status !== 200) throw new Error("API Error");
                 const files = await res.json();
 
@@ -83,6 +83,8 @@ app.registerExtension({
                         src: `/view?filename=${filename}&type=output`,
                         style: {
                             maxWidth: "100%",
+                            maxHeight: "200px",
+                            objectFit: "contain",
                             borderRadius: "4px",
                             cursor: "pointer",
                             display: "block"
@@ -90,25 +92,36 @@ app.registerExtension({
                         onclick: () => window.open(img.src, "_blank")
                     });
 
-                    // Delete Button
+                    // Delete Button (X mark)
                     const deleteBtn = $el("button", {
-                        text: "Delete",
+                        text: "X",
+                        title: "Delete image",
                         style: {
-                            marginTop: "5px",
-                            padding: "5px 10px",
+                            position: "absolute",
+                            top: "4px",
+                            right: "4px",
+                            width: "20px",
+                            height: "20px",
+                            lineHeight: "18px",
+                            textAlign: "center",
                             background: "rgba(200, 50, 50, 0.8)",
                             color: "white",
                             border: "none",
-                            borderRadius: "3px",
+                            borderRadius: "50%",
                             cursor: "pointer",
-                            width: "100%",
-                            fontSize: "12px"
+                            fontSize: "14px",
+                            fontWeight: "bold",
+                            padding: "0",
+                            zIndex: "10",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center"
                         },
                         onclick: async (e) => {
                             e.stopPropagation();
                             if(confirm("Are you sure you want to delete this image?")) {
                                 try {
-                                    const res = await api.fetchApi("/simple-manager/delete", {
+                                    const res = await api.fetchApi("/meld-nexus/delete", {
                                         method: "POST",
                                         body: JSON.stringify({ filename: filename })
                                     });
@@ -132,21 +145,23 @@ app.registerExtension({
 
                     const details = $el("div", {
                         style: {
-                            borderTop: "1px dashed #444",
-                            marginTop: "8px",
-                            paddingTop: "8px",
                             color: "#ccc",
                             fontSize: "11px",
-                            overflow: "hidden"
+                            overflow: "hidden",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "4px"
                         },
                         html: `
-                            <div style="margin-bottom: 2px; font-weight: bold; color: #888; font-size: 10px;">Positive</div>
-                            <div style="max-height: 80px; overflow-y: auto; margin-bottom: 6px; white-space: pre-wrap; font-size: 10px; background: rgba(0,0,0,0.2); padding: 4px; border-radius: 3px;">${f.positive || "-"}</div>
+                            <div style="font-size: 10px; color: #aaa; word-break: break-all; margin-bottom: 4px;">${filename}</div>
 
-                            <div style="margin-bottom: 2px; font-weight: bold; color: #888; font-size: 10px;">Negative</div>
-                            <div style="max-height: 60px; overflow-y: auto; margin-bottom: 6px; white-space: pre-wrap; font-size: 10px; background: rgba(0,0,0,0.2); padding: 4px; border-radius: 3px;">${f.negative || "-"}</div>
+                            <div style="font-weight: bold; color: #888; font-size: 10px;">Positive</div>
+                            <div style="max-height: 60px; overflow-y: auto; white-space: pre-wrap; font-size: 10px; background: rgba(0,0,0,0.2); padding: 4px; border-radius: 3px;">${f.positive || "-"}</div>
 
-                            <div style="margin-bottom: 2px; font-weight: bold; color: #888; font-size: 10px;">Tags</div>
+                            <div style="font-weight: bold; color: #888; font-size: 10px;">Negative</div>
+                            <div style="max-height: 40px; overflow-y: auto; white-space: pre-wrap; font-size: 10px; background: rgba(0,0,0,0.2); padding: 4px; border-radius: 3px;">${f.negative || "-"}</div>
+
+                            <div style="font-weight: bold; color: #888; font-size: 10px;">Tags</div>
                             <div style="font-size: 10px;">${tagsHtml}</div>
                         `
                     });
@@ -154,25 +169,26 @@ app.registerExtension({
                     const row = $el("div", {
                         style: {
                             display: "flex",
-                            flexDirection: "column",
-                            alignItems: "stretch",
+                            flexDirection: "row",
+                            alignItems: "flex-start",
                             background: "rgba(255,255,255,0.05)",
                             padding: "10px",
                             marginBottom: "10px",
                             borderRadius: "5px",
-                            border: "1px solid transparent"
+                            border: "1px solid transparent",
+                            position: "relative",
+                            gap: "10px"
                         },
                         onmouseenter: () => row.style.borderColor = "#666",
                         onmouseleave: () => row.style.borderColor = "transparent"
                     }, [
                         $el("div", {
-                            style: { width: "100%", marginBottom: "5px" }
-                        }, [
-                            img,
-                            $el("div", { text: filename, style: { fontSize: "10px", color: "#aaa", marginTop: "4px", wordBreak: "break-all", textAlign: "center" } }),
-                            deleteBtn
-                        ]),
-                        details
+                            style: { flex: "0 0 120px", minWidth: "120px" }
+                        }, [img]),
+                        $el("div", {
+                            style: { flex: "1", minWidth: "0" }
+                        }, [details]),
+                        deleteBtn
                     ]);
 
                     displayEl.appendChild(row);
@@ -184,7 +200,7 @@ app.registerExtension({
         };
 
         // Expose to app.ui for external control (Rule 6)
-        app.ui.simpleManager = {
+        app.ui.meldNexus = {
             refresh: () => updateGallery(contentDiv),
             isVisible: () => {
                 // Check if our sidebar tab is active

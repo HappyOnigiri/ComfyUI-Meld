@@ -7,6 +7,7 @@ import folder_paths
 import numpy as np
 import server
 from aiohttp import web
+from comfy.cli_args import args
 from PIL import Image
 
 from .load_image_configs.metadata_helper import MetadataHelper
@@ -105,6 +106,7 @@ class MeldNexus:
         return {
             "required": {
                 "images": ("IMAGE", ),
+                "filename_prefix": ("STRING", {"default": "MeldFlow"}),
             },
             "optional": {
                 "positive": ("STRING", {"forceInput": True, "multiline": True}),
@@ -121,7 +123,19 @@ class MeldNexus:
     OUTPUT_NODE = True
     CATEGORY = "MeldFlow/Nexus"
 
-    def save_images(self, images, positive=None, negative=None, tags=None, prompt=None, extra_pnginfo=None):
+    def save_images(
+        self,
+        images,
+        filename_prefix="MeldFlow",
+        positive=None,
+        negative=None,
+        tags=None,
+        prompt=None,
+        extra_pnginfo=None,
+    ):
+        full_output_folder, filename, counter, subfolder, filename_prefix = folder_paths.get_save_image_path(
+            filename_prefix, self.output_dir, images[0].shape[1], images[0].shape[0]
+        )
         results = list()
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
@@ -153,33 +167,33 @@ class MeldNexus:
         pos_list = [p.strip() for p in resolved_positive.split(',') if p.strip()] if resolved_positive else []
         neg_list = [n.strip() for n in resolved_negative.split(',') if n.strip()] if resolved_negative else []
 
-        for image in images:
+        for (batch_number, image) in enumerate(images):
             # Tensor [B, H, W, C] -> PIL
             # ComfyUI images are [B, H, W, C] Tensors
             i = 255. * image.cpu().numpy()
             img = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
 
-            timestamp = time.time()
-            filename = f"SimpleManager_{int(timestamp)}_{int(time.perf_counter()*1000)%1000}.png"
-            file_path = os.path.join(self.output_dir, filename)
-
             # Save metadata to PNG
             metadata = None
-            if extra_pnginfo or prompt:
+            if not args.disable_metadata:
                  from PIL.PngImagePlugin import PngInfo
                  metadata = PngInfo()
-                 if prompt:
+                 if prompt is not None:
                      metadata.add_text("prompt", json.dumps(prompt))
-                 if extra_pnginfo:
+                 if extra_pnginfo is not None:
                      for x in extra_pnginfo:
                          metadata.add_text(x, json.dumps(extra_pnginfo[x]))
 
-            img.save(file_path, pnginfo=metadata, compress_level=4)
+            filename_with_batch_num = filename.replace("%batch_num%", str(batch_number))
+            file = f"{filename_with_batch_num}_{counter:05}_.png"
+            img.save(os.path.join(full_output_folder, file), pnginfo=metadata, compress_level=4)
+
+            timestamp = time.time()
 
             # Insert Image
             cursor.execute(
                 "INSERT INTO images (filename, subfolder, created_at, is_deleted) VALUES (?, ?, ?, 0)",
-                (filename, "", timestamp)
+                (file, subfolder, timestamp)
             )
             image_id = cursor.lastrowid
 
@@ -209,7 +223,8 @@ class MeldNexus:
                 tag_id = cursor.fetchone()[0]
                 cursor.execute("INSERT INTO tag_image_relations (image_id, tag_id) VALUES (?, ?)", (image_id, tag_id))
 
-            results.append({"filename": filename, "subfolder": "", "type": self.type})
+            results.append({"filename": file, "subfolder": subfolder, "type": self.type})
+            counter += 1
 
         conn.commit()
         conn.close()
@@ -217,7 +232,7 @@ class MeldNexus:
         return {"ui": {"images": results}}
 
 # --- API Definition ---
-@server.PromptServer.instance.routes.get("/simple-manager/list")
+@server.PromptServer.instance.routes.get("/meld-nexus/list")
 async def list_images(request):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -273,7 +288,7 @@ async def list_images(request):
     conn.close()
     return web.json_response(result_list)
 
-@server.PromptServer.instance.routes.post("/simple-manager/delete")
+@server.PromptServer.instance.routes.post("/meld-nexus/delete")
 async def delete_image(request):
     try:
         data = await request.json()
