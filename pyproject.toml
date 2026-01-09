@@ -17,7 +17,12 @@ classifiers = [
     "Operating System :: OS Independent",
     "Framework :: IDE",
 ]
-dependencies = []
+dependencies = [
+    "aiohttp",
+    "torch",
+    "numpy",
+    "Pillow",
+]
 
 [project.urls]
 Repository = "https://github.com/NodeMeld/ComfyUI-Meld-Flow"
