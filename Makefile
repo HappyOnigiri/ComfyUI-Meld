@@ -21,7 +21,7 @@ lint: check-only-ascii
 
 check-only-ascii:
 	@echo "Checking for non-ASCII characters..."
-	@git ls-files | grep -v "README_ja.md" | grep -v "Makefile" | grep -v "py/image_manager.py" | xargs grep -nP "[^\x00-\x7f]" && (echo "Error: Non-ASCII characters found!" && exit 1) || echo "All files are ASCII (English) only."
+	@git ls-files | grep -v "README_ja.md" | grep -v "Makefile" | grep -v "py/image_manager/" | xargs grep -nP "[^\x00-\x7f]" && (echo "Error: Non-ASCII characters found!" && exit 1) || echo "All files are ASCII (English) only."
 
 repomix: repomix-full repomix-src repomix-tests
 
