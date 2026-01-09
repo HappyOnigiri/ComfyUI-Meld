@@ -54,83 +54,25 @@ app.registerExtension({
     },
 
     async setup(app) {
-        let isWide = true;
+        if (!app.extensionManager?.registerSidebarTab) {
+            console.warn("Sidebar API not available. Skipping Gallery sidebar registration.");
+            return;
+        }
 
         const contentDiv = $el("div", { style: { padding: "10px" } });
 
-        const galleryDiv = $el("div", {
-            id: "comfy-simple-manager-gallery",
-            style: {
-                position: "fixed",
-                top: "0",
-                right: "0",
-                width: "100vw",
-                height: "100vh",
-                backgroundColor: "var(--comfy-menu-bg, #222)",
-                borderLeft: "1px solid var(--border-color, #444)",
-                zIndex: "9000",
-                display: "none",
-                overflowY: "auto",
-                color: "var(--fg-color, #fff)",
-                boxShadow: "-5px 0 15px rgba(0,0,0,0.5)",
-                transition: "width 0.3s ease"
-            }
-        });
-
-        const resizeBtn = $el("button", {
-            text: "Minimize",
-            style: { background: "transparent", border: "1px solid #555", color: "var(--fg-color, #fff)", cursor: "pointer", marginRight: "10px", padding: "2px 8px", borderRadius: "4px" },
-            onclick: () => {
-                isWide = !isWide;
-                if (isWide) {
-                    galleryDiv.style.width = "100vw";
-                    resizeBtn.innerText = "Minimize";
-                } else {
-                    galleryDiv.style.width = "400px";
-                    resizeBtn.innerText = "Maximize";
-                }
-            }
-        });
-
-        const header = $el("div", {
-            style: {
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: "10px 15px",
-                borderBottom: "1px solid var(--border-color, #444)",
-                backgroundColor: "var(--comfy-menu-bg, #222)",
-                position: "sticky",
-                top: "0",
-                zIndex: "10"
-            }
-        }, [
-            $el("h3", { text: "Gallery", style: { margin: 0 } }),
-                $el("div", {}, [
-                    resizeBtn,
-                    $el("button", {
-                        text: "Close",
-                        style: { background: "transparent", border: "none", color: "var(--fg-color, #fff)", cursor: "pointer", fontSize: "16px" },
-                        onclick: () => galleryDiv.style.display = "none"
-                    })
-                ])
-        ]);
-
-        galleryDiv.appendChild(header);
-        galleryDiv.appendChild(contentDiv);
-        document.body.appendChild(galleryDiv);
-
-        const updateGallery = async () => {
-            contentDiv.innerHTML = "Loading...";
+        const updateGallery = async (targetEl) => {
+            const displayEl = targetEl || contentDiv;
+            displayEl.innerHTML = "Loading...";
             try {
                 // Rule 2: Use api.fetchApi
                 const res = await api.fetchApi("/simple-manager/list");
                 if (res.status !== 200) throw new Error("API Error");
                 const files = await res.json();
 
-                contentDiv.innerHTML = "";
+                displayEl.innerHTML = "";
                 if (!files.length) {
-                    contentDiv.appendChild($el("p", { text: "No images found." }));
+                    displayEl.appendChild($el("p", { text: "No images found." }));
                     return;
                 }
 
@@ -139,7 +81,6 @@ app.registerExtension({
                         src: `/view?filename=${f}&type=output`,
                         style: {
                             maxWidth: "100%",
-                            maxHeight: "300px",
                             borderRadius: "4px",
                             cursor: "pointer",
                             display: "block"
@@ -150,8 +91,8 @@ app.registerExtension({
                     const row = $el("div", {
                         style: {
                             display: "flex",
-                            flexDirection: "row",
-                            alignItems: "flex-start",
+                            flexDirection: "column",
+                            alignItems: "stretch",
                             background: "rgba(255,255,255,0.05)",
                             padding: "10px",
                             marginBottom: "10px",
@@ -162,7 +103,7 @@ app.registerExtension({
                         onmouseleave: () => row.style.borderColor = "transparent"
                     }, [
                         $el("div", {
-                            style: { width: "320px", flexShrink: 0, marginRight: "15px" }
+                            style: { width: "100%", marginBottom: "5px" }
                         }, [
                             img,
                             $el("div", { text: f, style: { fontSize: "11px", color: "#aaa", marginTop: "5px", wordBreak: "break-all" } })
@@ -170,62 +111,47 @@ app.registerExtension({
 
                         $el("div", {
                             style: {
-                                flex: 1,
-                                minHeight: "100px",
-                                borderLeft: "1px dashed #444",
-                                paddingLeft: "15px",
-                                display: "flex",
-                                flexDirection: "column",
-                                justifyContent: "center",
-                                color: "#666"
+                                borderTop: "1px dashed #444",
+                                paddingTop: "5px",
+                                color: "#666",
+                                fontSize: "11px"
                             },
                             text: "(Details & Tags area)"
                         })
                     ]);
 
-                    contentDiv.appendChild(row);
+                    displayEl.appendChild(row);
                 });
             } catch(e) {
                 console.error(e);
-                contentDiv.innerText = "Error loading list.";
+                displayEl.innerText = "Error loading list.";
             }
         };
 
-        // Expose to app.ui for external control
+        // Expose to app.ui for external control (Rule 6)
         app.ui.simpleManager = {
-            refresh: updateGallery,
-            isVisible: () => galleryDiv.style.display !== "none",
+            refresh: () => updateGallery(contentDiv),
+            isVisible: () => {
+                // Check if our sidebar tab is active
+                return document.querySelector(`.comfy-sidebar-tab-content[data-tab-id="meld-flow-gallery"]:not([style*="display: none"])`) !== null;
+            },
             toggle: () => {
-                if (galleryDiv.style.display === "none") {
-                    galleryDiv.style.display = "block";
-                    updateGallery();
-                } else {
-                    galleryDiv.style.display = "none";
-                }
+                // In new UI, we usually just activate the tab
+                app.extensionManager.setSidebarTabActive("meld-flow-gallery");
             }
         };
 
-        const addTopBarButton = () => {
-            // Carefully check for existence of app.menu (Rule 6)
-            const menu = app.menu || document.querySelector(".comfy-menu");
-            if (menu) {
-                const settingsGroup = app.menu?.settingsGroup?.element;
-                const btn = $el("button.comfyui-button", {
-                    text: "Gallery",
-                    style: { cursor: "pointer", fontWeight: "bold" },
-                    onclick: () => app.ui.simpleManager.toggle()
-                });
-
-                if (settingsGroup) {
-                    settingsGroup.before(btn);
-                } else {
-                    // Fallback: append to end of menu
-                    const parent = menu.element || menu;
-                    if (parent instanceof Element) parent.appendChild(btn);
-                }
+        app.extensionManager.registerSidebarTab({
+            id: 'meld-flow-gallery',
+            icon: 'pi pi-images',
+            title: 'Gallery',
+            tooltip: 'Meld Flow: View generated images',
+            type: 'custom',
+            render: async (el) => {
+                el.innerHTML = "";
+                el.appendChild(contentDiv);
+                await updateGallery(contentDiv);
             }
-        };
-
-        addTopBarButton();
+        });
     }
 });
