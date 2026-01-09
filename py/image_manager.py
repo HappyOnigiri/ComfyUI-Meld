@@ -1,7 +1,5 @@
-import datetime
 import json
 import os
-import re
 import sqlite3
 import time
 
@@ -102,6 +100,8 @@ class MeldNexus:
     def __init__(self):
         self.output_dir = folder_paths.get_output_directory()
         self.type = "output"
+        self.prefix_append = ""
+        self.compress_level = 4
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -111,10 +111,10 @@ class MeldNexus:
                 "filename_prefix": ("STRING", {
                     "default": "MeldFlow",
                     "tooltip": (
-                        "The prefix for the saved image name. "
-                        "You can use slashes (/) for subdirectories (e.g., folder/image) "
-                        "and date placeholders like %date:yyyy-MM-dd%."
-                    )
+                        "The prefix for the file to save. This may include formatting "
+                        "information such as %date:yyyy-MM-dd% or %date:yyyy_MM_dd_HHmmss%.\n"
+                        "yyyy: year, MM: month, dd: day, HH: hour, mm: minute, ss: second."
+                    ),
                 }),
             },
             "optional": {
@@ -142,19 +142,32 @@ class MeldNexus:
         prompt=None,
         extra_pnginfo=None,
     ):
-        # Resolve placeholders in filename_prefix
-        now = datetime.datetime.now()
+        if filename_prefix is None:
+            filename_prefix = "MeldFlow"
 
-        # Handle %date:format%
-        def replace_date(match):
-            fmt = match.group(1)
-            # Convert common date formats to Python strftime formats
-            fmt = fmt.replace("yyyy", "%Y").replace("MM", "%m").replace("dd", "%d")
-            fmt = fmt.replace("HH", "%H").replace("mm", "%M").replace("ss", "%S")
-            return now.strftime(fmt)
+        filename_prefix += self.prefix_append
 
-        filename_prefix = re.sub(r"%date:(.*?)%", replace_date, filename_prefix)
-        filename_prefix = filename_prefix.replace("%date%", now.strftime("%Y-%m-%d"))
+        # Resolve tokens like %NodeName.widget% and %date:format%
+        import re
+        from datetime import datetime
+
+        tokens = re.findall(r'%(.*?)%', filename_prefix)
+        for token in tokens:
+            if token.startswith('date:'):
+                format_str = token[5:]
+                # Simple mapper for common date formats
+                py_format = format_str.replace('yyyy', '%Y').replace('yy', '%y') \
+                                     .replace('MM', '%m').replace('dd', '%d') \
+                                     .replace('HH', '%H').replace('mm', '%M') \
+                                     .replace('ss', '%S')
+                try:
+                    formatted_date = datetime.now().strftime(py_format)
+                    filename_prefix = filename_prefix.replace(f'%{token}%', formatted_date)
+                except Exception:
+                    pass
+            elif token == 'date':
+                formatted_date = datetime.now().strftime('%Y-%m-%d')
+                filename_prefix = filename_prefix.replace('%date%', formatted_date)
 
         full_output_folder, filename, counter, subfolder, filename_prefix = folder_paths.get_save_image_path(
             filename_prefix, self.output_dir, images[0].shape[1], images[0].shape[0]
@@ -190,6 +203,8 @@ class MeldNexus:
         pos_list = [p.strip() for p in resolved_positive.split(',') if p.strip()] if resolved_positive else []
         neg_list = [n.strip() for n in resolved_negative.split(',') if n.strip()] if resolved_negative else []
 
+        from PIL.PngImagePlugin import PngInfo
+
         for (batch_number, image) in enumerate(images):
             # Tensor [B, H, W, C] -> PIL
             # ComfyUI images are [B, H, W, C] Tensors
@@ -199,7 +214,6 @@ class MeldNexus:
             # Save metadata to PNG
             metadata = None
             if not args.disable_metadata:
-                 from PIL.PngImagePlugin import PngInfo
                  metadata = PngInfo()
                  if prompt is not None:
                      metadata.add_text("prompt", json.dumps(prompt))
@@ -208,8 +222,8 @@ class MeldNexus:
                          metadata.add_text(x, json.dumps(extra_pnginfo[x]))
 
             filename_with_batch_num = filename.replace("%batch_num%", str(batch_number))
-            file = f"{filename_with_batch_num}_{counter:05}_.png"
-            img.save(os.path.join(full_output_folder, file), pnginfo=metadata, compress_level=4)
+            file = f"{filename_with_batch_num}_{counter:05}.png"
+            img.save(os.path.join(full_output_folder, file), pnginfo=metadata, compress_level=self.compress_level)
 
             timestamp = time.time()
 
@@ -315,14 +329,20 @@ async def list_images(request):
 async def delete_image(request):
     try:
         data = await request.json()
-        filename = data.get("filename")
-        if not filename:
-            return web.json_response({"error": "filename is required"}, status=400)
+        image_id = data.get("id")
+        filename = data.get("filename") # Fallback for old frontend
+
+        if not image_id and not filename:
+            return web.json_response({"error": "id or filename is required"}, status=400)
 
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
 
-        cursor.execute("UPDATE images SET is_deleted = 1 WHERE filename = ?", (filename,))
+        if image_id:
+            cursor.execute("UPDATE images SET is_deleted = 1 WHERE id = ?", (image_id,))
+        else:
+            cursor.execute("UPDATE images SET is_deleted = 1 WHERE filename = ?", (filename,))
+
         if cursor.rowcount == 0:
             conn.close()
             return web.json_response({"error": "Image not found"}, status=404)

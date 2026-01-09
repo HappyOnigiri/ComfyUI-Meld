@@ -78,9 +78,11 @@ app.registerExtension({
 
                 files.forEach(f => {
                     const filename = f.filename || f; // Fallback if string
+                    const subfolder = f.subfolder || "";
+                    const fullFilename = subfolder ? `${subfolder}/${filename}` : filename;
 
                     const img = $el("img", {
-                        src: `/view?filename=${filename}&type=output`,
+                        src: `/view?filename=${encodeURIComponent(fullFilename)}&type=output`,
                         style: {
                             maxWidth: "100%",
                             maxHeight: "200px",
@@ -123,7 +125,7 @@ app.registerExtension({
                                 try {
                                     const res = await api.fetchApi("/meld-nexus/delete", {
                                         method: "POST",
-                                        body: JSON.stringify({ filename: filename })
+                                        body: JSON.stringify({ id: f.id })
                                     });
                                     if(res.ok) {
                                         updateGallery(displayEl);
@@ -153,7 +155,7 @@ app.registerExtension({
                             gap: "4px"
                         },
                         html: `
-                            <div style="font-size: 10px; color: #aaa; word-break: break-all; margin-bottom: 4px;">${filename}</div>
+                            <div style="font-size: 10px; color: #aaa; word-break: break-all; margin-bottom: 4px;">${fullFilename}</div>
 
                             <div style="font-weight: bold; color: #888; font-size: 10px;">Positive</div>
                             <div style="max-height: 60px; overflow-y: auto; white-space: pre-wrap; font-size: 10px; background: rgba(0,0,0,0.2); padding: 4px; border-radius: 3px;">${f.positive || "-"}</div>
