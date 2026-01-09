@@ -77,8 +77,10 @@ app.registerExtension({
                 }
 
                 files.forEach(f => {
+                    const filename = f.filename || f; // Fallback if string
+
                     const img = $el("img", {
-                        src: `/view?filename=${f}&type=output`,
+                        src: `/view?filename=${filename}&type=output`,
                         style: {
                             maxWidth: "100%",
                             borderRadius: "4px",
@@ -86,6 +88,67 @@ app.registerExtension({
                             display: "block"
                         },
                         onclick: () => window.open(img.src, "_blank")
+                    });
+
+                    // Delete Button
+                    const deleteBtn = $el("button", {
+                        text: "Delete",
+                        style: {
+                            marginTop: "5px",
+                            padding: "5px 10px",
+                            background: "rgba(200, 50, 50, 0.8)",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "3px",
+                            cursor: "pointer",
+                            width: "100%",
+                            fontSize: "12px"
+                        },
+                        onclick: async (e) => {
+                            e.stopPropagation();
+                            if(confirm("Are you sure you want to delete this image?")) {
+                                try {
+                                    const res = await api.fetchApi("/simple-manager/delete", {
+                                        method: "POST",
+                                        body: JSON.stringify({ filename: filename })
+                                    });
+                                    if(res.ok) {
+                                        updateGallery(displayEl);
+                                    } else {
+                                        alert("Failed to delete.");
+                                    }
+                                } catch(err) {
+                                    console.error(err);
+                                    alert("An error occurred.");
+                                }
+                            }
+                        }
+                    });
+
+                    // Metadata Section
+                    const tagsHtml = (f.tags && f.tags.length) ?
+                        f.tags.map(t => `<span style="background: #555; padding: 2px 6px; margin-right: 4px; border-radius: 4px; font-size: 10px; display: inline-block; margin-bottom: 2px;">${t}</span>`).join("") :
+                        "<span style='color: #666;'>-</span>";
+
+                    const details = $el("div", {
+                        style: {
+                            borderTop: "1px dashed #444",
+                            marginTop: "8px",
+                            paddingTop: "8px",
+                            color: "#ccc",
+                            fontSize: "11px",
+                            overflow: "hidden"
+                        },
+                        html: `
+                            <div style="margin-bottom: 2px; font-weight: bold; color: #888; font-size: 10px;">Positive</div>
+                            <div style="max-height: 80px; overflow-y: auto; margin-bottom: 6px; white-space: pre-wrap; font-size: 10px; background: rgba(0,0,0,0.2); padding: 4px; border-radius: 3px;">${f.positive || "-"}</div>
+
+                            <div style="margin-bottom: 2px; font-weight: bold; color: #888; font-size: 10px;">Negative</div>
+                            <div style="max-height: 60px; overflow-y: auto; margin-bottom: 6px; white-space: pre-wrap; font-size: 10px; background: rgba(0,0,0,0.2); padding: 4px; border-radius: 3px;">${f.negative || "-"}</div>
+
+                            <div style="margin-bottom: 2px; font-weight: bold; color: #888; font-size: 10px;">Tags</div>
+                            <div style="font-size: 10px;">${tagsHtml}</div>
+                        `
                     });
 
                     const row = $el("div", {
@@ -106,18 +169,10 @@ app.registerExtension({
                             style: { width: "100%", marginBottom: "5px" }
                         }, [
                             img,
-                            $el("div", { text: f, style: { fontSize: "11px", color: "#aaa", marginTop: "5px", wordBreak: "break-all" } })
+                            $el("div", { text: filename, style: { fontSize: "10px", color: "#aaa", marginTop: "4px", wordBreak: "break-all", textAlign: "center" } }),
+                            deleteBtn
                         ]),
-
-                        $el("div", {
-                            style: {
-                                borderTop: "1px dashed #444",
-                                paddingTop: "5px",
-                                color: "#666",
-                                fontSize: "11px"
-                            },
-                            text: "(Details & Tags area)"
-                        })
+                        details
                     ]);
 
                     displayEl.appendChild(row);
