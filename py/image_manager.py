@@ -1,5 +1,7 @@
+import datetime
 import json
 import os
+import re
 import sqlite3
 import time
 
@@ -106,7 +108,14 @@ class MeldNexus:
         return {
             "required": {
                 "images": ("IMAGE", ),
-                "filename_prefix": ("STRING", {"default": "MeldFlow"}),
+                "filename_prefix": ("STRING", {
+                    "default": "MeldFlow",
+                    "tooltip": (
+                        "The prefix for the saved image name. "
+                        "You can use slashes (/) for subdirectories (e.g., folder/image) "
+                        "and date placeholders like %date:yyyy-MM-dd%."
+                    )
+                }),
             },
             "optional": {
                 "positive": ("STRING", {"forceInput": True, "multiline": True}),
@@ -133,6 +142,20 @@ class MeldNexus:
         prompt=None,
         extra_pnginfo=None,
     ):
+        # Resolve placeholders in filename_prefix
+        now = datetime.datetime.now()
+
+        # Handle %date:format%
+        def replace_date(match):
+            fmt = match.group(1)
+            # Convert common date formats to Python strftime formats
+            fmt = fmt.replace("yyyy", "%Y").replace("MM", "%m").replace("dd", "%d")
+            fmt = fmt.replace("HH", "%H").replace("mm", "%M").replace("ss", "%S")
+            return now.strftime(fmt)
+
+        filename_prefix = re.sub(r"%date:(.*?)%", replace_date, filename_prefix)
+        filename_prefix = filename_prefix.replace("%date%", now.strftime("%Y-%m-%d"))
+
         full_output_folder, filename, counter, subfolder, filename_prefix = folder_paths.get_save_image_path(
             filename_prefix, self.output_dir, images[0].shape[1], images[0].shape[0]
         )
