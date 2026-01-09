@@ -266,6 +266,9 @@ class MeldNexus:
         conn.commit()
         conn.close()
 
+        # Notify the frontend that images have been saved (Rule 2: Real-time update)
+        server.PromptServer.instance.send_sync("meld-nexus-image-saved", {"count": len(results)})
+
         return {"ui": {"images": results}}
 
 # --- API Definition ---

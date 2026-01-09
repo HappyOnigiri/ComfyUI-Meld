@@ -205,14 +205,20 @@ app.registerExtension({
         app.ui.meldNexus = {
             refresh: () => updateGallery(contentDiv),
             isVisible: () => {
-                // Check if our sidebar tab is active
-                return document.querySelector(`.comfy-sidebar-tab-content[data-tab-id="meld-flow-gallery"]:not([style*="display: none"])`) !== null;
+                // More robust check for visibility: if the element is attached to the DOM and not hidden
+                return contentDiv.offsetParent !== null;
             },
             toggle: () => {
-                // In new UI, we usually just activate the tab
                 app.extensionManager.setSidebarTabActive("meld-flow-gallery");
             }
         };
+
+        // Rule 2: Listen for real-time updates from backend
+        // Use app.api to ensure we're using the correct instance
+        app.api.addEventListener("meld-nexus-image-saved", (ev) => {
+            // Refresh regardless of visibility so it's ready when the user opens it
+            app.ui.meldNexus.refresh();
+        });
 
         app.extensionManager.registerSidebarTab({
             id: 'meld-flow-gallery',
