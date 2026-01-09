@@ -1,0 +1,122 @@
+# ComfyUI-Meld-Flow
+
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![ComfyUI](https://img.shields.io/badge/ComfyUI-Registry-green)](https://registry.comfy.org/)
+
+[English README](README.md)
+
+**ワークフローを "融合（Meld）" し、制作プロセスを次世代の効率へ。**
+
+`ComfyUI-Meld-Flow` は、複雑化した ComfyUI のワークフローを統合・整理し、制作現場における「保守性の向上」と「ヒューマンエラーの削減」を実現するために設計された高品質ノードパックです。
+
+従来のワークフローで発生しがちだった、数十個のノードが複雑に絡み合う「スパゲッティ状態」を解消。複数の工程を単一の高性能ノードへと集約（Meld）することで、キャンバスの視認性を劇的に改善します。
+
+---
+
+## 本プロジェクトの設計思想
+
+本ツールは、単なる便利ツールの枠を超え、業務レベルの制作パイプラインに耐えうる「インフラストラクチャ」を目指して開発されました。
+
+1. **Dependancy-Free（依存関係の極小化）** 外部ライブラリの追加インストールを原則不要とし、Python標準ライブラリおよびComfyUI標準環境のみで動作します。環境構築時のトラブル（Dependency Hell）を回避し、共有・移行が容易です。
+2. **Privacy-Focus（プライバシー配慮）** 画像メタデータから生成に関する情報（プロンプトやワークフローなど）のみを抽出し、GPS情報などのプライベートなEXIFデータは読み込まない設計となっています。また、ファイル操作においては指定されたディレクトリおよびそのサブディレクトリ以下のみを読み込み対象とします（適切なアクセス権限管理を推奨します）。
+3. **Atomic Operations（処理の集約化）** 「ファイル読み込み→テキスト抽出→文字列結合→条件分岐」といった一連の処理を一つのノード内で完結。データ伝達のノイズを減らし、計算資源を最適化します。
+
+---
+
+## 収録ノードの概要
+
+### 1. Meld Prompt Constructor (高度プロンプト構築)
+複数の外部テキストファイルや画像メタデータから、動的にプロンプトを生成・構成します。
+* **メリット**: キャンバス上のテキストノードを大幅に削減。複数のプロンプトパターンを外部ファイルで管理し、自動的に切り替える運用に最適です。
+
+### 2. Meld Auto-Exposure (画像露出最適化)
+入力画像の輝度分布を解析し、生成に適した最適な明るさとコントラストへ自動補正します。
+* **メリット**: img2imgやControlNetなど、入力画像の品質が生成結果に直結するワークフローにおいて、前処理を自動化し結果を安定させます。
+
+---
+
+## ノードの詳細な使い方
+
+### 1. Meld Prompt Constructor
+
+このノードはワークフロー構築の核となるノードで、洗練されたランダム化エンジンによって動的なプロンプト生成を可能にします。
+
+#### ランダムプロンプトの構文
+
+テキスト入力欄や `.txt` ファイル内で以下の構文を直接使用できます。
+
+* **シンプルな選択**: `{boy|girl|dog}`
+  * リストの中からランダムに1つを選択します。
+* **重み付きの選択**: `{0.1::rare|common}`
+  * `::` の前の数値は選択確率の重みです（デフォルト: 1.0）。この例では、"rare" が選ばれる確率は非常に低くなります。
+* **動的なネガティブプロンプト抽出**: `-monochrome` または `-(bad quality:1.2)`
+  * ハイフン `-` で始まる単語は**自動的に Negative Prompt 出力に移動**し、ハイフンは削除されます。
+
+**Outputs (出力):**
+* **positive_prompt**: 処理ロジック適用後の結合されたプロンプト。
+* **negative_prompt**: ハイフン（`-`）構文によって抽出されたネガティブキーワード。
+
+<details>
+<summary><b>▶ クリックして詳細な構文とファイルルールを表示</b></summary>
+
+#### ファイルとパターンのルール
+
+* **Directory**: `.txt` ファイルが保存されているフォルダを指定します。
+* **File Pattern**: ファイルをフィルタリングします（例: `*.txt`）。アンダースコア `_` で始まるファイルは無視されます。
+* **Selection Method**:
+  * `random`: 各ファイルからランダムに1行を選択します。
+  * `sequential`: `seed` に基づいて順番に行を選択します。
+* **Use Break**: 有効にすると、異なるファイルからのプロンプトを `BREAK` キーワードで結合します。
+
+#### コメントシステム
+
+標準的なコメント構文を使用して、プロンプトファイルを整理・管理できます。
+
+* `// コメント` または `# コメント`: 1行コメント。
+* `/* コメント */`: 複数行のブロックコメント。
+
+</details>
+
+### 2. Meld Auto-Exposure
+
+生成画像の安定性を高めるためのプロフェッショナルグレードの輝度補正を提供します。
+
+* **解析と調整**: 画像の輝度分布を自動的に解析し、明るさとコントラストを最適なレベルに調整します。
+* **実戦仕様**: ライティングの一貫性が重要となる ControlNet や img2img パイプラインの前処理に最適です。
+
+---
+
+## インストール方法
+
+### 推奨：ComfyUI Manager または Registry
+ComfyUI Managerの検索画面から **「Meld Flow」** と入力し、インストールしてください。
+または、CLI（コマンドライン）より以下のコマンドを実行します。
+
+```bash
+comfy node install NodeMeld/ComfyUI-Meld-Flow
+
+```
+
+### 手動インストール
+
+`custom_nodes` ディレクトリで以下のコマンドを実行し、ComfyUIを再起動してください。
+
+```bash
+git clone [https://github.com/NodeMeld/ComfyUI-Meld-Flow.git](https://github.com/NodeMeld/ComfyUI-Meld-Flow.git)
+
+```
+
+---
+
+## 仕様と要件
+
+* **対応OS**: Windows / Linux / macOS
+* **Python**: 3.10以上推奨
+* **依存関係**: 特になし（ComfyUI標準環境で動作）
+* **ライセンス**: Apache License 2.0 (商用利用可、改変可)
+
+---
+
+**開発元**: [NodeMeld](https://www.google.com/search?q=https://github.com/NodeMeld)
+
+**お問い合わせ/Issue**: [GitHub Issues](https://www.google.com/search?q=https://github.com/NodeMeld/ComfyUI-Meld-Flow/issues)

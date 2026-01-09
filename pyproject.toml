@@ -1,0 +1,52 @@
+[project]
+name = "comfyui-meld-flow"
+description = "High-performance nodes for Prompt Construction, Metadata Extraction, and Workflow Consolidation."
+version = "0.1.0"
+license = { text = "Apache-2.0" }
+authors = [
+    { name = "NodeMeld", email = "nodemeld@gmail.com" }
+]
+requires-python = ">=3.10,<3.12"
+readme = "README.md"
+keywords = ["comfyui", "prompt-constructor", "metadata", "exif", "workflow", "optimization", "meld"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Framework :: IDE",
+]
+dependencies = []
+
+[project.urls]
+Repository = "https://github.com/NodeMeld/ComfyUI-Meld-Flow"
+"Bug Tracker" = "https://github.com/NodeMeld/ComfyUI-Meld-Flow/issues"
+
+[tool.comfy]
+PublisherId = "nodemeld"
+DisplayName = "Meld-Flow: Workflow Consolidator"
+Icon = ""
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "N",    # pep8-naming
+    "I",    # isort
+    "W",    # pycodestyle warnings
+]
+ignore = [
+    "N802", # Function name should be lowercase
+    "N803", # Argument name should be lowercase
+    "N806", # Variable name should be lowercase
+    "N812", # Lowercase functional imported as non-lowercase F
+    "N999", # Invalid module name
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["py"]

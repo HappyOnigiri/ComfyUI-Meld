@@ -1,0 +1,16 @@
+.git/
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+venv/
+env/
+.tox/
+.coverage
+htmlcov/
+*.log
+data/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
