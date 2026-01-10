@@ -34,13 +34,15 @@ check-only-ascii:
 		echo "All files are ASCII (English) only."; \
 	fi
 
+REPOMIX_IGNORE := **/__pycache__/**,**/node_modules/**,**/.git/**,tmp/**,web/js/gallery_extension.js,**/package-lock.json,**/.mypy_cache/**,**/.pytest_cache/**,**/.ruff_cache/**,**/.venv/**,env/**,**/.cursor/**,**/.DS_Store
+
 repomix: repomix-full repomix-src repomix-tests
 
 repomix-full:
-	npx --yes repomix --ignore "**/__pycache__/**,**/node_modules/**,**/.git/**" --output tmp/repomix-full.xml
+	npx --yes repomix --ignore "$(REPOMIX_IGNORE)" --output tmp/repomix-full.xml
 
 repomix-src:
-	npx --yes repomix --ignore "**/__pycache__/**,**/node_modules/**,**/.git/**,tests/**" --output tmp/repomix-src.xml
+	npx --yes repomix --ignore "$(REPOMIX_IGNORE),tests/**" --output tmp/repomix-src.xml
 
 repomix-tests:
-	npx --yes repomix --include "tests/**,pyproject.toml" --output tmp/repomix-tests.xml
+	npx --yes repomix --include "tests/**,pyproject.toml" --ignore "$(REPOMIX_IGNORE)" --output tmp/repomix-tests.xml
