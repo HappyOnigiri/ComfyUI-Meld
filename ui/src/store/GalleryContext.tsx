@@ -1,7 +1,15 @@
-import React, { createContext, useContext, useReducer, ReactNode, useCallback, useEffect } from 'react';
-import { GalleryState, GalleryAction, MeldImage } from '../types';
-import { galleryReducer, initialState } from './galleryReducer';
-import * as api from '../api';
+import type React from "react";
+import {
+    createContext,
+    type ReactNode,
+    useCallback,
+    useContext,
+    useEffect,
+    useReducer,
+} from "react";
+import * as api from "../api";
+import type { GalleryAction, GalleryState } from "../types";
+import { galleryReducer, initialState } from "./galleryReducer";
 
 interface GalleryContextType {
     state: GalleryState;
@@ -16,12 +24,15 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({ children })
     const [state, dispatch] = useReducer(galleryReducer, initialState);
 
     const refreshImages = useCallback(async () => {
-        dispatch({ type: 'SET_LOADING', payload: true });
+        dispatch({ type: "SET_LOADING", payload: true });
         try {
             const images = await api.fetchImages();
-            dispatch({ type: 'SET_IMAGES', payload: images });
-        } catch (err: any) {
-            dispatch({ type: 'SET_ERROR', payload: err.message });
+            dispatch({ type: "SET_IMAGES", payload: images });
+        } catch (err: unknown) {
+            dispatch({
+                type: "SET_ERROR",
+                payload: err instanceof Error ? err.message : String(err),
+            });
         }
     }, []);
 
@@ -32,13 +43,16 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({ children })
         const confirmMsg = `Are you sure you want to delete the selected ${ids.length} images?\n\n[WARNING]\nPhysical files will also be permanently deleted. This operation cannot be undone.`;
 
         if (window.confirm(confirmMsg)) {
-            dispatch({ type: 'SET_LOADING', payload: true });
+            dispatch({ type: "SET_LOADING", payload: true });
             try {
                 await api.deleteImages(ids, true);
-                dispatch({ type: 'CLEAR_SELECTION' });
+                dispatch({ type: "CLEAR_SELECTION" });
                 await refreshImages();
-            } catch (err: any) {
-                dispatch({ type: 'SET_ERROR', payload: err.message });
+            } catch (err: unknown) {
+                dispatch({
+                    type: "SET_ERROR",
+                    payload: err instanceof Error ? err.message : String(err),
+                });
             }
         }
     }, [state.selectedIds, refreshImages]);
@@ -47,9 +61,9 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({ children })
         const handleRefresh = () => {
             refreshImages();
         };
-        window.addEventListener('meld-nexus-refresh', handleRefresh);
+        window.addEventListener("meld-nexus-refresh", handleRefresh);
         return () => {
-            window.removeEventListener('meld-nexus-refresh', handleRefresh);
+            window.removeEventListener("meld-nexus-refresh", handleRefresh);
         };
     }, [refreshImages]);
 
@@ -67,7 +81,7 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({ children })
 export const useGallery = () => {
     const context = useContext(GalleryContext);
     if (context === undefined) {
-        throw new Error('useGallery must be used within a GalleryProvider');
+        throw new Error("useGallery must be used within a GalleryProvider");
     }
     return context;
 };

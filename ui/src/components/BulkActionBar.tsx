@@ -1,6 +1,6 @@
-import React from 'react';
-import { useGallery } from '../store/GalleryContext';
-import { Trash2, X } from 'lucide-react';
+import { Trash2, X } from "lucide-react";
+import type React from "react";
+import { useGallery } from "../store/GalleryContext";
 
 export const BulkActionBar: React.FC = () => {
     const { state, dispatch, deleteSelected } = useGallery();
@@ -13,18 +13,20 @@ export const BulkActionBar: React.FC = () => {
             <span className="meld-bulk-bar__info">{count} items selected</span>
 
             <button
+                type="button"
                 className="meld-bulk-bar__button meld-bulk-bar__button--delete"
                 onClick={deleteSelected}
             >
-                <Trash2 size={16} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+                <Trash2 size={16} style={{ marginRight: "8px", verticalAlign: "middle" }} />
                 Delete
             </button>
 
             <button
+                type="button"
                 className="meld-bulk-bar__button meld-bulk-bar__button--cancel"
-                onClick={() => dispatch({ type: 'CLEAR_SELECTION' })}
+                onClick={() => dispatch({ type: "CLEAR_SELECTION" })}
             >
-                <X size={16} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+                <X size={16} style={{ marginRight: "8px", verticalAlign: "middle" }} />
                 Cancel
             </button>
         </div>

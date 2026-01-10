@@ -1,7 +1,10 @@
-// @ts-ignore
-import { api } from '../../../scripts/api.js';
+// @ts-expect-error
+import { api } from "../../../scripts/api.js";
+
+// biome-ignore lint/suspicious/noExplicitAny: ComfyUI global
 (window as any).api = api;
-import { MeldImage } from './types';
+
+import type { MeldImage } from "./types";
 
 export const fetchImages = async (): Promise<MeldImage[]> => {
     const res = await api.fetchApi("/meld-nexus/list");
@@ -17,8 +20,8 @@ export const deleteImages = async (ids: number[], deleteFiles: boolean = true): 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             ids,
-            delete_files: deleteFiles
-        })
+            delete_files: deleteFiles,
+        }),
     });
     if (!res.ok) {
         const errData = await res.json();
@@ -26,11 +29,15 @@ export const deleteImages = async (ids: number[], deleteFiles: boolean = true): 
     }
 };
 
-export const registerImage = async (image: { filename: string; subfolder: string; type: string }): Promise<void> => {
+export const registerImage = async (image: {
+    filename: string;
+    subfolder: string;
+    type: string;
+}): Promise<void> => {
     const res = await api.fetchApi("/meld-nexus/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(image)
+        body: JSON.stringify(image),
     });
     if (!res.ok) {
         throw new Error("Failed to register image");

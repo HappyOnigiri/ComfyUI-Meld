@@ -1,4 +1,4 @@
-import { GalleryState, GalleryAction, MeldImage } from '../types';
+import type { GalleryAction, GalleryState, MeldImage } from "../types";
 
 export const initialState: GalleryState = {
     images: [],
@@ -6,30 +6,30 @@ export const initialState: GalleryState = {
     isLoading: false,
     error: null,
     lastUpdated: Date.now(),
-    viewMode: 'list',
+    viewMode: "list",
 };
 
 export function galleryReducer(state: GalleryState, action: GalleryAction): GalleryState {
     switch (action.type) {
-        case 'SET_IMAGES':
+        case "SET_IMAGES":
             return {
                 ...state,
                 images: action.payload,
                 isLoading: false,
                 error: null,
             };
-        case 'SET_LOADING':
+        case "SET_LOADING":
             return {
                 ...state,
                 isLoading: action.payload,
             };
-        case 'SET_ERROR':
+        case "SET_ERROR":
             return {
                 ...state,
                 error: action.payload,
                 isLoading: false,
             };
-        case 'TOGGLE_SELECT': {
+        case "TOGGLE_SELECT": {
             const newSelectedIds = new Set<number>(state.selectedIds);
             if (newSelectedIds.has(action.payload)) {
                 newSelectedIds.delete(action.payload);
@@ -41,22 +41,22 @@ export function galleryReducer(state: GalleryState, action: GalleryAction): Gall
                 selectedIds: newSelectedIds,
             };
         }
-        case 'SELECT_ALL':
+        case "SELECT_ALL":
             return {
                 ...state,
                 selectedIds: new Set<number>(state.images.map((img: MeldImage) => img.id)),
             };
-        case 'CLEAR_SELECTION':
+        case "CLEAR_SELECTION":
             return {
                 ...state,
                 selectedIds: new Set<number>(),
             };
-        case 'SET_VIEW_MODE':
+        case "SET_VIEW_MODE":
             return {
                 ...state,
                 viewMode: action.payload,
             };
-        case 'REFRESH':
+        case "REFRESH":
             return {
                 ...state,
                 lastUpdated: Date.now(),

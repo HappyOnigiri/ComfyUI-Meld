@@ -9,7 +9,7 @@ export interface MeldImage {
     tags: string[];
 }
 
-export type GalleryViewMode = 'grid' | 'list';
+export type GalleryViewMode = "grid" | "list";
 
 export interface GalleryState {
     images: MeldImage[];
@@ -21,11 +21,11 @@ export interface GalleryState {
 }
 
 export type GalleryAction =
-    | { type: 'SET_IMAGES'; payload: MeldImage[] }
-    | { type: 'SET_LOADING'; payload: boolean }
-    | { type: 'SET_ERROR'; payload: string | null }
-    | { type: 'TOGGLE_SELECT'; payload: number }
-    | { type: 'SELECT_ALL' }
-    | { type: 'CLEAR_SELECTION' }
-    | { type: 'SET_VIEW_MODE'; payload: GalleryViewMode }
-    | { type: 'REFRESH' };
+    | { type: "SET_IMAGES"; payload: MeldImage[] }
+    | { type: "SET_LOADING"; payload: boolean }
+    | { type: "SET_ERROR"; payload: string | null }
+    | { type: "TOGGLE_SELECT"; payload: number }
+    | { type: "SELECT_ALL" }
+    | { type: "CLEAR_SELECTION" }
+    | { type: "SET_VIEW_MODE"; payload: GalleryViewMode }
+    | { type: "REFRESH" };

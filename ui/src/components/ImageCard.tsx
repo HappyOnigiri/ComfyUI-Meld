@@ -1,6 +1,6 @@
-import React from 'react';
-import { MeldImage } from '../types';
-import { useGallery } from '../store/GalleryContext';
+import type React from "react";
+import { useGallery } from "../store/GalleryContext";
+import type { MeldImage } from "../types";
 
 interface ImageCardProps {
     image: MeldImage;
@@ -11,29 +11,40 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
     const isSelected = state.selectedIds.has(image.id);
 
     const fullFilename = image.subfolder ? `${image.subfolder}/${image.filename}` : image.filename;
-    const imgSrc = `/view?filename=${encodeURIComponent(fullFilename)}&type=${image.type || 'output'}`;
+    const imgSrc = `/view?filename=${encodeURIComponent(fullFilename)}&type=${image.type || "output"}`;
 
     const handleClick = (e: React.MouseEvent) => {
         // Selection mode if Ctrl/Meta key is pressed or something is already selected
         if (e.ctrlKey || e.metaKey || state.selectedIds.size > 0) {
             e.preventDefault();
             e.stopPropagation();
-            dispatch({ type: 'TOGGLE_SELECT', payload: image.id });
+            dispatch({ type: "TOGGLE_SELECT", payload: image.id });
         } else {
             // Open image on single click (maintain existing behavior)
             window.open(imgSrc, "_blank");
         }
     };
 
-    const handleContainerClick = (e: React.MouseEvent) => {
+    const handleContainerClick = (_e: React.MouseEvent) => {
         // Always toggle selection when clicking the entire card (maintain existing behavior)
-        dispatch({ type: 'TOGGLE_SELECT', payload: image.id });
+        dispatch({ type: "TOGGLE_SELECT", payload: image.id });
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            dispatch({ type: "TOGGLE_SELECT", payload: image.id });
+        }
     };
 
     return (
+        // biome-ignore lint/a11y/useSemanticElements: Image card is a complex interactive element
         <div
-            className={`meld-image-card ${isSelected ? 'meld-image-card--selected' : ''}`}
+            className={`meld-image-card ${isSelected ? "meld-image-card--selected" : ""}`}
             onClick={handleContainerClick}
+            onKeyDown={handleKeyDown}
+            role="button"
+            tabIndex={0}
         >
             <div className="meld-image-card__thumbnail-wrapper">
                 <img
@@ -45,6 +56,13 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
                         e.stopPropagation();
                         handleClick(e);
                     }}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            handleClick(e as unknown as React.MouseEvent);
+                        }
+                    }}
                 />
             </div>
             <div className="meld-image-card__details">
@@ -54,16 +72,26 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
                 <div className="meld-image-card__meta-content">{image.positive || "-"}</div>
 
                 <div className="meld-image-card__meta-label">Negative</div>
-                <div className="meld-image-card__meta-content" style={{ maxHeight: '40px' }}>{image.negative || "-"}</div>
+                <div className="meld-image-card__meta-content" style={{ maxHeight: "40px" }}>
+                    {image.negative || "-"}
+                </div>
 
                 <div className="meld-image-card__meta-label">Tags</div>
                 <div className="meld-image-card__tags">
                     {image.tags && image.tags.length > 0 ? (
-                        image.tags.map((tag, i) => (
-                            <span key={i} className="meld-image-card__tag">{tag}</span>
-                        ))
+                        image.tags.map((tag, i) => {
+                            return (
+                                <span
+                                    // biome-ignore lint/suspicious/noArrayIndexKey: tags don't have unique IDs
+                                    key={`${tag}-${i}`}
+                                    className="meld-image-card__tag"
+                                >
+                                    {tag}
+                                </span>
+                            );
+                        })
                     ) : (
-                        <span style={{ color: '#666' }}>-</span>
+                        <span style={{ color: "#666" }}>-</span>
                     )}
                 </div>
             </div>
