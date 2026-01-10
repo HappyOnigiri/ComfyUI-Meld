@@ -1,0 +1,178 @@
+:root {
+  --meld-bg-color: var(--comfy-menu-bg, #222);
+  --meld-text-color: var(--comfy-input-text, #eee);
+  --meld-accent-color: #4488ff;
+  --meld-danger-color: #ff4444;
+  --meld-border-color: #444;
+  --meld-card-bg: rgba(255, 255, 255, 0.05);
+  --meld-card-selected-bg: rgba(68, 136, 255, 0.2);
+}
+
+.meld-gallery {
+  font-family: var(--comfy-ui-font, sans-serif);
+  color: var(--meld-text-color);
+  padding: 10px;
+  padding-bottom: 70px;
+}
+
+.meld-gallery__loading {
+  text-align: center;
+  padding: 20px;
+  color: #888;
+}
+
+.meld-gallery__error {
+  color: var(--meld-danger-color);
+  padding: 10px;
+  background: rgba(255, 0, 0, 0.1);
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.meld-gallery__empty {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+/* ImageCard Styles */
+.meld-image-card {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  background: var(--meld-card-bg);
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  position: relative;
+  gap: 10px;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.meld-image-card:hover {
+  border-color: #666;
+}
+
+.meld-image-card--selected {
+  background: var(--meld-card-selected-bg);
+  border-color: var(--meld-accent-color);
+}
+
+.meld-image-card__thumbnail-wrapper {
+  flex: 0 0 120px;
+  min-width: 120px;
+}
+
+.meld-image-card__thumbnail {
+  max-width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  border-radius: 4px;
+  display: block;
+}
+
+.meld-image-card__details {
+  flex: 1;
+  min-width: 0;
+  color: #ccc;
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.meld-image-card__filename {
+  font-size: 10px;
+  color: #aaa;
+  word-break: break-all;
+  margin-bottom: 4px;
+}
+
+.meld-image-card__meta-label {
+  font-weight: bold;
+  color: #888;
+  font-size: 10px;
+}
+
+.meld-image-card__meta-content {
+  max-height: 60px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  font-size: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 4px;
+  border-radius: 3px;
+}
+
+.meld-image-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.meld-image-card__tag {
+  background: #555;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+}
+
+/* BulkActionBar Styles */
+.meld-bulk-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
+  background: #222;
+  border-top: 1px solid var(--meld-border-color);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  z-index: 1000;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
+  gap: 15px;
+}
+
+.meld-bulk-bar__info {
+  color: #eee;
+  font-size: 14px;
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.meld-bulk-bar__button {
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: opacity 0.2s;
+}
+
+.meld-bulk-bar__button:hover {
+  opacity: 0.8;
+}
+
+.meld-bulk-bar__button--delete {
+  background: var(--meld-danger-color);
+  color: white;
+  padding: 8px 20px;
+}
+
+.meld-bulk-bar__button--cancel {
+  background: #444;
+  color: #ccc;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
