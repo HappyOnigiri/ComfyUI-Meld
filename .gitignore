@@ -59,5 +59,14 @@ local_check_scripts/
 tmp/*
 data/*
 
+# Node / JS
+node_modules/
+package.json
+package-lock.json
+!ui/package.json
+!ui/package-lock.json
+*.bak
+web/js/style.css
+
 # Keep directories
 !.gitkeep

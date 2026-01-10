@@ -17,11 +17,35 @@ jobs:
           python-version: '3.10'
           cache: 'pip'
 
-      - name: Install dependencies
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: ui/package-lock.json
+
+      - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
           pip install torch --index-url https://download.pytorch.org/whl/cpu
           pip install numpy Pillow ruff mypy aiohttp
+
+      - name: Install UI dependencies
+        working-directory: ui
+        run: npm ci
+
+      - name: Build UI
+        working-directory: ui
+        run: npm run build
+
+      - name: Check for JS build diff
+        run: |
+          if [ -n "$(git diff --name-only web/js/)" ]; then
+            echo "Error: Files in web/js/ are out of sync with ui/src."
+            echo "Please run 'npm run build' in the 'ui' directory and commit the changes."
+            git diff web/js/
+            exit 1
+          fi
 
       - name: Run CI
         run: make ci

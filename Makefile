@@ -1,6 +1,12 @@
 .PHONY: ci test-all lint repomix local-checks
 
-ci: local-checks check-only-ascii lint test-all
+ci: local-checks check-only-ascii lint build-ui test-all
+
+build-ui:
+	cd ui && npm install && npm run build
+
+watch-ui:
+	cd ui && npm install && npm run dev
 
 local-checks:
 	@if [ -d "local_check_scripts" ]; then \
@@ -21,7 +27,12 @@ lint: check-only-ascii
 
 check-only-ascii:
 	@echo "Checking for non-ASCII characters..."
-	@git ls-files | grep -v "README_ja.md" | grep -v "Makefile" | grep -v "py/image_manager/" | xargs grep -nP "[^\x00-\x7f]" && (echo "Error: Non-ASCII characters found!" && exit 1) || echo "All files are ASCII (English) only."
+	@if git ls-files | grep -v "README_ja.md" | grep -v "Makefile" | grep -v "py/image_manager/" | xargs grep -nP "[^\x00-\x7f]"; then \
+		echo "Error: Non-ASCII characters found!"; \
+		exit 1; \
+	else \
+		echo "All files are ASCII (English) only."; \
+	fi
 
 repomix: repomix-full repomix-src repomix-tests
 
