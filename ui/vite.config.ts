@@ -8,7 +8,7 @@ export default defineConfig({
     'process.env.NODE_ENV': JSON.stringify('production'),
   },
   build: {
-    // ComfyUIが読み込めるようにJSファイルを出力する
+    // Output JS file so ComfyUI can load it
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
       name: 'MeldFlowGallery',
@@ -16,13 +16,13 @@ export default defineConfig({
       fileName: 'gallery_extension'
     },
     outDir: '../web/js',
-    emptyOutDir: false, // 既存のファイルを消さないように（viewer.jsなどがあるため）
+    emptyOutDir: false, // Avoid deleting existing files (due to viewer.js, etc.)
     rollupOptions: {
-      // コード内で "../../../scripts/app.js" と書いているので、ここも合わせる必要があります
-      // ビルド後のファイル(web/js/gallery_extension.js)から見た相対パスとして解釈されるように調整
+      // Must match "../../../scripts/app.js" used in the code
+      // Adjusted to be interpreted as relative path from built file (web/js/gallery_extension.js)
       external: ["../../../scripts/app.js", "../../../scripts/api.js"],
       output: {
-        // 出力ファイル名を固定
+        // Fixed output filename
         entryFileNames: 'gallery_extension.js',
         chunkFileNames: '[name].js',
         assetFileNames: '[name].[ext]'

@@ -44,8 +44,8 @@ app.registerExtension({
         // @ts-ignore
         app.ui.meldNexus = {
             refresh: () => {
-                // ReactのContext経由で更新するための仕組みが必要
-                // ここではカスタムイベントを発火させて React 側で検知する
+                // Mechanism needed to update via React Context
+                // Trigger custom event to be detected on the React side
                 window.dispatchEvent(new CustomEvent('meld-nexus-refresh'));
             },
             isVisible: () => {
@@ -61,13 +61,13 @@ app.registerExtension({
             }
         };
 
-        // backend からのリアルタイム更新通知
+        // Real-time update notification from backend
         api.addEventListener("meld-nexus-image-saved", () => {
             // @ts-ignore
             app.ui.meldNexus.refresh();
         });
 
-        // 画像生成完了時の自動登録
+        // Auto-register when image generation is complete
         api.addEventListener("executed", async ({ detail }: any) => {
             if (detail?.output?.images) {
                 for (const img of detail.output.images) {
@@ -105,7 +105,7 @@ app.registerExtension({
                         el.appendChild(container);
                         galleryRoot = createRoot(container);
 
-                        // React アプリのマウント
+                        // Mount React application
                         galleryRoot.render(
                             React.createElement(
                                 GalleryProvider,

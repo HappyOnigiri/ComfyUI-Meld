@@ -2,15 +2,48 @@ import React from 'react';
 import { useGallery } from '../store/GalleryContext';
 import { ImageCard } from './ImageCard';
 import { BulkActionBar } from './BulkActionBar';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, CheckSquare, XSquare } from 'lucide-react';
 import '../styles/Gallery.css';
 
 export const GalleryPanel: React.FC = () => {
-    const { state, refreshImages } = useGallery();
+    const { state, dispatch, refreshImages } = useGallery();
+
+    const handleSelectAllToggle = () => {
+        if (state.selectedIds.size > 0) {
+            dispatch({ type: 'CLEAR_SELECTION' });
+        } else {
+            dispatch({ type: 'SELECT_ALL' });
+        }
+    };
 
     return (
         <div className="meld-gallery">
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px', gap: '15px' }}>
+                <button
+                    onClick={handleSelectAllToggle}
+                    style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#888',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '5px'
+                    }}
+                    disabled={state.images.length === 0}
+                >
+                    {state.selectedIds.size > 0 ? (
+                        <>
+                            <XSquare size={14} />
+                            Deselect
+                        </>
+                    ) : (
+                        <>
+                            <CheckSquare size={14} />
+                            Select All
+                        </>
+                    )}
+                </button>
                 <button
                     onClick={() => refreshImages()}
                     style={{

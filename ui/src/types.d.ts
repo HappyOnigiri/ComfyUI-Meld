@@ -1,4 +1,4 @@
-// ComfyUIのグローバルな型定義
+// Global type definitions for ComfyUI
 declare global {
     interface Window {
         app: any;
@@ -6,7 +6,7 @@ declare global {
     }
 }
 
-// どのようなパス形式のインポートでも解決できるように宣言
+// Declare to resolve any path format imports
 declare module "*/scripts/app.js" {
     export const app: any;
 }
@@ -15,7 +15,7 @@ declare module "*/scripts/api.js" {
     export const api: any;
 }
 
-// 相対パスを個別に宣言（tscの解決ルールに合わせる）
+// Declare relative paths individually (match tsc resolution rules)
 declare module "../../scripts/app.js" {
     export const app: any;
 }
@@ -38,4 +38,5 @@ declare module "*.module.css" {
     export default classes;
 }
 
-export {}; // モジュールとして扱わせる
+// Treat as a module
+export {};
