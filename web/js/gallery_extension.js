@@ -59,7 +59,102 @@ app.registerExtension({
             return;
         }
 
-        const contentDiv = $el("div", { style: { padding: "10px" } });
+        const contentDiv = $el("div", { style: { padding: "10px", paddingBottom: "60px" } });
+        let selectedIds = new Set();
+        let bulkBar = null;
+
+        const updateBulkBar = () => {
+            if (selectedIds.size > 0) {
+                if (!bulkBar) {
+                    bulkBar = $el("div", {
+                        style: {
+                            position: "fixed",
+                            bottom: "0",
+                            left: "0",
+                            right: "0",
+                            height: "50px",
+                            background: "#222",
+                            borderTop: "1px solid #444",
+                            display: "flex",
+                            alignItems: "center",
+                            padding: "0 20px",
+                            zIndex: "1000",
+                            boxShadow: "0 -2px 10px rgba(0,0,0,0.5)",
+                            gap: "15px"
+                        }
+                    }, [
+                        $el("span", {
+                            text: `${selectedIds.size} selected`,
+                            style: { color: "#eee", fontSize: "14px", fontWeight: "bold", marginRight: "10px" }
+                        }),
+                        $el("button", {
+                            text: "Delete",
+                            style: {
+                                background: "#ff4444",
+                                color: "white",
+                                border: "none",
+                                padding: "8px 20px",
+                                borderRadius: "4px",
+                                cursor: "pointer",
+                                fontWeight: "bold",
+                                fontSize: "14px"
+                            },
+                            onclick: async () => {
+                                const count = selectedIds.size;
+                                if (confirm(`選択した ${count} 枚の画像を削除しますか？\n\n【警告】\n物理ファイルも完全に削除されます。この操作は取り消せません。`)) {
+                                    try {
+                                        const res = await api.fetchApi("/meld-nexus/bulk-delete", {
+                                            method: "POST",
+                                            headers: { "Content-Type": "application/json" },
+                                            body: JSON.stringify({
+                                                ids: Array.from(selectedIds),
+                                                delete_files: true
+                                            })
+                                        });
+                                        if (res.ok) {
+                                            selectedIds.clear();
+                                            await updateGallery(contentDiv);
+                                            updateBulkBar();
+                                        } else {
+                                            const errData = await res.json();
+                                            alert("Failed to delete images: " + (errData.error || "Unknown error"));
+                                        }
+                                    } catch (err) {
+                                        console.error(err);
+                                        alert("An error occurred during deletion.");
+                                    }
+                                }
+                            }
+                        }),
+                        $el("button", {
+                            text: "Cancel",
+                            style: {
+                                background: "#444",
+                                color: "#ccc",
+                                border: "none",
+                                padding: "8px 15px",
+                                borderRadius: "4px",
+                                cursor: "pointer",
+                                fontSize: "14px"
+                            },
+                            onclick: () => {
+                                selectedIds.clear();
+                                updateGallery(contentDiv);
+                                updateBulkBar();
+                            }
+                        })
+                    ]);
+                    document.body.appendChild(bulkBar);
+                } else {
+                    bulkBar.querySelector("span").innerText = `${selectedIds.size} items selected`;
+                }
+            } else {
+                if (bulkBar) {
+                    bulkBar.remove();
+                    bulkBar = null;
+                }
+            }
+        };
 
         const updateGallery = async (targetEl) => {
             const displayEl = targetEl || contentDiv;
@@ -80,6 +175,7 @@ app.registerExtension({
                     const filename = f.filename || f; // Fallback if string
                     const subfolder = f.subfolder || "";
                     const fullFilename = subfolder ? `${subfolder}/${filename}` : filename;
+                    const isSelected = selectedIds.has(f.id);
 
                     const img = $el("img", {
                         src: `/view?filename=${encodeURIComponent(fullFilename)}&type=output`,
@@ -91,54 +187,17 @@ app.registerExtension({
                             cursor: "pointer",
                             display: "block"
                         },
-                        onclick: () => window.open(img.src, "_blank")
-                    });
-
-                    // Delete Button (X mark)
-                    const deleteBtn = $el("button", {
-                        text: "X",
-                        title: "Delete image",
-                        style: {
-                            position: "absolute",
-                            top: "4px",
-                            right: "4px",
-                            width: "20px",
-                            height: "20px",
-                            lineHeight: "18px",
-                            textAlign: "center",
-                            background: "rgba(200, 50, 50, 0.8)",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "50%",
-                            cursor: "pointer",
-                            fontSize: "14px",
-                            fontWeight: "bold",
-                            padding: "0",
-                            zIndex: "10",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center"
-                        },
-                        onclick: async (e) => {
-                            e.stopPropagation();
-                            if(confirm("Are you sure you want to delete this image?")) {
-                                try {
-                                    const res = await api.fetchApi("/meld-nexus/delete", {
-                                        method: "POST",
-                                        headers: {
-                                            "Content-Type": "application/json",
-                                        },
-                                        body: JSON.stringify({ id: f.id })
-                                    });
-                                    if(res.ok) {
-                                        updateGallery(displayEl);
-                                    } else {
-                                        alert("Failed to delete.");
-                                    }
-                                } catch(err) {
-                                    console.error(err);
-                                    alert("An error occurred.");
-                                }
+                        onclick: (e) => {
+                            if (e.ctrlKey || e.metaKey || selectedIds.size > 0) {
+                                // Toggle selection if already selecting or using ctrl
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (selectedIds.has(f.id)) selectedIds.delete(f.id);
+                                else selectedIds.add(f.id);
+                                updateGallery(displayEl);
+                                updateBulkBar();
+                            } else {
+                                window.open(img.src, "_blank");
                             }
                         }
                     });
@@ -176,24 +235,35 @@ app.registerExtension({
                             display: "flex",
                             flexDirection: "row",
                             alignItems: "flex-start",
-                            background: "rgba(255,255,255,0.05)",
+                            background: isSelected ? "rgba(100, 150, 255, 0.2)" : "rgba(255,255,255,0.05)",
                             padding: "10px",
                             marginBottom: "10px",
                             borderRadius: "5px",
-                            border: "1px solid transparent",
+                            border: "1px solid",
+                            borderColor: isSelected ? "#4488ff" : "transparent",
                             position: "relative",
-                            gap: "10px"
+                            gap: "10px",
+                            cursor: "pointer"
                         },
-                        onmouseenter: () => row.style.borderColor = "#666",
-                        onmouseleave: () => row.style.borderColor = "transparent"
+                        onclick: (e) => {
+                            if (selectedIds.has(f.id)) selectedIds.delete(f.id);
+                            else selectedIds.add(f.id);
+                            updateGallery(displayEl);
+                            updateBulkBar();
+                        },
+                        onmouseenter: () => {
+                            if (!isSelected) row.style.borderColor = "#666";
+                        },
+                        onmouseleave: () => {
+                            if (!isSelected) row.style.borderColor = "transparent";
+                        }
                     }, [
                         $el("div", {
                             style: { flex: "0 0 120px", minWidth: "120px" }
                         }, [img]),
                         $el("div", {
                             style: { flex: "1", minWidth: "0" }
-                        }, [details]),
-                        deleteBtn
+                        }, [details])
                     ]);
 
                     displayEl.appendChild(row);
