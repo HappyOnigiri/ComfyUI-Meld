@@ -1,7 +1,124 @@
+import logging
+import os
+
+import folder_paths
 import server
 from aiohttp import web
 
+from ..load_image_configs.metadata_helper import MetadataHelper
 from .database import get_db_connection
+
+
+@server.PromptServer.instance.routes.get("/meld-nexus/test")
+async def test_endpoint(request):
+    return web.json_response({"status": "ok", "message": "Meld Nexus is running"})
+
+
+@server.PromptServer.instance.routes.post("/meld-nexus/register")
+async def register_image(request):
+    try:
+        if request.has_body and request.content_type == "application/json":
+            data = await request.json()
+        else:
+            return web.json_response(
+                {"error": "Content-Type must be application/json"}, status=400
+            )
+
+        filename = data.get("filename")
+        subfolder = data.get("subfolder", "")
+        img_type = data.get("type", "output")
+
+        if not filename:
+            return web.json_response({"error": "filename is required"}, status=400)
+
+        # Basic validation: filename must not contain path separators
+        if os.path.basename(filename) != filename:
+            return web.json_response({"error": "invalid filename"}, status=400)
+
+        # Resolve base directory
+        if img_type == "output":
+            base_dir = folder_paths.get_output_directory()
+        elif img_type == "input":
+            base_dir = folder_paths.get_input_directory()
+        elif img_type == "temp":
+            base_dir = folder_paths.get_temp_directory()
+        else:
+            return web.json_response({"error": f"invalid type: {img_type}"}, status=400)
+
+        # Resolve full path safely (prevent path traversal)
+        full_path = os.path.abspath(os.path.join(base_dir, subfolder, filename))
+        base_abs = os.path.abspath(base_dir)
+        if os.path.commonpath([base_abs, full_path]) != base_abs:
+            return web.json_response({"error": "invalid path"}, status=400)
+
+        if not os.path.exists(full_path):
+            return web.json_response({"error": f"File not found: {full_path}"}, status=404)
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Check if already registered
+        cursor.execute(
+            "SELECT id FROM images WHERE filename = ? AND subfolder = ? AND is_deleted = 0",
+            (filename, subfolder),
+        )
+        existing = cursor.fetchone()
+        if existing:
+            conn.close()
+            return web.json_response(
+                {"success": True, "message": "Already registered", "id": existing[0]}
+            )
+
+        # Extract metadata from PNG
+        pos, neg, model, wf_json, pr_json, a1111_text, logs = MetadataHelper.extract_metadata(
+            full_path
+        )
+
+        timestamp = os.path.getmtime(full_path)
+
+        # Insert Image
+        cursor.execute(
+            "INSERT INTO images (filename, subfolder, created_at, is_deleted) VALUES (?, ?, ?, 0)",
+            (filename, subfolder, timestamp),
+        )
+        image_id = cursor.lastrowid
+
+        # Insert Prompts
+        pos_list = [p.strip() for p in pos.split(",") if p.strip()] if pos else []
+        neg_list = [n.strip() for n in neg.split(",") if n.strip()] if neg else []
+
+        for p in pos_list:
+            cursor.execute("INSERT OR IGNORE INTO positive_prompts (name) VALUES (?)", (p,))
+            cursor.execute("SELECT id FROM positive_prompts WHERE name = ?", (p,))
+            row = cursor.fetchone()
+            if row:
+                pp_id = row[0]
+                cursor.execute(
+                    "INSERT INTO positive_prompt_image_relations (image_id, positive_prompt_id) VALUES (?, ?)",
+                    (image_id, pp_id),
+                )
+
+        for n in neg_list:
+            cursor.execute("INSERT OR IGNORE INTO negative_prompts (name) VALUES (?)", (n,))
+            cursor.execute("SELECT id FROM negative_prompts WHERE name = ?", (n,))
+            row = cursor.fetchone()
+            if row:
+                np_id = row[0]
+                cursor.execute(
+                    "INSERT INTO negative_prompt_image_relations (image_id, negative_prompt_id) VALUES (?, ?)",
+                    (image_id, np_id),
+                )
+
+        conn.commit()
+        conn.close()
+
+        # Notify frontend
+        server.PromptServer.instance.send_sync("meld-nexus-image-saved", {"count": 1})
+
+        return web.json_response({"success": True, "id": image_id})
+    except Exception:
+        logging.exception("[Meld-Flow] Failed to register image")
+        return web.json_response({"error": "internal error"}, status=500)
 
 
 @server.PromptServer.instance.routes.get("/meld-nexus/list")

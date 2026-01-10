@@ -5,7 +5,7 @@
 <!-- Bulleted list of code/functional changes ONLY. -->
 <!-- Do NOT include non-change items like "ran tests", "verified behavior", or "fixed linting". -->
 <!-- Example:
-- Added `ImageFilterNode` to `py/image_manager.py`
+- Added/updated Meld Nexus components in `py/image_manager/`
 - Implemented Gaussian blur algorithm
 -->
 

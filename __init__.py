@@ -1,7 +1,7 @@
 import os
 
 from .py.auto_exposure import MeldAutoExposure
-from .py.image_manager import MeldNexus
+from .py.image_manager.nodes import MeldNexus
 from .py.load_image_configs import MeldImageLoader, MeldImageLoaderBatch, MeldSettingsUnpacker
 from .py.pattern_heart import MeldPatternHeart
 from .py.pixelate import MeldPixelate
@@ -15,6 +15,7 @@ NODE_CLASS_MAPPINGS = {
     "MeldSettingsUnpacker": MeldSettingsUnpacker,
     "MeldPromptConstructor": MeldPromptConstructor,
     "MeldPatternHeart": MeldPatternHeart,
+    "MeldNexus": MeldNexus,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -25,6 +26,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "MeldSettingsUnpacker": "Meld Settings Unpacker",
     "MeldPromptConstructor": "Meld Prompt Constructor",
     "MeldPatternHeart": "Meld Infinite Heart Generator",
+    "MeldNexus": "Meld Nexus",
 }
 
 # Conditional registration of Meld Nexus
