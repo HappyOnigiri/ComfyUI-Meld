@@ -125,6 +125,9 @@ app.registerExtension({
                                 try {
                                     const res = await api.fetchApi("/meld-nexus/delete", {
                                         method: "POST",
+                                        headers: {
+                                            "Content-Type": "application/json",
+                                        },
                                         body: JSON.stringify({ id: f.id })
                                     });
                                     if(res.ok) {
@@ -218,6 +221,31 @@ app.registerExtension({
         app.api.addEventListener("meld-nexus-image-saved", (ev) => {
             // Refresh regardless of visibility so it's ready when the user opens it
             app.ui.meldNexus.refresh();
+        });
+
+        // Auto-register images from any node execution
+        api.addEventListener("executed", async ({ detail }) => {
+            if (detail?.output?.images) {
+                for (const img of detail.output.images) {
+                    if (img.type === "output") {
+                        try {
+                            const response = await api.fetchApi("/meld-nexus/register", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({
+                                    filename: img.filename,
+                                    subfolder: img.subfolder,
+                                    type: img.type
+                                })
+                            });
+                        } catch (e) {
+                            console.error("Failed to auto-register image:", e);
+                        }
+                    }
+                }
+            }
         });
 
         app.extensionManager.registerSidebarTab({
