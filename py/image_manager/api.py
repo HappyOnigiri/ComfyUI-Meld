@@ -78,8 +78,8 @@ async def register_image(request):
 
         # Insert Image
         cursor.execute(
-            "INSERT INTO images (filename, subfolder, created_at, is_deleted) VALUES (?, ?, ?, 0)",
-            (filename, subfolder, timestamp),
+            "INSERT INTO images (filename, subfolder, type, created_at, is_deleted) VALUES (?, ?, ?, ?, 0)",
+            (filename, subfolder, img_type, timestamp),
         )
         image_id = cursor.lastrowid
 
@@ -128,14 +128,14 @@ async def list_images(request):
 
     # Fetch images with basic info
     cursor.execute(
-        "SELECT id, filename, subfolder, created_at FROM images WHERE is_deleted = 0 ORDER BY created_at DESC"
+        "SELECT id, filename, subfolder, type, created_at FROM images WHERE is_deleted = 0 ORDER BY created_at DESC"
     )
     images = cursor.fetchall()
 
     result_list = []
 
     for img in images:
-        img_id, filename, subfolder, created_at = img
+        img_id, filename, subfolder, img_type, created_at = img
 
         # Fetch positive prompt
         cursor.execute("""
@@ -168,6 +168,7 @@ async def list_images(request):
             "id": img_id,
             "filename": filename,
             "subfolder": subfolder,
+            "type": img_type,
             "created_at": created_at,
             "positive": positive,
             "negative": negative,
@@ -176,6 +177,56 @@ async def list_images(request):
 
     conn.close()
     return web.json_response(result_list)
+
+@server.PromptServer.instance.routes.post("/meld-nexus/bulk-delete")
+async def bulk_delete_images(request):
+    try:
+        data = await request.json()
+        image_ids = data.get("ids", [])
+        delete_files = data.get("delete_files", False)
+
+        if not image_ids:
+            return web.json_response({"error": "ids are required"}, status=400)
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Get file paths before deleting from DB
+        placeholders = ",".join(["?"] * len(image_ids))
+        cursor.execute(f"SELECT id, filename, subfolder, type FROM images WHERE id IN ({placeholders})", image_ids)
+        images = cursor.fetchall()
+
+        deleted_count = 0
+        for img_id, filename, subfolder, img_type in images:
+            if delete_files:
+                # Resolve base directory
+                if img_type == "output":
+                    base_dir = folder_paths.get_output_directory()
+                elif img_type == "input":
+                    base_dir = folder_paths.get_input_directory()
+                elif img_type == "temp":
+                    base_dir = folder_paths.get_temp_directory()
+                else:
+                    continue
+
+                # Resolve full path safely
+                full_path = os.path.abspath(os.path.join(base_dir, subfolder, filename))
+                if os.path.exists(full_path):
+                    try:
+                        os.remove(full_path)
+                    except Exception as e:
+                        logging.warning(f"[Meld-Flow] Failed to delete file {full_path}: {e}")
+
+            cursor.execute("UPDATE images SET is_deleted = 1 WHERE id = ?", (img_id,))
+            deleted_count += 1
+
+        conn.commit()
+        conn.close()
+        return web.json_response({"success": True, "count": deleted_count})
+    except Exception as e:
+        logging.exception("[Meld-Flow] Bulk delete failed")
+        return web.json_response({"error": str(e)}, status=500)
+
 
 @server.PromptServer.instance.routes.post("/meld-nexus/delete")
 async def delete_image(request):

@@ -18,6 +18,12 @@ def init_db():
         )
     ''')
 
+    # Add type column if not exists
+    try:
+        cursor.execute("ALTER TABLE images ADD COLUMN type TEXT DEFAULT 'output'")
+    except sqlite3.OperationalError:
+        pass
+
     # Add is_deleted column if not exists
     try:
         cursor.execute("ALTER TABLE images ADD COLUMN is_deleted INTEGER DEFAULT 0")
