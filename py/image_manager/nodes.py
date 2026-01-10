@@ -32,7 +32,8 @@ class MeldNexus:
                     "default": "MeldFlow",
                     "tooltip": (
                         "The prefix for the file to save. This may include formatting "
-                        "information such as %date:yyyy-MM-dd% or %date:yyyy_MM_dd_HHmmss%.\n"
+                        "information such as %date:yyyy-MM-dd%, %date:yyyy_MM_dd_HHmmss%, "
+                        "or %width%, %height%, %year%, %month%, %day%, %hour%, %minute%, %second%.\n"
                         "yyyy: year, MM: month, dd: day, HH: hour, mm: minute, ss: second."
                     ),
                 }),
@@ -136,7 +137,7 @@ class MeldNexus:
                          metadata.add_text(x, json.dumps(extra_pnginfo[x]))
 
             filename_with_batch_num = filename.replace("%batch_num%", str(batch_number))
-            file = f"{filename_with_batch_num}_{counter:05}.png"
+            file = f"{filename_with_batch_num}_{counter:05}_.png"
             img.save(os.path.join(full_output_folder, file), pnginfo=metadata, compress_level=self.compress_level)
 
             timestamp = time.time()

@@ -87,9 +87,9 @@ class TestImageManager(unittest.TestCase):
             row = cursor.fetchone()
             conn.close()
 
-            # f"{filename_with_batch_num}_{counter:05}.png"
-            # TestFile_00005.png
-            self.assertEqual(row[0], "TestFile_00005.png")
+            # f"{filename_with_batch_num}_{counter:05}_.png"
+            # TestFile_00005_.png
+            self.assertEqual(row[0], "TestFile_00005_.png")
             self.assertEqual(row[1], "sub")
 
     def test_filename_prefix_with_batch_num_token(self):
@@ -110,11 +110,11 @@ class TestImageManager(unittest.TestCase):
             conn.close()
 
             self.assertEqual(len(rows), 2)
-            self.assertEqual(rows[0][0], "Batch_0_00001.png")
-            self.assertEqual(rows[1][0], "Batch_1_00002.png")
+            self.assertEqual(rows[0][0], "Batch_0_00001_.png")
+            self.assertEqual(rows[1][0], "Batch_1_00002_.png")
 
     def test_save_images_format_fix(self):
-        """Verify that the trailing underscore is removed from the filename"""
+        """Verify that the trailing underscore is included in the filename for ComfyUI compatibility"""
         images = torch.zeros((1, 64, 64, 3))
         mock_get_save_path = py.image_manager.nodes.folder_paths.get_save_image_path
         mock_get_save_path.return_value = (
@@ -130,8 +130,8 @@ class TestImageManager(unittest.TestCase):
             row = cursor.fetchone()
             conn.close()
 
-            # Should be TestFile_00001.png NOT TestFile_00001_.png
-            self.assertEqual(row[0], "TestFile_00001.png")
+            # Should be TestFile_00001_.png for ComfyUI counter logic to work
+            self.assertEqual(row[0], "TestFile_00001_.png")
 
     def test_filename_prefix_date_resolution(self):
         """Verify that %date:format% and %date% tokens are correctly resolved"""
