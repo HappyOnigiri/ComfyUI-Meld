@@ -24,6 +24,7 @@ test-all:
 lint: check-only-ascii
 	python -m ruff check . --fix
 	-python -m mypy py
+	cd ui && npx @biomejs/biome check src
 
 check-only-ascii:
 	@echo "Checking for non-ASCII characters..."
