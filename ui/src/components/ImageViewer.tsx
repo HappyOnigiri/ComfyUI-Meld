@@ -188,8 +188,12 @@ export const ImageViewer: React.FC = () => {
 							) : (
 								currentThumbnails.map((thumb) => {
 									const isCurrent = thumb.id === viewerImageId;
-									const isParent = image.parent_id === thumb.id;
-									const isChild = thumb.parent_id === image.id;
+									const isParent =
+										typeof image.parent_id === "number" &&
+										image.parent_id === thumb.id;
+									const isChild =
+										typeof thumb.parent_id === "number" &&
+										thumb.parent_id === image.id;
 
 									const thumbSrc = `/api/view?filename=${encodeURIComponent(thumb.filename)}&type=${thumb.type || "output"}${
 										thumb.subfolder

@@ -6390,7 +6390,7 @@ Physical files will also be permanently deleted. This operation cannot be undone
         ) }),
         /* @__PURE__ */ f.jsxs("div", { className: "meld-image-card__details", children: [
           /* @__PURE__ */ f.jsx("div", { className: "meld-image-card__filename", children: v }),
-          /* @__PURE__ */ f.jsx("div", { className: "meld-image-card__lineage-v2", children: e.parent_id && /* @__PURE__ */ f.jsxs(
+          /* @__PURE__ */ f.jsx("div", { className: "meld-image-card__lineage-v2", children: typeof e.parent_id == "number" && e.parent_id > 0 && /* @__PURE__ */ f.jsxs(
             "div",
             {
               className: "meld-lineage-badge meld-lineage-badge--has-parent",
@@ -6591,7 +6591,7 @@ Physical files will also be permanently deleted. This operation cannot be undone
               }
             ),
             !o && /* @__PURE__ */ f.jsx("div", { className: "meld-viewer-thumbnails-container", children: /* @__PURE__ */ f.jsx("div", { className: "meld-viewer-thumbnails", children: a ? /* @__PURE__ */ f.jsx("div", { style: { padding: "10px", color: "#888" }, children: "Loading lineage..." }) : S.map((g) => {
-              const y = g.id === n, L = h.parent_id === g.id, s = g.parent_id === h.id, c = `/api/view?filename=${encodeURIComponent(g.filename)}&type=${g.type || "output"}${g.subfolder ? `&subfolder=${encodeURIComponent(g.subfolder)}` : ""}`;
+              const y = g.id === n, L = typeof h.parent_id == "number" && h.parent_id === g.id, s = typeof g.parent_id == "number" && g.parent_id === h.id, c = `/api/view?filename=${encodeURIComponent(g.filename)}&type=${g.type || "output"}${g.subfolder ? `&subfolder=${encodeURIComponent(g.subfolder)}` : ""}`;
               return /* @__PURE__ */ f.jsxs(
                 "div",
                 {

@@ -147,7 +147,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 				<div className="meld-image-card__filename">{fullFilename}</div>
 
 				<div className="meld-image-card__lineage-v2">
-					{image.parent_id && (
+					{typeof image.parent_id === "number" && image.parent_id > 0 && (
 						<div
 							className="meld-lineage-badge meld-lineage-badge--has-parent"
 							onClick={(e) => {
