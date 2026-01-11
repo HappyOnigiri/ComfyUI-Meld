@@ -425,7 +425,6 @@ async def get_settings(request):
         settings = {
             "dev_mode": os.environ.get("MELDFLOW_DEV") == "true",
             "gallery.show_parent_image": True,
-            "gallery.hide_missing_images": True,
         }
 
         # Merge with DB settings

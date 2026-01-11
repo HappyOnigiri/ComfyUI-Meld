@@ -19,12 +19,6 @@ export const SettingsModal: React.FC = () => {
 				"Display parent image information and lineage link on image cards.",
 			type: "boolean",
 		},
-		{
-			key: "gallery.hide_missing_images",
-			label: "Hide Missing Images",
-			description: "Only display data for which an image file exists on disk.",
-			type: "boolean",
-		},
 	];
 
 	const handleToggle = (key: keyof Settings, currentValue: boolean) => {

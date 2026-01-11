@@ -19,7 +19,6 @@ export interface MeldImage {
 export interface Settings {
 	dev_mode: boolean;
 	"gallery.show_parent_image": boolean;
-	"gallery.hide_missing_images": boolean;
 }
 
 export type ScanStatus = {

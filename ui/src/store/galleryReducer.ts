@@ -23,7 +23,6 @@ export const initialState: GalleryState = {
 	settings: {
 		dev_mode: false,
 		"gallery.show_parent_image": true,
-		"gallery.hide_missing_images": true,
 	},
 	pagination: {
 		total: 0,
