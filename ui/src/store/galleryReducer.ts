@@ -206,6 +206,16 @@ export function galleryReducer(
 				(img) => img.id === state.viewerImageId,
 			);
 			if (currentIndex === -1) return state;
+
+			// If we're at the end and there's more to load, don't wrap around
+			if (
+				currentIndex === currentList.length - 1 &&
+				state.viewerMode === "gallery" &&
+				state.pagination.hasMore
+			) {
+				return state;
+			}
+
 			const nextIndex = (currentIndex + 1) % currentList.length;
 			return {
 				...state,

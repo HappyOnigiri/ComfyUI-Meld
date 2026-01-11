@@ -1,11 +1,18 @@
-import { ChevronLeft, ChevronRight, Maximize, Minimize, X } from "lucide-react";
+import {
+	ChevronLeft,
+	ChevronRight,
+	Maximize,
+	Minimize,
+	RefreshCw,
+	X,
+} from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useState } from "react";
 import * as api from "../api";
 import { useGallery } from "../store/GalleryContext";
 
 export const ImageViewer: React.FC = () => {
-	const { state, dispatch } = useGallery();
+	const { state, dispatch, loadMoreImages } = useGallery();
 	const { viewerImageId, images, viewerMode, lineageImages } = state;
 	const [isFullscreen, setIsFullscreen] = useState(false);
 	const [isLoadingLineage, setIsLoadingLineage] = useState(false);
@@ -33,6 +40,33 @@ export const ImageViewer: React.FC = () => {
 		},
 		[],
 	);
+
+	// Load more images if we are near the end of the current list in gallery mode
+	useEffect(() => {
+		if (
+			viewerMode !== "gallery" ||
+			viewerImageId === null ||
+			state.isLoading ||
+			!state.pagination.hasMore
+		) {
+			return;
+		}
+
+		const currentIndex = images.findIndex((img) => img.id === viewerImageId);
+		if (currentIndex === -1) return;
+
+		// Trigger load more when 15 images from the end
+		if (currentIndex >= images.length - 15) {
+			loadMoreImages();
+		}
+	}, [
+		viewerImageId,
+		images.length,
+		viewerMode,
+		state.isLoading,
+		state.pagination.hasMore,
+		loadMoreImages,
+	]);
 
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
@@ -230,6 +264,11 @@ export const ImageViewer: React.FC = () => {
 										</div>
 									);
 								})
+							)}
+							{viewerMode === "gallery" && state.isLoading && (
+								<div className="meld-viewer-thumbnail meld-viewer-thumbnail--loading">
+									<RefreshCw className="animate-spin" size={20} />
+								</div>
 							)}
 						</div>
 					</div>

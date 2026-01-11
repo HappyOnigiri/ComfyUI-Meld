@@ -615,6 +615,15 @@
 	opacity: 1;
 }
 
+.meld-viewer-thumbnail--loading {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(0, 0, 0, 0.3);
+	color: #888;
+	opacity: 1;
+}
+
 .meld-viewer-thumbnail-label {
 	position: absolute;
 	top: -18px;
