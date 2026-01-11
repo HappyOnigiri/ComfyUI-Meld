@@ -1,7 +1,6 @@
-import { X } from "lucide-react";
+import { GitBranch, PlusCircle, X } from "lucide-react";
 import type React from "react";
-import { useEffect, useState } from "react";
-import * as api from "../api";
+import { useState } from "react";
 import { useGallery } from "../store/GalleryContext";
 import type { MeldImage } from "../types";
 
@@ -13,15 +12,6 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
     const { state, dispatch } = useGallery();
     const isSelected = state.selectedIds.has(image.id);
     const [popupContent, setPopupContent] = useState<{ title: string; text: string } | null>(null);
-    const [relatedImages, setRelatedImages] = useState<
-        { id: number; filename: string; subfolder: string; type: string; distance: number }[]
-    >([]);
-
-    useEffect(() => {
-        if (image.id) {
-            api.fetchRelatedImages(image.id).then((imgs) => setRelatedImages(imgs.slice(0, 10)));
-        }
-    }, [image.id]);
 
     const fullFilename = image.subfolder ? `${image.subfolder}/${image.filename}` : image.filename;
     const imgSrc = `/api/view?filename=${encodeURIComponent(image.filename)}&type=${image.type || "output"}${
@@ -29,19 +19,16 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
     }`;
 
     const handleClick = (e: React.MouseEvent) => {
-        // Selection mode if Ctrl/Meta key is pressed or something is already selected
         if (e.ctrlKey || e.metaKey || state.selectedIds.size > 0) {
             e.preventDefault();
             e.stopPropagation();
             dispatch({ type: "TOGGLE_SELECT", payload: image.id });
         } else {
-            // Open image in viewer instead of new tab
             dispatch({ type: "OPEN_VIEWER", payload: image.id });
         }
     };
 
     const handleContainerClick = (_e: React.MouseEvent) => {
-        // Always toggle selection when clicking the entire card (maintain existing behavior)
         dispatch({ type: "TOGGLE_SELECT", payload: image.id });
     };
 
@@ -62,6 +49,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
             tabIndex={0}
         >
             <div className="meld-image-card__thumbnail-wrapper">
+                {/* biome-ignore lint/a11y/useKeyWithClickEvents: Thumbnail click opens viewer */}
                 <img
                     src={imgSrc}
                     className="meld-image-card__thumbnail"
@@ -71,17 +59,46 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
                         e.stopPropagation();
                         handleClick(e);
                     }}
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            handleClick(e as unknown as React.MouseEvent);
-                        }
-                    }}
                 />
             </div>
             <div className="meld-image-card__details">
                 <div className="meld-image-card__filename">{fullFilename}</div>
+
+                <div className="meld-image-card__lineage-v2">
+                    {image.parent_id ? (
+                        // biome-ignore lint/a11y/useKeyWithClickEvents: lineage badge
+                        // biome-ignore lint/a11y/noStaticElementInteractions: lineage badge
+                        <div
+                            className="meld-lineage-badge meld-lineage-badge--has-parent"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                dispatch({
+                                    type: "OPEN_MODAL",
+                                    payload: { type: "history_tree", imageId: image.id },
+                                });
+                            }}
+                        >
+                            <GitBranch size={12} />
+                            <span>Parent #{image.parent_id}</span>
+                        </div>
+                    ) : (
+                        // biome-ignore lint/a11y/useKeyWithClickEvents: lineage badge
+                        // biome-ignore lint/a11y/noStaticElementInteractions: lineage badge
+                        <div
+                            className="meld-lineage-badge meld-lineage-badge--no-parent"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                dispatch({
+                                    type: "OPEN_MODAL",
+                                    payload: { type: "parent_selection", imageId: image.id },
+                                });
+                            }}
+                        >
+                            <PlusCircle size={12} />
+                            <span>Origin (No parent)</span>
+                        </div>
+                    )}
+                </div>
 
                 {/* biome-ignore lint/a11y/useKeyWithClickEvents: Meta items are secondary interactive elements */}
                 {/* biome-ignore lint/a11y/noStaticElementInteractions: Meta items are secondary interactive elements */}
@@ -129,32 +146,6 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
                         )}
                     </div>
                 </div>
-
-                {relatedImages.length > 0 && (
-                    <div className="meld-image-card__related">
-                        {relatedImages.map((rel) => {
-                            const relSrc = `/api/view?filename=${encodeURIComponent(rel.filename)}&type=${
-                                rel.type || "output"
-                            }${rel.subfolder ? `&subfolder=${encodeURIComponent(rel.subfolder)}` : ""}`;
-                            return (
-                                // biome-ignore lint/a11y/useKeyWithClickEvents: Related image thumbnails are secondary navigation
-                                <img
-                                    key={rel.id}
-                                    src={relSrc}
-                                    className="meld-image-card__related-thumb"
-                                    alt={rel.filename}
-                                    title={`Similarity: ${Math.round(
-                                        ((64 - rel.distance) / 64) * 100,
-                                    )}%`}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        dispatch({ type: "OPEN_VIEWER", payload: rel.id });
-                                    }}
-                                />
-                            );
-                        })}
-                    </div>
-                )}
             </div>
 
             {popupContent && (

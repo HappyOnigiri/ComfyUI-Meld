@@ -143,6 +143,82 @@
     white-space: nowrap;
 }
 
+.meld-image-card__lineage {
+    margin: 4px 0;
+    background: rgba(68, 136, 255, 0.1);
+    padding: 6px;
+    border-radius: 4px;
+    border-left: 2px solid var(--meld-accent-color);
+}
+
+.meld-image-card__parent-preview {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    cursor: pointer;
+}
+
+.meld-image-card__parent-preview img {
+    width: 24px;
+    height: 24px;
+    object-fit: cover;
+    border-radius: 2px;
+}
+
+.meld-image-card__parent-preview span {
+    font-size: 9px;
+    color: #aaa;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.meld-image-card__suggestions {
+    margin-top: 4px;
+    padding: 4px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 4px;
+}
+
+.meld-image-card__suggestion-list {
+    display: flex;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.meld-image-card__suggestion-item {
+    position: relative;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+}
+
+.meld-image-card__suggestion-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 2px;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.meld-image-card__suggestion-item:hover img {
+    opacity: 1;
+    border: 1px solid var(--meld-accent-color);
+}
+
+.meld-image-card__suggestion-item span {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    font-size: 7px;
+    padding: 1px 2px;
+    border-radius: 2px;
+}
+
 .meld-image-card__related {
     display: flex;
     flex-wrap: wrap;
@@ -441,4 +517,254 @@
 
 .meld-prompt-popup-close:hover {
     color: #fff;
+}
+
+/* New Lineage and Modal Styles */
+.meld-image-card__lineage-v2 {
+    margin: 4px 0;
+    display: flex;
+    gap: 4px;
+}
+
+.meld-lineage-badge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.meld-lineage-badge--has-parent {
+    background: rgba(68, 136, 255, 0.2);
+    color: var(--meld-accent-color);
+}
+
+.meld-lineage-badge--has-parent:hover {
+    background: rgba(68, 136, 255, 0.4);
+}
+
+.meld-lineage-badge--no-parent {
+    background: rgba(255, 255, 255, 0.05);
+    color: #888;
+}
+
+.meld-lineage-badge--no-parent:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Modals */
+.meld-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5000;
+}
+
+.meld-modal-content {
+    background: var(--comfy-menu-bg, #222);
+    border: 1px solid var(--meld-border-color);
+    border-radius: 8px;
+    width: 500px;
+    max-width: 90vw;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.meld-modal-content--large {
+    width: 800px;
+}
+
+.meld-modal-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--meld-border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.meld-modal-header h2 {
+    margin: 0;
+    font-size: 16px;
+    color: var(--meld-accent-color);
+}
+
+.meld-modal-close {
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.meld-modal-close:hover {
+    color: #fff;
+}
+
+.meld-modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.meld-modal-loading {
+    text-align: center;
+    padding: 40px;
+    color: #888;
+}
+
+/* Parent Selection */
+.meld-drop-zone {
+    border: 2px dashed #444;
+    border-radius: 8px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    color: #666;
+    margin-bottom: 20px;
+    transition: all 0.2s;
+}
+
+.meld-drop-zone--active {
+    border-color: var(--meld-accent-color);
+    background: rgba(68, 136, 255, 0.05);
+    color: var(--meld-accent-color);
+}
+
+.meld-suggestion-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.meld-suggestion-card {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+
+.meld-suggestion-card:hover {
+    border-color: var(--meld-accent-color);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.meld-suggestion-card img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+}
+
+.meld-suggestion-info {
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.meld-suggestion-filename {
+    font-size: 9px;
+    color: #aaa;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.meld-suggestion-distance {
+    font-size: 8px;
+    color: var(--meld-accent-color);
+}
+
+.meld-suggestions-container h3 {
+    font-size: 12px;
+    color: #888;
+    margin: 20px 0 10px 0;
+}
+
+.meld-suggestions-container section:first-child h3 {
+    margin-top: 0;
+}
+
+/* Tree Modal */
+.meld-tree-container {
+    padding: 10px;
+}
+
+.meld-tree-node {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    gap: 12px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.meld-tree-node--current {
+    background: rgba(68, 136, 255, 0.1);
+    border-left: 3px solid var(--meld-accent-color);
+}
+
+.meld-tree-node-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.meld-tree-node-content img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.meld-tree-node-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.meld-tree-node-id {
+    font-size: 10px;
+    color: #888;
+}
+
+.meld-tree-node-filename {
+    font-size: 12px;
+    color: #ccc;
+}
+
+.meld-tree-change-parent {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid #444;
+    color: #ccc;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.meld-tree-change-parent:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #666;
+}
+
+.meld-tree-node-arrow {
+    color: #444;
 }

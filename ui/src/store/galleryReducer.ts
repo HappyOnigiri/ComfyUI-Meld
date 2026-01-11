@@ -8,6 +8,7 @@ export const initialState: GalleryState = {
     lastUpdated: Date.now(),
     viewMode: "list",
     viewerImageId: null,
+    activeModal: { type: "none" },
 };
 
 export function galleryReducer(state: GalleryState, action: GalleryAction): GalleryState {
@@ -97,6 +98,16 @@ export function galleryReducer(state: GalleryState, action: GalleryAction): Gall
                 viewerImageId: state.images[prevIndex].id,
             };
         }
+        case "OPEN_MODAL":
+            return {
+                ...state,
+                activeModal: action.payload,
+            };
+        case "CLOSE_MODAL":
+            return {
+                ...state,
+                activeModal: { type: "none" },
+            };
         default:
             return state;
     }

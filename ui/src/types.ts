@@ -8,7 +8,14 @@ export interface MeldImage {
     negative: string;
     tags: string[];
     phash?: string;
+    sha256?: string;
+    parent_id?: number | null;
 }
+
+export type ActiveModal =
+    | { type: "none" }
+    | { type: "parent_selection"; imageId: number }
+    | { type: "history_tree"; imageId: number };
 
 export type GalleryViewMode = "grid" | "list";
 
@@ -20,6 +27,7 @@ export interface GalleryState {
     lastUpdated: number;
     viewMode: GalleryViewMode;
     viewerImageId: number | null;
+    activeModal: ActiveModal;
 }
 
 export type GalleryAction =
@@ -34,7 +42,9 @@ export type GalleryAction =
     | { type: "OPEN_VIEWER"; payload: number }
     | { type: "CLOSE_VIEWER" }
     | { type: "NEXT_IMAGE" }
-    | { type: "PREVIOUS_IMAGE" };
+    | { type: "PREVIOUS_IMAGE" }
+    | { type: "OPEN_MODAL"; payload: ActiveModal }
+    | { type: "CLOSE_MODAL" };
 
 export interface ComfyApp {
     registerExtension(extension: ComfyExtension): void;

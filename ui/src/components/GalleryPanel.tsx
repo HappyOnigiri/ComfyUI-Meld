@@ -3,8 +3,10 @@ import type React from "react";
 import { logger } from "../logger";
 import { useGallery } from "../store/GalleryContext";
 import { BulkActionBar } from "./BulkActionBar";
+import { HistoryTreeModal } from "./HistoryTreeModal";
 import { ImageCard } from "./ImageCard";
 import { ImageViewer } from "./ImageViewer";
+import { ParentSelectionModal } from "./ParentSelectionModal";
 import "../styles/Gallery.css";
 
 export const GalleryPanel: React.FC = () => {
@@ -12,6 +14,7 @@ export const GalleryPanel: React.FC = () => {
     logger.log("GalleryPanel: rendering", {
         imageCount: state.images.length,
         isLoading: state.isLoading,
+        activeModal: state.activeModal.type,
     });
 
     const handleSelectAllToggle = () => {
@@ -94,6 +97,13 @@ export const GalleryPanel: React.FC = () => {
             <BulkActionBar />
 
             {state.viewerImageId !== null && <ImageViewer />}
+
+            {state.activeModal.type === "parent_selection" && (
+                <ParentSelectionModal imageId={state.activeModal.imageId} />
+            )}
+            {state.activeModal.type === "history_tree" && (
+                <HistoryTreeModal imageId={state.activeModal.imageId} />
+            )}
         </div>
     );
 };
