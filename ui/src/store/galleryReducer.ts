@@ -8,6 +8,8 @@ export const initialState: GalleryState = {
 	lastUpdated: Date.now(),
 	viewMode: "list",
 	viewerImageId: null,
+	viewerMode: "gallery",
+	lineageImages: [],
 	activeModal: { type: "none" },
 };
 
@@ -17,9 +19,10 @@ export function galleryReducer(
 ): GalleryState {
 	switch (action.type) {
 		case "SET_IMAGES": {
-			// If viewer is open, check if the image still exists
+			// If viewer is open and in gallery mode, check if the image still exists
 			let newViewerId = state.viewerImageId;
 			if (
+				state.viewerMode === "gallery" &&
 				newViewerId !== null &&
 				!action.payload.some((img) => img.id === newViewerId)
 			) {
@@ -33,6 +36,11 @@ export function galleryReducer(
 				viewerImageId: newViewerId,
 			};
 		}
+		case "SET_LINEAGE":
+			return {
+				...state,
+				lineageImages: action.payload,
+			};
 		case "SET_LOADING":
 			return {
 				...state,
@@ -78,39 +86,64 @@ export function galleryReducer(
 				...state,
 				lastUpdated: Date.now(),
 			};
-		case "OPEN_VIEWER":
+		case "OPEN_VIEWER": {
+			const payload = action.payload;
+			const newId = typeof payload === "number" ? payload : payload.id;
+			const newMode = typeof payload === "number" ? "gallery" : payload.mode;
+
+			const isSameLineage =
+				state.viewerMode === "lineage" &&
+				newMode === "lineage" &&
+				state.lineageImages.some((img) => img.id === newId);
+
 			return {
 				...state,
-				viewerImageId: action.payload,
+				viewerImageId: newId,
+				viewerMode: newMode,
+				lineageImages: isSameLineage ? state.lineageImages : [],
 			};
+		}
 		case "CLOSE_VIEWER":
 			return {
 				...state,
 				viewerImageId: null,
+				lineageImages: [],
 			};
 		case "NEXT_IMAGE": {
-			if (state.viewerImageId === null || state.images.length === 0)
+			const currentList =
+				state.viewerMode === "lineage" && state.lineageImages.length > 0
+					? state.lineageImages
+					: state.images;
+
+			if (state.viewerImageId === null || currentList.length === 0)
 				return state;
-			const currentIndex = state.images.findIndex(
+			const currentIndex = currentList.findIndex(
 				(img) => img.id === state.viewerImageId,
 			);
-			const nextIndex = (currentIndex + 1) % state.images.length;
+			if (currentIndex === -1) return state;
+			const nextIndex = (currentIndex + 1) % currentList.length;
 			return {
 				...state,
-				viewerImageId: state.images[nextIndex].id,
+				viewerImageId: currentList[nextIndex].id,
 			};
 		}
 		case "PREVIOUS_IMAGE": {
-			if (state.viewerImageId === null || state.images.length === 0)
+			const currentList =
+				state.viewerMode === "lineage" && state.lineageImages.length > 0
+					? state.lineageImages
+					: state.images;
+
+			if (state.viewerImageId === null || currentList.length === 0)
 				return state;
-			const currentIndex = state.images.findIndex(
+			const currentIndex = currentList.findIndex(
 				(img) => img.id === state.viewerImageId,
 			);
+			if (currentIndex === -1) return state;
 			const prevIndex =
-				(currentIndex - 1 + state.images.length) % state.images.length;
+				(currentIndex - 1 + currentList.length) % currentList.length;
 			return {
 				...state,
-				viewerImageId: state.images[prevIndex].id,
+				viewerImageId: currentList[prevIndex].id,
 			};
 		}
 		case "OPEN_MODAL":

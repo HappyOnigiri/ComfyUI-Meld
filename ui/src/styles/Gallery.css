@@ -339,7 +339,7 @@
 
 .meld-viewer-image {
 	max-width: 100%;
-	max-height: calc(100% - 60px); /* Leave space for info */
+	max-height: calc(100% - 160px); /* Leave space for info and thumbnails */
 	width: auto;
 	height: auto;
 	object-fit: contain;
@@ -463,6 +463,96 @@
 
 .meld-viewer-nav--next {
 	right: 10px;
+}
+
+/* Viewer Thumbnails */
+.meld-viewer-thumbnails-container {
+	position: absolute;
+	bottom: 20px;
+	left: 50%;
+	transform: translateX(-50%);
+	max-width: 90%;
+	z-index: 2010;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 15px;
+}
+
+.meld-viewer-thumbnails {
+	display: flex;
+	gap: 10px;
+	padding: 10px;
+	background: rgba(0, 0, 0, 0.6);
+	backdrop-filter: blur(8px);
+	border-radius: 12px;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	overflow-x: auto;
+	scrollbar-width: thin;
+}
+
+.meld-viewer-thumbnails::-webkit-scrollbar {
+	height: 4px;
+}
+
+.meld-viewer-thumbnails::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, 0.2);
+	border-radius: 2px;
+}
+
+.meld-viewer-thumbnail {
+	width: 60px;
+	height: 60px;
+	object-fit: cover;
+	border-radius: 6px;
+	cursor: pointer;
+	border: 2px solid transparent;
+	transition: all 0.2s;
+	flex-shrink: 0;
+	position: relative;
+	background: #111;
+	overflow: hidden;
+}
+
+.meld-viewer-thumbnail img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.meld-viewer-thumbnail:hover {
+	border-color: rgba(68, 136, 255, 0.5);
+	transform: scale(1.1);
+}
+
+.meld-viewer-thumbnail--active {
+	border-color: var(--meld-accent-color);
+	transform: scale(1.1);
+	box-shadow: 0 0 10px var(--meld-accent-color);
+}
+
+.meld-viewer-thumbnail-label {
+	position: absolute;
+	top: -18px;
+	left: 50%;
+	transform: translateX(-50%);
+	font-size: 9px;
+	color: white;
+	padding: 1px 4px;
+	border-radius: 4px;
+	white-space: nowrap;
+}
+
+.meld-viewer-thumbnail-label--parent {
+	background: var(--meld-accent-color);
+}
+
+.meld-viewer-thumbnail-label--child {
+	background: #44aa44;
+}
+
+.meld-viewer-thumbnail-label--current {
+	background: #888;
 }
 
 /* Prompt Popup Styles */

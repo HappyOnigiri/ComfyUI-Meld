@@ -1,14 +1,20 @@
 import { ChevronLeft, ChevronRight, Maximize, Minimize, X } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useState } from "react";
+import * as api from "../api";
 import { useGallery } from "../store/GalleryContext";
 
 export const ImageViewer: React.FC = () => {
 	const { state, dispatch } = useGallery();
-	const { viewerImageId, images } = state;
+	const { viewerImageId, images, viewerMode, lineageImages } = state;
 	const [isFullscreen, setIsFullscreen] = useState(false);
+	const [isLoadingLineage, setIsLoadingLineage] = useState(false);
 
-	const image = images.find((img) => img.id === viewerImageId);
+	const image = (
+		viewerMode === "lineage" && lineageImages.length > 0
+			? lineageImages
+			: images
+	).find((img) => img.id === viewerImageId);
 
 	const toggleFullscreen = useCallback(
 		(e?: React.MouseEvent | KeyboardEvent) => {
@@ -60,6 +66,28 @@ export const ImageViewer: React.FC = () => {
 		};
 	}, [viewerImageId, dispatch, toggleFullscreen]);
 
+	// Fetch lineage if needed
+	useEffect(() => {
+		if (
+			viewerMode === "lineage" &&
+			viewerImageId !== null &&
+			lineageImages.length === 0
+		) {
+			setIsLoadingLineage(true);
+			api
+				.fetchLineage(viewerImageId)
+				.then((results) => {
+					dispatch({ type: "SET_LINEAGE", payload: results });
+				})
+				.catch((err) => {
+					console.error("Failed to fetch lineage:", err);
+				})
+				.finally(() => {
+					setIsLoadingLineage(false);
+				});
+		}
+	}, [viewerMode, viewerImageId, lineageImages.length, dispatch]);
+
 	// Cleanup: Exit fullscreen when closing viewer
 	useEffect(() => {
 		return () => {
@@ -69,11 +97,29 @@ export const ImageViewer: React.FC = () => {
 		};
 	}, []);
 
+	// Scroll active thumbnail into view
+	useEffect(() => {
+		if (viewerImageId !== null) {
+			const activeThumb = document.querySelector(
+				".meld-viewer-thumbnail--active",
+			);
+			if (activeThumb) {
+				activeThumb.scrollIntoView({
+					behavior: "smooth",
+					block: "nearest",
+					inline: "center",
+				});
+			}
+		}
+	}, [viewerImageId]);
+
 	if (!image) return null;
 
 	const imgSrc = `/api/view?filename=${encodeURIComponent(image.filename)}&type=${image.type || "output"}${
 		image.subfolder ? `&subfolder=${encodeURIComponent(image.subfolder)}` : ""
 	}`;
+
+	const currentThumbnails = viewerMode === "lineage" ? lineageImages : images;
 
 	return (
 		<div
@@ -119,9 +165,11 @@ export const ImageViewer: React.FC = () => {
 						alt={image.filename}
 						className="meld-viewer-image"
 					/>
-					<div className="meld-viewer-info">
-						<div className="meld-viewer-filename">{image.filename}</div>
-					</div>
+					{!isFullscreen && (
+						<div className="meld-viewer-info">
+							<div className="meld-viewer-filename">{image.filename}</div>
+						</div>
+					)}
 				</div>
 
 				<button
@@ -131,6 +179,64 @@ export const ImageViewer: React.FC = () => {
 				>
 					<ChevronRight size={32} />
 				</button>
+
+				{!isFullscreen && (
+					<div className="meld-viewer-thumbnails-container">
+						<div className="meld-viewer-thumbnails">
+							{isLoadingLineage ? (
+								<div style={{ padding: "10px", color: "#888" }}>
+									履歴を読み込み中...
+								</div>
+							) : (
+								currentThumbnails.map((thumb) => {
+									const isCurrent = thumb.id === viewerImageId;
+									const isParent = image.parent_id === thumb.id;
+									const isChild = thumb.parent_id === image.id;
+
+									const thumbSrc = `/api/view?filename=${encodeURIComponent(thumb.filename)}&type=${thumb.type || "output"}${
+										thumb.subfolder
+											? `&subfolder=${encodeURIComponent(thumb.subfolder)}`
+											: ""
+									}`;
+
+									return (
+										<div
+											key={thumb.id}
+											className={`meld-viewer-thumbnail ${isCurrent ? "meld-viewer-thumbnail--active" : ""}`}
+											onClick={() =>
+												dispatch({
+													type: "OPEN_VIEWER",
+													payload: { id: thumb.id, mode: viewerMode },
+												})
+											}
+										>
+											<img src={thumbSrc} alt={thumb.filename} />
+											{viewerMode === "lineage" && (
+												<>
+													{isCurrent && (
+														<span className="meld-viewer-thumbnail-label meld-viewer-thumbnail-label--current">
+															表示中
+														</span>
+													)}
+													{isParent && (
+														<span className="meld-viewer-thumbnail-label meld-viewer-thumbnail-label--parent">
+															親
+														</span>
+													)}
+													{isChild && (
+														<span className="meld-viewer-thumbnail-label meld-viewer-thumbnail-label--child">
+															子
+														</span>
+													)}
+												</>
+											)}
+										</div>
+									);
+								})
+							)}
+						</div>
+					</div>
+				)}
 			</div>
 		</div>
 	);

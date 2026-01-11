@@ -3,7 +3,6 @@ import type React from "react";
 import { logger } from "../logger";
 import { useGallery } from "../store/GalleryContext";
 import { BulkActionBar } from "./BulkActionBar";
-import { HistoryTreeModal } from "./HistoryTreeModal";
 import { ImageCard } from "./ImageCard";
 import { ImageViewer } from "./ImageViewer";
 import { ParentSelectionModal } from "./ParentSelectionModal";
@@ -103,9 +102,6 @@ export const GalleryPanel: React.FC = () => {
 
 			{state.activeModal.type === "parent_selection" && (
 				<ParentSelectionModal imageId={state.activeModal.imageId} />
-			)}
-			{state.activeModal.type === "history_tree" && (
-				<HistoryTreeModal imageId={state.activeModal.imageId} />
 			)}
 		</div>
 	);

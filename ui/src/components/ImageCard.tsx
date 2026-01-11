@@ -87,8 +87,8 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 							onClick={(e) => {
 								e.stopPropagation();
 								dispatch({
-									type: "OPEN_MODAL",
-									payload: { type: "history_tree", imageId: image.id },
+									type: "OPEN_VIEWER",
+									payload: { id: image.id, mode: "lineage" },
 								});
 							}}
 						>
