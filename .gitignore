@@ -55,6 +55,7 @@ htmlcov/
 *.log
 local_*.json
 local_check_scripts/
+*.code-workspace
 
 tmp/*
 data/*
