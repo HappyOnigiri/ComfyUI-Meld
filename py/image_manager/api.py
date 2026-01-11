@@ -15,7 +15,7 @@ from aiohttp import web
 from PIL import Image
 
 from ..load_image_configs.metadata_helper import MetadataHelper
-from .database import calculate_sha256, find_closest_parent, get_db_connection
+from .database import calculate_sha256, find_closest_parent, get_all_settings, get_db_connection, upsert_setting
 
 _scan_state = {"is_running": False, "should_cancel": False}
 
@@ -354,9 +354,45 @@ async def test_endpoint(request):
 
 @server.PromptServer.instance.routes.get("/api/meld-nexus/settings")
 async def get_settings(request):
-    return web.json_response({
-        "dev_mode": os.environ.get("MELDFLOW_DEV") == "true"
-    })
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        db_settings = get_all_settings(cursor)
+        conn.close()
+
+        # Default settings
+        settings = {
+            "dev_mode": os.environ.get("MELDFLOW_DEV") == "true",
+            "gallery.show_parent_image": True,
+        }
+
+        # Merge with DB settings
+        settings.update(db_settings)
+
+        return web.json_response(settings)
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
+@server.PromptServer.instance.routes.post("/api/meld-nexus/settings")
+async def save_settings(request):
+    try:
+        data = await request.json()
+        key = data.get("key")
+        value = data.get("value")
+
+        if key is None:
+            return web.json_response({"error": "key is required"}, status=400)
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        upsert_setting(cursor, key, value)
+        conn.commit()
+        conn.close()
+
+        return web.json_response({"success": True})
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
 
 
 @server.PromptServer.instance.routes.post("/api/meld-nexus/register")

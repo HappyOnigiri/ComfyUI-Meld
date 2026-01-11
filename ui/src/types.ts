@@ -15,6 +15,11 @@ export interface MeldImage {
 	parent_type?: "output" | "input" | "temp" | null;
 }
 
+export interface Settings {
+	dev_mode: boolean;
+	"gallery.show_parent_image": boolean;
+}
+
 export type ScanStatus = {
 	isRunning: boolean;
 	shouldCancel: boolean;
@@ -27,7 +32,8 @@ export type ScanStatus = {
 export type ActiveModal =
 	| { type: "none" }
 	| { type: "parent_selection"; imageId: number }
-	| { type: "import" };
+	| { type: "import" }
+	| { type: "settings" };
 
 export type GalleryViewMode = "grid" | "list";
 
@@ -44,6 +50,7 @@ export interface GalleryState {
 	activeModal: ActiveModal;
 	lastSelectedId: number | null;
 	scanStatus: ScanStatus;
+	settings: Settings;
 	pagination: {
 		total: number;
 		offset: number;
@@ -89,7 +96,8 @@ export type GalleryAction =
 	| { type: "PREVIOUS_IMAGE" }
 	| { type: "OPEN_MODAL"; payload: ActiveModal }
 	| { type: "CLOSE_MODAL" }
-	| { type: "SET_SCAN_STATUS"; payload: Partial<ScanStatus> };
+	| { type: "SET_SCAN_STATUS"; payload: Partial<ScanStatus> }
+	| { type: "SET_SETTINGS"; payload: Partial<Settings> };
 
 export interface ComfyApp {
 	registerExtension(extension: ComfyExtension): void;

@@ -8,6 +8,7 @@ import {
 	useReducer,
 } from "react";
 import * as api from "../api";
+import { logger } from "../logger";
 import type { GalleryAction, GalleryState } from "../types";
 import { galleryReducer, initialState } from "./galleryReducer";
 
@@ -17,6 +18,10 @@ interface GalleryContextType {
 	refreshImages: () => Promise<void>;
 	loadMoreImages: () => Promise<void>;
 	deleteSelected: () => Promise<void>;
+	updateSetting: (
+		key: string,
+		value: string | number | boolean | null,
+	) => Promise<void>;
 }
 
 const GalleryContext = createContext<GalleryContextType | undefined>(undefined);
@@ -81,6 +86,33 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 		}
 	}, [state.selectedIds, refreshImages]);
 
+	const updateSetting = useCallback(
+		async (key: string, value: string | number | boolean | null) => {
+			try {
+				await api.saveSetting(key, value);
+				dispatch({ type: "SET_SETTINGS", payload: { [key]: value } });
+			} catch (err: unknown) {
+				dispatch({
+					type: "SET_ERROR",
+					payload: err instanceof Error ? err.message : String(err),
+				});
+			}
+		},
+		[],
+	);
+
+	useEffect(() => {
+		const loadSettings = async () => {
+			try {
+				const settings = await api.fetchSettings();
+				dispatch({ type: "SET_SETTINGS", payload: settings });
+			} catch (err) {
+				logger.error("Failed to load settings", err);
+			}
+		};
+		loadSettings();
+	}, []);
+
 	useEffect(() => {
 		const handleRefresh = () => {
 			refreshImages();
@@ -123,7 +155,14 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 
 	return (
 		<GalleryContext.Provider
-			value={{ state, dispatch, refreshImages, loadMoreImages, deleteSelected }}
+			value={{
+				state,
+				dispatch,
+				refreshImages,
+				loadMoreImages,
+				deleteSelected,
+				updateSetting,
+			}}
 		>
 			{children}
 		</GalleryContext.Provider>

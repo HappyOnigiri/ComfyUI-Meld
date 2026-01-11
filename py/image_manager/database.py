@@ -1,4 +1,5 @@
 import hashlib
+import json
 import os
 import sqlite3
 
@@ -112,6 +113,14 @@ def init_db():
         )
     ''')
 
+    # Settings Table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS settings (
+            key TEXT PRIMARY KEY,
+            value TEXT
+        )
+    ''')
+
     # Indices
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_images_created_at ON images(created_at)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_images_parent_id ON images(parent_id)")
@@ -124,6 +133,26 @@ def init_db():
 
 def get_db_connection():
     return sqlite3.connect(DB_PATH)
+
+
+def get_all_settings(cursor):
+    cursor.execute("SELECT key, value FROM settings")
+    rows = cursor.fetchall()
+    settings = {}
+    for key, value in rows:
+        try:
+            settings[key] = json.loads(value)
+        except Exception:
+            settings[key] = value
+    return settings
+
+
+def upsert_setting(cursor, key, value):
+    json_value = json.dumps(value)
+    cursor.execute(
+        "INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+        (key, json_value),
+    )
 
 
 def calculate_sha256(file_path):

@@ -17,6 +17,10 @@ export const initialState: GalleryState = {
 		shouldCancel: false,
 		progress: { current: 0, total: 0 },
 	},
+	settings: {
+		dev_mode: false,
+		"gallery.show_parent_image": true,
+	},
 	pagination: {
 		total: 0,
 		offset: 0,
@@ -261,6 +265,14 @@ export function galleryReducer(
 						...state.scanStatus.progress,
 						...(action.payload.progress || {}),
 					},
+				},
+			};
+		case "SET_SETTINGS":
+			return {
+				...state,
+				settings: {
+					...state.settings,
+					...action.payload,
 				},
 			};
 		default:

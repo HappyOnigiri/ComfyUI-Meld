@@ -3,7 +3,7 @@ import { api } from "../../../scripts/api.js";
 
 (window as unknown as { api: unknown }).api = api;
 
-import type { MeldImage } from "./types";
+import type { MeldImage, Settings } from "./types";
 
 export const fetchImages = async (
 	offset = 0,
@@ -23,12 +23,26 @@ export const fetchImages = async (
 	return await res.json();
 };
 
-export const fetchSettings = async (): Promise<{ dev_mode: boolean }> => {
+export const fetchSettings = async (): Promise<Settings> => {
 	const res = await api.fetchApi("/meld-nexus/settings");
 	if (!res.ok) {
-		return { dev_mode: false };
+		return { dev_mode: false, "gallery.show_parent_image": true };
 	}
 	return await res.json();
+};
+
+export const saveSetting = async (
+	key: string,
+	value: string | number | boolean | null,
+): Promise<void> => {
+	const res = await api.fetchApi("/meld-nexus/settings", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ key, value }),
+	});
+	if (!res.ok) {
+		throw new Error("Failed to save setting");
+	}
 };
 
 export const linkParent = async (
