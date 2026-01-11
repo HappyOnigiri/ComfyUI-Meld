@@ -61,32 +61,6 @@ export const GalleryPanel: React.FC = () => {
 			>
 				<button
 					type="button"
-					onClick={handleSelectAllToggle}
-					style={{
-						background: "none",
-						border: "none",
-						color: "#888",
-						cursor: "pointer",
-						display: "flex",
-						alignItems: "center",
-						gap: "5px",
-					}}
-					disabled={state.images.length === 0}
-				>
-					{state.selectedIds.size > 0 ? (
-						<>
-							<XSquare size={14} />
-							Deselect
-						</>
-					) : (
-						<>
-							<CheckSquare size={14} />
-							Select All
-						</>
-					)}
-				</button>
-				<button
-					type="button"
 					onClick={() =>
 						dispatch({ type: "OPEN_MODAL", payload: { type: "import" } })
 					}
