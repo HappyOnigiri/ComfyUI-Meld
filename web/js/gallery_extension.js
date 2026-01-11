@@ -6563,7 +6563,7 @@ Physical files will also be permanently deleted. This operation cannot be undone
         ".meld-viewer-thumbnail--active"
       );
       m && m.scrollIntoView({
-        behavior: "smooth",
+        behavior: "auto",
         block: "nearest",
         inline: "center"
       });

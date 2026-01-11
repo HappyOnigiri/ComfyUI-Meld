@@ -613,6 +613,7 @@
 .meld-viewer-thumbnail--active {
 	border-color: rgba(255, 255, 255, 0.7);
 	opacity: 1;
+	transition: none;
 }
 
 .meld-viewer-thumbnail--loading {

@@ -139,7 +139,7 @@ export const ImageViewer: React.FC = () => {
 			);
 			if (activeThumb) {
 				activeThumb.scrollIntoView({
-					behavior: "smooth",
+					behavior: "auto",
 					block: "nearest",
 					inline: "center",
 				});
