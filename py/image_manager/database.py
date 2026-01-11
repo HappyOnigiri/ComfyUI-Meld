@@ -136,11 +136,22 @@ def calculate_sha256(file_path):
     return sha256_hash.hexdigest()
 
 
-def find_closest_parent(phash, cursor, threshold=8):
+def find_closest_parent(phash, cursor, threshold=8, exclude_id=None, before_timestamp=None):
     if not phash:
         return None
 
-    cursor.execute("SELECT id, phash FROM images WHERE phash IS NOT NULL AND is_deleted = 0")
+    query = "SELECT id, phash FROM images WHERE phash IS NOT NULL AND is_deleted = 0"
+    params = []
+
+    if exclude_id:
+        query += " AND id != ?"
+        params.append(exclude_id)
+
+    if before_timestamp:
+        query += " AND created_at < ?"
+        params.append(before_timestamp)
+
+    cursor.execute(query, params)
     rows = cursor.fetchall()
 
     def hamming_distance(h1, h2):

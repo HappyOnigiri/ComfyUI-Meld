@@ -135,7 +135,9 @@ class MeldNexus:
                 o_i = 255. * origin_image[0].cpu().numpy()
                 o_img = Image.fromarray(np.clip(o_i, 0, 255).astype(np.uint8))
                 o_phash = str(imagehash.phash(o_img))
-                parent_id = find_closest_parent(o_phash, cursor)
+                # Current time as timestamp for the new image being saved
+                current_timestamp = time.time()
+                parent_id = find_closest_parent(o_phash, cursor, before_timestamp=current_timestamp)
             except Exception:
                 pass
 

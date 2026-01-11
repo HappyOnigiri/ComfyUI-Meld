@@ -191,9 +191,9 @@ def _scan_thread(base_dir, subfolder, recursive, auto_link_parent):
 
                 # Rule 2: pHash match
                 if parent_id is None and iphash:
-                    parent_id = find_closest_parent(iphash, cursor)
+                    parent_id = find_closest_parent(iphash, cursor, exclude_id=img_id, before_timestamp=icreated)
 
-                if parent_id:
+                if parent_id and parent_id != img_id:
                     cursor.execute("UPDATE images SET parent_id = ? WHERE id = ?", (parent_id, img_id))
 
             conn.commit()
@@ -432,7 +432,7 @@ async def register_image(request):
                 logging.warning(f"[Meld-Flow] Failed to calculate phash for {full_path}")
 
         # Infer parent_id
-        parent_id = find_closest_parent(phash, cursor)
+        parent_id = find_closest_parent(phash, cursor, before_timestamp=timestamp)
 
         # Insert Image
         sql = """
@@ -713,8 +713,29 @@ async def link_parent(request):
         if child_id is None:
             return web.json_response({"error": "childId is required"}, status=400)
 
+        if child_id == parent_id:
+             return web.json_response({"error": "Cannot set an image as its own parent"}, status=400)
+
         conn = get_db_connection()
         cursor = conn.cursor()
+
+        # Check created_at timestamps to prevent circular dependencies (parent must be older than child)
+        if parent_id is not None:
+            cursor.execute("SELECT created_at FROM images WHERE id = ?", (child_id,))
+            child_row = cursor.fetchone()
+            cursor.execute("SELECT created_at FROM images WHERE id = ?", (parent_id,))
+            parent_row = cursor.fetchone()
+
+            if child_row and parent_row:
+                child_created = child_row[0]
+                parent_created = parent_row[0]
+                if parent_created >= child_created:
+                    conn.close()
+                    return web.json_response(
+                        {"error": "Parent image must be older than the child image"},
+                        status=400
+                    )
+
         cursor.execute("UPDATE images SET parent_id = ? WHERE id = ?", (parent_id, child_id))
         conn.commit()
         conn.close()
@@ -772,8 +793,8 @@ async def suggest_parents(request):
                          cursor.execute(f"""
                             SELECT id, filename, subfolder, type, phash, created_at
                             FROM images
-                            WHERE filename IN ({placeholders}) AND is_deleted = 0
-                         """, source_filenames)
+                            WHERE filename IN ({placeholders}) AND is_deleted = 0 AND id != ? AND created_at < ?
+                         """, (*source_filenames, image_id, target_created_at))
                          for match in cursor.fetchall():
                              source_matches.append({
                                 "id": match[0],
