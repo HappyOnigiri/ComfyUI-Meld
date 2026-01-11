@@ -9,12 +9,19 @@ from ..load_image_configs.metadata_helper import MetadataHelper
 from .database import get_db_connection
 
 
-@server.PromptServer.instance.routes.get("/meld-nexus/test")
+@server.PromptServer.instance.routes.get("/api/meld-nexus/test")
 async def test_endpoint(request):
     return web.json_response({"status": "ok", "message": "Meld Nexus is running"})
 
 
-@server.PromptServer.instance.routes.post("/meld-nexus/register")
+@server.PromptServer.instance.routes.get("/api/meld-nexus/settings")
+async def get_settings(request):
+    return web.json_response({
+        "dev_mode": os.environ.get("MELDFLOW_DEV") == "true"
+    })
+
+
+@server.PromptServer.instance.routes.post("/api/meld-nexus/register")
 async def register_image(request):
     try:
         if request.has_body and request.content_type == "application/json":
@@ -121,7 +128,7 @@ async def register_image(request):
         return web.json_response({"error": "internal error"}, status=500)
 
 
-@server.PromptServer.instance.routes.get("/meld-nexus/list")
+@server.PromptServer.instance.routes.get("/api/meld-nexus/list")
 async def list_images(request):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -178,7 +185,7 @@ async def list_images(request):
     conn.close()
     return web.json_response(result_list)
 
-@server.PromptServer.instance.routes.post("/meld-nexus/bulk-delete")
+@server.PromptServer.instance.routes.post("/api/meld-nexus/bulk-delete")
 async def bulk_delete_images(request):
     try:
         data = await request.json()
@@ -228,7 +235,7 @@ async def bulk_delete_images(request):
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.post("/meld-nexus/delete")
+@server.PromptServer.instance.routes.post("/api/meld-nexus/delete")
 async def delete_image(request):
     try:
         data = await request.json()

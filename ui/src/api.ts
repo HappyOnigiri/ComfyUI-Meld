@@ -14,6 +14,14 @@ export const fetchImages = async (): Promise<MeldImage[]> => {
     return await res.json();
 };
 
+export const fetchSettings = async (): Promise<{ dev_mode: boolean }> => {
+    const res = await api.fetchApi("/meld-nexus/settings");
+    if (!res.ok) {
+        return { dev_mode: false };
+    }
+    return await res.json();
+};
+
 export const deleteImages = async (ids: number[], deleteFiles: boolean = true): Promise<void> => {
     const res = await api.fetchApi("/meld-nexus/bulk-delete", {
         method: "POST",
