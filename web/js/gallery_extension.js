@@ -6356,7 +6356,10 @@ Physical files will also be permanently deleted. This operation cannot be undone
       document.removeEventListener("mousedown", s);
     };
   }, [o]);
-  const d = e.parent_id ? t.images.find((s) => s.id === e.parent_id) : null, y = d ? `/api/view?filename=${encodeURIComponent(d.filename)}&type=${d.type || "output"}${d.subfolder ? `&subfolder=${encodeURIComponent(d.subfolder)}` : ""}` : null, v = e.subfolder ? `${e.subfolder}/${e.filename}` : e.filename, h = `/api/view?filename=${encodeURIComponent(e.filename)}&type=${e.type || "output"}${e.subfolder ? `&subfolder=${encodeURIComponent(e.subfolder)}` : ""}`, k = (s) => {
+  const d = e.parent_id ? t.images.find((s) => s.id === e.parent_id) : null;
+  let y = null;
+  d ? y = `/api/view?filename=${encodeURIComponent(d.filename)}&type=${d.type || "output"}${d.subfolder ? `&subfolder=${encodeURIComponent(d.subfolder)}` : ""}` : e.parent_id && e.parent_filename && (y = `/api/view?filename=${encodeURIComponent(e.parent_filename)}&type=${e.parent_type || "output"}${e.parent_subfolder ? `&subfolder=${encodeURIComponent(e.parent_subfolder)}` : ""}`);
+  const v = e.subfolder ? `${e.subfolder}/${e.filename}` : e.filename, h = `/api/view?filename=${encodeURIComponent(e.filename)}&type=${e.type || "output"}${e.subfolder ? `&subfolder=${encodeURIComponent(e.subfolder)}` : ""}`, k = (s) => {
     s.shiftKey ? (s.preventDefault(), s.stopPropagation(), n({ type: "SELECT_RANGE", payload: e.id })) : s.ctrlKey || s.metaKey || t.selectedIds.size > 0 ? (s.preventDefault(), s.stopPropagation(), n({ type: "TOGGLE_SELECT", payload: e.id })) : n({ type: "OPEN_VIEWER", payload: e.id });
   }, S = (s) => {
     s.shiftKey ? (s.preventDefault(), s.stopPropagation(), n({ type: "SELECT_RANGE", payload: e.id })) : n({ type: "TOGGLE_SELECT", payload: e.id });

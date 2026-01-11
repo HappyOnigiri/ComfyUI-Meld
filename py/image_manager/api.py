@@ -509,8 +509,11 @@ async def list_images(request):
 
         # Fetch images with basic info
         cursor.execute("""
-            SELECT id, filename, subfolder, type, created_at, phash, sha256, parent_id
-            FROM images WHERE is_deleted = 0 ORDER BY created_at DESC
+            SELECT i.id, i.filename, i.subfolder, i.type, i.created_at, i.phash, i.sha256, i.parent_id,
+                   p.filename as parent_filename, p.subfolder as parent_subfolder, p.type as parent_type
+            FROM images i
+            LEFT JOIN images p ON i.parent_id = p.id
+            WHERE i.is_deleted = 0 ORDER BY i.created_at DESC
             LIMIT ? OFFSET ?
         """, (limit, offset))
         images = cursor.fetchall()
@@ -518,7 +521,19 @@ async def list_images(request):
         result_list = []
 
         for img in images:
-            img_id, filename, subfolder, img_type, created_at, phash, sha256, parent_id = img
+            (
+                img_id,
+                filename,
+                subfolder,
+                img_type,
+                created_at,
+                phash,
+                sha256,
+                parent_id,
+                p_filename,
+                p_subfolder,
+                p_type,
+            ) = img
 
             # Fetch positive prompt
             cursor.execute("""
@@ -568,6 +583,9 @@ async def list_images(request):
                 "phash": phash,
                 "sha256": sha256,
                 "parent_id": parent_id,
+                "parent_filename": p_filename,
+                "parent_subfolder": p_subfolder,
+                "parent_type": p_type,
                 "positive": positive,
                 "negative": negative,
                 "tags": tags
@@ -904,8 +922,10 @@ async def get_lineage(request):
             UNION
             SELECT i.id FROM images i JOIN descendants d ON i.parent_id = d.id
         )
-        SELECT i.id, i.filename, i.subfolder, i.type, i.created_at, i.parent_id, i.phash
+        SELECT i.id, i.filename, i.subfolder, i.type, i.created_at, i.parent_id, i.phash,
+               p.filename as parent_filename, p.subfolder as parent_subfolder, p.type as parent_type
         FROM images i
+        LEFT JOIN images p ON i.parent_id = p.id
         WHERE (i.id IN (SELECT id FROM ancestors) OR i.id IN (SELECT id FROM descendants))
         AND i.is_deleted = 0
         ORDER BY i.created_at
@@ -923,7 +943,10 @@ async def get_lineage(request):
                 "type": row[3],
                 "created_at": row[4],
                 "parent_id": row[5],
-                "phash": row[6]
+                "phash": row[6],
+                "parent_filename": row[7],
+                "parent_subfolder": row[8],
+                "parent_type": row[9]
             })
 
         conn.close()

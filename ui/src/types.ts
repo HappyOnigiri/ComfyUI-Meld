@@ -10,6 +10,9 @@ export interface MeldImage {
 	phash?: string;
 	sha256?: string;
 	parent_id?: number | null;
+	parent_filename?: string | null;
+	parent_subfolder?: string | null;
+	parent_type?: "output" | "input" | "temp" | null;
 }
 
 export type ScanStatus = {

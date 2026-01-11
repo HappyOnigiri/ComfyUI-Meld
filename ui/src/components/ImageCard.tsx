@@ -36,15 +36,25 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 	const parentImage = image.parent_id
 		? state.images.find((img) => img.id === image.parent_id)
 		: null;
-	const parentImgSrc = parentImage
-		? `/api/view?filename=${encodeURIComponent(parentImage.filename)}&type=${
-				parentImage.type || "output"
-			}${
-				parentImage.subfolder
-					? `&subfolder=${encodeURIComponent(parentImage.subfolder)}`
-					: ""
-			}`
-		: null;
+
+	let parentImgSrc: string | null = null;
+	if (parentImage) {
+		parentImgSrc = `/api/view?filename=${encodeURIComponent(parentImage.filename)}&type=${
+			parentImage.type || "output"
+		}${
+			parentImage.subfolder
+				? `&subfolder=${encodeURIComponent(parentImage.subfolder)}`
+				: ""
+		}`;
+	} else if (image.parent_id && image.parent_filename) {
+		parentImgSrc = `/api/view?filename=${encodeURIComponent(image.parent_filename)}&type=${
+			image.parent_type || "output"
+		}${
+			image.parent_subfolder
+				? `&subfolder=${encodeURIComponent(image.parent_subfolder)}`
+				: ""
+		}`;
+	}
 
 	const fullFilename = image.subfolder
 		? `${image.subfolder}/${image.filename}`
