@@ -23,6 +23,9 @@ _scan_state = {"is_running": False, "should_cancel": False}
 def _scan_thread(base_dir, subfolder, recursive, auto_link_parent):
     global _scan_state
     conn = None
+    new_count = 0
+    total = 0
+    processed = 0
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -39,7 +42,6 @@ def _scan_thread(base_dir, subfolder, recursive, auto_link_parent):
                     image_files.append(os.path.join(root, f))
 
         total = len(image_files)
-        processed = 0
 
         # Step 1: Register all images
         newly_registered_ids = []
@@ -65,7 +67,7 @@ def _scan_thread(base_dir, subfolder, recursive, auto_link_parent):
                 if existing:
                     processed += 1
                     server.PromptServer.instance.send_sync(
-                        "meld-nexus-scan-progress", {"current": processed, "total": total}
+                        "meld-nexus-scan-progress", {"current": processed, "total": total, "phase": "registering"}
                     )
                     continue
 
@@ -95,6 +97,7 @@ def _scan_thread(base_dir, subfolder, recursive, auto_link_parent):
                 )
                 image_id = cursor.lastrowid
                 newly_registered_ids.append(image_id)
+                new_count += 1
 
                 # Insert Prompts
                 pos_list = MetadataHelper.smart_split(pos) if pos else []
@@ -134,7 +137,7 @@ def _scan_thread(base_dir, subfolder, recursive, auto_link_parent):
 
                 processed += 1
                 server.PromptServer.instance.send_sync(
-                    "meld-nexus-scan-progress", {"current": processed, "total": total}
+                    "meld-nexus-scan-progress", {"current": processed, "total": total, "phase": "registering"}
                 )
 
                 # Commit periodically or at the end
@@ -149,6 +152,8 @@ def _scan_thread(base_dir, subfolder, recursive, auto_link_parent):
 
         # Step 2: Parent Linking (Auto)
         if auto_link_parent and not _scan_state["should_cancel"]:
+            total_linking = len(newly_registered_ids)
+            processed_linking = 0
             for img_id in newly_registered_ids:
                 if _scan_state["should_cancel"]:
                     break
@@ -159,6 +164,7 @@ def _scan_thread(base_dir, subfolder, recursive, auto_link_parent):
                 )
                 row = cursor.fetchone()
                 if not row:
+                    processed_linking += 1
                     continue
                 fname, subf, itype, iphash, icreated = row
 
@@ -196,6 +202,13 @@ def _scan_thread(base_dir, subfolder, recursive, auto_link_parent):
                 if parent_id and parent_id != img_id:
                     cursor.execute("UPDATE images SET parent_id = ? WHERE id = ?", (parent_id, img_id))
 
+                processed_linking += 1
+                if processed_linking % 5 == 0 or processed_linking == total_linking:
+                    server.PromptServer.instance.send_sync(
+                        "meld-nexus-scan-progress",
+                        {"current": processed_linking, "total": total_linking, "phase": "linking"}
+                    )
+
             conn.commit()
 
     except Exception as e:
@@ -205,7 +218,10 @@ def _scan_thread(base_dir, subfolder, recursive, auto_link_parent):
             conn.close()
         _scan_state["is_running"] = False
         _scan_state["should_cancel"] = False
-        server.PromptServer.instance.send_sync("meld-nexus-scan-finished", {"status": "completed"})
+        server.PromptServer.instance.send_sync(
+            "meld-nexus-scan-finished",
+            {"status": "completed", "new_count": new_count, "total_count": processed}
+        )
 
 
 @server.PromptServer.instance.routes.get("/api/meld-nexus/folders")
