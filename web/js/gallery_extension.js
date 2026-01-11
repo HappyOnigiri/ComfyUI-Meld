@@ -6395,9 +6395,9 @@ pc.registerExtension({
       try {
         e.extensionManager.registerSidebarTab({
           id: "meld-flow-gallery",
-          icon: "pi pi-images",
-          title: "Gallery",
-          tooltip: "Meld Flow: View generated images",
+          icon: "meld-nexus-icon",
+          title: "Nexus",
+          tooltip: "Meld Flow: Nexus",
           type: "custom",
           render: (n) => {
             $e.log("MeldNexus: render called", { el: n, galleryRoot: Er, galleryContainer: ze }), ze || ($e.log("MeldNexus: galleryContainer not found, creating new one"), ze = document.createElement("div"), ze.id = "meld-flow-gallery-container", ze.style.height = "100%", ze.style.width = "100%", ze.style.display = "flex", ze.style.flexDirection = "column"), n.contains(ze) || ($e.log("MeldNexus: Appending galleryContainer to el"), n.appendChild(ze)), Er ? $e.log(

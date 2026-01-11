@@ -110,9 +110,9 @@ app.registerExtension({
         try {
             app.extensionManager.registerSidebarTab({
                 id: "meld-flow-gallery",
-                icon: "pi pi-images",
-                title: "Gallery",
-                tooltip: "Meld Flow: View generated images",
+                icon: "meld-nexus-icon",
+                title: "Nexus",
+                tooltip: "Meld Flow: Nexus",
                 type: "custom",
                 render: (el: HTMLElement) => {
                     logger.log("MeldNexus: render called", { el, galleryRoot, galleryContainer });
