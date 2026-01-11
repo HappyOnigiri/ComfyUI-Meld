@@ -117,8 +117,8 @@ class MeldNexus:
             tag_list = [t.strip() for t in tags.split(',') if t.strip()]
 
         # Split prompts into lists for separate registration
-        pos_list = [p.strip() for p in resolved_positive.split(',') if p.strip()] if resolved_positive else []
-        neg_list = [n.strip() for n in resolved_negative.split(',') if n.strip()] if resolved_negative else []
+        pos_list = MetadataHelper.smart_split(resolved_positive) if resolved_positive else []
+        neg_list = MetadataHelper.smart_split(resolved_negative) if resolved_negative else []
 
         for (batch_number, image) in enumerate(images):
             # Tensor [B, H, W, C] -> PIL
@@ -151,22 +151,32 @@ class MeldNexus:
 
             # Insert Prompts
             for p in pos_list:
-                cursor.execute("INSERT OR IGNORE INTO positive_prompts (name) VALUES (?)", (p,))
-                cursor.execute("SELECT id FROM positive_prompts WHERE name = ?", (p,))
-                pp_id = cursor.fetchone()[0]
-                cursor.execute(
-                    "INSERT INTO positive_prompt_image_relations (image_id, positive_prompt_id) VALUES (?, ?)",
-                    (image_id, pp_id)
-                )
+                prompt_results = MetadataHelper.parse_prompt_with_weight(p)
+                for clean_name, strength in prompt_results:
+                    if not clean_name:
+                        continue
+                    cursor.execute("INSERT OR IGNORE INTO positive_prompts (name) VALUES (?)", (clean_name,))
+                    cursor.execute("SELECT id FROM positive_prompts WHERE name = ?", (clean_name,))
+                    pp_id = cursor.fetchone()[0]
+                    cursor.execute(
+                        "INSERT INTO positive_prompt_image_relations "
+                        "(image_id, positive_prompt_id, strength) VALUES (?, ?, ?)",
+                        (image_id, pp_id, strength)
+                    )
 
             for n in neg_list:
-                cursor.execute("INSERT OR IGNORE INTO negative_prompts (name) VALUES (?)", (n,))
-                cursor.execute("SELECT id FROM negative_prompts WHERE name = ?", (n,))
-                np_id = cursor.fetchone()[0]
-                cursor.execute(
-                    "INSERT INTO negative_prompt_image_relations (image_id, negative_prompt_id) VALUES (?, ?)",
-                    (image_id, np_id)
-                )
+                prompt_results = MetadataHelper.parse_prompt_with_weight(n)
+                for clean_name, strength in prompt_results:
+                    if not clean_name:
+                        continue
+                    cursor.execute("INSERT OR IGNORE INTO negative_prompts (name) VALUES (?)", (clean_name,))
+                    cursor.execute("SELECT id FROM negative_prompts WHERE name = ?", (clean_name,))
+                    np_id = cursor.fetchone()[0]
+                    cursor.execute(
+                        "INSERT INTO negative_prompt_image_relations "
+                        "(image_id, negative_prompt_id, strength) VALUES (?, ?, ?)",
+                        (image_id, np_id, strength)
+                    )
 
             # Insert Tags
             for tag in tag_list:

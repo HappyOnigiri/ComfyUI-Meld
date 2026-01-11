@@ -91,30 +91,40 @@ async def register_image(request):
         image_id = cursor.lastrowid
 
         # Insert Prompts
-        pos_list = [p.strip() for p in pos.split(",") if p.strip()] if pos else []
-        neg_list = [n.strip() for n in neg.split(",") if n.strip()] if neg else []
+        pos_list = MetadataHelper.smart_split(pos) if pos else []
+        neg_list = MetadataHelper.smart_split(neg) if neg else []
 
         for p in pos_list:
-            cursor.execute("INSERT OR IGNORE INTO positive_prompts (name) VALUES (?)", (p,))
-            cursor.execute("SELECT id FROM positive_prompts WHERE name = ?", (p,))
-            row = cursor.fetchone()
-            if row:
-                pp_id = row[0]
-                cursor.execute(
-                    "INSERT INTO positive_prompt_image_relations (image_id, positive_prompt_id) VALUES (?, ?)",
-                    (image_id, pp_id),
-                )
+            prompt_results = MetadataHelper.parse_prompt_with_weight(p)
+            for clean_name, strength in prompt_results:
+                if not clean_name:
+                    continue
+                cursor.execute("INSERT OR IGNORE INTO positive_prompts (name) VALUES (?)", (clean_name,))
+                cursor.execute("SELECT id FROM positive_prompts WHERE name = ?", (clean_name,))
+                row = cursor.fetchone()
+                if row:
+                    pp_id = row[0]
+                    cursor.execute(
+                        "INSERT INTO positive_prompt_image_relations "
+                        "(image_id, positive_prompt_id, strength) VALUES (?, ?, ?)",
+                        (image_id, pp_id, strength),
+                    )
 
         for n in neg_list:
-            cursor.execute("INSERT OR IGNORE INTO negative_prompts (name) VALUES (?)", (n,))
-            cursor.execute("SELECT id FROM negative_prompts WHERE name = ?", (n,))
-            row = cursor.fetchone()
-            if row:
-                np_id = row[0]
-                cursor.execute(
-                    "INSERT INTO negative_prompt_image_relations (image_id, negative_prompt_id) VALUES (?, ?)",
-                    (image_id, np_id),
-                )
+            prompt_results = MetadataHelper.parse_prompt_with_weight(n)
+            for clean_name, strength in prompt_results:
+                if not clean_name:
+                    continue
+                cursor.execute("INSERT OR IGNORE INTO negative_prompts (name) VALUES (?)", (clean_name,))
+                cursor.execute("SELECT id FROM negative_prompts WHERE name = ?", (clean_name,))
+                row = cursor.fetchone()
+                if row:
+                    np_id = row[0]
+                    cursor.execute(
+                        "INSERT INTO negative_prompt_image_relations "
+                        "(image_id, negative_prompt_id, strength) VALUES (?, ?, ?)",
+                        (image_id, np_id, strength),
+                    )
 
         conn.commit()
         conn.close()
@@ -146,21 +156,33 @@ async def list_images(request):
 
         # Fetch positive prompt
         cursor.execute("""
-            SELECT pp.name FROM positive_prompts pp
+            SELECT pp.name, r.strength FROM positive_prompts pp
             JOIN positive_prompt_image_relations r ON pp.id = r.positive_prompt_id
             WHERE r.image_id = ?
         """, (img_id,))
         pos_rows = cursor.fetchall()
-        positive = ", ".join([r[0] for r in pos_rows])
+        pos_list = []
+        for name, strength in pos_rows:
+            if strength == 1.0:
+                pos_list.append(name)
+            else:
+                pos_list.append(f"({name}:{strength})")
+        positive = ", ".join(pos_list)
 
         # Fetch negative prompt
         cursor.execute("""
-            SELECT np.name FROM negative_prompts np
+            SELECT np.name, r.strength FROM negative_prompts np
             JOIN negative_prompt_image_relations r ON np.id = r.negative_prompt_id
             WHERE r.image_id = ?
         """, (img_id,))
         neg_rows = cursor.fetchall()
-        negative = ", ".join([r[0] for r in neg_rows])
+        neg_list = []
+        for name, strength in neg_rows:
+            if strength == 1.0:
+                neg_list.append(name)
+            else:
+                neg_list.append(f"({name}:{strength})")
+        negative = ", ".join(neg_list)
 
         # Fetch tags
         cursor.execute("""
