@@ -66,6 +66,7 @@ export const ImageViewer: React.FC = () => {
 		state.isLoading,
 		state.pagination.hasMore,
 		loadMoreImages,
+		images,
 	]);
 
 	useEffect(() => {
