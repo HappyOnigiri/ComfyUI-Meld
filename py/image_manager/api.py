@@ -849,30 +849,23 @@ async def get_lineage(request):
         WITH RECURSIVE
         ancestors(id) AS (
             SELECT id FROM images WHERE id = ?
-            UNION ALL
+            UNION
             SELECT i.parent_id FROM images i JOIN ancestors a ON i.id = a.id WHERE i.parent_id IS NOT NULL
         ),
         descendants(id) AS (
             SELECT id FROM images WHERE id = ?
-            UNION ALL
+            UNION
             SELECT i.id FROM images i JOIN descendants d ON i.parent_id = d.id
         )
-        SELECT DISTINCT i.id, i.filename, i.subfolder, i.type, i.created_at, i.parent_id, i.phash
+        SELECT i.id, i.filename, i.subfolder, i.type, i.created_at, i.parent_id, i.phash
         FROM images i
-        WHERE i.id IN (SELECT id FROM ancestors) OR i.id IN (SELECT id FROM descendants)
+        WHERE (i.id IN (SELECT id FROM ancestors) OR i.id IN (SELECT id FROM descendants))
         AND i.is_deleted = 0
         ORDER BY i.created_at
         """
 
-        try:
-            cursor.execute(sql, (image_id, image_id))
-            rows = cursor.fetchall()
-        except Exception:
-             cursor.execute("""
-                SELECT id, filename, subfolder, type, created_at, parent_id, phash
-                FROM images WHERE is_deleted = 0
-             """)
-             rows = cursor.fetchall()
+        cursor.execute(sql, (image_id, image_id))
+        rows = cursor.fetchall()
 
         result = []
         for row in rows:

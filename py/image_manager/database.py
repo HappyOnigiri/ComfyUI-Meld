@@ -114,6 +114,7 @@ def init_db():
 
     # Indices
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_images_created_at ON images(created_at)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_images_parent_id ON images(parent_id)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_pp_name ON positive_prompts(name)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_np_name ON negative_prompts(name)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_tag_name ON tags(name)")
