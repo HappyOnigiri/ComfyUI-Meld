@@ -1,5 +1,6 @@
-import { CheckSquare, Download, RefreshCw, XSquare } from "lucide-react";
+import { Download, RefreshCw } from "lucide-react";
 import type React from "react";
+import { useEffect, useRef } from "react";
 import { logger } from "../logger";
 import { useGallery } from "../store/GalleryContext";
 import { BulkActionBar } from "./BulkActionBar";
@@ -10,20 +11,43 @@ import { ParentSelectionModal } from "./ParentSelectionModal";
 import "../styles/Gallery.css";
 
 export const GalleryPanel: React.FC = () => {
-	const { state, dispatch, refreshImages } = useGallery();
+	const { state, dispatch, refreshImages, loadMoreImages } = useGallery();
+	const loadMoreRef = useRef<HTMLDivElement>(null);
+
 	logger.log("GalleryPanel: rendering", {
 		imageCount: state.images.length,
 		isLoading: state.isLoading,
 		activeModal: state.activeModal.type,
 	});
 
-	const handleSelectAllToggle = () => {
-		if (state.selectedIds.size > 0) {
-			dispatch({ type: "CLEAR_SELECTION" });
-		} else {
-			dispatch({ type: "SELECT_ALL" });
+	useEffect(() => {
+		const observer = new IntersectionObserver(
+			(entries) => {
+				if (
+					entries[0].isIntersecting &&
+					!state.isLoading &&
+					state.pagination.hasMore
+				) {
+					logger.log(
+						"GalleryPanel: Load more triggered via IntersectionObserver",
+					);
+					loadMoreImages();
+				}
+			},
+			{ threshold: 0.1 },
+		);
+
+		const currentRef = loadMoreRef.current;
+		if (currentRef) {
+			observer.observe(currentRef);
 		}
-	};
+
+		return () => {
+			if (currentRef) {
+				observer.unobserve(currentRef);
+			}
+		};
+	}, [loadMoreImages, state.isLoading, state.pagination.hasMore]);
 
 	return (
 		<div className="meld-gallery">
@@ -108,11 +132,25 @@ export const GalleryPanel: React.FC = () => {
 			) : state.images.length === 0 ? (
 				<div className="meld-gallery__empty">No images found.</div>
 			) : (
-				<div className="meld-gallery__list">
-					{state.images.map((image) => (
-						<ImageCard key={image.id} image={image} />
-					))}
-				</div>
+				<>
+					<div className="meld-gallery__list">
+						{state.images.map((image) => (
+							<ImageCard key={image.id} image={image} />
+						))}
+					</div>
+					<div
+						ref={loadMoreRef}
+						className="meld-gallery__load-more"
+						style={{ height: "20px", margin: "20px 0", textAlign: "center" }}
+					>
+						{state.isLoading && (
+							<div className="meld-gallery__loading">Loading more...</div>
+						)}
+						{!state.pagination.hasMore && state.images.length > 0 && (
+							<div className="meld-gallery__end">End of gallery</div>
+						)}
+					</div>
+				</>
 			)}
 
 			<BulkActionBar />
