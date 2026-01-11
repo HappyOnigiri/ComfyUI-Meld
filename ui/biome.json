@@ -26,7 +26,8 @@
             "recommended": true,
             "suspicious": {
                 "noExplicitAny": "error",
-                "noCommentText": "error"
+                "noCommentText": "error",
+                "noTsIgnore": "error"
             },
             "complexity": {
                 "noUselessTypeConstraint": "error"
