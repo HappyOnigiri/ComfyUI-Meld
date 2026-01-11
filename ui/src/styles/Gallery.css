@@ -1041,6 +1041,7 @@
 .meld-btn {
 	display: flex;
 	align-items: center;
+	justify-content: center;
 	gap: 8px;
 	padding: 8px 20px;
 	border-radius: 4px;
@@ -1069,6 +1070,41 @@
 .meld-btn-danger {
 	background: var(--meld-danger-color);
 	color: white;
+}
+
+/* Import Scan Finished */
+.meld-scan-finished {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 40px 20px;
+	gap: 15px;
+	text-align: center;
+}
+
+.meld-finished-icon {
+	margin-bottom: 10px;
+}
+
+.meld-scan-finished h3 {
+	margin: 0;
+	font-size: 20px;
+	color: var(--meld-text-color);
+}
+
+.meld-scan-finished p {
+	color: #888;
+	margin: 0;
+}
+
+.meld-scan-finished strong {
+	color: var(--meld-accent-color);
+}
+
+.meld-scan-finished .meld-scan-actions {
+	justify-content: center;
+	margin-top: 10px;
 }
 
 /* Import Modal Browser */
