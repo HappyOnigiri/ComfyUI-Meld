@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 
@@ -12,7 +13,50 @@ from aiohttp import web
 from PIL import Image
 
 from ..load_image_configs.metadata_helper import MetadataHelper
-from .database import get_db_connection
+from .database import calculate_sha256, find_closest_parent, get_db_connection
+
+
+def extract_source_filenames(workflow_json, prompt_json):
+    filenames = set()
+
+    # Helper to check for image inputs
+    def check_inputs(inputs):
+        if not isinstance(inputs, dict):
+            return
+        # Common widget names for image loading
+        for key, val in inputs.items():
+            if key in ['image', 'filename', 'image_path'] and isinstance(val, str):
+                filenames.add(val)
+
+    # Parse workflow_json (graph format)
+    if workflow_json:
+        try:
+            data = json.loads(workflow_json) if isinstance(workflow_json, str) else workflow_json
+            if isinstance(data, dict):
+                nodes = data.get('nodes', [])
+                if isinstance(nodes, list):
+                    for node in nodes:
+                        widgets_values = node.get('widgets_values')
+                        if isinstance(widgets_values, list):
+                            for val in widgets_values:
+                                if isinstance(val, str) and any(
+                                    val.lower().endswith(ext) for ext in [".png", ".jpg", ".jpeg", ".webp"]
+                                ):
+                                    filenames.add(val)
+        except Exception:
+            pass
+
+    # Parse prompt_json (API format)
+    if prompt_json:
+        try:
+            data = json.loads(prompt_json) if isinstance(prompt_json, str) else prompt_json
+            if isinstance(data, dict):
+                for node_data in data.values():
+                    check_inputs(node_data.get('inputs', {}))
+        except Exception:
+            pass
+
+    return list(filenames)
 
 
 @server.PromptServer.instance.routes.get("/api/meld-nexus/test")
@@ -91,6 +135,7 @@ async def register_image(request):
 
         # Calculate pHash
         phash = None
+        sha256 = calculate_sha256(full_path)
         if imagehash is not None:
             try:
                 with Image.open(full_path) as img:
@@ -98,10 +143,18 @@ async def register_image(request):
             except Exception:
                 logging.warning(f"[Meld-Flow] Failed to calculate phash for {full_path}")
 
+        # Infer parent_id
+        parent_id = find_closest_parent(phash, cursor)
+
         # Insert Image
+        sql = """
+            INSERT INTO images
+            (filename, subfolder, type, created_at, phash, sha256, parent_id, is_deleted)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 0)
+        """
         cursor.execute(
-            "INSERT INTO images (filename, subfolder, type, created_at, phash, is_deleted) VALUES (?, ?, ?, ?, ?, 0)",
-            (filename, subfolder, img_type, timestamp, phash),
+            sql,
+            (filename, subfolder, img_type, timestamp, phash, sha256, parent_id),
         )
         image_id = cursor.lastrowid
 
@@ -160,7 +213,7 @@ async def list_images(request):
 
     # Fetch images with basic info
     cursor.execute("""
-        SELECT id, filename, subfolder, type, created_at, phash
+        SELECT id, filename, subfolder, type, created_at, phash, sha256, parent_id
         FROM images WHERE is_deleted = 0 ORDER BY created_at DESC
     """)
     images = cursor.fetchall()
@@ -168,7 +221,7 @@ async def list_images(request):
     result_list = []
 
     for img in images:
-        img_id, filename, subfolder, img_type, created_at, phash = img
+        img_id, filename, subfolder, img_type, created_at, phash, sha256, parent_id = img
 
         # Fetch positive prompt
         cursor.execute("""
@@ -216,6 +269,8 @@ async def list_images(request):
             "type": img_type,
             "created_at": created_at,
             "phash": phash,
+            "sha256": sha256,
+            "parent_id": parent_id,
             "positive": positive,
             "negative": negative,
             "tags": tags
@@ -223,6 +278,7 @@ async def list_images(request):
 
     conn.close()
     return web.json_response(result_list)
+
 
 @server.PromptServer.instance.routes.get("/api/meld-nexus/related")
 async def get_related_images(request):
@@ -356,4 +412,194 @@ async def delete_image(request):
         conn.close()
         return web.json_response({"success": True})
     except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
+@server.PromptServer.instance.routes.post("/api/meld-nexus/link-parent")
+async def link_parent(request):
+    try:
+        data = await request.json()
+        child_id = data.get("childId")
+        parent_id = data.get("parentId")
+
+        if child_id is None:
+            return web.json_response({"error": "childId is required"}, status=400)
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE images SET parent_id = ? WHERE id = ?", (parent_id, child_id))
+        conn.commit()
+        conn.close()
+        return web.json_response({"success": True})
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
+@server.PromptServer.instance.routes.get("/api/meld-nexus/suggest-parents")
+async def suggest_parents(request):
+    try:
+        image_id = request.query.get("id")
+        threshold = int(request.query.get("threshold", 12)) # Slightly higher threshold for suggestions
+
+        if not image_id:
+            return web.json_response({"error": "id is required"}, status=400)
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Get the target phash and file info
+        cursor.execute("SELECT phash, created_at, filename, subfolder, type FROM images WHERE id = ?", (image_id,))
+        row = cursor.fetchone()
+        if not row:
+            conn.close()
+            return web.json_response([])
+
+        target_phash = row[0]
+        target_created_at = row[1]
+        filename = row[2]
+        subfolder = row[3]
+        img_type = row[4]
+
+        # 1. Find source filenames from metadata
+        source_matches = []
+        try:
+             # Resolve base directory
+            if img_type == "output":
+                base_dir = folder_paths.get_output_directory()
+            elif img_type == "input":
+                base_dir = folder_paths.get_input_directory()
+            elif img_type == "temp":
+                base_dir = folder_paths.get_temp_directory()
+            else:
+                base_dir = None
+
+            if base_dir:
+                full_path = os.path.join(base_dir, subfolder, filename)
+                if os.path.exists(full_path):
+                     pos, neg, model, wf_json, pr_json, a1111_text, logs = MetadataHelper.extract_metadata(full_path)
+                     source_filenames = extract_source_filenames(wf_json, pr_json)
+
+                     if source_filenames:
+                         placeholders = ",".join(["?"] * len(source_filenames))
+                         cursor.execute(f"""
+                            SELECT id, filename, subfolder, type, phash, created_at
+                            FROM images
+                            WHERE filename IN ({placeholders}) AND is_deleted = 0
+                         """, source_filenames)
+                         for match in cursor.fetchall():
+                             source_matches.append({
+                                "id": match[0],
+                                "filename": match[1],
+                                "subfolder": match[2],
+                                "type": match[3],
+                                "distance": 0, # Perfect match logic
+                                "created_at": match[5],
+                                "is_source_match": True
+                             })
+        except Exception as e:
+            logging.warning(f"[Meld-Flow] Failed to extract source filenames: {e}")
+
+        # 2. Find pHash matches
+        phash_matches = []
+        if target_phash:
+            # Fetch images created BEFORE the target image
+            cursor.execute("""
+                SELECT id, filename, subfolder, type, phash, created_at FROM images
+                WHERE id != ? AND phash IS NOT NULL AND is_deleted = 0 AND created_at < ?
+                ORDER BY created_at DESC
+            """, (image_id, target_created_at))
+            other_images = cursor.fetchall()
+
+            def hamming_distance(h1, h2):
+                try:
+                    return bin(int(h1, 16) ^ int(h2, 16)).count('1')
+                except Exception:
+                    return 999
+
+            for img_id, filename, subfolder, img_type, phash, created_at in other_images:
+                # Skip if already in source matches
+                if any(m["id"] == img_id for m in source_matches):
+                    continue
+
+                dist = hamming_distance(target_phash, phash)
+                if dist <= threshold:
+                    phash_matches.append({
+                        "id": img_id,
+                        "filename": filename,
+                        "subfolder": subfolder,
+                        "type": img_type,
+                        "distance": dist,
+                        "created_at": created_at,
+                        "is_source_match": False
+                    })
+
+            # Sort by distance, then by created_at (most recent first)
+            phash_matches.sort(key=lambda x: (x["distance"], -x["created_at"]))
+
+        # Combine: Source matches first, then top 3 pHash matches
+        final_suggestions = source_matches + phash_matches[:3]
+
+        conn.close()
+        return web.json_response(final_suggestions)
+    except Exception as e:
+        logging.exception("[Meld-Flow] Failed to suggest parents")
+        return web.json_response({"error": str(e)}, status=500)
+
+
+@server.PromptServer.instance.routes.get("/api/meld-nexus/lineage")
+async def get_lineage(request):
+    try:
+        image_id = request.query.get("id")
+        if not image_id:
+            return web.json_response({"error": "id is required"}, status=400)
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Recursive query to get all ancestors and descendants
+        sql = """
+        WITH RECURSIVE
+        ancestors(id) AS (
+            SELECT id FROM images WHERE id = ?
+            UNION ALL
+            SELECT i.parent_id FROM images i JOIN ancestors a ON i.id = a.id WHERE i.parent_id IS NOT NULL
+        ),
+        descendants(id) AS (
+            SELECT id FROM images WHERE id = ?
+            UNION ALL
+            SELECT i.id FROM images i JOIN descendants d ON i.parent_id = d.id
+        )
+        SELECT DISTINCT i.id, i.filename, i.subfolder, i.type, i.created_at, i.parent_id, i.phash
+        FROM images i
+        WHERE i.id IN (SELECT id FROM ancestors) OR i.id IN (SELECT id FROM descendants)
+        AND i.is_deleted = 0
+        ORDER BY i.created_at
+        """
+
+        try:
+            cursor.execute(sql, (image_id, image_id))
+            rows = cursor.fetchall()
+        except Exception:
+             cursor.execute("""
+                SELECT id, filename, subfolder, type, created_at, parent_id, phash
+                FROM images WHERE is_deleted = 0
+             """)
+             rows = cursor.fetchall()
+
+        result = []
+        for row in rows:
+            result.append({
+                "id": row[0],
+                "filename": row[1],
+                "subfolder": row[2],
+                "type": row[3],
+                "created_at": row[4],
+                "parent_id": row[5],
+                "phash": row[6]
+            })
+
+        conn.close()
+        return web.json_response(result)
+    except Exception as e:
+        logging.exception("[Meld-Flow] Failed to get lineage")
         return web.json_response({"error": str(e)}, status=500)

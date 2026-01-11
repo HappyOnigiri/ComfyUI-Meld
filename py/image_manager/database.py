@@ -1,3 +1,4 @@
+import hashlib
 import os
 import sqlite3
 
@@ -14,13 +15,27 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             filename TEXT,
             subfolder TEXT,
-            created_at REAL
+            created_at REAL,
+            sha256 TEXT,
+            parent_id INTEGER
         )
     ''')
 
     # Add phash column if not exists
     try:
         cursor.execute("ALTER TABLE images ADD COLUMN phash TEXT")
+    except sqlite3.OperationalError:
+        pass
+
+    # Add sha256 column if not exists
+    try:
+        cursor.execute("ALTER TABLE images ADD COLUMN sha256 TEXT")
+    except sqlite3.OperationalError:
+        pass
+
+    # Add parent_id column if not exists
+    try:
+        cursor.execute("ALTER TABLE images ADD COLUMN parent_id INTEGER")
     except sqlite3.OperationalError:
         pass
 
@@ -108,3 +123,38 @@ def init_db():
 
 def get_db_connection():
     return sqlite3.connect(DB_PATH)
+
+
+def calculate_sha256(file_path):
+    if not os.path.exists(file_path):
+        return None
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+
+def find_closest_parent(phash, cursor, threshold=8):
+    if not phash:
+        return None
+
+    cursor.execute("SELECT id, phash FROM images WHERE phash IS NOT NULL AND is_deleted = 0")
+    rows = cursor.fetchall()
+
+    def hamming_distance(h1, h2):
+        try:
+            return bin(int(h1, 16) ^ int(h2, 16)).count('1')
+        except Exception:
+            return 999
+
+    best_id = None
+    min_dist = threshold + 1
+
+    for img_id, other_phash in rows:
+        dist = hamming_distance(phash, other_phash)
+        if dist < min_dist:
+            min_dist = dist
+            best_id = img_id
+
+    return best_id

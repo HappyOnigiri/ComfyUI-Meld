@@ -17,7 +17,7 @@ from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 
 from ..load_image_configs.metadata_helper import MetadataHelper
-from .database import get_db_connection
+from .database import calculate_sha256, find_closest_parent, get_db_connection
 
 
 # --- Custom Node Definition ---
@@ -44,6 +44,7 @@ class MeldNexus:
                 }),
             },
             "optional": {
+                "origin_image": ("IMAGE",),
                 "positive": ("STRING", {"forceInput": True, "multiline": True}),
                 "negative": ("STRING", {"forceInput": True, "multiline": True}),
                 "tags": ("STRING", {"multiline": False}),
@@ -62,6 +63,7 @@ class MeldNexus:
         self,
         images,
         filename_prefix="MeldFlow",
+        origin_image=None,
         positive=None,
         negative=None,
         tags=None,
@@ -125,6 +127,18 @@ class MeldNexus:
         pos_list = MetadataHelper.smart_split(resolved_positive) if resolved_positive else []
         neg_list = MetadataHelper.smart_split(resolved_negative) if resolved_negative else []
 
+        # Parent ID inference from origin_image
+        parent_id = None
+        if origin_image is not None and imagehash is not None:
+            try:
+                # Use the first image in batch for phash calculation
+                o_i = 255. * origin_image[0].cpu().numpy()
+                o_img = Image.fromarray(np.clip(o_i, 0, 255).astype(np.uint8))
+                o_phash = str(imagehash.phash(o_img))
+                parent_id = find_closest_parent(o_phash, cursor)
+            except Exception:
+                pass
+
         for (batch_number, image) in enumerate(images):
             # Tensor [B, H, W, C] -> PIL
             # ComfyUI images are [B, H, W, C] Tensors
@@ -143,9 +157,11 @@ class MeldNexus:
 
             filename_with_batch_num = filename.replace("%batch_num%", str(batch_number))
             file = f"{filename_with_batch_num}_{counter:05}_.png"
-            img.save(os.path.join(full_output_folder, file), pnginfo=metadata, compress_level=self.compress_level)
+            full_path = os.path.join(full_output_folder, file)
+            img.save(full_path, pnginfo=metadata, compress_level=self.compress_level)
 
             timestamp = time.time()
+            sha256 = calculate_sha256(full_path)
 
             # Calculate pHash
             phash = None
@@ -156,9 +172,14 @@ class MeldNexus:
                     pass
 
             # Insert Image
+            sql = """
+                INSERT INTO images
+                (filename, subfolder, created_at, phash, sha256, parent_id, is_deleted)
+                VALUES (?, ?, ?, ?, ?, ?, 0)
+            """
             cursor.execute(
-                "INSERT INTO images (filename, subfolder, created_at, phash, is_deleted) VALUES (?, ?, ?, ?, 0)",
-                (file, subfolder, timestamp, phash)
+                sql,
+                (file, subfolder, timestamp, phash, sha256, parent_id)
             )
             image_id = cursor.lastrowid
 
