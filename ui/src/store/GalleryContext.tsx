@@ -15,6 +15,7 @@ interface GalleryContextType {
 	state: GalleryState;
 	dispatch: React.Dispatch<GalleryAction>;
 	refreshImages: () => Promise<void>;
+	loadMoreImages: () => Promise<void>;
 	deleteSelected: () => Promise<void>;
 }
 
@@ -28,15 +29,36 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 	const refreshImages = useCallback(async () => {
 		dispatch({ type: "SET_LOADING", payload: true });
 		try {
-			const images = await api.fetchImages();
-			dispatch({ type: "SET_IMAGES", payload: images });
+			const result = await api.fetchImages(0, state.pagination.limit);
+			dispatch({ type: "SET_IMAGES", payload: result });
 		} catch (err: unknown) {
 			dispatch({
 				type: "SET_ERROR",
 				payload: err instanceof Error ? err.message : String(err),
 			});
 		}
-	}, []);
+	}, [state.pagination.limit]);
+
+	const loadMoreImages = useCallback(async () => {
+		if (state.isLoading || !state.pagination.hasMore) return;
+
+		dispatch({ type: "SET_LOADING", payload: true });
+		try {
+			const nextOffset = state.images.length;
+			const result = await api.fetchImages(nextOffset, state.pagination.limit);
+			dispatch({ type: "APPEND_IMAGES", payload: result });
+		} catch (err: unknown) {
+			dispatch({
+				type: "SET_ERROR",
+				payload: err instanceof Error ? err.message : String(err),
+			});
+		}
+	}, [
+		state.isLoading,
+		state.pagination.hasMore,
+		state.pagination.limit,
+		state.images.length,
+	]);
 
 	const deleteSelected = useCallback(async () => {
 		if (state.selectedIds.size === 0) return;
@@ -101,7 +123,7 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 
 	return (
 		<GalleryContext.Provider
-			value={{ state, dispatch, refreshImages, deleteSelected }}
+			value={{ state, dispatch, refreshImages, loadMoreImages, deleteSelected }}
 		>
 			{children}
 		</GalleryContext.Provider>

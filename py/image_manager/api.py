@@ -496,76 +496,93 @@ async def register_image(request):
 
 @server.PromptServer.instance.routes.get("/api/meld-nexus/list")
 async def list_images(request):
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    try:
+        offset = int(request.query.get("offset", 0))
+        limit = int(request.query.get("limit", 1000000))
 
-    # Fetch images with basic info
-    cursor.execute("""
-        SELECT id, filename, subfolder, type, created_at, phash, sha256, parent_id
-        FROM images WHERE is_deleted = 0 ORDER BY created_at DESC
-    """)
-    images = cursor.fetchall()
+        conn = get_db_connection()
+        cursor = conn.cursor()
 
-    result_list = []
+        # Get total count
+        cursor.execute("SELECT COUNT(*) FROM images WHERE is_deleted = 0")
+        total_count = cursor.fetchone()[0]
 
-    for img in images:
-        img_id, filename, subfolder, img_type, created_at, phash, sha256, parent_id = img
-
-        # Fetch positive prompt
+        # Fetch images with basic info
         cursor.execute("""
-            SELECT pp.name, r.strength FROM positive_prompts pp
-            JOIN positive_prompt_image_relations r ON pp.id = r.positive_prompt_id
-            WHERE r.image_id = ?
-        """, (img_id,))
-        pos_rows = cursor.fetchall()
-        pos_list = []
-        for name, strength in pos_rows:
-            if strength == 1.0:
-                pos_list.append(name)
-            else:
-                pos_list.append(f"({name}:{strength})")
-        positive = ", ".join(pos_list)
+            SELECT id, filename, subfolder, type, created_at, phash, sha256, parent_id
+            FROM images WHERE is_deleted = 0 ORDER BY created_at DESC
+            LIMIT ? OFFSET ?
+        """, (limit, offset))
+        images = cursor.fetchall()
 
-        # Fetch negative prompt
-        cursor.execute("""
-            SELECT np.name, r.strength FROM negative_prompts np
-            JOIN negative_prompt_image_relations r ON np.id = r.negative_prompt_id
-            WHERE r.image_id = ?
-        """, (img_id,))
-        neg_rows = cursor.fetchall()
-        neg_list = []
-        for name, strength in neg_rows:
-            if strength == 1.0:
-                neg_list.append(name)
-            else:
-                neg_list.append(f"({name}:{strength})")
-        negative = ", ".join(neg_list)
+        result_list = []
 
-        # Fetch tags
-        cursor.execute("""
-            SELECT t.name FROM tags t
-            JOIN tag_image_relations r ON t.id = r.tag_id
-            WHERE r.image_id = ?
-        """, (img_id,))
-        tag_rows = cursor.fetchall()
-        tags = [t[0] for t in tag_rows]
+        for img in images:
+            img_id, filename, subfolder, img_type, created_at, phash, sha256, parent_id = img
 
-        result_list.append({
-            "id": img_id,
-            "filename": filename,
-            "subfolder": subfolder,
-            "type": img_type,
-            "created_at": created_at,
-            "phash": phash,
-            "sha256": sha256,
-            "parent_id": parent_id,
-            "positive": positive,
-            "negative": negative,
-            "tags": tags
+            # Fetch positive prompt
+            cursor.execute("""
+                SELECT pp.name, r.strength FROM positive_prompts pp
+                JOIN positive_prompt_image_relations r ON pp.id = r.positive_prompt_id
+                WHERE r.image_id = ?
+            """, (img_id,))
+            pos_rows = cursor.fetchall()
+            pos_list = []
+            for name, strength in pos_rows:
+                if strength == 1.0:
+                    pos_list.append(name)
+                else:
+                    pos_list.append(f"({name}:{strength})")
+            positive = ", ".join(pos_list)
+
+            # Fetch negative prompt
+            cursor.execute("""
+                SELECT np.name, r.strength FROM negative_prompts np
+                JOIN negative_prompt_image_relations r ON np.id = r.negative_prompt_id
+                WHERE r.image_id = ?
+            """, (img_id,))
+            neg_rows = cursor.fetchall()
+            neg_list = []
+            for name, strength in neg_rows:
+                if strength == 1.0:
+                    neg_list.append(name)
+                else:
+                    neg_list.append(f"({name}:{strength})")
+            negative = ", ".join(neg_list)
+
+            # Fetch tags
+            cursor.execute("""
+                SELECT t.name FROM tags t
+                JOIN tag_image_relations r ON t.id = r.tag_id
+                WHERE r.image_id = ?
+            """, (img_id,))
+            tag_rows = cursor.fetchall()
+            tags = [t[0] for t in tag_rows]
+
+            result_list.append({
+                "id": img_id,
+                "filename": filename,
+                "subfolder": subfolder,
+                "type": img_type,
+                "created_at": created_at,
+                "phash": phash,
+                "sha256": sha256,
+                "parent_id": parent_id,
+                "positive": positive,
+                "negative": negative,
+                "tags": tags
+            })
+
+        conn.close()
+        return web.json_response({
+            "images": result_list,
+            "total": total_count,
+            "offset": offset,
+            "limit": limit
         })
-
-    conn.close()
-    return web.json_response(result_list)
+    except Exception as e:
+        logging.exception("[Meld-Flow] Failed to list images")
+        return web.json_response({"error": str(e)}, status=500)
 
 
 @server.PromptServer.instance.routes.get("/api/meld-nexus/related")

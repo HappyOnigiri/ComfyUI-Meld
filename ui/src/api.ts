@@ -5,8 +5,18 @@ import { api } from "../../../scripts/api.js";
 
 import type { MeldImage } from "./types";
 
-export const fetchImages = async (): Promise<MeldImage[]> => {
-	const res = await api.fetchApi("/meld-nexus/list");
+export const fetchImages = async (
+	offset = 0,
+	limit = 30,
+): Promise<{
+	images: MeldImage[];
+	total: number;
+	offset: number;
+	limit: number;
+}> => {
+	const res = await api.fetchApi(
+		`/meld-nexus/list?offset=${offset}&limit=${limit}`,
+	);
 	if (!res.ok) {
 		throw new Error(`Failed to fetch images: ${res.statusText}`);
 	}

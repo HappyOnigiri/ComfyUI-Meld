@@ -17,6 +17,12 @@ export const initialState: GalleryState = {
 		shouldCancel: false,
 		progress: { current: 0, total: 0 },
 	},
+	pagination: {
+		total: 0,
+		offset: 0,
+		limit: 30,
+		hasMore: false,
+	},
 };
 
 export function galleryReducer(
@@ -25,21 +31,49 @@ export function galleryReducer(
 ): GalleryState {
 	switch (action.type) {
 		case "SET_IMAGES": {
+			const { images, total, offset, limit } = action.payload;
 			// If viewer is open and in gallery mode, check if the image still exists
 			let newViewerId = state.viewerImageId;
 			if (
 				state.viewerMode === "gallery" &&
 				newViewerId !== null &&
-				!action.payload.some((img) => img.id === newViewerId)
+				!images.some((img) => img.id === newViewerId)
 			) {
 				newViewerId = null;
 			}
 			return {
 				...state,
-				images: action.payload,
+				images,
 				isLoading: false,
 				error: null,
 				viewerImageId: newViewerId,
+				pagination: {
+					total,
+					offset,
+					limit,
+					hasMore: offset + images.length < total,
+				},
+			};
+		}
+		case "APPEND_IMAGES": {
+			const { images, total, offset, limit } = action.payload;
+			const combinedImages = [...state.images, ...images];
+			// Filter out potential duplicates if any (shouldn't happen with correct offset/limit)
+			const uniqueImages = Array.from(
+				new Map(combinedImages.map((img) => [img.id, img])).values(),
+			);
+
+			return {
+				...state,
+				images: uniqueImages,
+				isLoading: false,
+				error: null,
+				pagination: {
+					total,
+					offset,
+					limit,
+					hasMore: offset + images.length < total,
+				},
 			};
 		}
 		case "SET_LINEAGE":

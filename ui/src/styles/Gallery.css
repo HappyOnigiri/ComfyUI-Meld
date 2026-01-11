@@ -35,6 +35,15 @@
 	color: #666;
 }
 
+.meld-gallery__end {
+	text-align: center;
+	padding: 20px;
+	color: #666;
+	font-size: 0.9em;
+	border-top: 1px solid var(--meld-border-color);
+	margin-top: 20px;
+}
+
 /* ImageCard Styles */
 .meld-image-card {
 	display: flex;

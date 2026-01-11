@@ -41,10 +41,33 @@ export interface GalleryState {
 	activeModal: ActiveModal;
 	lastSelectedId: number | null;
 	scanStatus: ScanStatus;
+	pagination: {
+		total: number;
+		offset: number;
+		limit: number;
+		hasMore: boolean;
+	};
 }
 
 export type GalleryAction =
-	| { type: "SET_IMAGES"; payload: MeldImage[] }
+	| {
+			type: "SET_IMAGES";
+			payload: {
+				images: MeldImage[];
+				total: number;
+				offset: number;
+				limit: number;
+			};
+	  }
+	| {
+			type: "APPEND_IMAGES";
+			payload: {
+				images: MeldImage[];
+				total: number;
+				offset: number;
+				limit: number;
+			};
+	  }
 	| { type: "SET_LINEAGE"; payload: MeldImage[] }
 	| { type: "SET_LOADING"; payload: boolean }
 	| { type: "SET_ERROR"; payload: string | null }
