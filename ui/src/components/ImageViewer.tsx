@@ -1,30 +1,68 @@
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Maximize, Minimize, X } from "lucide-react";
 import type React from "react";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useGallery } from "../store/GalleryContext";
 
 export const ImageViewer: React.FC = () => {
     const { state, dispatch } = useGallery();
     const { viewerImageId, images } = state;
+    const [isFullscreen, setIsFullscreen] = useState(false);
 
     const image = images.find((img) => img.id === viewerImageId);
+
+    const toggleFullscreen = useCallback((e?: React.MouseEvent | KeyboardEvent) => {
+        if (e && "stopPropagation" in e) {
+            e.stopPropagation();
+        }
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch((err) => {
+                console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+            });
+        } else {
+            document.exitFullscreen();
+        }
+    }, []);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (viewerImageId === null) return;
 
             if (e.key === "Escape") {
-                dispatch({ type: "CLOSE_VIEWER" });
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                } else {
+                    dispatch({ type: "CLOSE_VIEWER" });
+                }
             } else if (e.key === "ArrowRight") {
                 dispatch({ type: "NEXT_IMAGE" });
             } else if (e.key === "ArrowLeft") {
                 dispatch({ type: "PREVIOUS_IMAGE" });
+            } else if (e.key === "f" || e.key === "F") {
+                toggleFullscreen(e);
             }
         };
 
+        const handleFullscreenChange = () => {
+            setIsFullscreen(!!document.fullscreenElement);
+        };
+
         window.addEventListener("keydown", handleKeyDown);
-        return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [viewerImageId, dispatch]);
+        document.addEventListener("fullscreenchange", handleFullscreenChange);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+            document.removeEventListener("fullscreenchange", handleFullscreenChange);
+        };
+    }, [viewerImageId, dispatch, toggleFullscreen]);
+
+    // Cleanup: Exit fullscreen when closing viewer
+    useEffect(() => {
+        return () => {
+            if (document.fullscreenElement) {
+                document.exitFullscreen().catch(() => {});
+            }
+        };
+    }, []);
 
     if (!image) return null;
 
@@ -43,14 +81,28 @@ export const ImageViewer: React.FC = () => {
         >
             {/* biome-ignore lint/a11y/noStaticElementInteractions: Stop propagation to prevent closing */}
             {/* biome-ignore lint/a11y/useKeyWithClickEvents: Stop propagation */}
-            <div className="meld-viewer-content" onClick={(e) => e.stopPropagation()}>
-                <button
-                    className="meld-viewer-close"
-                    onClick={() => dispatch({ type: "CLOSE_VIEWER" })}
-                    type="button"
-                >
-                    <X size={24} />
-                </button>
+            <div
+                className={`meld-viewer-content ${isFullscreen ? "meld-viewer-content--fullscreen" : ""}`}
+                onClick={(e) => e.stopPropagation()}
+            >
+                <div className="meld-viewer-actions">
+                    <button
+                        className="meld-viewer-action-btn"
+                        onClick={toggleFullscreen}
+                        type="button"
+                        title={isFullscreen ? "Exit Fullscreen (F)" : "Fullscreen (F)"}
+                    >
+                        {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
+                    </button>
+                    <button
+                        className="meld-viewer-action-btn meld-viewer-action-btn--close"
+                        onClick={() => dispatch({ type: "CLOSE_VIEWER" })}
+                        type="button"
+                        title="Close (Esc)"
+                    >
+                        <X size={20} />
+                    </button>
+                </div>
 
                 <button
                     className="meld-viewer-nav meld-viewer-nav--prev"
