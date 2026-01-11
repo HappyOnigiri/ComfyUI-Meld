@@ -34,7 +34,7 @@ export const GalleryPanel: React.FC = () => {
 					loadMoreImages();
 				}
 			},
-			{ threshold: 0.1 },
+			{ threshold: 0, rootMargin: "800px" },
 		);
 
 		const currentRef = loadMoreRef.current;

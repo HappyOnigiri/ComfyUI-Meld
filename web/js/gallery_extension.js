@@ -7035,7 +7035,7 @@ Physical files will also be permanently deleted. This operation cannot be undone
           "GalleryPanel: Load more triggered via IntersectionObserver"
         ), r());
       },
-      { threshold: 0.1 }
+      { threshold: 0, rootMargin: "800px" }
     ), o = l.current;
     return o && i.observe(o), () => {
       o && i.unobserve(o);
