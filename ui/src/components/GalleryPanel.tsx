@@ -15,8 +15,34 @@ export const GalleryPanel: React.FC = () => {
 	const { state, dispatch, refreshImages, loadMoreImages } = useGallery();
 	const loadMoreRef = useRef<HTMLDivElement>(null);
 
+	const displayedImages = state.settings["gallery.hide_missing_images"]
+		? state.images.filter((img) => img.exists !== false)
+		: state.images;
+
+	// If there are no images to display but more exist, automatically load the next page
+	useEffect(() => {
+		if (
+			!state.isLoading &&
+			state.pagination.hasMore &&
+			state.images.length > 0 &&
+			displayedImages.length === 0
+		) {
+			logger.log(
+				"GalleryPanel: Auto-loading more because all loaded images are hidden",
+			);
+			loadMoreImages();
+		}
+	}, [
+		state.isLoading,
+		state.pagination.hasMore,
+		state.images.length,
+		displayedImages.length,
+		loadMoreImages,
+	]);
+
 	logger.log("GalleryPanel: rendering", {
 		imageCount: state.images.length,
+		displayedCount: displayedImages.length,
 		isLoading: state.isLoading,
 		activeModal: state.activeModal.type,
 	});
@@ -121,14 +147,14 @@ export const GalleryPanel: React.FC = () => {
 
 			{state.error && <div className="meld-gallery__error">{state.error}</div>}
 
-			{state.isLoading && state.images.length === 0 ? (
+			{state.isLoading && displayedImages.length === 0 ? (
 				<div className="meld-gallery__loading">Loading images...</div>
-			) : state.images.length === 0 ? (
+			) : displayedImages.length === 0 ? (
 				<div className="meld-gallery__empty">No images found.</div>
 			) : (
 				<>
 					<div className="meld-gallery__list">
-						{state.images.map((image) => (
+						{displayedImages.map((image) => (
 							<ImageCard key={image.id} image={image} />
 						))}
 					</div>
@@ -140,7 +166,7 @@ export const GalleryPanel: React.FC = () => {
 						{state.isLoading && (
 							<div className="meld-gallery__loading">Loading more...</div>
 						)}
-						{!state.pagination.hasMore && state.images.length > 0 && (
+						{!state.pagination.hasMore && displayedImages.length > 0 && (
 							<div className="meld-gallery__end">End of gallery</div>
 						)}
 					</div>

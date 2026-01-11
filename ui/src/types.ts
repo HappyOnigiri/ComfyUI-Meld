@@ -13,11 +13,13 @@ export interface MeldImage {
 	parent_filename?: string | null;
 	parent_subfolder?: string | null;
 	parent_type?: "output" | "input" | "temp" | null;
+	exists?: boolean;
 }
 
 export interface Settings {
 	dev_mode: boolean;
 	"gallery.show_parent_image": boolean;
+	"gallery.hide_missing_images": boolean;
 }
 
 export type ScanStatus = {
