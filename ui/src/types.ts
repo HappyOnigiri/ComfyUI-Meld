@@ -29,6 +29,7 @@ export interface GalleryState {
 	viewerMode: "gallery" | "lineage";
 	lineageImages: MeldImage[];
 	activeModal: ActiveModal;
+	lastSelectedId: number | null;
 }
 
 export type GalleryAction =
@@ -37,6 +38,7 @@ export type GalleryAction =
 	| { type: "SET_LOADING"; payload: boolean }
 	| { type: "SET_ERROR"; payload: string | null }
 	| { type: "TOGGLE_SELECT"; payload: number }
+	| { type: "SELECT_RANGE"; payload: number }
 	| { type: "SELECT_ALL" }
 	| { type: "CLEAR_SELECTION" }
 	| { type: "SET_VIEW_MODE"; payload: GalleryViewMode }

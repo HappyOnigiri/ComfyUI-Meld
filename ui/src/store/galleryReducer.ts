@@ -11,6 +11,7 @@ export const initialState: GalleryState = {
 	viewerMode: "gallery",
 	lineageImages: [],
 	activeModal: { type: "none" },
+	lastSelectedId: null,
 };
 
 export function galleryReducer(
@@ -54,14 +55,57 @@ export function galleryReducer(
 			};
 		case "TOGGLE_SELECT": {
 			const newSelectedIds = new Set<number>(state.selectedIds);
+			let lastSelectedId = state.lastSelectedId;
 			if (newSelectedIds.has(action.payload)) {
 				newSelectedIds.delete(action.payload);
+				if (lastSelectedId === action.payload) {
+					lastSelectedId = null;
+				}
 			} else {
 				newSelectedIds.add(action.payload);
+				lastSelectedId = action.payload;
 			}
 			return {
 				...state,
 				selectedIds: newSelectedIds,
+				lastSelectedId,
+			};
+		}
+		case "SELECT_RANGE": {
+			if (state.lastSelectedId === null) {
+				// No last selected image, so just toggle this one
+				const newSelectedIds = new Set<number>(state.selectedIds);
+				newSelectedIds.add(action.payload);
+				return {
+					...state,
+					selectedIds: newSelectedIds,
+					lastSelectedId: action.payload,
+				};
+			}
+
+			const startIndex = state.images.findIndex(
+				(img) => img.id === state.lastSelectedId,
+			);
+			const endIndex = state.images.findIndex(
+				(img) => img.id === action.payload,
+			);
+
+			if (startIndex === -1 || endIndex === -1) return state;
+
+			const [minIdx, maxIdx] = [
+				Math.min(startIndex, endIndex),
+				Math.max(startIndex, endIndex),
+			];
+			const newSelectedIds = new Set<number>(state.selectedIds);
+
+			for (let i = minIdx; i <= maxIdx; i++) {
+				newSelectedIds.add(state.images[i].id);
+			}
+
+			return {
+				...state,
+				selectedIds: newSelectedIds,
+				lastSelectedId: action.payload,
 			};
 		}
 		case "SELECT_ALL":
@@ -70,11 +114,13 @@ export function galleryReducer(
 				selectedIds: new Set<number>(
 					state.images.map((img: MeldImage) => img.id),
 				),
+				lastSelectedId: state.images.length > 0 ? state.images[0].id : null,
 			};
 		case "CLEAR_SELECTION":
 			return {
 				...state,
 				selectedIds: new Set<number>(),
+				lastSelectedId: null,
 			};
 		case "SET_VIEW_MODE":
 			return {

@@ -37,7 +37,11 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 	}`;
 
 	const handleClick = (e: React.MouseEvent) => {
-		if (e.ctrlKey || e.metaKey || state.selectedIds.size > 0) {
+		if (e.shiftKey) {
+			e.preventDefault();
+			e.stopPropagation();
+			dispatch({ type: "SELECT_RANGE", payload: image.id });
+		} else if (e.ctrlKey || e.metaKey || state.selectedIds.size > 0) {
 			e.preventDefault();
 			e.stopPropagation();
 			dispatch({ type: "TOGGLE_SELECT", payload: image.id });
@@ -46,8 +50,20 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 		}
 	};
 
-	const handleContainerClick = (_e: React.MouseEvent) => {
-		dispatch({ type: "TOGGLE_SELECT", payload: image.id });
+	const handleContainerClick = (e: React.MouseEvent) => {
+		if (e.shiftKey) {
+			e.preventDefault();
+			e.stopPropagation();
+			dispatch({ type: "SELECT_RANGE", payload: image.id });
+		} else {
+			dispatch({ type: "TOGGLE_SELECT", payload: image.id });
+		}
+	};
+
+	const handleMouseDown = (e: React.MouseEvent) => {
+		if (e.shiftKey || e.ctrlKey || e.metaKey || state.selectedIds.size > 0) {
+			e.preventDefault();
+		}
 	};
 
 	const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -61,6 +77,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 		<div
 			className={`meld-image-card ${isSelected ? "meld-image-card--selected" : ""}`}
 			onClick={handleContainerClick}
+			onMouseDown={handleMouseDown}
 			onKeyDown={handleKeyDown}
 			role="button"
 			tabIndex={0}
@@ -71,6 +88,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 					className="meld-image-card__thumbnail"
 					alt={image.filename}
 					loading="lazy"
+					onMouseDown={handleMouseDown}
 					onClick={(e) => {
 						e.stopPropagation();
 						handleClick(e);
