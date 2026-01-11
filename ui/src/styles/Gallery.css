@@ -506,12 +506,13 @@
 	object-fit: cover;
 	border-radius: 6px;
 	cursor: pointer;
-	border: 2px solid transparent;
+	border: 1px solid transparent;
 	transition: all 0.2s;
 	flex-shrink: 0;
 	position: relative;
 	background: #111;
 	overflow: hidden;
+	opacity: 0.6;
 }
 
 .meld-viewer-thumbnail img {
@@ -521,14 +522,13 @@
 }
 
 .meld-viewer-thumbnail:hover {
-	border-color: rgba(68, 136, 255, 0.5);
-	transform: scale(1.1);
+	border-color: rgba(255, 255, 255, 0.3);
+	opacity: 1;
 }
 
 .meld-viewer-thumbnail--active {
-	border-color: var(--meld-accent-color);
-	transform: scale(1.1);
-	box-shadow: 0 0 10px var(--meld-accent-color);
+	border-color: rgba(255, 255, 255, 0.7);
+	opacity: 1;
 }
 
 .meld-viewer-thumbnail-label {
@@ -549,10 +549,6 @@
 
 .meld-viewer-thumbnail-label--child {
 	background: #44aa44;
-}
-
-.meld-viewer-thumbnail-label--current {
-	background: #888;
 }
 
 /* Prompt Popup Styles */

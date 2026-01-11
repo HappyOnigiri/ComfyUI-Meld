@@ -185,7 +185,7 @@ export const ImageViewer: React.FC = () => {
 						<div className="meld-viewer-thumbnails">
 							{isLoadingLineage ? (
 								<div style={{ padding: "10px", color: "#888" }}>
-									履歴を読み込み中...
+									Loading lineage...
 								</div>
 							) : (
 								currentThumbnails.map((thumb) => {
@@ -213,19 +213,14 @@ export const ImageViewer: React.FC = () => {
 											<img src={thumbSrc} alt={thumb.filename} />
 											{viewerMode === "lineage" && (
 												<>
-													{isCurrent && (
-														<span className="meld-viewer-thumbnail-label meld-viewer-thumbnail-label--current">
-															表示中
-														</span>
-													)}
 													{isParent && (
 														<span className="meld-viewer-thumbnail-label meld-viewer-thumbnail-label--parent">
-															親
+															Parent
 														</span>
 													)}
 													{isChild && (
 														<span className="meld-viewer-thumbnail-label meld-viewer-thumbnail-label--child">
-															子
+															Child
 														</span>
 													)}
 												</>
