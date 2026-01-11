@@ -23,10 +23,24 @@ export const fetchImages = async (
 	return await res.json();
 };
 
+export const cleanupDatabase = async (): Promise<{ count: number }> => {
+	const res = await api.fetchApi("/meld-nexus/cleanup", {
+		method: "POST",
+	});
+	if (!res.ok) {
+		throw new Error(`Failed to cleanup database: ${res.statusText}`);
+	}
+	return await res.json();
+};
+
 export const fetchSettings = async (): Promise<Settings> => {
 	const res = await api.fetchApi("/meld-nexus/settings");
 	if (!res.ok) {
-		return { dev_mode: false, "gallery.show_parent_image": true };
+		return {
+			dev_mode: false,
+			"gallery.show_parent_image": true,
+			"gallery.hide_missing_images": true,
+		};
 	}
 	return await res.json();
 };

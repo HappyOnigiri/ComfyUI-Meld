@@ -20,6 +20,42 @@ from .database import calculate_sha256, find_closest_parent, get_all_settings, g
 _scan_state = {"is_running": False, "should_cancel": False}
 
 
+
+def perform_cleanup():
+    """Logic to logically delete image data that does not exist in the DB"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        # 削除されていない全画像を取得
+        cursor.execute("SELECT id, filename, subfolder, type FROM images WHERE is_deleted = 0")
+        images = cursor.fetchall()
+
+        missing_count = 0
+        for img_id, filename, subfolder, img_type in images:
+            # パスの解決
+            if img_type == "output":
+                base_dir = folder_paths.get_output_directory()
+            elif img_type == "input":
+                base_dir = folder_paths.get_input_directory()
+            elif img_type == "temp":
+                base_dir = folder_paths.get_temp_directory()
+            else:
+                continue
+
+            full_path = os.path.join(base_dir, subfolder, filename)
+
+            # ファイルが存在しなければ is_deleted = 1 に更新
+            if not os.path.exists(full_path):
+                cursor.execute("UPDATE images SET is_deleted = 1 WHERE id = ?", (img_id,))
+                missing_count += 1
+
+        if missing_count > 0:
+            conn.commit()
+        return missing_count
+    finally:
+        conn.close()
+
+
 def _scan_thread(base_dir, subfolder, recursive, auto_link_parent):
     global _scan_state
     conn = None
@@ -224,6 +260,15 @@ def _scan_thread(base_dir, subfolder, recursive, auto_link_parent):
         )
 
 
+@server.PromptServer.instance.routes.post("/api/meld-nexus/cleanup")
+async def cleanup_endpoint(request):
+    try:
+        count = perform_cleanup()
+        return web.json_response({"success": True, "count": count})
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
 @server.PromptServer.instance.routes.get("/api/meld-nexus/folders")
 async def list_folders(request):
     try:
@@ -380,6 +425,7 @@ async def get_settings(request):
         settings = {
             "dev_mode": os.environ.get("MELDFLOW_DEV") == "true",
             "gallery.show_parent_image": True,
+            "gallery.hide_missing_images": True,
         }
 
         # Merge with DB settings
@@ -626,6 +672,21 @@ async def list_images(request):
             tag_rows = cursor.fetchall()
             tags = [t[0] for t in tag_rows]
 
+            # Check if file exists
+            if img_type == "output":
+                base_dir = folder_paths.get_output_directory()
+            elif img_type == "input":
+                base_dir = folder_paths.get_input_directory()
+            elif img_type == "temp":
+                base_dir = folder_paths.get_temp_directory()
+            else:
+                base_dir = None
+
+            exists = False
+            if base_dir:
+                full_path = os.path.join(base_dir, subfolder, filename)
+                exists = os.path.exists(full_path)
+
             result_list.append({
                 "id": img_id,
                 "filename": filename,
@@ -640,7 +701,8 @@ async def list_images(request):
                 "parent_type": p_type,
                 "positive": positive,
                 "negative": negative,
-                "tags": tags
+                "tags": tags,
+                "exists": exists
             })
 
         conn.close()
@@ -1006,3 +1068,18 @@ async def get_lineage(request):
     except Exception as e:
         logging.exception("[Meld-Flow] Failed to get lineage")
         return web.json_response({"error": str(e)}, status=500)
+
+
+# --- Automatic cleanup (at extension load time) ---
+def _run_auto_cleanup():
+    """Run cleanup in the background"""
+    import time
+    time.sleep(5)  # Wait a bit to prioritize other initialization tasks
+    try:
+        count = perform_cleanup()
+        if count > 0:
+            logging.info(f"[Meld-Flow] Extension load cleanup: Removed {count} missing images from database.")
+    except Exception as e:
+        logging.warning(f"[Meld-Flow] Extension load cleanup failed: {e}")
+
+threading.Thread(target=_run_auto_cleanup, daemon=True).start()
