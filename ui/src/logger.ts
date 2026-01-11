@@ -22,7 +22,7 @@ export const log = (...args: unknown[]) => {
     if (isDevMode) {
         console.log("[Meld-Flow]", ...args);
     } else {
-        // デバッグ用: ログがスキップされていることを確認
+        // For debugging: verify that the log is being skipped
         // console.debug("[Meld-Flow] Log skipped (devMode is false)");
     }
 };
