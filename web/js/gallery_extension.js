@@ -6443,6 +6443,7 @@ Physical files will also be permanently deleted. This operation cannot be undone
           className: `meld-viewer-content ${o ? "meld-viewer-content--fullscreen" : ""}`,
           onClick: (y) => y.stopPropagation(),
           children: [
+            /* @__PURE__ */ v.jsx("div", { className: "meld-viewer-info", children: /* @__PURE__ */ v.jsx("div", { className: "meld-viewer-filename", children: m.filename }) }),
             /* @__PURE__ */ v.jsxs("div", { className: "meld-viewer-actions", children: [
               /* @__PURE__ */ v.jsx(
                 "button",
@@ -6474,17 +6475,14 @@ Physical files will also be permanently deleted. This operation cannot be undone
                 children: /* @__PURE__ */ v.jsx(bf, { size: 32 })
               }
             ),
-            /* @__PURE__ */ v.jsxs("div", { className: "meld-viewer-image-container", children: [
-              /* @__PURE__ */ v.jsx(
-                "img",
-                {
-                  src: p,
-                  alt: m.filename,
-                  className: "meld-viewer-image"
-                }
-              ),
-              !o && /* @__PURE__ */ v.jsx("div", { className: "meld-viewer-info", children: /* @__PURE__ */ v.jsx("div", { className: "meld-viewer-filename", children: m.filename }) })
-            ] }),
+            /* @__PURE__ */ v.jsx("div", { className: "meld-viewer-image-container", children: /* @__PURE__ */ v.jsx(
+              "img",
+              {
+                src: p,
+                alt: m.filename,
+                className: "meld-viewer-image"
+              }
+            ) }),
             /* @__PURE__ */ v.jsx(
               "button",
               {
