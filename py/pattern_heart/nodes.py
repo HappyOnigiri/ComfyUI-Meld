@@ -192,11 +192,3 @@ class MeldPatternHeart:
             results.append(pil_to_tensor(final_img.convert("RGB")))
 
         return (torch.cat(results, dim=0),)
-
-NODE_CLASS_MAPPINGS = {
-    "MeldPatternHeart": MeldPatternHeart
-}
-
-NODE_DISPLAY_NAME_MAPPINGS = {
-    "MeldPatternHeart": "Meld Infinite Heart Generator"
-}

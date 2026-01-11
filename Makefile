@@ -37,7 +37,7 @@ check-only-ascii:
 
 REPOMIX_IGNORE := **/__pycache__/**,**/node_modules/**,**/.git/**,tmp/**,web/js/gallery_extension.js,**/package-lock.json,**/.mypy_cache/**,**/.pytest_cache/**,**/.ruff_cache/**,**/.venv/**,env/**,**/.cursor/**,**/.DS_Store
 
-repomix: repomix-full repomix-src repomix-tests
+repomix: repomix-full repomix-src repomix-tests repomix-nodes
 
 repomix-full:
 	npx --yes repomix --ignore "$(REPOMIX_IGNORE)" --output tmp/repomix-full.xml
@@ -47,3 +47,13 @@ repomix-src:
 
 repomix-tests:
 	npx --yes repomix --include "tests/**,pyproject.toml" --ignore "$(REPOMIX_IGNORE)" --output tmp/repomix-tests.xml
+
+repomix-nodes:
+	@mkdir -p tmp
+	@for dir in py/*/; do \
+		if [ -d "$$dir" ]; then \
+			node_name=$$(basename "$$dir"); \
+			echo "Generating repomix for node: $$node_name"; \
+			npx --yes repomix --include "py/$$node_name/**,pyproject.toml" --ignore "$(REPOMIX_IGNORE)" --output "tmp/repomix-node-$$node_name.xml"; \
+		fi \
+	done

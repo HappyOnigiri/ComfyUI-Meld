@@ -1,5 +1,5 @@
-from .image_loader import MeldImageLoader, MeldImageLoaderBatch, MeldSettingsUnpacker
 from .metadata_helper import MetadataHelper
+from .nodes import MeldImageLoader, MeldImageLoaderBatch, MeldSettingsUnpacker
 
 NODE_CLASS_MAPPINGS = {
     "MeldImageLoader": MeldImageLoader,

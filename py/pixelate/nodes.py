@@ -60,11 +60,3 @@ class MeldPixelate:
         result = upscaled.permute(0, 2, 3, 1)
 
         return (result,)
-
-NODE_CLASS_MAPPINGS = {
-    "MeldPixelate": MeldPixelate
-}
-
-NODE_DISPLAY_NAME_MAPPINGS = {
-    "MeldPixelate": "Meld Pixelate"
-}

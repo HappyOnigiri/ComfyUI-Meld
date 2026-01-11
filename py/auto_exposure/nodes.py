@@ -78,12 +78,3 @@ class MeldAutoExposure:
         avg_l = sum(out_current_l) / len(out_current_l)
 
         return (torch.stack(out_images), avg_gamma, avg_l)
-
-# Node mapping
-NODE_CLASS_MAPPINGS = {
-    "MeldAutoExposure": MeldAutoExposure
-}
-
-NODE_DISPLAY_NAME_MAPPINGS = {
-    "MeldAutoExposure": "Meld Auto Exposure"
-}

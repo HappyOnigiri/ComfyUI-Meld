@@ -14,7 +14,7 @@ sys.modules['comfy.samplers'] = MagicMock()
 sys.modules['nodes'] = MagicMock()
 
 # Import test targets
-from py.load_image_configs import (  # noqa: E402
+from py.load_image_configs.nodes import (  # noqa: E402
     MeldImageLoader,
     MeldImageLoaderBatch,
     MeldSettingsUnpacker,
@@ -77,8 +77,8 @@ class TestNodeInterfaces(unittest.TestCase):
         # extract_metadata: pos, neg, model, wf_json, pr_json, a1111_text, log
         mock_meta = ("p", "n", "m", "{}", None, None, "log_meta")
 
-        with patch('py.load_image_configs.image_loader.folder_paths.get_annotated_filepath', return_value="fake.png"), \
-             patch('py.load_image_configs.image_loader.nodes.LoadImage') as mock_load_image_class, \
+        with patch('py.load_image_configs.nodes.folder_paths.get_annotated_filepath', return_value="fake.png"), \
+             patch('py.load_image_configs.nodes.nodes.LoadImage') as mock_load_image_class, \
              patch.object(MetadataHelper, 'extract_metadata', return_value=mock_meta), \
              patch.object(MetadataHelper, 'find_and_load_checkpoint', return_value=(
                  "MODEL", "CLIP", "VAE", "ACTUAL_MODEL", "log_ckpt"

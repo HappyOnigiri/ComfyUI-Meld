@@ -222,11 +222,3 @@ class MeldPromptConstructor:
         text = text.replace(',', ', ')
         text = text.strip(' ,')
         return text
-
-NODE_CLASS_MAPPINGS = {
-    "MeldPromptConstructor": MeldPromptConstructor
-}
-
-NODE_DISPLAY_NAME_MAPPINGS = {
-    "MeldPromptConstructor": "Meld Prompt Constructor"
-}

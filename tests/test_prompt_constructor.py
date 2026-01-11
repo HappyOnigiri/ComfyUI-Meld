@@ -4,7 +4,7 @@ import shutil
 import tempfile
 import unittest
 
-from py.prompt_constructor import MeldPromptConstructor
+from py.prompt_constructor.nodes import MeldPromptConstructor
 
 
 class TestPromptConstructor(unittest.TestCase):

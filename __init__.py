@@ -1,11 +1,11 @@
 import os
 
-from .py.auto_exposure import MeldAutoExposure
+from .py.auto_exposure.nodes import MeldAutoExposure
 from .py.image_manager.nodes import MeldNexus
-from .py.load_image_configs import MeldImageLoader, MeldImageLoaderBatch, MeldSettingsUnpacker
-from .py.pattern_heart import MeldPatternHeart
-from .py.pixelate import MeldPixelate
-from .py.prompt_constructor import MeldPromptConstructor
+from .py.load_image_configs.nodes import MeldImageLoader, MeldImageLoaderBatch, MeldSettingsUnpacker
+from .py.pattern_heart.nodes import MeldPatternHeart
+from .py.pixelate.nodes import MeldPixelate
+from .py.prompt_constructor.nodes import MeldPromptConstructor
 
 NODE_CLASS_MAPPINGS = {
     "MeldAutoExposure": MeldAutoExposure,
