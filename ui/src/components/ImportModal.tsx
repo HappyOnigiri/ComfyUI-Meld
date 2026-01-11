@@ -1,4 +1,5 @@
 import {
+	CheckCircle,
 	ChevronLeft,
 	ChevronRight,
 	Folder,
@@ -47,7 +48,13 @@ export const ImportModal: React.FC = () => {
 			await api.startScan(config);
 			dispatch({
 				type: "SET_SCAN_STATUS",
-				payload: { isRunning: true, shouldCancel: false },
+				payload: {
+					isRunning: true,
+					isFinished: false,
+					shouldCancel: false,
+					newCount: 0,
+					progress: { current: 0, total: 0, phase: "registering" },
+				},
 			});
 		} catch (err) {
 			console.error("Failed to start scan:", err);
@@ -75,18 +82,24 @@ export const ImportModal: React.FC = () => {
 		setConfig({ ...config, subfolder: parts.join("/") });
 	};
 
-	const progressPercent =
-		scanStatus.progress.total > 0
+	const handleClose = () => {
+		if (scanStatus.isFinished) {
+			dispatch({ type: "SET_SCAN_STATUS", payload: { isFinished: false } });
+		}
+		dispatch({ type: "CLOSE_MODAL" });
+	};
+
+	const isLinking = scanStatus.progress.phase === "linking";
+	const progressPercent = isLinking
+		? 100
+		: scanStatus.progress.total > 0
 			? Math.round(
 					(scanStatus.progress.current / scanStatus.progress.total) * 100,
 				)
 			: 0;
 
 	return (
-		<div
-			className="meld-modal-overlay"
-			onClick={() => dispatch({ type: "CLOSE_MODAL" })}
-		>
+		<div className="meld-modal-overlay" onClick={handleClose}>
 			<div
 				className="meld-modal-content meld-modal-content--large"
 				onClick={(e) => e.stopPropagation()}
@@ -96,7 +109,7 @@ export const ImportModal: React.FC = () => {
 					<button
 						type="button"
 						className="meld-modal-close"
-						onClick={() => dispatch({ type: "CLOSE_MODAL" })}
+						onClick={handleClose}
 					>
 						<X size={20} />
 					</button>
@@ -108,6 +121,8 @@ export const ImportModal: React.FC = () => {
 							<div className="meld-scan-status-text">
 								{scanStatus.shouldCancel ? (
 									<span className="meld-status-cancelling">Cancelling...</span>
+								) : isLinking ? (
+									<span>Linking parent images...</span>
 								) : (
 									<span>Scanning images...</span>
 								)}
@@ -121,14 +136,23 @@ export const ImportModal: React.FC = () => {
 							</div>
 
 							<div className="meld-progress-stats">
-								{scanStatus.progress.current} / {scanStatus.progress.total}
+								{isLinking ? (
+									<span>
+										Processing relations: {scanStatus.progress.current} /{" "}
+										{scanStatus.progress.total}
+									</span>
+								) : (
+									<span>
+										{scanStatus.progress.current} / {scanStatus.progress.total}
+									</span>
+								)}
 							</div>
 
 							<div className="meld-scan-actions">
 								<button
 									type="button"
 									className="meld-btn meld-btn-secondary"
-									onClick={() => dispatch({ type: "CLOSE_MODAL" })}
+									onClick={handleClose}
 								>
 									Run in Background
 								</button>
@@ -140,6 +164,29 @@ export const ImportModal: React.FC = () => {
 								>
 									<Square size={16} />
 									Stop Scan
+								</button>
+							</div>
+						</div>
+					) : scanStatus.isFinished ? (
+						<div className="meld-scan-finished">
+							<div className="meld-finished-icon">
+								<CheckCircle size={64} color="var(--meld-success)" />
+							</div>
+							<h3>Import Completed</h3>
+							<p>
+								Successfully scanned <strong>{scanStatus.totalCount}</strong>{" "}
+								images.
+								<br />(<strong>{scanStatus.newCount}</strong> new images were
+								added to database)
+							</p>
+							<div className="meld-scan-actions">
+								<button
+									type="button"
+									className="meld-btn meld-btn-primary"
+									onClick={handleClose}
+									style={{ minWidth: "120px" }}
+								>
+									Close
 								</button>
 							</div>
 						</div>

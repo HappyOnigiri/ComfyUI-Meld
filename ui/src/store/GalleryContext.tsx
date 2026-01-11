@@ -124,10 +124,22 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 				payload: { progress: detail },
 			});
 		};
-		const handleScanFinished = () => {
+		const handleScanFinished = (e: Event) => {
+			const detail = (e as CustomEvent).detail;
 			dispatch({
 				type: "SET_SCAN_STATUS",
-				payload: { isRunning: false, shouldCancel: false },
+				payload: {
+					isRunning: false,
+					isFinished: true,
+					shouldCancel: false,
+					newCount: detail.new_count || 0,
+					totalCount: detail.total_count || 0,
+					progress: {
+						current: detail.total_count || state.scanStatus.progress.total,
+						total: detail.total_count || state.scanStatus.progress.total,
+						phase: "completed",
+					},
+				},
 			});
 			refreshImages();
 		};
@@ -147,7 +159,7 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 				handleScanFinished,
 			);
 		};
-	}, [refreshImages]);
+	}, [refreshImages, state.scanStatus.progress.total]);
 
 	useEffect(() => {
 		refreshImages();
