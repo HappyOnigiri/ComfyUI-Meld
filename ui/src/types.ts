@@ -22,11 +22,15 @@ export interface Settings {
 
 export type ScanStatus = {
 	isRunning: boolean;
+	isFinished: boolean;
 	shouldCancel: boolean;
 	progress: {
 		current: number;
 		total: number;
+		phase?: string;
 	};
+	newCount: number;
+	totalCount: number;
 };
 
 export type ActiveModal =

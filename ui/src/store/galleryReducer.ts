@@ -14,8 +14,11 @@ export const initialState: GalleryState = {
 	lastSelectedId: null,
 	scanStatus: {
 		isRunning: false,
+		isFinished: false,
 		shouldCancel: false,
-		progress: { current: 0, total: 0 },
+		progress: { current: 0, total: 0, phase: "" },
+		newCount: 0,
+		totalCount: 0,
 	},
 	settings: {
 		dev_mode: false,
