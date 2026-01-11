@@ -7,7 +7,12 @@
     },
     "files": {
         "ignoreUnknown": true,
-        "includes": ["**", "!**/dist", "!**/node_modules", "!**/vite.config.ts"]
+        "includes": [
+            "**",
+            "!**/dist",
+            "!**/node_modules",
+            "!**/vite.config.ts"
+        ]
     },
     "formatter": {
         "enabled": true,
@@ -19,6 +24,13 @@
         "enabled": true,
         "rules": {
             "recommended": true,
+            "suspicious": {
+                "noExplicitAny": "error",
+                "noCommentText": "error"
+            },
+            "complexity": {
+                "noUselessTypeConstraint": "error"
+            },
             "correctness": {
                 "noUnusedImports": "error",
                 "noUnusedVariables": "error",
