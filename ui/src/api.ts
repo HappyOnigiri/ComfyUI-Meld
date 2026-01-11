@@ -50,3 +50,16 @@ export const registerImage = async (image: {
         throw new Error("Failed to register image");
     }
 };
+
+export const fetchRelatedImages = async (
+    id: number,
+    threshold = 8,
+): Promise<
+    { id: number; filename: string; subfolder: string; type: string; distance: number }[]
+> => {
+    const res = await api.fetchApi(`/meld-nexus/related?id=${id}&threshold=${threshold}`);
+    if (!res.ok) {
+        return [];
+    }
+    return await res.json();
+};

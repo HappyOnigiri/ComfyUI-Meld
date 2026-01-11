@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import * as api from "../api";
 import { useGallery } from "../store/GalleryContext";
 import type { MeldImage } from "../types";
 
@@ -12,6 +13,15 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
     const { state, dispatch } = useGallery();
     const isSelected = state.selectedIds.has(image.id);
     const [popupContent, setPopupContent] = useState<{ title: string; text: string } | null>(null);
+    const [relatedImages, setRelatedImages] = useState<
+        { id: number; filename: string; subfolder: string; type: string; distance: number }[]
+    >([]);
+
+    useEffect(() => {
+        if (image.id) {
+            api.fetchRelatedImages(image.id).then((imgs) => setRelatedImages(imgs.slice(0, 10)));
+        }
+    }, [image.id]);
 
     const fullFilename = image.subfolder ? `${image.subfolder}/${image.filename}` : image.filename;
     const imgSrc = `/api/view?filename=${encodeURIComponent(image.filename)}&type=${image.type || "output"}${
@@ -119,6 +129,32 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
                         )}
                     </div>
                 </div>
+
+                {relatedImages.length > 0 && (
+                    <div className="meld-image-card__related">
+                        {relatedImages.map((rel) => {
+                            const relSrc = `/api/view?filename=${encodeURIComponent(rel.filename)}&type=${
+                                rel.type || "output"
+                            }${rel.subfolder ? `&subfolder=${encodeURIComponent(rel.subfolder)}` : ""}`;
+                            return (
+                                // biome-ignore lint/a11y/useKeyWithClickEvents: Related image thumbnails are secondary navigation
+                                <img
+                                    key={rel.id}
+                                    src={relSrc}
+                                    className="meld-image-card__related-thumb"
+                                    alt={rel.filename}
+                                    title={`Similarity: ${Math.round(
+                                        ((64 - rel.distance) / 64) * 100,
+                                    )}%`}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        dispatch({ type: "OPEN_VIEWER", payload: rel.id });
+                                    }}
+                                />
+                            );
+                        })}
+                    </div>
+                )}
             </div>
 
             {popupContent && (

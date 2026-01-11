@@ -143,6 +143,27 @@
     white-space: nowrap;
 }
 
+.meld-image-card__related {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.meld-image-card__related-thumb {
+    width: 32px;
+    height: 32px;
+    object-fit: cover;
+    border-radius: 2px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: border-color 0.2s;
+}
+
+.meld-image-card__related-thumb:hover {
+    border-color: var(--meld-accent-color);
+}
+
 /* BulkActionBar Styles */
 .meld-bulk-bar {
     position: fixed;

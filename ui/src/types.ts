@@ -7,6 +7,7 @@ export interface MeldImage {
     positive: string;
     negative: string;
     tags: string[];
+    phash?: string;
 }
 
 export type GalleryViewMode = "grid" | "list";
