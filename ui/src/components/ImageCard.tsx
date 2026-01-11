@@ -11,7 +11,9 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
     const isSelected = state.selectedIds.has(image.id);
 
     const fullFilename = image.subfolder ? `${image.subfolder}/${image.filename}` : image.filename;
-    const imgSrc = `/view?filename=${encodeURIComponent(fullFilename)}&type=${image.type || "output"}`;
+    const imgSrc = `/api/view?filename=${encodeURIComponent(image.filename)}&type=${image.type || "output"}${
+        image.subfolder ? `&subfolder=${encodeURIComponent(image.subfolder)}` : ""
+    }`;
 
     const handleClick = (e: React.MouseEvent) => {
         // Selection mode if Ctrl/Meta key is pressed or something is already selected
