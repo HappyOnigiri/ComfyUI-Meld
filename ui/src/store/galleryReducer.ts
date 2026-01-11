@@ -12,6 +12,11 @@ export const initialState: GalleryState = {
 	lineageImages: [],
 	activeModal: { type: "none" },
 	lastSelectedId: null,
+	scanStatus: {
+		isRunning: false,
+		shouldCancel: false,
+		progress: { current: 0, total: 0 },
+	},
 };
 
 export function galleryReducer(
@@ -201,6 +206,18 @@ export function galleryReducer(
 			return {
 				...state,
 				activeModal: { type: "none" },
+			};
+		case "SET_SCAN_STATUS":
+			return {
+				...state,
+				scanStatus: {
+					...state.scanStatus,
+					...action.payload,
+					progress: {
+						...state.scanStatus.progress,
+						...(action.payload.progress || {}),
+					},
+				},
 			};
 		default:
 			return state;

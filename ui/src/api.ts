@@ -139,3 +139,54 @@ export const fetchRelatedImages = async (
 	}
 	return await res.json();
 };
+
+export const fetchFolders = async (
+	type: string,
+	path: string,
+): Promise<string[]> => {
+	const res = await api.fetchApi(
+		`/meld-nexus/folders?type=${type}&path=${encodeURIComponent(path)}`,
+	);
+	if (!res.ok) {
+		return [];
+	}
+	return await res.json();
+};
+
+export const startScan = async (params: {
+	type: string;
+	subfolder: string;
+	custom_path?: string;
+	recursive: boolean;
+	auto_link_parent: boolean;
+}): Promise<void> => {
+	const res = await api.fetchApi("/meld-nexus/scan", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(params),
+	});
+	if (!res.ok) {
+		const data = await res.json();
+		throw new Error(data.error || "Failed to start scan");
+	}
+};
+
+export const cancelScan = async (): Promise<void> => {
+	const res = await api.fetchApi("/meld-nexus/scan/cancel", {
+		method: "POST",
+	});
+	if (!res.ok) {
+		throw new Error("Failed to cancel scan");
+	}
+};
+
+export const fetchScanStatus = async (): Promise<{
+	is_running: boolean;
+	should_cancel: boolean;
+}> => {
+	const res = await api.fetchApi("/meld-nexus/scan/status");
+	if (!res.ok) {
+		return { is_running: false, should_cancel: false };
+	}
+	return await res.json();
+};
