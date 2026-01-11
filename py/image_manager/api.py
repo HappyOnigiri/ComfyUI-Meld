@@ -664,6 +664,8 @@ async def bulk_delete_images(request):
                         logging.warning(f"[Meld-Flow] Failed to delete file {full_path}: {e}")
 
             cursor.execute("UPDATE images SET is_deleted = 1 WHERE id = ?", (img_id,))
+            # Update children to set parent_id to NULL when parent is deleted
+            cursor.execute("UPDATE images SET parent_id = NULL WHERE parent_id = ?", (img_id,))
             deleted_count += 1
 
         conn.commit()
@@ -688,8 +690,15 @@ async def delete_image(request):
         cursor = conn.cursor()
 
         if image_id:
+            # Update children to set parent_id to NULL when parent is deleted
+            cursor.execute("UPDATE images SET parent_id = NULL WHERE parent_id = ?", (image_id,))
             cursor.execute("UPDATE images SET is_deleted = 1 WHERE id = ?", (image_id,))
         else:
+            # Update children for all images with this filename
+            cursor.execute(
+                "UPDATE images SET parent_id = NULL WHERE parent_id IN (SELECT id FROM images WHERE filename = ?)",
+                (filename,)
+            )
             cursor.execute("UPDATE images SET is_deleted = 1 WHERE filename = ?", (filename,))
 
         if cursor.rowcount == 0:
