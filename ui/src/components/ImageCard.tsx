@@ -156,30 +156,32 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 			<div className="meld-image-card__details">
 				<div className="meld-image-card__filename">{fullFilename}</div>
 
-				<div className="meld-image-card__lineage-v2">
-					{typeof image.parent_id === "number" && image.parent_id > 0 && (
-						<div
-							className="meld-lineage-badge meld-lineage-badge--has-parent"
-							onClick={(e) => {
-								e.stopPropagation();
-								dispatch({
-									type: "OPEN_VIEWER",
-									payload: { id: image.id, mode: "lineage" },
-								});
-							}}
-						>
-							<GitBranch size={12} />
-							{parentImgSrc && (
-								<img
-									src={parentImgSrc}
-									className="meld-lineage-badge__parent-thumb"
-									alt="parent thumb"
-								/>
-							)}
-							<span>Parent</span>
-						</div>
-					)}
-				</div>
+				{state.settings["gallery.show_parent_image"] && (
+					<div className="meld-image-card__lineage-v2">
+						{typeof image.parent_id === "number" && image.parent_id > 0 && (
+							<div
+								className="meld-lineage-badge meld-lineage-badge--has-parent"
+								onClick={(e) => {
+									e.stopPropagation();
+									dispatch({
+										type: "OPEN_VIEWER",
+										payload: { id: image.id, mode: "lineage" },
+									});
+								}}
+							>
+								<GitBranch size={12} />
+								{parentImgSrc && (
+									<img
+										src={parentImgSrc}
+										className="meld-lineage-badge__parent-thumb"
+										alt="parent thumb"
+									/>
+								)}
+								<span>Parent</span>
+							</div>
+						)}
+					</div>
+				)}
 
 				<div
 					className="meld-image-card__meta-item meld-image-card__meta-item--clickable"

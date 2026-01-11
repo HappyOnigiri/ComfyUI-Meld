@@ -1,4 +1,4 @@
-import { Download, RefreshCw } from "lucide-react";
+import { Download, RefreshCw, Settings } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef } from "react";
 import { logger } from "../logger";
@@ -8,6 +8,7 @@ import { ImageCard } from "./ImageCard";
 import { ImageViewer } from "./ImageViewer";
 import { ImportModal } from "./ImportModal";
 import { ParentSelectionModal } from "./ParentSelectionModal";
+import { SettingsModal } from "./SettingsModal";
 import "../styles/Gallery.css";
 
 export const GalleryPanel: React.FC = () => {
@@ -97,6 +98,25 @@ export const GalleryPanel: React.FC = () => {
 					/>
 					Refresh
 				</button>
+				<button
+					type="button"
+					onClick={() =>
+						dispatch({ type: "OPEN_MODAL", payload: { type: "settings" } })
+					}
+					style={{
+						background: "none",
+						border: "none",
+						color: "#888",
+						cursor: "pointer",
+						display: "flex",
+						alignItems: "center",
+						gap: "5px",
+					}}
+					title="Settings"
+				>
+					<Settings size={14} />
+					Settings
+				</button>
 			</div>
 
 			{state.error && <div className="meld-gallery__error">{state.error}</div>}
@@ -136,6 +156,8 @@ export const GalleryPanel: React.FC = () => {
 			)}
 
 			{state.activeModal.type === "import" && <ImportModal />}
+
+			{state.activeModal.type === "settings" && <SettingsModal />}
 		</div>
 	);
 };

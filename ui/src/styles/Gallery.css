@@ -1181,3 +1181,87 @@
 	gap: 10px;
 	text-align: center;
 }
+
+/* Settings Modal */
+.meld-settings-list {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	padding: 10px 0;
+}
+
+.meld-settings-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 20px;
+	padding-bottom: 15px;
+	border-bottom: 1px solid #333;
+}
+
+.meld-settings-item:last-child {
+	border-bottom: none;
+}
+
+.meld-settings-item__info {
+	flex: 1;
+}
+
+.meld-settings-item__label {
+	font-weight: 500;
+	margin-bottom: 4px;
+	color: #eee;
+}
+
+.meld-settings-item__description {
+	font-size: 0.85rem;
+	color: #888;
+	line-height: 1.4;
+}
+
+/* Toggle Switch */
+.meld-switch {
+	position: relative;
+	display: inline-block;
+	width: 40px;
+	height: 20px;
+}
+
+.meld-switch input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.meld-switch__slider {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: #333;
+	transition: 0.3s;
+	border-radius: 20px;
+}
+
+.meld-switch__slider:before {
+	position: absolute;
+	content: "";
+	height: 14px;
+	width: 14px;
+	left: 3px;
+	bottom: 3px;
+	background-color: #888;
+	transition: 0.3s;
+	border-radius: 50%;
+}
+
+.meld-switch input:checked + .meld-switch__slider {
+	background-color: #444;
+}
+
+.meld-switch input:checked + .meld-switch__slider:before {
+	transform: translateX(20px);
+	background-color: #4a9eff;
+}
