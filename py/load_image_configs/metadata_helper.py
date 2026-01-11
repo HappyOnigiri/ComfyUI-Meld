@@ -60,6 +60,14 @@ class MetadataHelper:
         return Parsers.parse_a1111_params(parameters_text)
 
     @staticmethod
+    def parse_prompt_with_weight(prompt_part):
+        return Parsers.parse_prompt_with_weight(prompt_part)
+
+    @staticmethod
+    def smart_split(prompt):
+        return Parsers.smart_split(prompt)
+
+    @staticmethod
     def calculate_similarity(name_a, name_b):
         return Utils.calculate_similarity(name_a, name_b)
 

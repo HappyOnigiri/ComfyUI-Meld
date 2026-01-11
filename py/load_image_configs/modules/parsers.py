@@ -576,3 +576,104 @@ class Parsers:
                 else:
                     params[key] = int(m.group(1))
         return params
+
+    @staticmethod
+    def parse_prompt_with_weight(prompt: str) -> list[tuple[str, float]]:
+        """
+        Parses a prompt exactly like ComfyUI's CLIPTextEncode (sd1_clip.py)
+        to extract weights for each keyword.
+        """
+        if not prompt:
+            return []
+
+        # 1. Escape escaped parentheses \( and \)
+        text = prompt.replace("\\)", "\0\1").replace("\\(", "\0\2")
+
+        # 2. Get segments and weights using ComfyUI's logic
+        raw_weights = Parsers._token_weights(text, 1.0)
+
+        # 3. Process into keyword-level (split by comma)
+        results: list[tuple[str, float]] = []
+        for segment, weight in raw_weights:
+            # Unescape
+            segment = segment.replace("\0\1", ")").replace("\0\2", "(")
+            # Split by comma and clean up
+            parts = segment.split(',')
+            for p in parts:
+                p = p.strip()
+                if p:
+                    results.append((p, round(weight, 3)))
+        return results
+
+    @staticmethod
+    def _parse_parentheses(string: str) -> list[str]:
+        """Matches comfy/sd1_clip.py:parse_parentheses"""
+        result = []
+        current_item = ""
+        nesting_level = 0
+        for char in string:
+            if char == "(":
+                if nesting_level == 0:
+                    if current_item:
+                        result.append(current_item)
+                    current_item = "("
+                else:
+                    current_item += char
+                nesting_level += 1
+            elif char == ")":
+                nesting_level -= 1
+                if nesting_level == 0:
+                    result.append(current_item + ")")
+                    current_item = ""
+                else:
+                    current_item += char
+            else:
+                current_item += char
+        if current_item:
+            result.append(current_item)
+        return result
+
+    @staticmethod
+    def _token_weights(string: str, current_weight: float) -> list[tuple[str, float]]:
+        """Matches comfy/sd1_clip.py:token_weights"""
+        a = Parsers._parse_parentheses(string)
+        out = []
+        for x in a:
+            weight = current_weight
+            if len(x) >= 2 and x[-1] == ')' and x[0] == '(':
+                x = x[1:-1]
+                xx = x.rfind(":")
+                weight *= 1.1
+                if xx > 0:
+                    try:
+                        weight = float(x[xx+1:])
+                        x = x[:xx]
+                    except Exception:
+                        pass
+                out += Parsers._token_weights(x, weight)
+            else:
+                out += [(x, current_weight)]
+        return out
+
+    @staticmethod
+    def smart_split(prompt: str) -> list[str]:
+        """
+        Splits a prompt by commas, but respects parentheses and brackets.
+        Example: 'a, (b, c:1.2), d' -> ['a', '(b, c:1.2)', 'd']
+        """
+        parts = []
+        current: list[str] = []
+        depth = 0
+        for char in prompt:
+            if char == ',' and depth == 0:
+                parts.append("".join(current).strip())
+                current = []
+            else:
+                if char in '([':
+                    depth += 1
+                elif char in ')]':
+                    depth -= 1
+                current.append(char)
+        if current:
+            parts.append("".join(current).strip())
+        return [p for p in parts if p]
