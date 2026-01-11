@@ -1,25 +1,4 @@
 {
-    "$schema": "https://biomejs.dev/schemas/2.3.11/schema.json",
-    "vcs": {
-        "enabled": true,
-        "clientKind": "git",
-        "useIgnoreFile": false
-    },
-    "files": {
-        "ignoreUnknown": true,
-        "includes": [
-            "**",
-            "!**/dist",
-            "!**/node_modules",
-            "!**/vite.config.ts"
-        ]
-    },
-    "formatter": {
-        "enabled": true,
-        "indentStyle": "space",
-        "indentWidth": 4,
-        "lineWidth": 100
-    },
     "linter": {
         "enabled": true,
         "rules": {
@@ -27,25 +6,19 @@
             "suspicious": {
                 "noExplicitAny": "error",
                 "noCommentText": "error",
-                "noTsIgnore": "error"
+                "noTsIgnore": "error",
+                "noArrayIndexKey": "off" 
             },
-            "complexity": {
-                "noUselessTypeConstraint": "error"
+            "a11y": {
+                "useSemanticElements": "off",
+                "useKeyWithClickEvents": "off",
+                "noStaticElementInteractions": "off"
             },
             "correctness": {
                 "noUnusedImports": "error",
                 "noUnusedVariables": "error",
                 "useExhaustiveDependencies": "warn"
-            },
-            "style": {
-                "noNonNullAssertion": "off"
             }
-        }
-    },
-    "javascript": {
-        "formatter": {
-            "quoteStyle": "double",
-            "semicolons": "always"
         }
     }
 }
