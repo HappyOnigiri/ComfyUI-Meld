@@ -546,6 +546,15 @@
 	background: rgba(68, 136, 255, 0.4);
 }
 
+.meld-lineage-badge__parent-thumb {
+	width: 32px;
+	height: 32px;
+	object-fit: cover;
+	border-radius: 2px;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	margin: 0 2px;
+}
+
 .meld-lineage-badge--no-parent {
 	background: rgba(255, 255, 255, 0.05);
 	color: #888;

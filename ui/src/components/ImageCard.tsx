@@ -16,6 +16,19 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 		text: string;
 	} | null>(null);
 
+	const parentImage = image.parent_id
+		? state.images.find((img) => img.id === image.parent_id)
+		: null;
+	const parentImgSrc = parentImage
+		? `/api/view?filename=${encodeURIComponent(parentImage.filename)}&type=${
+				parentImage.type || "output"
+			}${
+				parentImage.subfolder
+					? `&subfolder=${encodeURIComponent(parentImage.subfolder)}`
+					: ""
+			}`
+		: null;
+
 	const fullFilename = image.subfolder
 		? `${image.subfolder}/${image.filename}`
 		: image.filename;
@@ -80,7 +93,14 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 							}}
 						>
 							<GitBranch size={12} />
-							<span>Parent #{image.parent_id}</span>
+							{parentImgSrc && (
+								<img
+									src={parentImgSrc}
+									className="meld-lineage-badge__parent-thumb"
+									alt="parent thumb"
+								/>
+							)}
+							<span>Parent</span>
 						</div>
 					) : (
 						<div
