@@ -8,12 +8,300 @@ try:
     import imagehash
 except ImportError:
     imagehash = None  # type: ignore
+import threading
+
 import server
 from aiohttp import web
 from PIL import Image
 
 from ..load_image_configs.metadata_helper import MetadataHelper
 from .database import calculate_sha256, find_closest_parent, get_db_connection
+
+_scan_state = {"is_running": False, "should_cancel": False}
+
+
+def _scan_thread(base_dir, subfolder, recursive, auto_link_parent):
+    global _scan_state
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        target_dir = os.path.join(base_dir, subfolder)
+        image_files = []
+
+        # Collect all image files
+        for root, _, files in os.walk(target_dir):
+            if not recursive and root != target_dir:
+                continue
+            for f in files:
+                if f.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
+                    image_files.append(os.path.join(root, f))
+
+        total = len(image_files)
+        processed = 0
+
+        # Step 1: Register all images
+        newly_registered_ids = []
+        for full_path in image_files:
+            if _scan_state["should_cancel"]:
+                break
+
+            try:
+                # Basic info
+                filename = os.path.basename(full_path)
+                # subfolder relative to base_dir
+                rel_path = os.path.relpath(os.path.dirname(full_path), base_dir)
+                if rel_path == ".":
+                    rel_path = ""
+
+                # Check if already registered (by filename and subfolder or by sha256)
+                sha256 = calculate_sha256(full_path)
+                cursor.execute(
+                    "SELECT id FROM images WHERE sha256 = ? AND is_deleted = 0",
+                    (sha256,),
+                )
+                existing = cursor.fetchone()
+                if existing:
+                    processed += 1
+                    server.PromptServer.instance.send_sync(
+                        "meld-nexus-scan-progress", {"current": processed, "total": total}
+                    )
+                    continue
+
+                # Extract metadata
+                pos, neg, model, wf_json, pr_json, a1111_text, logs = MetadataHelper.extract_metadata(full_path)
+                timestamp = os.path.getmtime(full_path)
+
+                # Calculate pHash
+                phash = None
+                if imagehash is not None:
+                    try:
+                        with Image.open(full_path) as img:
+                            phash = str(imagehash.phash(img))
+                    except Exception:
+                        pass
+
+                # Insert Image
+                img_type = "output" if "output" in base_dir else "input" # Simple heuristic
+                sql = """
+                    INSERT INTO images
+                    (filename, subfolder, type, created_at, phash, sha256, is_deleted)
+                    VALUES (?, ?, ?, ?, ?, ?, 0)
+                """
+                cursor.execute(
+                    sql,
+                    (filename, rel_path, img_type, timestamp, phash, sha256),
+                )
+                image_id = cursor.lastrowid
+                newly_registered_ids.append(image_id)
+
+                # Insert Prompts
+                pos_list = MetadataHelper.smart_split(pos) if pos else []
+                neg_list = MetadataHelper.smart_split(neg) if neg else []
+
+                for p in pos_list:
+                    prompt_results = MetadataHelper.parse_prompt_with_weight(p)
+                    for clean_name, strength in prompt_results:
+                        if not clean_name:
+                            continue
+                        cursor.execute("INSERT OR IGNORE INTO positive_prompts (name) VALUES (?)", (clean_name,))
+                        cursor.execute("SELECT id FROM positive_prompts WHERE name = ?", (clean_name,))
+                        row = cursor.fetchone()
+                        if row:
+                            pp_id = row[0]
+                            cursor.execute(
+                                "INSERT INTO positive_prompt_image_relations (image_id, positive_prompt_id, strength) "
+                                "VALUES (?, ?, ?)",
+                                (image_id, pp_id, strength),
+                            )
+
+                for n in neg_list:
+                    prompt_results = MetadataHelper.parse_prompt_with_weight(n)
+                    for clean_name, strength in prompt_results:
+                        if not clean_name:
+                            continue
+                        cursor.execute("INSERT OR IGNORE INTO negative_prompts (name) VALUES (?)", (clean_name,))
+                        cursor.execute("SELECT id FROM negative_prompts WHERE name = ?", (clean_name,))
+                        row = cursor.fetchone()
+                        if row:
+                            np_id = row[0]
+                            cursor.execute(
+                                "INSERT INTO negative_prompt_image_relations (image_id, negative_prompt_id, strength) "
+                                "VALUES (?, ?, ?)",
+                                (image_id, np_id, strength),
+                            )
+
+                processed += 1
+                server.PromptServer.instance.send_sync(
+                    "meld-nexus-scan-progress", {"current": processed, "total": total}
+                )
+
+                # Commit periodically or at the end
+                if processed % 10 == 0:
+                    conn.commit()
+
+            except Exception as e:
+                logging.warning(f"[Meld-Flow] Failed to process {full_path}: {e}")
+                processed += 1
+
+        conn.commit()
+
+        # Step 2: Parent Linking (Auto)
+        if auto_link_parent and not _scan_state["should_cancel"]:
+            for img_id in newly_registered_ids:
+                if _scan_state["should_cancel"]:
+                    break
+
+                # Get phash and metadata for linking
+                cursor.execute(
+                    "SELECT filename, subfolder, type, phash, created_at FROM images WHERE id = ?", (img_id,)
+                )
+                row = cursor.fetchone()
+                if not row:
+                    continue
+                fname, subf, itype, iphash, icreated = row
+
+                parent_id = None
+
+                # Rule 1: Filename match in metadata
+                try:
+                    if itype == "output":
+                        base = folder_paths.get_output_directory()
+                    elif itype == "input":
+                        base = folder_paths.get_input_directory()
+                    else:
+                        base = folder_paths.get_temp_directory()
+
+                    p_full = os.path.join(base, subf, fname)
+                    _, _, _, wf_json, pr_json, _, _ = MetadataHelper.extract_metadata(p_full)
+                    source_filenames = extract_source_filenames(wf_json, pr_json)
+                    if source_filenames:
+                        placeholders = ",".join(["?"] * len(source_filenames))
+                        sql = (
+                            f"SELECT id FROM images WHERE filename IN ({placeholders}) "
+                            "AND is_deleted = 0 AND created_at < ? ORDER BY created_at DESC LIMIT 1"
+                        )
+                        cursor.execute(sql, (*source_filenames, icreated))
+                        res = cursor.fetchone()
+                        if res:
+                            parent_id = res[0]
+                except Exception:
+                    pass
+
+                # Rule 2: pHash match
+                if parent_id is None and iphash:
+                    parent_id = find_closest_parent(iphash, cursor)
+
+                if parent_id:
+                    cursor.execute("UPDATE images SET parent_id = ? WHERE id = ?", (parent_id, img_id))
+
+            conn.commit()
+
+    except Exception as e:
+        logging.exception(f"[Meld-Flow] Scan thread failed: {e}")
+    finally:
+        if conn:
+            conn.close()
+        _scan_state["is_running"] = False
+        _scan_state["should_cancel"] = False
+        server.PromptServer.instance.send_sync("meld-nexus-scan-finished", {"status": "completed"})
+
+
+@server.PromptServer.instance.routes.get("/api/meld-nexus/folders")
+async def list_folders(request):
+    try:
+        path = request.query.get("path", "")
+        base_type = request.query.get("type", "output")
+
+        if base_type == "output":
+            base_dir = folder_paths.get_output_directory()
+        elif base_type == "input":
+            base_dir = folder_paths.get_input_directory()
+        else:
+            base_dir = ""  # Absolute path mode
+
+        target_path = os.path.abspath(os.path.join(base_dir, path))
+
+        if not os.path.exists(target_path):
+            return web.json_response([])
+
+        if not os.path.isdir(target_path):
+            return web.json_response({"error": "Not a directory"}, status=400)
+
+        folders = []
+        try:
+            for item in os.listdir(target_path):
+                full_item_path = os.path.join(target_path, item)
+                if os.path.isdir(full_item_path):
+                    folders.append(item)
+        except PermissionError:
+            return web.json_response({"error": "Permission denied"}, status=403)
+
+        return web.json_response(sorted(folders))
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
+@server.PromptServer.instance.routes.post("/api/meld-nexus/scan")
+async def start_scan(request):
+    global _scan_state
+    if _scan_state["is_running"]:
+        return web.json_response({"error": "Scan already running"}, status=400)
+
+    try:
+        data = await request.json()
+        img_type = data.get("type", "output")
+        subfolder = data.get("subfolder", "")
+        custom_path = data.get("custom_path", "")
+        recursive = data.get("recursive", True)
+        auto_link_parent = data.get("auto_link_parent", True)
+        base_dir = ""
+
+        if img_type == "output":
+            base_dir = folder_paths.get_output_directory()
+            target_base = os.path.join(base_dir, subfolder)
+        elif img_type == "input":
+            base_dir = folder_paths.get_input_directory()
+            target_base = os.path.join(base_dir, subfolder)
+        elif img_type == "custom":
+            if not custom_path:
+                return web.json_response({"error": "Custom path is required"}, status=400)
+            target_base = custom_path
+        else:
+            return web.json_response({"error": "Invalid type"}, status=400)
+
+        target_base = os.path.abspath(target_base)
+        if not os.path.exists(target_base):
+            return web.json_response({"error": f"Path does not exist: {target_base}"}, status=404)
+
+        _scan_state["is_running"] = True
+        _scan_state["should_cancel"] = False
+
+        # In custom mode, base_dir for relative path calculation should be the target itself
+        calc_base = target_base if img_type == "custom" else base_dir
+
+        thread = threading.Thread(
+            target=_scan_thread,
+            args=(calc_base, subfolder if img_type != "custom" else "", recursive, auto_link_parent),
+        )
+        thread.start()
+
+        return web.json_response({"status": "started"})
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
+@server.PromptServer.instance.routes.post("/api/meld-nexus/scan/cancel")
+async def cancel_scan(request):
+    global _scan_state
+    _scan_state["should_cancel"] = True
+    return web.json_response({"status": "cancelling"})
+
+
+@server.PromptServer.instance.routes.get("/api/meld-nexus/scan/status")
+async def get_scan_status(request):
+    return web.json_response(_scan_state)
 
 
 def extract_source_filenames(workflow_json, prompt_json):
