@@ -6,6 +6,7 @@ import { api } from "../../../scripts/api.js";
 import { app } from "../../../scripts/app.js";
 import * as apiLayer from "./api";
 import { GalleryPanel } from "./components/GalleryPanel";
+import { logger } from "./logger";
 import { GalleryProvider } from "./store/GalleryContext";
 
 const style = document.createElement("link");
@@ -15,6 +16,7 @@ style.href = "/extensions/ComfyUI-Meld-Flow/js/style.css";
 document.head.appendChild(style);
 
 let galleryRoot: Root | null = null;
+let galleryContainer: HTMLDivElement | null = null;
 
 app.registerExtension({
     name: "ComfyUI.MeldNexus",
@@ -36,6 +38,16 @@ app.registerExtension({
 
     // biome-ignore lint/suspicious/noExplicitAny: ComfyUI interop
     async setup(app: any) {
+        // Initialize logger from server settings
+        try {
+            const settings = await apiLayer.fetchSettings();
+            logger.init(settings.dev_mode);
+            logger.log("Settings received:", settings);
+        } catch (e) {
+            console.error("[Meld-Flow] Failed to fetch settings", e);
+            logger.init(false);
+        }
+
         if (!app.extensionManager?.registerSidebarTab) {
             return;
         }
@@ -93,24 +105,36 @@ app.registerExtension({
                 tooltip: "Meld Flow: View generated images",
                 type: "custom",
                 render: (el: HTMLElement) => {
+                    logger.log("MeldNexus: render called", { el, galleryRoot, galleryContainer });
+
+                    if (!galleryContainer) {
+                        logger.log("MeldNexus: galleryContainer not found, creating new one");
+                        galleryContainer = document.createElement("div");
+                        galleryContainer.id = "meld-flow-gallery-container";
+                        galleryContainer.style.height = "100%";
+                        galleryContainer.style.width = "100%";
+                        galleryContainer.style.display = "flex";
+                        galleryContainer.style.flexDirection = "column";
+                    }
+
+                    if (!el.contains(galleryContainer)) {
+                        logger.log("MeldNexus: Appending galleryContainer to el");
+                        el.appendChild(galleryContainer);
+                    }
+
                     if (!galleryRoot) {
-                        const container = document.createElement("div");
-                        container.id = "meld-flow-gallery-container";
-                        container.style.height = "100%";
-                        container.style.width = "100%";
-                        container.style.display = "flex";
-                        container.style.flexDirection = "column";
-
-                        el.appendChild(container);
-                        galleryRoot = createRoot(container);
-
-                        // Mount React application
+                        logger.log("MeldNexus: Creating new gallery root");
+                        galleryRoot = createRoot(galleryContainer);
                         galleryRoot.render(
                             React.createElement(
                                 GalleryProvider,
                                 null,
                                 React.createElement(GalleryPanel),
                             ),
+                        );
+                    } else {
+                        logger.log(
+                            "MeldNexus: Gallery root already exists, React should handle re-render if needed",
                         );
                     }
                 },

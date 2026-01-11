@@ -1,5 +1,6 @@
 import { CheckSquare, RefreshCw, XSquare } from "lucide-react";
 import type React from "react";
+import { logger } from "../logger";
 import { useGallery } from "../store/GalleryContext";
 import { BulkActionBar } from "./BulkActionBar";
 import { ImageCard } from "./ImageCard";
@@ -7,6 +8,10 @@ import "../styles/Gallery.css";
 
 export const GalleryPanel: React.FC = () => {
     const { state, dispatch, refreshImages } = useGallery();
+    logger.log("GalleryPanel: rendering", {
+        imageCount: state.images.length,
+        isLoading: state.isLoading,
+    });
 
     const handleSelectAllToggle = () => {
         if (state.selectedIds.size > 0) {
