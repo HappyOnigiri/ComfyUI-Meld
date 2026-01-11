@@ -5,6 +5,11 @@ import time
 from datetime import datetime
 
 import folder_paths
+
+try:
+    import imagehash
+except ImportError:
+    imagehash = None  # type: ignore
 import numpy as np
 import server
 from comfy.cli_args import args
@@ -142,10 +147,18 @@ class MeldNexus:
 
             timestamp = time.time()
 
+            # Calculate pHash
+            phash = None
+            if imagehash is not None:
+                try:
+                    phash = str(imagehash.phash(img))
+                except Exception:
+                    pass
+
             # Insert Image
             cursor.execute(
-                "INSERT INTO images (filename, subfolder, created_at, is_deleted) VALUES (?, ?, ?, 0)",
-                (file, subfolder, timestamp)
+                "INSERT INTO images (filename, subfolder, created_at, phash, is_deleted) VALUES (?, ?, ?, ?, 0)",
+                (file, subfolder, timestamp, phash)
             )
             image_id = cursor.lastrowid
 

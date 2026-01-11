@@ -2,8 +2,14 @@ import logging
 import os
 
 import folder_paths
+
+try:
+    import imagehash
+except ImportError:
+    imagehash = None  # type: ignore
 import server
 from aiohttp import web
+from PIL import Image
 
 from ..load_image_configs.metadata_helper import MetadataHelper
 from .database import get_db_connection
@@ -83,10 +89,19 @@ async def register_image(request):
 
         timestamp = os.path.getmtime(full_path)
 
+        # Calculate pHash
+        phash = None
+        if imagehash is not None:
+            try:
+                with Image.open(full_path) as img:
+                    phash = str(imagehash.phash(img))
+            except Exception:
+                logging.warning(f"[Meld-Flow] Failed to calculate phash for {full_path}")
+
         # Insert Image
         cursor.execute(
-            "INSERT INTO images (filename, subfolder, type, created_at, is_deleted) VALUES (?, ?, ?, ?, 0)",
-            (filename, subfolder, img_type, timestamp),
+            "INSERT INTO images (filename, subfolder, type, created_at, phash, is_deleted) VALUES (?, ?, ?, ?, ?, 0)",
+            (filename, subfolder, img_type, timestamp, phash),
         )
         image_id = cursor.lastrowid
 
@@ -144,15 +159,16 @@ async def list_images(request):
     cursor = conn.cursor()
 
     # Fetch images with basic info
-    cursor.execute(
-        "SELECT id, filename, subfolder, type, created_at FROM images WHERE is_deleted = 0 ORDER BY created_at DESC"
-    )
+    cursor.execute("""
+        SELECT id, filename, subfolder, type, created_at, phash
+        FROM images WHERE is_deleted = 0 ORDER BY created_at DESC
+    """)
     images = cursor.fetchall()
 
     result_list = []
 
     for img in images:
-        img_id, filename, subfolder, img_type, created_at = img
+        img_id, filename, subfolder, img_type, created_at, phash = img
 
         # Fetch positive prompt
         cursor.execute("""
@@ -199,6 +215,7 @@ async def list_images(request):
             "subfolder": subfolder,
             "type": img_type,
             "created_at": created_at,
+            "phash": phash,
             "positive": positive,
             "negative": negative,
             "tags": tags
@@ -206,6 +223,62 @@ async def list_images(request):
 
     conn.close()
     return web.json_response(result_list)
+
+@server.PromptServer.instance.routes.get("/api/meld-nexus/related")
+async def get_related_images(request):
+    try:
+        image_id = request.query.get("id")
+        threshold = int(request.query.get("threshold", 8))
+
+        if not image_id:
+            return web.json_response({"error": "id is required"}, status=400)
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Get the target phash
+        cursor.execute("SELECT phash FROM images WHERE id = ?", (image_id,))
+        row = cursor.fetchone()
+        if not row or not row[0]:
+            conn.close()
+            return web.json_response([]) # Return empty if no phash
+
+        target_phash = row[0]
+
+        # Fetch all other images with phash
+        cursor.execute("""
+            SELECT id, filename, subfolder, type, phash FROM images
+            WHERE id != ? AND phash IS NOT NULL AND is_deleted = 0
+        """, (image_id,))
+        other_images = cursor.fetchall()
+
+        def hamming_distance(h1, h2):
+            try:
+                return bin(int(h1, 16) ^ int(h2, 16)).count('1')
+            except Exception:
+                return 999
+
+        related = []
+        for img_id, filename, subfolder, img_type, phash in other_images:
+            dist = hamming_distance(target_phash, phash)
+            if dist <= threshold:
+                related.append({
+                    "id": img_id,
+                    "filename": filename,
+                    "subfolder": subfolder,
+                    "type": img_type,
+                    "distance": dist
+                })
+
+        # Sort by distance
+        related.sort(key=lambda x: x["distance"])
+
+        conn.close()
+        return web.json_response(related[:20]) # Limit to top 20
+    except Exception:
+        logging.exception("[Meld-Flow] Failed to get related images")
+        return web.json_response({"error": "internal error"}, status=500)
+
 
 @server.PromptServer.instance.routes.post("/api/meld-nexus/bulk-delete")
 async def bulk_delete_images(request):

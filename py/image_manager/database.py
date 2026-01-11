@@ -18,6 +18,12 @@ def init_db():
         )
     ''')
 
+    # Add phash column if not exists
+    try:
+        cursor.execute("ALTER TABLE images ADD COLUMN phash TEXT")
+    except sqlite3.OperationalError:
+        pass
+
     # Add type column if not exists
     try:
         cursor.execute("ALTER TABLE images ADD COLUMN type TEXT DEFAULT 'output'")
