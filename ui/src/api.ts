@@ -1,8 +1,7 @@
 // @ts-expect-error
 import { api } from "../../../scripts/api.js";
 
-// biome-ignore lint/suspicious/noExplicitAny: ComfyUI global
-(window as any).api = api;
+(window as unknown as { api: unknown }).api = api;
 
 import type { MeldImage } from "./types";
 

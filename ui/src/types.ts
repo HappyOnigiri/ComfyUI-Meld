@@ -34,3 +34,36 @@ export type GalleryAction =
     | { type: "CLOSE_VIEWER" }
     | { type: "NEXT_IMAGE" }
     | { type: "PREVIOUS_IMAGE" };
+
+export interface ComfyApp {
+    registerExtension(extension: ComfyExtension): void;
+    ui: {
+        meldNexus?: {
+            refresh: () => void;
+            isVisible: () => boolean | null;
+            toggle: () => void;
+        };
+        [key: string]: unknown;
+    };
+    extensionManager?: {
+        registerSidebarTab(tab: unknown): void;
+        setSidebarTabActive(id: string): void;
+    };
+    [key: string]: unknown;
+}
+
+export interface ComfyApi {
+    fetchApi(route: string, options?: RequestInit): Promise<Response>;
+    addEventListener(type: string, callback: (event: CustomEvent<unknown>) => void): void;
+    [key: string]: unknown;
+}
+
+export interface ComfyExtension {
+    name: string;
+    beforeRegisterNodeDef?: (
+        nodeType: unknown,
+        nodeData: { name: string },
+        app: ComfyApp,
+    ) => Promise<void>;
+    setup?: (app: ComfyApp) => Promise<void>;
+}

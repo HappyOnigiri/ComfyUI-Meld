@@ -8,6 +8,7 @@ import * as apiLayer from "./api";
 import { GalleryPanel } from "./components/GalleryPanel";
 import { logger } from "./logger";
 import { GalleryProvider } from "./store/GalleryContext";
+import type { ComfyApp } from "./types";
 
 const style = document.createElement("link");
 style.rel = "stylesheet";
@@ -21,23 +22,26 @@ let galleryContainer: HTMLDivElement | null = null;
 app.registerExtension({
     name: "ComfyUI.MeldNexus",
 
-    // biome-ignore lint/suspicious/noExplicitAny: ComfyUI interop
-    async beforeRegisterNodeDef(nodeType: any, nodeData: { name: string }, app: any) {
+    async beforeRegisterNodeDef(nodeType: unknown, nodeData: { name: string }, app: ComfyApp) {
         if (nodeData.name === "MeldNexus") {
-            const onExecuted = nodeType.prototype.onExecuted;
-            nodeType.prototype.onExecuted = function (...args: unknown[]) {
+            const onExecuted = (
+                nodeType as { prototype: { onExecuted: (...args: unknown[]) => void } }
+            ).prototype.onExecuted;
+            (
+                nodeType as { prototype: { onExecuted: (...args: unknown[]) => void } }
+            ).prototype.onExecuted = function (...args: unknown[]) {
                 onExecuted?.apply(this, args);
 
                 // Refresh content if the gallery is visible
-                if (app.ui.meldNexus?.isVisible()) {
-                    app.ui.meldNexus.refresh();
+                const meldNexus = app.ui.meldNexus;
+                if (meldNexus?.isVisible()) {
+                    meldNexus.refresh();
                 }
             };
         }
     },
 
-    // biome-ignore lint/suspicious/noExplicitAny: ComfyUI interop
-    async setup(app: any) {
+    async setup(app: ComfyApp) {
         // Initialize logger from server settings
         try {
             const settings = await apiLayer.fetchSettings();
@@ -65,7 +69,7 @@ app.registerExtension({
             },
             toggle: () => {
                 try {
-                    app.extensionManager.setSidebarTabActive("meld-flow-gallery");
+                    app.extensionManager?.setSidebarTabActive("meld-flow-gallery");
                 } catch (e) {
                     console.error("Error toggling sidebar:", e);
                 }
@@ -74,28 +78,34 @@ app.registerExtension({
 
         // Real-time update notification from backend
         api.addEventListener("meld-nexus-image-saved", () => {
-            app.ui.meldNexus.refresh();
+            app.ui.meldNexus?.refresh();
         });
 
         // Auto-register when image generation is complete
-        // biome-ignore lint/suspicious/noExplicitAny: ComfyUI interop
-        api.addEventListener("executed", async ({ detail }: { detail: any }) => {
-            if (detail?.output?.images) {
-                for (const img of detail.output.images) {
-                    if (img.type === "output") {
-                        try {
-                            await apiLayer.registerImage({
-                                filename: img.filename,
-                                subfolder: img.subfolder,
-                                type: img.type,
-                            });
-                        } catch (e) {
-                            console.error("Failed to auto-register image:", e);
+        api.addEventListener(
+            "executed",
+            async ({
+                detail,
+            }: CustomEvent<{
+                output?: { images?: Array<{ filename: string; subfolder: string; type: string }> };
+            }>) => {
+                if (detail?.output?.images) {
+                    for (const img of detail.output.images) {
+                        if (img.type === "output") {
+                            try {
+                                await apiLayer.registerImage({
+                                    filename: img.filename,
+                                    subfolder: img.subfolder,
+                                    type: img.type,
+                                });
+                            } catch (e) {
+                                console.error("Failed to auto-register image:", e);
+                            }
                         }
                     }
                 }
-            }
-        });
+            },
+        );
 
         try {
             app.extensionManager.registerSidebarTab({

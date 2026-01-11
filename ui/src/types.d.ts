@@ -1,43 +1,45 @@
+import type { ComfyApi, ComfyApp } from "./types";
+
 // Global type definitions for ComfyUI
 declare global {
     interface Window {
-        // biome-ignore lint/suspicious/noExplicitAny: ComfyUI global
-        app: any;
-        // biome-ignore lint/suspicious/noExplicitAny: ComfyUI global
-        api: any;
+        app: ComfyApp;
+        api: ComfyApi;
     }
 }
 
 // Declare to resolve any path format imports
 declare module "*/scripts/app.js" {
-    // biome-ignore lint/suspicious/noExplicitAny: ComfyUI global
-    export const app: any;
+    export const app: ComfyApp;
 }
 
 declare module "*/scripts/api.js" {
-    // biome-ignore lint/suspicious/noExplicitAny: ComfyUI global
-    export const api: any;
+    export const api: ComfyApi;
 }
 
 // Declare relative paths individually (match tsc resolution rules)
 declare module "../../scripts/app.js" {
-    // biome-ignore lint/suspicious/noExplicitAny: ComfyUI global
-    export const app: any;
+    export const app: ComfyApp;
 }
 
 declare module "../../scripts/api.js" {
-    // biome-ignore lint/suspicious/noExplicitAny: ComfyUI global
-    export const api: any;
+    export const api: ComfyApi;
+}
+
+declare module "../../../scripts/app.js" {
+    export const app: ComfyApp;
+}
+
+declare module "../../../scripts/api.js" {
+    export const api: ComfyApi;
 }
 
 declare module "/scripts/app.js" {
-    // biome-ignore lint/suspicious/noExplicitAny: ComfyUI global
-    export const app: any;
+    export const app: ComfyApp;
 }
 
 declare module "/scripts/api.js" {
-    // biome-ignore lint/suspicious/noExplicitAny: ComfyUI global
-    export const api: any;
+    export const api: ComfyApi;
 }
 
 // CSS Modules
@@ -47,4 +49,3 @@ declare module "*.module.css" {
 }
 
 // Treat as a module
-export {};

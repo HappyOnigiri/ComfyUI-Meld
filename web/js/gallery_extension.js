@@ -6229,17 +6229,16 @@ document.head.appendChild(xl);
 let Er = null, ze = null;
 pc.registerExtension({
   name: "ComfyUI.MeldNexus",
-  // biome-ignore lint/suspicious/noExplicitAny: ComfyUI interop
   async beforeRegisterNodeDef(e, t, n) {
     if (t.name === "MeldNexus") {
       const r = e.prototype.onExecuted;
       e.prototype.onExecuted = function(...l) {
-        var u;
-        r == null || r.apply(this, l), (u = n.ui.meldNexus) != null && u.isVisible() && n.ui.meldNexus.refresh();
+        r == null || r.apply(this, l);
+        const u = n.ui.meldNexus;
+        u != null && u.isVisible() && u.refresh();
       };
     }
   },
-  // biome-ignore lint/suspicious/noExplicitAny: ComfyUI interop
   async setup(e) {
     var t;
     try {
@@ -6258,30 +6257,37 @@ pc.registerExtension({
           return n && n.offsetParent !== null;
         },
         toggle: () => {
+          var n;
           try {
-            e.extensionManager.setSidebarTabActive("meld-flow-gallery");
-          } catch (n) {
-            console.error("Error toggling sidebar:", n);
+            (n = e.extensionManager) == null || n.setSidebarTabActive("meld-flow-gallery");
+          } catch (r) {
+            console.error("Error toggling sidebar:", r);
           }
         }
       }, Pt.addEventListener("meld-nexus-image-saved", () => {
-        e.ui.meldNexus.refresh();
-      }), Pt.addEventListener("executed", async ({ detail: n }) => {
-        var r;
-        if ((r = n == null ? void 0 : n.output) != null && r.images) {
-          for (const l of n.output.images)
-            if (l.type === "output")
-              try {
-                await Ad({
-                  filename: l.filename,
-                  subfolder: l.subfolder,
-                  type: l.type
-                });
-              } catch (u) {
-                console.error("Failed to auto-register image:", u);
-              }
+        var n;
+        (n = e.ui.meldNexus) == null || n.refresh();
+      }), Pt.addEventListener(
+        "executed",
+        async ({
+          detail: n
+        }) => {
+          var r;
+          if ((r = n == null ? void 0 : n.output) != null && r.images) {
+            for (const l of n.output.images)
+              if (l.type === "output")
+                try {
+                  await Ad({
+                    filename: l.filename,
+                    subfolder: l.subfolder,
+                    type: l.type
+                  });
+                } catch (u) {
+                  console.error("Failed to auto-register image:", u);
+                }
+          }
         }
-      });
+      );
       try {
         e.extensionManager.registerSidebarTab({
           id: "meld-flow-gallery",
