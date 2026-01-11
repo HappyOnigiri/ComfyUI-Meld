@@ -30,6 +30,16 @@ def init_db():
     except sqlite3.OperationalError:
         pass
 
+    # Add strength column to relations if not exists
+    try:
+        cursor.execute("ALTER TABLE positive_prompt_image_relations ADD COLUMN strength REAL DEFAULT 1.0")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        cursor.execute("ALTER TABLE negative_prompt_image_relations ADD COLUMN strength REAL DEFAULT 1.0")
+    except sqlite3.OperationalError:
+        pass
+
     # Normalized Tables
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS positive_prompts (
@@ -56,6 +66,7 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             image_id INTEGER,
             positive_prompt_id INTEGER,
+            strength REAL DEFAULT 1.0,
             FOREIGN KEY(image_id) REFERENCES images(id),
             FOREIGN KEY(positive_prompt_id) REFERENCES positive_prompts(id)
         )
@@ -65,6 +76,7 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             image_id INTEGER,
             negative_prompt_id INTEGER,
+            strength REAL DEFAULT 1.0,
             FOREIGN KEY(image_id) REFERENCES images(id),
             FOREIGN KEY(negative_prompt_id) REFERENCES negative_prompts(id)
         )
