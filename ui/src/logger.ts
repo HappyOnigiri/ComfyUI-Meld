@@ -9,31 +9,31 @@ let isDevMode = false;
  * Initialize the logger with settings.
  */
 export const initLogger = (devMode: boolean) => {
-    isDevMode = devMode;
-    if (isDevMode) {
-        console.log("[Meld-Flow] Logger initialized in DEV mode.");
-    }
+	isDevMode = devMode;
+	if (isDevMode) {
+		console.log("[Meld-Flow] Logger initialized in DEV mode.");
+	}
 };
 
 /**
  * Log message if dev mode is enabled.
  */
 export const log = (...args: unknown[]) => {
-    if (isDevMode) {
-        console.log("[Meld-Flow]", ...args);
-    } else {
-        // For debugging: verify that the log is being skipped
-        // console.debug("[Meld-Flow] Log skipped (devMode is false)");
-    }
+	if (isDevMode) {
+		console.log("[Meld-Flow]", ...args);
+	} else {
+		// For debugging: verify that the log is being skipped
+		// console.debug("[Meld-Flow] Log skipped (devMode is false)");
+	}
 };
 
 /**
  * Log warning message if dev mode is enabled.
  */
 export const warn = (...args: unknown[]) => {
-    if (isDevMode) {
-        console.warn("[Meld-Flow]", ...args);
-    }
+	if (isDevMode) {
+		console.warn("[Meld-Flow]", ...args);
+	}
 };
 
 /**
@@ -42,12 +42,12 @@ export const warn = (...args: unknown[]) => {
  * but prefixed with [Meld-Flow].
  */
 export const error = (...args: unknown[]) => {
-    console.error("[Meld-Flow]", ...args);
+	console.error("[Meld-Flow]", ...args);
 };
 
 export const logger = {
-    log,
-    warn,
-    error,
-    init: initLogger,
+	log,
+	warn,
+	error,
+	init: initLogger,
 };

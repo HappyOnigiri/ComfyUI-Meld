@@ -297,7 +297,7 @@ var us = { exports: {} }, we = {}, ss = { exports: {} }, as = {};
       return o.now() - u;
     };
   }
-  var s = [], f = [], v = 1, p = null, m = 3, k = !1, S = !1, w = !1, R = typeof setTimeout == "function" ? setTimeout : null, c = typeof clearTimeout == "function" ? clearTimeout : null, a = typeof setImmediate < "u" ? setImmediate : null;
+  var s = [], f = [], v = 1, p = null, m = 3, k = !1, S = !1, w = !1, M = typeof setTimeout == "function" ? setTimeout : null, c = typeof clearTimeout == "function" ? clearTimeout : null, a = typeof setImmediate < "u" ? setImmediate : null;
   typeof navigator < "u" && navigator.scheduling !== void 0 && navigator.scheduling.isInputPending !== void 0 && navigator.scheduling.isInputPending.bind(navigator.scheduling);
   function d(_) {
     for (var L = n(f); L !== null; ) {
@@ -363,13 +363,13 @@ var us = { exports: {} }, we = {}, ss = { exports: {} }, as = {};
       hc.postMessage(null);
     };
   } else mn = function() {
-    R(pn, 0);
+    M(pn, 0);
   };
   function Cl(_) {
     N = _, C || (C = !0, mn());
   }
   function Nl(_, L) {
-    P = R(function() {
+    P = M(function() {
       _(e.unstable_now());
     }, L);
   }
@@ -1336,7 +1336,7 @@ function lo(e, t) {
     l & t | e[r] & t && (e[r] |= t), n &= ~l;
   }
 }
-var M = 0;
+var R = 0;
 function Rs(e) {
   return e &= -e, 1 < e ? 4 < e ? e & 268435455 ? 16 : 536870912 : 4 : 1;
 }
@@ -1441,21 +1441,21 @@ function Vn(e) {
 }
 var qt = be.ReactCurrentBatchConfig, Hr = !0;
 function cf(e, t, n, r) {
-  var l = M, i = qt.transition;
+  var l = R, i = qt.transition;
   qt.transition = null;
   try {
-    M = 1, oo(e, t, n, r);
+    R = 1, oo(e, t, n, r);
   } finally {
-    M = l, qt.transition = i;
+    R = l, qt.transition = i;
   }
 }
 function ff(e, t, n, r) {
-  var l = M, i = qt.transition;
+  var l = R, i = qt.transition;
   qt.transition = null;
   try {
-    M = 4, oo(e, t, n, r);
+    R = 4, oo(e, t, n, r);
   } finally {
-    M = l, qt.transition = i;
+    R = l, qt.transition = i;
   }
 }
 function oo(e, t, n, r) {
@@ -2089,12 +2089,12 @@ function Bl(e, t, n, r, l) {
           case "pointerup":
             k = uu;
         }
-        var w = (t & 4) !== 0, R = !w && e === "scroll", c = w ? m !== null ? m + "Capture" : null : m;
+        var w = (t & 4) !== 0, M = !w && e === "scroll", c = w ? m !== null ? m + "Capture" : null : m;
         w = [];
         for (var a = f, d; a !== null; ) {
           d = a;
           var y = d.stateNode;
-          if (d.tag === 5 && y !== null && (d = y, c !== null && (y = Un(a, c), y != null && w.push(Qn(a, y, d)))), R) break;
+          if (d.tag === 5 && y !== null && (d = y, c !== null && (y = Un(a, c), y != null && w.push(Qn(a, y, d)))), M) break;
           a = a.return;
         }
         0 < w.length && (m = new k(m, S, null, n, v), p.push({ event: m, listeners: w }));
@@ -2103,8 +2103,8 @@ function Bl(e, t, n, r, l) {
     if (!(t & 7)) {
       e: {
         if (m = e === "mouseover" || e === "pointerover", k = e === "mouseout" || e === "pointerout", m && n !== di && (S = n.relatedTarget || n.fromElement) && (_t(S) || S[Ze])) break e;
-        if ((k || m) && (m = v.window === v ? v : (m = v.ownerDocument) ? m.defaultView || m.parentWindow : window, k ? (S = n.relatedTarget || n.toElement, k = f, S = S ? _t(S) : null, S !== null && (R = Ot(S), S !== R || S.tag !== 5 && S.tag !== 6) && (S = null)) : (k = null, S = f), k !== S)) {
-          if (w = iu, y = "onMouseLeave", c = "onMouseEnter", a = "mouse", (e === "pointerout" || e === "pointerover") && (w = uu, y = "onPointerLeave", c = "onPointerEnter", a = "pointer"), R = k == null ? m : Ht(k), d = S == null ? m : Ht(S), m = new w(y, a + "leave", k, n, v), m.target = R, m.relatedTarget = d, y = null, _t(v) === f && (w = new w(c, a + "enter", S, n, v), w.target = d, w.relatedTarget = R, y = w), R = y, k && S) t: {
+        if ((k || m) && (m = v.window === v ? v : (m = v.ownerDocument) ? m.defaultView || m.parentWindow : window, k ? (S = n.relatedTarget || n.toElement, k = f, S = S ? _t(S) : null, S !== null && (M = Ot(S), S !== M || S.tag !== 5 && S.tag !== 6) && (S = null)) : (k = null, S = f), k !== S)) {
+          if (w = iu, y = "onMouseLeave", c = "onMouseEnter", a = "mouse", (e === "pointerout" || e === "pointerover") && (w = uu, y = "onPointerLeave", c = "onPointerEnter", a = "pointer"), M = k == null ? m : Ht(k), d = S == null ? m : Ht(S), m = new w(y, a + "leave", k, n, v), m.target = M, m.relatedTarget = d, y = null, _t(v) === f && (w = new w(c, a + "enter", S, n, v), w.target = d, w.relatedTarget = M, y = w), M = y, k && S) t: {
             for (w = k, c = S, a = 0, d = w; d; d = Dt(d)) a++;
             for (d = 0, y = c; y; y = Dt(y)) d++;
             for (; 0 < a - d; ) w = Dt(w), a--;
@@ -2116,7 +2116,7 @@ function Bl(e, t, n, r, l) {
             w = null;
           }
           else w = null;
-          k !== null && gu(p, m, k, w, !1), S !== null && R !== null && gu(p, R, S, w, !0);
+          k !== null && gu(p, m, k, w, !1), S !== null && M !== null && gu(p, M, S, w, !0);
         }
       }
       e: {
@@ -2343,10 +2343,10 @@ function ld(e) {
 function wt() {
   if (!Ql && Qe !== null) {
     Ql = !0;
-    var e = 0, t = M;
+    var e = 0, t = R;
     try {
       var n = Qe;
-      for (M = 1; e < n.length; e++) {
+      for (R = 1; e < n.length; e++) {
         var r = n[e];
         do
           r = r(!0);
@@ -2356,7 +2356,7 @@ function wt() {
     } catch (l) {
       throw Qe !== null && (Qe = Qe.slice(e + 1)), zs(ro, wt), l;
     } finally {
-      M = t, Ql = !1;
+      R = t, Ql = !1;
     }
   }
   return null;
@@ -2631,7 +2631,7 @@ function aa(e) {
       return t(c, pn);
     }), A && xt(c, P), E;
   }
-  function R(c, a, d, y) {
+  function M(c, a, d, y) {
     if (typeof d == "object" && d !== null && d.type === Ut && d.key === null && (d = d.props.children), typeof d == "object" && d !== null) {
       switch (d.$$typeof) {
         case sr:
@@ -2672,7 +2672,7 @@ function aa(e) {
           }
           return o(c);
         case tt:
-          return C = d._init, R(c, a, C(d._payload), y);
+          return C = d._init, M(c, a, C(d._payload), y);
       }
       if (_n(d)) return S(c, a, d, y);
       if (hn(d)) return w(c, a, d, y);
@@ -2680,7 +2680,7 @@ function aa(e) {
     }
     return typeof d == "string" && d !== "" || typeof d == "number" ? (d = "" + d, a !== null && a.tag === 6 ? (n(c, a.sibling), a = l(a, d), a.return = c, c = a) : (n(c, a), a = ql(d, c.mode, y), a.return = c, c = a), o(c)) : n(c, a);
   }
-  return R;
+  return M;
 }
 var ln = aa(!0), ca = aa(!1), Zr = gt(null), Jr = null, Gt = null, vo = null;
 function yo() {
@@ -3088,14 +3088,14 @@ function La(e, t, n) {
   return It & 21 ? (Fe(n, t) || (n = Ms(), V.lanes |= n, Tt |= n, e.baseState = !0), t) : (e.baseState && (e.baseState = !1, fe = !0), e.memoizedState = n);
 }
 function ud(e, t) {
-  var n = M;
-  M = n !== 0 && 4 > n ? n : 4, e(!0);
+  var n = R;
+  R = n !== 0 && 4 > n ? n : 4, e(!0);
   var r = Kl.transition;
   Kl.transition = {};
   try {
     e(!1), t();
   } finally {
-    M = n, Kl.transition = r;
+    R = n, Kl.transition = r;
   }
 }
 function ja() {
@@ -4022,7 +4022,7 @@ function kd(e, t) {
           break;
         case 1:
           if (S !== null) {
-            var w = S.memoizedProps, R = S.memoizedState, c = t.stateNode, a = c.getSnapshotBeforeUpdate(t.elementType === t.type ? w : Ie(t.type, w), R);
+            var w = S.memoizedProps, M = S.memoizedState, c = t.stateNode, a = c.getSnapshotBeforeUpdate(t.elementType === t.type ? w : Ie(t.type, w), M);
             c.__reactInternalSnapshotBeforeUpdate = a;
           }
           break;
@@ -4605,7 +4605,7 @@ function ue() {
   return T & 6 ? G() : Rr !== -1 ? Rr : Rr = G();
 }
 function pt(e) {
-  return e.mode & 1 ? T & 2 && ee !== 0 ? ee & -ee : id.transition !== null ? (Or === 0 && (Or = Ms()), Or) : (e = M, e !== 0 || (e = window.event, e = e === void 0 ? 16 : $s(e.type)), e) : 1;
+  return e.mode & 1 ? T & 2 && ee !== 0 ? ee & -ee : id.transition !== null ? (Or === 0 && (Or = Ms()), Or) : (e = R, e !== 0 || (e = window.event, e = e === void 0 ? 16 : $s(e.type)), e) : 1;
 }
 function Oe(e, t, n, r) {
   if (50 < On) throw On = 0, Bi = null, Error(g(185));
@@ -4777,11 +4777,11 @@ function Mt(e) {
   ot !== null && ot.tag === 0 && !(T & 6) && en();
   var t = T;
   T |= 1;
-  var n = _e.transition, r = M;
+  var n = _e.transition, r = R;
   try {
-    if (_e.transition = null, M = 1, e) return e();
+    if (_e.transition = null, R = 1, e) return e();
   } finally {
-    M = r, _e.transition = n, T = t, !(T & 6) && wt();
+    R = r, _e.transition = n, T = t, !(T & 6) && wt();
   }
 }
 function Ro() {
@@ -4874,9 +4874,9 @@ function Ja(e, t) {
             s = Error(g(426));
           }
         } else if (A && u.mode & 1) {
-          var R = Ru(o);
-          if (R !== null) {
-            !(R.flags & 65536) && (R.flags |= 256), Ou(R, o, u, i, t), ho(un(s, u));
+          var M = Ru(o);
+          if (M !== null) {
+            !(M.flags & 65536) && (M.flags |= 256), Ou(M, o, u, i, t), ho(un(s, u));
             break e;
           }
         }
@@ -4969,11 +4969,11 @@ function ec(e) {
   Y === 0 && (Y = 5);
 }
 function Et(e, t, n) {
-  var r = M, l = _e.transition;
+  var r = R, l = _e.transition;
   try {
-    _e.transition = null, M = 1, Nd(e, t, n, r);
+    _e.transition = null, R = 1, Nd(e, t, n, r);
   } finally {
-    _e.transition = l, M = r;
+    _e.transition = l, R = r;
   }
   return null;
 }
@@ -4992,10 +4992,10 @@ function Nd(e, t, n, r) {
     return en(), null;
   })), i = (n.flags & 15990) !== 0, n.subtreeFlags & 15990 || i) {
     i = _e.transition, _e.transition = null;
-    var o = M;
-    M = 1;
+    var o = R;
+    R = 1;
     var u = T;
-    T |= 4, zo.current = null, kd(e, n), Xa(n, e), Gf(xi), Hr = !!Si, xi = Si = null, e.current = n, Sd(n), Zc(), T = u, M = o, _e.transition = i;
+    T |= 4, zo.current = null, kd(e, n), Xa(n, e), Gf(xi), Hr = !!Si, xi = Si = null, e.current = n, Sd(n), Zc(), T = u, R = o, _e.transition = i;
   } else e.current = n;
   if (xr && (xr = !1, ot = e, ll = l), i = e.pendingLanes, i === 0 && (dt = null), bc(n.stateNode), me(e, G()), t !== null) for (r = e.onRecoverableError, n = 0; n < t.length; n++) l = t[n], r(l.value, { componentStack: l.stack, digest: l.digest });
   if (rl) throw rl = !1, e = Hi, Hi = null, e;
@@ -5003,9 +5003,9 @@ function Nd(e, t, n, r) {
 }
 function en() {
   if (ot !== null) {
-    var e = Rs(ll), t = _e.transition, n = M;
+    var e = Rs(ll), t = _e.transition, n = R;
     try {
-      if (_e.transition = null, M = 16 > e ? 16 : e, ot === null) var r = !1;
+      if (_e.transition = null, R = 16 > e ? 16 : e, ot === null) var r = !1;
       else {
         if (e = ot, ot = null, ll = 0, T & 6) throw Error(g(331));
         var l = T;
@@ -5047,8 +5047,8 @@ function en() {
                 if (w !== null) {
                   S.child = null;
                   do {
-                    var R = w.sibling;
-                    w.sibling = null, w = R;
+                    var M = w.sibling;
+                    w.sibling = null, w = M;
                   } while (w !== null);
                 }
               }
@@ -5107,7 +5107,7 @@ function en() {
       }
       return r;
     } finally {
-      M = n, _e.transition = t;
+      R = n, _e.transition = t;
     }
   }
   return !1;
@@ -5570,14 +5570,14 @@ Ds = function(e) {
   }
 };
 Fs = function() {
-  return M;
+  return R;
 };
 Us = function(e, t) {
-  var n = M;
+  var n = R;
   try {
-    return M = e, t();
+    return R = e, t();
   } finally {
-    M = n;
+    R = n;
   }
 };
 pi = function(e, t, n) {
@@ -5696,7 +5696,9 @@ const Ad = async () => {
   })).ok)
     throw new Error("Failed to link parent");
 }, Hd = async (e, t = 12) => {
-  const n = await De.fetchApi(`/meld-nexus/suggest-parents?id=${e}&threshold=${t}`);
+  const n = await De.fetchApi(
+    `/meld-nexus/suggest-parents?id=${e}&threshold=${t}`
+  );
   return n.ok ? await n.json() : [];
 }, Bd = async (e) => {
   const t = await De.fetchApi(`/meld-nexus/lineage?id=${e}`);
@@ -5997,7 +5999,9 @@ function mp(e, t) {
     case "SELECT_ALL":
       return {
         ...e,
-        selectedIds: new Set(e.images.map((n) => n.id))
+        selectedIds: new Set(
+          e.images.map((n) => n.id)
+        )
       };
     case "CLEAR_SELECTION":
       return {
@@ -6025,16 +6029,22 @@ function mp(e, t) {
         viewerImageId: null
       };
     case "NEXT_IMAGE": {
-      if (e.viewerImageId === null || e.images.length === 0) return e;
-      const r = (e.images.findIndex((l) => l.id === e.viewerImageId) + 1) % e.images.length;
+      if (e.viewerImageId === null || e.images.length === 0)
+        return e;
+      const r = (e.images.findIndex(
+        (l) => l.id === e.viewerImageId
+      ) + 1) % e.images.length;
       return {
         ...e,
         viewerImageId: e.images[r].id
       };
     }
     case "PREVIOUS_IMAGE": {
-      if (e.viewerImageId === null || e.images.length === 0) return e;
-      const r = (e.images.findIndex((l) => l.id === e.viewerImageId) - 1 + e.images.length) % e.images.length;
+      if (e.viewerImageId === null || e.images.length === 0)
+        return e;
+      const r = (e.images.findIndex(
+        (l) => l.id === e.viewerImageId
+      ) - 1 + e.images.length) % e.images.length;
       return {
         ...e,
         viewerImageId: e.images[r].id
@@ -6054,7 +6064,9 @@ function mp(e, t) {
       return e;
   }
 }
-const mc = O.createContext(void 0), hp = ({ children: e }) => {
+const mc = O.createContext(void 0), hp = ({
+  children: e
+}) => {
   const [t, n] = O.useReducer(mp, pp), r = O.useCallback(async () => {
     n({ type: "SET_LOADING", payload: !0 });
     try {
@@ -6093,7 +6105,13 @@ Physical files will also be permanently deleted. This operation cannot be undone
     };
   }, [r]), O.useEffect(() => {
     r();
-  }, [r]), /* @__PURE__ */ h.jsx(mc.Provider, { value: { state: t, dispatch: n, refreshImages: r, deleteSelected: l }, children: e });
+  }, [r]), /* @__PURE__ */ h.jsx(
+    mc.Provider,
+    {
+      value: { state: t, dispatch: n, refreshImages: r, deleteSelected: l },
+      children: e
+    }
+  );
 }, dn = () => {
   const e = O.useContext(mc);
   if (e === void 0)
@@ -6113,7 +6131,13 @@ Physical files will also be permanently deleted. This operation cannot be undone
         className: "meld-bulk-bar__button meld-bulk-bar__button--delete",
         onClick: n,
         children: [
-          /* @__PURE__ */ h.jsx(op, { size: 16, style: { marginRight: "8px", verticalAlign: "middle" } }),
+          /* @__PURE__ */ h.jsx(
+            op,
+            {
+              size: 16,
+              style: { marginRight: "8px", verticalAlign: "middle" }
+            }
+          ),
           "Delete"
         ]
       }
@@ -6131,7 +6155,9 @@ Physical files will also be permanently deleted. This operation cannot be undone
       }
     )
   ] });
-}, yp = ({ imageId: e }) => {
+}, yp = ({
+  imageId: e
+}) => {
   const { dispatch: t } = dn(), [n, r] = O.useState([]), [l, i] = O.useState(!0), o = O.useCallback(async () => {
     i(!0);
     try {
@@ -6147,10 +6173,11 @@ Physical files will also be permanently deleted. This operation cannot be undone
     o();
   }, [o]);
   const s = ((m) => {
+    var S;
     const k = /* @__PURE__ */ new Map();
-    for (const S of m) {
-      const w = S.parent_id || null;
-      k.has(w) || k.set(w, []), k.get(w).push(S);
+    for (const w of m) {
+      const M = w.parent_id || null;
+      k.has(M) || k.set(M, []), (S = k.get(M)) == null || S.push(w);
     }
     return k;
   })(n), f = (m, k = 0) => (s.get(m) || []).map((w) => /* @__PURE__ */ h.jsxs("div", { className: "meld-tree-node-container", children: [
@@ -6194,35 +6221,40 @@ Physical files will also be permanently deleted. This operation cannot be undone
       }
     ),
     f(w.id, k + 1)
-  ] }, w.id)), v = new Set(n.map((m) => m.id)), p = n.filter((m) => !m.parent_id || !v.has(m.parent_id));
-  return (
-    // biome-ignore lint/a11y/useKeyWithClickEvents: Modal overlay
-    // biome-ignore lint/a11y/noStaticElementInteractions: Modal overlay
-    /* @__PURE__ */ h.jsx("div", { className: "meld-modal-overlay", onClick: () => t({ type: "CLOSE_MODAL" }), children: /* @__PURE__ */ h.jsxs(
-      "div",
-      {
-        className: "meld-modal-content meld-modal-content--large",
-        onClick: (m) => m.stopPropagation(),
-        children: [
-          /* @__PURE__ */ h.jsxs("div", { className: "meld-modal-header", children: [
-            /* @__PURE__ */ h.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
-              /* @__PURE__ */ h.jsx(pc, { size: 20 }),
-              /* @__PURE__ */ h.jsx("h2", { children: "History Tree" })
+  ] }, w.id)), v = new Set(n.map((m) => m.id)), p = n.filter(
+    (m) => !m.parent_id || !v.has(m.parent_id)
+  );
+  return /* @__PURE__ */ h.jsx(
+    "div",
+    {
+      className: "meld-modal-overlay",
+      onClick: () => t({ type: "CLOSE_MODAL" }),
+      children: /* @__PURE__ */ h.jsxs(
+        "div",
+        {
+          className: "meld-modal-content meld-modal-content--large",
+          onClick: (m) => m.stopPropagation(),
+          children: [
+            /* @__PURE__ */ h.jsxs("div", { className: "meld-modal-header", children: [
+              /* @__PURE__ */ h.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
+                /* @__PURE__ */ h.jsx(pc, { size: 20 }),
+                /* @__PURE__ */ h.jsx("h2", { children: "History Tree" })
+              ] }),
+              /* @__PURE__ */ h.jsx(
+                "button",
+                {
+                  type: "button",
+                  className: "meld-modal-close",
+                  onClick: () => t({ type: "CLOSE_MODAL" }),
+                  children: /* @__PURE__ */ h.jsx(lr, { size: 20 })
+                }
+              )
             ] }),
-            /* @__PURE__ */ h.jsx(
-              "button",
-              {
-                type: "button",
-                className: "meld-modal-close",
-                onClick: () => t({ type: "CLOSE_MODAL" }),
-                children: /* @__PURE__ */ h.jsx(lr, { size: 20 })
-              }
-            )
-          ] }),
-          /* @__PURE__ */ h.jsx("div", { className: "meld-modal-body", children: l ? /* @__PURE__ */ h.jsx("div", { className: "meld-modal-loading", children: "Loading tree..." }) : n.length === 0 ? /* @__PURE__ */ h.jsx("div", { className: "meld-no-lineage", children: "No related images found." }) : /* @__PURE__ */ h.jsx("div", { className: "meld-tree-container", children: p.map((m) => /* @__PURE__ */ h.jsx("div", { className: "meld-tree-root", children: f(m.parent_id || null) }, m.id)) }) })
-        ]
-      }
-    ) })
+            /* @__PURE__ */ h.jsx("div", { className: "meld-modal-body", children: l ? /* @__PURE__ */ h.jsx("div", { className: "meld-modal-loading", children: "Loading tree..." }) : n.length === 0 ? /* @__PURE__ */ h.jsx("div", { className: "meld-no-lineage", children: "No related images found." }) : /* @__PURE__ */ h.jsx("div", { className: "meld-tree-container", children: p.map((m) => /* @__PURE__ */ h.jsx("div", { className: "meld-tree-root", children: f(m.parent_id || null) }, m.id)) }) })
+          ]
+        }
+      )
+    }
   );
 }, gp = ({ image: e }) => {
   const { state: t, dispatch: n } = dn(), r = t.selectedIds.has(e.id), [l, i] = O.useState(null), o = e.subfolder ? `${e.subfolder}/${e.filename}` : e.filename, u = `/api/view?filename=${encodeURIComponent(e.filename)}&type=${e.type || "output"}${e.subfolder ? `&subfolder=${encodeURIComponent(e.subfolder)}` : ""}`, s = (p) => {
@@ -6232,146 +6264,144 @@ Physical files will also be permanently deleted. This operation cannot be undone
   }, v = (p) => {
     (p.key === "Enter" || p.key === " ") && (p.preventDefault(), n({ type: "TOGGLE_SELECT", payload: e.id }));
   };
-  return (
-    // biome-ignore lint/a11y/useSemanticElements: Image card is a complex interactive element
-    /* @__PURE__ */ h.jsxs(
-      "div",
-      {
-        className: `meld-image-card ${r ? "meld-image-card--selected" : ""}`,
-        onClick: f,
-        onKeyDown: v,
-        role: "button",
-        tabIndex: 0,
-        children: [
-          /* @__PURE__ */ h.jsx("div", { className: "meld-image-card__thumbnail-wrapper", children: /* @__PURE__ */ h.jsx(
-            "img",
-            {
-              src: u,
-              className: "meld-image-card__thumbnail",
-              alt: e.filename,
-              loading: "lazy",
-              onClick: (p) => {
-                p.stopPropagation(), s(p);
-              }
+  return /* @__PURE__ */ h.jsxs(
+    "div",
+    {
+      className: `meld-image-card ${r ? "meld-image-card--selected" : ""}`,
+      onClick: f,
+      onKeyDown: v,
+      role: "button",
+      tabIndex: 0,
+      children: [
+        /* @__PURE__ */ h.jsx("div", { className: "meld-image-card__thumbnail-wrapper", children: /* @__PURE__ */ h.jsx(
+          "img",
+          {
+            src: u,
+            className: "meld-image-card__thumbnail",
+            alt: e.filename,
+            loading: "lazy",
+            onClick: (p) => {
+              p.stopPropagation(), s(p);
             }
-          ) }),
-          /* @__PURE__ */ h.jsxs("div", { className: "meld-image-card__details", children: [
-            /* @__PURE__ */ h.jsx("div", { className: "meld-image-card__filename", children: o }),
-            /* @__PURE__ */ h.jsx("div", { className: "meld-image-card__lineage-v2", children: e.parent_id ? (
-              // biome-ignore lint/a11y/useKeyWithClickEvents: lineage badge
-              // biome-ignore lint/a11y/noStaticElementInteractions: lineage badge
-              /* @__PURE__ */ h.jsxs(
-                "div",
-                {
-                  className: "meld-lineage-badge meld-lineage-badge--has-parent",
-                  onClick: (p) => {
-                    p.stopPropagation(), n({
-                      type: "OPEN_MODAL",
-                      payload: { type: "history_tree", imageId: e.id }
-                    });
-                  },
-                  children: [
-                    /* @__PURE__ */ h.jsx(pc, { size: 12 }),
-                    /* @__PURE__ */ h.jsxs("span", { children: [
-                      "Parent #",
-                      e.parent_id
-                    ] })
-                  ]
-                }
-              )
-            ) : (
-              // biome-ignore lint/a11y/useKeyWithClickEvents: lineage badge
-              // biome-ignore lint/a11y/noStaticElementInteractions: lineage badge
-              /* @__PURE__ */ h.jsxs(
-                "div",
-                {
-                  className: "meld-lineage-badge meld-lineage-badge--no-parent",
-                  onClick: (p) => {
-                    p.stopPropagation(), n({
-                      type: "OPEN_MODAL",
-                      payload: { type: "parent_selection", imageId: e.id }
-                    });
-                  },
-                  children: [
-                    /* @__PURE__ */ h.jsx(lp, { size: 12 }),
-                    /* @__PURE__ */ h.jsx("span", { children: "Origin (No parent)" })
-                  ]
-                }
-              )
-            ) }),
-            /* @__PURE__ */ h.jsxs(
-              "div",
-              {
-                className: "meld-image-card__meta-item meld-image-card__meta-item--clickable",
-                onClick: (p) => {
-                  p.stopPropagation(), i({ title: "Positive Prompt", text: e.positive || "-" });
-                },
-                children: [
-                  /* @__PURE__ */ h.jsx("div", { className: "meld-image-card__meta-label", children: "Positive" }),
-                  /* @__PURE__ */ h.jsx("div", { className: "meld-image-card__meta-content", children: e.positive || "-" })
-                ]
-              }
-            ),
-            /* @__PURE__ */ h.jsxs(
-              "div",
-              {
-                className: "meld-image-card__meta-item meld-image-card__meta-item--clickable",
-                onClick: (p) => {
-                  p.stopPropagation(), i({ title: "Negative Prompt", text: e.negative || "-" });
-                },
-                children: [
-                  /* @__PURE__ */ h.jsx("div", { className: "meld-image-card__meta-label", children: "Negative" }),
-                  /* @__PURE__ */ h.jsx("div", { className: "meld-image-card__meta-content", children: e.negative || "-" })
-                ]
-              }
-            ),
-            /* @__PURE__ */ h.jsxs("div", { className: "meld-image-card__meta-item", children: [
-              /* @__PURE__ */ h.jsx("div", { className: "meld-image-card__meta-label", children: "Tags" }),
-              /* @__PURE__ */ h.jsx("div", { className: "meld-image-card__tags", children: e.tags && e.tags.length > 0 ? e.tags.map((p, m) => /* @__PURE__ */ h.jsx(
-                "span",
-                {
-                  className: "meld-image-card__tag",
-                  children: p
-                },
-                `${p}-${m}`
-              )) : /* @__PURE__ */ h.jsx("span", { style: { color: "#666" }, children: "-" }) })
-            ] })
-          ] }),
-          l && // biome-ignore lint/a11y/useKeyWithClickEvents: Overlay backdrop
-          // biome-ignore lint/a11y/noStaticElementInteractions: Overlay backdrop
-          /* @__PURE__ */ h.jsx(
+          }
+        ) }),
+        /* @__PURE__ */ h.jsxs("div", { className: "meld-image-card__details", children: [
+          /* @__PURE__ */ h.jsx("div", { className: "meld-image-card__filename", children: o }),
+          /* @__PURE__ */ h.jsx("div", { className: "meld-image-card__lineage-v2", children: e.parent_id ? /* @__PURE__ */ h.jsxs(
             "div",
             {
-              className: "meld-prompt-popup-overlay",
+              className: "meld-lineage-badge meld-lineage-badge--has-parent",
               onClick: (p) => {
-                p.stopPropagation(), i(null);
+                p.stopPropagation(), n({
+                  type: "OPEN_MODAL",
+                  payload: { type: "history_tree", imageId: e.id }
+                });
               },
-              children: /* @__PURE__ */ h.jsxs("div", { className: "meld-prompt-popup-content", onClick: (p) => p.stopPropagation(), children: [
-                /* @__PURE__ */ h.jsxs("div", { className: "meld-prompt-popup-header", children: [
-                  /* @__PURE__ */ h.jsx("span", { children: l.title }),
-                  /* @__PURE__ */ h.jsx(
-                    lr,
-                    {
-                      className: "meld-prompt-popup-close",
-                      size: 18,
-                      onClick: () => i(null)
-                    }
-                  )
-                ] }),
-                /* @__PURE__ */ h.jsx("div", { className: "meld-prompt-popup-text", children: l.text })
-              ] })
+              children: [
+                /* @__PURE__ */ h.jsx(pc, { size: 12 }),
+                /* @__PURE__ */ h.jsxs("span", { children: [
+                  "Parent #",
+                  e.parent_id
+                ] })
+              ]
             }
-          )
-        ]
-      }
-    )
+          ) : /* @__PURE__ */ h.jsxs(
+            "div",
+            {
+              className: "meld-lineage-badge meld-lineage-badge--no-parent",
+              onClick: (p) => {
+                p.stopPropagation(), n({
+                  type: "OPEN_MODAL",
+                  payload: { type: "parent_selection", imageId: e.id }
+                });
+              },
+              children: [
+                /* @__PURE__ */ h.jsx(lp, { size: 12 }),
+                /* @__PURE__ */ h.jsx("span", { children: "Origin (No parent)" })
+              ]
+            }
+          ) }),
+          /* @__PURE__ */ h.jsxs(
+            "div",
+            {
+              className: "meld-image-card__meta-item meld-image-card__meta-item--clickable",
+              onClick: (p) => {
+                p.stopPropagation(), i({
+                  title: "Positive Prompt",
+                  text: e.positive || "-"
+                });
+              },
+              children: [
+                /* @__PURE__ */ h.jsx("div", { className: "meld-image-card__meta-label", children: "Positive" }),
+                /* @__PURE__ */ h.jsx("div", { className: "meld-image-card__meta-content", children: e.positive || "-" })
+              ]
+            }
+          ),
+          /* @__PURE__ */ h.jsxs(
+            "div",
+            {
+              className: "meld-image-card__meta-item meld-image-card__meta-item--clickable",
+              onClick: (p) => {
+                p.stopPropagation(), i({
+                  title: "Negative Prompt",
+                  text: e.negative || "-"
+                });
+              },
+              children: [
+                /* @__PURE__ */ h.jsx("div", { className: "meld-image-card__meta-label", children: "Negative" }),
+                /* @__PURE__ */ h.jsx("div", { className: "meld-image-card__meta-content", children: e.negative || "-" })
+              ]
+            }
+          ),
+          /* @__PURE__ */ h.jsxs("div", { className: "meld-image-card__meta-item", children: [
+            /* @__PURE__ */ h.jsx("div", { className: "meld-image-card__meta-label", children: "Tags" }),
+            /* @__PURE__ */ h.jsx("div", { className: "meld-image-card__tags", children: e.tags && e.tags.length > 0 ? e.tags.map((p, m) => /* @__PURE__ */ h.jsx("span", { className: "meld-image-card__tag", children: p }, `${p}-${m}`)) : /* @__PURE__ */ h.jsx("span", { style: { color: "#666" }, children: "-" }) })
+          ] })
+        ] }),
+        l && /* @__PURE__ */ h.jsx(
+          "div",
+          {
+            className: "meld-prompt-popup-overlay",
+            onClick: (p) => {
+              p.stopPropagation(), i(null);
+            },
+            children: /* @__PURE__ */ h.jsxs(
+              "div",
+              {
+                className: "meld-prompt-popup-content",
+                onClick: (p) => p.stopPropagation(),
+                children: [
+                  /* @__PURE__ */ h.jsxs("div", { className: "meld-prompt-popup-header", children: [
+                    /* @__PURE__ */ h.jsx("span", { children: l.title }),
+                    /* @__PURE__ */ h.jsx(
+                      lr,
+                      {
+                        className: "meld-prompt-popup-close",
+                        size: 18,
+                        onClick: () => i(null)
+                      }
+                    )
+                  ] }),
+                  /* @__PURE__ */ h.jsx("div", { className: "meld-prompt-popup-text", children: l.text })
+                ]
+              }
+            )
+          }
+        )
+      ]
+    }
   );
 }, wp = () => {
-  const { state: e, dispatch: t } = dn(), { viewerImageId: n, images: r } = e, [l, i] = O.useState(!1), o = r.find((f) => f.id === n), u = O.useCallback((f) => {
-    f && "stopPropagation" in f && f.stopPropagation(), document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch((v) => {
-      console.error(`Error attempting to enable full-screen mode: ${v.message}`);
-    });
-  }, []);
+  const { state: e, dispatch: t } = dn(), { viewerImageId: n, images: r } = e, [l, i] = O.useState(!1), o = r.find((f) => f.id === n), u = O.useCallback(
+    (f) => {
+      f && "stopPropagation" in f && f.stopPropagation(), document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch((v) => {
+        console.error(
+          `Error attempting to enable full-screen mode: ${v.message}`
+        );
+      });
+    },
+    []
+  );
   if (O.useEffect(() => {
     const f = (p) => {
       n !== null && (p.key === "Escape" ? document.fullscreenElement ? document.exitFullscreen() : t({ type: "CLOSE_VIEWER" }) : p.key === "ArrowRight" ? t({ type: "NEXT_IMAGE" }) : p.key === "ArrowLeft" ? t({ type: "PREVIOUS_IMAGE" }) : (p.key === "f" || p.key === "F") && u(p));
@@ -6386,73 +6416,78 @@ Physical files will also be permanently deleted. This operation cannot be undone
     });
   }, []), !o) return null;
   const s = `/api/view?filename=${encodeURIComponent(o.filename)}&type=${o.type || "output"}${o.subfolder ? `&subfolder=${encodeURIComponent(o.subfolder)}` : ""}`;
-  return (
-    // biome-ignore lint/a11y/useSemanticElements: Overlay backdrop
-    // biome-ignore lint/a11y/useKeyWithClickEvents: Backdrop click to close
-    /* @__PURE__ */ h.jsx(
-      "div",
-      {
-        className: "meld-viewer-overlay",
-        onClick: () => t({ type: "CLOSE_VIEWER" }),
-        role: "button",
-        tabIndex: 0,
-        children: /* @__PURE__ */ h.jsxs(
-          "div",
-          {
-            className: `meld-viewer-content ${l ? "meld-viewer-content--fullscreen" : ""}`,
-            onClick: (f) => f.stopPropagation(),
-            children: [
-              /* @__PURE__ */ h.jsxs("div", { className: "meld-viewer-actions", children: [
-                /* @__PURE__ */ h.jsx(
-                  "button",
-                  {
-                    className: "meld-viewer-action-btn",
-                    onClick: u,
-                    type: "button",
-                    title: l ? "Exit Fullscreen (F)" : "Fullscreen (F)",
-                    children: l ? /* @__PURE__ */ h.jsx(rp, { size: 20 }) : /* @__PURE__ */ h.jsx(np, { size: 20 })
-                  }
-                ),
-                /* @__PURE__ */ h.jsx(
-                  "button",
-                  {
-                    className: "meld-viewer-action-btn meld-viewer-action-btn--close",
-                    onClick: () => t({ type: "CLOSE_VIEWER" }),
-                    type: "button",
-                    title: "Close (Esc)",
-                    children: /* @__PURE__ */ h.jsx(lr, { size: 20 })
-                  }
-                )
-              ] }),
+  return /* @__PURE__ */ h.jsx(
+    "div",
+    {
+      className: "meld-viewer-overlay",
+      onClick: () => t({ type: "CLOSE_VIEWER" }),
+      role: "button",
+      tabIndex: 0,
+      children: /* @__PURE__ */ h.jsxs(
+        "div",
+        {
+          className: `meld-viewer-content ${l ? "meld-viewer-content--fullscreen" : ""}`,
+          onClick: (f) => f.stopPropagation(),
+          children: [
+            /* @__PURE__ */ h.jsxs("div", { className: "meld-viewer-actions", children: [
               /* @__PURE__ */ h.jsx(
                 "button",
                 {
-                  className: "meld-viewer-nav meld-viewer-nav--prev",
-                  onClick: () => t({ type: "PREVIOUS_IMAGE" }),
+                  className: "meld-viewer-action-btn",
+                  onClick: u,
                   type: "button",
-                  children: /* @__PURE__ */ h.jsx(tp, { size: 32 })
+                  title: l ? "Exit Fullscreen (F)" : "Fullscreen (F)",
+                  children: l ? /* @__PURE__ */ h.jsx(rp, { size: 20 }) : /* @__PURE__ */ h.jsx(np, { size: 20 })
                 }
               ),
-              /* @__PURE__ */ h.jsxs("div", { className: "meld-viewer-image-container", children: [
-                /* @__PURE__ */ h.jsx("img", { src: s, alt: o.filename, className: "meld-viewer-image" }),
-                /* @__PURE__ */ h.jsx("div", { className: "meld-viewer-info", children: /* @__PURE__ */ h.jsx("div", { className: "meld-viewer-filename", children: o.filename }) })
-              ] }),
               /* @__PURE__ */ h.jsx(
                 "button",
                 {
-                  className: "meld-viewer-nav meld-viewer-nav--next",
-                  onClick: () => t({ type: "NEXT_IMAGE" }),
+                  className: "meld-viewer-action-btn meld-viewer-action-btn--close",
+                  onClick: () => t({ type: "CLOSE_VIEWER" }),
                   type: "button",
-                  children: /* @__PURE__ */ h.jsx(dc, { size: 32 })
+                  title: "Close (Esc)",
+                  children: /* @__PURE__ */ h.jsx(lr, { size: 20 })
                 }
               )
-            ]
-          }
-        )
-      }
-    )
+            ] }),
+            /* @__PURE__ */ h.jsx(
+              "button",
+              {
+                className: "meld-viewer-nav meld-viewer-nav--prev",
+                onClick: () => t({ type: "PREVIOUS_IMAGE" }),
+                type: "button",
+                children: /* @__PURE__ */ h.jsx(tp, { size: 32 })
+              }
+            ),
+            /* @__PURE__ */ h.jsxs("div", { className: "meld-viewer-image-container", children: [
+              /* @__PURE__ */ h.jsx(
+                "img",
+                {
+                  src: s,
+                  alt: o.filename,
+                  className: "meld-viewer-image"
+                }
+              ),
+              /* @__PURE__ */ h.jsx("div", { className: "meld-viewer-info", children: /* @__PURE__ */ h.jsx("div", { className: "meld-viewer-filename", children: o.filename }) })
+            ] }),
+            /* @__PURE__ */ h.jsx(
+              "button",
+              {
+                className: "meld-viewer-nav meld-viewer-nav--next",
+                onClick: () => t({ type: "NEXT_IMAGE" }),
+                type: "button",
+                children: /* @__PURE__ */ h.jsx(dc, { size: 32 })
+              }
+            )
+          ]
+        }
+      )
+    }
   );
-}, kp = ({ imageId: e }) => {
+}, kp = ({
+  imageId: e
+}) => {
   const { state: t, dispatch: n, refreshImages: r } = dn(), [l, i] = O.useState([]), [o, u] = O.useState(!0), [s, f] = O.useState(!1), v = t.images.find((c) => c.id === e), p = O.useCallback(async () => {
     u(!0);
     try {
@@ -6493,49 +6528,48 @@ Physical files will also be permanently deleted. This operation cannot be undone
     a != null && a.type.startsWith("image/") && k(a);
   };
   if (!v) return null;
-  const w = l.filter((c) => c.is_source_match), R = l.filter((c) => !c.is_source_match);
-  return (
-    // biome-ignore lint/a11y/useKeyWithClickEvents: Modal overlay
-    // biome-ignore lint/a11y/noStaticElementInteractions: Modal overlay
-    /* @__PURE__ */ h.jsx("div", { className: "meld-modal-overlay", onClick: () => n({ type: "CLOSE_MODAL" }), children: /* @__PURE__ */ h.jsxs("div", { className: "meld-modal-content", onClick: (c) => c.stopPropagation(), children: [
-      /* @__PURE__ */ h.jsxs("div", { className: "meld-modal-header", children: [
-        /* @__PURE__ */ h.jsxs("h2", { children: [
-          "Select Parent for #",
-          v.id
+  const w = l.filter((c) => c.is_source_match), M = l.filter((c) => !c.is_source_match);
+  return /* @__PURE__ */ h.jsx(
+    "div",
+    {
+      className: "meld-modal-overlay",
+      onClick: () => n({ type: "CLOSE_MODAL" }),
+      children: /* @__PURE__ */ h.jsxs("div", { className: "meld-modal-content", onClick: (c) => c.stopPropagation(), children: [
+        /* @__PURE__ */ h.jsxs("div", { className: "meld-modal-header", children: [
+          /* @__PURE__ */ h.jsxs("h2", { children: [
+            "Select Parent for #",
+            v.id
+          ] }),
+          /* @__PURE__ */ h.jsx(
+            "button",
+            {
+              type: "button",
+              className: "meld-modal-close",
+              onClick: () => n({ type: "CLOSE_MODAL" }),
+              children: /* @__PURE__ */ h.jsx(lr, { size: 20 })
+            }
+          )
         ] }),
-        /* @__PURE__ */ h.jsx(
-          "button",
-          {
-            type: "button",
-            className: "meld-modal-close",
-            onClick: () => n({ type: "CLOSE_MODAL" }),
-            children: /* @__PURE__ */ h.jsx(lr, { size: 20 })
-          }
-        )
-      ] }),
-      /* @__PURE__ */ h.jsxs("div", { className: "meld-modal-body", children: [
-        /* @__PURE__ */ h.jsxs(
-          "div",
-          {
-            className: `meld-drop-zone ${s ? "meld-drop-zone--active" : ""}`,
-            onDragOver: (c) => {
-              c.preventDefault(), f(!0);
-            },
-            onDragLeave: () => f(!1),
-            onDrop: S,
-            children: [
-              /* @__PURE__ */ h.jsx(up, { size: 32 }),
-              /* @__PURE__ */ h.jsx("p", { children: "Drop an image file here to add it as a candidate" })
-            ]
-          }
-        ),
-        o ? /* @__PURE__ */ h.jsx("div", { className: "meld-modal-loading", children: "Loading suggestions..." }) : /* @__PURE__ */ h.jsxs("div", { className: "meld-suggestions-container", children: [
-          w.length > 0 && /* @__PURE__ */ h.jsxs("section", { children: [
-            /* @__PURE__ */ h.jsx("h3", { children: "Source Matches (from metadata)" }),
-            /* @__PURE__ */ h.jsx("div", { className: "meld-suggestion-grid", children: w.map((c) => (
-              // biome-ignore lint/a11y/useKeyWithClickEvents: suggestion card
-              // biome-ignore lint/a11y/noStaticElementInteractions: suggestion card
-              /* @__PURE__ */ h.jsxs(
+        /* @__PURE__ */ h.jsxs("div", { className: "meld-modal-body", children: [
+          /* @__PURE__ */ h.jsxs(
+            "div",
+            {
+              className: `meld-drop-zone ${s ? "meld-drop-zone--active" : ""}`,
+              onDragOver: (c) => {
+                c.preventDefault(), f(!0);
+              },
+              onDragLeave: () => f(!1),
+              onDrop: S,
+              children: [
+                /* @__PURE__ */ h.jsx(up, { size: 32 }),
+                /* @__PURE__ */ h.jsx("p", { children: "Drop an image file here to add it as a candidate" })
+              ]
+            }
+          ),
+          o ? /* @__PURE__ */ h.jsx("div", { className: "meld-modal-loading", children: "Loading suggestions..." }) : /* @__PURE__ */ h.jsxs("div", { className: "meld-suggestions-container", children: [
+            w.length > 0 && /* @__PURE__ */ h.jsxs("section", { children: [
+              /* @__PURE__ */ h.jsx("h3", { children: "Source Matches (from metadata)" }),
+              /* @__PURE__ */ h.jsx("div", { className: "meld-suggestion-grid", children: w.map((c) => /* @__PURE__ */ h.jsxs(
                 "div",
                 {
                   className: "meld-suggestion-card",
@@ -6552,15 +6586,11 @@ Physical files will also be permanently deleted. This operation cannot be undone
                   ]
                 },
                 c.id
-              )
-            )) })
-          ] }),
-          /* @__PURE__ */ h.jsxs("section", { children: [
-            /* @__PURE__ */ h.jsx("h3", { children: "Visual Matches (pHash)" }),
-            R.length > 0 ? /* @__PURE__ */ h.jsx("div", { className: "meld-suggestion-grid", children: R.map((c) => (
-              // biome-ignore lint/a11y/useKeyWithClickEvents: suggestion card
-              // biome-ignore lint/a11y/noStaticElementInteractions: suggestion card
-              /* @__PURE__ */ h.jsxs(
+              )) })
+            ] }),
+            /* @__PURE__ */ h.jsxs("section", { children: [
+              /* @__PURE__ */ h.jsx("h3", { children: "Visual Matches (pHash)" }),
+              M.length > 0 ? /* @__PURE__ */ h.jsx("div", { className: "meld-suggestion-grid", children: M.map((c) => /* @__PURE__ */ h.jsxs(
                 "div",
                 {
                   className: "meld-suggestion-card",
@@ -6578,21 +6608,19 @@ Physical files will also be permanently deleted. This operation cannot be undone
                       /* @__PURE__ */ h.jsxs("span", { className: "meld-suggestion-distance", children: [
                         "Match:",
                         " ",
-                        Math.round(
-                          (64 - c.distance) / 64 * 100
-                        ),
+                        Math.round((64 - c.distance) / 64 * 100),
                         "%"
                       ] })
                     ] })
                   ]
                 },
                 c.id
-              )
-            )) }) : /* @__PURE__ */ h.jsx("p", { className: "meld-no-suggestions", children: "No visual matches found." })
+              )) }) : /* @__PURE__ */ h.jsx("p", { className: "meld-no-suggestions", children: "No visual matches found." })
+            ] })
           ] })
         ] })
       ] })
-    ] }) })
+    }
   );
 }, Sp = () => {
   const { state: e, dispatch: t, refreshImages: n } = dn();
@@ -6655,7 +6683,13 @@ Physical files will also be permanently deleted. This operation cannot be undone
               },
               disabled: e.isLoading,
               children: [
-                /* @__PURE__ */ h.jsx(ip, { size: 14, className: e.isLoading ? "animate-spin" : "" }),
+                /* @__PURE__ */ h.jsx(
+                  ip,
+                  {
+                    size: 14,
+                    className: e.isLoading ? "animate-spin" : ""
+                  }
+                ),
                 "Refresh"
               ]
             }
@@ -6745,7 +6779,13 @@ vc.registerExtension({
           tooltip: "Meld Flow: Nexus",
           type: "custom",
           render: (n) => {
-            Be.log("MeldNexus: render called", { el: n, galleryRoot: _r, galleryContainer: ze }), ze || (Be.log("MeldNexus: galleryContainer not found, creating new one"), ze = document.createElement("div"), ze.id = "meld-flow-gallery-container", ze.style.height = "100%", ze.style.width = "100%", ze.style.display = "flex", ze.style.flexDirection = "column"), n.contains(ze) || (Be.log("MeldNexus: Appending galleryContainer to el"), n.appendChild(ze)), _r ? Be.log(
+            Be.log("MeldNexus: render called", {
+              el: n,
+              galleryRoot: _r,
+              galleryContainer: ze
+            }), ze || (Be.log(
+              "MeldNexus: galleryContainer not found, creating new one"
+            ), ze = document.createElement("div"), ze.id = "meld-flow-gallery-container", ze.style.height = "100%", ze.style.width = "100%", ze.style.display = "flex", ze.style.flexDirection = "column"), n.contains(ze) || (Be.log("MeldNexus: Appending galleryContainer to el"), n.appendChild(ze)), _r ? Be.log(
               "MeldNexus: Gallery root already exists, React should handle re-render if needed"
             ) : (Be.log("MeldNexus: Creating new gallery root"), _r = sc(ze), _r.render(
               Qo.createElement(

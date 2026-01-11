@@ -1,770 +1,770 @@
 :root {
-    --meld-bg-color: var(--comfy-menu-bg, #222);
-    --meld-text-color: var(--comfy-input-text, #eee);
-    --meld-accent-color: #4488ff;
-    --meld-danger-color: #ff4444;
-    --meld-border-color: #444;
-    --meld-card-bg: rgba(255, 255, 255, 0.05);
-    --meld-card-selected-bg: rgba(68, 136, 255, 0.2);
+	--meld-bg-color: var(--comfy-menu-bg, #222);
+	--meld-text-color: var(--comfy-input-text, #eee);
+	--meld-accent-color: #4488ff;
+	--meld-danger-color: #ff4444;
+	--meld-border-color: #444;
+	--meld-card-bg: rgba(255, 255, 255, 0.05);
+	--meld-card-selected-bg: rgba(68, 136, 255, 0.2);
 }
 
 .meld-gallery {
-    font-family: var(--comfy-ui-font, sans-serif);
-    color: var(--meld-text-color);
-    padding: 10px;
-    padding-bottom: 70px;
+	font-family: var(--comfy-ui-font, sans-serif);
+	color: var(--meld-text-color);
+	padding: 10px;
+	padding-bottom: 70px;
 }
 
 .meld-gallery__loading {
-    text-align: center;
-    padding: 20px;
-    color: #888;
+	text-align: center;
+	padding: 20px;
+	color: #888;
 }
 
 .meld-gallery__error {
-    color: var(--meld-danger-color);
-    padding: 10px;
-    background: rgba(255, 0, 0, 0.1);
-    border-radius: 4px;
-    margin-bottom: 10px;
+	color: var(--meld-danger-color);
+	padding: 10px;
+	background: rgba(255, 0, 0, 0.1);
+	border-radius: 4px;
+	margin-bottom: 10px;
 }
 
 .meld-gallery__empty {
-    text-align: center;
-    padding: 40px;
-    color: #666;
+	text-align: center;
+	padding: 40px;
+	color: #666;
 }
 
 /* ImageCard Styles */
 .meld-image-card {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    background: var(--meld-card-bg);
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    border: 1px solid transparent;
-    position: relative;
-    gap: 10px;
-    cursor: pointer;
-    transition:
-        border-color 0.2s,
-        background-color 0.2s;
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+	background: var(--meld-card-bg);
+	padding: 10px;
+	margin-bottom: 10px;
+	border-radius: 5px;
+	border: 1px solid transparent;
+	position: relative;
+	gap: 10px;
+	cursor: pointer;
+	transition:
+		border-color 0.2s,
+		background-color 0.2s;
 }
 
 .meld-image-card:hover {
-    border-color: #666;
+	border-color: #666;
 }
 
 .meld-image-card--selected {
-    background: var(--meld-card-selected-bg);
-    border-color: var(--meld-accent-color);
+	background: var(--meld-card-selected-bg);
+	border-color: var(--meld-accent-color);
 }
 
 .meld-image-card__thumbnail-wrapper {
-    flex: 0 0 120px;
-    min-width: 120px;
+	flex: 0 0 120px;
+	min-width: 120px;
 }
 
 .meld-image-card__thumbnail {
-    max-width: 100%;
-    max-height: 200px;
-    object-fit: contain;
-    border-radius: 4px;
-    display: block;
+	max-width: 100%;
+	max-height: 200px;
+	object-fit: contain;
+	border-radius: 4px;
+	display: block;
 }
 
 .meld-image-card__details {
-    flex: 1;
-    min-width: 0;
-    color: #ccc;
-    font-size: 11px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+	flex: 1;
+	min-width: 0;
+	color: #ccc;
+	font-size: 11px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
 }
 
 .meld-image-card__filename {
-    font-size: 10px;
-    color: #aaa;
-    word-break: break-all;
-    margin-bottom: 4px;
+	font-size: 10px;
+	color: #aaa;
+	word-break: break-all;
+	margin-bottom: 4px;
 }
 
 .meld-image-card__meta-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    min-width: 0;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	min-width: 0;
 }
 
 .meld-image-card__meta-item--clickable {
-    cursor: pointer;
+	cursor: pointer;
 }
 
 .meld-image-card__meta-item--clickable:hover .meld-image-card__meta-content {
-    background: rgba(255, 255, 255, 0.1);
+	background: rgba(255, 255, 255, 0.1);
 }
 
 .meld-image-card__meta-label {
-    font-weight: bold;
-    color: #888;
-    font-size: 10px;
-    flex-shrink: 0;
+	font-weight: bold;
+	color: #888;
+	font-size: 10px;
+	flex-shrink: 0;
 }
 
 .meld-image-card__meta-content {
-    flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 10px;
-    background: rgba(0, 0, 0, 0.2);
-    padding: 4px;
-    border-radius: 3px;
-    min-width: 0;
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 10px;
+	background: rgba(0, 0, 0, 0.2);
+	padding: 4px;
+	border-radius: 3px;
+	min-width: 0;
 }
 
 .meld-image-card__tags {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 4px;
-    overflow: hidden;
-    flex: 1;
-    min-width: 0;
+	display: flex;
+	flex-wrap: nowrap;
+	gap: 4px;
+	overflow: hidden;
+	flex: 1;
+	min-width: 0;
 }
 
 .meld-image-card__tag {
-    background: #555;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 10px;
-    white-space: nowrap;
+	background: #555;
+	padding: 2px 6px;
+	border-radius: 4px;
+	font-size: 10px;
+	white-space: nowrap;
 }
 
 .meld-image-card__lineage {
-    margin: 4px 0;
-    background: rgba(68, 136, 255, 0.1);
-    padding: 6px;
-    border-radius: 4px;
-    border-left: 2px solid var(--meld-accent-color);
+	margin: 4px 0;
+	background: rgba(68, 136, 255, 0.1);
+	padding: 6px;
+	border-radius: 4px;
+	border-left: 2px solid var(--meld-accent-color);
 }
 
 .meld-image-card__parent-preview {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 4px;
-    cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 4px;
+	cursor: pointer;
 }
 
 .meld-image-card__parent-preview img {
-    width: 24px;
-    height: 24px;
-    object-fit: cover;
-    border-radius: 2px;
+	width: 24px;
+	height: 24px;
+	object-fit: cover;
+	border-radius: 2px;
 }
 
 .meld-image-card__parent-preview span {
-    font-size: 9px;
-    color: #aaa;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+	font-size: 9px;
+	color: #aaa;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .meld-image-card__suggestions {
-    margin-top: 4px;
-    padding: 4px;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 4px;
+	margin-top: 4px;
+	padding: 4px;
+	background: rgba(255, 255, 255, 0.03);
+	border-radius: 4px;
 }
 
 .meld-image-card__suggestion-list {
-    display: flex;
-    gap: 4px;
-    margin-top: 4px;
+	display: flex;
+	gap: 4px;
+	margin-top: 4px;
 }
 
 .meld-image-card__suggestion-item {
-    position: relative;
-    cursor: pointer;
-    width: 32px;
-    height: 32px;
+	position: relative;
+	cursor: pointer;
+	width: 32px;
+	height: 32px;
 }
 
 .meld-image-card__suggestion-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 2px;
-    opacity: 0.6;
-    transition: opacity 0.2s;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	border-radius: 2px;
+	opacity: 0.6;
+	transition: opacity 0.2s;
 }
 
 .meld-image-card__suggestion-item:hover img {
-    opacity: 1;
-    border: 1px solid var(--meld-accent-color);
+	opacity: 1;
+	border: 1px solid var(--meld-accent-color);
 }
 
 .meld-image-card__suggestion-item span {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    background: rgba(0, 0, 0, 0.8);
-    color: #fff;
-    font-size: 7px;
-    padding: 1px 2px;
-    border-radius: 2px;
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	background: rgba(0, 0, 0, 0.8);
+	color: #fff;
+	font-size: 7px;
+	padding: 1px 2px;
+	border-radius: 2px;
 }
 
 .meld-image-card__related {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    margin-top: 4px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	margin-top: 4px;
 }
 
 .meld-image-card__related-thumb {
-    width: 32px;
-    height: 32px;
-    object-fit: cover;
-    border-radius: 2px;
-    cursor: pointer;
-    border: 1px solid transparent;
-    transition: border-color 0.2s;
+	width: 32px;
+	height: 32px;
+	object-fit: cover;
+	border-radius: 2px;
+	cursor: pointer;
+	border: 1px solid transparent;
+	transition: border-color 0.2s;
 }
 
 .meld-image-card__related-thumb:hover {
-    border-color: var(--meld-accent-color);
+	border-color: var(--meld-accent-color);
 }
 
 /* BulkActionBar Styles */
 .meld-bulk-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 50px;
-    background: #222;
-    border-top: 1px solid var(--meld-border-color);
-    display: flex;
-    align-items: center;
-    padding: 0 20px;
-    z-index: 1000;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
-    gap: 15px;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 50px;
+	background: #222;
+	border-top: 1px solid var(--meld-border-color);
+	display: flex;
+	align-items: center;
+	padding: 0 20px;
+	z-index: 1000;
+	box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
+	gap: 15px;
 }
 
 .meld-bulk-bar__info {
-    color: #eee;
-    font-size: 14px;
-    font-weight: bold;
-    margin-right: 10px;
+	color: #eee;
+	font-size: 14px;
+	font-weight: bold;
+	margin-right: 10px;
 }
 
 .meld-bulk-bar__button {
-    border: none;
-    padding: 8px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: bold;
-    transition: opacity 0.2s;
+	border: none;
+	padding: 8px 15px;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 14px;
+	font-weight: bold;
+	transition: opacity 0.2s;
 }
 
 .meld-bulk-bar__button:hover {
-    opacity: 0.8;
+	opacity: 0.8;
 }
 
 .meld-bulk-bar__button--delete {
-    background: var(--meld-danger-color);
-    color: white;
-    padding: 8px 20px;
+	background: var(--meld-danger-color);
+	color: white;
+	padding: 8px 20px;
 }
 
 .meld-bulk-bar__button--cancel {
-    background: #444;
-    color: #ccc;
+	background: #444;
+	color: #ccc;
 }
 
 @keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
 }
 
 .animate-spin {
-    animation: spin 1s linear infinite;
+	animation: spin 1s linear infinite;
 }
 
 /* ImageViewer Styles */
 .meld-viewer-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.85);
-    z-index: 2000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: zoom-out;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.85);
+	z-index: 2000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: zoom-out;
 }
 
 .meld-viewer-content {
-    position: relative;
-    width: 95%;
-    height: 95%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: default;
+	position: relative;
+	width: 95%;
+	height: 95%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: default;
 }
 
 .meld-viewer-image-container {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
 }
 
 .meld-viewer-image {
-    max-width: 100%;
-    max-height: calc(100% - 60px); /* Leave space for info */
-    width: auto;
-    height: auto;
-    object-fit: contain;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-    flex-shrink: 1;
+	max-width: 100%;
+	max-height: calc(100% - 60px); /* Leave space for info */
+	width: auto;
+	height: auto;
+	object-fit: contain;
+	box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+	flex-shrink: 1;
 }
 
 .meld-viewer-info {
-    margin-top: 10px;
-    color: #eee;
-    font-size: 14px;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+	margin-top: 10px;
+	color: #eee;
+	font-size: 14px;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
 }
 
 .meld-viewer-actions {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    display: flex;
-    gap: 10px;
-    z-index: 2010;
+	position: absolute;
+	top: 15px;
+	right: 15px;
+	display: flex;
+	gap: 10px;
+	z-index: 2010;
 }
 
 .meld-viewer-action-btn {
-    background: rgba(0, 0, 0, 0.5);
-    border: none;
-    color: #fff;
-    cursor: pointer;
-    padding: 10px;
-    transition: all 0.2s;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(4px);
+	background: rgba(0, 0, 0, 0.5);
+	border: none;
+	color: #fff;
+	cursor: pointer;
+	padding: 10px;
+	transition: all 0.2s;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	backdrop-filter: blur(4px);
 }
 
 .meld-viewer-action-btn:hover {
-    background: rgba(68, 136, 255, 0.7);
-    transform: scale(1.1);
+	background: rgba(68, 136, 255, 0.7);
+	transform: scale(1.1);
 }
 
 .meld-viewer-action-btn--close:hover {
-    background: rgba(255, 68, 68, 0.7);
+	background: rgba(255, 68, 68, 0.7);
 }
 
 /* Fullscreen Specific Overrides */
 .meld-viewer-content--fullscreen {
-    width: 100%;
-    height: 100%;
+	width: 100%;
+	height: 100%;
 }
 
 .meld-viewer-content--fullscreen .meld-viewer-image {
-    max-height: 100%;
-    box-shadow: none;
+	max-height: 100%;
+	box-shadow: none;
 }
 
 .meld-viewer-content--fullscreen .meld-viewer-info {
-    position: absolute;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.6);
-    padding: 8px 20px;
-    border-radius: 25px;
-    backdrop-filter: blur(8px);
-    pointer-events: none;
-    margin-top: 0;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+	position: absolute;
+	bottom: 30px;
+	left: 50%;
+	transform: translateX(-50%);
+	background: rgba(0, 0, 0, 0.6);
+	padding: 8px 20px;
+	border-radius: 25px;
+	backdrop-filter: blur(8px);
+	pointer-events: none;
+	margin-top: 0;
+	border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .meld-nexus-icon {
-    width: 1.2rem;
-    height: 1.2rem;
-    background-color: currentColor;
-    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cpath d='M9 16V8l6 8V8' /%3E%3C/svg%3E");
-    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cpath d='M9 16V8l6 8V8' /%3E%3C/svg%3E");
-    mask-repeat: no-repeat;
-    -webkit-mask-repeat: no-repeat;
-    mask-position: center;
-    -webkit-mask-position: center;
-    mask-size: contain;
-    -webkit-mask-size: contain;
-    display: inline-block;
-    vertical-align: middle;
+	width: 1.2rem;
+	height: 1.2rem;
+	background-color: currentColor;
+	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cpath d='M9 16V8l6 8V8' /%3E%3C/svg%3E");
+	-webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cpath d='M9 16V8l6 8V8' /%3E%3C/svg%3E");
+	mask-repeat: no-repeat;
+	-webkit-mask-repeat: no-repeat;
+	mask-position: center;
+	-webkit-mask-position: center;
+	mask-size: contain;
+	-webkit-mask-size: contain;
+	display: inline-block;
+	vertical-align: middle;
 }
 
 .meld-viewer-content--fullscreen .meld-viewer-nav {
-    background: rgba(0, 0, 0, 0.3);
+	background: rgba(0, 0, 0, 0.3);
 }
 
 .meld-viewer-content--fullscreen .meld-viewer-nav:hover {
-    background: rgba(68, 136, 255, 0.5);
+	background: rgba(68, 136, 255, 0.5);
 }
 
 .meld-viewer-nav {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(0, 0, 0, 0.5);
-    border: none;
-    color: #fff;
-    cursor: pointer;
-    padding: 20px 15px;
-    z-index: 2010;
-    transition: all 0.2s;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	background: rgba(0, 0, 0, 0.5);
+	border: none;
+	color: #fff;
+	cursor: pointer;
+	padding: 20px 15px;
+	z-index: 2010;
+	transition: all 0.2s;
+	border-radius: 8px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .meld-viewer-nav:hover {
-    background: rgba(68, 136, 255, 0.7);
-    transform: translateY(-50%) scale(1.05);
+	background: rgba(68, 136, 255, 0.7);
+	transform: translateY(-50%) scale(1.05);
 }
 
 .meld-viewer-nav--prev {
-    left: 10px;
+	left: 10px;
 }
 
 .meld-viewer-nav--next {
-    right: 10px;
+	right: 10px;
 }
 
 /* Prompt Popup Styles */
 .meld-prompt-popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 3000;
-    cursor: default;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.7);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 3000;
+	cursor: default;
 }
 
 .meld-prompt-popup-content {
-    background: var(--comfy-menu-bg, #222);
-    border: 1px solid var(--meld-border-color);
-    padding: 20px;
-    border-radius: 8px;
-    max-width: 80%;
-    max-height: 80%;
-    overflow-y: auto;
-    white-space: pre-wrap;
-    word-break: break-all;
-    font-size: 13px;
-    line-height: 1.5;
-    color: var(--meld-text-color);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-    position: relative;
-    min-width: 300px;
+	background: var(--comfy-menu-bg, #222);
+	border: 1px solid var(--meld-border-color);
+	padding: 20px;
+	border-radius: 8px;
+	max-width: 80%;
+	max-height: 80%;
+	overflow-y: auto;
+	white-space: pre-wrap;
+	word-break: break-all;
+	font-size: 13px;
+	line-height: 1.5;
+	color: var(--meld-text-color);
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+	position: relative;
+	min-width: 300px;
 }
 
 .meld-prompt-popup-header {
-    font-weight: bold;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--meld-border-color);
-    color: var(--meld-accent-color);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+	font-weight: bold;
+	margin-bottom: 15px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid var(--meld-border-color);
+	color: var(--meld-accent-color);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 }
 
 .meld-prompt-popup-close {
-    cursor: pointer;
-    color: #888;
-    transition: color 0.2s;
+	cursor: pointer;
+	color: #888;
+	transition: color 0.2s;
 }
 
 .meld-prompt-popup-close:hover {
-    color: #fff;
+	color: #fff;
 }
 
 /* New Lineage and Modal Styles */
 .meld-image-card__lineage-v2 {
-    margin: 4px 0;
-    display: flex;
-    gap: 4px;
+	margin: 4px 0;
+	display: flex;
+	gap: 4px;
 }
 
 .meld-lineage-badge {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 10px;
-    cursor: pointer;
-    transition: background 0.2s;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	padding: 2px 8px;
+	border-radius: 12px;
+	font-size: 10px;
+	cursor: pointer;
+	transition: background 0.2s;
 }
 
 .meld-lineage-badge--has-parent {
-    background: rgba(68, 136, 255, 0.2);
-    color: var(--meld-accent-color);
+	background: rgba(68, 136, 255, 0.2);
+	color: var(--meld-accent-color);
 }
 
 .meld-lineage-badge--has-parent:hover {
-    background: rgba(68, 136, 255, 0.4);
+	background: rgba(68, 136, 255, 0.4);
 }
 
 .meld-lineage-badge--no-parent {
-    background: rgba(255, 255, 255, 0.05);
-    color: #888;
+	background: rgba(255, 255, 255, 0.05);
+	color: #888;
 }
 
 .meld-lineage-badge--no-parent:hover {
-    background: rgba(255, 255, 255, 0.1);
+	background: rgba(255, 255, 255, 0.1);
 }
 
 /* Modals */
 .meld-modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 5000;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.7);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 5000;
 }
 
 .meld-modal-content {
-    background: var(--comfy-menu-bg, #222);
-    border: 1px solid var(--meld-border-color);
-    border-radius: 8px;
-    width: 500px;
-    max-width: 90vw;
-    max-height: 80vh;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+	background: var(--comfy-menu-bg, #222);
+	border: 1px solid var(--meld-border-color);
+	border-radius: 8px;
+	width: 500px;
+	max-width: 90vw;
+	max-height: 80vh;
+	display: flex;
+	flex-direction: column;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 .meld-modal-content--large {
-    width: 800px;
+	width: 800px;
 }
 
 .meld-modal-header {
-    padding: 15px 20px;
-    border-bottom: 1px solid var(--meld-border-color);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+	padding: 15px 20px;
+	border-bottom: 1px solid var(--meld-border-color);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 }
 
 .meld-modal-header h2 {
-    margin: 0;
-    font-size: 16px;
-    color: var(--meld-accent-color);
+	margin: 0;
+	font-size: 16px;
+	color: var(--meld-accent-color);
 }
 
 .meld-modal-close {
-    background: none;
-    border: none;
-    color: #888;
-    cursor: pointer;
-    padding: 5px;
+	background: none;
+	border: none;
+	color: #888;
+	cursor: pointer;
+	padding: 5px;
 }
 
 .meld-modal-close:hover {
-    color: #fff;
+	color: #fff;
 }
 
 .meld-modal-body {
-    padding: 20px;
-    overflow-y: auto;
-    flex: 1;
+	padding: 20px;
+	overflow-y: auto;
+	flex: 1;
 }
 
 .meld-modal-loading {
-    text-align: center;
-    padding: 40px;
-    color: #888;
+	text-align: center;
+	padding: 40px;
+	color: #888;
 }
 
 /* Parent Selection */
 .meld-drop-zone {
-    border: 2px dashed #444;
-    border-radius: 8px;
-    padding: 30px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    color: #666;
-    margin-bottom: 20px;
-    transition: all 0.2s;
+	border: 2px dashed #444;
+	border-radius: 8px;
+	padding: 30px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+	color: #666;
+	margin-bottom: 20px;
+	transition: all 0.2s;
 }
 
 .meld-drop-zone--active {
-    border-color: var(--meld-accent-color);
-    background: rgba(68, 136, 255, 0.05);
-    color: var(--meld-accent-color);
+	border-color: var(--meld-accent-color);
+	background: rgba(68, 136, 255, 0.05);
+	color: var(--meld-accent-color);
 }
 
 .meld-suggestion-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 10px;
-    margin-top: 10px;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+	gap: 10px;
+	margin-top: 10px;
 }
 
 .meld-suggestion-card {
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 4px;
-    overflow: hidden;
-    cursor: pointer;
-    border: 1px solid transparent;
-    transition: all 0.2s;
+	background: rgba(255, 255, 255, 0.03);
+	border-radius: 4px;
+	overflow: hidden;
+	cursor: pointer;
+	border: 1px solid transparent;
+	transition: all 0.2s;
 }
 
 .meld-suggestion-card:hover {
-    border-color: var(--meld-accent-color);
-    background: rgba(255, 255, 255, 0.06);
+	border-color: var(--meld-accent-color);
+	background: rgba(255, 255, 255, 0.06);
 }
 
 .meld-suggestion-card img {
-    width: 100%;
-    height: 100px;
-    object-fit: cover;
+	width: 100%;
+	height: 100px;
+	object-fit: cover;
 }
 
 .meld-suggestion-info {
-    padding: 6px;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+	padding: 6px;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
 }
 
 .meld-suggestion-filename {
-    font-size: 9px;
-    color: #aaa;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+	font-size: 9px;
+	color: #aaa;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .meld-suggestion-distance {
-    font-size: 8px;
-    color: var(--meld-accent-color);
+	font-size: 8px;
+	color: var(--meld-accent-color);
 }
 
 .meld-suggestions-container h3 {
-    font-size: 12px;
-    color: #888;
-    margin: 20px 0 10px 0;
+	font-size: 12px;
+	color: #888;
+	margin: 20px 0 10px 0;
 }
 
 .meld-suggestions-container section:first-child h3 {
-    margin-top: 0;
+	margin-top: 0;
 }
 
 /* Tree Modal */
 .meld-tree-container {
-    padding: 10px;
+	padding: 10px;
 }
 
 .meld-tree-node {
-    display: flex;
-    align-items: center;
-    padding: 8px;
-    gap: 12px;
-    border-radius: 4px;
-    transition: background 0.2s;
+	display: flex;
+	align-items: center;
+	padding: 8px;
+	gap: 12px;
+	border-radius: 4px;
+	transition: background 0.2s;
 }
 
 .meld-tree-node--current {
-    background: rgba(68, 136, 255, 0.1);
-    border-left: 3px solid var(--meld-accent-color);
+	background: rgba(68, 136, 255, 0.1);
+	border-left: 3px solid var(--meld-accent-color);
 }
 
 .meld-tree-node-content {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex: 1;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex: 1;
 }
 
 .meld-tree-node-content img {
-    width: 40px;
-    height: 40px;
-    object-fit: cover;
-    border-radius: 4px;
-    cursor: pointer;
+	width: 40px;
+	height: 40px;
+	object-fit: cover;
+	border-radius: 4px;
+	cursor: pointer;
 }
 
 .meld-tree-node-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
 }
 
 .meld-tree-node-id {
-    font-size: 10px;
-    color: #888;
+	font-size: 10px;
+	color: #888;
 }
 
 .meld-tree-node-filename {
-    font-size: 12px;
-    color: #ccc;
+	font-size: 12px;
+	color: #ccc;
 }
 
 .meld-tree-change-parent {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid #444;
-    color: #ccc;
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-size: 11px;
-    cursor: pointer;
+	background: rgba(255, 255, 255, 0.05);
+	border: 1px solid #444;
+	color: #ccc;
+	padding: 4px 10px;
+	border-radius: 4px;
+	font-size: 11px;
+	cursor: pointer;
 }
 
 .meld-tree-change-parent:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: #666;
+	background: rgba(255, 255, 255, 0.1);
+	border-color: #666;
 }
 
 .meld-tree-node-arrow {
-    color: #444;
+	color: #444;
 }
