@@ -938,3 +938,227 @@
 .meld-tree-node-arrow {
 	color: #444;
 }
+
+/* Import Scan Styles */
+.meld-import-config {
+	display: flex;
+	flex-direction: column;
+	gap: 15px;
+}
+
+.meld-form-group {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.meld-form-group label,
+.meld-form-label {
+	font-size: 13px;
+	color: #aaa;
+}
+
+.meld-form-group input[type="text"],
+.meld-form-group select {
+	background: #1a1a1a;
+	border: 1px solid #444;
+	border-radius: 4px;
+	padding: 8px 12px;
+	color: #eee;
+	font-size: 13px;
+}
+
+.meld-form-group.checkbox label {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	cursor: pointer;
+	color: #eee;
+}
+
+.meld-scan-progress {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	padding: 10px 0;
+}
+
+.meld-scan-status-text {
+	font-size: 15px;
+	text-align: center;
+}
+
+.meld-status-cancelling {
+	color: var(--meld-danger-color);
+}
+
+.meld-progress-container {
+	height: 12px;
+	background: #1a1a1a;
+	border-radius: 6px;
+	overflow: hidden;
+	border: 1px solid #333;
+}
+
+.meld-progress-bar {
+	height: 100%;
+	background: var(--meld-accent-color);
+	transition: width 0.3s ease;
+}
+
+.meld-progress-stats {
+	text-align: center;
+	font-size: 13px;
+	color: #888;
+}
+
+.meld-scan-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 12px;
+	margin-top: 10px;
+}
+
+.meld-btn {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 20px;
+	border-radius: 4px;
+	border: none;
+	font-size: 14px;
+	font-weight: bold;
+	cursor: pointer;
+	transition: opacity 0.2s;
+}
+
+.meld-btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.meld-btn-primary {
+	background: var(--meld-accent-color);
+	color: white;
+}
+
+.meld-btn-secondary {
+	background: #444;
+	color: #eee;
+}
+
+.meld-btn-danger {
+	background: var(--meld-danger-color);
+	color: white;
+}
+
+/* Import Modal Browser */
+.meld-import-container {
+	display: flex;
+	gap: 20px;
+	height: 400px;
+}
+
+.meld-import-sidebar {
+	flex: 0 0 200px;
+	display: flex;
+	flex-direction: column;
+	gap: 15px;
+}
+
+.meld-import-browser {
+	flex: 1;
+	background: #1a1a1a;
+	border: 1px solid #333;
+	border-radius: 6px;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.meld-browser-header {
+	padding: 10px;
+	background: #2a2a2a;
+	border-bottom: 1px solid #333;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.meld-browser-back {
+	background: none;
+	border: none;
+	color: #eee;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 12px;
+	padding: 4px 8px;
+	border-radius: 4px;
+}
+
+.meld-browser-back:hover:not(:disabled) {
+	background: rgba(255, 255, 255, 0.1);
+}
+
+.meld-browser-back:disabled {
+	opacity: 0.3;
+	cursor: not-allowed;
+}
+
+.meld-browser-title {
+	font-size: 12px;
+	color: #888;
+	font-weight: bold;
+}
+
+.meld-folder-list {
+	flex: 1;
+	overflow-y: auto;
+	padding: 5px;
+}
+
+.meld-folder-item {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 8px 12px;
+	border-radius: 4px;
+	cursor: pointer;
+	color: #ccc;
+	transition: background 0.2s;
+}
+
+.meld-folder-item:hover {
+	background: rgba(68, 136, 255, 0.1);
+	color: var(--meld-accent-color);
+}
+
+.meld-folder-item span {
+	flex: 1;
+	font-size: 13px;
+}
+
+.meld-path-display {
+	background: #000;
+	padding: 6px 10px;
+	border-radius: 4px;
+	font-family: monospace;
+	font-size: 11px;
+	word-break: break-all;
+	color: var(--meld-accent-color);
+}
+
+.meld-browser-loading,
+.meld-browser-empty,
+.meld-browser-info {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	color: #666;
+	gap: 10px;
+	text-align: center;
+}

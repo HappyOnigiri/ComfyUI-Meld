@@ -1,10 +1,11 @@
-import { CheckSquare, RefreshCw, XSquare } from "lucide-react";
+import { CheckSquare, Download, RefreshCw, XSquare } from "lucide-react";
 import type React from "react";
 import { logger } from "../logger";
 import { useGallery } from "../store/GalleryContext";
 import { BulkActionBar } from "./BulkActionBar";
 import { ImageCard } from "./ImageCard";
 import { ImageViewer } from "./ImageViewer";
+import { ImportModal } from "./ImportModal";
 import { ParentSelectionModal } from "./ParentSelectionModal";
 import "../styles/Gallery.css";
 
@@ -62,6 +63,24 @@ export const GalleryPanel: React.FC = () => {
 				</button>
 				<button
 					type="button"
+					onClick={() =>
+						dispatch({ type: "OPEN_MODAL", payload: { type: "import" } })
+					}
+					style={{
+						background: "none",
+						border: "none",
+						color: "#888",
+						cursor: "pointer",
+						display: "flex",
+						alignItems: "center",
+						gap: "5px",
+					}}
+				>
+					<Download size={14} />
+					Import
+				</button>
+				<button
+					type="button"
 					onClick={() => refreshImages()}
 					style={{
 						background: "none",
@@ -103,6 +122,8 @@ export const GalleryPanel: React.FC = () => {
 			{state.activeModal.type === "parent_selection" && (
 				<ParentSelectionModal imageId={state.activeModal.imageId} />
 			)}
+
+			{state.activeModal.type === "import" && <ImportModal />}
 		</div>
 	);
 };

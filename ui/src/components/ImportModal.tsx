@@ -1,0 +1,288 @@
+import {
+	ChevronLeft,
+	ChevronRight,
+	Folder,
+	Play,
+	Square,
+	X,
+} from "lucide-react";
+import type React from "react";
+import { useCallback, useEffect, useState } from "react";
+import * as api from "../api";
+import { useGallery } from "../store/GalleryContext";
+
+export const ImportModal: React.FC = () => {
+	const { state, dispatch } = useGallery();
+	const { scanStatus } = state;
+	const [config, setConfig] = useState({
+		type: "output",
+		subfolder: "",
+		custom_path: "",
+		recursive: true,
+		auto_link_parent: true,
+	});
+
+	const [folders, setFolders] = useState<string[]>([]);
+	const [isLoadingFolders, setIsLoadingFolders] = useState(false);
+
+	const loadFolders = useCallback(async () => {
+		if (config.type === "custom") return;
+		setIsLoadingFolders(true);
+		try {
+			const result = await api.fetchFolders(config.type, config.subfolder);
+			setFolders(result);
+		} catch (err) {
+			console.error("Failed to load folders:", err);
+		} finally {
+			setIsLoadingFolders(false);
+		}
+	}, [config.type, config.subfolder]);
+
+	useEffect(() => {
+		loadFolders();
+	}, [loadFolders]);
+
+	const handleStart = async () => {
+		try {
+			await api.startScan(config);
+			dispatch({
+				type: "SET_SCAN_STATUS",
+				payload: { isRunning: true, shouldCancel: false },
+			});
+		} catch (err) {
+			console.error("Failed to start scan:", err);
+			alert(`Failed to start scan: ${err}`);
+		}
+	};
+
+	const handleCancel = async () => {
+		try {
+			await api.cancelScan();
+			dispatch({ type: "SET_SCAN_STATUS", payload: { shouldCancel: true } });
+		} catch (err) {
+			console.error("Failed to cancel scan:", err);
+		}
+	};
+
+	const enterFolder = (name: string) => {
+		const newSub = config.subfolder ? `${config.subfolder}/${name}` : name;
+		setConfig({ ...config, subfolder: newSub });
+	};
+
+	const goUp = () => {
+		const parts = config.subfolder.split("/");
+		parts.pop();
+		setConfig({ ...config, subfolder: parts.join("/") });
+	};
+
+	const progressPercent =
+		scanStatus.progress.total > 0
+			? Math.round(
+					(scanStatus.progress.current / scanStatus.progress.total) * 100,
+				)
+			: 0;
+
+	return (
+		<div
+			className="meld-modal-overlay"
+			onClick={() => dispatch({ type: "CLOSE_MODAL" })}
+		>
+			<div
+				className="meld-modal-content meld-modal-content--large"
+				onClick={(e) => e.stopPropagation()}
+			>
+				<div className="meld-modal-header">
+					<h2>Import Images</h2>
+					<button
+						type="button"
+						className="meld-modal-close"
+						onClick={() => dispatch({ type: "CLOSE_MODAL" })}
+					>
+						<X size={20} />
+					</button>
+				</div>
+
+				<div className="meld-modal-body">
+					{scanStatus.isRunning ? (
+						<div className="meld-scan-progress">
+							<div className="meld-scan-status-text">
+								{scanStatus.shouldCancel ? (
+									<span className="meld-status-cancelling">Cancelling...</span>
+								) : (
+									<span>Scanning images...</span>
+								)}
+							</div>
+
+							<div className="meld-progress-container">
+								<div
+									className="meld-progress-bar"
+									style={{ width: `${progressPercent}%` }}
+								/>
+							</div>
+
+							<div className="meld-progress-stats">
+								{scanStatus.progress.current} / {scanStatus.progress.total}
+							</div>
+
+							<div className="meld-scan-actions">
+								<button
+									type="button"
+									className="meld-btn meld-btn-secondary"
+									onClick={() => dispatch({ type: "CLOSE_MODAL" })}
+								>
+									Run in Background
+								</button>
+								<button
+									type="button"
+									className="meld-btn meld-btn-danger"
+									disabled={scanStatus.shouldCancel}
+									onClick={handleCancel}
+								>
+									<Square size={16} />
+									Stop Scan
+								</button>
+							</div>
+						</div>
+					) : (
+						<div className="meld-import-container">
+							<div className="meld-import-sidebar">
+								<div className="meld-form-group">
+									<label htmlFor="base-location">Base Location</label>
+									<select
+										id="base-location"
+										value={config.type}
+										onChange={(e) =>
+											setConfig({
+												...config,
+												type: e.target.value,
+												subfolder: "",
+											})
+										}
+									>
+										<option value="output">Output Directory</option>
+										<option value="input">Input Directory</option>
+										<option value="custom">Custom Path (Absolute)</option>
+									</select>
+								</div>
+
+								{config.type === "custom" ? (
+									<div className="meld-form-group">
+										<label htmlFor="custom-path">Absolute Path</label>
+										<input
+											id="custom-path"
+											type="text"
+											placeholder="C:\path\to\images or /path/to/images"
+											value={config.custom_path}
+											onChange={(e) =>
+												setConfig({ ...config, custom_path: e.target.value })
+											}
+										/>
+									</div>
+								) : (
+									<div className="meld-form-group">
+										<span className="meld-form-label">Current Path</span>
+										<div className="meld-path-display">
+											<span>{config.type}/</span>
+											{config.subfolder}
+										</div>
+									</div>
+								)}
+
+								<div className="meld-form-group checkbox">
+									<label>
+										<input
+											type="checkbox"
+											checked={config.recursive}
+											onChange={(e) =>
+												setConfig({ ...config, recursive: e.target.checked })
+											}
+										/>
+										Recursive Scan
+									</label>
+								</div>
+
+								<div className="meld-form-group checkbox">
+									<label>
+										<input
+											type="checkbox"
+											checked={config.auto_link_parent}
+											onChange={(e) =>
+												setConfig({
+													...config,
+													auto_link_parent: e.target.checked,
+												})
+											}
+										/>
+										Auto Link Parent
+									</label>
+								</div>
+
+								<div className="meld-scan-actions">
+									<button
+										type="button"
+										className="meld-btn meld-btn-primary"
+										onClick={handleStart}
+										style={{ width: "100%" }}
+									>
+										<Play size={16} />
+										Start Import
+									</button>
+								</div>
+							</div>
+
+							<div className="meld-import-browser">
+								{config.type !== "custom" && (
+									<>
+										<div className="meld-browser-header">
+											<button
+												type="button"
+												className="meld-browser-back"
+												disabled={!config.subfolder}
+												onClick={goUp}
+											>
+												<ChevronLeft size={16} />
+												Back
+											</button>
+											<span className="meld-browser-title">Browse Folders</span>
+										</div>
+
+										<div className="meld-folder-list">
+											{isLoadingFolders ? (
+												<div className="meld-browser-loading">Loading...</div>
+											) : folders.length === 0 ? (
+												<div className="meld-browser-empty">
+													No subfolders found.
+												</div>
+											) : (
+												folders.map((f) => (
+													<div
+														key={f}
+														className="meld-folder-item"
+														onClick={() => enterFolder(f)}
+													>
+														<Folder size={16} />
+														<span>{f}</span>
+														<ChevronRight size={14} />
+													</div>
+												))
+											)}
+										</div>
+									</>
+								)}
+								{config.type === "custom" && (
+									<div className="meld-browser-info">
+										<Folder size={48} />
+										<p>Please enter an absolute path in the sidebar.</p>
+										<span style={{ fontSize: "11px", color: "#666" }}>
+											Example: C:\Users\Me\Pictures or /home/me/images
+										</span>
+									</div>
+								)}
+							</div>
+						</div>
+					)}
+				</div>
+			</div>
+		</div>
+	);
+};

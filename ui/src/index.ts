@@ -85,6 +85,21 @@ app.registerExtension({
 			app.ui.meldNexus?.refresh();
 		});
 
+		api.addEventListener("meld-nexus-scan-progress", (e: CustomEvent) => {
+			window.dispatchEvent(
+				new CustomEvent("meld-nexus-scan-progress", { detail: e.detail }),
+			);
+		});
+
+		api.addEventListener("meld-nexus-scan-finished", (e: CustomEvent) => {
+			window.dispatchEvent(
+				new CustomEvent("meld-nexus-scan-finished", { detail: e.detail }),
+			);
+			app.ui.meldNexus?.refresh();
+			// Show toast if available (ComfyUI doesn't have a standard toast API easily accessible, but we can alert or log)
+			console.log("Meld Nexus: Import completed.");
+		});
+
 		// Auto-register when image generation is complete
 		api.addEventListener(
 			"executed",
