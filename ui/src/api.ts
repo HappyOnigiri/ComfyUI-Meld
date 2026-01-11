@@ -107,7 +107,7 @@ export const registerImage = async (image: {
 	filename: string;
 	subfolder: string;
 	type: string;
-}): Promise<void> => {
+}): Promise<{ id: number }> => {
 	const res = await api.fetchApi("/meld-nexus/register", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
@@ -116,6 +116,7 @@ export const registerImage = async (image: {
 	if (!res.ok) {
 		throw new Error("Failed to register image");
 	}
+	return await res.json();
 };
 
 export const fetchRelatedImages = async (

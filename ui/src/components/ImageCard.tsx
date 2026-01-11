@@ -1,6 +1,6 @@
-import { GitBranch, PlusCircle, X } from "lucide-react";
+import { GitBranch, MoreVertical, PlusCircle, X } from "lucide-react";
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGallery } from "../store/GalleryContext";
 import type { MeldImage } from "../types";
 
@@ -15,6 +15,23 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 		title: string;
 		text: string;
 	} | null>(null);
+	const [isMenuOpen, setIsMenuOpen] = useState(false);
+	const menuRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+				setIsMenuOpen(false);
+			}
+		};
+
+		if (isMenuOpen) {
+			document.addEventListener("mousedown", handleClickOutside);
+		}
+		return () => {
+			document.removeEventListener("mousedown", handleClickOutside);
+		};
+	}, [isMenuOpen]);
 
 	const parentImage = image.parent_id
 		? state.images.find((img) => img.id === image.parent_id)
@@ -82,6 +99,37 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 			role="button"
 			tabIndex={0}
 		>
+			<div className="meld-image-card__menu-container" ref={menuRef}>
+				<button
+					type="button"
+					className="meld-image-card__menu-btn"
+					onClick={(e) => {
+						e.stopPropagation();
+						setIsMenuOpen(!isMenuOpen);
+					}}
+					title="Menu"
+				>
+					<MoreVertical size={16} />
+				</button>
+				{isMenuOpen && (
+					<div className="meld-image-card__menu">
+						<div
+							className="meld-image-card__menu-item"
+							onClick={(e) => {
+								e.stopPropagation();
+								dispatch({
+									type: "OPEN_MODAL",
+									payload: { type: "parent_selection", imageId: image.id },
+								});
+								setIsMenuOpen(false);
+							}}
+						>
+							<PlusCircle size={14} />
+							<span>Add parent image</span>
+						</div>
+					</div>
+				)}
+			</div>
 			<div className="meld-image-card__thumbnail-wrapper">
 				<img
 					src={imgSrc}
@@ -99,7 +147,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 				<div className="meld-image-card__filename">{fullFilename}</div>
 
 				<div className="meld-image-card__lineage-v2">
-					{image.parent_id ? (
+					{image.parent_id && (
 						<div
 							className="meld-lineage-badge meld-lineage-badge--has-parent"
 							onClick={(e) => {
@@ -119,20 +167,6 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 								/>
 							)}
 							<span>Parent</span>
-						</div>
-					) : (
-						<div
-							className="meld-lineage-badge meld-lineage-badge--no-parent"
-							onClick={(e) => {
-								e.stopPropagation();
-								dispatch({
-									type: "OPEN_MODAL",
-									payload: { type: "parent_selection", imageId: image.id },
-								});
-							}}
-						>
-							<PlusCircle size={12} />
-							<span>Origin (No parent)</span>
 						</div>
 					)}
 				</div>

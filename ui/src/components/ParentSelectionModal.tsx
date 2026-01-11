@@ -60,13 +60,13 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 			// 1. Upload file to ComfyUI
 			const uploaded = await api.uploadImage(file);
 			// 2. Register it in Meld Nexus
-			await api.registerImage({
+			const { id } = await api.registerImage({
 				filename: uploaded.name,
 				subfolder: uploaded.subfolder || "",
 				type: uploaded.type || "input",
 			});
-			// 3. Refresh suggestions to see the new image
-			await loadSuggestions();
+			// 3. Link it immediately as the parent
+			await handleSelect(id);
 		} catch (err) {
 			console.error("Failed to upload/register image:", err);
 		} finally {
@@ -76,6 +76,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 
 	const handleDrop = (e: React.DragEvent) => {
 		e.preventDefault();
+		e.stopPropagation();
 		setIsDragging(false);
 		const file = e.dataTransfer.files[0];
 		if (file?.type.startsWith("image/")) {
@@ -108,15 +109,26 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 				<div className="meld-modal-body">
 					<div
 						className={`meld-drop-zone ${isDragging ? "meld-drop-zone--active" : ""}`}
-						onDragOver={(e) => {
+						onDragEnter={(e) => {
 							e.preventDefault();
+							e.stopPropagation();
 							setIsDragging(true);
 						}}
-						onDragLeave={() => setIsDragging(false)}
+						onDragOver={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
+							e.dataTransfer.dropEffect = "copy";
+							setIsDragging(true);
+						}}
+						onDragLeave={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
+							setIsDragging(false);
+						}}
 						onDrop={handleDrop}
 					>
 						<Upload size={32} />
-						<p>Drop an image file here to add it as a candidate</p>
+						<p>Drop an image file here to set it as parent</p>
 					</div>
 
 					{isLoading ? (
