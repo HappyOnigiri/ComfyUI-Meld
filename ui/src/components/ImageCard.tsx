@@ -1,4 +1,6 @@
+import { X } from "lucide-react";
 import type React from "react";
+import { useState } from "react";
 import { useGallery } from "../store/GalleryContext";
 import type { MeldImage } from "../types";
 
@@ -9,6 +11,7 @@ interface ImageCardProps {
 export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
     const { state, dispatch } = useGallery();
     const isSelected = state.selectedIds.has(image.id);
+    const [popupContent, setPopupContent] = useState<{ title: string; text: string } | null>(null);
 
     const fullFilename = image.subfolder ? `${image.subfolder}/${image.filename}` : image.filename;
     const imgSrc = `/api/view?filename=${encodeURIComponent(image.filename)}&type=${image.type || "output"}${
@@ -70,33 +73,79 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
             <div className="meld-image-card__details">
                 <div className="meld-image-card__filename">{fullFilename}</div>
 
-                <div className="meld-image-card__meta-label">Positive</div>
-                <div className="meld-image-card__meta-content">{image.positive || "-"}</div>
-
-                <div className="meld-image-card__meta-label">Negative</div>
-                <div className="meld-image-card__meta-content" style={{ maxHeight: "40px" }}>
-                    {image.negative || "-"}
+                {/* biome-ignore lint/a11y/useKeyWithClickEvents: Meta items are secondary interactive elements */}
+                {/* biome-ignore lint/a11y/noStaticElementInteractions: Meta items are secondary interactive elements */}
+                <div
+                    className="meld-image-card__meta-item meld-image-card__meta-item--clickable"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setPopupContent({ title: "Positive Prompt", text: image.positive || "-" });
+                    }}
+                >
+                    <div className="meld-image-card__meta-label">Positive</div>
+                    <div className="meld-image-card__meta-content">{image.positive || "-"}</div>
                 </div>
 
-                <div className="meld-image-card__meta-label">Tags</div>
-                <div className="meld-image-card__tags">
-                    {image.tags && image.tags.length > 0 ? (
-                        image.tags.map((tag, i) => {
-                            return (
-                                <span
-                                    // biome-ignore lint/suspicious/noArrayIndexKey: tags don't have unique IDs
-                                    key={`${tag}-${i}`}
-                                    className="meld-image-card__tag"
-                                >
-                                    {tag}
-                                </span>
-                            );
-                        })
-                    ) : (
-                        <span style={{ color: "#666" }}>-</span>
-                    )}
+                {/* biome-ignore lint/a11y/useKeyWithClickEvents: Meta items are secondary interactive elements */}
+                {/* biome-ignore lint/a11y/noStaticElementInteractions: Meta items are secondary interactive elements */}
+                <div
+                    className="meld-image-card__meta-item meld-image-card__meta-item--clickable"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setPopupContent({ title: "Negative Prompt", text: image.negative || "-" });
+                    }}
+                >
+                    <div className="meld-image-card__meta-label">Negative</div>
+                    <div className="meld-image-card__meta-content">{image.negative || "-"}</div>
+                </div>
+
+                <div className="meld-image-card__meta-item">
+                    <div className="meld-image-card__meta-label">Tags</div>
+                    <div className="meld-image-card__tags">
+                        {image.tags && image.tags.length > 0 ? (
+                            image.tags.map((tag, i) => {
+                                return (
+                                    <span
+                                        // biome-ignore lint/suspicious/noArrayIndexKey: tags don't have unique IDs
+                                        key={`${tag}-${i}`}
+                                        className="meld-image-card__tag"
+                                    >
+                                        {tag}
+                                    </span>
+                                );
+                            })
+                        ) : (
+                            <span style={{ color: "#666" }}>-</span>
+                        )}
+                    </div>
                 </div>
             </div>
+
+            {popupContent && (
+                // biome-ignore lint/a11y/useKeyWithClickEvents: Overlay backdrop
+                // biome-ignore lint/a11y/noStaticElementInteractions: Overlay backdrop
+                <div
+                    className="meld-prompt-popup-overlay"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setPopupContent(null);
+                    }}
+                >
+                    {/* biome-ignore lint/a11y/noStaticElementInteractions: Stop propagation */}
+                    {/* biome-ignore lint/a11y/useKeyWithClickEvents: Stop propagation */}
+                    <div className="meld-prompt-popup-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="meld-prompt-popup-header">
+                            <span>{popupContent.title}</span>
+                            <X
+                                className="meld-prompt-popup-close"
+                                size={18}
+                                onClick={() => setPopupContent(null)}
+                            />
+                        </div>
+                        <div className="meld-prompt-popup-text">{popupContent.text}</div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
