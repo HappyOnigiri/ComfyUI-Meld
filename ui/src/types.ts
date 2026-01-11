@@ -18,6 +18,7 @@ export interface GalleryState {
     error: string | null;
     lastUpdated: number;
     viewMode: GalleryViewMode;
+    viewerImageId: number | null;
 }
 
 export type GalleryAction =
@@ -28,4 +29,8 @@ export type GalleryAction =
     | { type: "SELECT_ALL" }
     | { type: "CLEAR_SELECTION" }
     | { type: "SET_VIEW_MODE"; payload: GalleryViewMode }
-    | { type: "REFRESH" };
+    | { type: "REFRESH" }
+    | { type: "OPEN_VIEWER"; payload: number }
+    | { type: "CLOSE_VIEWER" }
+    | { type: "NEXT_IMAGE" }
+    | { type: "PREVIOUS_IMAGE" };

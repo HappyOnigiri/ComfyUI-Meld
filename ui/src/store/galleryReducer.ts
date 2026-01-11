@@ -7,17 +7,25 @@ export const initialState: GalleryState = {
     error: null,
     lastUpdated: Date.now(),
     viewMode: "list",
+    viewerImageId: null,
 };
 
 export function galleryReducer(state: GalleryState, action: GalleryAction): GalleryState {
     switch (action.type) {
-        case "SET_IMAGES":
+        case "SET_IMAGES": {
+            // If viewer is open, check if the image still exists
+            let newViewerId = state.viewerImageId;
+            if (newViewerId !== null && !action.payload.some((img) => img.id === newViewerId)) {
+                newViewerId = null;
+            }
             return {
                 ...state,
                 images: action.payload,
                 isLoading: false,
                 error: null,
+                viewerImageId: newViewerId,
             };
+        }
         case "SET_LOADING":
             return {
                 ...state,
@@ -61,6 +69,34 @@ export function galleryReducer(state: GalleryState, action: GalleryAction): Gall
                 ...state,
                 lastUpdated: Date.now(),
             };
+        case "OPEN_VIEWER":
+            return {
+                ...state,
+                viewerImageId: action.payload,
+            };
+        case "CLOSE_VIEWER":
+            return {
+                ...state,
+                viewerImageId: null,
+            };
+        case "NEXT_IMAGE": {
+            if (state.viewerImageId === null || state.images.length === 0) return state;
+            const currentIndex = state.images.findIndex((img) => img.id === state.viewerImageId);
+            const nextIndex = (currentIndex + 1) % state.images.length;
+            return {
+                ...state,
+                viewerImageId: state.images[nextIndex].id,
+            };
+        }
+        case "PREVIOUS_IMAGE": {
+            if (state.viewerImageId === null || state.images.length === 0) return state;
+            const currentIndex = state.images.findIndex((img) => img.id === state.viewerImageId);
+            const prevIndex = (currentIndex - 1 + state.images.length) % state.images.length;
+            return {
+                ...state,
+                viewerImageId: state.images[prevIndex].id,
+            };
+        }
         default:
             return state;
     }

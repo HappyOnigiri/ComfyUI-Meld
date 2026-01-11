@@ -22,8 +22,8 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
             e.stopPropagation();
             dispatch({ type: "TOGGLE_SELECT", payload: image.id });
         } else {
-            // Open image on single click (maintain existing behavior)
-            window.open(imgSrc, "_blank");
+            // Open image in viewer instead of new tab
+            dispatch({ type: "OPEN_VIEWER", payload: image.id });
         }
     };
 

@@ -4,6 +4,7 @@ import { logger } from "../logger";
 import { useGallery } from "../store/GalleryContext";
 import { BulkActionBar } from "./BulkActionBar";
 import { ImageCard } from "./ImageCard";
+import { ImageViewer } from "./ImageViewer";
 import "../styles/Gallery.css";
 
 export const GalleryPanel: React.FC = () => {
@@ -91,6 +92,8 @@ export const GalleryPanel: React.FC = () => {
             )}
 
             <BulkActionBar />
+
+            {state.viewerImageId !== null && <ImageViewer />}
         </div>
     );
 };
