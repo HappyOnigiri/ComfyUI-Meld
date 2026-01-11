@@ -339,7 +339,7 @@
 
 .meld-viewer-image {
 	max-width: 100%;
-	max-height: calc(100% - 160px); /* Leave space for info and thumbnails */
+	max-height: calc(100% - 200px); /* Leave space for info and thumbnails */
 	width: auto;
 	height: auto;
 	object-fit: contain;
@@ -471,24 +471,30 @@
 	bottom: 20px;
 	left: 50%;
 	transform: translateX(-50%);
-	max-width: 90%;
+	width: 90%;
+	max-width: 100%;
 	z-index: 2010;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	gap: 15px;
+	pointer-events: none;
 }
 
 .meld-viewer-thumbnails {
 	display: flex;
+	flex-wrap: nowrap;
 	gap: 10px;
 	padding: 10px;
+	padding-top: 25px;
 	background: rgba(0, 0, 0, 0.6);
 	backdrop-filter: blur(8px);
 	border-radius: 12px;
 	border: 1px solid rgba(255, 255, 255, 0.1);
 	overflow-x: auto;
 	scrollbar-width: thin;
+	max-width: 100%;
+	pointer-events: auto;
 }
 
 .meld-viewer-thumbnails::-webkit-scrollbar {
