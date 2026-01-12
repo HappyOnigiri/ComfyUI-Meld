@@ -1,6 +1,6 @@
-import { Download, RefreshCw, Settings } from "lucide-react";
+import { Download, RefreshCw, Search, Settings } from "lucide-react";
 import type React from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { logger } from "../logger";
 import { useGallery } from "../store/GalleryContext";
 import { BulkActionBar } from "./BulkActionBar";
@@ -14,6 +14,7 @@ import "../styles/Gallery.css";
 
 export const GalleryPanel: React.FC = () => {
 	const { state, dispatch, refreshImages, loadMoreImages } = useGallery();
+	const [isSearchVisible, setIsSearchVisible] = useState(false);
 	const loadMoreRef = useRef<HTMLDivElement>(null);
 
 	const displayedImages = state.images.filter(
@@ -84,13 +85,11 @@ export const GalleryPanel: React.FC = () => {
 			<div
 				style={{
 					display: "flex",
-					justifyContent: "space-between",
-					alignItems: "flex-start",
+					flexDirection: "column",
 					marginBottom: "15px",
-					gap: "20px",
+					gap: "10px",
 				}}
 			>
-				<SearchBar />
 				<div
 					style={{
 						display: "flex",
@@ -100,6 +99,22 @@ export const GalleryPanel: React.FC = () => {
 						paddingTop: "4px",
 					}}
 				>
+					<button
+						type="button"
+						onClick={() => setIsSearchVisible(!isSearchVisible)}
+						style={{
+							background: "none",
+							border: "none",
+							color: isSearchVisible ? "#fff" : "#888",
+							cursor: "pointer",
+							display: "flex",
+							alignItems: "center",
+							gap: "5px",
+						}}
+					>
+						<Search size={14} />
+						Search
+					</button>
 					<button
 						type="button"
 						onClick={() =>
@@ -158,6 +173,11 @@ export const GalleryPanel: React.FC = () => {
 						Settings
 					</button>
 				</div>
+				{isSearchVisible && (
+					<div style={{ width: "100%" }}>
+						<SearchBar />
+					</div>
+				)}
 			</div>
 
 			{state.error && <div className="meld-gallery__error">{state.error}</div>}

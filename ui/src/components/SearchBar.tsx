@@ -24,6 +24,11 @@ export const SearchBar: React.FC = () => {
 		setInputValue(state.searchQuery);
 	}, [state.searchQuery]);
 
+	// Auto-focus input on mount
+	useEffect(() => {
+		inputRef.current?.focus();
+	}, []);
+
 	const handleSearch = useCallback(
 		(query: string) => {
 			dispatch({ type: "SET_SEARCH_QUERY", payload: query });
