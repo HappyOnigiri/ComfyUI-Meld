@@ -1,36 +1,82 @@
 import { X } from "lucide-react";
 import type React from "react";
+import { useState } from "react";
 import { useGallery } from "../store/GalleryContext";
 import type { Settings } from "../types";
 
+type Category = "General" | "Side Panel";
+
 export const SettingsModal: React.FC = () => {
 	const { state, dispatch, updateSetting } = useGallery();
+	const [activeTab, setActiveTab] = useState<Category>("General");
 
 	const settingsConfig: {
 		key: keyof Settings;
 		label: string;
 		description: string;
 		type: "boolean";
+		category: Category;
 	}[] = [
-		{
-			key: "gallery.show_parent_image",
-			label: "Show Source Info",
-			description:
-				"Display source image information and lineage link on image cards.",
-			type: "boolean",
-		},
 		{
 			key: "gallery.hide_parent_images",
 			label: "Hide Source Images",
 			description:
 				"Hide images that have been used as a basis for other images (sources).",
 			type: "boolean",
+			category: "General",
+		},
+		{
+			key: "sidebar.show_filename",
+			label: "Show Filename",
+			description: "Display the filename on the card.",
+			type: "boolean",
+			category: "Side Panel",
+		},
+		{
+			key: "gallery.show_parent_image",
+			label: "Show Source Info",
+			description:
+				"Display source image information and lineage link on image cards.",
+			type: "boolean",
+			category: "Side Panel",
+		},
+		{
+			key: "sidebar.show_model_name",
+			label: "Show Model Name",
+			description: "Display the model name on the card.",
+			type: "boolean",
+			category: "Side Panel",
+		},
+		{
+			key: "sidebar.show_positive_prompt",
+			label: "Show Positive Prompt",
+			description: "Display the positive prompt on the card.",
+			type: "boolean",
+			category: "Side Panel",
+		},
+		{
+			key: "sidebar.show_negative_prompt",
+			label: "Show Negative Prompt",
+			description: "Display the negative prompt on the card.",
+			type: "boolean",
+			category: "Side Panel",
+		},
+		{
+			key: "sidebar.show_tags",
+			label: "Show Tags",
+			description: "Display tags on the card.",
+			type: "boolean",
+			category: "Side Panel",
 		},
 	];
 
 	const handleToggle = (key: keyof Settings, currentValue: boolean) => {
 		updateSetting(key, !currentValue);
 	};
+
+	const filteredSettings = settingsConfig.filter(
+		(config) => config.category === activeTab,
+	);
 
 	return (
 		<div
@@ -52,9 +98,26 @@ export const SettingsModal: React.FC = () => {
 					</button>
 				</div>
 
+				<div className="meld-tabs">
+					<button
+						type="button"
+						className={`meld-tab ${activeTab === "General" ? "active" : ""}`}
+						onClick={() => setActiveTab("General")}
+					>
+						General
+					</button>
+					<button
+						type="button"
+						className={`meld-tab ${activeTab === "Side Panel" ? "active" : ""}`}
+						onClick={() => setActiveTab("Side Panel")}
+					>
+						Side Panel
+					</button>
+				</div>
+
 				<div className="meld-modal-body">
 					<div className="meld-settings-list">
-						{settingsConfig.map((config) => (
+						{filteredSettings.map((config) => (
 							<div key={config.key} className="meld-settings-item">
 								<div className="meld-settings-item__info">
 									<div className="meld-settings-item__label">

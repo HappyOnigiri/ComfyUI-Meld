@@ -24,6 +24,11 @@ export const initialState: GalleryState = {
 		dev_mode: false,
 		"gallery.show_parent_image": true,
 		"gallery.hide_parent_images": true,
+		"sidebar.show_filename": true,
+		"sidebar.show_model_name": true,
+		"sidebar.show_positive_prompt": true,
+		"sidebar.show_negative_prompt": false,
+		"sidebar.show_tags": true,
 	},
 	pagination: {
 		total: 0,

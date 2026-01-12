@@ -25,6 +25,11 @@ export interface Settings {
 	dev_mode: boolean;
 	"gallery.show_parent_image": boolean;
 	"gallery.hide_parent_images": boolean;
+	"sidebar.show_filename": boolean;
+	"sidebar.show_model_name": boolean;
+	"sidebar.show_positive_prompt": boolean;
+	"sidebar.show_negative_prompt": boolean;
+	"sidebar.show_tags": boolean;
 }
 
 export type ScanStatus = {

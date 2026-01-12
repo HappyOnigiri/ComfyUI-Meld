@@ -1238,7 +1238,38 @@
 	text-align: center;
 }
 
+/* Tabs */
+.meld-tabs {
+	display: flex;
+	border-bottom: 1px solid var(--meld-border-color);
+	padding: 0 20px;
+}
+
+.meld-tab {
+	padding: 10px 20px;
+	border: none;
+	background: none;
+	color: #888;
+	cursor: pointer;
+	font-size: 13px;
+	border-bottom: 2px solid transparent;
+	transition: all 0.2s;
+}
+
+.meld-tab:hover {
+	color: #eee;
+}
+
+.meld-tab.active {
+	color: var(--meld-accent-color);
+	border-bottom-color: var(--meld-accent-color);
+}
+
 /* Settings Modal */
+.meld-settings-modal {
+	height: 80vh;
+}
+
 .meld-settings-list {
 	display: flex;
 	flex-direction: column;

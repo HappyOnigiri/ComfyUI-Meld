@@ -176,7 +176,9 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 				/>
 			</div>
 			<div className="meld-image-card__details">
-				<div className="meld-image-card__filename">{fullFilename}</div>
+				{state.settings["sidebar.show_filename"] && (
+					<div className="meld-image-card__filename">{fullFilename}</div>
+				)}
 
 				{state.settings["gallery.show_parent_image"] &&
 					parentChain.length > 0 && (
@@ -212,70 +214,78 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 						</div>
 					)}
 
-				<div
-					className="meld-image-card__meta-item meld-image-card__meta-item--clickable"
-					onClick={(e) => {
-						e.stopPropagation();
-						setPopupContent({
-							title: "Model",
-							text: image.model_name || "-",
-						});
-					}}
-				>
-					<div className="meld-image-card__meta-label">Model</div>
-					<div className="meld-image-card__meta-content">
-						{image.model_name || "-"}
+				{state.settings["sidebar.show_model_name"] && (
+					<div
+						className="meld-image-card__meta-item meld-image-card__meta-item--clickable"
+						onClick={(e) => {
+							e.stopPropagation();
+							setPopupContent({
+								title: "Model",
+								text: image.model_name || "-",
+							});
+						}}
+					>
+						<div className="meld-image-card__meta-label">Model</div>
+						<div className="meld-image-card__meta-content">
+							{image.model_name || "-"}
+						</div>
 					</div>
-				</div>
+				)}
 
-				<div
-					className="meld-image-card__meta-item meld-image-card__meta-item--clickable"
-					onClick={(e) => {
-						e.stopPropagation();
-						setPopupContent({
-							title: "Positive Prompt",
-							text: image.positive_prompt || image.positive || "-",
-						});
-					}}
-				>
-					<div className="meld-image-card__meta-label">Positive</div>
-					<div className="meld-image-card__meta-content">
-						{image.positive_prompt || image.positive || "-"}
+				{state.settings["sidebar.show_positive_prompt"] && (
+					<div
+						className="meld-image-card__meta-item meld-image-card__meta-item--clickable"
+						onClick={(e) => {
+							e.stopPropagation();
+							setPopupContent({
+								title: "Positive Prompt",
+								text: image.positive_prompt || image.positive || "-",
+							});
+						}}
+					>
+						<div className="meld-image-card__meta-label">Positive</div>
+						<div className="meld-image-card__meta-content">
+							{image.positive_prompt || image.positive || "-"}
+						</div>
 					</div>
-				</div>
+				)}
 
-				<div
-					className="meld-image-card__meta-item meld-image-card__meta-item--clickable"
-					onClick={(e) => {
-						e.stopPropagation();
-						setPopupContent({
-							title: "Negative Prompt",
-							text: image.negative_prompt || image.negative || "-",
-						});
-					}}
-				>
-					<div className="meld-image-card__meta-label">Negative</div>
-					<div className="meld-image-card__meta-content">
-						{image.negative_prompt || image.negative || "-"}
+				{state.settings["sidebar.show_negative_prompt"] && (
+					<div
+						className="meld-image-card__meta-item meld-image-card__meta-item--clickable"
+						onClick={(e) => {
+							e.stopPropagation();
+							setPopupContent({
+								title: "Negative Prompt",
+								text: image.negative_prompt || image.negative || "-",
+							});
+						}}
+					>
+						<div className="meld-image-card__meta-label">Negative</div>
+						<div className="meld-image-card__meta-content">
+							{image.negative_prompt || image.negative || "-"}
+						</div>
 					</div>
-				</div>
+				)}
 
-				<div className="meld-image-card__meta-item">
-					<div className="meld-image-card__meta-label">Tags</div>
-					<div className="meld-image-card__tags">
-						{image.tags && image.tags.length > 0 ? (
-							image.tags.map((tag, i) => {
-								return (
-									<span key={`${tag}-${i}`} className="meld-image-card__tag">
-										{tag}
-									</span>
-								);
-							})
-						) : (
-							<span style={{ color: "#666" }}>-</span>
-						)}
+				{state.settings["sidebar.show_tags"] && (
+					<div className="meld-image-card__meta-item">
+						<div className="meld-image-card__meta-label">Tags</div>
+						<div className="meld-image-card__tags">
+							{image.tags && image.tags.length > 0 ? (
+								image.tags.map((tag, i) => {
+									return (
+										<span key={`${tag}-${i}`} className="meld-image-card__tag">
+											{tag}
+										</span>
+									);
+								})
+							) : (
+								<span style={{ color: "#666" }}>-</span>
+							)}
+						</div>
 					</div>
-				</div>
+				)}
 			</div>
 
 			{popupContent && (

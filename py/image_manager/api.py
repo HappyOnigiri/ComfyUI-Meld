@@ -444,6 +444,11 @@ async def get_settings(request):
             "dev_mode": os.environ.get("MELDFLOW_DEV") == "true",
             "gallery.show_parent_image": True,
             "gallery.hide_parent_images": True,
+            "sidebar.show_filename": True,
+            "sidebar.show_model_name": True,
+            "sidebar.show_positive_prompt": True,
+            "sidebar.show_negative_prompt": False,
+            "sidebar.show_tags": True,
         }
 
         # Merge with DB settings
