@@ -7,7 +7,7 @@
                 "noExplicitAny": "error",
                 "noCommentText": "error",
                 "noTsIgnore": "error",
-                "noArrayIndexKey": "off" 
+                "noArrayIndexKey": "off"
             },
             "complexity": {
                 "noImportantStyles": "error"

@@ -325,3 +325,22 @@ export const fetchImageWorkflow = async (
 	}
 	return await res.json();
 };
+
+export const fetchSnapshotData = async (
+	imageId: number,
+): Promise<{
+	model_name: string;
+	positive: string;
+	negative: string;
+	seed: number;
+	steps: number;
+	cfg: number;
+	sampler_name: string;
+	scheduler: string;
+}> => {
+	const res = await api.fetchApi(`/meld-nexus/image/${imageId}/snapshot_data`);
+	if (!res.ok) {
+		throw new Error("Failed to fetch snapshot data");
+	}
+	return await res.json();
+};
