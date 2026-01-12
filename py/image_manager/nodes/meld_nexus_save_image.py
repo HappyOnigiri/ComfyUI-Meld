@@ -110,21 +110,25 @@ class MeldNexusSaveImage:
         # Resolve Metadata
         resolved_positive = positive
         resolved_negative = negative
+        resolved_model = ""
+        resolved_workflow = None
 
-        if not resolved_positive or not resolved_negative:
-            # Try to parse from workflow
-            logs: list[str] = []
-            wf_pos, wf_neg = "", ""
+        # Try to extract metadata from extra_pnginfo/prompt
+        info = {}
+        if prompt is not None:
+            info["prompt"] = json.dumps(prompt)
+        if extra_pnginfo is not None:
+            for x in extra_pnginfo:
+                info[x] = json.dumps(extra_pnginfo[x])
 
-            if extra_pnginfo and "workflow" in extra_pnginfo:
-                wf_pos, wf_neg = MetadataHelper.parse_workflow_json(extra_pnginfo["workflow"], logs)
-            elif prompt:
-                wf_pos, wf_neg = MetadataHelper.parse_prompt_json(prompt, logs)
+        ext_pos, ext_neg, ext_model, ext_wf, ext_pr, _, _ = MetadataHelper.extract_from_data(info)
 
-            if not resolved_positive:
-                resolved_positive = wf_pos
-            if not resolved_negative:
-                resolved_negative = wf_neg
+        if not resolved_positive:
+            resolved_positive = ext_pos
+        if not resolved_negative:
+            resolved_negative = ext_neg
+        resolved_model = ext_model
+        resolved_workflow = ext_wf or ext_pr
 
         tag_list = []
         if tags:
@@ -183,10 +187,24 @@ class MeldNexusSaveImage:
             # Insert Image
             sql = """
                 INSERT INTO images
-                (filename, subfolder, created_at, phash, sha256, parent_id, is_deleted)
-                VALUES (?, ?, ?, ?, ?, ?, 0)
+                (filename, subfolder, created_at, phash, sha256, parent_id, is_deleted, positive_prompt, negative_prompt, model_name, workflow)
+                VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?)
             """
-            cursor.execute(sql, (file, subfolder, timestamp, phash, sha256, parent_id))
+            cursor.execute(
+                sql,
+                (
+                    file,
+                    subfolder,
+                    timestamp,
+                    phash,
+                    sha256,
+                    parent_id,
+                    resolved_positive,
+                    resolved_negative,
+                    resolved_model,
+                    resolved_workflow,
+                ),
+            )
             image_id = cursor.lastrowid
 
             # Insert Prompts

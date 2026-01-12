@@ -19,7 +19,11 @@ def init_db():
             subfolder TEXT,
             created_at REAL,
             sha256 TEXT,
-            parent_id INTEGER
+            parent_id INTEGER,
+            positive_prompt TEXT,
+            negative_prompt TEXT,
+            model_name TEXT,
+            workflow TEXT
         )
     """)
 
@@ -38,6 +42,24 @@ def init_db():
     # Add parent_id column if not exists
     try:
         cursor.execute("ALTER TABLE images ADD COLUMN parent_id INTEGER")
+    except sqlite3.OperationalError:
+        pass
+
+    # Add metadata columns if not exists
+    try:
+        cursor.execute("ALTER TABLE images ADD COLUMN positive_prompt TEXT")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        cursor.execute("ALTER TABLE images ADD COLUMN negative_prompt TEXT")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        cursor.execute("ALTER TABLE images ADD COLUMN model_name TEXT")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        cursor.execute("ALTER TABLE images ADD COLUMN workflow TEXT")
     except sqlite3.OperationalError:
         pass
 

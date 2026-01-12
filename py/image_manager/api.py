@@ -118,8 +118,26 @@ def _scan_thread(base_dir, subfolder, recursive, auto_link_parent):
 
                 # Insert Image
                 img_type = "output" if "output" in base_dir else "input"  # Simple heuristic
-                sql = "INSERT INTO images (filename, subfolder, type, created_at, phash, sha256, is_deleted) VALUES (?, ?, ?, ?, ?, ?, 0)"
-                cursor.execute(sql, (filename, rel_path, img_type, timestamp, phash, sha256))
+                sql = """
+                    INSERT INTO images
+                    (filename, subfolder, type, created_at, phash, sha256, is_deleted, positive_prompt, negative_prompt, model_name, workflow)
+                    VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?)
+                """
+                cursor.execute(
+                    sql,
+                    (
+                        filename,
+                        rel_path,
+                        img_type,
+                        timestamp,
+                        phash,
+                        sha256,
+                        pos,
+                        neg,
+                        model,
+                        wf_json,
+                    ),
+                )
                 image_id = cursor.lastrowid
                 newly_registered_ids.append(image_id)
                 new_count += 1
@@ -512,8 +530,27 @@ async def register_image(request):
         parent_id = find_closest_parent(phash, cursor, before_timestamp=timestamp)
 
         # Insert Image
-        sql = "INSERT INTO images (filename, subfolder, type, created_at, phash, sha256, parent_id, is_deleted) VALUES (?, ?, ?, ?, ?, ?, ?, 0)"
-        cursor.execute(sql, (filename, subfolder, img_type, timestamp, phash, sha256, parent_id))
+        sql = """
+            INSERT INTO images
+            (filename, subfolder, type, created_at, phash, sha256, parent_id, is_deleted, positive_prompt, negative_prompt, model_name, workflow)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?)
+        """
+        cursor.execute(
+            sql,
+            (
+                filename,
+                subfolder,
+                img_type,
+                timestamp,
+                phash,
+                sha256,
+                parent_id,
+                pos,
+                neg,
+                model,
+                wf_json,
+            ),
+        )
         image_id = cursor.lastrowid
 
         # Insert Prompts
@@ -580,7 +617,8 @@ async def list_images(request):
             """
             SELECT i.id, i.filename, i.subfolder, i.type, i.created_at, i.phash, i.sha256, i.parent_id,
                    p.filename as parent_filename, p.subfolder as parent_subfolder, p.type as parent_type,
-                   EXISTS(SELECT 1 FROM images c WHERE c.parent_id = i.id AND c.is_deleted = 0) as has_children
+                   EXISTS(SELECT 1 FROM images c WHERE c.parent_id = i.id AND c.is_deleted = 0) as has_children,
+                   i.positive_prompt, i.negative_prompt, i.model_name, i.workflow
             FROM images i LEFT JOIN images p ON i.parent_id = p.id
             WHERE i.is_deleted = 0 ORDER BY i.created_at DESC LIMIT ? OFFSET ?
         """,
@@ -604,9 +642,13 @@ async def list_images(request):
                 p_subfolder,
                 p_type,
                 has_children,
+                db_positive,
+                db_negative,
+                model_name,
+                workflow,
             ) = img
 
-            # Fetch positive prompt
+            # Fetch positive prompt (reconstructed from normalized tables as fallback or secondary)
             cursor.execute(
                 "SELECT pp.name, r.strength FROM positive_prompts pp JOIN positive_prompt_image_relations r ON pp.id = r.positive_prompt_id WHERE r.image_id = ?",
                 (img_id,),
@@ -615,7 +657,7 @@ async def list_images(request):
             pos_list = []
             for name, strength in pos_rows:
                 pos_list.append(name if strength == 1.0 else f"({name}:{strength})")
-            positive = ", ".join(pos_list)
+            reconstructed_positive = ", ".join(pos_list)
 
             # Fetch negative prompt
             cursor.execute(
@@ -626,7 +668,11 @@ async def list_images(request):
             neg_list = []
             for name, strength in neg_rows:
                 neg_list.append(name if strength == 1.0 else f"({name}:{strength})")
-            negative = ", ".join(neg_list)
+            reconstructed_negative = ", ".join(neg_list)
+
+            # Use DB columns if available, otherwise fallback to reconstructed
+            positive = db_positive if db_positive is not None else reconstructed_positive
+            negative = db_negative if db_negative is not None else reconstructed_negative
 
             # Fetch tags
             cursor.execute(
@@ -667,6 +713,10 @@ async def list_images(request):
                     "has_children": bool(has_children),
                     "positive": positive,
                     "negative": negative,
+                    "positive_prompt": db_positive,
+                    "negative_prompt": db_negative,
+                    "model_name": model_name,
+                    "workflow": workflow,
                     "tags": tags,
                     "exists": exists,
                 }
@@ -994,7 +1044,8 @@ async def get_lineage(request):
             SELECT i.id FROM images i JOIN descendants d ON i.parent_id = d.id
         )
         SELECT i.id, i.filename, i.subfolder, i.type, i.created_at, i.parent_id, i.phash,
-               p.filename as parent_filename, p.subfolder as parent_subfolder, p.type as parent_type
+               p.filename as parent_filename, p.subfolder as parent_subfolder, p.type as parent_type,
+               i.positive_prompt, i.negative_prompt, i.model_name, i.workflow
         FROM images i LEFT JOIN images p ON i.parent_id = p.id
         WHERE (i.id IN (SELECT id FROM ancestors) OR i.id IN (SELECT id FROM descendants)) AND i.is_deleted = 0
         ORDER BY i.created_at
@@ -1017,6 +1068,12 @@ async def get_lineage(request):
                     "parent_filename": row[7],
                     "parent_subfolder": row[8],
                     "parent_type": row[9],
+                    "positive": row[10] or "",
+                    "negative": row[11] or "",
+                    "positive_prompt": row[10],
+                    "negative_prompt": row[11],
+                    "model_name": row[12],
+                    "workflow": row[13],
                 }
             )
 
