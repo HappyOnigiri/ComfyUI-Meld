@@ -188,8 +188,8 @@
 	color: var(--meld-accent-color);
 }
 
-.meld-image-card__meta-label--copied {
-	color: var(--meld-success-color) !important;
+.meld-image-card__meta-label.meld-image-card__meta-label--copied {
+	color: var(--meld-success-color);
 }
 
 .meld-image-card__meta-content {
