@@ -703,45 +703,32 @@
 .meld-image-card__lineage-v2 {
 	margin: 4px 0;
 	display: flex;
-	gap: 4px;
+	align-items: center;
+	gap: 8px;
 }
 
-.meld-lineage-badge {
+.meld-lineage-thumbs {
 	display: flex;
 	align-items: center;
 	gap: 4px;
-	padding: 2px 8px;
-	border-radius: 12px;
-	font-size: 10px;
-	cursor: pointer;
-	transition: background 0.2s;
-}
-
-.meld-lineage-badge--has-parent {
-	background: rgba(68, 136, 255, 0.2);
-	color: var(--meld-accent-color);
-}
-
-.meld-lineage-badge--has-parent:hover {
-	background: rgba(68, 136, 255, 0.4);
 }
 
 .meld-lineage-badge__parent-thumb {
-	width: 32px;
-	height: 32px;
+	width: 28px;
+	height: 28px;
 	object-fit: cover;
-	border-radius: 2px;
-	border: 1px solid rgba(255, 255, 255, 0.1);
-	margin: 0 2px;
+	border-radius: 4px;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	margin: 0;
+	cursor: pointer;
+	transition: all 0.2s ease;
 }
 
-.meld-lineage-badge--no-parent {
-	background: rgba(255, 255, 255, 0.05);
-	color: #888;
-}
-
-.meld-lineage-badge--no-parent:hover {
-	background: rgba(255, 255, 255, 0.1);
+.meld-lineage-badge__parent-thumb:hover {
+	border-color: var(--meld-accent-color);
+	transform: scale(1.15);
+	z-index: 1;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 /* Modals */

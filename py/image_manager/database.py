@@ -180,6 +180,8 @@ def find_closest_parent(phash, cursor, threshold=8, exclude_id=None, before_time
         query += " AND created_at < ?"
         params.append(before_timestamp)
 
+    query += " ORDER BY id DESC"
+
     cursor.execute(query, params)
     rows = cursor.fetchall()
 
@@ -197,5 +199,7 @@ def find_closest_parent(phash, cursor, threshold=8, exclude_id=None, before_time
         if dist < min_dist:
             min_dist = dist
             best_id = img_id
+            if min_dist == 0:
+                break # Latest exact match found
 
     return best_id

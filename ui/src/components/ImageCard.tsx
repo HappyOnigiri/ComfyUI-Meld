@@ -1,4 +1,4 @@
-import { GitBranch, MoreVertical, PlusCircle, X } from "lucide-react";
+import { MoreVertical, PlusCircle, X } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { useGallery } from "../store/GalleryContext";
@@ -33,28 +33,50 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 		};
 	}, [isMenuOpen]);
 
-	const parentImage = image.parent_id
-		? state.images.find((img) => img.id === image.parent_id)
-		: null;
+	const getParentChain = (
+		img: MeldImage,
+		depth = 0,
+	): { id: number | null; imgSrc: string | null }[] => {
+		if (depth >= 3) return [];
 
-	let parentImgSrc: string | null = null;
-	if (parentImage) {
-		parentImgSrc = `/api/view?filename=${encodeURIComponent(parentImage.filename)}&type=${
-			parentImage.type || "output"
-		}${
-			parentImage.subfolder
-				? `&subfolder=${encodeURIComponent(parentImage.subfolder)}`
-				: ""
-		}`;
-	} else if (image.parent_id && image.parent_filename) {
-		parentImgSrc = `/api/view?filename=${encodeURIComponent(image.parent_filename)}&type=${
-			image.parent_type || "output"
-		}${
-			image.parent_subfolder
-				? `&subfolder=${encodeURIComponent(image.parent_subfolder)}`
-				: ""
-		}`;
-	}
+		const pId = img.parent_id;
+		if (!pId && !img.parent_filename) return [];
+
+		const parentInState = pId ? state.images.find((p) => p.id === pId) : null;
+
+		let imgSrc: string | null = null;
+		if (parentInState) {
+			imgSrc = `/api/view?filename=${encodeURIComponent(parentInState.filename)}&type=${
+				parentInState.type || "output"
+			}${
+				parentInState.subfolder
+					? `&subfolder=${encodeURIComponent(parentInState.subfolder)}`
+					: ""
+			}`;
+		} else if (pId && img.parent_filename) {
+			imgSrc = `/api/view?filename=${encodeURIComponent(img.parent_filename)}&type=${
+				img.parent_type || "output"
+			}${
+				img.parent_subfolder
+					? `&subfolder=${encodeURIComponent(img.parent_subfolder)}`
+					: ""
+			}`;
+		}
+
+		if (!imgSrc && !parentInState) return [];
+
+		const currentParent = {
+			id: pId || null,
+			imgSrc,
+		};
+
+		if (parentInState) {
+			return [currentParent, ...getParentChain(parentInState, depth + 1)];
+		}
+		return [currentParent];
+	};
+
+	const parentChain = getParentChain(image);
 
 	const fullFilename = image.subfolder
 		? `${image.subfolder}/${image.filename}`
@@ -156,32 +178,39 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 			<div className="meld-image-card__details">
 				<div className="meld-image-card__filename">{fullFilename}</div>
 
-				{state.settings["gallery.show_parent_image"] && (
-					<div className="meld-image-card__lineage-v2">
-						{typeof image.parent_id === "number" && image.parent_id > 0 && (
-							<div
-								className="meld-lineage-badge meld-lineage-badge--has-parent"
-								onClick={(e) => {
-									e.stopPropagation();
-									dispatch({
-										type: "OPEN_VIEWER",
-										payload: { id: image.id, mode: "lineage" },
-									});
-								}}
-							>
-								<GitBranch size={12} />
-								{parentImgSrc && (
-									<img
-										src={parentImgSrc}
-										className="meld-lineage-badge__parent-thumb"
-										alt="parent thumb"
-									/>
+				{state.settings["gallery.show_parent_image"] &&
+					parentChain.length > 0 && (
+						<div className="meld-image-card__lineage-v2">
+							<div className="meld-image-card__meta-label">Parent</div>
+							<div className="meld-lineage-thumbs">
+								{parentChain.map(
+									(p, index) =>
+										p.imgSrc && (
+											<img
+												key={p.id || index}
+												src={p.imgSrc}
+												className="meld-lineage-badge__parent-thumb"
+												onClick={(e) => {
+													e.stopPropagation();
+													dispatch({
+														type: "OPEN_VIEWER",
+														payload: { id: p.id || image.id, mode: "lineage" },
+													});
+												}}
+												title={
+													index === 0
+														? "Parent"
+														: index === 1
+															? "Grandparent"
+															: `Ancestor (P${index + 1})`
+												}
+												alt="parent thumb"
+											/>
+										),
 								)}
-								<span>Parent</span>
 							</div>
-						)}
-					</div>
-				)}
+						</div>
+					)}
 
 				<div
 					className="meld-image-card__meta-item meld-image-card__meta-item--clickable"
