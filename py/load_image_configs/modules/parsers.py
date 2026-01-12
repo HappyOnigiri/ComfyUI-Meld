@@ -1,7 +1,9 @@
 import json
 import re
+from typing import Any, cast
 
 import comfy.samplers
+import torch
 
 from .graph_utils import GraphUtils
 from .utils import Utils
@@ -9,11 +11,13 @@ from .utils import Utils
 
 class Parsers:
     @staticmethod
-    def parse_workflow_json(workflow_json, logs):
+    def parse_workflow_json(workflow_json: str | dict | None, logs: list[str]) -> tuple[str, str]:
         positive = ""
         negative = ""
 
         try:
+            if not workflow_json:
+                return "", ""
             if isinstance(workflow_json, str):
                 wf = json.loads(workflow_json)
             else:
@@ -98,11 +102,11 @@ class Parsers:
                         if lid:
                             l_data = Utils.get_link_by_id(links_list, lid)
                             if l_data:
-                                res = GraphUtils.trace_text_source(
+                                txt_res = GraphUtils.trace_text_source(
                                     l_data[1], links_list, nodes_list, origin_slot=l_data[2], target_type="positive"
                                 )
-                                if res:
-                                    positive = res
+                                if txt_res:
+                                    positive = txt_res
                                     break
 
                 if positive:
@@ -125,11 +129,11 @@ class Parsers:
                         if lid:
                             l_data = Utils.get_link_by_id(links_list, lid)
                             if l_data:
-                                res = GraphUtils.trace_text_source(
+                                txt_res = GraphUtils.trace_text_source(
                                     l_data[1], links_list, nodes_list, origin_slot=l_data[2], target_type="negative"
                                 )
-                                if res and res != positive:
-                                    negative = res
+                                if txt_res and txt_res != positive:
+                                    negative = txt_res
                                     break
 
                 if negative:
@@ -143,10 +147,12 @@ class Parsers:
         return positive, negative
 
     @staticmethod
-    def parse_prompt_json(prompt_json, logs):
+    def parse_prompt_json(prompt_json: str | dict | None, logs: list[str]) -> tuple[str, str]:
         positive = ""
         negative = ""
         try:
+            if not prompt_json:
+                return "", ""
             if isinstance(prompt_json, str):
                 pj = json.loads(prompt_json)
             else:
@@ -155,7 +161,7 @@ class Parsers:
             sampler_node = None
             sampler_id = None
 
-            def get_id_key(k):
+            def get_id_key(k: str) -> list[int] | list[str]:
                 try:
                     return [int(x) for x in str(k).split(":")]
                 except Exception:
@@ -172,7 +178,9 @@ class Parsers:
             if sampler_node:
                 logs.append(f"-> Tracing from Prompt Node ID: {sampler_id} ({sampler_node.get('class_type')})")
 
-                def trace_api(node_id, input_name, target_type="positive", depth=0):
+                def trace_api(
+                    node_id: str | int, input_name: str, target_type: str = "positive", depth: int = 0
+                ) -> str:
                     if depth > 20:
                         return ""
                     node = pj.get(str(node_id))
@@ -283,6 +291,7 @@ class Parsers:
                             return val
                     return ""
 
+                assert sampler_id is not None
                 positive = trace_api(sampler_id, "positive", "positive")
                 if not positive:
                     for k in sampler_node.get("inputs", {}).keys():
@@ -294,6 +303,7 @@ class Parsers:
                 if positive:
                     logs.append(f"-> Positive found (API): {positive[:50]}{'...' if len(positive) > 50 else ''}")
 
+                assert sampler_id is not None
                 negative = trace_api(sampler_id, "negative", "negative")
                 if not negative:
                     for k in sampler_node.get("inputs", {}).keys():
@@ -312,7 +322,9 @@ class Parsers:
         return positive, negative
 
     @staticmethod
-    def get_ksampler_params(workflow_json, logs, subgraphs_dict=None):
+    def get_ksampler_params(
+        workflow_json: str | dict | None, logs: list[str], subgraphs_dict: dict | None = None
+    ) -> tuple[dict[str, Any], bool]:
         params = {"seed": 0, "steps": 20, "cfg": 8.0, "sampler_name": "euler", "scheduler": "normal"}
         found = False
 
@@ -375,7 +387,7 @@ class Parsers:
 
                 ctype = target_node.get("type", "")
 
-                def safe_int(v, default):
+                def safe_int(v: object, default: int) -> int:
                     if isinstance(v, (int, float, str)) and not isinstance(v, bool):
                         try:
                             return int(v)
@@ -383,7 +395,7 @@ class Parsers:
                             return default
                     return default
 
-                def safe_float(v, default):
+                def safe_float(v: object, default: float) -> float:
                     if isinstance(v, (int, float, str)) and not isinstance(v, bool):
                         try:
                             return float(v)
@@ -392,18 +404,18 @@ class Parsers:
                     return default
 
                 if ctype == "KSampler" and len(w_values) >= 6:
-                    params["seed"] = safe_int(w_values[0], params["seed"])
-                    params["steps"] = safe_int(w_values[2], params["steps"])
-                    params["cfg"] = safe_float(w_values[3], params["cfg"])
+                    params["seed"] = safe_int(w_values[0], cast(int, params["seed"]))
+                    params["steps"] = safe_int(w_values[2], cast(int, params["steps"]))
+                    params["cfg"] = safe_float(w_values[3], cast(float, params["cfg"]))
                     if isinstance(w_values[4], str):
                         params["sampler_name"] = w_values[4]
                     if isinstance(w_values[5], str):
                         params["scheduler"] = w_values[5]
                     found = True
                 elif ctype == "KSamplerAdvanced" and len(w_values) >= 7:
-                    params["seed"] = safe_int(w_values[1], params["seed"])
-                    params["steps"] = safe_int(w_values[3], params["steps"])
-                    params["cfg"] = safe_float(w_values[4], params["cfg"])
+                    params["seed"] = safe_int(w_values[1], cast(int, params["seed"]))
+                    params["steps"] = safe_int(w_values[3], cast(int, params["steps"]))
+                    params["cfg"] = safe_float(w_values[4], cast(float, params["cfg"]))
                     if isinstance(w_values[5], str):
                         params["sampler_name"] = w_values[5]
                     if isinstance(w_values[6], str):
@@ -421,10 +433,12 @@ class Parsers:
         return params, found
 
     @staticmethod
-    def get_ksampler_params_from_prompt(prompt_json, logs):
+    def get_ksampler_params_from_prompt(prompt_json: str | dict | None, logs: list[str]) -> tuple[dict[str, Any], bool]:
         params = {"seed": 0, "steps": 20, "cfg": 8.0, "sampler_name": "euler", "scheduler": "normal"}
         found = False
         try:
+            if not prompt_json:
+                return params, False
             if isinstance(prompt_json, str):
                 pj = json.loads(prompt_json)
             else:
@@ -433,7 +447,7 @@ class Parsers:
             sampler_node = None
             nid = None
 
-            def get_id_key(k):
+            def get_id_key(k: str) -> list[int] | list[str]:
                 try:
                     return [int(x) for x in str(k).split(":")]
                 except Exception:
@@ -450,7 +464,7 @@ class Parsers:
             if sampler_node:
                 inputs = sampler_node.get("inputs", {})
 
-                def safe_int(v, default):
+                def safe_int(v: object, default: int) -> int:
                     if isinstance(v, (int, float, str)) and not isinstance(v, bool):
                         try:
                             return int(v)
@@ -458,7 +472,7 @@ class Parsers:
                             return default
                     return default
 
-                def safe_float(v, default):
+                def safe_float(v: object, default: float) -> float:
                     if isinstance(v, (int, float, str)) and not isinstance(v, bool):
                         try:
                             return float(v)
@@ -467,11 +481,11 @@ class Parsers:
                     return default
 
                 if "seed" in inputs:
-                    params["seed"] = safe_int(inputs["seed"], params["seed"])
+                    params["seed"] = safe_int(inputs["seed"], cast(int, params["seed"]))
                 if "steps" in inputs:
-                    params["steps"] = safe_int(inputs["steps"], params["steps"])
+                    params["steps"] = safe_int(inputs["steps"], cast(int, params["steps"]))
                 if "cfg" in inputs:
-                    params["cfg"] = safe_float(inputs["cfg"], params["cfg"])
+                    params["cfg"] = safe_float(inputs["cfg"], cast(float, params["cfg"]))
                 if "sampler_name" in inputs:
                     val = inputs["sampler_name"]
                     if isinstance(val, str):
@@ -487,7 +501,12 @@ class Parsers:
         return params, found
 
     @staticmethod
-    def get_resolution_params(workflow_json, original_image_tensor, logs, subgraphs_dict=None):
+    def get_resolution_params(
+        workflow_json: str | dict | None,
+        original_image_tensor: torch.Tensor,
+        logs: list[str],
+        subgraphs_dict: dict | None = None,
+    ) -> tuple[int, int, bool]:
         width = original_image_tensor.shape[2]
         height = original_image_tensor.shape[1]
         found = False

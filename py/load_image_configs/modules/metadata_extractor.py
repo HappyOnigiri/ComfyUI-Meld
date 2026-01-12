@@ -1,5 +1,6 @@
 import json
 import re
+from typing import Mapping
 
 from PIL import Image
 
@@ -8,7 +9,7 @@ from .parsers import Parsers
 
 class MetadataExtractor:
     @staticmethod
-    def extract_metadata(image_path):
+    def extract_metadata(image_path: str) -> tuple[str, str, str, str | None, str | None, str | None, str]:
         try:
             img = Image.open(image_path)
             info = img.info
@@ -19,7 +20,9 @@ class MetadataExtractor:
             return "", "", "", None, None, None, f"Error opening image for metadata: {e}"
 
     @staticmethod
-    def extract_from_data(info, exif=None):
+    def extract_from_data(
+        info: dict, exif: Mapping | None = None
+    ) -> tuple[str, str, str, str | None, str | None, str | None, list[str]]:
         positive = ""
         negative = ""
         model_name = ""
@@ -126,7 +129,7 @@ class MetadataExtractor:
                         if isinstance(v, dict) and "id" in v:
                             subgraphs_dict_for_model[v["id"]] = v
 
-                def find_model(nodes_data, sg_dict, depth=0):
+                def find_model(nodes_data: list | dict, sg_dict: dict, depth: int = 0) -> str | None:
                     if depth > 10:
                         return None
                     candidates = []

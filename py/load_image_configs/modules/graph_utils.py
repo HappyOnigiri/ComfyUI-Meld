@@ -1,9 +1,16 @@
+from typing import Any
+
 from .utils import Utils
 
 
 class GraphUtils:
     @staticmethod
-    def find_connected_showtext(target_node_id, links_list, nodes_list, target_slot=None):
+    def find_connected_showtext(
+        target_node_id: int | str,
+        links_list: list[Any],
+        nodes_list: list[dict],
+        target_slot: int | str | None = None,
+    ) -> str | None:
         target_node_id_str = str(target_node_id)
         for link in links_list:
             if not isinstance(link, list) or len(link) < 4:
@@ -34,7 +41,14 @@ class GraphUtils:
         return None
 
     @staticmethod
-    def trace_text_source(start_node_id, links_list, nodes_list, depth=0, origin_slot=None, target_type="positive"):
+    def trace_text_source(
+        start_node_id: int | str,
+        links_list: list[Any],
+        nodes_list: list[dict],
+        depth: int = 0,
+        origin_slot: int | str | None = None,
+        target_type: str = "positive",
+    ) -> str:
         if depth > 25:
             return ""
 
@@ -170,8 +184,8 @@ class GraphUtils:
         return ""
 
     @staticmethod
-    def resolve_subgraph_sampler(subgraph_id, subgraphs_dict, depth=0):
-        result = {"has_sampler": False, "positive_input": None, "negative_input": None}
+    def resolve_subgraph_sampler(subgraph_id: str, subgraphs_dict: dict, depth: int = 0) -> dict:
+        result: dict[str, Any] = {"has_sampler": False, "positive_input": None, "negative_input": None}
         if depth > 5 or subgraph_id not in subgraphs_dict:
             return result
 
@@ -180,7 +194,9 @@ class GraphUtils:
         links = sg_def.get("links", [])
         sg_inputs = sg_def.get("inputs", [])
 
-        def trace_internal_to_input(start_node_id, target_slot_name, trace_depth=0):
+        def trace_internal_to_input(
+            start_node_id: int | str, target_slot_name: str, trace_depth: int = 0
+        ) -> str | None:
             if trace_depth > 15:
                 return None
             curr_node = Utils.get_node_by_id(nodes, start_node_id)

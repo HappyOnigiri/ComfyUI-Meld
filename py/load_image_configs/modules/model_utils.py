@@ -6,7 +6,9 @@ from .utils import Utils
 
 class ModelUtils:
     @staticmethod
-    def find_best_match_model(model_name_query, model_type="checkpoints"):
+    def find_best_match_model(
+        model_name_query: str | None, model_type: str = "checkpoints"
+    ) -> tuple[str | None, float, str]:
         if not model_name_query:
             return None, 0.0, "No model name in metadata."
 
@@ -14,7 +16,7 @@ class ModelUtils:
         if not available_models:
             return None, 0.0, f"No models available in {model_type}."
 
-        def clean_path(n):
+        def clean_path(n: str) -> str:
             n = n.lower().replace("\\", "/")
             for ext in [".safetensors", ".ckpt", ".pt", ".bin", ".diffusers", ".engine"]:
                 if n.endswith(ext):
@@ -48,7 +50,7 @@ class ModelUtils:
         return None, 0.0, "No models available to match."
 
     @staticmethod
-    def find_and_load_checkpoint(model_name_query):
+    def find_and_load_checkpoint(model_name_query: str | None) -> tuple[object, object, object, str, str]:
         logs = []
         logs.append(f"\n=== Load Checkpoint: '{model_name_query}' ===")
 

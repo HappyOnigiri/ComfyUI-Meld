@@ -1,9 +1,10 @@
 import difflib
+from typing import Any
 
 
 class Utils:
     @staticmethod
-    def get_node_by_id(nodes_list, node_id):
+    def get_node_by_id(nodes_list: list[dict], node_id: int | str) -> dict | None:
         node_id_str = str(node_id)
         for n in nodes_list:
             if str(n.get("id")) == node_id_str:
@@ -11,7 +12,7 @@ class Utils:
         return None
 
     @staticmethod
-    def get_link_by_id(links_list, link_id):
+    def get_link_by_id(links_list: list[Any], link_id: int | str | None) -> list | None:
         if not link_id:
             return None
         for link in links_list:
@@ -31,7 +32,7 @@ class Utils:
         return None
 
     @staticmethod
-    def get_input_link_id(node, input_name):
+    def get_input_link_id(node: dict, input_name: str) -> int | str | None:
         inputs = node.get("inputs", [])
         for inp in inputs:
             if inp.get("name") == input_name:
@@ -39,11 +40,11 @@ class Utils:
         return None
 
     @staticmethod
-    def calculate_similarity(name_a, name_b):
+    def calculate_similarity(name_a: str | None, name_b: str | None) -> float:
         if not name_a or not name_b:
             return 0.0
 
-        def clean_basename(n):
+        def clean_basename(n: str) -> str:
             # Handle both / and \ as separators regardless of platform
             n = n.replace("\\", "/").split("/")[-1].lower()
             for ext in [".safetensors", ".ckpt", ".pt", ".bin", ".diffusers"]:
