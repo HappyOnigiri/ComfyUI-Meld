@@ -217,6 +217,22 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 					onClick={(e) => {
 						e.stopPropagation();
 						setPopupContent({
+							title: "Model",
+							text: image.model_name || "-",
+						});
+					}}
+				>
+					<div className="meld-image-card__meta-label">Model</div>
+					<div className="meld-image-card__meta-content">
+						{image.model_name || "-"}
+					</div>
+				</div>
+
+				<div
+					className="meld-image-card__meta-item meld-image-card__meta-item--clickable"
+					onClick={(e) => {
+						e.stopPropagation();
+						setPopupContent({
 							title: "Positive Prompt",
 							text: image.positive_prompt || image.positive || "-",
 						});
