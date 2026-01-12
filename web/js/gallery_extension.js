@@ -7371,7 +7371,7 @@ let _r = null, Me = null;
 Sc.registerExtension({
   name: "ComfyUI.MeldNexus",
   async beforeRegisterNodeDef(e, t, n) {
-    if (t.name === "MeldNexus") {
+    if (t.name === "MeldNexusSaveImage") {
       const r = e.prototype.onExecuted;
       e.prototype.onExecuted = function(...l) {
         r == null || r.apply(this, l);
