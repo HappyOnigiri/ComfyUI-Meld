@@ -1,4 +1,5 @@
 import {
+	ArrowRight,
 	Check,
 	Copy,
 	MoreVertical,
@@ -251,59 +252,6 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 			role="button"
 			tabIndex={0}
 		>
-			<div className="meld-image-card__menu-container" ref={menuRef}>
-				<button
-					type="button"
-					className="meld-image-card__menu-btn"
-					onClick={(e) => {
-						e.stopPropagation();
-						setIsMenuOpen(!isMenuOpen);
-					}}
-					title="Menu"
-				>
-					<MoreVertical size={16} />
-				</button>
-				{isMenuOpen && (
-					<div className="meld-image-card__menu">
-						<div
-							className="meld-image-card__menu-item"
-							onClick={(e) => {
-								e.stopPropagation();
-								handleAddUnifiedLoader();
-								setIsMenuOpen(false);
-							}}
-						>
-							<PlusSquare size={14} />
-							<span>Add Unified Loader</span>
-						</div>
-						<div
-							className="meld-image-card__menu-item"
-							onClick={(e) => {
-								e.stopPropagation();
-								handleRestoreWorkflow();
-								setIsMenuOpen(false);
-							}}
-						>
-							<RefreshCw size={14} />
-							<span>Restore Full Workflow</span>
-						</div>
-						<div
-							className="meld-image-card__menu-item"
-							onClick={(e) => {
-								e.stopPropagation();
-								dispatch({
-									type: "OPEN_MODAL",
-									payload: { type: "parent_selection", imageId: image.id },
-								});
-								setIsMenuOpen(false);
-							}}
-						>
-							<PlusCircle size={14} />
-							<span>Add source image</span>
-						</div>
-					</div>
-				)}
-			</div>
 			<div className="meld-image-card__thumbnail-wrapper">
 				<img
 					src={imgSrc}
@@ -458,6 +406,71 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 							) : (
 								<span style={{ color: "#666" }}>-</span>
 							)}
+						</div>
+					</div>
+				)}
+			</div>
+
+			<div className="meld-image-card__menu-container" ref={menuRef}>
+				<button
+					type="button"
+					className="meld-image-card__menu-btn"
+					onClick={(e) => {
+						e.stopPropagation();
+						setIsMenuOpen(!isMenuOpen);
+					}}
+					title="Menu"
+				>
+					<MoreVertical size={16} />
+				</button>
+				<button
+					type="button"
+					className="meld-image-card__menu-btn"
+					onClick={(e) => {
+						e.stopPropagation();
+						handleAddUnifiedLoader();
+					}}
+					title="Add Unified Loader"
+				>
+					<ArrowRight size={16} />
+				</button>
+				{isMenuOpen && (
+					<div className="meld-image-card__menu">
+						<div
+							className="meld-image-card__menu-item"
+							onClick={(e) => {
+								e.stopPropagation();
+								handleAddUnifiedLoader();
+								setIsMenuOpen(false);
+							}}
+						>
+							<ArrowRight size={14} />
+							<span>Add Unified Loader</span>
+						</div>
+						<div
+							className="meld-image-card__menu-item"
+							onClick={(e) => {
+								e.stopPropagation();
+								handleRestoreWorkflow();
+								setIsMenuOpen(false);
+							}}
+						>
+							<RefreshCw size={14} />
+							<span>Restore Full Workflow</span>
+						</div>
+						<div
+							className="meld-image-card__menu-item"
+							onClick={(e) => {
+								e.stopPropagation();
+								dispatch({
+									type: "OPEN_MODAL",
+									payload: { type: "parent_selection", imageId: image.id },
+								});
+								setIsMenuOpen(false);
+							}}
+						>
+							<PlusCircle size={14} />
+							<span>Add source image</span>
 						</div>
 					</div>
 				)}
