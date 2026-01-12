@@ -1,8 +1,16 @@
-import { Check, Copy, MoreVertical, PlusCircle, X } from "lucide-react";
+import {
+	Check,
+	Copy,
+	MoreVertical,
+	PlusCircle,
+	RefreshCw,
+	X,
+} from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
+import { fetchImageWorkflow } from "../api";
 import { useGallery } from "../store/GalleryContext";
-import type { MeldImage } from "../types";
+import type { ComfyApp, MeldImage } from "../types";
 
 interface ImageCardProps {
 	image: MeldImage;
@@ -139,6 +147,32 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 		}
 	};
 
+	const handleRestoreWorkflow = async () => {
+		if (
+			!confirm(
+				"The current workflow will be overwritten. Are you sure?\n(Restore Full Workflow)",
+			)
+		) {
+			return;
+		}
+
+		try {
+			const data = await fetchImageWorkflow(image.id);
+			if (!data.workflow) {
+				alert("No workflow information is saved for this image.");
+				return;
+			}
+
+			await (window as unknown as { app: ComfyApp }).app.loadGraphData(
+				data.workflow,
+			);
+			console.log("Workflow restored successfully from Meld Nexus");
+		} catch (error) {
+			console.error("Error restoring workflow:", error);
+			alert("Failed to restore workflow.");
+		}
+	};
+
 	return (
 		<div
 			className={`meld-image-card ${isSelected ? "meld-image-card--selected" : ""}`}
@@ -175,6 +209,17 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 						>
 							<PlusCircle size={14} />
 							<span>Add source image</span>
+						</div>
+						<div
+							className="meld-image-card__menu-item"
+							onClick={(e) => {
+								e.stopPropagation();
+								handleRestoreWorkflow();
+								setIsMenuOpen(false);
+							}}
+						>
+							<RefreshCw size={14} />
+							<span>Restore Full Workflow</span>
 						</div>
 					</div>
 				)}

@@ -315,3 +315,13 @@ export const updateFavorite = async (
 		throw new Error("Failed to update favorite");
 	}
 };
+
+export const fetchImageWorkflow = async (
+	imageId: number,
+): Promise<{ workflow: unknown }> => {
+	const res = await api.fetchApi(`/meld-nexus/image/${imageId}/workflow`);
+	if (!res.ok) {
+		throw new Error("Failed to fetch workflow");
+	}
+	return await res.json();
+};

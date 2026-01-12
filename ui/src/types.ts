@@ -139,6 +139,7 @@ export interface ComfyApp {
 		};
 		[key: string]: unknown;
 	};
+	loadGraphData(data: unknown): Promise<void>;
 	extensionManager?: {
 		registerSidebarTab(tab: unknown): void;
 		setSidebarTabActive(id: string): void;

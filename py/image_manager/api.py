@@ -427,6 +427,30 @@ def extract_source_filenames(workflow_json: str | dict | None, prompt_json: str 
     return list(filenames)
 
 
+@server.PromptServer.instance.routes.get("/api/meld-nexus/image/{image_id}/workflow")
+async def get_image_workflow(request: web.Request) -> web.Response:
+    try:
+        image_id = request.match_info["image_id"]
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT workflow FROM images WHERE id = ? AND is_deleted = 0", (image_id,))
+        row = cursor.fetchone()
+        conn.close()
+
+        if row and row[0]:
+            try:
+                # workflow is stored as JSON string in DB
+                workflow_data = json.loads(row[0])
+                return web.json_response({"workflow": workflow_data})
+            except Exception as e:
+                return web.json_response({"error": f"Failed to parse workflow: {str(e)}"}, status=500)
+
+        return web.json_response({"error": "Workflow not found"}, status=404)
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
 @server.PromptServer.instance.routes.get("/api/meld-nexus/test")
 async def test_endpoint(request: web.Request) -> web.Response:
     return web.json_response({"status": "ok", "message": "Meld Nexus is running"})
