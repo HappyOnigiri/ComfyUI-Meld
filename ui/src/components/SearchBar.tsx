@@ -46,11 +46,9 @@ export const SearchBar: React.FC = () => {
 
 	// Synchronize inputValue with state.searchQuery if changed externally
 	useEffect(() => {
-		if (state.searchQuery !== inputValue) {
-			setInputValue(state.searchQuery);
-		}
+		setInputValue(state.searchQuery);
 		lastSearchedValueRef.current = state.searchQuery;
-	}, [state.searchQuery, inputValue]);
+	}, [state.searchQuery]);
 
 	// Auto-focus input on mount
 	useEffect(() => {
