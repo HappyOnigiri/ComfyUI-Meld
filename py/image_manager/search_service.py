@@ -74,12 +74,12 @@ class SearchService:
                         continue
                     if cond["is_partial"]:
                         global_ids_sql.append(
-                            f"SELECT image_id FROM {rel_table} WHERE {rel_id} IN (SELECT id FROM {table} WHERE name LIKE ?)"
+                            f"SELECT image_id FROM {rel_table} WHERE {rel_id} IN (SELECT id FROM {table} WHERE name LIKE ? COLLATE NOCASE)"
                         )
                         all_params.append(f"%{cond['value']}%")
                     else:
                         global_ids_sql.append(
-                            f"SELECT image_id FROM {rel_table} WHERE {rel_id} IN (SELECT id FROM {table} WHERE name = ?)"
+                            f"SELECT image_id FROM {rel_table} WHERE {rel_id} IN (SELECT id FROM {table} WHERE name = ? COLLATE NOCASE)"
                         )
                         all_params.append(cond["value"])
 
@@ -130,12 +130,12 @@ class SearchService:
                 table, rel_table, rel_id = cls.PREFIX_MAP[prefix]
                 if cond["is_partial"]:
                     sub_queries.append(
-                        f"i.id IN (SELECT image_id FROM {rel_table} WHERE {rel_id} IN (SELECT id FROM {table} WHERE name LIKE ?))"
+                        f"i.id IN (SELECT image_id FROM {rel_table} WHERE {rel_id} IN (SELECT id FROM {table} WHERE name LIKE ? COLLATE NOCASE))"
                     )
                     all_params.append(f"%{cond['value']}%")
                 else:
                     sub_queries.append(
-                        f"i.id IN (SELECT image_id FROM {rel_table} WHERE {rel_id} IN (SELECT id FROM {table} WHERE name = ?))"
+                        f"i.id IN (SELECT image_id FROM {rel_table} WHERE {rel_id} IN (SELECT id FROM {table} WHERE name = ? COLLATE NOCASE))"
                     )
                     all_params.append(cond["value"])
 
@@ -168,7 +168,7 @@ class SearchService:
         for prefix in target_prefixes:
             table, rel_table, rel_id = cls.PREFIX_MAP[prefix]
             # count usage
-            sql = f"SELECT name FROM {table} WHERE name LIKE ? ORDER BY name ASC LIMIT ?"
+            sql = f"SELECT name FROM {table} WHERE name LIKE ? COLLATE NOCASE ORDER BY name ASC LIMIT ?"
             cursor.execute(sql, (f"%{partial_query}%", limit))
             rows = cursor.fetchall()
 
