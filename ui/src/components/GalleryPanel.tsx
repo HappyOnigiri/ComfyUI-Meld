@@ -15,6 +15,7 @@ import "../styles/Gallery.css";
 export const GalleryPanel: React.FC = () => {
 	const { state, dispatch, refreshImages, loadMoreImages } = useGallery();
 	const [isSearchVisible, setIsSearchVisible] = useState(false);
+
 	const isSearchActive = state.searchQuery.trim() !== "";
 	const loadMoreRef = useRef<HTMLDivElement>(null);
 	const displayedImages = state.images.filter(

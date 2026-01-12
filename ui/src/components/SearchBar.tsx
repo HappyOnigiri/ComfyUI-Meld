@@ -1,7 +1,18 @@
-import { Box, Calendar, Search, Tag, Type, X } from "lucide-react";
+import {
+	Box,
+	Calendar,
+	Edit2,
+	Search,
+	Star,
+	Tag,
+	Trash2,
+	Type,
+	X,
+} from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as api from "../api";
+import { logger } from "../logger";
 import { useGallery } from "../store/GalleryContext";
 
 interface Suggestion {
@@ -11,7 +22,7 @@ interface Suggestion {
 }
 
 export const SearchBar: React.FC = () => {
-	const { state, dispatch } = useGallery();
+	const { state, dispatch, refreshFavorites } = useGallery();
 	const [inputValue, setInputValue] = useState(state.searchQuery);
 	const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
 	const [showSuggestions, setShowSuggestions] = useState(false);
@@ -19,6 +30,7 @@ export const SearchBar: React.FC = () => {
 		{ type: string; value: string }[]
 	>([]);
 	const [selectedIndex, setSelectedIndex] = useState(-1);
+	const [isSaving, setIsSaving] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const suggestionsRef = useRef<HTMLDivElement>(null);
 
@@ -163,12 +175,91 @@ export const SearchBar: React.FC = () => {
 		handleSearch("");
 	};
 
+	const handleDeleteFavorite = async (
+		e: React.MouseEvent,
+		id: number,
+		name: string,
+	) => {
+		e.stopPropagation();
+
+		const confirmMsg = `Are you sure you want to delete the favorite "${name}"?`;
+		if (!window.confirm(confirmMsg)) return;
+
+		try {
+			await api.deleteFavorite(id);
+			await refreshFavorites();
+		} catch (err) {
+			logger.error("Failed to delete favorite", err);
+		}
+	};
+
+	const handleRenameFavorite = async (
+		e: React.MouseEvent,
+		id: number,
+		currentName: string,
+	) => {
+		e.stopPropagation();
+
+		const newName = window.prompt(
+			"Enter a new name for this favorite:",
+			currentName,
+		);
+		if (newName === null || newName === currentName) return;
+
+		try {
+			await api.updateFavorite(id, newName || currentName);
+			await refreshFavorites();
+		} catch (err) {
+			logger.error("Failed to rename favorite", err);
+		}
+	};
+
 	const applySearchSuggestion = (type: string, value: string) => {
 		const isDate = ["date", "after", "before"].includes(type);
 		const valueWithQuotes = isDate ? value : `"${value}"`;
 		const newQuery = `${type}:${valueWithQuotes}`;
 		setInputValue(newQuery);
 		handleSearch(newQuery);
+	};
+
+	const handleSaveFavorite = async () => {
+		if (!state.searchQuery || isSaving) return;
+
+		// If already in favorites, we might want to toggle it (delete)?
+		const isAlreadyFavorite = state.favorites.some(
+			(f) => f.query === state.searchQuery,
+		);
+		if (isAlreadyFavorite) {
+			const fav = state.favorites.find((f) => f.query === state.searchQuery);
+			if (fav) {
+				setIsSaving(true);
+				try {
+					await api.deleteFavorite(fav.id);
+					await refreshFavorites();
+				} catch (err) {
+					console.error("Failed to delete favorite:", err);
+				} finally {
+					setIsSaving(false);
+				}
+			}
+			return;
+		}
+
+		const name = window.prompt(
+			"Enter a name for this favorite:",
+			state.searchQuery,
+		);
+		if (name === null) return;
+
+		setIsSaving(true);
+		try {
+			await api.saveFavorite(name || state.searchQuery, state.searchQuery);
+			await refreshFavorites();
+		} catch (err) {
+			console.error("Failed to save favorite:", err);
+		} finally {
+			setIsSaving(false);
+		}
 	};
 
 	const getIcon = (type: string) => {
@@ -242,6 +333,45 @@ export const SearchBar: React.FC = () => {
 							padding: "4px 0",
 						}}
 					/>
+					{state.searchQuery && (
+						<button
+							type="button"
+							onClick={handleSaveFavorite}
+							disabled={isSaving}
+							title={
+								state.favorites.some((f) => f.query === state.searchQuery)
+									? "Remove from Favorites"
+									: "Add to Favorites"
+							}
+							style={{
+								background: "none",
+								border: "none",
+								cursor: "pointer",
+								padding: "2px",
+								display: "flex",
+								alignItems: "center",
+								flexShrink: 0,
+								marginRight: "4px",
+								opacity: isSaving ? 0.5 : 1,
+							}}
+						>
+							<Star
+								size={16}
+								color={
+									isSaving
+										? "#aaa"
+										: state.favorites.some((f) => f.query === state.searchQuery)
+											? "#ffd700"
+											: "#666"
+								}
+								fill={
+									state.favorites.some((f) => f.query === state.searchQuery)
+										? "#ffd700"
+										: "none"
+								}
+							/>
+						</button>
+					)}
 					{inputValue && (
 						<button
 							type="button"
@@ -389,6 +519,183 @@ export const SearchBar: React.FC = () => {
 							</span>
 						</button>
 					))}
+				</div>
+			)}
+
+			{!inputValue && state.favorites.length > 0 && (
+				<div
+					className="meld-search-favorites"
+					style={{
+						display: "flex",
+						flexDirection: "column",
+						gap: "8px",
+						padding: "4px",
+						marginTop: "4px",
+						borderTop: "1px solid #333",
+						paddingTop: "12px",
+					}}
+				>
+					<div
+						style={{
+							display: "flex",
+							alignItems: "center",
+							gap: "6px",
+							color: "#888",
+							fontSize: "11px",
+							fontWeight: "bold",
+							textTransform: "uppercase",
+							paddingLeft: "4px",
+							marginBottom: "4px",
+						}}
+					>
+						<Star size={12} fill="#888" />
+						Favorites
+					</div>
+					<div
+						style={{
+							display: "flex",
+							flexDirection: "column",
+							gap: "4px",
+						}}
+					>
+						{state.favorites.map((fav) => (
+							<div
+								key={fav.id}
+								style={{
+									display: "flex",
+									alignItems: "center",
+									justifyContent: "space-between",
+									backgroundColor: "#2a2a2a",
+									border: "1px solid #333",
+									borderRadius: "6px",
+									padding: "8px 12px",
+									cursor: "pointer",
+									transition: "all 0.2s",
+									color: "#ccc",
+									fontSize: "13px",
+									gap: "10px",
+								}}
+								onClick={() => {
+									setInputValue(fav.query);
+									handleSearch(fav.query);
+								}}
+								onMouseEnter={(e) => {
+									e.currentTarget.style.backgroundColor = "#333";
+									e.currentTarget.style.borderColor =
+										"var(--meld-accent-color)";
+									e.currentTarget.style.color = "#fff";
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.backgroundColor = "#2a2a2a";
+									e.currentTarget.style.borderColor = "#333";
+									e.currentTarget.style.color = "#ccc";
+								}}
+							>
+								<div
+									style={{
+										display: "flex",
+										flexDirection: "column",
+										minWidth: 0,
+										flex: 1,
+									}}
+								>
+									<span
+										style={{
+											fontWeight: "bold",
+											overflow: "hidden",
+											textOverflow: "ellipsis",
+											whiteSpace: "nowrap",
+										}}
+									>
+										{fav.name}
+									</span>
+									{fav.name !== fav.query && (
+										<span
+											style={{
+												fontSize: "10px",
+												color: "#666",
+												overflow: "hidden",
+												textOverflow: "ellipsis",
+												whiteSpace: "nowrap",
+												fontFamily: "monospace",
+											}}
+										>
+											{fav.query}
+										</span>
+									)}
+								</div>
+								<div
+									style={{
+										display: "flex",
+										alignItems: "center",
+										gap: "4px",
+										flexShrink: 0,
+									}}
+								>
+									<button
+										type="button"
+										onClick={(e) => {
+											e.stopPropagation();
+											handleRenameFavorite(e, fav.id, fav.name);
+										}}
+										style={{
+											background: "none",
+											border: "none",
+											color: "#666",
+											padding: "6px",
+											display: "flex",
+											alignItems: "center",
+											cursor: "pointer",
+											borderRadius: "4px",
+											transition: "all 0.2s",
+										}}
+										onMouseEnter={(e) => {
+											e.currentTarget.style.color = "var(--meld-accent-color)";
+											e.currentTarget.style.backgroundColor =
+												"rgba(68, 136, 255, 0.1)";
+										}}
+										onMouseLeave={(e) => {
+											e.currentTarget.style.color = "#666";
+											e.currentTarget.style.backgroundColor = "transparent";
+										}}
+										title="Rename favorite"
+									>
+										<Edit2 size={14} />
+									</button>
+									<button
+										type="button"
+										onClick={(e) => {
+											e.stopPropagation();
+											handleDeleteFavorite(e, fav.id, fav.name);
+										}}
+										style={{
+											background: "none",
+											border: "none",
+											color: "#666",
+											padding: "6px",
+											display: "flex",
+											alignItems: "center",
+											cursor: "pointer",
+											borderRadius: "4px",
+											transition: "all 0.2s",
+										}}
+										onMouseEnter={(e) => {
+											e.currentTarget.style.color = "var(--meld-danger-color)";
+											e.currentTarget.style.backgroundColor =
+												"rgba(255,0,0,0.1)";
+										}}
+										onMouseLeave={(e) => {
+											e.currentTarget.style.color = "#666";
+											e.currentTarget.style.backgroundColor = "transparent";
+										}}
+										title="Delete favorite"
+									>
+										<Trash2 size={14} />
+									</button>
+								</div>
+							</div>
+						))}
+					</div>
 				</div>
 			)}
 		</div>

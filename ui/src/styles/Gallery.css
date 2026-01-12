@@ -1352,3 +1352,52 @@
 	transform: translateX(20px);
 	background-color: #4a9eff;
 }
+
+/* Favorites Dropdown */
+.meld-favorites-dropdown {
+	display: none;
+}
+
+.meld-favorites-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 10px 14px;
+	font-size: 12px;
+	color: #eee;
+	cursor: pointer;
+	transition: background-color 0.2s;
+	gap: 10px;
+}
+
+.meld-favorites-item:hover {
+	background-color: rgba(255, 255, 255, 0.1);
+}
+
+.meld-favorites-item__name {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.meld-favorites-item__delete {
+	color: #666;
+	display: flex;
+	align-items: center;
+	padding: 4px;
+	border-radius: 4px;
+	transition: all 0.2s;
+}
+
+.meld-favorites-item__delete:hover {
+	background-color: rgba(255, 68, 68, 0.2);
+	color: var(--meld-danger-color);
+}
+
+.meld-favorites-empty {
+	padding: 20px;
+	color: #666;
+	font-size: 12px;
+	text-align: center;
+}
