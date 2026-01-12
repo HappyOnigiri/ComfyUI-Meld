@@ -24,8 +24,13 @@ export const SearchBar: React.FC = () => {
 
 	const lastSearchedValueRef = useRef(state.searchQuery);
 
-	// Fetch random search suggestions on mount or when search is cleared
+	// Fetch quick search suggestions on mount or when search is cleared
 	useEffect(() => {
+		if (!state.settings["search.quick_suggestions"]) {
+			setSearchSuggestions([]);
+			return;
+		}
+
 		if (!inputValue && !state.searchQuery) {
 			api.fetchSearchSuggestions().then((results) => {
 				setSearchSuggestions(results);
@@ -33,13 +38,19 @@ export const SearchBar: React.FC = () => {
 		} else {
 			setSearchSuggestions([]);
 		}
-	}, [inputValue, state.searchQuery]);
+	}, [
+		inputValue,
+		state.searchQuery,
+		state.settings["search.quick_suggestions"],
+	]);
 
 	// Synchronize inputValue with state.searchQuery if changed externally
 	useEffect(() => {
-		setInputValue(state.searchQuery);
+		if (state.searchQuery !== inputValue) {
+			setInputValue(state.searchQuery);
+		}
 		lastSearchedValueRef.current = state.searchQuery;
-	}, [state.searchQuery]);
+	}, [state.searchQuery, inputValue]);
 
 	// Auto-focus input on mount
 	useEffect(() => {
@@ -47,9 +58,13 @@ export const SearchBar: React.FC = () => {
 	}, []);
 
 	const handleSearch = useCallback(
-		(query: string) => {
+		(query: string, shouldCloseSuggestions = true) => {
+			if (lastSearchedValueRef.current === query) return;
+
 			dispatch({ type: "SET_SEARCH_QUERY", payload: query });
-			setShowSuggestions(false);
+			if (shouldCloseSuggestions) {
+				setShowSuggestions(false);
+			}
 			lastSearchedValueRef.current = query;
 		},
 		[dispatch],
@@ -58,6 +73,17 @@ export const SearchBar: React.FC = () => {
 	useEffect(() => {
 		const timer = setTimeout(async () => {
 			if (inputValue === lastSearchedValueRef.current) {
+				return;
+			}
+
+			// Implement real-time search
+			if (state.settings["search.realtime_search"]) {
+				// Don't close suggestions if they are being shown
+				handleSearch(inputValue, false);
+			}
+
+			if (!state.settings["search.input_suggest"]) {
+				setSuggestions([]);
 				setShowSuggestions(false);
 				return;
 			}
@@ -89,7 +115,12 @@ export const SearchBar: React.FC = () => {
 		}, 300);
 
 		return () => clearTimeout(timer);
-	}, [inputValue]);
+	}, [
+		inputValue,
+		state.settings["search.realtime_search"],
+		state.settings["search.input_suggest"],
+		handleSearch,
+	]);
 
 	const handleKeyDown = (e: React.KeyboardEvent) => {
 		if (e.key === "Enter") {
