@@ -1,4 +1,4 @@
-import { Box, Search, Tag, Type, X } from "lucide-react";
+import { Box, Calendar, Search, Tag, Type, X } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as api from "../api";
@@ -53,7 +53,9 @@ export const SearchBar: React.FC = () => {
 
 			if (lastWord) {
 				// Only show suggestions when one of the prefixes is used
-				const match = lastWord.match(/^(pos|neg|model):(.*)$/i);
+				const match = lastWord.match(
+					/^(pos|neg|model|date|after|before):(.*)$/i,
+				);
 				if (match) {
 					const prefix = match[1].toLowerCase();
 					const subQuery = match[2];
@@ -101,7 +103,9 @@ export const SearchBar: React.FC = () => {
 	const applySuggestion = (suggestion: Suggestion) => {
 		const words = inputValue.split(/\s+/);
 		words.pop(); // Remove the last partial word
-		const newQuery = `${[...words, `${suggestion.type}:"${suggestion.value}"`]
+		const isDate = ["date", "after", "before"].includes(suggestion.type);
+		const valueWithQuotes = isDate ? suggestion.value : `"${suggestion.value}"`;
+		const newQuery = `${[...words, `${suggestion.type}:${valueWithQuotes}`]
 			.join(" ")
 			.trim()} `;
 		setInputValue(newQuery);
@@ -125,6 +129,10 @@ export const SearchBar: React.FC = () => {
 			case "pos":
 			case "neg":
 				return <Type size={12} />;
+			case "date":
+			case "after":
+			case "before":
+				return <Calendar size={12} />;
 			default:
 				return null;
 		}
@@ -168,11 +176,11 @@ export const SearchBar: React.FC = () => {
 							if (inputValue === lastSearchedValueRef.current) return;
 							const words = inputValue.split(/\s+/);
 							const lastWord = words[words.length - 1];
-							if (lastWord?.match(/^(pos|neg|model):/i)) {
+							if (lastWord?.match(/^(pos|neg|model|date|after|before):/i)) {
 								setShowSuggestions(true);
 							}
 						}}
-						placeholder="Search by tag:value, model:name, or keywords..."
+						placeholder="Search prompts, tags, models, dates, or keywords..."
 						style={{
 							flex: 1,
 							background: "none",

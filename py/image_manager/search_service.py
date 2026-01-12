@@ -1,4 +1,6 @@
 import re
+import time
+from datetime import datetime
 
 
 class SearchService:
@@ -8,6 +10,7 @@ class SearchService:
         "neg": ("negative_prompts", "negative_prompt_image_relations", "negative_prompt_id"),
         "model": ("models", "model_image_relations", "model_id"),
     }
+    DATE_PREFIXES = {"date", "after", "before"}
 
     @staticmethod
     def parse_query(query_str):
@@ -32,7 +35,8 @@ class SearchService:
             match = re.match(r"^(\w+):(.*)$", token)
             if match:
                 prefix, value = match.groups()
-                if prefix in SearchService.PREFIX_MAP:
+                prefix = prefix.lower()
+                if prefix in SearchService.PREFIX_MAP or prefix in SearchService.DATE_PREFIXES:
                     is_partial = True
                     # If value is quoted, it's exact match
                     if value.startswith('"') and value.endswith('"'):
@@ -58,7 +62,7 @@ class SearchService:
             return "", []
 
         sub_queries = []
-        all_params = []
+        all_params: list[str | float] = []
 
         for cond in conditions:
             if cond["is_global"]:
@@ -78,8 +82,47 @@ class SearchService:
 
                 sub_queries.append(f"i.id IN ({' UNION '.join(global_ids_sql)})")
 
+            elif cond["prefix"] in cls.DATE_PREFIXES:
+                prefix = cond["prefix"]
+                value = cond["value"]
+                try:
+                    # Support YYYY-MM-DD or YYYY-MM or YYYY
+                    if len(value) == 10:  # YYYY-MM-DD
+                        dt = datetime.strptime(value, "%Y-%m-%d")
+                        start_ts = time.mktime(dt.timetuple())
+                        end_ts = start_ts + 86400 - 0.001
+                    elif len(value) == 7:  # YYYY-MM
+                        dt = datetime.strptime(value, "%Y-%m")
+                        start_ts = time.mktime(dt.timetuple())
+                        # Find end of month
+                        if dt.month == 12:
+                            next_month = dt.replace(year=dt.year + 1, month=1)
+                        else:
+                            next_month = dt.replace(month=dt.month + 1)
+                        end_ts = time.mktime(next_month.timetuple()) - 0.001
+                    elif len(value) == 4:  # YYYY
+                        dt = datetime.strptime(value, "%Y")
+                        start_ts = time.mktime(dt.timetuple())
+                        next_year = dt.replace(year=dt.year + 1)
+                        end_ts = time.mktime(next_year.timetuple()) - 0.001
+                    else:
+                        continue
+
+                    if prefix == "date":
+                        sub_queries.append("i.created_at BETWEEN ? AND ?")
+                        all_params.extend([start_ts, end_ts])
+                    elif prefix == "after":
+                        sub_queries.append("i.created_at >= ?")
+                        all_params.append(start_ts)
+                    elif prefix == "before":
+                        sub_queries.append("i.created_at <= ?")
+                        all_params.append(end_ts)
+                except ValueError:
+                    # Invalid date format, skip this condition
+                    continue
+
             else:
-                # Targeted search
+                # Targeted search (tags, models, etc.)
                 prefix = cond["prefix"]
                 table, rel_table, rel_id = cls.PREFIX_MAP[prefix]
                 if cond["is_partial"]:
@@ -109,6 +152,12 @@ class SearchService:
             return []
 
         results = []
+
+        # Special handling for date prefixes
+        if prefix_filter in cls.DATE_PREFIXES:
+            today = datetime.now().strftime("%Y-%m-%d")
+            results.append({"type": prefix_filter, "value": today, "count": 0})
+            return results
 
         # Determine which prefixes to search
         target_prefixes = [prefix_filter] if prefix_filter in cls.PREFIX_MAP else cls.PREFIX_MAP.keys()
