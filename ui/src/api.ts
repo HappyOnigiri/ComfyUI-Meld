@@ -39,6 +39,7 @@ export const fetchSettings = async (): Promise<Settings> => {
 		return {
 			dev_mode: false,
 			"gallery.show_parent_image": true,
+			"gallery.hide_parent_images": true,
 		};
 	}
 	return await res.json();

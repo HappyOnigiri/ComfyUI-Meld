@@ -15,7 +15,11 @@ export const GalleryPanel: React.FC = () => {
 	const { state, dispatch, refreshImages, loadMoreImages } = useGallery();
 	const loadMoreRef = useRef<HTMLDivElement>(null);
 
-	const displayedImages = state.images.filter((img) => img.exists !== false);
+	const displayedImages = state.images.filter(
+		(img) =>
+			img.exists !== false &&
+			!(state.settings["gallery.hide_parent_images"] && img.has_children),
+	);
 
 	// If there are no images to display but more exist, automatically load the next page
 	useEffect(() => {

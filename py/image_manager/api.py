@@ -425,6 +425,7 @@ async def get_settings(request):
         settings = {
             "dev_mode": os.environ.get("MELDFLOW_DEV") == "true",
             "gallery.show_parent_image": True,
+            "gallery.hide_parent_images": True,
         }
 
         # Merge with DB settings
@@ -607,7 +608,8 @@ async def list_images(request):
         # Fetch images with basic info
         cursor.execute("""
             SELECT i.id, i.filename, i.subfolder, i.type, i.created_at, i.phash, i.sha256, i.parent_id,
-                   p.filename as parent_filename, p.subfolder as parent_subfolder, p.type as parent_type
+                   p.filename as parent_filename, p.subfolder as parent_subfolder, p.type as parent_type,
+                   EXISTS(SELECT 1 FROM images c WHERE c.parent_id = i.id AND c.is_deleted = 0) as has_children
             FROM images i
             LEFT JOIN images p ON i.parent_id = p.id
             WHERE i.is_deleted = 0 ORDER BY i.created_at DESC
@@ -630,6 +632,7 @@ async def list_images(request):
                 p_filename,
                 p_subfolder,
                 p_type,
+                has_children,
             ) = img
 
             # Fetch positive prompt
@@ -698,6 +701,7 @@ async def list_images(request):
                 "parent_filename": p_filename,
                 "parent_subfolder": p_subfolder,
                 "parent_type": p_type,
+                "has_children": bool(has_children),
                 "positive": positive,
                 "negative": negative,
                 "tags": tags,

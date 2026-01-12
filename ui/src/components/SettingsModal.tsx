@@ -19,6 +19,13 @@ export const SettingsModal: React.FC = () => {
 				"Display parent image information and lineage link on image cards.",
 			type: "boolean",
 		},
+		{
+			key: "gallery.hide_parent_images",
+			label: "Hide Parent Images",
+			description:
+				"Hide images that have been used as a basis for other images (parents).",
+			type: "boolean",
+		},
 	];
 
 	const handleToggle = (key: keyof Settings, currentValue: boolean) => {
