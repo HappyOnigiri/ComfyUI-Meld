@@ -6,7 +6,7 @@ class Utils:
     def get_node_by_id(nodes_list, node_id):
         node_id_str = str(node_id)
         for n in nodes_list:
-            if str(n.get('id')) == node_id_str:
+            if str(n.get("id")) == node_id_str:
                 return n
         return None
 
@@ -19,23 +19,23 @@ class Utils:
                 if len(link) > 0 and link[0] == link_id:
                     return link
             elif isinstance(link, dict):
-                if link.get('id') == link_id:
+                if link.get("id") == link_id:
                     return [
-                        link.get('id'),
-                        link.get('origin_id'),
-                        link.get('origin_slot'),
-                        link.get('target_id'),
-                        link.get('target_slot'),
-                        link.get('type')
+                        link.get("id"),
+                        link.get("origin_id"),
+                        link.get("origin_slot"),
+                        link.get("target_id"),
+                        link.get("target_slot"),
+                        link.get("type"),
                     ]
         return None
 
     @staticmethod
     def get_input_link_id(node, input_name):
-        inputs = node.get('inputs', [])
+        inputs = node.get("inputs", [])
         for inp in inputs:
-            if inp.get('name') == input_name:
-                return inp.get('link')
+            if inp.get("name") == input_name:
+                return inp.get("link")
         return None
 
     @staticmethod
@@ -45,10 +45,10 @@ class Utils:
 
         def clean_basename(n):
             # Handle both / and \ as separators regardless of platform
-            n = n.replace('\\', '/').split('/')[-1].lower()
-            for ext in ['.safetensors', '.ckpt', '.pt', '.bin', '.diffusers']:
+            n = n.replace("\\", "/").split("/")[-1].lower()
+            for ext in [".safetensors", ".ckpt", ".pt", ".bin", ".diffusers"]:
                 if n.endswith(ext):
-                    return n[:-len(ext)]
+                    return n[: -len(ext)]
             return n
 
         a = clean_basename(name_a)

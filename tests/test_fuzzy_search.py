@@ -3,12 +3,12 @@ import unittest
 from unittest.mock import MagicMock
 
 # Mock ComfyUI dependencies
-sys.modules['folder_paths'] = MagicMock()
-sys.modules['comfy'] = MagicMock()
-sys.modules['comfy.sd'] = MagicMock()
-sys.modules['comfy.utils'] = MagicMock()
-sys.modules['comfy.samplers'] = MagicMock()
-sys.modules['nodes'] = MagicMock()
+sys.modules["folder_paths"] = MagicMock()
+sys.modules["comfy"] = MagicMock()
+sys.modules["comfy.sd"] = MagicMock()
+sys.modules["comfy.utils"] = MagicMock()
+sys.modules["comfy.samplers"] = MagicMock()
+sys.modules["nodes"] = MagicMock()
 
 import folder_paths  # noqa: E402
 
@@ -24,10 +24,10 @@ class TestFuzzySearch(unittest.TestCase):
             "RealVision_v4.0.safetensors",
             "Animagine_XL_3.1.safetensors",
             "ponyDiffusionV6XL.safetensors",
-            "checkpoints\\subfolder\\model_v2.ckpt"
+            "checkpoints\\subfolder\\model_v2.ckpt",
         ]
         # Use type: ignore because folder_paths is mocked via sys.modules
-        folder_paths.get_filename_list.return_value = self.available_models # type: ignore
+        folder_paths.get_filename_list.return_value = self.available_models  # type: ignore
 
     def test_exact_match(self):
         """Test for exact match"""
@@ -87,5 +87,6 @@ class TestFuzzySearch(unittest.TestCase):
         score = MetadataHelper.calculate_similarity("model_v1", "model_v2")
         self.assertGreater(score, 0.8)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

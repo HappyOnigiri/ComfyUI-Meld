@@ -7,14 +7,17 @@ class MeldPixelate:
         return {
             "required": {
                 "image": ("IMAGE",),
-                "mosaic_scale": ("INT", {
-                    "default": 16,
-                    "min": 1,
-                    "max": 256,
-                    "step": 1,
-                    "display": "number",
-                    "tooltip": "The size of the pixel blocks. Higher values = larger blocks."
-                }),
+                "mosaic_scale": (
+                    "INT",
+                    {
+                        "default": 16,
+                        "min": 1,
+                        "max": 256,
+                        "step": 1,
+                        "display": "number",
+                        "tooltip": "The size of the pixel blocks. Higher values = larger blocks.",
+                    },
+                ),
             }
         }
 
@@ -41,20 +44,12 @@ class MeldPixelate:
 
         # 2. Downscale using 'area' (Average pooling effect)
         # Corresponds to the first ImageScale (method: area) in JSON
-        downscaled = F.interpolate(
-            img_permuted,
-            size=(target_h, target_w),
-            mode="area"
-        )
+        downscaled = F.interpolate(img_permuted, size=(target_h, target_w), mode="area")
 
         # 3. Upscale back to original size using 'nearest'
         # Corresponds to the second ImageScale (method: nearest-exact) in JSON
         # PyTorch's 'nearest' behaves identically to ComfyUI's 'nearest-exact'
-        upscaled = F.interpolate(
-            downscaled,
-            size=(H, W),
-            mode="nearest"
-        )
+        upscaled = F.interpolate(downscaled, size=(H, W), mode="nearest")
 
         # Permute back to BHWC
         result = upscaled.permute(0, 2, 3, 1)

@@ -14,7 +14,7 @@ class MeldPromptConstructor:
             "required": {
                 "directory": ("STRING", {"default": "./my_prompts", "multiline": False}),
                 "file_pattern": ("STRING", {"default": "*.txt", "multiline": False}),
-                "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
+                "seed": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF}),
                 "selection_method": (["random", "sequential"], {"default": "random"}),
                 "use_break": ("BOOLEAN", {"default": True, "label_on": "Enable BREAK", "label_off": "Disable BREAK"}),
             },
@@ -26,14 +26,7 @@ class MeldPromptConstructor:
     CATEGORY = "MeldFlow/Text"
 
     # --- Node Description ---
-    DESCRIPTION = (
-        "Randomly or sequentially loads prompts from text files in a specified directory.\n"
-        "Features:\n"
-        "- Comment removal (//, #, /* */)\n"
-        "- Dynamic syntax {A|B} and weighting {0.1::rare|common}\n"
-        "- Tags starting with a hyphen (-) are automatically assigned to negative prompts\n"
-        "- Recursive file search"
-    )
+    DESCRIPTION = "Randomly or sequentially loads prompts from text files in a specified directory.\nFeatures:\n- Comment removal (//, #, /* */)\n- Dynamic syntax {A|B} and weighting {0.1::rare|common}\n- Tags starting with a hyphen (-) are automatically assigned to negative prompts\n- Recursive file search"
     # ---------------------------
 
     def process(self, directory, seed, selection_method, use_break, file_pattern):
@@ -85,13 +78,13 @@ class MeldPromptConstructor:
         current: list[str] = []
         depth = 0
         for char in text:
-            if char == ',' and depth == 0:
+            if char == "," and depth == 0:
                 segments.append("".join(current).strip())
                 current = []
             else:
-                if char == '(':
+                if char == "(":
                     depth += 1
-                elif char == ')':
+                elif char == ")":
                     depth -= 1
                 current.append(char)
         if current:
@@ -105,7 +98,7 @@ class MeldPromptConstructor:
 
         for root, dirnames, filenames in os.walk(directory):
             for filename in fnmatch.filter(filenames, pattern):
-                if filename.startswith('_'):
+                if filename.startswith("_"):
                     continue
                 matches.append(os.path.join(root, filename))
 
@@ -113,14 +106,14 @@ class MeldPromptConstructor:
 
     def _read_and_clean_file(self, filepath):
         try:
-            with open(filepath, 'r', encoding='utf-8') as f:
+            with open(filepath, "r", encoding="utf-8") as f:
                 content = f.read()
 
-            content = re.sub(r'/\*.*?\*/', '', content, flags=re.DOTALL)
+            content = re.sub(r"/\*.*?\*/", "", content, flags=re.DOTALL)
 
             valid_lines = []
             for line in content.splitlines():
-                line = re.sub(r'(//|#).*$', '', line)
+                line = re.sub(r"(//|#).*$", "", line)
                 clean_line = line.strip()
                 if clean_line:
                     valid_lines.append(clean_line)
@@ -130,13 +123,13 @@ class MeldPromptConstructor:
             return []
 
     def _process_dynamic_syntax(self, text):
-        while '{' in text and '}' in text:
-            text = re.sub(r'\{([^{}]+)\}', self._replace_random_choice, text)
+        while "{" in text and "}" in text:
+            text = re.sub(r"\{([^{}]+)\}", self._replace_random_choice, text)
         return text
 
     def _replace_random_choice(self, match):
         content = match.group(1)
-        options = content.split('|')
+        options = content.split("|")
 
         choices = []
         weights = []
@@ -173,8 +166,8 @@ class MeldPromptConstructor:
 
         # For single negative detection: ^(\(*)-(.+)
         # For group negative detection: ^(\(*)-\((.*)\)(\)*)$
-        group_pattern = re.compile(r'^(\(*)-\((.*)\)(\)*)$')
-        single_pattern = re.compile(r'^(\(*)-(.+)')
+        group_pattern = re.compile(r"^(\(*)-\((.*)\)(\)*)$")
+        single_pattern = re.compile(r"^(\(*)-(.+)")
 
         for segment in segments:
             clean_seg = segment.strip()
@@ -192,7 +185,7 @@ class MeldPromptConstructor:
                 sub_segments = self._split_by_comma(content)
                 for sub_seg in sub_segments:
                     # Prevent double negative: remove leading hyphen
-                    clean_sub = sub_seg.lstrip('-').strip()
+                    clean_sub = sub_seg.lstrip("-").strip()
                     if clean_sub:
                         neg_list.append(prefix + clean_sub + suffix)
                 continue
@@ -216,9 +209,9 @@ class MeldPromptConstructor:
     def _sanitize_output(self, text):
         if not text:
             return ""
-        text = re.sub(r'\s+', ' ', text)
-        text = re.sub(r'\s*,\s*', ',', text)
-        text = re.sub(r',+', ',', text)
-        text = text.replace(',', ', ')
-        text = text.strip(' ,')
+        text = re.sub(r"\s+", " ", text)
+        text = re.sub(r"\s*,\s*", ",", text)
+        text = re.sub(r",+", ",", text)
+        text = text.replace(",", ", ")
+        text = text.strip(" ,")
         return text

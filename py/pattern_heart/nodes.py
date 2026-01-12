@@ -18,8 +18,8 @@ class MeldPatternHeart:
                 "placement": (["Inside", "Overlap", "Edge", "Edge Inward"], {"default": "Inside"}),
             },
             "optional": {
-                "mask": ("MASK",),    # Editing area (defaults to entire image if not specified)
-            }
+                "mask": ("MASK",),  # Editing area (defaults to entire image if not specified)
+            },
         }
 
     RETURN_TYPES = ("IMAGE",)
@@ -35,7 +35,7 @@ class MeldPatternHeart:
 
         # Helper for Tensor -> PIL conversion
         def tensor_to_pil(tensor):
-            return Image.fromarray(np.clip(255. * tensor.cpu().numpy(), 0, 255).astype(np.uint8))
+            return Image.fromarray(np.clip(255.0 * tensor.cpu().numpy(), 0, 255).astype(np.uint8))
 
         # Helper for PIL -> Tensor conversion
         def pil_to_tensor(pil_img):
@@ -49,8 +49,14 @@ class MeldPatternHeart:
             img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
             draw = ImageDraw.Draw(img)
             points = [
-                (w/2, h/1.1), (w/10, h/2.5), (w/10, h/6), (w/2.5, h/6),
-                (w/2, h/3.5), (w - w/2.5, h/6), (w - w/10, h/6), (w - w/10, h/2.5)
+                (w / 2, h / 1.1),
+                (w / 10, h / 2.5),
+                (w / 10, h / 6),
+                (w / 2.5, h / 6),
+                (w / 2, h / 3.5),
+                (w - w / 2.5, h / 6),
+                (w - w / 10, h / 6),
+                (w - w / 10, h / 2.5),
             ]
             alpha = int(255 * opacity_val)
             draw.polygon(points, fill=color + (alpha,))
@@ -112,7 +118,7 @@ class MeldPatternHeart:
                         # Check distance from existing placement points
                         too_close = False
                         for px, py in placed_centers:
-                            if np.sqrt((bx - px)**2 + (by - py)**2) < current_step:
+                            if np.sqrt((bx - px) ** 2 + (by - py) ** 2) < current_step:
                                 too_close = True
                                 break
 
@@ -135,25 +141,25 @@ class MeldPatternHeart:
                                 else:
                                     angle = 0.0
 
-                            draw_points.append((int(bx - size/2), int(by - size/2), angle))
+                            draw_points.append((int(bx - size / 2), int(by - size / 2), angle))
                             placed_centers.append((bx, by))
                 else:
                     # Image perimeter if no mask
                     # Top edge
                     for x in range(0, width - size + 1, step):
-                        angle = 0.0 if placement == "Edge Inward" else 0.0 # Downward (inward)
+                        angle = 0.0 if placement == "Edge Inward" else 0.0  # Downward (inward)
                         draw_points.append((x, 0, angle))
                     # Bottom edge
                     for x in range(0, width - size + 1, step):
-                        angle = 180.0 if placement == "Edge Inward" else 0.0 # Upward (inward)
+                        angle = 180.0 if placement == "Edge Inward" else 0.0  # Upward (inward)
                         draw_points.append((x, height - size, angle))
                     # Left edge (excluding corners)
                     for y in range(step, height - size, step):
-                        angle = 90.0 if placement == "Edge Inward" else 0.0 # Rightward (inward)
+                        angle = 90.0 if placement == "Edge Inward" else 0.0  # Rightward (inward)
                         draw_points.append((0, y, angle))
                     # Right edge (excluding corners)
                     for y in range(step, height - size, step):
-                        angle = -90.0 if placement == "Edge Inward" else 0.0 # Leftward (inward)
+                        angle = -90.0 if placement == "Edge Inward" else 0.0  # Leftward (inward)
                         draw_points.append((width - size, y, angle))
             else:
                 # Inside / Overlap use grid
@@ -162,11 +168,11 @@ class MeldPatternHeart:
                         if x + size > width or y + size > height:
                             continue
 
-                        tile_mask = mask_np[y:y+size, x:x+size] if mask_np is not None else None
+                        tile_mask = mask_np[y : y + size, x : x + size] if mask_np is not None else None
                         if placement == "Overlap":
                             if tile_mask is not None and not np.any(tile_mask > 128):
                                 continue
-                        else: # Inside
+                        else:  # Inside
                             if tile_mask is not None and not np.all(tile_mask > 128):
                                 continue
 
@@ -184,7 +190,7 @@ class MeldPatternHeart:
 
                 heart = base_heart
                 if angle != 0:
-                    heart = base_heart.rotate(angle, resample=Image.Resampling.BICUBIC, center=(size/2, size/2))
+                    heart = base_heart.rotate(angle, resample=Image.Resampling.BICUBIC, center=(size / 2, size / 2))
 
                 # Paste heart
                 final_img.paste(heart, (x, y), heart)

@@ -9,14 +9,14 @@ from unittest.mock import ANY, MagicMock, patch
 import torch
 
 # Mock ComfyUI dependencies
-sys.modules['folder_paths'] = MagicMock()
-sys.modules['server'] = MagicMock()
-sys.modules['comfy.cli_args'] = MagicMock()
-sys.modules['nodes'] = MagicMock()
-sys.modules['comfy'] = MagicMock()
-sys.modules['comfy.sd'] = MagicMock()
-sys.modules['comfy.utils'] = MagicMock()
-sys.modules['comfy.samplers'] = MagicMock()
+sys.modules["folder_paths"] = MagicMock()
+sys.modules["server"] = MagicMock()
+sys.modules["comfy.cli_args"] = MagicMock()
+sys.modules["nodes"] = MagicMock()
+sys.modules["comfy"] = MagicMock()
+sys.modules["comfy.sd"] = MagicMock()
+sys.modules["comfy.utils"] = MagicMock()
+sys.modules["comfy.samplers"] = MagicMock()
 
 from comfy.cli_args import args  # noqa: E402
 
@@ -34,7 +34,7 @@ class TestImageManager(unittest.TestCase):
         self.db_path = os.path.join(self.test_dir, "test.db")
 
         # Patch DB_PATH in database module
-        self.patcher_db = patch('py.image_manager.database.DB_PATH', self.db_path)
+        self.patcher_db = patch("py.image_manager.database.DB_PATH", self.db_path)
         self.patcher_db.start()
 
         # Initialize DB
@@ -59,26 +59,20 @@ class TestImageManager(unittest.TestCase):
         """Verify that filename_prefix is correctly passed to get_save_image_path"""
         images = torch.zeros((1, 64, 64, 3))
         mock_get_save_path = meld_nexus_node.folder_paths.get_save_image_path
-        mock_get_save_path.return_value = (
-            self.mock_output_dir, "MeldFlow", 1, "", "MeldFlow"
-        )
+        mock_get_save_path.return_value = (self.mock_output_dir, "MeldFlow", 1, "", "MeldFlow")
 
         self.node.save_images(images=images, filename_prefix="CustomPrefix")
 
         # Check if get_save_image_path was called with the correct prefix
-        mock_get_save_path.assert_called_with(
-            "CustomPrefix", self.mock_output_dir, 64, 64
-        )
+        mock_get_save_path.assert_called_with("CustomPrefix", self.mock_output_dir, 64, 64)
 
     def test_save_images_db_registration(self):
         """Verify that image is registered in DB with correct filename"""
         images = torch.zeros((1, 64, 64, 3))
         mock_get_save_path = meld_nexus_node.folder_paths.get_save_image_path
-        mock_get_save_path.return_value = (
-            self.mock_output_dir, "TestFile", 5, "sub", "Test"
-        )
+        mock_get_save_path.return_value = (self.mock_output_dir, "TestFile", 5, "sub", "Test")
 
-        with patch('PIL.Image.Image.save'):
+        with patch("PIL.Image.Image.save"):
             self.node.save_images(images=images, filename_prefix="Test")
 
             conn = sqlite3.connect(self.db_path)
@@ -94,13 +88,11 @@ class TestImageManager(unittest.TestCase):
 
     def test_filename_prefix_with_batch_num_token(self):
         """Verify that %batch_num% in the filename returned by get_save_image_path is resolved"""
-        images = torch.zeros((2, 64, 64, 3)) # Batch of 2
+        images = torch.zeros((2, 64, 64, 3))  # Batch of 2
         mock_get_save_path = meld_nexus_node.folder_paths.get_save_image_path
-        mock_get_save_path.return_value = (
-            self.mock_output_dir, "Batch_%batch_num%", 1, "", "Batch"
-        )
+        mock_get_save_path.return_value = (self.mock_output_dir, "Batch_%batch_num%", 1, "", "Batch")
 
-        with patch('PIL.Image.Image.save'):
+        with patch("PIL.Image.Image.save"):
             self.node.save_images(images=images, filename_prefix="Batch")
 
             conn = sqlite3.connect(self.db_path)
@@ -117,11 +109,9 @@ class TestImageManager(unittest.TestCase):
         """Verify that the trailing underscore is included in the filename for ComfyUI compatibility"""
         images = torch.zeros((1, 64, 64, 3))
         mock_get_save_path = meld_nexus_node.folder_paths.get_save_image_path
-        mock_get_save_path.return_value = (
-            self.mock_output_dir, "TestFile", 1, "", "Test"
-        )
+        mock_get_save_path.return_value = (self.mock_output_dir, "TestFile", 1, "", "Test")
 
-        with patch('PIL.Image.Image.save'):
+        with patch("PIL.Image.Image.save"):
             self.node.save_images(images=images, filename_prefix="Test")
 
             conn = sqlite3.connect(self.db_path)
@@ -140,6 +130,7 @@ class TestImageManager(unittest.TestCase):
         mock_get_save_path.return_value = (self.mock_output_dir, "resolved", 1, "", "resolved")
 
         from datetime import datetime
+
         expected_date = datetime.now().strftime("%Y-%m-%d")
 
         # Test %date%
@@ -157,10 +148,11 @@ class TestImageManager(unittest.TestCase):
         mock_get_save_path = meld_nexus_node.folder_paths.get_save_image_path
         mock_get_save_path.return_value = (self.mock_output_dir, "test", 1, "", "test")
 
-        with patch('PIL.Image.Image.save'):
+        with patch("PIL.Image.Image.save"):
             result = self.node.save_images(images=images)
             self.assertIn("result", result)
             self.assertTrue(torch.equal(result["result"][0], images))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

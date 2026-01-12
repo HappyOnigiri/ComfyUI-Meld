@@ -28,7 +28,7 @@ class MetadataHelper:
         return GraphUtils.find_connected_showtext(target_node_id, links_list, nodes_list, target_slot)
 
     @staticmethod
-    def trace_text_source(start_node_id, links_list, nodes_list, depth=0, origin_slot=None, target_type='positive'):
+    def trace_text_source(start_node_id, links_list, nodes_list, depth=0, origin_slot=None, target_type="positive"):
         return GraphUtils.trace_text_source(start_node_id, links_list, nodes_list, depth, origin_slot, target_type)
 
     @staticmethod

@@ -15,21 +15,21 @@ class ModelUtils:
             return None, 0.0, f"No models available in {model_type}."
 
         def clean_path(n):
-            n = n.lower().replace('\\', '/')
-            for ext in ['.safetensors', '.ckpt', '.pt', '.bin', '.diffusers', '.engine']:
+            n = n.lower().replace("\\", "/")
+            for ext in [".safetensors", ".ckpt", ".pt", ".bin", ".diffusers", ".engine"]:
                 if n.endswith(ext):
-                    return n[:-len(ext)]
+                    return n[: -len(ext)]
             return n
 
         q_clean = clean_path(model_name_query)
-        q_basename = q_clean.split('/')[-1]
+        q_basename = q_clean.split("/")[-1]
 
         for m in available_models:
             if m == model_name_query:
                 return m, 1.0, "Exact match found."
 
             m_clean = clean_path(m)
-            m_basename = m_clean.split('/')[-1]
+            m_basename = m_clean.split("/")[-1]
             if m_clean == q_clean or m_basename == q_clean or m_basename == q_basename:
                 return m, 1.0, "Exact match (ignoring extension/case)."
 
@@ -69,7 +69,9 @@ class ModelUtils:
 
         ckpt_path = folder_paths.get_full_path("checkpoints", target_ckpt)
         out = comfy.sd.load_checkpoint_guess_config(
-            ckpt_path, output_vae=True, output_clip=True,
-            embedding_directory=folder_paths.get_folder_paths("embeddings")
+            ckpt_path,
+            output_vae=True,
+            output_clip=True,
+            embedding_directory=folder_paths.get_folder_paths("embeddings"),
         )
         return out[0], out[1], out[2], target_ckpt, "\n".join(logs)

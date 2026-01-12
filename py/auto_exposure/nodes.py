@@ -16,7 +16,7 @@ class MeldAutoExposure:
                 # Advanced options: Limiter to prevent extreme values.
                 "gamma_limit_min": ("FLOAT", {"default": 0.2, "min": 0.01, "max": 1.0, "step": 0.01}),
                 "gamma_limit_max": ("FLOAT", {"default": 2.5, "min": 1.0, "max": 5.0, "step": 0.01}),
-            }
+            },
         }
 
     # Output calculated gamma and current brightness in addition to the image.

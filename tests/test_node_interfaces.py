@@ -6,12 +6,12 @@ import numpy as np
 import torch
 
 # Mock ComfyUI dependencies
-sys.modules['folder_paths'] = MagicMock()
-sys.modules['comfy'] = MagicMock()
-sys.modules['comfy.sd'] = MagicMock()
-sys.modules['comfy.utils'] = MagicMock()
-sys.modules['comfy.samplers'] = MagicMock()
-sys.modules['nodes'] = MagicMock()
+sys.modules["folder_paths"] = MagicMock()
+sys.modules["comfy"] = MagicMock()
+sys.modules["comfy.sd"] = MagicMock()
+sys.modules["comfy.utils"] = MagicMock()
+sys.modules["comfy.samplers"] = MagicMock()
+sys.modules["nodes"] = MagicMock()
 
 # Import test targets
 from py.load_image_configs.nodes import (  # noqa: E402
@@ -25,15 +25,15 @@ from py.load_image_configs.nodes import (  # noqa: E402
 class TestNodeInterfaces(unittest.TestCase):
     def test_metadata_helper_has_extract_metadata(self):
         """Confirm that MetadataHelper has the extract_metadata method"""
-        self.assertTrue(hasattr(MetadataHelper, 'extract_metadata'))
+        self.assertTrue(hasattr(MetadataHelper, "extract_metadata"))
         self.assertTrue(callable(MetadataHelper.extract_metadata))
 
     def test_extract_metadata_interface(self):
         """Confirm that the return type and count of extract_metadata are correct (currently 7)"""
         # Mock PIL.Image.open
-        with patch('PIL.Image.open') as mock_open:
+        with patch("PIL.Image.open") as mock_open:
             mock_img = MagicMock()
-            mock_img.info = {'workflow': '{}'}
+            mock_img.info = {"workflow": "{}"}
             mock_img.getexif.return_value = {}
             mock_open.return_value = mock_img
 
@@ -41,7 +41,8 @@ class TestNodeInterfaces(unittest.TestCase):
             # Since MetadataHelper is a Facade after refactoring, mock the implementation module
             mock_ret = ("pos", "neg", "model", "{}", "{}", "a1111", ["log1"])
             from py.load_image_configs.modules.metadata_extractor import MetadataExtractor
-            with patch.object(MetadataExtractor, 'extract_from_data', return_value=mock_ret):
+
+            with patch.object(MetadataExtractor, "extract_from_data", return_value=mock_ret):
                 res = MetadataHelper.extract_metadata("fake_path.png")
 
                 self.assertEqual(len(res), 7)
@@ -57,16 +58,16 @@ class TestNodeInterfaces(unittest.TestCase):
         """Confirm that node classes have the structure expected by ComfyUI"""
         for node_class in [MeldImageLoader, MeldImageLoaderBatch]:
             with self.subTest(node_class=node_class):
-                self.assertTrue(hasattr(node_class, 'INPUT_TYPES'))
-                self.assertTrue(hasattr(node_class, 'RETURN_TYPES'))
-                self.assertTrue(hasattr(node_class, 'FUNCTION'))
+                self.assertTrue(hasattr(node_class, "INPUT_TYPES"))
+                self.assertTrue(hasattr(node_class, "RETURN_TYPES"))
+                self.assertTrue(hasattr(node_class, "FUNCTION"))
 
                 # Confirm the number of return values (RETURN_TYPES) is 8
                 self.assertEqual(len(node_class.RETURN_TYPES), 8)
                 self.assertEqual(len(node_class.RETURN_NAMES), 8)
 
                 # Confirm the method specified by FUNCTION exists
-                func_name = getattr(node_class, 'FUNCTION')
+                func_name = getattr(node_class, "FUNCTION")
                 self.assertTrue(hasattr(node_class, func_name))
 
     def test_load_image_configs_call_interface(self):
@@ -77,13 +78,16 @@ class TestNodeInterfaces(unittest.TestCase):
         # extract_metadata: pos, neg, model, wf_json, pr_json, a1111_text, log
         mock_meta = ("p", "n", "m", "{}", None, None, "log_meta")
 
-        with patch('py.load_image_configs.nodes.folder_paths.get_annotated_filepath', return_value="fake.png"), \
-             patch('py.load_image_configs.nodes.nodes.LoadImage') as mock_load_image_class, \
-             patch.object(MetadataHelper, 'extract_metadata', return_value=mock_meta), \
-             patch.object(MetadataHelper, 'find_and_load_checkpoint', return_value=(
-                 "MODEL", "CLIP", "VAE", "ACTUAL_MODEL", "log_ckpt"
-             )):
-
+        with (
+            patch("py.load_image_configs.nodes.folder_paths.get_annotated_filepath", return_value="fake.png"),
+            patch("py.load_image_configs.nodes.nodes.LoadImage") as mock_load_image_class,
+            patch.object(MetadataHelper, "extract_metadata", return_value=mock_meta),
+            patch.object(
+                MetadataHelper,
+                "find_and_load_checkpoint",
+                return_value=("MODEL", "CLIP", "VAE", "ACTUAL_MODEL", "log_ckpt"),
+            ),
+        ):
             # Simulate return value of nodes.LoadImage().load_image
             mock_load_image_instance = MagicMock()
             # shape [B, H, W, C]
@@ -126,17 +130,20 @@ class TestNodeInterfaces(unittest.TestCase):
         node = MeldImageLoaderBatch()
 
         # Simulate a directory with one or more image files
-        with patch('os.path.isdir', return_value=True), \
-             patch('os.listdir', return_value=['test1.png', 'test2.jpg']), \
-             patch('PIL.Image.open') as mock_open, \
-             patch('PIL.ImageOps.exif_transpose', side_effect=lambda x: x), \
-             patch.object(MetadataHelper, 'extract_metadata', return_value=(
-                 "p", "n", "m", "{}", None, None, "log_meta"
-             )), \
-             patch.object(MetadataHelper, 'find_and_load_checkpoint', return_value=(
-                 "MODEL", "CLIP", "VAE", "ACTUAL_MODEL", "log_ckpt"
-             )):
-
+        with (
+            patch("os.path.isdir", return_value=True),
+            patch("os.listdir", return_value=["test1.png", "test2.jpg"]),
+            patch("PIL.Image.open") as mock_open,
+            patch("PIL.ImageOps.exif_transpose", side_effect=lambda x: x),
+            patch.object(
+                MetadataHelper, "extract_metadata", return_value=("p", "n", "m", "{}", None, None, "log_meta")
+            ),
+            patch.object(
+                MetadataHelper,
+                "find_and_load_checkpoint",
+                return_value=("MODEL", "CLIP", "VAE", "ACTUAL_MODEL", "log_ckpt"),
+            ),
+        ):
             # Simulate return value of Image.open
             mock_img = MagicMock()
             # RGB 3-channel dummy image
@@ -151,9 +158,9 @@ class TestNodeInterfaces(unittest.TestCase):
 
             # Confirm the number of return values (8)
             self.assertEqual(len(res), 8)
-            self.assertEqual(res[4], "p") # positive
+            self.assertEqual(res[4], "p")  # positive
             self.assertEqual(res[1], "MODEL")
-            self.assertIn("Batch Info", res[6]) # summary
+            self.assertIn("Batch Info", res[6])  # summary
 
     def test_unpack_base_settings(self):
         """Confirm that MeldSettingsUnpacker correctly unpacks the dictionary"""
@@ -165,7 +172,7 @@ class TestNodeInterfaces(unittest.TestCase):
             "sampler_name": "dpmpp_2m",
             "scheduler": "karras",
             "width": 1024,
-            "height": 1024
+            "height": 1024,
         }
         res = node.unpack(settings)
         self.assertEqual(len(res), 7)
@@ -177,5 +184,6 @@ class TestNodeInterfaces(unittest.TestCase):
         self.assertEqual(res[5], 1024)
         self.assertEqual(res[6], 1024)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

@@ -7,12 +7,12 @@ from unittest.mock import MagicMock
 import torch
 
 # Mock ComfyUI dependencies
-sys.modules['folder_paths'] = MagicMock()
-sys.modules['comfy'] = MagicMock()
-sys.modules['comfy.sd'] = MagicMock()
-sys.modules['comfy.utils'] = MagicMock()
-sys.modules['comfy.samplers'] = MagicMock()
-sys.modules['nodes'] = MagicMock()
+sys.modules["folder_paths"] = MagicMock()
+sys.modules["comfy"] = MagicMock()
+sys.modules["comfy.sd"] = MagicMock()
+sys.modules["comfy.utils"] = MagicMock()
+sys.modules["comfy.samplers"] = MagicMock()
+sys.modules["nodes"] = MagicMock()
 
 # Import test target
 from py.load_image_configs import MetadataHelper  # noqa: E402
@@ -33,7 +33,7 @@ class TestMetadataParser(unittest.TestCase):
 
     def _parse_exiftool_txt(self, path):
         data = {}
-        with open(path, 'r', encoding='utf-8') as f:
+        with open(path, "r", encoding="utf-8") as f:
             for line in f:
                 if ": " in line:
                     key, value = line.split(": ", 1)
@@ -42,10 +42,7 @@ class TestMetadataParser(unittest.TestCase):
 
     def test_extract_from_pattern_png(self):
         meta = self._parse_exiftool_txt(self.pattern_png_path)
-        info = {
-            'workflow': meta.get('Workflow'),
-            'prompt': meta.get('Prompt')
-        }
+        info = {"workflow": meta.get("Workflow"), "prompt": meta.get("Prompt")}
         res = MetadataHelper.extract_from_data(info)
         positive, negative, model_name, wf_json, pr_json, a1111, logs = res
 
@@ -55,7 +52,7 @@ class TestMetadataParser(unittest.TestCase):
 
     def test_extract_from_json_1(self):
         """1.json: Standard Workflow format"""
-        with open(self.json_1_path, 'r', encoding='utf-8') as f:
+        with open(self.json_1_path, "r", encoding="utf-8") as f:
             workflow_data = json.load(f)
 
         positive, negative = MetadataHelper.parse_workflow_json(workflow_data, [])
@@ -65,11 +62,11 @@ class TestMetadataParser(unittest.TestCase):
         # Check parameters (first sampler found, ID 2)
         params, found = MetadataHelper.get_ksampler_params(workflow_data, [])
         self.assertTrue(found)
-        self.assertEqual(params['seed'], 924175127337775)
-        self.assertEqual(params['steps'], 25)
-        self.assertEqual(params['cfg'], 8.0)
-        self.assertEqual(params['sampler_name'], "euler_ancestral")
-        self.assertEqual(params['scheduler'], "simple")
+        self.assertEqual(params["seed"], 924175127337775)
+        self.assertEqual(params["steps"], 25)
+        self.assertEqual(params["cfg"], 8.0)
+        self.assertEqual(params["sampler_name"], "euler_ancestral")
+        self.assertEqual(params["scheduler"], "simple")
 
         # Check resolution (EmptySD3LatentImage)
         dummy_tensor = torch.zeros((1, 64, 64, 3))
@@ -80,10 +77,10 @@ class TestMetadataParser(unittest.TestCase):
 
     def test_extract_from_json_2(self):
         """2.json: API format (prompt JSON)"""
-        with open(self.json_2_path, 'r', encoding='utf-8') as f:
+        with open(self.json_2_path, "r", encoding="utf-8") as f:
             prompt_data = json.load(f)
 
-        info = {'prompt': json.dumps(prompt_data)}
+        info = {"prompt": json.dumps(prompt_data)}
         res = MetadataHelper.extract_from_data(info)
         positive, negative, model_name, wf_json, pr_json, a1111, logs = res
 
@@ -96,15 +93,15 @@ class TestMetadataParser(unittest.TestCase):
         # Retrieve parameters from API format
         params, found = MetadataHelper.get_ksampler_params_from_prompt(prompt_data, [])
         self.assertTrue(found)
-        self.assertEqual(params['seed'], 123456789012345)
-        self.assertEqual(params['steps'], 20)
-        self.assertEqual(params['cfg'], 1.5)
-        self.assertEqual(params['sampler_name'], "euler_ancestral")
-        self.assertEqual(params['scheduler'], "karras")
+        self.assertEqual(params["seed"], 123456789012345)
+        self.assertEqual(params["steps"], 20)
+        self.assertEqual(params["cfg"], 1.5)
+        self.assertEqual(params["sampler_name"], "euler_ancestral")
+        self.assertEqual(params["scheduler"], "karras")
 
     def test_extract_from_json_3(self):
         """3.json: Standard Workflow format"""
-        with open(self.json_3_path, 'r', encoding='utf-8') as f:
+        with open(self.json_3_path, "r", encoding="utf-8") as f:
             workflow_data = json.load(f)
 
         logs = []
@@ -115,15 +112,15 @@ class TestMetadataParser(unittest.TestCase):
         # Parameters
         params, found = MetadataHelper.get_ksampler_params(workflow_data, [])
         self.assertTrue(found)
-        self.assertEqual(params['seed'], 233851666717137)
-        self.assertEqual(params['steps'], 10)
-        self.assertEqual(params['cfg'], 5.0)
-        self.assertEqual(params['sampler_name'], "euler_ancestral")
-        self.assertEqual(params['scheduler'], "simple")
+        self.assertEqual(params["seed"], 233851666717137)
+        self.assertEqual(params["steps"], 10)
+        self.assertEqual(params["cfg"], 5.0)
+        self.assertEqual(params["sampler_name"], "euler_ancestral")
+        self.assertEqual(params["scheduler"], "simple")
 
     def test_extract_from_json_4(self):
         """4.json: Complex Workflow including subgraphs"""
-        with open(self.json_4_path, 'r', encoding='utf-8') as f:
+        with open(self.json_4_path, "r", encoding="utf-8") as f:
             workflow_data = json.load(f)
 
         positive, negative = MetadataHelper.parse_workflow_json(workflow_data, [])
@@ -133,11 +130,11 @@ class TestMetadataParser(unittest.TestCase):
         # Retrieve parameters within subgraph (first sampler found, Generator inner ID 6)
         params, found = MetadataHelper.get_ksampler_params(workflow_data, [])
         self.assertTrue(found)
-        self.assertEqual(params['seed'], 108626426419181)
-        self.assertEqual(params['steps'], 40)
-        self.assertEqual(params['cfg'], 1.5)
-        self.assertEqual(params['sampler_name'], "dpmpp_2m_sde")
-        self.assertEqual(params['scheduler'], "karras")
+        self.assertEqual(params["seed"], 108626426419181)
+        self.assertEqual(params["steps"], 40)
+        self.assertEqual(params["cfg"], 1.5)
+        self.assertEqual(params["sampler_name"], "dpmpp_2m_sde")
+        self.assertEqual(params["scheduler"], "karras")
 
         # Check resolution (EmptySD3LatentImage ID 5 within subgraph Generator)
         dummy_tensor = torch.zeros((1, 64, 64, 3))
@@ -148,7 +145,7 @@ class TestMetadataParser(unittest.TestCase):
 
     def test_extract_from_json_5(self):
         """5.json: Standard Workflow format"""
-        with open(self.json_5_path, 'r', encoding='utf-8') as f:
+        with open(self.json_5_path, "r", encoding="utf-8") as f:
             workflow_data = json.load(f)
 
         positive, negative = MetadataHelper.parse_workflow_json(workflow_data, [])
@@ -158,13 +155,13 @@ class TestMetadataParser(unittest.TestCase):
         # Parameters
         params, found = MetadataHelper.get_ksampler_params(workflow_data, [])
         self.assertTrue(found)
-        self.assertEqual(params['seed'], 233851666717137)
-        self.assertEqual(params['steps'], 10)
-        self.assertEqual(params['cfg'], 5.0)
+        self.assertEqual(params["seed"], 233851666717137)
+        self.assertEqual(params["steps"], 10)
+        self.assertEqual(params["cfg"], 5.0)
 
     def test_extract_from_json_6(self):
         """6.json: Workflow including subgraphs"""
-        with open(self.json_6_path, 'r', encoding='utf-8') as f:
+        with open(self.json_6_path, "r", encoding="utf-8") as f:
             workflow_data = json.load(f)
 
         positive, negative = MetadataHelper.parse_workflow_json(workflow_data, [])
@@ -177,7 +174,7 @@ class TestMetadataParser(unittest.TestCase):
 
     def test_extract_from_pattern_webp_exif(self):
         meta = self._parse_exiftool_txt(self.pattern_webp_exif_path)
-        exif = {271: meta.get('Make'), 272: meta.get('Model')}
+        exif = {271: meta.get("Make"), 272: meta.get("Model")}
         info = {}
         res = MetadataHelper.extract_from_data(info, exif)
         positive, negative, model_name, wf_json, pr_json, a1111, logs = res
@@ -188,7 +185,7 @@ class TestMetadataParser(unittest.TestCase):
 
     def test_extract_from_pattern_webp_desc(self):
         meta = self._parse_exiftool_txt(self.pattern_webp_desc_path)
-        exif = {270: meta.get('ImageDescription'), 271: meta.get('Make')}
+        exif = {270: meta.get("ImageDescription"), 271: meta.get("Make")}
         info = {}
         res = MetadataHelper.extract_from_data(info, exif)
         positive, negative, model_name, wf_json, pr_json, a1111, logs = res
@@ -203,17 +200,19 @@ class TestMetadataParser(unittest.TestCase):
             "nodes": [
                 {"id": 1, "type": "CLIPTextEncode", "widgets_values": [long_positive]},
                 {"id": 2, "type": "CLIPTextEncode", "widgets_values": [long_negative]},
-                {"id": 3, "type": "KSampler", "inputs": [
-                    {"name": "positive", "link": 1},
-                    {"name": "negative", "link": 2}
-                ]}
+                {
+                    "id": 3,
+                    "type": "KSampler",
+                    "inputs": [{"name": "positive", "link": 1}, {"name": "negative", "link": 2}],
+                },
             ],
-            "links": [[1, 1, 0, 3, 0, "CONDITIONING"], [2, 2, 0, 3, 1, "CONDITIONING"]]
+            "links": [[1, 1, 0, 3, 0, "CONDITIONING"], [2, 2, 0, 3, 1, "CONDITIONING"]],
         }
         logs = []
         positive, negative = MetadataHelper.parse_workflow_json(workflow_data, logs)
         self.assertIn(f"-> Positive found: {'a' * 50}...", logs)
         self.assertIn(f"-> Negative found: {'b' * 50}...", logs)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

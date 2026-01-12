@@ -8,10 +8,11 @@ DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__
 os.makedirs(DATA_DIR, exist_ok=True)
 DB_PATH = os.path.join(DATA_DIR, "default.db")
 
+
 def init_db():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute('''
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS images (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             filename TEXT,
@@ -20,7 +21,7 @@ def init_db():
             sha256 TEXT,
             parent_id INTEGER
         )
-    ''')
+    """)
 
     # Add phash column if not exists
     try:
@@ -63,27 +64,27 @@ def init_db():
         pass
 
     # Normalized Tables
-    cursor.execute('''
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS positive_prompts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT UNIQUE
         )
-    ''')
-    cursor.execute('''
+    """)
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS negative_prompts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT UNIQUE
         )
-    ''')
-    cursor.execute('''
+    """)
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS tags (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT UNIQUE
         )
-    ''')
+    """)
 
     # Relations
-    cursor.execute('''
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS positive_prompt_image_relations (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             image_id INTEGER,
@@ -92,8 +93,8 @@ def init_db():
             FOREIGN KEY(image_id) REFERENCES images(id),
             FOREIGN KEY(positive_prompt_id) REFERENCES positive_prompts(id)
         )
-    ''')
-    cursor.execute('''
+    """)
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS negative_prompt_image_relations (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             image_id INTEGER,
@@ -102,8 +103,8 @@ def init_db():
             FOREIGN KEY(image_id) REFERENCES images(id),
             FOREIGN KEY(negative_prompt_id) REFERENCES negative_prompts(id)
         )
-    ''')
-    cursor.execute('''
+    """)
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS tag_image_relations (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             image_id INTEGER,
@@ -111,15 +112,15 @@ def init_db():
             FOREIGN KEY(image_id) REFERENCES images(id),
             FOREIGN KEY(tag_id) REFERENCES tags(id)
         )
-    ''')
+    """)
 
     # Settings Table
-    cursor.execute('''
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS settings (
             key TEXT PRIMARY KEY,
             value TEXT
         )
-    ''')
+    """)
 
     # Indices
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_images_created_at ON images(created_at)")
@@ -130,6 +131,7 @@ def init_db():
 
     conn.commit()
     conn.close()
+
 
 def get_db_connection():
     return sqlite3.connect(DB_PATH)
@@ -187,7 +189,7 @@ def find_closest_parent(phash, cursor, threshold=8, exclude_id=None, before_time
 
     def hamming_distance(h1, h2):
         try:
-            return bin(int(h1, 16) ^ int(h2, 16)).count('1')
+            return bin(int(h1, 16) ^ int(h2, 16)).count("1")
         except Exception:
             return 999
 
@@ -200,6 +202,6 @@ def find_closest_parent(phash, cursor, threshold=8, exclude_id=None, before_time
             min_dist = dist
             best_id = img_id
             if min_dist == 0:
-                break # Latest exact match found
+                break  # Latest exact match found
 
     return best_id

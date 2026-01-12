@@ -32,16 +32,19 @@ class MeldNexusSaveImage:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "images": ("IMAGE", ),
-                "filename_prefix": ("STRING", {
-                    "default": "MeldFlow",
-                    "tooltip": (
-                        "The prefix for the file to save. This may include formatting "
-                        "information such as %date:yyyy-MM-dd%, %date:yyyy_MM_dd_HHmmss%, "
-                        "or %width%, %height%, %year%, %month%, %day%, %hour%, %minute%, %second%.\n"
-                        "yyyy: year, MM: month, dd: day, HH: hour, mm: minute, ss: second."
-                    ),
-                }),
+                "images": ("IMAGE",),
+                "filename_prefix": (
+                    "STRING",
+                    {
+                        "default": "MeldFlow",
+                        "tooltip": (
+                            "The prefix for the file to save. This may include formatting "
+                            "information such as %date:yyyy-MM-dd%, %date:yyyy_MM_dd_HHmmss%, "
+                            "or %width%, %height%, %year%, %month%, %day%, %hour%, %minute%, %second%.\n"
+                            "yyyy: year, MM: month, dd: day, HH: hour, mm: minute, ss: second."
+                        ),
+                    },
+                ),
             },
             "optional": {
                 "origin_image": ("IMAGE",),
@@ -49,9 +52,7 @@ class MeldNexusSaveImage:
                 "negative": ("STRING", {"forceInput": True, "multiline": True}),
                 "tags": ("STRING", {"multiline": False}),
             },
-            "hidden": {
-                "prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"
-            },
+            "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"},
         }
 
     RETURN_TYPES = ("IMAGE",)
@@ -76,23 +77,28 @@ class MeldNexusSaveImage:
 
         filename_prefix += self.prefix_append
 
-        tokens = re.findall(r'%(.*?)%', filename_prefix)
+        tokens = re.findall(r"%(.*?)%", filename_prefix)
         for token in tokens:
-            if token.startswith('date:'):
+            if token.startswith("date:"):
                 format_str = token[5:]
                 # Simple mapper for common date formats
-                py_format = format_str.replace('yyyy', '%Y').replace('yy', '%y') \
-                                     .replace('MM', '%m').replace('dd', '%d') \
-                                     .replace('HH', '%H').replace('mm', '%M') \
-                                     .replace('ss', '%S')
+                py_format = (
+                    format_str.replace("yyyy", "%Y")
+                    .replace("yy", "%y")
+                    .replace("MM", "%m")
+                    .replace("dd", "%d")
+                    .replace("HH", "%H")
+                    .replace("mm", "%M")
+                    .replace("ss", "%S")
+                )
                 try:
                     formatted_date = datetime.now().strftime(py_format)
-                    filename_prefix = filename_prefix.replace(f'%{token}%', formatted_date)
+                    filename_prefix = filename_prefix.replace(f"%{token}%", formatted_date)
                 except Exception:
                     pass
-            elif token == 'date':
-                formatted_date = datetime.now().strftime('%Y-%m-%d')
-                filename_prefix = filename_prefix.replace('%date%', formatted_date)
+            elif token == "date":
+                formatted_date = datetime.now().strftime("%Y-%m-%d")
+                filename_prefix = filename_prefix.replace("%date%", formatted_date)
 
         full_output_folder, filename, counter, subfolder, filename_prefix = folder_paths.get_save_image_path(
             filename_prefix, self.output_dir, images[0].shape[1], images[0].shape[0]
@@ -110,8 +116,8 @@ class MeldNexusSaveImage:
             logs: list[str] = []
             wf_pos, wf_neg = "", ""
 
-            if extra_pnginfo and 'workflow' in extra_pnginfo:
-                wf_pos, wf_neg = MetadataHelper.parse_workflow_json(extra_pnginfo['workflow'], logs)
+            if extra_pnginfo and "workflow" in extra_pnginfo:
+                wf_pos, wf_neg = MetadataHelper.parse_workflow_json(extra_pnginfo["workflow"], logs)
             elif prompt:
                 wf_pos, wf_neg = MetadataHelper.parse_prompt_json(prompt, logs)
 
@@ -122,7 +128,7 @@ class MeldNexusSaveImage:
 
         tag_list = []
         if tags:
-            tag_list = [t.strip() for t in tags.split(',') if t.strip()]
+            tag_list = [t.strip() for t in tags.split(",") if t.strip()]
 
         # Split prompts into lists for separate registration
         pos_list = MetadataHelper.smart_split(resolved_positive) if resolved_positive else []
@@ -133,7 +139,7 @@ class MeldNexusSaveImage:
         if origin_image is not None and imagehash is not None:
             try:
                 # Use the first image in batch for phash calculation
-                o_i = 255. * origin_image[0].cpu().numpy()
+                o_i = 255.0 * origin_image[0].cpu().numpy()
                 o_img = Image.fromarray(np.clip(o_i, 0, 255).astype(np.uint8))
                 o_phash = str(imagehash.phash(o_img))
                 # Current time as timestamp for the new image being saved
@@ -142,21 +148,21 @@ class MeldNexusSaveImage:
             except Exception:
                 pass
 
-        for (batch_number, image) in enumerate(images):
+        for batch_number, image in enumerate(images):
             # Tensor [B, H, W, C] -> PIL
             # ComfyUI images are [B, H, W, C] Tensors
-            i = 255. * image.cpu().numpy()
+            i = 255.0 * image.cpu().numpy()
             img = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
 
             # Save metadata to PNG
             metadata = None
             if not args.disable_metadata:
-                 metadata = PngInfo()
-                 if prompt is not None:
-                     metadata.add_text("prompt", json.dumps(prompt))
-                 if extra_pnginfo is not None:
-                     for x in extra_pnginfo:
-                         metadata.add_text(x, json.dumps(extra_pnginfo[x]))
+                metadata = PngInfo()
+                if prompt is not None:
+                    metadata.add_text("prompt", json.dumps(prompt))
+                if extra_pnginfo is not None:
+                    for x in extra_pnginfo:
+                        metadata.add_text(x, json.dumps(extra_pnginfo[x]))
 
             filename_with_batch_num = filename.replace("%batch_num%", str(batch_number))
             file = f"{filename_with_batch_num}_{counter:05}_.png"
@@ -180,10 +186,7 @@ class MeldNexusSaveImage:
                 (filename, subfolder, created_at, phash, sha256, parent_id, is_deleted)
                 VALUES (?, ?, ?, ?, ?, ?, 0)
             """
-            cursor.execute(
-                sql,
-                (file, subfolder, timestamp, phash, sha256, parent_id)
-            )
+            cursor.execute(sql, (file, subfolder, timestamp, phash, sha256, parent_id))
             image_id = cursor.lastrowid
 
             # Insert Prompts
@@ -198,7 +201,7 @@ class MeldNexusSaveImage:
                     cursor.execute(
                         "INSERT INTO positive_prompt_image_relations "
                         "(image_id, positive_prompt_id, strength) VALUES (?, ?, ?)",
-                        (image_id, pp_id, strength)
+                        (image_id, pp_id, strength),
                     )
 
             for n in neg_list:
@@ -212,7 +215,7 @@ class MeldNexusSaveImage:
                     cursor.execute(
                         "INSERT INTO negative_prompt_image_relations "
                         "(image_id, negative_prompt_id, strength) VALUES (?, ?, ?)",
-                        (image_id, np_id, strength)
+                        (image_id, np_id, strength),
                     )
 
             # Insert Tags

@@ -80,7 +80,7 @@ class TestPixelate(unittest.TestCase):
     def test_apply_mosaic_large_scale(self):
         """Confirm that it results in 1x1 without error even if mosaic_scale is larger than the image size"""
         dummy_image = torch.rand((1, 8, 8, 3))
-        mosaic_scale = 16 # Larger than image size
+        mosaic_scale = 16  # Larger than image size
 
         (result,) = self.node.apply_mosaic(dummy_image, mosaic_scale)
 
@@ -90,6 +90,7 @@ class TestPixelate(unittest.TestCase):
         for h in range(8):
             for w in range(8):
                 self.assertTrue(torch.allclose(result[0, h, w, :], first_pixel))
+
 
 if __name__ == "__main__":
     unittest.main()

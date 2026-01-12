@@ -3,14 +3,14 @@ import unittest
 from unittest.mock import MagicMock
 
 # Mock ComfyUI dependencies before importing target
-sys.modules['folder_paths'] = MagicMock()
+sys.modules["folder_paths"] = MagicMock()
 comfy = MagicMock()
-sys.modules['comfy'] = comfy
-sys.modules['comfy.sd'] = MagicMock()
-sys.modules['comfy.utils'] = MagicMock()
-sys.modules['comfy.samplers'] = MagicMock()
-sys.modules['nodes'] = MagicMock()
-sys.modules['server'] = MagicMock()
+sys.modules["comfy"] = comfy
+sys.modules["comfy.sd"] = MagicMock()
+sys.modules["comfy.utils"] = MagicMock()
+sys.modules["comfy.samplers"] = MagicMock()
+sys.modules["nodes"] = MagicMock()
+sys.modules["server"] = MagicMock()
 
 from py.load_image_configs.modules.parsers import Parsers  # noqa: E402
 
@@ -87,5 +87,5 @@ class TestPromptWeightNormalization(unittest.TestCase):
         self.assertEqual(results, expected)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -35,6 +35,7 @@ class MeldImageLoader:
             logs_list.append(log1)
 
         from typing import Any
+
         params_info: dict[str, dict[str, Any]] = {
             "seed": {"val": 0, "status": "NOT DETECTED (Using Default)"},
             "steps": {"val": 20, "status": "NOT DETECTED (Using Default)"},
@@ -42,7 +43,7 @@ class MeldImageLoader:
             "sampler_name": {"val": "euler", "status": "NOT DETECTED (Using Default)"},
             "scheduler": {"val": "normal", "status": "NOT DETECTED (Using Default)"},
             "original_width": {"val": int(image_output.shape[2]), "status": "NOT DETECTED (Using Default)"},
-            "original_height": {"val": int(image_output.shape[1]), "status": "NOT DETECTED (Using Default)"}
+            "original_height": {"val": int(image_output.shape[1]), "status": "NOT DETECTED (Using Default)"},
         }
 
         if wf_json:
@@ -89,10 +90,10 @@ class MeldImageLoader:
             model_display += f" (Original: {model_name})"
 
         summary_text = f"""[Model] {model_display}
-[Sampler] {params_info['sampler_name']['val']} / {params_info['scheduler']['val']}
-[Steps] {params_info['steps']['val']}  [CFG] {params_info['cfg']['val']}
-[Size] {params_info['original_width']['val']}x{params_info['original_height']['val']} (Original)
-[Seed] {params_info['seed']['val']}
+[Sampler] {params_info["sampler_name"]["val"]} / {params_info["scheduler"]["val"]}
+[Steps] {params_info["steps"]["val"]}  [CFG] {params_info["cfg"]["val"]}
+[Size] {params_info["original_width"]["val"]}x{params_info["original_height"]["val"]} (Original)
+[Seed] {params_info["seed"]["val"]}
 """
 
         full_log = "\n".join([str(log) for log in logs_list if log])
@@ -100,18 +101,18 @@ class MeldImageLoader:
             summary_text += f"\n[System Log]\n{full_log}"
 
         base_settings = {
-            "seed": int(params_info['seed']['val']),
-            "steps": int(params_info['steps']['val']),
-            "cfg": float(params_info['cfg']['val']),
-            "sampler_name": str(params_info['sampler_name']['val']),
-            "scheduler": str(params_info['scheduler']['val']),
-            "width": int(params_info['original_width']['val']),
-            "height": int(params_info['original_height']['val'])
+            "seed": int(params_info["seed"]["val"]),
+            "steps": int(params_info["steps"]["val"]),
+            "cfg": float(params_info["cfg"]["val"]),
+            "sampler_name": str(params_info["sampler_name"]["val"]),
+            "scheduler": str(params_info["scheduler"]["val"]),
+            "width": int(params_info["original_width"]["val"]),
+            "height": int(params_info["original_height"]["val"]),
         }
 
         return {
             "ui": {"text": [summary_text]},
-            "result": (image_output, model, clip, vae, pos, neg, summary_text, base_settings)
+            "result": (image_output, model, clip, vae, pos, neg, summary_text, base_settings),
         }
 
 
@@ -133,15 +134,17 @@ class MeldImageLoaderBatch:
     OUTPUT_NODE = True
 
     def load_batch(self, directory_path, index, stop_at_limit):
-        valid_ext = ['.png', '.jpg', '.jpeg', '.webp']
+        valid_ext = [".png", ".jpg", ".jpeg", ".webp"]
         if not os.path.isdir(directory_path):
             return (torch.zeros((1, 64, 64, 3)), None, None, None, "", "", "", {})
 
-        files = sorted([
-            os.path.join(directory_path, f)
-            for f in os.listdir(directory_path)
-            if os.path.splitext(f)[1].lower() in valid_ext
-        ])
+        files = sorted(
+            [
+                os.path.join(directory_path, f)
+                for f in os.listdir(directory_path)
+                if os.path.splitext(f)[1].lower() in valid_ext
+            ]
+        )
 
         if not files:
             return (torch.zeros((1, 64, 64, 3)), None, None, None, "", "", "", {})
@@ -155,7 +158,7 @@ class MeldImageLoaderBatch:
             img_transposed = ImageOps.exif_transpose(img_file)
             img_rgb = img_transposed.convert("RGB")
             img_np = np.array(img_rgb).astype(np.float32) / 255.0
-            image_tensor = torch.from_numpy(img_np)[None, ]
+            image_tensor = torch.from_numpy(img_np)[None,]
         except Exception as e:
             return (torch.zeros((1, 64, 64, 3)), None, None, None, "", "", f"Error load image: {e}", {})
 
@@ -167,6 +170,7 @@ class MeldImageLoaderBatch:
             logs_list.append(log1)
 
         from typing import Any
+
         params_info: dict[str, dict[str, Any]] = {
             "seed": {"val": 0, "status": "NOT DETECTED (Using Default)"},
             "steps": {"val": 20, "status": "NOT DETECTED (Using Default)"},
@@ -174,7 +178,7 @@ class MeldImageLoaderBatch:
             "sampler_name": {"val": "euler", "status": "NOT DETECTED (Using Default)"},
             "scheduler": {"val": "normal", "status": "NOT DETECTED (Using Default)"},
             "original_width": {"val": int(image_tensor.shape[2]), "status": "NOT DETECTED (Using Default)"},
-            "original_height": {"val": int(image_tensor.shape[1]), "status": "NOT DETECTED (Using Default)"}
+            "original_height": {"val": int(image_tensor.shape[1]), "status": "NOT DETECTED (Using Default)"},
         }
 
         if wf_json:
@@ -222,28 +226,28 @@ class MeldImageLoaderBatch:
 
         summary_text = f"""[Batch Info] Index: {index} | {os.path.basename(target_file)}
 [Model] {model_display}
-[Sampler] {params_info['sampler_name']['val']} / {params_info['scheduler']['val']}
-[Steps] {params_info['steps']['val']}  [CFG] {params_info['cfg']['val']}
-[Size] {params_info['original_width']['val']}x{params_info['original_height']['val']} (Original)
-[Seed] {params_info['seed']['val']}
+[Sampler] {params_info["sampler_name"]["val"]} / {params_info["scheduler"]["val"]}
+[Steps] {params_info["steps"]["val"]}  [CFG] {params_info["cfg"]["val"]}
+[Size] {params_info["original_width"]["val"]}x{params_info["original_height"]["val"]} (Original)
+[Seed] {params_info["seed"]["val"]}
 """
         full_log = "\n".join([str(log) for log in logs_list if log])
         if full_log:
             summary_text += f"\n[System Log]\n{full_log}"
 
         base_settings = {
-            "seed": int(params_info['seed']['val']),
-            "steps": int(params_info['steps']['val']),
-            "cfg": float(params_info['cfg']['val']),
-            "sampler_name": str(params_info['sampler_name']['val']),
-            "scheduler": str(params_info['scheduler']['val']),
-            "width": int(params_info['original_width']['val']),
-            "height": int(params_info['original_height']['val'])
+            "seed": int(params_info["seed"]["val"]),
+            "steps": int(params_info["steps"]["val"]),
+            "cfg": float(params_info["cfg"]["val"]),
+            "sampler_name": str(params_info["sampler_name"]["val"]),
+            "scheduler": str(params_info["scheduler"]["val"]),
+            "width": int(params_info["original_width"]["val"]),
+            "height": int(params_info["original_height"]["val"]),
         }
 
         return {
             "ui": {"text": [summary_text]},
-            "result": (image_tensor, model, clip, vae, pos, neg, summary_text, base_settings)
+            "result": (image_tensor, model, clip, vae, pos, neg, summary_text, base_settings),
         }
 
 

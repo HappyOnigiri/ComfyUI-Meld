@@ -85,7 +85,7 @@ class TestPromptConstructor(unittest.TestCase):
     # --- Tests for File Cleaning ---
 
     def test_read_and_clean_file(self):
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, encoding='utf-8') as f:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, encoding="utf-8") as f:
             f.write("// line comment\n")
             f.write("line1 # hash comment\n")
             f.write("/* block\n")
@@ -125,8 +125,7 @@ class TestPromptConstructor(unittest.TestCase):
             # file2.txt line 1: prompt2_1 -neg1
             # result: "prompt1_1 BREAK prompt2_1", "neg1" (if use_break=True)
             pos, neg = self.node.process(
-                test_dir, seed=0, selection_method="sequential",
-                use_break=True, file_pattern="*.txt"
+                test_dir, seed=0, selection_method="sequential", use_break=True, file_pattern="*.txt"
             )
             self.assertEqual(pos, "prompt1_1 BREAK prompt2_1")
             self.assertEqual(neg, "neg1")
@@ -136,23 +135,20 @@ class TestPromptConstructor(unittest.TestCase):
             # file1.txt line 2: prompt1_2
             # file2.txt line 1: prompt2_1 -neg1
             pos, neg = self.node.process(
-                test_dir, seed=1, selection_method="sequential",
-                use_break=True, file_pattern="*.txt"
+                test_dir, seed=1, selection_method="sequential", use_break=True, file_pattern="*.txt"
             )
             self.assertEqual(pos, "prompt1_2 BREAK prompt2_1")
             self.assertEqual(neg, "neg1")
 
             # 3. Disable BREAK
             pos, neg = self.node.process(
-                test_dir, seed=0, selection_method="sequential",
-                use_break=False, file_pattern="*.txt"
+                test_dir, seed=0, selection_method="sequential", use_break=False, file_pattern="*.txt"
             )
             self.assertEqual(pos, "prompt1_1, prompt2_1")
 
             # 4. File pattern filtering
             pos, neg = self.node.process(
-                test_dir, seed=0, selection_method="sequential",
-                use_break=True, file_pattern="none.txt"
+                test_dir, seed=0, selection_method="sequential", use_break=True, file_pattern="none.txt"
             )
             self.assertEqual(pos, "")
             self.assertEqual(neg, "")
@@ -168,8 +164,7 @@ class TestPromptConstructor(unittest.TestCase):
             # Actually os.walk order + sort.
 
             pos, neg = self.node.process(
-                test_dir, seed=0, selection_method="sequential",
-                use_break=False, file_pattern="file3.txt"
+                test_dir, seed=0, selection_method="sequential", use_break=False, file_pattern="file3.txt"
             )
             # input: "-(a, -b), --c"
             # _extract_negatives_by_hyphen -> neg: a, b, -c
@@ -180,5 +175,6 @@ class TestPromptConstructor(unittest.TestCase):
         finally:
             shutil.rmtree(test_dir)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()
