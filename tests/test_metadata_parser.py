@@ -33,7 +33,7 @@ class TestMetadataParser(unittest.TestCase):
 
     def _parse_exiftool_txt(self, path: str) -> dict:
         data = {}
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             for line in f:
                 if ": " in line:
                     key, value = line.split(": ", 1)
@@ -52,7 +52,7 @@ class TestMetadataParser(unittest.TestCase):
 
     def test_extract_from_json_1(self) -> None:
         """1.json: Standard Workflow format"""
-        with open(self.json_1_path, "r", encoding="utf-8") as f:
+        with open(self.json_1_path, encoding="utf-8") as f:
             workflow_data = json.load(f)
 
         positive, negative = MetadataHelper.parse_workflow_json(workflow_data, [])
@@ -77,7 +77,7 @@ class TestMetadataParser(unittest.TestCase):
 
     def test_extract_from_json_2(self) -> None:
         """2.json: API format (prompt JSON)"""
-        with open(self.json_2_path, "r", encoding="utf-8") as f:
+        with open(self.json_2_path, encoding="utf-8") as f:
             prompt_data = json.load(f)
 
         info = {"prompt": json.dumps(prompt_data)}
@@ -101,7 +101,7 @@ class TestMetadataParser(unittest.TestCase):
 
     def test_extract_from_json_3(self) -> None:
         """3.json: Standard Workflow format"""
-        with open(self.json_3_path, "r", encoding="utf-8") as f:
+        with open(self.json_3_path, encoding="utf-8") as f:
             workflow_data = json.load(f)
 
         logs = []
@@ -120,7 +120,7 @@ class TestMetadataParser(unittest.TestCase):
 
     def test_extract_from_json_4(self) -> None:
         """4.json: Complex Workflow including subgraphs"""
-        with open(self.json_4_path, "r", encoding="utf-8") as f:
+        with open(self.json_4_path, encoding="utf-8") as f:
             workflow_data = json.load(f)
 
         positive, negative = MetadataHelper.parse_workflow_json(workflow_data, [])
@@ -145,7 +145,7 @@ class TestMetadataParser(unittest.TestCase):
 
     def test_extract_from_json_5(self) -> None:
         """5.json: Standard Workflow format"""
-        with open(self.json_5_path, "r", encoding="utf-8") as f:
+        with open(self.json_5_path, encoding="utf-8") as f:
             workflow_data = json.load(f)
 
         positive, negative = MetadataHelper.parse_workflow_json(workflow_data, [])
@@ -161,7 +161,7 @@ class TestMetadataParser(unittest.TestCase):
 
     def test_extract_from_json_6(self) -> None:
         """6.json: Workflow including subgraphs"""
-        with open(self.json_6_path, "r", encoding="utf-8") as f:
+        with open(self.json_6_path, encoding="utf-8") as f:
             workflow_data = json.load(f)
 
         positive, negative = MetadataHelper.parse_workflow_json(workflow_data, [])

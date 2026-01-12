@@ -108,7 +108,7 @@ class MeldPromptConstructor:
 
     def _read_and_clean_file(self, filepath: str) -> list[str]:
         try:
-            with open(filepath, "r", encoding="utf-8") as f:
+            with open(filepath, encoding="utf-8") as f:
                 content = f.read()
 
             content = re.sub(r"/\*.*?\*/", "", content, flags=re.DOTALL)
