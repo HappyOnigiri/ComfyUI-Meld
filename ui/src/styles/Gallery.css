@@ -177,6 +177,19 @@
 	color: #888;
 	font-size: 10px;
 	flex-shrink: 0;
+	transition: color 0.2s;
+}
+
+.meld-image-card__meta-label--copyable {
+	cursor: copy;
+}
+
+.meld-image-card__meta-label--copyable:hover {
+	color: var(--meld-accent-color);
+}
+
+.meld-image-card__meta-label--copied {
+	color: var(--meld-success-color) !important;
 }
 
 .meld-image-card__meta-content {
@@ -728,8 +741,18 @@
 	transition: color 0.2s;
 }
 
+.meld-prompt-popup-copy {
+	cursor: pointer;
+	color: #888;
+	transition: color 0.2s;
+}
+
 .meld-prompt-popup-close:hover {
 	color: #fff;
+}
+
+.meld-prompt-popup-copy:hover {
+	color: var(--meld-accent-color);
 }
 
 /* New Lineage and Modal Styles */

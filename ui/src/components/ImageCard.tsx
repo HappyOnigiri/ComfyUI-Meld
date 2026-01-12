@@ -1,4 +1,4 @@
-import { MoreVertical, PlusCircle, X } from "lucide-react";
+import { Check, Copy, MoreVertical, PlusCircle, X } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { useGallery } from "../store/GalleryContext";
@@ -16,7 +16,24 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 		text: string;
 	} | null>(null);
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
+	const [copiedLabel, setCopiedLabel] = useState<string | null>(null);
+	const [popupCopied, setPopupCopied] = useState(false);
 	const menuRef = useRef<HTMLDivElement>(null);
+
+	const handleCopy = async (text: string, label: string, isPopup = false) => {
+		try {
+			await navigator.clipboard.writeText(text);
+			if (isPopup) {
+				setPopupCopied(true);
+				setTimeout(() => setPopupCopied(false), 2000);
+			} else {
+				setCopiedLabel(label);
+				setTimeout(() => setCopiedLabel(null), 2000);
+			}
+		} catch (err) {
+			console.error("Failed to copy text: ", err);
+		}
+	};
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
@@ -225,7 +242,16 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 							});
 						}}
 					>
-						<div className="meld-image-card__meta-label">Model</div>
+						<div
+							className={`meld-image-card__meta-label meld-image-card__meta-label--copyable ${copiedLabel === "Model" ? "meld-image-card__meta-label--copied" : ""}`}
+							title="Click to copy"
+							onClick={(e) => {
+								e.stopPropagation();
+								handleCopy(image.model_name || "-", "Model");
+							}}
+						>
+							{copiedLabel === "Model" ? "Copied!" : "Model"}
+						</div>
 						<div className="meld-image-card__meta-content">
 							{image.model_name || "-"}
 						</div>
@@ -243,7 +269,19 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 							});
 						}}
 					>
-						<div className="meld-image-card__meta-label">Positive</div>
+						<div
+							className={`meld-image-card__meta-label meld-image-card__meta-label--copyable ${copiedLabel === "Positive" ? "meld-image-card__meta-label--copied" : ""}`}
+							title="Click to copy"
+							onClick={(e) => {
+								e.stopPropagation();
+								handleCopy(
+									image.positive_prompt || image.positive || "-",
+									"Positive",
+								);
+							}}
+						>
+							{copiedLabel === "Positive" ? "Copied!" : "Positive"}
+						</div>
 						<div className="meld-image-card__meta-content">
 							{image.positive_prompt || image.positive || "-"}
 						</div>
@@ -261,7 +299,19 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 							});
 						}}
 					>
-						<div className="meld-image-card__meta-label">Negative</div>
+						<div
+							className={`meld-image-card__meta-label meld-image-card__meta-label--copyable ${copiedLabel === "Negative" ? "meld-image-card__meta-label--copied" : ""}`}
+							title="Click to copy"
+							onClick={(e) => {
+								e.stopPropagation();
+								handleCopy(
+									image.negative_prompt || image.negative || "-",
+									"Negative",
+								);
+							}}
+						>
+							{copiedLabel === "Negative" ? "Copied!" : "Negative"}
+						</div>
 						<div className="meld-image-card__meta-content">
 							{image.negative_prompt || image.negative || "-"}
 						</div>
@@ -302,11 +352,27 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 					>
 						<div className="meld-prompt-popup-header">
 							<span>{popupContent.title}</span>
-							<X
-								className="meld-prompt-popup-close"
-								size={18}
-								onClick={() => setPopupContent(null)}
-							/>
+							<div
+								style={{ display: "flex", alignItems: "center", gap: "10px" }}
+							>
+								{popupCopied ? (
+									<Check
+										size={18}
+										style={{ color: "var(--meld-success-color)" }}
+									/>
+								) : (
+									<Copy
+										className="meld-prompt-popup-copy"
+										size={18}
+										onClick={() => handleCopy(popupContent.text, "", true)}
+									/>
+								)}
+								<X
+									className="meld-prompt-popup-close"
+									size={18}
+									onClick={() => setPopupContent(null)}
+								/>
+							</div>
 						</div>
 						<div className="meld-prompt-popup-text">{popupContent.text}</div>
 					</div>
