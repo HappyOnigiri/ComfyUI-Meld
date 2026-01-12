@@ -12,7 +12,7 @@ sys.modules["comfy.samplers"] = MagicMock()
 sys.modules["nodes"] = MagicMock()
 sys.modules["server"] = MagicMock()
 
-from py.load_image_configs.modules.parsers import Parsers  # noqa: E402
+from py.load_image_configs.core.modules.parsers import Parsers  # noqa: E402
 
 
 class TestPromptWeightNormalization(unittest.TestCase):
