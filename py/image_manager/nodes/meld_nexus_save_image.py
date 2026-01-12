@@ -17,7 +17,7 @@ from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 
 from ...load_image_configs.metadata_helper import MetadataHelper
-from ..database import calculate_sha256, find_closest_parent, get_db_connection
+from ..database import add_model_relation, calculate_sha256, find_closest_parent, get_db_connection, get_or_create_model
 
 
 # --- Custom Node Definition ---
@@ -187,8 +187,8 @@ class MeldNexusSaveImage:
             # Insert Image
             sql = """
                 INSERT INTO images
-                (filename, subfolder, created_at, phash, sha256, parent_id, is_deleted, positive_prompt, negative_prompt, model_name, workflow)
-                VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?)
+                (filename, subfolder, created_at, phash, sha256, parent_id, is_deleted, positive_prompt, negative_prompt, workflow)
+                VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?, ?)
             """
             cursor.execute(
                 sql,
@@ -201,11 +201,15 @@ class MeldNexusSaveImage:
                     parent_id,
                     resolved_positive,
                     resolved_negative,
-                    resolved_model,
                     resolved_workflow,
                 ),
             )
             image_id = cursor.lastrowid
+
+            # Insert Model Relation
+            if resolved_model:
+                m_id = get_or_create_model(cursor, resolved_model)
+                add_model_relation(cursor, image_id, m_id)
 
             # Insert Prompts
             for p in pos_list:

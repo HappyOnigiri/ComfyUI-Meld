@@ -15,7 +15,15 @@ from aiohttp import web
 from PIL import Image
 
 from ..load_image_configs.metadata_helper import MetadataHelper
-from .database import calculate_sha256, find_closest_parent, get_all_settings, get_db_connection, upsert_setting
+from .database import (
+    add_model_relation,
+    calculate_sha256,
+    find_closest_parent,
+    get_all_settings,
+    get_db_connection,
+    get_or_create_model,
+    upsert_setting,
+)
 
 _scan_state = {"is_running": False, "should_cancel": False}
 
@@ -120,8 +128,8 @@ def _scan_thread(base_dir, subfolder, recursive, auto_link_parent):
                 img_type = "output" if "output" in base_dir else "input"  # Simple heuristic
                 sql = """
                     INSERT INTO images
-                    (filename, subfolder, type, created_at, phash, sha256, is_deleted, positive_prompt, negative_prompt, model_name, workflow)
-                    VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?)
+                    (filename, subfolder, type, created_at, phash, sha256, is_deleted, positive_prompt, negative_prompt, workflow)
+                    VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?, ?)
                 """
                 cursor.execute(
                     sql,
@@ -134,11 +142,16 @@ def _scan_thread(base_dir, subfolder, recursive, auto_link_parent):
                         sha256,
                         pos,
                         neg,
-                        model,
                         wf_json,
                     ),
                 )
                 image_id = cursor.lastrowid
+
+                # Insert Model Relation
+                if model:
+                    m_id = get_or_create_model(cursor, model)
+                    add_model_relation(cursor, image_id, m_id)
+
                 newly_registered_ids.append(image_id)
                 new_count += 1
 
@@ -532,8 +545,8 @@ async def register_image(request):
         # Insert Image
         sql = """
             INSERT INTO images
-            (filename, subfolder, type, created_at, phash, sha256, parent_id, is_deleted, positive_prompt, negative_prompt, model_name, workflow)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?)
+            (filename, subfolder, type, created_at, phash, sha256, parent_id, is_deleted, positive_prompt, negative_prompt, workflow)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)
         """
         cursor.execute(
             sql,
@@ -547,11 +560,15 @@ async def register_image(request):
                 parent_id,
                 pos,
                 neg,
-                model,
                 wf_json,
             ),
         )
         image_id = cursor.lastrowid
+
+        # Insert Model Relation
+        if model:
+            m_id = get_or_create_model(cursor, model)
+            add_model_relation(cursor, image_id, m_id)
 
         # Insert Prompts
         pos_list = MetadataHelper.smart_split(pos) if pos else []
@@ -618,7 +635,11 @@ async def list_images(request):
             SELECT i.id, i.filename, i.subfolder, i.type, i.created_at, i.phash, i.sha256, i.parent_id,
                    p.filename as parent_filename, p.subfolder as parent_subfolder, p.type as parent_type,
                    EXISTS(SELECT 1 FROM images c WHERE c.parent_id = i.id AND c.is_deleted = 0) as has_children,
-                   i.positive_prompt, i.negative_prompt, i.model_name, i.workflow
+                   i.positive_prompt, i.negative_prompt,
+                   (SELECT GROUP_CONCAT(m.name, ', ') FROM models m
+                    JOIN model_image_relations mir ON m.id = mir.model_id
+                    WHERE mir.image_id = i.id) as model_name,
+                   i.workflow
             FROM images i LEFT JOIN images p ON i.parent_id = p.id
             WHERE i.is_deleted = 0 ORDER BY i.created_at DESC LIMIT ? OFFSET ?
         """,
@@ -1045,7 +1066,11 @@ async def get_lineage(request):
         )
         SELECT i.id, i.filename, i.subfolder, i.type, i.created_at, i.parent_id, i.phash,
                p.filename as parent_filename, p.subfolder as parent_subfolder, p.type as parent_type,
-               i.positive_prompt, i.negative_prompt, i.model_name, i.workflow
+               i.positive_prompt, i.negative_prompt,
+               (SELECT GROUP_CONCAT(m.name, ', ') FROM models m
+                JOIN model_image_relations mir ON m.id = mir.model_id
+                WHERE mir.image_id = i.id) as model_name,
+               i.workflow
         FROM images i LEFT JOIN images p ON i.parent_id = p.id
         WHERE (i.id IN (SELECT id FROM ancestors) OR i.id IN (SELECT id FROM descendants)) AND i.is_deleted = 0
         ORDER BY i.created_at

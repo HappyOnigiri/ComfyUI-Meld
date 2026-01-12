@@ -22,7 +22,6 @@ def init_db():
             parent_id INTEGER,
             positive_prompt TEXT,
             negative_prompt TEXT,
-            model_name TEXT,
             workflow TEXT
         )
     """)
@@ -52,10 +51,6 @@ def init_db():
         pass
     try:
         cursor.execute("ALTER TABLE images ADD COLUMN negative_prompt TEXT")
-    except sqlite3.OperationalError:
-        pass
-    try:
-        cursor.execute("ALTER TABLE images ADD COLUMN model_name TEXT")
     except sqlite3.OperationalError:
         pass
     try:
@@ -99,6 +94,12 @@ def init_db():
         )
     """)
     cursor.execute("""
+        CREATE TABLE IF NOT EXISTS models (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT UNIQUE
+        )
+    """)
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS tags (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT UNIQUE
@@ -127,6 +128,15 @@ def init_db():
         )
     """)
     cursor.execute("""
+        CREATE TABLE IF NOT EXISTS model_image_relations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            image_id INTEGER,
+            model_id INTEGER,
+            FOREIGN KEY(image_id) REFERENCES images(id),
+            FOREIGN KEY(model_id) REFERENCES models(id)
+        )
+    """)
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS tag_image_relations (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             image_id INTEGER,
@@ -149,7 +159,25 @@ def init_db():
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_images_parent_id ON images(parent_id)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_pp_name ON positive_prompts(name)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_np_name ON negative_prompts(name)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_model_name ON models(name)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_tag_name ON tags(name)")
+
+    # Data Migration: model_name -> models table
+    try:
+        cursor.execute("SELECT id, model_name FROM images WHERE model_name IS NOT NULL AND model_name != ''")
+        rows = cursor.fetchall()
+        for img_id, model_name in rows:
+            cursor.execute("INSERT OR IGNORE INTO models (name) VALUES (?)", (model_name,))
+            cursor.execute("SELECT id FROM models WHERE name = ?", (model_name,))
+            m_id = cursor.fetchone()[0]
+            cursor.execute(
+                "INSERT OR IGNORE INTO model_image_relations (image_id, model_id) VALUES (?, ?)", (img_id, m_id)
+            )
+        # Clear model_name column to avoid re-migration (optional, but safer to keep it for now)
+        # cursor.execute("UPDATE images SET model_name = NULL")
+    except sqlite3.OperationalError:
+        # images table might not have model_name column in new installations
+        pass
 
     conn.commit()
     conn.close()
@@ -177,6 +205,22 @@ def upsert_setting(cursor, key, value):
         "INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value",
         (key, json_value),
     )
+
+
+def get_or_create_model(cursor, name):
+    if not name:
+        return None
+    cursor.execute("INSERT OR IGNORE INTO models (name) VALUES (?)", (name,))
+    cursor.execute("SELECT id FROM models WHERE name = ?", (name,))
+    row = cursor.fetchone()
+    return row[0] if row else None
+
+
+def add_model_relation(cursor, image_id, model_id):
+    if image_id and model_id:
+        cursor.execute(
+            "INSERT OR IGNORE INTO model_image_relations (image_id, model_id) VALUES (?, ?)", (image_id, model_id)
+        )
 
 
 def calculate_sha256(file_path):
