@@ -19,9 +19,12 @@ export const SearchBar: React.FC = () => {
 	const inputRef = useRef<HTMLInputElement>(null);
 	const suggestionsRef = useRef<HTMLDivElement>(null);
 
+	const lastSearchedValueRef = useRef(state.searchQuery);
+
 	// Synchronize inputValue with state.searchQuery if changed externally
 	useEffect(() => {
 		setInputValue(state.searchQuery);
+		lastSearchedValueRef.current = state.searchQuery;
 	}, [state.searchQuery]);
 
 	// Auto-focus input on mount
@@ -33,20 +36,31 @@ export const SearchBar: React.FC = () => {
 		(query: string) => {
 			dispatch({ type: "SET_SEARCH_QUERY", payload: query });
 			setShowSuggestions(false);
+			lastSearchedValueRef.current = query;
 		},
 		[dispatch],
 	);
 
 	useEffect(() => {
 		const timer = setTimeout(async () => {
-			if (inputValue.trim().length >= 1) {
-				// Get the last word for suggestions
-				const words = inputValue.split(/\s+/);
-				const lastWord = words[words.length - 1];
-				if (lastWord && !lastWord.includes(":") && !lastWord.startsWith('"')) {
-					const results = await api.fetchSuggestions(lastWord);
+			if (inputValue === lastSearchedValueRef.current) {
+				setShowSuggestions(false);
+				return;
+			}
+
+			const words = inputValue.split(/\s+/);
+			const lastWord = words[words.length - 1];
+
+			if (lastWord) {
+				// Only show suggestions when one of the prefixes is used
+				const match = lastWord.match(/^(pos|neg|model):(.*)$/i);
+				if (match) {
+					const prefix = match[1].toLowerCase();
+					const subQuery = match[2];
+
+					const results = await api.fetchSuggestions(subQuery, prefix);
 					setSuggestions(results);
-					setShowSuggestions(true);
+					setShowSuggestions(results.length > 0);
 					setSelectedIndex(-1);
 				} else {
 					setSuggestions([]);
@@ -116,9 +130,6 @@ export const SearchBar: React.FC = () => {
 		}
 	};
 
-	// Parse query for chip visualization
-	const tokens = inputValue.split(/\s+/).filter((t) => t.length > 0);
-
 	return (
 		<div
 			className="meld-search-container"
@@ -153,9 +164,14 @@ export const SearchBar: React.FC = () => {
 						onChange={(e) => setInputValue(e.target.value)}
 						onKeyDown={handleKeyDown}
 						onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-						onFocus={() =>
-							inputValue.trim().length > 0 && setShowSuggestions(true)
-						}
+						onFocus={() => {
+							if (inputValue === lastSearchedValueRef.current) return;
+							const words = inputValue.split(/\s+/);
+							const lastWord = words[words.length - 1];
+							if (lastWord?.match(/^(pos|neg|model):/i)) {
+								setShowSuggestions(true);
+							}
+						}}
 						placeholder="Search by tag:value, model:name, or keywords..."
 						style={{
 							flex: 1,
@@ -244,63 +260,11 @@ export const SearchBar: React.FC = () => {
 										{s.value}
 									</span>
 								</div>
-								<span style={{ color: "#666", fontSize: "12px" }}>
-									{s.count} images
-								</span>
 							</div>
 						))}
 					</div>
 				)}
 			</div>
-
-			{tokens.length > 0 && (
-				<div
-					className="meld-search-chips"
-					style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}
-				>
-					{tokens.map((token, idx) => {
-						const isPrefixed = token.includes(":");
-						const isQuoted = token.startsWith('"') && token.endsWith('"');
-
-						if (isPrefixed || isQuoted) {
-							const [prefix] = token.split(":");
-
-							return (
-								<div
-									key={idx}
-									style={{
-										display: "flex",
-										alignItems: "center",
-										gap: "4px",
-										backgroundColor: "#1e3a5f",
-										border: "1px solid #3b82f6",
-										borderRadius: "4px",
-										padding: "2px 8px",
-										fontSize: "12px",
-										color: "#dbeafe",
-									}}
-								>
-									{isPrefixed && (
-										<span style={{ opacity: 0.7 }}>{getIcon(prefix)}</span>
-									)}
-									<span>{token}</span>
-									<X
-										size={12}
-										style={{ cursor: "pointer", marginLeft: "4px" }}
-										onClick={() => {
-											const newTokens = tokens.filter((_, i) => i !== idx);
-											const newQuery = newTokens.join(" ");
-											setInputValue(newQuery);
-											handleSearch(newQuery);
-										}}
-									/>
-								</div>
-							);
-						}
-						return null;
-					})}
-				</div>
-			)}
 		</div>
 	);
 };

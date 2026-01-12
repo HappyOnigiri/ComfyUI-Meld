@@ -621,13 +621,13 @@ async def register_image(request):
 async def suggest_endpoint(request):
     try:
         query = request.query.get("query", "")
-        if not query:
-            return web.json_response([])
+        prefix = request.query.get("type", None)
 
         conn = get_db_connection()
         cursor = conn.cursor()
-        suggestions = SearchService.get_suggestions(cursor, query)
+        suggestions = SearchService.get_suggestions(cursor, query, prefix_filter=prefix)
         conn.close()
+
         return web.json_response(suggestions)
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)

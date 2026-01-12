@@ -26,6 +26,7 @@ export const fetchImages = async (
 
 export const fetchSuggestions = async (
 	query: string,
+	type?: string,
 ): Promise<
 	{
 		type: string;
@@ -33,9 +34,8 @@ export const fetchSuggestions = async (
 		count: number;
 	}[]
 > => {
-	const res = await api.fetchApi(
-		`/meld-nexus/suggest?query=${encodeURIComponent(query)}`,
-	);
+	const url = `/meld-nexus/suggest?query=${encodeURIComponent(query)}${type ? `&type=${type}` : ""}`;
+	const res = await api.fetchApi(url);
 	if (!res.ok) {
 		return [];
 	}

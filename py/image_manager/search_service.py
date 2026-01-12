@@ -101,29 +101,29 @@ class SearchService:
         return sql_fragment, all_params
 
     @classmethod
-    def get_suggestions(cls, cursor, partial_query, limit=10):
+    def get_suggestions(cls, cursor, partial_query, limit=30, prefix_filter=None):
         """
         Returns suggestions from tags, prompts, models.
         """
-        if not partial_query:
+        if partial_query is None:
             return []
 
         results = []
-        # Search in all tables
-        for prefix, (table, rel_table, rel_id) in cls.PREFIX_MAP.items():
+
+        # Determine which prefixes to search
+        target_prefixes = [prefix_filter] if prefix_filter in cls.PREFIX_MAP else cls.PREFIX_MAP.keys()
+
+        for prefix in target_prefixes:
+            table, rel_table, rel_id = cls.PREFIX_MAP[prefix]
             # count usage
-            sql = f"""
-                SELECT name, (SELECT COUNT(*) FROM {rel_table} WHERE {rel_id} = t.id) as count
-                FROM {table} t
-                WHERE name LIKE ?
-                ORDER BY count DESC
-                LIMIT ?
-            """
+            sql = f"SELECT name FROM {table} WHERE name LIKE ? ORDER BY name ASC LIMIT ?"
             cursor.execute(sql, (f"%{partial_query}%", limit))
             rows = cursor.fetchall()
-            for name, count in rows:
-                results.append({"type": prefix, "value": name, "count": count})
 
-        # Sort combined results by count
-        results.sort(key=lambda x: x["count"], reverse=True)
+            for (name,) in rows:
+                results.append({"type": prefix, "value": name, "count": 0})
+
+        # Sort combined results alphabetically by value
+        results.sort(key=lambda x: x["value"].lower())
+
         return results[:limit]
