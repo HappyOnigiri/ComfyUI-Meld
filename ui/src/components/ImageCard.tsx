@@ -149,14 +149,6 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 	};
 
 	const handleRestoreWorkflow = async () => {
-		if (
-			!confirm(
-				"The current workflow will be overwritten. Are you sure?\n(Restore Full Workflow)",
-			)
-		) {
-			return;
-		}
-
 		try {
 			const data = await fetchImageWorkflow(image.id);
 			if (!data.workflow) {

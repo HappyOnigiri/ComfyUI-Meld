@@ -6693,22 +6693,18 @@ Physical files will also be permanently deleted. This operation cannot be undone
   }, C = (g) => {
     (g.key === "Enter" || g.key === " ") && (g.preventDefault(), n({ type: "TOGGLE_SELECT", payload: e.id }));
   }, P = async () => {
-    if (confirm(
-      `The current workflow will be overwritten. Are you sure?
-(Restore Full Workflow)`
-    ))
-      try {
-        const g = await sp(e.id);
-        if (!g.workflow) {
-          alert("No workflow information is saved for this image.");
-          return;
-        }
-        await window.app.loadGraphData(
-          g.workflow
-        ), console.log("Workflow restored successfully from Meld Nexus");
-      } catch (g) {
-        console.error("Error restoring workflow:", g), alert("Failed to restore workflow.");
+    try {
+      const g = await sp(e.id);
+      if (!g.workflow) {
+        alert("No workflow information is saved for this image.");
+        return;
       }
+      await window.app.loadGraphData(
+        g.workflow
+      ), console.log("Workflow restored successfully from Meld Nexus");
+    } catch (g) {
+      console.error("Error restoring workflow:", g), alert("Failed to restore workflow.");
+    }
   }, I = async () => {
     try {
       const g = await ap(e.id), R = "MeldUnifiedLoader", L = window.app, E = window.LiteGraph.createNode(R);
