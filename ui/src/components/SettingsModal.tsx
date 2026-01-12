@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useGallery } from "../store/GalleryContext";
 import type { Settings } from "../types";
 
-type Category = "General" | "Sidebar";
+type Category = "General" | "Sidebar" | "Search";
 
 export const SettingsModal: React.FC = () => {
 	const { state, dispatch, updateSetting } = useGallery();
@@ -68,6 +68,28 @@ export const SettingsModal: React.FC = () => {
 			type: "boolean",
 			category: "Sidebar",
 		},
+		{
+			key: "search.quick_suggestions",
+			label: "Quick Suggestions",
+			description: "Show suggested keywords when the search field is empty.",
+			type: "boolean",
+			category: "Search",
+		},
+		{
+			key: "search.input_suggest",
+			label: "Input Suggest",
+			description: "Show suggestions when typing search prefixes (e.g. pos:).",
+			type: "boolean",
+			category: "Search",
+		},
+		{
+			key: "search.realtime_search",
+			label: "Real-time Search",
+			description:
+				"Perform search automatically while typing without pressing Enter.",
+			type: "boolean",
+			category: "Search",
+		},
 	];
 
 	const handleToggle = (key: keyof Settings, currentValue: boolean) => {
@@ -112,6 +134,13 @@ export const SettingsModal: React.FC = () => {
 						onClick={() => setActiveTab("Sidebar")}
 					>
 						Sidebar
+					</button>
+					<button
+						type="button"
+						className={`meld-tab ${activeTab === "Search" ? "active" : ""}`}
+						onClick={() => setActiveTab("Search")}
+					>
+						Search
 					</button>
 				</div>
 
