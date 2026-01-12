@@ -7612,42 +7612,42 @@ Physical files will also be permanently deleted. This operation cannot be undone
       label: "Show Filename",
       description: "Display the filename on the card.",
       type: "boolean",
-      category: "Side Panel"
+      category: "Sidebar"
     },
     {
       key: "gallery.show_parent_image",
       label: "Show Source Info",
       description: "Display source image information and lineage link on image cards.",
       type: "boolean",
-      category: "Side Panel"
+      category: "Sidebar"
     },
     {
       key: "sidebar.show_model_name",
       label: "Show Model Name",
       description: "Display the model name on the card.",
       type: "boolean",
-      category: "Side Panel"
+      category: "Sidebar"
     },
     {
       key: "sidebar.show_positive_prompt",
       label: "Show Positive Prompt",
       description: "Display the positive prompt on the card.",
       type: "boolean",
-      category: "Side Panel"
+      category: "Sidebar"
     },
     {
       key: "sidebar.show_negative_prompt",
       label: "Show Negative Prompt",
       description: "Display the negative prompt on the card.",
       type: "boolean",
-      category: "Side Panel"
+      category: "Sidebar"
     },
     {
       key: "sidebar.show_tags",
       label: "Show Tags",
       description: "Display tags on the card.",
       type: "boolean",
-      category: "Side Panel"
+      category: "Sidebar"
     }
   ], o = (a, f) => {
     n(a, !f);
@@ -7691,9 +7691,9 @@ Physical files will also be permanently deleted. This operation cannot be undone
                 "button",
                 {
                   type: "button",
-                  className: `meld-tab ${r === "Side Panel" ? "active" : ""}`,
-                  onClick: () => l("Side Panel"),
-                  children: "Side Panel"
+                  className: `meld-tab ${r === "Sidebar" ? "active" : ""}`,
+                  onClick: () => l("Sidebar"),
+                  children: "Sidebar"
                 }
               )
             ] }),
