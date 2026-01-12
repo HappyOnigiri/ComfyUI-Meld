@@ -30,6 +30,9 @@ export interface Settings {
 	"sidebar.show_positive_prompt": boolean;
 	"sidebar.show_negative_prompt": boolean;
 	"sidebar.show_tags": boolean;
+	"search.quick_suggestions": boolean;
+	"search.input_suggest": boolean;
+	"search.realtime_search": boolean;
 }
 
 export type ScanStatus = {
