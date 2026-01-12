@@ -1428,3 +1428,14 @@
 	font-size: 12px;
 	text-align: center;
 }
+
+@keyframes meld-fade-in {
+	from {
+		opacity: 0;
+		transform: translate(-50%, 10px);
+	}
+	to {
+		opacity: 1;
+		transform: translate(-50%, 0);
+	}
+}

@@ -31,7 +31,16 @@ export const SearchBar: React.FC = () => {
 	>([]);
 	const [selectedIndex, setSelectedIndex] = useState(-1);
 	const [isSaving, setIsSaving] = useState(false);
+	const [toastMessage, setToastMessage] = useState<string | null>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
+
+	// Clear toast after 3 seconds
+	useEffect(() => {
+		if (toastMessage) {
+			const timer = setTimeout(() => setToastMessage(null), 3000);
+			return () => clearTimeout(timer);
+		}
+	}, [toastMessage]);
 	const suggestionsRef = useRef<HTMLDivElement>(null);
 
 	const lastSearchedValueRef = useRef(state.searchQuery);
@@ -236,6 +245,7 @@ export const SearchBar: React.FC = () => {
 				try {
 					await api.deleteFavorite(fav.id);
 					await refreshFavorites();
+					setToastMessage("Favorite removed.");
 				} catch (err) {
 					console.error("Failed to delete favorite:", err);
 				} finally {
@@ -245,16 +255,13 @@ export const SearchBar: React.FC = () => {
 			return;
 		}
 
-		const name = window.prompt(
-			"Enter a name for this favorite:",
-			state.searchQuery,
-		);
-		if (name === null) return;
-
 		setIsSaving(true);
 		try {
-			await api.saveFavorite(name || state.searchQuery, state.searchQuery);
+			await api.saveFavorite(state.searchQuery, state.searchQuery);
 			await refreshFavorites();
+			setToastMessage(
+				"Favorite added! You can select favorites when the search query is empty.",
+			);
 		} catch (err) {
 			console.error("Failed to save favorite:", err);
 		} finally {
@@ -289,6 +296,30 @@ export const SearchBar: React.FC = () => {
 				className="meld-search-bar-wrapper"
 				style={{ position: "relative", width: "100%" }}
 			>
+				{toastMessage && (
+					<div
+						style={{
+							position: "absolute",
+							top: "-45px",
+							left: "50%",
+							transform: "translateX(-50%)",
+							backgroundColor: "#333",
+							color: "#eee",
+							padding: "8px 16px",
+							borderRadius: "4px",
+							fontSize: "12px",
+							zIndex: 1000,
+							whiteSpace: "nowrap",
+							boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
+							pointerEvents: "none",
+							fontWeight: "bold",
+							border: "1px solid #444",
+							animation: "meld-fade-in 0.3s ease-out",
+						}}
+					>
+						{toastMessage}
+					</div>
+				)}
 				<div
 					className="meld-search-bar"
 					style={{
