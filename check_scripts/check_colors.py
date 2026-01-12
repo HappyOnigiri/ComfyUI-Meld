@@ -36,6 +36,10 @@ def check_file(filepath: str) -> list:
     try:
         with open(filepath, encoding="utf-8") as f:
             for i, line in enumerate(f, 1):
+                # Check for ignore comment
+                if "color-check-ignore" in line:
+                    continue
+
                 # Remove inline comments for checking
                 code_part = re.sub(r"/\*.*?\*/", "", line)
                 code_part = re.sub(r"//.*", "", code_part).strip()
