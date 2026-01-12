@@ -7334,8 +7334,8 @@ Physical files will also be permanently deleted. This operation cannot be undone
     e.searchQuery,
     e.settings["search.quick_suggestions"]
   ]), I.useEffect(() => {
-    e.searchQuery !== n && r(e.searchQuery), k.current = e.searchQuery;
-  }, [e.searchQuery, n]), I.useEffect(() => {
+    r(e.searchQuery), k.current = e.searchQuery;
+  }, [e.searchQuery]), I.useEffect(() => {
     var v;
     (v = m.current) == null || v.focus();
   }, []);
