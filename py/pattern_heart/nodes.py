@@ -7,7 +7,7 @@ from PIL import Image, ImageDraw, ImageFilter
 
 class MeldPatternHeart:
     @classmethod
-    def INPUT_TYPES(cls):
+    def INPUT_TYPES(cls) -> dict:
         return {
             "required": {
                 "image": ("IMAGE",),  # Base image
@@ -26,7 +26,16 @@ class MeldPatternHeart:
     FUNCTION = "fill_with_pattern"
     CATEGORY = "MeldFlow/Image"
 
-    def fill_with_pattern(self, image, size, opacity, padding, random_rotation, placement, mask=None):
+    def fill_with_pattern(
+        self,
+        image: torch.Tensor,
+        size: int,
+        opacity: float,
+        padding: int,
+        random_rotation: bool,
+        placement: str,
+        mask: torch.Tensor | None = None,
+    ) -> tuple[torch.Tensor]:
         # Convert to list to support batch processing
         results = []
 
@@ -34,15 +43,17 @@ class MeldPatternHeart:
         step = max(1, size + padding)
 
         # Helper for Tensor -> PIL conversion
-        def tensor_to_pil(tensor):
+        def tensor_to_pil(tensor: torch.Tensor) -> Image.Image:
             return Image.fromarray(np.clip(255.0 * tensor.cpu().numpy(), 0, 255).astype(np.uint8))
 
         # Helper for PIL -> Tensor conversion
-        def pil_to_tensor(pil_img):
+        def pil_to_tensor(pil_img: Image.Image) -> torch.Tensor:
             return torch.from_numpy(np.array(pil_img).astype(np.float32) / 255.0).unsqueeze(0)
 
         # Function to generate default heart pattern
-        def create_heart_pattern(size_px=(64, 64), color=(255, 105, 180), opacity_val=1.0):
+        def create_heart_pattern(
+            size_px: tuple[int, int] = (64, 64), color: tuple[int, int, int] = (255, 105, 180), opacity_val: float = 1.0
+        ) -> Image.Image:
             # Guard to prevent size_px from being (0, 0)
             w = max(1, int(size_px[0]))
             h = max(1, int(size_px[1]))

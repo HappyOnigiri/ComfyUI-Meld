@@ -3,7 +3,7 @@ import torch
 
 class MeldAutoExposure:
     @classmethod
-    def INPUT_TYPES(cls):
+    def INPUT_TYPES(cls) -> dict:
         return {
             "required": {
                 "image": ("IMAGE",),
@@ -25,7 +25,14 @@ class MeldAutoExposure:
     FUNCTION = "adjust_gamma"
     CATEGORY = "MeldFlow/Image"
 
-    def adjust_gamma(self, image, correction_strength, target_brightness, gamma_limit_min=0.2, gamma_limit_max=2.5):
+    def adjust_gamma(
+        self,
+        image: torch.Tensor,
+        correction_strength: float,
+        target_brightness: float,
+        gamma_limit_min: float = 0.2,
+        gamma_limit_max: float = 2.5,
+    ) -> tuple[torch.Tensor, float, float]:
         # Previous factor conversions (e.g., 0.005) are no longer needed;
         # values are now intuitive (1.0 = 100%).
 
@@ -55,11 +62,11 @@ class MeldAutoExposure:
             # gamma = 1.0 + correction_strength * (target_brightness - l_current)
             # might be more intuitive. (Results are identical.)
 
-            gamma = 1.0 + correction_strength * (target_brightness - l_current)
+            gamma_val = 1.0 + correction_strength * (target_brightness - float(l_current))
 
             # Safety: Clamp gamma value to user-defined limits.
             # Prevents breakdown while allowing extreme settings.
-            gamma = max(gamma_limit_min, min(gamma_limit_max, float(gamma)))
+            gamma = max(gamma_limit_min, min(gamma_limit_max, float(gamma_val)))
 
             out_gammas.append(gamma)
 

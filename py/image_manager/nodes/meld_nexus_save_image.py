@@ -5,11 +5,13 @@ import time
 from datetime import datetime
 
 import folder_paths
+import torch
 
 try:
     import imagehash
 except ImportError:
     imagehash = None  # type: ignore
+
 import numpy as np
 import server
 from comfy.cli_args import args
@@ -22,14 +24,14 @@ from ..database import add_model_relation, calculate_sha256, find_closest_parent
 
 # --- Custom Node Definition ---
 class MeldNexusSaveImage:
-    def __init__(self):
+    def __init__(self) -> None:
         self.output_dir = folder_paths.get_output_directory()
         self.type = "output"
         self.prefix_append = ""
         self.compress_level = 4
 
     @classmethod
-    def INPUT_TYPES(cls):
+    def INPUT_TYPES(cls) -> dict:
         return {
             "required": {
                 "images": ("IMAGE",),
@@ -63,15 +65,15 @@ class MeldNexusSaveImage:
 
     def save_images(
         self,
-        images,
-        filename_prefix="MeldFlow",
-        origin_image=None,
-        positive=None,
-        negative=None,
-        tags=None,
-        prompt=None,
-        extra_pnginfo=None,
-    ):
+        images: torch.Tensor,
+        filename_prefix: str = "MeldFlow",
+        origin_image: torch.Tensor | None = None,
+        positive: str | None = None,
+        negative: str | None = None,
+        tags: str | None = None,
+        prompt: dict | None = None,
+        extra_pnginfo: dict | None = None,
+    ) -> dict:
         if filename_prefix is None:
             filename_prefix = "MeldFlow"
 

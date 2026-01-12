@@ -5,11 +5,11 @@ import re
 
 
 class MeldPromptConstructor:
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
     @classmethod
-    def INPUT_TYPES(cls):
+    def INPUT_TYPES(cls) -> dict:
         return {
             "required": {
                 "directory": ("STRING", {"default": "./my_prompts", "multiline": False}),
@@ -29,7 +29,9 @@ class MeldPromptConstructor:
     DESCRIPTION = "Randomly or sequentially loads prompts from text files in a specified directory.\nFeatures:\n- Comment removal (//, #, /* */)\n- Dynamic syntax {A|B} and weighting {0.1::rare|common}\n- Tags starting with a hyphen (-) are automatically assigned to negative prompts\n- Recursive file search"
     # ---------------------------
 
-    def process(self, directory, seed, selection_method, use_break, file_pattern):
+    def process(
+        self, directory: str, seed: int, selection_method: str, use_break: bool, file_pattern: str
+    ) -> tuple[str, str]:
         random.seed(seed)
 
         # 1. Collect files
@@ -72,7 +74,7 @@ class MeldPromptConstructor:
 
     # --- Helper Methods ---
 
-    def _split_by_comma(self, text):
+    def _split_by_comma(self, text: str) -> list[str]:
         """Split by comma while considering parentheses ()"""
         segments: list[str] = []
         current: list[str] = []
@@ -91,7 +93,7 @@ class MeldPromptConstructor:
             segments.append("".join(current).strip())
         return segments
 
-    def _get_files_recursive(self, directory, pattern):
+    def _get_files_recursive(self, directory: str, pattern: str) -> list[str]:
         matches: list[str] = []
         if not os.path.exists(directory):
             return matches
@@ -104,7 +106,7 @@ class MeldPromptConstructor:
 
         return sorted(matches)
 
-    def _read_and_clean_file(self, filepath):
+    def _read_and_clean_file(self, filepath: str) -> list[str]:
         try:
             with open(filepath, "r", encoding="utf-8") as f:
                 content = f.read()
@@ -122,12 +124,12 @@ class MeldPromptConstructor:
         except Exception:
             return []
 
-    def _process_dynamic_syntax(self, text):
+    def _process_dynamic_syntax(self, text: str) -> str:
         while "{" in text and "}" in text:
             text = re.sub(r"\{([^{}]+)\}", self._replace_random_choice, text)
         return text
 
-    def _replace_random_choice(self, match):
+    def _replace_random_choice(self, match: re.Match) -> str:
         content = match.group(1)
         options = content.split("|")
 
@@ -154,7 +156,7 @@ class MeldPromptConstructor:
 
         return random.choices(choices, weights=weights, k=1)[0]
 
-    def _extract_negatives_by_hyphen(self, prompt_text):
+    def _extract_negatives_by_hyphen(self, prompt_text: str) -> tuple[str, str]:
         """
         Modified version: Moves elements starting with '-' or immediately following '('
         to the negative prompt from comma-separated elements.
@@ -206,7 +208,7 @@ class MeldPromptConstructor:
         final_neg = ", ".join(neg_list)
         return final_pos, final_neg
 
-    def _sanitize_output(self, text):
+    def _sanitize_output(self, text: str) -> str:
         if not text:
             return ""
         text = re.sub(r"\s+", " ", text)

@@ -1,9 +1,10 @@
+import torch
 import torch.nn.functional as F
 
 
 class MeldPixelate:
     @classmethod
-    def INPUT_TYPES(cls):
+    def INPUT_TYPES(cls) -> dict:
         return {
             "required": {
                 "image": ("IMAGE",),
@@ -26,7 +27,7 @@ class MeldPixelate:
     FUNCTION = "apply_mosaic"
     CATEGORY = "MeldFlow/Image"
 
-    def apply_mosaic(self, image, mosaic_scale):
+    def apply_mosaic(self, image: torch.Tensor, mosaic_scale: int) -> tuple[torch.Tensor]:
         # image shape is [Batch, Height, Width, Channels]
         B, H, W, C = image.shape
 

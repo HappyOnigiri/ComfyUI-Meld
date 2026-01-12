@@ -1,4 +1,5 @@
 import os
+from typing import Any
 
 import folder_paths
 import nodes
@@ -11,7 +12,7 @@ from .metadata_helper import MetadataHelper
 
 class MeldImageLoader:
     @classmethod
-    def INPUT_TYPES(cls):
+    def INPUT_TYPES(cls) -> dict:
         input_dir = folder_paths.get_input_directory()
         files = [f for f in os.listdir(input_dir) if os.path.isfile(os.path.join(input_dir, f))]
         return {"required": {"image": (sorted(files), {"image_upload": True})}}
@@ -22,7 +23,7 @@ class MeldImageLoader:
     CATEGORY = "MeldFlow/Image"
     OUTPUT_NODE = True
 
-    def load(self, image):
+    def load(self, image: str) -> dict:
         image_path = folder_paths.get_annotated_filepath(image)
         image_loader = nodes.LoadImage()
         image_output, _ = image_loader.load_image(image)
@@ -33,8 +34,6 @@ class MeldImageLoader:
             logs_list.extend(log1)
         elif log1:
             logs_list.append(log1)
-
-        from typing import Any
 
         params_info: dict[str, dict[str, Any]] = {
             "seed": {"val": 0, "status": "NOT DETECTED (Using Default)"},
@@ -118,7 +117,7 @@ class MeldImageLoader:
 
 class MeldImageLoaderBatch:
     @classmethod
-    def INPUT_TYPES(cls):
+    def INPUT_TYPES(cls) -> dict:
         return {
             "required": {
                 "directory_path": ("STRING", {"default": "C:\\Images", "multiline": False}),
@@ -133,10 +132,13 @@ class MeldImageLoaderBatch:
     CATEGORY = "MeldFlow/Image"
     OUTPUT_NODE = True
 
-    def load_batch(self, directory_path, index, stop_at_limit):
+    def load_batch(self, directory_path: str, index: int, stop_at_limit: bool) -> dict:
         valid_ext = [".png", ".jpg", ".jpeg", ".webp"]
         if not os.path.isdir(directory_path):
-            return (torch.zeros((1, 64, 64, 3)), None, None, None, "", "", "", {})
+            return {
+                "ui": {"text": [""]},
+                "result": (torch.zeros((1, 64, 64, 3)), None, None, None, "", "", "", {}),
+            }
 
         files = sorted(
             [
@@ -147,7 +149,10 @@ class MeldImageLoaderBatch:
         )
 
         if not files:
-            return (torch.zeros((1, 64, 64, 3)), None, None, None, "", "", "", {})
+            return {
+                "ui": {"text": [""]},
+                "result": (torch.zeros((1, 64, 64, 3)), None, None, None, "", "", "", {}),
+            }
 
         if stop_at_limit and index >= len(files):
             raise ValueError(f"Index {index} is out of range. Directory contains {len(files)} files.")
@@ -160,7 +165,10 @@ class MeldImageLoaderBatch:
             img_np = np.array(img_rgb).astype(np.float32) / 255.0
             image_tensor = torch.from_numpy(img_np)[None,]
         except Exception as e:
-            return (torch.zeros((1, 64, 64, 3)), None, None, None, "", "", f"Error load image: {e}", {})
+            return {
+                "ui": {"text": [f"Error load image: {e}"]},
+                "result": (torch.zeros((1, 64, 64, 3)), None, None, None, "", "", f"Error load image: {e}", {}),
+            }
 
         logs_list = []
         pos, neg, model_name, wf_json, pr_json, a1111_text, log1 = MetadataHelper.extract_metadata(target_file)
@@ -168,8 +176,6 @@ class MeldImageLoaderBatch:
             logs_list.extend(log1)
         elif log1:
             logs_list.append(log1)
-
-        from typing import Any
 
         params_info: dict[str, dict[str, Any]] = {
             "seed": {"val": 0, "status": "NOT DETECTED (Using Default)"},
@@ -253,7 +259,7 @@ class MeldImageLoaderBatch:
 
 class MeldSettingsUnpacker:
     @classmethod
-    def INPUT_TYPES(cls):
+    def INPUT_TYPES(cls) -> dict:
         return {"required": {"base_settings": ("BASE_SETTINGS",)}}
 
     RETURN_TYPES = ("INT", "INT", "FLOAT", "STRING", "STRING", "INT", "INT")
@@ -261,7 +267,7 @@ class MeldSettingsUnpacker:
     FUNCTION = "unpack"
     CATEGORY = "MeldFlow/Utils"
 
-    def unpack(self, base_settings):
+    def unpack(self, base_settings: dict) -> tuple[int, int, float, str, str, int, int]:
         if not isinstance(base_settings, dict):
             return (0, 20, 8.0, "euler", "normal", 512, 512)
 
