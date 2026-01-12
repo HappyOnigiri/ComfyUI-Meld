@@ -27,7 +27,7 @@ app.registerExtension({
 		nodeData: { name: string },
 		app: ComfyApp,
 	) {
-		if (nodeData.name === "MeldNexus") {
+		if (nodeData.name === "MeldNexusSaveImage") {
 			const onExecuted = (
 				nodeType as { prototype: { onExecuted: (...args: unknown[]) => void } }
 			).prototype.onExecuted;

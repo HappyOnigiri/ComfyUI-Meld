@@ -1,7 +1,7 @@
 import os
 
 from .py.auto_exposure.nodes import MeldAutoExposure
-from .py.image_manager.nodes import MeldNexus
+from .py.image_manager.nodes import MeldNexusSaveImage
 from .py.load_image_configs.nodes import MeldImageLoader, MeldImageLoaderBatch, MeldSettingsUnpacker
 from .py.pattern_heart.nodes import MeldPatternHeart
 from .py.pixelate.nodes import MeldPixelate
@@ -15,7 +15,7 @@ NODE_CLASS_MAPPINGS = {
     "MeldSettingsUnpacker": MeldSettingsUnpacker,
     "MeldPromptConstructor": MeldPromptConstructor,
     "MeldPatternHeart": MeldPatternHeart,
-    "MeldNexus": MeldNexus,
+    "MeldNexusSaveImage": MeldNexusSaveImage,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -26,13 +26,13 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "MeldSettingsUnpacker": "Meld Settings Unpacker",
     "MeldPromptConstructor": "Meld Prompt Constructor",
     "MeldPatternHeart": "Meld Infinite Heart Generator",
-    "MeldNexus": "Meld Nexus",
+    "MeldNexusSaveImage": "Meld Nexus Save Image",
 }
 
 # Conditional registration of Meld Nexus
 if os.environ.get("MELDFLOW_DEV") == "true":
-    NODE_CLASS_MAPPINGS["MeldNexus"] = MeldNexus
-    NODE_DISPLAY_NAME_MAPPINGS["MeldNexus"] = "Meld Nexus"
+    NODE_CLASS_MAPPINGS["MeldNexusSaveImage"] = MeldNexusSaveImage
+    NODE_DISPLAY_NAME_MAPPINGS["MeldNexusSaveImage"] = "Meld Nexus Save Image"
     print("\033[34m[Meld-Flow] Meld Nexus enabled (Dev Mode)\033[0m")
 
 WEB_DIRECTORY = "web"

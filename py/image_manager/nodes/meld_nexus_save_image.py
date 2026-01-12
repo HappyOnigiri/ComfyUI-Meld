@@ -16,12 +16,12 @@ from comfy.cli_args import args
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 
-from ..load_image_configs.metadata_helper import MetadataHelper
-from .database import calculate_sha256, find_closest_parent, get_db_connection
+from ...load_image_configs.metadata_helper import MetadataHelper
+from ..database import calculate_sha256, find_closest_parent, get_db_connection
 
 
 # --- Custom Node Definition ---
-class MeldNexus:
+class MeldNexusSaveImage:
     def __init__(self):
         self.output_dir = folder_paths.get_output_directory()
         self.type = "output"
@@ -54,7 +54,8 @@ class MeldNexus:
             },
         }
 
-    RETURN_TYPES = ()
+    RETURN_TYPES = ("IMAGE",)
+    RETURN_NAMES = ("images",)
     FUNCTION = "save_images"
     OUTPUT_NODE = True
     CATEGORY = "MeldFlow/Nexus"
@@ -230,4 +231,4 @@ class MeldNexus:
         # Notify the frontend that images have been saved (Rule 2: Real-time update)
         server.PromptServer.instance.send_sync("meld-nexus-image-saved", {"count": len(results)})
 
-        return {"ui": {"images": results}}
+        return {"ui": {"images": results}, "result": (images,)}
