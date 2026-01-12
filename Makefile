@@ -1,6 +1,6 @@
-.PHONY: ci test-all lint repomix local-checks
+.PHONY: ci test-all lint repomix local-check-scripts check-scripts
 
-ci: local-checks check-only-ascii lint build-ui test-all
+ci: local-check-scripts check-only-ascii lint build-ui test-all
 
 build-ui:
 	cd ui && npm install && npm run build
@@ -8,7 +8,7 @@ build-ui:
 watch-ui:
 	cd ui && npm install && npm run dev
 
-local-checks:
+local-check-scripts:
 	@if [ -d "local_check_scripts" ]; then \
 		for script in local_check_scripts/*.py; do \
 			if [ -f "$$script" ]; then \
@@ -21,11 +21,21 @@ local-checks:
 test-all:
 	python -m unittest discover tests
 
-lint: check-only-ascii check-ts-rules
+lint: check-only-ascii check-ts-rules check-scripts
 	python -m ruff format .
 	python -m ruff check . --fix
 	-python -m mypy py
 	cd ui && npx @biomejs/biome check --write src --error-on-warnings
+
+check-scripts:
+	@if [ -d "check_scripts" ]; then \
+		for script in check_scripts/*.py; do \
+			if [ -f "$$script" ]; then \
+				echo "Running check script: $$script"; \
+				python "$$script" || exit 1; \
+			fi; \
+		done; \
+	fi
 
 check-ts-rules:
 	@echo "Checking for @ts-ignore..."
