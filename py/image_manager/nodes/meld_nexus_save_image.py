@@ -18,7 +18,7 @@ from comfy.cli_args import args
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 
-from ...load_image_configs.metadata_helper import MetadataHelper
+from ...load_image_configs.core.metadata_helper import MetadataHelper
 from ..database import add_model_relation, calculate_sha256, find_closest_parent, get_db_connection, get_or_create_model
 
 

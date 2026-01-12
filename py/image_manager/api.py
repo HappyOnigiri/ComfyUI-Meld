@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from typing import Any
 
 import folder_paths
 
@@ -15,7 +16,7 @@ import server
 from aiohttp import web
 from PIL import Image
 
-from ..load_image_configs.metadata_helper import MetadataHelper
+from ..load_image_configs.core.metadata_helper import MetadataHelper
 from .database import (
     add_model_relation,
     calculate_sha256,
@@ -448,6 +449,103 @@ async def get_image_workflow(request: web.Request) -> web.Response:
 
         return web.json_response({"error": "Workflow not found"}, status=404)
     except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
+@server.PromptServer.instance.routes.get("/api/meld-nexus/image/{image_id}/snapshot_data")
+async def get_image_snapshot_data(request: web.Request) -> web.Response:
+    try:
+        image_id = request.match_info["image_id"]
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            SELECT i.filename, i.subfolder, i.type, i.positive_prompt, i.negative_prompt, i.workflow,
+                   (SELECT m.name FROM models m
+                    JOIN model_image_relations mir ON m.id = mir.model_id
+                    WHERE mir.image_id = i.id LIMIT 1) as model_name
+            FROM images i WHERE i.id = ? AND i.is_deleted = 0
+        """,
+            (image_id,),
+        )
+        row = cursor.fetchone()
+        conn.close()
+
+        if not row:
+            return web.json_response({"error": "Image not found"}, status=404)
+
+        filename, subfolder, img_type, db_pos, db_neg, workflow_json, model_name = row
+
+        # Resolve path to extract full metadata if possible
+        if img_type == "output":
+            base_dir = folder_paths.get_output_directory()
+        elif img_type == "input":
+            base_dir = folder_paths.get_input_directory()
+        elif img_type == "temp":
+            base_dir = folder_paths.get_temp_directory()
+        else:
+            base_dir = None
+
+        data = {
+            "model_name": model_name or "v1-5-pruned-emaonly.ckpt",
+            "positive": db_pos or "",
+            "negative": db_neg or "",
+            "seed": 0,
+            "steps": 20,
+            "cfg": 8.0,
+            "sampler_name": "euler",
+            "scheduler": "normal",
+            "width": 512,
+            "height": 512,
+        }
+
+        if base_dir:
+            full_path = os.path.join(base_dir, subfolder, filename)
+            if os.path.exists(full_path):
+                with Image.open(full_path) as img:
+                    data["width"], data["height"] = img.size
+
+                # Use MetadataHelper to get more details (seed, steps, etc.)
+                (
+                    pos,
+                    neg,
+                    m_name,
+                    wf_json,
+                    pr_json,
+                    a1111_text,
+                    logs,
+                ) = MetadataHelper.extract_metadata(full_path)
+
+                # Update with more accurate info if found
+                if m_name:
+                    data["model_name"] = m_name
+                if pos:
+                    data["positive"] = pos
+                if neg:
+                    data["negative"] = neg
+
+                # Get KSampler params
+                k_params: dict[str, Any] = {}
+                found_k = False
+                if wf_json:
+                    k_params, found_k = MetadataHelper.get_ksampler_params(wf_json, [])
+
+                if not found_k and pr_json:
+                    k_params, found_k = MetadataHelper.get_ksampler_params_from_prompt(pr_json, [])
+
+                if not found_k and a1111_text:
+                    k_params = MetadataHelper.parse_a1111_params(a1111_text)
+                    found_k = bool(k_params)
+
+                if found_k:
+                    for k in ["seed", "steps", "cfg", "sampler_name", "scheduler"]:
+                        if k in k_params and k_params[k] is not None:
+                            data[k] = k_params[k]
+
+        return web.json_response(data)
+    except Exception as e:
+        logging.exception(f"[Meld-Flow] Failed to get snapshot data: {e}")
         return web.json_response({"error": str(e)}, status=500)
 
 
