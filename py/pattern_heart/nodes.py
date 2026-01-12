@@ -121,7 +121,7 @@ class MeldPatternHeart:
                 if mask_np is not None and is_boundary is not None:
                     # Get mask boundary coordinates
                     y_coords, x_coords = np.where(is_boundary)
-                    boundary_pixels = list(zip(x_coords, y_coords))
+                    boundary_pixels = list(zip(x_coords, y_coords, strict=True))
 
                     placed_centers: list[tuple[float, float]] = []
                     current_step = max(1, size + padding)

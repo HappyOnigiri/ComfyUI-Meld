@@ -187,7 +187,7 @@ class Parsers:
                     if not node:
                         return ""
 
-                    for side_id, side_node in pj.items():
+                    for _side_id, side_node in pj.items():
                         if "ShowText" in side_node.get("class_type", ""):
                             s_inputs = side_node.get("inputs", {})
                             for s_v in s_inputs.items():

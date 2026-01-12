@@ -98,7 +98,7 @@ class MeldPromptConstructor:
         if not os.path.exists(directory):
             return matches
 
-        for root, dirnames, filenames in os.walk(directory):
+        for root, _dirnames, filenames in os.walk(directory):
             for filename in fnmatch.filter(filenames, pattern):
                 if filename.startswith("_"):
                     continue

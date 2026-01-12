@@ -71,7 +71,7 @@ class MetadataExtractor:
                     except Exception:
                         pass
 
-            for tid, val in exif.items():
+            for _tid, val in exif.items():
                 if isinstance(val, str):
                     v_lower = val.lower()
                     if "workflow:" in v_lower:
@@ -158,7 +158,7 @@ class MetadataExtractor:
                                 if res:
                                     candidates.append((2, res))
                     elif isinstance(nodes_data, dict):
-                        for nid, n in nodes_data.items():
+                        for _nid, n in nodes_data.items():
                             t = n.get("class_type", "")
                             if any(x in t for x in ["UpscaleModelLoader", "ControlNetLoader", "DiffusersLoader"]):
                                 continue
