@@ -9,6 +9,7 @@ import { GalleryPanel } from "./components/GalleryPanel";
 import { logger } from "./logger";
 import { GalleryProvider } from "./store/GalleryContext";
 import type { ComfyApp } from "./types";
+import "./meld_unified_loader_ui";
 
 const style = document.createElement("link");
 style.rel = "stylesheet";
