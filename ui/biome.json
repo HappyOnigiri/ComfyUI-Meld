@@ -9,6 +9,9 @@
                 "noTsIgnore": "error",
                 "noArrayIndexKey": "off" 
             },
+            "complexity": {
+                "noImportantStyles": "error"
+            },
             "a11y": {
                 "useSemanticElements": "off",
                 "useKeyWithClickEvents": "off",

@@ -25,7 +25,7 @@ lint: check-only-ascii check-ts-rules
 	python -m ruff format .
 	python -m ruff check . --fix
 	-python -m mypy py
-	cd ui && npx @biomejs/biome check --write src
+	cd ui && npx @biomejs/biome check --write src --error-on-warnings
 
 check-ts-rules:
 	@echo "Checking for @ts-ignore..."
