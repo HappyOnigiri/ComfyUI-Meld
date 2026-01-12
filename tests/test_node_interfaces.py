@@ -14,7 +14,7 @@ sys.modules["comfy.samplers"] = MagicMock()
 sys.modules["nodes"] = MagicMock()
 
 # Import test targets
-from py.load_image_configs.nodes import (  # noqa: E402
+from py.load_image_configs import (  # noqa: E402
     MeldImageLoader,
     MeldImageLoaderBatch,
     MeldSettingsUnpacker,
@@ -40,7 +40,7 @@ class TestNodeInterfaces(unittest.TestCase):
             # Mock MetadataExtractor.extract_from_data and check return value
             # Since MetadataHelper is a Facade after refactoring, mock the implementation module
             mock_ret = ("pos", "neg", "model", "{}", "{}", "a1111", ["log1"])
-            from py.load_image_configs.modules.metadata_extractor import MetadataExtractor
+            from py.load_image_configs.core.modules.metadata_extractor import MetadataExtractor
 
             with patch.object(MetadataExtractor, "extract_from_data", return_value=mock_ret):
                 res = MetadataHelper.extract_metadata("fake_path.png")
@@ -79,8 +79,11 @@ class TestNodeInterfaces(unittest.TestCase):
         mock_meta = ("p", "n", "m", "{}", None, None, "log_meta")
 
         with (
-            patch("py.load_image_configs.nodes.folder_paths.get_annotated_filepath", return_value="fake.png"),
-            patch("py.load_image_configs.nodes.nodes.LoadImage") as mock_load_image_class,
+            patch(
+                "py.load_image_configs.meld_image_loader.nodes.folder_paths.get_annotated_filepath",
+                return_value="fake.png",
+            ),
+            patch("py.load_image_configs.meld_image_loader.nodes.nodes.LoadImage") as mock_load_image_class,
             patch.object(MetadataHelper, "extract_metadata", return_value=mock_meta),
             patch.object(
                 MetadataHelper,
