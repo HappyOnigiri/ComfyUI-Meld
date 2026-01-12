@@ -67,7 +67,7 @@ class TestNodeInterfaces(unittest.TestCase):
                 self.assertEqual(len(node_class.RETURN_NAMES), 8)
 
                 # Confirm the method specified by FUNCTION exists
-                func_name = getattr(node_class, "FUNCTION")
+                func_name = node_class.FUNCTION
                 self.assertTrue(hasattr(node_class, func_name))
 
     def test_load_image_configs_call_interface(self) -> None:
