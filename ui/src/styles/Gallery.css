@@ -68,6 +68,7 @@
 	position: relative;
 	gap: 10px;
 	cursor: pointer;
+	outline: none;
 	transition:
 		border-color 0.2s,
 		background-color 0.2s;
@@ -105,6 +106,7 @@
 	cursor: pointer;
 	transition: all 0.2s;
 	padding: 0;
+	outline: none;
 }
 
 .meld-image-card__menu-btn:hover {
@@ -135,6 +137,7 @@
 	color: var(--meld-text-color);
 	cursor: pointer;
 	transition: background-color 0.2s;
+	outline: none;
 }
 
 .meld-image-card__menu-item:hover {
@@ -410,6 +413,8 @@
 	align-items: center;
 	justify-content: center;
 	cursor: zoom-out;
+	outline: none;
+	user-select: none;
 }
 
 .meld-viewer-content {
@@ -420,6 +425,7 @@
 	align-items: center;
 	justify-content: center;
 	cursor: default;
+	outline: none;
 }
 
 .meld-viewer-image-container {
@@ -484,6 +490,7 @@
 	align-items: center;
 	justify-content: center;
 	backdrop-filter: blur(4px);
+	outline: none;
 }
 
 .meld-viewer-action-btn:hover {
@@ -559,6 +566,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	outline: none;
 }
 
 .meld-viewer-nav:hover {
@@ -631,6 +639,7 @@
 	flex-shrink: 0;
 	position: relative;
 	background: var(--comfy-input-bg, #111);
+	outline: none;
 }
 
 .meld-viewer-thumbnail img {
@@ -798,6 +807,7 @@
 	margin: 0;
 	cursor: pointer;
 	transition: all 0.2s ease;
+	outline: none;
 }
 
 .meld-lineage-badge__parent-thumb:hover {
