@@ -96,7 +96,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 		>
 			<div className="meld-modal-content" onClick={(e) => e.stopPropagation()}>
 				<div className="meld-modal-header">
-					<h2>Select Parent for #{image.id}</h2>
+					<h2>Select Source for #{image.id}</h2>
 					<button
 						type="button"
 						className="meld-modal-close"
@@ -128,7 +128,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 						onDrop={handleDrop}
 					>
 						<Upload size={32} />
-						<p>Drop an image file here to set it as parent</p>
+						<p>Drop an image file here to set it as source</p>
 					</div>
 
 					{isLoading ? (

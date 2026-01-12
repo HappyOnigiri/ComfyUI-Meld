@@ -1,4 +1,6 @@
 import {
+	ArrowDown,
+	ArrowUp,
 	ChevronLeft,
 	ChevronRight,
 	Maximize,
@@ -221,7 +223,7 @@ export const ImageViewer: React.FC = () => {
 									Loading lineage...
 								</div>
 							) : (
-								currentThumbnails.map((thumb) => {
+								currentThumbnails.map((thumb, index) => {
 									const isCurrent = thumb.id === viewerImageId;
 									const isParent =
 										typeof image.parent_id === "number" &&
@@ -239,29 +241,44 @@ export const ImageViewer: React.FC = () => {
 									return (
 										<div
 											key={thumb.id}
-											className={`meld-viewer-thumbnail ${isCurrent ? "meld-viewer-thumbnail--active" : ""}`}
-											onClick={() =>
-												dispatch({
-													type: "OPEN_VIEWER",
-													payload: { id: thumb.id, mode: viewerMode },
-												})
-											}
+											className="meld-viewer-thumbnail-wrapper"
 										>
-											<img src={thumbSrc} alt={thumb.filename} />
-											{viewerMode === "lineage" && (
-												<>
-													{isParent && (
-														<span className="meld-viewer-thumbnail-label meld-viewer-thumbnail-label--parent">
-															Parent
-														</span>
-													)}
-													{isChild && (
-														<span className="meld-viewer-thumbnail-label meld-viewer-thumbnail-label--child">
-															Child
-														</span>
-													)}
-												</>
+											{viewerMode === "lineage" && index > 0 && (
+												<div className="meld-viewer-lineage-connector">
+													<ChevronLeft size={16} />
+												</div>
 											)}
+											<div
+												className={`meld-viewer-thumbnail ${isCurrent ? "meld-viewer-thumbnail--active" : ""} ${isParent ? "meld-viewer-thumbnail--parent" : ""} ${isChild ? "meld-viewer-thumbnail--child" : ""}`}
+												onClick={() =>
+													dispatch({
+														type: "OPEN_VIEWER",
+														payload: { id: thumb.id, mode: viewerMode },
+													})
+												}
+											>
+												<img src={thumbSrc} alt={thumb.filename} />
+												{(isParent || isChild) && (
+													<div
+														className={`meld-viewer-thumbnail-relation-icon ${isParent ? "meld-viewer-thumbnail-relation-icon--parent" : "meld-viewer-thumbnail-relation-icon--child"}`}
+													>
+														{isParent ? (
+															<ArrowUp size={12} />
+														) : (
+															<ArrowDown size={12} />
+														)}
+													</div>
+												)}
+												<div className="meld-viewer-thumbnail-label-v2">
+													{isCurrent
+														? "Current"
+														: isParent
+															? "Source"
+															: isChild
+																? "Derivative"
+																: ""}
+												</div>
+											</div>
 										</div>
 									);
 								})

@@ -14,16 +14,16 @@ export const SettingsModal: React.FC = () => {
 	}[] = [
 		{
 			key: "gallery.show_parent_image",
-			label: "Show Parent Info",
+			label: "Show Source Info",
 			description:
-				"Display parent image information and lineage link on image cards.",
+				"Display source image information and lineage link on image cards.",
 			type: "boolean",
 		},
 		{
 			key: "gallery.hide_parent_images",
-			label: "Hide Parent Images",
+			label: "Hide Source Images",
 			description:
-				"Hide images that have been used as a basis for other images (parents).",
+				"Hide images that have been used as a basis for other images (sources).",
 			type: "boolean",
 		},
 	];

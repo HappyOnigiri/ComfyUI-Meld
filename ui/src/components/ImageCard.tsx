@@ -37,7 +37,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 		img: MeldImage,
 		depth = 0,
 	): { id: number | null; imgSrc: string | null }[] => {
-		if (depth >= 3) return [];
+		if (depth >= 5) return [];
 
 		const pId = img.parent_id;
 		if (!pId && !img.parent_filename) return [];
@@ -157,7 +157,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 							}}
 						>
 							<PlusCircle size={14} />
-							<span>Add parent image</span>
+							<span>Add source image</span>
 						</div>
 					</div>
 				)}
@@ -181,7 +181,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 				{state.settings["gallery.show_parent_image"] &&
 					parentChain.length > 0 && (
 						<div className="meld-image-card__lineage-v2">
-							<div className="meld-image-card__meta-label">Parent</div>
+							<div className="meld-image-card__meta-label">Source</div>
 							<div className="meld-lineage-thumbs">
 								{parentChain.map(
 									(p, index) =>
@@ -199,12 +199,12 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 												}}
 												title={
 													index === 0
-														? "Parent"
+														? "Source"
 														: index === 1
-															? "Grandparent"
-															: `Ancestor (P${index + 1})`
+															? "Grand-Source"
+															: `Ancestor (S${index + 1})`
 												}
-												alt="parent thumb"
+												alt="source thumb"
 											/>
 										),
 								)}

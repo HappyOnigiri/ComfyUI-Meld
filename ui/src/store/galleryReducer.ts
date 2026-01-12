@@ -87,7 +87,7 @@ export function galleryReducer(
 		case "SET_LINEAGE":
 			return {
 				...state,
-				lineageImages: action.payload,
+				lineageImages: [...action.payload].reverse(),
 			};
 		case "SET_LOADING":
 			return {
