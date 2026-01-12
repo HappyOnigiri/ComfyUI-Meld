@@ -1,6 +1,8 @@
 import re
+import sqlite3
 import time
 from datetime import datetime
+from typing import Any
 
 
 class SearchService:
@@ -13,7 +15,7 @@ class SearchService:
     DATE_PREFIXES = {"date", "after", "before"}
 
     @staticmethod
-    def parse_query(query_str):
+    def parse_query(query_str: str | None) -> list[dict[str, Any]]:
         """
         Parses the query string into a list of conditions.
         Returns: list of dicts like {"prefix": "tag", "value": "blue", "is_partial": True, "is_global": False}
@@ -52,7 +54,7 @@ class SearchService:
         return conditions
 
     @classmethod
-    def build_search_sql(cls, query_str):
+    def build_search_sql(cls, query_str: str | None) -> tuple[str, list[str | float]]:
         """
         Builds a SQL WHERE clause and parameters for the search query.
         Returns: (sql_fragment, params)
@@ -147,14 +149,16 @@ class SearchService:
         return sql_fragment, all_params
 
     @classmethod
-    def get_suggestions(cls, cursor, partial_query, limit=30, prefix_filter=None):
+    def get_suggestions(
+        cls, cursor: sqlite3.Cursor, partial_query: str | None, limit: int = 30, prefix_filter: str | None = None
+    ) -> list[dict[str, Any]]:
         """
         Returns suggestions from tags, prompts, models.
         """
         if partial_query is None:
             return []
 
-        results = []
+        results: list[dict[str, Any]] = []
 
         # Special handling for date prefixes
         if prefix_filter in cls.DATE_PREFIXES:
@@ -181,7 +185,7 @@ class SearchService:
         return results[:limit]
 
     @classmethod
-    def get_random_search_suggestions(cls, cursor):
+    def get_random_search_suggestions(cls, cursor: sqlite3.Cursor) -> list[dict[str, Any]]:
         """
         Returns suggestions for pos, tag, model, and date by picking keywords
         that appear in less than 5% of total images.
@@ -199,7 +203,7 @@ class SearchService:
         suggestions = []
 
         # Helper to pick a random keyword (prefer rare ones)
-        def pick_keyword(table, rel_table, rel_id_col):
+        def pick_keyword(table: str, rel_table: str, rel_id_col: str) -> str | None:
             # Try rare first (<= 5%)
             sql_rare = f"""
                 SELECT t.name

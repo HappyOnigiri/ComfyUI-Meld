@@ -30,7 +30,7 @@ from .search_service import SearchService
 _scan_state = {"is_running": False, "should_cancel": False}
 
 
-def perform_cleanup():
+def perform_cleanup() -> int:
     """Logic to logically delete image data that does not exist in the DB"""
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -65,7 +65,7 @@ def perform_cleanup():
         conn.close()
 
 
-def _scan_thread(base_dir, subfolder, recursive, auto_link_parent):
+def _scan_thread(base_dir: str, subfolder: str, recursive: bool, auto_link_parent: bool) -> None:
     global _scan_state
     conn = None
     new_count = 0
@@ -280,7 +280,7 @@ def _scan_thread(base_dir, subfolder, recursive, auto_link_parent):
 
 
 @server.PromptServer.instance.routes.post("/api/meld-nexus/cleanup")
-async def cleanup_endpoint(request):
+async def cleanup_endpoint(request: web.Request) -> web.Response:
     try:
         count = perform_cleanup()
         return web.json_response({"success": True, "count": count})
@@ -289,7 +289,7 @@ async def cleanup_endpoint(request):
 
 
 @server.PromptServer.instance.routes.get("/api/meld-nexus/folders")
-async def list_folders(request):
+async def list_folders(request: web.Request) -> web.Response:
     try:
         path = request.query.get("path", "")
         base_type = request.query.get("type", "output")
@@ -324,7 +324,7 @@ async def list_folders(request):
 
 
 @server.PromptServer.instance.routes.post("/api/meld-nexus/scan")
-async def start_scan(request):
+async def start_scan(request: web.Request) -> web.Response:
     global _scan_state
     if _scan_state["is_running"]:
         return web.json_response({"error": "Scan already running"}, status=400)
@@ -373,22 +373,22 @@ async def start_scan(request):
 
 
 @server.PromptServer.instance.routes.post("/api/meld-nexus/scan/cancel")
-async def cancel_scan(request):
+async def cancel_scan(request: web.Request) -> web.Response:
     global _scan_state
     _scan_state["should_cancel"] = True
     return web.json_response({"status": "cancelling"})
 
 
 @server.PromptServer.instance.routes.get("/api/meld-nexus/scan/status")
-async def get_scan_status(request):
+async def get_scan_status(request: web.Request) -> web.Response:
     return web.json_response(_scan_state)
 
 
-def extract_source_filenames(workflow_json, prompt_json):
+def extract_source_filenames(workflow_json: str | dict | None, prompt_json: str | dict | None) -> list[str]:
     filenames = set()
 
     # Helper to check for image inputs
-    def check_inputs(inputs):
+    def check_inputs(inputs: dict) -> None:
         if not isinstance(inputs, dict):
             return
         # Common widget names for image loading
@@ -428,12 +428,12 @@ def extract_source_filenames(workflow_json, prompt_json):
 
 
 @server.PromptServer.instance.routes.get("/api/meld-nexus/test")
-async def test_endpoint(request):
+async def test_endpoint(request: web.Request) -> web.Response:
     return web.json_response({"status": "ok", "message": "Meld Nexus is running"})
 
 
 @server.PromptServer.instance.routes.get("/api/meld-nexus/settings")
-async def get_settings(request):
+async def get_settings(request: web.Request) -> web.Response:
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -461,7 +461,7 @@ async def get_settings(request):
 
 
 @server.PromptServer.instance.routes.post("/api/meld-nexus/settings")
-async def save_settings(request):
+async def save_settings(request: web.Request) -> web.Response:
     try:
         data = await request.json()
         key = data.get("key")
@@ -482,7 +482,7 @@ async def save_settings(request):
 
 
 @server.PromptServer.instance.routes.post("/api/meld-nexus/register")
-async def register_image(request):
+async def register_image(request: web.Request) -> web.Response:
     try:
         if request.has_body and request.content_type == "application/json":
             data = await request.json()
@@ -624,7 +624,7 @@ async def register_image(request):
 
 
 @server.PromptServer.instance.routes.get("/api/meld-nexus/suggest")
-async def suggest_endpoint(request):
+async def suggest_endpoint(request: web.Request) -> web.Response:
     try:
         query = request.query.get("query", "")
         prefix = request.query.get("type", None)
@@ -640,7 +640,7 @@ async def suggest_endpoint(request):
 
 
 @server.PromptServer.instance.routes.get("/api/meld-nexus/search-suggestions")
-async def search_suggestions_endpoint(request):
+async def search_suggestions_endpoint(request: web.Request) -> web.Response:
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -653,7 +653,7 @@ async def search_suggestions_endpoint(request):
 
 
 @server.PromptServer.instance.routes.get("/api/meld-nexus/list")
-async def list_images(request):
+async def list_images(request: web.Request) -> web.Response:
     try:
         offset = int(request.query.get("offset", 0))
         limit = int(request.query.get("limit", 1000000))
@@ -789,7 +789,7 @@ async def list_images(request):
 
 
 @server.PromptServer.instance.routes.get("/api/meld-nexus/related")
-async def get_related_images(request):
+async def get_related_images(request: web.Request) -> web.Response:
     try:
         image_id = request.query.get("id")
         threshold = int(request.query.get("threshold", 8))
@@ -816,7 +816,7 @@ async def get_related_images(request):
         )
         other_images = cursor.fetchall()
 
-        def hamming_distance(h1, h2):
+        def hamming_distance(h1: str, h2: str) -> int:
             try:
                 return bin(int(h1, 16) ^ int(h2, 16)).count("1")
             except Exception:
@@ -841,7 +841,7 @@ async def get_related_images(request):
 
 
 @server.PromptServer.instance.routes.post("/api/meld-nexus/bulk-delete")
-async def bulk_delete_images(request):
+async def bulk_delete_images(request: web.Request) -> web.Response:
     try:
         data = await request.json()
         image_ids = data.get("ids", [])
@@ -893,7 +893,7 @@ async def bulk_delete_images(request):
 
 
 @server.PromptServer.instance.routes.post("/api/meld-nexus/delete")
-async def delete_image(request):
+async def delete_image(request: web.Request) -> web.Response:
     try:
         data = await request.json()
         image_id = data.get("id")
@@ -929,7 +929,7 @@ async def delete_image(request):
 
 
 @server.PromptServer.instance.routes.post("/api/meld-nexus/link-parent")
-async def link_parent(request):
+async def link_parent(request: web.Request) -> web.Response:
     try:
         data = await request.json()
         child_id = data.get("childId")
@@ -967,7 +967,7 @@ async def link_parent(request):
 
 
 @server.PromptServer.instance.routes.get("/api/meld-nexus/suggest-parents")
-async def suggest_parents(request):
+async def suggest_parents(request: web.Request) -> web.Response:
     try:
         image_id = request.query.get("id")
         threshold = int(request.query.get("threshold", 12))  # Slightly higher threshold for suggestions
@@ -1041,7 +1041,7 @@ async def suggest_parents(request):
             )
             other_images = cursor.fetchall()
 
-            def hamming_distance(h1, h2):
+            def hamming_distance(h1: str, h2: str) -> int:
                 try:
                     return bin(int(h1, 16) ^ int(h2, 16)).count("1")
                 except Exception:
@@ -1080,7 +1080,7 @@ async def suggest_parents(request):
 
 
 @server.PromptServer.instance.routes.get("/api/meld-nexus/lineage")
-async def get_lineage(request):
+async def get_lineage(request: web.Request) -> web.Response:
     try:
         image_id = request.query.get("id")
         if not image_id:
@@ -1148,7 +1148,7 @@ async def get_lineage(request):
 
 
 @server.PromptServer.instance.routes.get("/api/meld-nexus/favorites")
-async def list_favorites(request):
+async def list_favorites(request: web.Request) -> web.Response:
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -1166,7 +1166,7 @@ async def list_favorites(request):
 
 
 @server.PromptServer.instance.routes.post("/api/meld-nexus/favorites")
-async def save_favorite(request):
+async def save_favorite(request: web.Request) -> web.Response:
     try:
         data = await request.json()
         name = data.get("name", "")
@@ -1187,7 +1187,7 @@ async def save_favorite(request):
 
 
 @server.PromptServer.instance.routes.post("/api/meld-nexus/favorites/update")
-async def update_favorite(request):
+async def update_favorite(request: web.Request) -> web.Response:
     try:
         data = await request.json()
         fav_id = data.get("id")
@@ -1208,7 +1208,7 @@ async def update_favorite(request):
 
 
 @server.PromptServer.instance.routes.post("/api/meld-nexus/favorites/delete")
-async def delete_favorite(request):
+async def delete_favorite(request: web.Request) -> web.Response:
     try:
         data = await request.json()
         fav_id = data.get("id")
@@ -1228,7 +1228,7 @@ async def delete_favorite(request):
 
 
 # --- Automatic cleanup (at extension load time) ---
-def _run_auto_cleanup():
+def _run_auto_cleanup() -> None:
     """Run cleanup in the background"""
     import time
 

@@ -9,7 +9,7 @@ os.makedirs(DATA_DIR, exist_ok=True)
 DB_PATH = os.path.join(DATA_DIR, "default.db")
 
 
-def init_db():
+def init_db() -> None:
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("""
@@ -207,11 +207,11 @@ def init_db():
     conn.close()
 
 
-def get_db_connection():
+def get_db_connection() -> sqlite3.Connection:
     return sqlite3.connect(DB_PATH)
 
 
-def get_all_settings(cursor):
+def get_all_settings(cursor: sqlite3.Cursor) -> dict:
     cursor.execute("SELECT key, value FROM settings")
     rows = cursor.fetchall()
     settings = {}
@@ -223,7 +223,7 @@ def get_all_settings(cursor):
     return settings
 
 
-def upsert_setting(cursor, key, value):
+def upsert_setting(cursor: sqlite3.Cursor, key: str, value: object) -> None:
     json_value = json.dumps(value)
     cursor.execute(
         "INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value",
@@ -231,7 +231,7 @@ def upsert_setting(cursor, key, value):
     )
 
 
-def get_or_create_model(cursor, name):
+def get_or_create_model(cursor: sqlite3.Cursor, name: str) -> int | None:
     if not name:
         return None
     cursor.execute("INSERT OR IGNORE INTO models (name) VALUES (?)", (name,))
@@ -240,14 +240,14 @@ def get_or_create_model(cursor, name):
     return row[0] if row else None
 
 
-def add_model_relation(cursor, image_id, model_id):
+def add_model_relation(cursor: sqlite3.Cursor, image_id: int | None, model_id: int | None) -> None:
     if image_id and model_id:
         cursor.execute(
             "INSERT OR IGNORE INTO model_image_relations (image_id, model_id) VALUES (?, ?)", (image_id, model_id)
         )
 
 
-def calculate_sha256(file_path):
+def calculate_sha256(file_path: str) -> str | None:
     if not os.path.exists(file_path):
         return None
     sha256_hash = hashlib.sha256()
@@ -257,12 +257,18 @@ def calculate_sha256(file_path):
     return sha256_hash.hexdigest()
 
 
-def find_closest_parent(phash, cursor, threshold=8, exclude_id=None, before_timestamp=None):
+def find_closest_parent(
+    phash: str | None,
+    cursor: sqlite3.Cursor,
+    threshold: int = 8,
+    exclude_id: int | None = None,
+    before_timestamp: float | None = None,
+) -> int | None:
     if not phash:
         return None
 
     query = "SELECT id, phash FROM images WHERE phash IS NOT NULL AND is_deleted = 0"
-    params = []
+    params: list[int | float] = []
 
     if exclude_id:
         query += " AND id != ?"
@@ -277,7 +283,7 @@ def find_closest_parent(phash, cursor, threshold=8, exclude_id=None, before_time
     cursor.execute(query, params)
     rows = cursor.fetchall()
 
-    def hamming_distance(h1, h2):
+    def hamming_distance(h1: str, h2: str) -> int:
         try:
             return bin(int(h1, 16) ^ int(h2, 16)).count("1")
         except Exception:
