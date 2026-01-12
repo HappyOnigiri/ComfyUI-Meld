@@ -21,6 +21,13 @@ export interface MeldImage {
 	has_children?: boolean;
 }
 
+export interface Favorite {
+	id: number;
+	name: string;
+	query: string;
+	created_at: number;
+}
+
 export interface Settings {
 	dev_mode: boolean;
 	"gallery.show_parent_image": boolean;
@@ -77,6 +84,7 @@ export interface GalleryState {
 		hasMore: boolean;
 	};
 	searchQuery: string;
+	favorites: Favorite[];
 }
 
 export type GalleryAction =
@@ -118,7 +126,8 @@ export type GalleryAction =
 	| { type: "CLOSE_MODAL" }
 	| { type: "SET_SCAN_STATUS"; payload: Partial<ScanStatus> }
 	| { type: "SET_SETTINGS"; payload: Partial<Settings> }
-	| { type: "SET_SEARCH_QUERY"; payload: string };
+	| { type: "SET_SEARCH_QUERY"; payload: string }
+	| { type: "SET_FAVORITES"; payload: Favorite[] };
 
 export interface ComfyApp {
 	registerExtension(extension: ComfyExtension): void;

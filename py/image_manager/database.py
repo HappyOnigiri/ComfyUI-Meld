@@ -154,6 +154,16 @@ def init_db():
         )
     """)
 
+    # Favorites Table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS favorites (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            query TEXT,
+            created_at REAL
+        )
+    """)
+
     # Indices
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_images_created_at ON images(created_at)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_images_parent_id ON images(parent_id)")

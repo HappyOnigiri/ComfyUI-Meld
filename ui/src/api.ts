@@ -3,7 +3,7 @@ import { api } from "../../../scripts/api.js";
 
 (window as unknown as { api: unknown }).api = api;
 
-import type { MeldImage, Settings } from "./types";
+import type { Favorite, MeldImage, Settings } from "./types";
 
 export const fetchImages = async (
 	offset = 0,
@@ -267,4 +267,51 @@ export const fetchScanStatus = async (): Promise<{
 		return { is_running: false, should_cancel: false };
 	}
 	return await res.json();
+};
+
+export const fetchFavorites = async (): Promise<Favorite[]> => {
+	const res = await api.fetchApi("/meld-nexus/favorites");
+	if (!res.ok) {
+		return [];
+	}
+	return await res.json();
+};
+
+export const saveFavorite = async (
+	name: string,
+	query: string,
+): Promise<void> => {
+	const res = await api.fetchApi("/meld-nexus/favorites", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ name, query }),
+	});
+	if (!res.ok) {
+		throw new Error("Failed to save favorite");
+	}
+};
+
+export const deleteFavorite = async (id: number): Promise<void> => {
+	const res = await api.fetchApi("/meld-nexus/favorites/delete", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ id }),
+	});
+	if (!res.ok) {
+		throw new Error("Failed to delete favorite");
+	}
+};
+
+export const updateFavorite = async (
+	id: number,
+	name: string,
+): Promise<void> => {
+	const res = await api.fetchApi("/meld-nexus/favorites/update", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ id, name }),
+	});
+	if (!res.ok) {
+		throw new Error("Failed to update favorite");
+	}
 };

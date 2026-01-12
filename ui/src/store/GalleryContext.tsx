@@ -17,6 +17,7 @@ interface GalleryContextType {
 	dispatch: React.Dispatch<GalleryAction>;
 	refreshImages: () => Promise<void>;
 	loadMoreImages: () => Promise<void>;
+	refreshFavorites: () => Promise<void>;
 	deleteSelected: () => Promise<void>;
 	updateSetting: (
 		key: string,
@@ -74,6 +75,15 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 		state.searchQuery,
 	]);
 
+	const refreshFavorites = useCallback(async () => {
+		try {
+			const favorites = await api.fetchFavorites();
+			dispatch({ type: "SET_FAVORITES", payload: favorites });
+		} catch (err) {
+			logger.error("Failed to load favorites", err);
+		}
+	}, []);
+
 	const deleteSelected = useCallback(async () => {
 		if (state.selectedIds.size === 0) return;
 
@@ -121,6 +131,10 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 		};
 		loadSettings();
 	}, []);
+
+	useEffect(() => {
+		refreshFavorites();
+	}, [refreshFavorites]);
 
 	useEffect(() => {
 		const handleRefresh = () => {
@@ -181,6 +195,7 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 				dispatch,
 				refreshImages,
 				loadMoreImages,
+				refreshFavorites,
 				deleteSelected,
 				updateSetting,
 			}}

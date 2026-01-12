@@ -40,6 +40,7 @@ export const initialState: GalleryState = {
 		hasMore: false,
 	},
 	searchQuery: "",
+	favorites: [],
 };
 
 export function galleryReducer(
@@ -47,6 +48,11 @@ export function galleryReducer(
 	action: GalleryAction,
 ): GalleryState {
 	switch (action.type) {
+		case "SET_FAVORITES":
+			return {
+				...state,
+				favorites: action.payload,
+			};
 		case "SET_IMAGES": {
 			const { images, total, offset, limit } = action.payload;
 			// If viewer is open and in gallery mode, check if the image still exists

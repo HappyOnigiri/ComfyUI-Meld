@@ -9,6 +9,7 @@ try:
 except ImportError:
     imagehash = None  # type: ignore
 import threading
+import time
 
 import server
 from aiohttp import web
@@ -1143,6 +1144,86 @@ async def get_lineage(request):
         return web.json_response(result)
     except Exception as e:
         logging.exception("[Meld-Flow] Failed to get lineage")
+        return web.json_response({"error": str(e)}, status=500)
+
+
+@server.PromptServer.instance.routes.get("/api/meld-nexus/favorites")
+async def list_favorites(request):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, name, query, created_at FROM favorites ORDER BY created_at DESC")
+        rows = cursor.fetchall()
+        conn.close()
+
+        favorites = []
+        for row in rows:
+            favorites.append({"id": row[0], "name": row[1], "query": row[2], "created_at": row[3]})
+
+        return web.json_response(favorites)
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
+@server.PromptServer.instance.routes.post("/api/meld-nexus/favorites")
+async def save_favorite(request):
+    try:
+        data = await request.json()
+        name = data.get("name", "")
+        query = data.get("query", "")
+
+        if not query:
+            return web.json_response({"error": "query is required"}, status=400)
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO favorites (name, query, created_at) VALUES (?, ?, ?)", (name, query, time.time()))
+        conn.commit()
+        conn.close()
+
+        return web.json_response({"success": True})
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
+@server.PromptServer.instance.routes.post("/api/meld-nexus/favorites/update")
+async def update_favorite(request):
+    try:
+        data = await request.json()
+        fav_id = data.get("id")
+        name = data.get("name")
+
+        if fav_id is None or name is None:
+            return web.json_response({"error": "id and name are required"}, status=400)
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE favorites SET name = ? WHERE id = ?", (name, fav_id))
+        conn.commit()
+        conn.close()
+
+        return web.json_response({"success": True})
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
+@server.PromptServer.instance.routes.post("/api/meld-nexus/favorites/delete")
+async def delete_favorite(request):
+    try:
+        data = await request.json()
+        fav_id = data.get("id")
+
+        if fav_id is None:
+            return web.json_response({"error": "id is required"}, status=400)
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM favorites WHERE id = ?", (fav_id,))
+        conn.commit()
+        conn.close()
+
+        return web.json_response({"success": True})
+    except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 
 
