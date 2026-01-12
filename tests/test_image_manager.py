@@ -28,7 +28,7 @@ import py.image_manager.nodes.meld_nexus_save_image as meld_nexus_node  # noqa: 
 
 
 class TestImageManager(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         # Create a temporary directory for DB and output
         self.test_dir = tempfile.mkdtemp()
         self.db_path = os.path.join(self.test_dir, "test.db")
@@ -51,11 +51,11 @@ class TestImageManager(unittest.TestCase):
         # Instance of node
         self.node = meld_nexus_node.MeldNexusSaveImage()
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         self.patcher_db.stop()
         shutil.rmtree(self.test_dir)
 
-    def test_save_images_filename_prefix_passed(self):
+    def test_save_images_filename_prefix_passed(self) -> None:
         """Verify that filename_prefix is correctly passed to get_save_image_path"""
         images = torch.zeros((1, 64, 64, 3))
         mock_get_save_path = meld_nexus_node.folder_paths.get_save_image_path
@@ -66,7 +66,7 @@ class TestImageManager(unittest.TestCase):
         # Check if get_save_image_path was called with the correct prefix
         mock_get_save_path.assert_called_with("CustomPrefix", self.mock_output_dir, 64, 64)
 
-    def test_save_images_db_registration(self):
+    def test_save_images_db_registration(self) -> None:
         """Verify that image is registered in DB with correct filename"""
         images = torch.zeros((1, 64, 64, 3))
         mock_get_save_path = meld_nexus_node.folder_paths.get_save_image_path
@@ -86,7 +86,7 @@ class TestImageManager(unittest.TestCase):
             self.assertEqual(row[0], "TestFile_00005_.png")
             self.assertEqual(row[1], "sub")
 
-    def test_filename_prefix_with_batch_num_token(self):
+    def test_filename_prefix_with_batch_num_token(self) -> None:
         """Verify that %batch_num% in the filename returned by get_save_image_path is resolved"""
         images = torch.zeros((2, 64, 64, 3))  # Batch of 2
         mock_get_save_path = meld_nexus_node.folder_paths.get_save_image_path
@@ -105,7 +105,7 @@ class TestImageManager(unittest.TestCase):
             self.assertEqual(rows[0][0], "Batch_0_00001_.png")
             self.assertEqual(rows[1][0], "Batch_1_00002_.png")
 
-    def test_save_images_format_fix(self):
+    def test_save_images_format_fix(self) -> None:
         """Verify that the trailing underscore is included in the filename for ComfyUI compatibility"""
         images = torch.zeros((1, 64, 64, 3))
         mock_get_save_path = meld_nexus_node.folder_paths.get_save_image_path
@@ -123,7 +123,7 @@ class TestImageManager(unittest.TestCase):
             # Should be TestFile_00001_.png for ComfyUI counter logic to work
             self.assertEqual(row[0], "TestFile_00001_.png")
 
-    def test_filename_prefix_date_resolution(self):
+    def test_filename_prefix_date_resolution(self) -> None:
         """Verify that %date:format% and %date% tokens are correctly resolved"""
         images = torch.zeros((1, 64, 64, 3))
         mock_get_save_path = meld_nexus_node.folder_paths.get_save_image_path
@@ -142,7 +142,7 @@ class TestImageManager(unittest.TestCase):
         self.node.save_images(images=images, filename_prefix="test_%date:yyyy-MM-dd%")
         mock_get_save_path.assert_called_with(f"test_{expected_date}", ANY, ANY, ANY)
 
-    def test_save_images_returns_images(self):
+    def test_save_images_returns_images(self) -> None:
         """Verify that save_images returns the input images tensor"""
         images = torch.zeros((1, 64, 64, 3))
         mock_get_save_path = meld_nexus_node.folder_paths.get_save_image_path

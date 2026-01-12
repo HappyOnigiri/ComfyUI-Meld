@@ -23,12 +23,12 @@ from py.load_image_configs.nodes import (  # noqa: E402
 
 
 class TestNodeInterfaces(unittest.TestCase):
-    def test_metadata_helper_has_extract_metadata(self):
+    def test_metadata_helper_has_extract_metadata(self) -> None:
         """Confirm that MetadataHelper has the extract_metadata method"""
         self.assertTrue(hasattr(MetadataHelper, "extract_metadata"))
         self.assertTrue(callable(MetadataHelper.extract_metadata))
 
-    def test_extract_metadata_interface(self):
+    def test_extract_metadata_interface(self) -> None:
         """Confirm that the return type and count of extract_metadata are correct (currently 7)"""
         # Mock PIL.Image.open
         with patch("PIL.Image.open") as mock_open:
@@ -54,7 +54,7 @@ class TestNodeInterfaces(unittest.TestCase):
                 self.assertEqual(res[5], "a1111")
                 self.assertIsInstance(res[6], str)
 
-    def test_node_classes_structure(self):
+    def test_node_classes_structure(self) -> None:
         """Confirm that node classes have the structure expected by ComfyUI"""
         for node_class in [MeldImageLoader, MeldImageLoaderBatch]:
             with self.subTest(node_class=node_class):
@@ -70,7 +70,7 @@ class TestNodeInterfaces(unittest.TestCase):
                 func_name = getattr(node_class, "FUNCTION")
                 self.assertTrue(hasattr(node_class, func_name))
 
-    def test_load_image_configs_call_interface(self):
+    def test_load_image_configs_call_interface(self) -> None:
         """Confirm that MeldImageLoader.load returns the correct format and count of outputs"""
         node = MeldImageLoader()
 
@@ -125,7 +125,7 @@ class TestNodeInterfaces(unittest.TestCase):
             self.assertIn("log_ckpt", summary)
             self.assertIn("[Model]", summary)
 
-    def test_load_image_configs_batch_call_interface(self):
+    def test_load_image_configs_batch_call_interface(self) -> None:
         """Confirm that MeldImageLoaderBatch.load_batch returns the correct format and count of outputs"""
         node = MeldImageLoaderBatch()
 
@@ -162,7 +162,7 @@ class TestNodeInterfaces(unittest.TestCase):
             self.assertEqual(res[1], "MODEL")
             self.assertIn("Batch Info", res[6])  # summary
 
-    def test_unpack_base_settings(self):
+    def test_unpack_base_settings(self) -> None:
         """Confirm that MeldSettingsUnpacker correctly unpacks the dictionary"""
         node = MeldSettingsUnpacker()
         settings = {

@@ -17,7 +17,7 @@ from py.load_image_configs import MetadataHelper  # noqa: E402
 
 
 class TestFuzzySearch(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         # Define available models list
         self.available_models = [
             "SDXL_v1.0.safetensors",
@@ -29,7 +29,7 @@ class TestFuzzySearch(unittest.TestCase):
         # Use type: ignore because folder_paths is mocked via sys.modules
         folder_paths.get_filename_list.return_value = self.available_models  # type: ignore
 
-    def test_exact_match(self):
+    def test_exact_match(self) -> None:
         """Test for exact match"""
         query = "SDXL_v1.0.safetensors"
         match, score, log = MetadataHelper.find_best_match_model(query)
@@ -37,7 +37,7 @@ class TestFuzzySearch(unittest.TestCase):
         self.assertEqual(score, 1.0)
         self.assertIn("Exact match", log)
 
-    def test_exact_match_no_extension(self):
+    def test_exact_match_no_extension(self) -> None:
         """Test for exact match without extension"""
         query = "SDXL_v1.0"
         match, score, log = MetadataHelper.find_best_match_model(query)
@@ -45,7 +45,7 @@ class TestFuzzySearch(unittest.TestCase):
         self.assertEqual(score, 1.0)
         self.assertIn("Exact match", log)
 
-    def test_fuzzy_match_version_diff(self):
+    def test_fuzzy_match_version_diff(self) -> None:
         """Fuzzy search for version differences, etc."""
         query = "RealVision_v5.0.safetensors"
         # RealVision_v4.0 and RealVision_v5.0 are very similar
@@ -54,7 +54,7 @@ class TestFuzzySearch(unittest.TestCase):
         self.assertGreater(score, 0.8)
         self.assertIn("Best match", log)
 
-    def test_fuzzy_match_case_and_symbol(self):
+    def test_fuzzy_match_case_and_symbol(self) -> None:
         """Differences in casing and symbols"""
         query = "Pony-Diffusion-V6-XL"
         match, score, log = MetadataHelper.find_best_match_model(query)
@@ -63,7 +63,7 @@ class TestFuzzySearch(unittest.TestCase):
         self.assertGreater(score, 0.6)
         self.assertIn("Best match", log)
 
-    def test_match_even_with_low_similarity(self):
+    def test_match_even_with_low_similarity(self) -> None:
         """Return the closest match even if similarity is low"""
         query = "Completely_Different_Model.safetensors"
         match, score, log = MetadataHelper.find_best_match_model(query)
@@ -71,14 +71,14 @@ class TestFuzzySearch(unittest.TestCase):
         self.assertIsNotNone(match)
         self.assertIn("Best match", log)
 
-    def test_path_handling(self):
+    def test_path_handling(self) -> None:
         """Handling of paths including subdirectories"""
         query = "model_v2"
         match, score, log = MetadataHelper.find_best_match_model(query)
         self.assertEqual(match, "checkpoints\\subfolder\\model_v2.ckpt")
         self.assertEqual(score, 1.0)
 
-    def test_calculate_similarity_values(self):
+    def test_calculate_similarity_values(self) -> None:
         """Confirm the values of the similarity calculation itself"""
         # Identical
         self.assertEqual(MetadataHelper.calculate_similarity("test", "test.safetensors"), 1.0)

@@ -11,10 +11,10 @@ from py.pixelate.nodes import MeldPixelate
 
 
 class TestPixelate(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.node = MeldPixelate()
 
-    def test_node_interface(self):
+    def test_node_interface(self) -> None:
         """Confirm that the node interface matches ComfyUI's expectations"""
         self.assertTrue(hasattr(MeldPixelate, "INPUT_TYPES"))
         self.assertTrue(hasattr(MeldPixelate, "RETURN_TYPES"))
@@ -29,7 +29,7 @@ class TestPixelate(unittest.TestCase):
         self.assertEqual(MeldPixelate.RETURN_TYPES, ("IMAGE",))
         self.assertEqual(MeldPixelate.FUNCTION, "apply_mosaic")
 
-    def test_apply_mosaic_basic(self):
+    def test_apply_mosaic_basic(self) -> None:
         """Confirm that basic mosaic processing works correctly and maintains the original size"""
         # [Batch, Height, Width, Channels]
         dummy_image = torch.zeros((1, 64, 64, 3))
@@ -57,7 +57,7 @@ class TestPixelate(unittest.TestCase):
         self.assertTrue(torch.all(result[0, 0:block_start_h, :, :] == 0))
         self.assertTrue(torch.all(result[0, block_end_h:, :, :] == 0))
 
-    def test_apply_mosaic_batch(self):
+    def test_apply_mosaic_batch(self) -> None:
         """Confirm that batch processing is handled correctly"""
         batch_size = 2
         dummy_images = torch.rand((batch_size, 32, 32, 3))
@@ -67,7 +67,7 @@ class TestPixelate(unittest.TestCase):
 
         self.assertEqual(result.shape, (batch_size, 32, 32, 3))
 
-    def test_apply_mosaic_min_scale(self):
+    def test_apply_mosaic_min_scale(self) -> None:
         """Confirm that there is no substantial change when mosaic_scale=1 (due to nearest-exact properties)"""
         dummy_image = torch.rand((1, 16, 16, 3))
         mosaic_scale = 1
@@ -77,7 +77,7 @@ class TestPixelate(unittest.TestCase):
         # Should be identical if scale=1
         self.assertTrue(torch.allclose(dummy_image, result))
 
-    def test_apply_mosaic_large_scale(self):
+    def test_apply_mosaic_large_scale(self) -> None:
         """Confirm that it results in 1x1 without error even if mosaic_scale is larger than the image size"""
         dummy_image = torch.rand((1, 8, 8, 3))
         mosaic_scale = 16  # Larger than image size

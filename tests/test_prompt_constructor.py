@@ -8,12 +8,12 @@ from py.prompt_constructor.nodes import MeldPromptConstructor
 
 
 class TestPromptConstructor(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.node = MeldPromptConstructor()
 
     # --- Unit Tests for Helper Methods ---
 
-    def test_split_by_comma(self):
+    def test_split_by_comma(self) -> None:
         # Normal splitting
         self.assertEqual(self.node._split_by_comma("a, b, c"), ["a", "b", "c"])
         # With parentheses
@@ -23,7 +23,7 @@ class TestPromptConstructor(unittest.TestCase):
         # Empty string
         self.assertEqual(self.node._split_by_comma(""), [])
 
-    def test_process_dynamic_syntax(self):
+    def test_process_dynamic_syntax(self) -> None:
         # Basic choice
         random.seed(42)
         # {A|B} with seed 42
@@ -44,7 +44,7 @@ class TestPromptConstructor(unittest.TestCase):
         result = self.node._process_dynamic_syntax(text)
         self.assertIn(result, ["A", "B"])
 
-    def test_extract_negatives_by_hyphen(self):
+    def test_extract_negatives_by_hyphen(self) -> None:
         # Single negative
         pos, neg = self.node._extract_negatives_by_hyphen("sky, -cloud")
         self.assertEqual(pos, "sky")
@@ -76,7 +76,7 @@ class TestPromptConstructor(unittest.TestCase):
         self.assertEqual(pos, "sky, tree")
         self.assertEqual(neg, "cloud, water, fire")
 
-    def test_sanitize_output(self):
+    def test_sanitize_output(self) -> None:
         self.assertEqual(self.node._sanitize_output("  tag1 ,  tag2  ,, tag3  "), "tag1, tag2, tag3")
         self.assertEqual(self.node._sanitize_output("tag1   tag2"), "tag1 tag2")
         self.assertEqual(self.node._sanitize_output(", tag1,"), "tag1")
@@ -84,7 +84,7 @@ class TestPromptConstructor(unittest.TestCase):
 
     # --- Tests for File Cleaning ---
 
-    def test_read_and_clean_file(self):
+    def test_read_and_clean_file(self) -> None:
         with tempfile.NamedTemporaryFile(mode="w", delete=False, encoding="utf-8") as f:
             f.write("// line comment\n")
             f.write("line1 # hash comment\n")
@@ -104,7 +104,7 @@ class TestPromptConstructor(unittest.TestCase):
 
     # --- Integration Tests for process() ---
 
-    def test_process_integration(self):
+    def test_process_integration(self) -> None:
         # Create a temporary directory structure
         test_dir = tempfile.mkdtemp()
         try:

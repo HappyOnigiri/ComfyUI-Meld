@@ -19,7 +19,7 @@ from py.load_image_configs import MetadataHelper  # noqa: E402
 
 
 class TestMetadataParser(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.data_dir = os.path.join(os.path.dirname(__file__), "data", "metadata_parser")
         self.pattern_png_path = os.path.join(self.data_dir, "pattern_png.metadata")
         self.pattern_webp_exif_path = os.path.join(self.data_dir, "pattern_webp_exif.metadata")
@@ -31,7 +31,7 @@ class TestMetadataParser(unittest.TestCase):
         self.json_5_path = os.path.join(self.data_dir, "5.json")
         self.json_6_path = os.path.join(self.data_dir, "6.json")
 
-    def _parse_exiftool_txt(self, path):
+    def _parse_exiftool_txt(self, path: str) -> dict:
         data = {}
         with open(path, "r", encoding="utf-8") as f:
             for line in f:
@@ -40,7 +40,7 @@ class TestMetadataParser(unittest.TestCase):
                     data[key.strip()] = value.strip()
         return data
 
-    def test_extract_from_pattern_png(self):
+    def test_extract_from_pattern_png(self) -> None:
         meta = self._parse_exiftool_txt(self.pattern_png_path)
         info = {"workflow": meta.get("Workflow"), "prompt": meta.get("Prompt")}
         res = MetadataHelper.extract_from_data(info)
@@ -50,7 +50,7 @@ class TestMetadataParser(unittest.TestCase):
         self.assertIn("(worst quality, low quality:1.4), multiple people", negative)
         self.assertEqual(model_name, "Illustrious\\novaAnimeXL_ilV130.safetensors")
 
-    def test_extract_from_json_1(self):
+    def test_extract_from_json_1(self) -> None:
         """1.json: Standard Workflow format"""
         with open(self.json_1_path, "r", encoding="utf-8") as f:
             workflow_data = json.load(f)
@@ -75,7 +75,7 @@ class TestMetadataParser(unittest.TestCase):
         self.assertEqual(w, 512)
         self.assertEqual(h, 512)
 
-    def test_extract_from_json_2(self):
+    def test_extract_from_json_2(self) -> None:
         """2.json: API format (prompt JSON)"""
         with open(self.json_2_path, "r", encoding="utf-8") as f:
             prompt_data = json.load(f)
@@ -99,7 +99,7 @@ class TestMetadataParser(unittest.TestCase):
         self.assertEqual(params["sampler_name"], "euler_ancestral")
         self.assertEqual(params["scheduler"], "karras")
 
-    def test_extract_from_json_3(self):
+    def test_extract_from_json_3(self) -> None:
         """3.json: Standard Workflow format"""
         with open(self.json_3_path, "r", encoding="utf-8") as f:
             workflow_data = json.load(f)
@@ -118,7 +118,7 @@ class TestMetadataParser(unittest.TestCase):
         self.assertEqual(params["sampler_name"], "euler_ancestral")
         self.assertEqual(params["scheduler"], "simple")
 
-    def test_extract_from_json_4(self):
+    def test_extract_from_json_4(self) -> None:
         """4.json: Complex Workflow including subgraphs"""
         with open(self.json_4_path, "r", encoding="utf-8") as f:
             workflow_data = json.load(f)
@@ -143,7 +143,7 @@ class TestMetadataParser(unittest.TestCase):
         self.assertEqual(w, 1024)
         self.assertEqual(h, 1024)
 
-    def test_extract_from_json_5(self):
+    def test_extract_from_json_5(self) -> None:
         """5.json: Standard Workflow format"""
         with open(self.json_5_path, "r", encoding="utf-8") as f:
             workflow_data = json.load(f)
@@ -159,7 +159,7 @@ class TestMetadataParser(unittest.TestCase):
         self.assertEqual(params["steps"], 10)
         self.assertEqual(params["cfg"], 5.0)
 
-    def test_extract_from_json_6(self):
+    def test_extract_from_json_6(self) -> None:
         """6.json: Workflow including subgraphs"""
         with open(self.json_6_path, "r", encoding="utf-8") as f:
             workflow_data = json.load(f)
@@ -172,7 +172,7 @@ class TestMetadataParser(unittest.TestCase):
         params, found = MetadataHelper.get_ksampler_params(workflow_data, [])
         self.assertTrue(found)
 
-    def test_extract_from_pattern_webp_exif(self):
+    def test_extract_from_pattern_webp_exif(self) -> None:
         meta = self._parse_exiftool_txt(self.pattern_webp_exif_path)
         exif = {271: meta.get("Make"), 272: meta.get("Model")}
         info = {}
@@ -183,7 +183,7 @@ class TestMetadataParser(unittest.TestCase):
         self.assertIn("(worst quality, low quality:1.4)", negative)
         self.assertEqual(model_name, "Illustrious\\novaAnimeXL_ilV130.safetensors")
 
-    def test_extract_from_pattern_webp_desc(self):
+    def test_extract_from_pattern_webp_desc(self) -> None:
         meta = self._parse_exiftool_txt(self.pattern_webp_desc_path)
         exif = {270: meta.get("ImageDescription"), 271: meta.get("Make")}
         info = {}
@@ -193,7 +193,7 @@ class TestMetadataParser(unittest.TestCase):
         self.assertIn("(masterpiece, best quality:1.2)", positive)
         self.assertIn("(worst quality, low quality:1.4)", negative)
 
-    def test_log_truncation(self):
+    def test_log_truncation(self) -> None:
         long_positive = "a" * 60
         long_negative = "b" * 60
         workflow_data = {
