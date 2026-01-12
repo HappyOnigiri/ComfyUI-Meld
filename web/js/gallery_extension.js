@@ -7772,7 +7772,7 @@ Physical files will also be permanently deleted. This operation cannot be undone
                 paddingTop: "4px"
               },
               children: [
-                /* @__PURE__ */ c.jsxs(
+                /* @__PURE__ */ c.jsx(
                   "button",
                   {
                     type: "button",
@@ -7784,16 +7784,13 @@ Physical files will also be permanently deleted. This operation cannot be undone
                       cursor: "pointer",
                       display: "flex",
                       alignItems: "center",
-                      gap: "5px",
                       fontWeight: o ? "bold" : "normal"
                     },
-                    children: [
-                      /* @__PURE__ */ c.jsx(vc, { size: 14 }),
-                      "Search"
-                    ]
+                    title: "Search",
+                    children: /* @__PURE__ */ c.jsx(vc, { size: 14 })
                   }
                 ),
-                /* @__PURE__ */ c.jsxs(
+                /* @__PURE__ */ c.jsx(
                   "button",
                   {
                     type: "button",
@@ -7804,16 +7801,13 @@ Physical files will also be permanently deleted. This operation cannot be undone
                       color: "#888",
                       cursor: "pointer",
                       display: "flex",
-                      alignItems: "center",
-                      gap: "5px"
+                      alignItems: "center"
                     },
-                    children: [
-                      /* @__PURE__ */ c.jsx(mp, { size: 14 }),
-                      "Import"
-                    ]
+                    title: "Import",
+                    children: /* @__PURE__ */ c.jsx(mp, { size: 14 })
                   }
                 ),
-                /* @__PURE__ */ c.jsxs(
+                /* @__PURE__ */ c.jsx(
                   "button",
                   {
                     type: "button",
@@ -7824,23 +7818,20 @@ Physical files will also be permanently deleted. This operation cannot be undone
                       color: "#888",
                       cursor: "pointer",
                       display: "flex",
-                      alignItems: "center",
-                      gap: "5px"
+                      alignItems: "center"
                     },
                     disabled: e.isLoading,
-                    children: [
-                      /* @__PURE__ */ c.jsx(
-                        gc,
-                        {
-                          size: 14,
-                          className: e.isLoading ? "animate-spin" : ""
-                        }
-                      ),
-                      "Refresh"
-                    ]
+                    title: "Refresh",
+                    children: /* @__PURE__ */ c.jsx(
+                      gc,
+                      {
+                        size: 14,
+                        className: e.isLoading ? "animate-spin" : ""
+                      }
+                    )
                   }
                 ),
-                /* @__PURE__ */ c.jsxs(
+                /* @__PURE__ */ c.jsx(
                   "button",
                   {
                     type: "button",
@@ -7851,14 +7842,10 @@ Physical files will also be permanently deleted. This operation cannot be undone
                       color: "#888",
                       cursor: "pointer",
                       display: "flex",
-                      alignItems: "center",
-                      gap: "5px"
+                      alignItems: "center"
                     },
                     title: "Settings",
-                    children: [
-                      /* @__PURE__ */ c.jsx(xp, { size: 14 }),
-                      "Settings"
-                    ]
+                    children: /* @__PURE__ */ c.jsx(xp, { size: 14 })
                   }
                 )
               ]

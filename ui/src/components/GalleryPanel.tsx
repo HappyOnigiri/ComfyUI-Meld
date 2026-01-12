@@ -113,12 +113,11 @@ export const GalleryPanel: React.FC = () => {
 							cursor: "pointer",
 							display: "flex",
 							alignItems: "center",
-							gap: "5px",
 							fontWeight: isSearchActive ? "bold" : "normal",
 						}}
+						title="Search"
 					>
 						<Search size={14} />
-						Search
 					</button>
 					<button
 						type="button"
@@ -132,11 +131,10 @@ export const GalleryPanel: React.FC = () => {
 							cursor: "pointer",
 							display: "flex",
 							alignItems: "center",
-							gap: "5px",
 						}}
+						title="Import"
 					>
 						<Download size={14} />
-						Import
 					</button>
 					<button
 						type="button"
@@ -148,15 +146,14 @@ export const GalleryPanel: React.FC = () => {
 							cursor: "pointer",
 							display: "flex",
 							alignItems: "center",
-							gap: "5px",
 						}}
 						disabled={state.isLoading}
+						title="Refresh"
 					>
 						<RefreshCw
 							size={14}
 							className={state.isLoading ? "animate-spin" : ""}
 						/>
-						Refresh
 					</button>
 					<button
 						type="button"
@@ -170,12 +167,10 @@ export const GalleryPanel: React.FC = () => {
 							cursor: "pointer",
 							display: "flex",
 							alignItems: "center",
-							gap: "5px",
 						}}
 						title="Settings"
 					>
 						<Settings size={14} />
-						Settings
 					</button>
 				</div>
 				{isSearchVisible && (
