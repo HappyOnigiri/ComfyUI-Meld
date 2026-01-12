@@ -186,9 +186,12 @@ export const ImageViewer: React.FC = () => {
 				className={`meld-viewer-content ${isFullscreen ? "meld-viewer-content--fullscreen" : ""}`}
 				onClick={(e) => e.stopPropagation()}
 			>
-				<div className="meld-viewer-info">
-					<div className="meld-viewer-filename">{image.filename}</div>
-				</div>
+				{((!isFullscreen && state.settings["viewer.show_filename"]) ||
+					(isFullscreen && state.settings["fullscreen.show_filename"])) && (
+					<div className="meld-viewer-info">
+						<div className="meld-viewer-filename">{image.filename}</div>
+					</div>
+				)}
 				<div className="meld-viewer-actions">
 					<button
 						className="meld-viewer-action-btn"

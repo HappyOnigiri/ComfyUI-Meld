@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { useGallery } from "../store/GalleryContext";
 import type { Settings } from "../types";
 
-type Category = "General" | "Sidebar" | "Search";
+type Category = "General" | "Sidebar" | "Search" | "View" | "Full Screen";
 
 export const SettingsModal: React.FC = () => {
 	const { state, dispatch, updateSetting } = useGallery();
@@ -91,6 +91,20 @@ export const SettingsModal: React.FC = () => {
 			type: "boolean",
 			category: "Search",
 		},
+		{
+			key: "viewer.show_filename",
+			label: "Show Filename",
+			description: "Display the filename in the image viewer.",
+			type: "boolean",
+			category: "View",
+		},
+		{
+			key: "fullscreen.show_filename",
+			label: "Show Filename",
+			description: "Display the filename in fullscreen mode.",
+			type: "boolean",
+			category: "Full Screen",
+		},
 	];
 
 	const handleToggle = (key: keyof Settings, currentValue: boolean) => {
@@ -142,6 +156,20 @@ export const SettingsModal: React.FC = () => {
 						onClick={() => setActiveTab("Search")}
 					>
 						Search
+					</button>
+					<button
+						type="button"
+						className={`meld-tab ${activeTab === "View" ? "active" : ""}`}
+						onClick={() => setActiveTab("View")}
+					>
+						View
+					</button>
+					<button
+						type="button"
+						className={`meld-tab ${activeTab === "Full Screen" ? "active" : ""}`}
+						onClick={() => setActiveTab("Full Screen")}
+					>
+						Full Screen
 					</button>
 				</div>
 
