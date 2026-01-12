@@ -45,6 +45,7 @@ select = [
     "N",    # pep8-naming
     "I",    # isort
     "W",    # pycodestyle warnings
+    "ANN",  # flake8-annotations: enforce type annotations for functions
 ]
 ignore = [
     "N802", # Function name should be lowercase
