@@ -6,6 +6,10 @@ export interface MeldImage {
 	created_at: number;
 	positive: string;
 	negative: string;
+	positive_prompt?: string | null;
+	negative_prompt?: string | null;
+	model_name?: string | null;
+	workflow?: string | null;
 	tags: string[];
 	phash?: string;
 	sha256?: string;

@@ -218,13 +218,13 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 						e.stopPropagation();
 						setPopupContent({
 							title: "Positive Prompt",
-							text: image.positive || "-",
+							text: image.positive_prompt || image.positive || "-",
 						});
 					}}
 				>
 					<div className="meld-image-card__meta-label">Positive</div>
 					<div className="meld-image-card__meta-content">
-						{image.positive || "-"}
+						{image.positive_prompt || image.positive || "-"}
 					</div>
 				</div>
 
@@ -234,13 +234,13 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 						e.stopPropagation();
 						setPopupContent({
 							title: "Negative Prompt",
-							text: image.negative || "-",
+							text: image.negative_prompt || image.negative || "-",
 						});
 					}}
 				>
 					<div className="meld-image-card__meta-label">Negative</div>
 					<div className="meld-image-card__meta-content">
-						{image.negative || "-"}
+						{image.negative_prompt || image.negative || "-"}
 					</div>
 				</div>
 
