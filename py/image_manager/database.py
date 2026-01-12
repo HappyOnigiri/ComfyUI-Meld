@@ -168,6 +168,14 @@ def init_db():
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_tag_rel_tagid ON tag_image_relations(tag_id)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_model_rel_mid ON model_image_relations(model_id)")
 
+    # New indices for performance improvement (2026-01-12)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_images_sha256 ON images(sha256)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_images_phash ON images(phash)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_images_filename_subfolder ON images(filename, subfolder)")
+
+    # Optimize list query (is_deleted filter + sort)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_images_is_deleted_created_at ON images(is_deleted, created_at)")
+
     # Data Migration: model_name -> models table
     try:
         cursor.execute("SELECT id, model_name FROM images WHERE model_name IS NOT NULL AND model_name != ''")
