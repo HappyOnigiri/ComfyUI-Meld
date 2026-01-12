@@ -69,6 +69,9 @@ class SearchService:
                 # Search across all tables
                 global_ids_sql = []
                 for prefix, (table, rel_table, rel_id) in cls.PREFIX_MAP.items():
+                    # Exclude negative prompts from global search
+                    if prefix == "neg":
+                        continue
                     if cond["is_partial"]:
                         global_ids_sql.append(
                             f"SELECT image_id FROM {rel_table} WHERE {rel_id} IN (SELECT id FROM {table} WHERE name LIKE ?)"
