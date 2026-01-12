@@ -8,6 +8,7 @@ import type { MeldImage, Settings } from "./types";
 export const fetchImages = async (
 	offset = 0,
 	limit = 30,
+	query = "",
 ): Promise<{
 	images: MeldImage[];
 	total: number;
@@ -15,10 +16,28 @@ export const fetchImages = async (
 	limit: number;
 }> => {
 	const res = await api.fetchApi(
-		`/meld-nexus/list?offset=${offset}&limit=${limit}`,
+		`/meld-nexus/list?offset=${offset}&limit=${limit}&query=${encodeURIComponent(query)}`,
 	);
 	if (!res.ok) {
 		throw new Error(`Failed to fetch images: ${res.statusText}`);
+	}
+	return await res.json();
+};
+
+export const fetchSuggestions = async (
+	query: string,
+): Promise<
+	{
+		type: string;
+		value: string;
+		count: number;
+	}[]
+> => {
+	const res = await api.fetchApi(
+		`/meld-nexus/suggest?query=${encodeURIComponent(query)}`,
+	);
+	if (!res.ok) {
+		return [];
 	}
 	return await res.json();
 };

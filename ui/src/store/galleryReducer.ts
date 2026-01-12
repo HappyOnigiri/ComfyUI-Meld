@@ -31,6 +31,7 @@ export const initialState: GalleryState = {
 		limit: 30,
 		hasMore: false,
 	},
+	searchQuery: "",
 };
 
 export function galleryReducer(
@@ -206,7 +207,14 @@ export function galleryReducer(
 			const currentList =
 				state.viewerMode === "lineage" && state.lineageImages.length > 0
 					? state.lineageImages
-					: state.images;
+					: state.images.filter(
+							(img) =>
+								img.exists !== false &&
+								!(
+									state.settings["gallery.hide_parent_images"] &&
+									img.has_children
+								),
+						);
 
 			if (state.viewerImageId === null || currentList.length === 0)
 				return state;
@@ -234,7 +242,14 @@ export function galleryReducer(
 			const currentList =
 				state.viewerMode === "lineage" && state.lineageImages.length > 0
 					? state.lineageImages
-					: state.images;
+					: state.images.filter(
+							(img) =>
+								img.exists !== false &&
+								!(
+									state.settings["gallery.hide_parent_images"] &&
+									img.has_children
+								),
+						);
 
 			if (state.viewerImageId === null || currentList.length === 0)
 				return state;
@@ -278,6 +293,11 @@ export function galleryReducer(
 					...state.settings,
 					...action.payload,
 				},
+			};
+		case "SET_SEARCH_QUERY":
+			return {
+				...state,
+				searchQuery: action.payload,
 			};
 		default:
 			return state;

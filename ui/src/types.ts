@@ -68,6 +68,7 @@ export interface GalleryState {
 		limit: number;
 		hasMore: boolean;
 	};
+	searchQuery: string;
 }
 
 export type GalleryAction =
@@ -108,7 +109,8 @@ export type GalleryAction =
 	| { type: "OPEN_MODAL"; payload: ActiveModal }
 	| { type: "CLOSE_MODAL" }
 	| { type: "SET_SCAN_STATUS"; payload: Partial<ScanStatus> }
-	| { type: "SET_SETTINGS"; payload: Partial<Settings> };
+	| { type: "SET_SETTINGS"; payload: Partial<Settings> }
+	| { type: "SET_SEARCH_QUERY"; payload: string };
 
 export interface ComfyApp {
 	registerExtension(extension: ComfyExtension): void;

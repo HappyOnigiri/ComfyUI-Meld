@@ -8,6 +8,7 @@ import { ImageCard } from "./ImageCard";
 import { ImageViewer } from "./ImageViewer";
 import { ImportModal } from "./ImportModal";
 import { ParentSelectionModal } from "./ParentSelectionModal";
+import { SearchBar } from "./SearchBar";
 import { SettingsModal } from "./SettingsModal";
 import "../styles/Gallery.css";
 
@@ -83,68 +84,80 @@ export const GalleryPanel: React.FC = () => {
 			<div
 				style={{
 					display: "flex",
-					justifyContent: "flex-end",
-					marginBottom: "10px",
-					gap: "15px",
+					justifyContent: "space-between",
+					alignItems: "flex-start",
+					marginBottom: "15px",
+					gap: "20px",
 				}}
 			>
-				<button
-					type="button"
-					onClick={() =>
-						dispatch({ type: "OPEN_MODAL", payload: { type: "import" } })
-					}
+				<SearchBar />
+				<div
 					style={{
-						background: "none",
-						border: "none",
-						color: "#888",
-						cursor: "pointer",
 						display: "flex",
-						alignItems: "center",
-						gap: "5px",
+						justifyContent: "flex-end",
+						gap: "15px",
+						flexShrink: 0,
+						paddingTop: "4px",
 					}}
 				>
-					<Download size={14} />
-					Import
-				</button>
-				<button
-					type="button"
-					onClick={() => refreshImages()}
-					style={{
-						background: "none",
-						border: "none",
-						color: "#888",
-						cursor: "pointer",
-						display: "flex",
-						alignItems: "center",
-						gap: "5px",
-					}}
-					disabled={state.isLoading}
-				>
-					<RefreshCw
-						size={14}
-						className={state.isLoading ? "animate-spin" : ""}
-					/>
-					Refresh
-				</button>
-				<button
-					type="button"
-					onClick={() =>
-						dispatch({ type: "OPEN_MODAL", payload: { type: "settings" } })
-					}
-					style={{
-						background: "none",
-						border: "none",
-						color: "#888",
-						cursor: "pointer",
-						display: "flex",
-						alignItems: "center",
-						gap: "5px",
-					}}
-					title="Settings"
-				>
-					<Settings size={14} />
-					Settings
-				</button>
+					<button
+						type="button"
+						onClick={() =>
+							dispatch({ type: "OPEN_MODAL", payload: { type: "import" } })
+						}
+						style={{
+							background: "none",
+							border: "none",
+							color: "#888",
+							cursor: "pointer",
+							display: "flex",
+							alignItems: "center",
+							gap: "5px",
+						}}
+					>
+						<Download size={14} />
+						Import
+					</button>
+					<button
+						type="button"
+						onClick={() => refreshImages()}
+						style={{
+							background: "none",
+							border: "none",
+							color: "#888",
+							cursor: "pointer",
+							display: "flex",
+							alignItems: "center",
+							gap: "5px",
+						}}
+						disabled={state.isLoading}
+					>
+						<RefreshCw
+							size={14}
+							className={state.isLoading ? "animate-spin" : ""}
+						/>
+						Refresh
+					</button>
+					<button
+						type="button"
+						onClick={() =>
+							dispatch({ type: "OPEN_MODAL", payload: { type: "settings" } })
+						}
+						style={{
+							background: "none",
+							border: "none",
+							color: "#888",
+							cursor: "pointer",
+							display: "flex",
+							alignItems: "center",
+							gap: "5px",
+						}}
+						title="Settings"
+					>
+						<Settings size={14} />
+						Settings
+					</button>
+				</div>
 			</div>
 
 			{state.error && <div className="meld-gallery__error">{state.error}</div>}

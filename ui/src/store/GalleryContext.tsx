@@ -34,7 +34,11 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 	const refreshImages = useCallback(async () => {
 		dispatch({ type: "SET_LOADING", payload: true });
 		try {
-			const result = await api.fetchImages(0, state.pagination.limit);
+			const result = await api.fetchImages(
+				0,
+				state.pagination.limit,
+				state.searchQuery,
+			);
 			dispatch({ type: "SET_IMAGES", payload: result });
 		} catch (err: unknown) {
 			dispatch({
@@ -42,7 +46,7 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 				payload: err instanceof Error ? err.message : String(err),
 			});
 		}
-	}, [state.pagination.limit]);
+	}, [state.pagination.limit, state.searchQuery]);
 
 	const loadMoreImages = useCallback(async () => {
 		if (state.isLoading || !state.pagination.hasMore) return;
@@ -50,7 +54,11 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 		dispatch({ type: "SET_LOADING", payload: true });
 		try {
 			const nextOffset = state.images.length;
-			const result = await api.fetchImages(nextOffset, state.pagination.limit);
+			const result = await api.fetchImages(
+				nextOffset,
+				state.pagination.limit,
+				state.searchQuery,
+			);
 			dispatch({ type: "APPEND_IMAGES", payload: result });
 		} catch (err: unknown) {
 			dispatch({
@@ -63,6 +71,7 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 		state.pagination.hasMore,
 		state.pagination.limit,
 		state.images.length,
+		state.searchQuery,
 	]);
 
 	const deleteSelected = useCallback(async () => {

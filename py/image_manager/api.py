@@ -24,6 +24,7 @@ from .database import (
     get_or_create_model,
     upsert_setting,
 )
+from .search_service import SearchService
 
 _scan_state = {"is_running": False, "should_cancel": False}
 
@@ -616,22 +617,41 @@ async def register_image(request):
         return web.json_response({"error": "internal error"}, status=500)
 
 
+@server.PromptServer.instance.routes.get("/api/meld-nexus/suggest")
+async def suggest_endpoint(request):
+    try:
+        query = request.query.get("query", "")
+        if not query:
+            return web.json_response([])
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        suggestions = SearchService.get_suggestions(cursor, query)
+        conn.close()
+        return web.json_response(suggestions)
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
 @server.PromptServer.instance.routes.get("/api/meld-nexus/list")
 async def list_images(request):
     try:
         offset = int(request.query.get("offset", 0))
         limit = int(request.query.get("limit", 1000000))
+        query_str = request.query.get("query", "")
 
         conn = get_db_connection()
         cursor = conn.cursor()
 
+        search_sql, search_params = SearchService.build_search_sql(query_str)
+
         # Get total count
-        cursor.execute("SELECT COUNT(*) FROM images WHERE is_deleted = 0")
+        count_sql = f"SELECT COUNT(*) FROM images i WHERE i.is_deleted = 0{search_sql}"
+        cursor.execute(count_sql, search_params)
         total_count = cursor.fetchone()[0]
 
         # Fetch images with basic info
-        cursor.execute(
-            """
+        fetch_sql = f"""
             SELECT i.id, i.filename, i.subfolder, i.type, i.created_at, i.phash, i.sha256, i.parent_id,
                    p.filename as parent_filename, p.subfolder as parent_subfolder, p.type as parent_type,
                    EXISTS(SELECT 1 FROM images c WHERE c.parent_id = i.id AND c.is_deleted = 0) as has_children,
@@ -641,10 +661,9 @@ async def list_images(request):
                     WHERE mir.image_id = i.id) as model_name,
                    i.workflow
             FROM images i LEFT JOIN images p ON i.parent_id = p.id
-            WHERE i.is_deleted = 0 ORDER BY i.created_at DESC LIMIT ? OFFSET ?
-        """,
-            (limit, offset),
-        )
+            WHERE i.is_deleted = 0{search_sql} ORDER BY i.created_at DESC LIMIT ? OFFSET ?
+        """
+        cursor.execute(fetch_sql, (*search_params, limit, offset))
         images = cursor.fetchall()
 
         result_list = []

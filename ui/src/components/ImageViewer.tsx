@@ -19,6 +19,15 @@ export const ImageViewer: React.FC = () => {
 	const [isFullscreen, setIsFullscreen] = useState(false);
 	const [isLoadingLineage, setIsLoadingLineage] = useState(false);
 
+	const currentThumbnails =
+		viewerMode === "lineage"
+			? lineageImages
+			: images.filter(
+					(img) =>
+						img.exists !== false &&
+						!(state.settings["gallery.hide_parent_images"] && img.has_children),
+				);
+
 	const image = (
 		viewerMode === "lineage" && lineageImages.length > 0
 			? lineageImages
@@ -54,21 +63,23 @@ export const ImageViewer: React.FC = () => {
 			return;
 		}
 
-		const currentIndex = images.findIndex((img) => img.id === viewerImageId);
+		const currentIndex = currentThumbnails.findIndex(
+			(img) => img.id === viewerImageId,
+		);
 		if (currentIndex === -1) return;
 
 		// Trigger load more when 15 images from the end
-		if (currentIndex >= images.length - 15) {
+		if (currentIndex >= currentThumbnails.length - 15) {
 			loadMoreImages();
 		}
 	}, [
 		viewerImageId,
-		images.length,
+		currentThumbnails.length,
 		viewerMode,
 		state.isLoading,
 		state.pagination.hasMore,
 		loadMoreImages,
-		images,
+		currentThumbnails,
 	]);
 
 	useEffect(() => {
@@ -155,8 +166,6 @@ export const ImageViewer: React.FC = () => {
 	const imgSrc = `/api/view?filename=${encodeURIComponent(image.filename)}&type=${image.type || "output"}${
 		image.subfolder ? `&subfolder=${encodeURIComponent(image.subfolder)}` : ""
 	}`;
-
-	const currentThumbnails = viewerMode === "lineage" ? lineageImages : images;
 
 	return (
 		<div
