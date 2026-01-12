@@ -7555,35 +7555,35 @@ Physical files will also be permanently deleted. This operation cannot be undone
     }
   );
 }, Ap = () => {
-  const { state: e, dispatch: t, refreshImages: n, loadMoreImages: r } = xt(), [l, i] = I.useState(!1), o = I.useRef(null), s = e.images.filter(
-    (a) => a.exists !== !1 && !(e.settings["gallery.hide_parent_images"] && a.has_children)
+  const { state: e, dispatch: t, refreshImages: n, loadMoreImages: r } = xt(), [l, i] = I.useState(!1), o = e.searchQuery.trim() !== "", s = I.useRef(null), a = e.images.filter(
+    (f) => f.exists !== !1 && !(e.settings["gallery.hide_parent_images"] && f.has_children)
   );
   return I.useEffect(() => {
-    !e.isLoading && e.pagination.hasMore && e.images.length > 0 && s.length === 0 && (Ee.log(
+    !e.isLoading && e.pagination.hasMore && e.images.length > 0 && a.length === 0 && (Ee.log(
       "GalleryPanel: Auto-loading more because all loaded images are hidden"
     ), r());
   }, [
     e.isLoading,
     e.pagination.hasMore,
     e.images.length,
-    s.length,
+    a.length,
     r
   ]), Ee.log("GalleryPanel: rendering", {
     imageCount: e.images.length,
-    displayedCount: s.length,
+    displayedCount: a.length,
     isLoading: e.isLoading,
     activeModal: e.activeModal.type
   }), I.useEffect(() => {
-    const a = new IntersectionObserver(
-      (g) => {
-        g[0].isIntersecting && !e.isLoading && e.pagination.hasMore && (Ee.log(
+    const f = new IntersectionObserver(
+      (h) => {
+        h[0].isIntersecting && !e.isLoading && e.pagination.hasMore && (Ee.log(
           "GalleryPanel: Load more triggered via IntersectionObserver"
         ), r());
       },
       { threshold: 0, rootMargin: "800px" }
-    ), f = o.current;
-    return f && a.observe(f), () => {
-      f && a.unobserve(f);
+    ), g = s.current;
+    return g && f.observe(g), () => {
+      g && f.unobserve(g);
     };
   }, [r, e.isLoading, e.pagination.hasMore]), /* @__PURE__ */ d.jsxs("div", { className: "meld-gallery", children: [
     /* @__PURE__ */ d.jsxs(
@@ -7615,11 +7615,12 @@ Physical files will also be permanently deleted. This operation cannot be undone
                     style: {
                       background: "none",
                       border: "none",
-                      color: l ? "#fff" : "#888",
+                      color: o ? "var(--meld-success-color)" : l ? "#fff" : "#888",
                       cursor: "pointer",
                       display: "flex",
                       alignItems: "center",
-                      gap: "5px"
+                      gap: "5px",
+                      fontWeight: o ? "bold" : "normal"
                     },
                     children: [
                       /* @__PURE__ */ d.jsx(vc, { size: 14 }),
@@ -7703,17 +7704,17 @@ Physical files will also be permanently deleted. This operation cannot be undone
       }
     ),
     e.error && /* @__PURE__ */ d.jsx("div", { className: "meld-gallery__error", children: e.error }),
-    e.isLoading && s.length === 0 ? /* @__PURE__ */ d.jsx("div", { className: "meld-gallery__loading", children: "Loading images..." }) : s.length === 0 ? /* @__PURE__ */ d.jsx("div", { className: "meld-gallery__empty", children: "No images found." }) : /* @__PURE__ */ d.jsxs(d.Fragment, { children: [
-      /* @__PURE__ */ d.jsx("div", { className: "meld-gallery__list", children: s.map((a) => /* @__PURE__ */ d.jsx(Mp, { image: a }, a.id)) }),
+    e.isLoading && a.length === 0 ? /* @__PURE__ */ d.jsx("div", { className: "meld-gallery__loading", children: "Loading images..." }) : a.length === 0 ? /* @__PURE__ */ d.jsx("div", { className: "meld-gallery__empty", children: "No images found." }) : /* @__PURE__ */ d.jsxs(d.Fragment, { children: [
+      /* @__PURE__ */ d.jsx("div", { className: "meld-gallery__list", children: a.map((f) => /* @__PURE__ */ d.jsx(Mp, { image: f }, f.id)) }),
       /* @__PURE__ */ d.jsxs(
         "div",
         {
-          ref: o,
+          ref: s,
           className: "meld-gallery__load-more",
           style: { height: "20px", margin: "20px 0", textAlign: "center" },
           children: [
             e.isLoading && /* @__PURE__ */ d.jsx("div", { className: "meld-gallery__loading", children: "Loading more..." }),
-            !e.pagination.hasMore && s.length > 0 && /* @__PURE__ */ d.jsx("div", { className: "meld-gallery__end", children: "End of gallery" })
+            !e.pagination.hasMore && a.length > 0 && /* @__PURE__ */ d.jsx("div", { className: "meld-gallery__end", children: "End of gallery" })
           ]
         }
       )

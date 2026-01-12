@@ -2,6 +2,7 @@
 	--meld-bg-color: var(--comfy-menu-bg, #222);
 	--meld-text-color: var(--comfy-input-text, #eee);
 	--meld-accent-color: #4488ff;
+	--meld-success-color: #44bb44;
 	--meld-danger-color: #ff4444;
 	--meld-border-color: #444;
 	--meld-card-bg: rgba(255, 255, 255, 0.05);

@@ -15,8 +15,8 @@ import "../styles/Gallery.css";
 export const GalleryPanel: React.FC = () => {
 	const { state, dispatch, refreshImages, loadMoreImages } = useGallery();
 	const [isSearchVisible, setIsSearchVisible] = useState(false);
+	const isSearchActive = state.searchQuery.trim() !== "";
 	const loadMoreRef = useRef<HTMLDivElement>(null);
-
 	const displayedImages = state.images.filter(
 		(img) =>
 			img.exists !== false &&
@@ -105,11 +105,16 @@ export const GalleryPanel: React.FC = () => {
 						style={{
 							background: "none",
 							border: "none",
-							color: isSearchVisible ? "#fff" : "#888",
+							color: isSearchActive
+								? "var(--meld-success-color)"
+								: isSearchVisible
+									? "#fff"
+									: "#888",
 							cursor: "pointer",
 							display: "flex",
 							alignItems: "center",
 							gap: "5px",
+							fontWeight: isSearchActive ? "bold" : "normal",
 						}}
 					>
 						<Search size={14} />
