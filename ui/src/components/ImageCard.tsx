@@ -403,7 +403,13 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 									);
 								})
 							) : (
-								<span style={{ color: "#666" }}>-</span>
+								<span
+									style={{
+										color: "var(--meld-text-secondary)",
+									}}
+								>
+									-
+								</span>
 							)}
 						</div>
 					</div>

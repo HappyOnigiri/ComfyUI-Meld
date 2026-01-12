@@ -320,7 +320,12 @@ export const ImportModal: React.FC = () => {
 									<div className="meld-browser-info">
 										<Folder size={48} />
 										<p>Please enter an absolute path in the sidebar.</p>
-										<span style={{ fontSize: "11px", color: "#666" }}>
+										<span
+											style={{
+												fontSize: "11px",
+												color: "var(--meld-text-secondary)",
+											}}
+										>
 											Example: C:\Users\Me\Pictures or /home/me/images
 										</span>
 									</div>

@@ -228,7 +228,12 @@ export const ImageViewer: React.FC = () => {
 					<div className="meld-viewer-thumbnails-container">
 						<div className="meld-viewer-thumbnails">
 							{isLoadingLineage ? (
-								<div style={{ padding: "10px", color: "#888" }}>
+								<div
+									style={{
+										padding: "10px",
+										color: "var(--meld-text-secondary)",
+									}}
+								>
 									Loading lineage...
 								</div>
 							) : (

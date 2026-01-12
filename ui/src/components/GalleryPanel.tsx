@@ -109,8 +109,8 @@ export const GalleryPanel: React.FC = () => {
 							color: isSearchActive
 								? "var(--meld-success-color)"
 								: isSearchVisible
-									? "#fff"
-									: "#888",
+									? "var(--meld-text-color)"
+									: "var(--meld-text-secondary)",
 							cursor: "pointer",
 							display: "flex",
 							alignItems: "center",
@@ -128,7 +128,7 @@ export const GalleryPanel: React.FC = () => {
 						style={{
 							background: "none",
 							border: "none",
-							color: "#888",
+							color: "var(--meld-text-secondary)",
 							cursor: "pointer",
 							display: "flex",
 							alignItems: "center",
@@ -143,7 +143,7 @@ export const GalleryPanel: React.FC = () => {
 						style={{
 							background: "none",
 							border: "none",
-							color: "#888",
+							color: "var(--meld-text-secondary)",
 							cursor: "pointer",
 							display: "flex",
 							alignItems: "center",
@@ -164,7 +164,7 @@ export const GalleryPanel: React.FC = () => {
 						style={{
 							background: "none",
 							border: "none",
-							color: "#888",
+							color: "var(--meld-text-secondary)",
 							cursor: "pointer",
 							display: "flex",
 							alignItems: "center",

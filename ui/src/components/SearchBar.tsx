@@ -303,17 +303,17 @@ export const SearchBar: React.FC = () => {
 							top: "-45px",
 							left: "50%",
 							transform: "translateX(-50%)",
-							backgroundColor: "#333",
-							color: "#eee",
+							backgroundColor: "var(--comfy-menu-bg, #333)",
+							color: "var(--meld-text-color)",
 							padding: "8px 16px",
 							borderRadius: "4px",
 							fontSize: "12px",
 							zIndex: 1000,
 							whiteSpace: "nowrap",
-							boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
+							boxShadow: "0 4px 12px var(--comfy-menu-shadow, rgba(0,0,0,0.5))",
 							pointerEvents: "none",
 							fontWeight: "bold",
-							border: "1px solid #444",
+							border: "1px solid var(--comfy-menu-border, #444)",
 							animation: "meld-fade-in 0.3s ease-out",
 						}}
 					>
@@ -325,17 +325,18 @@ export const SearchBar: React.FC = () => {
 					style={{
 						display: "flex",
 						alignItems: "center",
-						backgroundColor: "#1a1a1a",
+						backgroundColor: "var(--comfy-input-bg, #1a1a1a)",
 						borderRadius: "6px",
 						padding: "6px 12px",
-						border: "1px solid #333",
+						border: "1px solid var(--comfy-menu-border, #333)",
 						transition: "border-color 0.2s",
-						boxShadow: "inset 0 1px 3px rgba(0,0,0,0.2)",
+						boxShadow:
+							"inset 0 1px 3px var(--comfy-input-shadow, rgba(0,0,0,0.2))",
 					}}
 				>
 					<Search
 						size={18}
-						color="#666"
+						color="var(--meld-text-secondary)"
 						style={{ marginRight: "10px", flexShrink: 0 }}
 					/>
 					<input
@@ -358,7 +359,7 @@ export const SearchBar: React.FC = () => {
 							flex: 1,
 							background: "none",
 							border: "none",
-							color: "#fff",
+							color: "var(--meld-text-color)",
 							outline: "none",
 							fontSize: "14px",
 							padding: "4px 0",
@@ -383,21 +384,18 @@ export const SearchBar: React.FC = () => {
 								alignItems: "center",
 								flexShrink: 0,
 								marginRight: "4px",
-								opacity: isSaving ? 0.5 : 1,
 							}}
 						>
 							<Star
 								size={16}
 								color={
-									isSaving
-										? "#aaa"
-										: state.favorites.some((f) => f.query === state.searchQuery)
-											? "#ffd700"
-											: "#666"
+									state.favorites.some((f) => f.query === state.searchQuery)
+										? "var(--brand-yellow, #ffd700)"
+										: "var(--meld-text-secondary)"
 								}
 								fill={
 									state.favorites.some((f) => f.query === state.searchQuery)
-										? "#ffd700"
+										? "var(--brand-yellow, #ffd700)"
 										: "none"
 								}
 							/>
@@ -417,7 +415,7 @@ export const SearchBar: React.FC = () => {
 								flexShrink: 0,
 							}}
 						>
-							<X size={16} color="#666" />
+							<X size={16} color="var(--meld-text-secondary)" />
 						</button>
 					)}
 				</div>
@@ -431,14 +429,14 @@ export const SearchBar: React.FC = () => {
 							top: "100%",
 							left: 0,
 							right: 0,
-							backgroundColor: "#222",
-							border: "1px solid #444",
+							backgroundColor: "var(--comfy-menu-bg, #222)",
+							border: "1px solid var(--comfy-menu-border, #444)",
 							borderRadius: "0 0 6px 6px",
 							zIndex: 1000,
 							marginTop: "2px",
 							maxHeight: "400px",
 							overflowY: "auto",
-							boxShadow: "0 8px 16px rgba(0,0,0,0.6)",
+							boxShadow: "0 8px 16px var(--comfy-menu-shadow, rgba(0,0,0,0.6))",
 						}}
 					>
 						{suggestions.map((s, i) => (
@@ -455,19 +453,27 @@ export const SearchBar: React.FC = () => {
 									justifyContent: "space-between",
 									padding: "10px 14px",
 									cursor: "pointer",
-									backgroundColor: i === selectedIndex ? "#333" : "transparent",
-									borderBottom: "1px solid #2a2a2a",
+									backgroundColor:
+										i === selectedIndex
+											? "var(--comfy-menu-bg, #333)"
+											: "transparent",
+									borderBottom: "1px solid var(--comfy-menu-border, #2a2a2a)",
 								}}
 							>
 								<div
 									style={{ display: "flex", alignItems: "center", gap: "10px" }}
 								>
-									<span style={{ color: "#888", display: "flex" }}>
+									<span
+										style={{
+											color: "var(--meld-text-secondary)",
+											display: "flex",
+										}}
+									>
 										{getIcon(s.type)}
 									</span>
 									<span
 										style={{
-											color: "#3b82f6",
+											color: "var(--comfy-input-text-active, #3b82f6)",
 											fontSize: "11px",
 											fontWeight: "bold",
 											textTransform: "uppercase",
@@ -476,7 +482,12 @@ export const SearchBar: React.FC = () => {
 									>
 										{s.type}
 									</span>
-									<span style={{ color: "#eee", fontSize: "14px" }}>
+									<span
+										style={{
+											color: "var(--meld-text-color)",
+											fontSize: "14px",
+										}}
+									>
 										{s.value}
 									</span>
 								</div>
@@ -505,32 +516,41 @@ export const SearchBar: React.FC = () => {
 								display: "flex",
 								alignItems: "center",
 								gap: "6px",
-								backgroundColor: "#2a2a2a",
-								border: "1px solid #333",
+								backgroundColor: "var(--comfy-input-bg, #2a2a2a)",
+								border: "1px solid var(--comfy-menu-border, #333)",
 								borderRadius: "16px",
 								padding: "4px 12px",
 								cursor: "pointer",
 								transition: "all 0.2s",
-								color: "#ccc",
+								color: "var(--meld-text-color)",
 								fontSize: "12px",
 							}}
 							onMouseEnter={(e) => {
-								e.currentTarget.style.backgroundColor = "#333";
-								e.currentTarget.style.borderColor = "#444";
-								e.currentTarget.style.color = "#fff";
+								e.currentTarget.style.backgroundColor =
+									"var(--comfy-menu-bg, #333)";
+								e.currentTarget.style.borderColor =
+									"var(--comfy-menu-border, #444)";
+								e.currentTarget.style.color = "var(--meld-text-color)";
 							}}
 							onMouseLeave={(e) => {
-								e.currentTarget.style.backgroundColor = "#2a2a2a";
-								e.currentTarget.style.borderColor = "#333";
-								e.currentTarget.style.color = "#ccc";
+								e.currentTarget.style.backgroundColor =
+									"var(--comfy-input-bg, #2a2a2a)";
+								e.currentTarget.style.borderColor =
+									"var(--comfy-menu-border, #333)";
+								e.currentTarget.style.color = "var(--meld-text-color)";
 							}}
 						>
-							<span style={{ display: "flex", color: "#888" }}>
+							<span
+								style={{
+									display: "flex",
+									color: "var(--meld-text-secondary)",
+								}}
+							>
 								{getIcon(s.type)}
 							</span>
 							<span
 								style={{
-									color: "#3b82f6",
+									color: "var(--comfy-input-text-active, #3b82f6)",
 									fontWeight: "bold",
 									textTransform: "uppercase",
 									fontSize: "10px",
@@ -562,7 +582,7 @@ export const SearchBar: React.FC = () => {
 						gap: "8px",
 						padding: "4px",
 						marginTop: "4px",
-						borderTop: "1px solid #333",
+						borderTop: "1px solid var(--comfy-menu-border, #333)",
 						paddingTop: "12px",
 					}}
 				>
@@ -571,7 +591,7 @@ export const SearchBar: React.FC = () => {
 							display: "flex",
 							alignItems: "center",
 							gap: "6px",
-							color: "#888",
+							color: "var(--meld-text-secondary)",
 							fontSize: "11px",
 							fontWeight: "bold",
 							textTransform: "uppercase",
@@ -579,7 +599,7 @@ export const SearchBar: React.FC = () => {
 							marginBottom: "4px",
 						}}
 					>
-						<Star size={12} fill="#888" />
+						<Star size={12} fill="var(--meld-text-secondary)" />
 						Favorites
 					</div>
 					<div
@@ -596,13 +616,13 @@ export const SearchBar: React.FC = () => {
 									display: "flex",
 									alignItems: "center",
 									justifyContent: "space-between",
-									backgroundColor: "#2a2a2a",
-									border: "1px solid #333",
+									backgroundColor: "var(--comfy-input-bg, #2a2a2a)",
+									border: "1px solid var(--comfy-menu-border, #333)",
 									borderRadius: "6px",
 									padding: "8px 12px",
 									cursor: "pointer",
 									transition: "all 0.2s",
-									color: "#ccc",
+									color: "var(--meld-text-color)",
 									fontSize: "13px",
 									gap: "10px",
 								}}
@@ -611,15 +631,18 @@ export const SearchBar: React.FC = () => {
 									handleSearch(fav.query);
 								}}
 								onMouseEnter={(e) => {
-									e.currentTarget.style.backgroundColor = "#333";
+									e.currentTarget.style.backgroundColor =
+										"var(--comfy-menu-bg, #333)";
 									e.currentTarget.style.borderColor =
 										"var(--meld-accent-color)";
-									e.currentTarget.style.color = "#fff";
+									e.currentTarget.style.color = "var(--meld-text-color)";
 								}}
 								onMouseLeave={(e) => {
-									e.currentTarget.style.backgroundColor = "#2a2a2a";
-									e.currentTarget.style.borderColor = "#333";
-									e.currentTarget.style.color = "#ccc";
+									e.currentTarget.style.backgroundColor =
+										"var(--comfy-input-bg, #2a2a2a)";
+									e.currentTarget.style.borderColor =
+										"var(--comfy-menu-border, #333)";
+									e.currentTarget.style.color = "var(--meld-text-color)";
 								}}
 							>
 								<div
@@ -644,7 +667,7 @@ export const SearchBar: React.FC = () => {
 										<span
 											style={{
 												fontSize: "10px",
-												color: "#666",
+												color: "var(--meld-text-secondary)",
 												overflow: "hidden",
 												textOverflow: "ellipsis",
 												whiteSpace: "nowrap",
@@ -672,7 +695,7 @@ export const SearchBar: React.FC = () => {
 										style={{
 											background: "none",
 											border: "none",
-											color: "#666",
+											color: "var(--meld-text-secondary)",
 											padding: "6px",
 											display: "flex",
 											alignItems: "center",
@@ -683,10 +706,11 @@ export const SearchBar: React.FC = () => {
 										onMouseEnter={(e) => {
 											e.currentTarget.style.color = "var(--meld-accent-color)";
 											e.currentTarget.style.backgroundColor =
-												"rgba(68, 136, 255, 0.1)";
+												"var(--comfy-input-bg-active, rgba(68, 136, 255, 0.1))";
 										}}
 										onMouseLeave={(e) => {
-											e.currentTarget.style.color = "#666";
+											e.currentTarget.style.color =
+												"var(--meld-text-secondary)";
 											e.currentTarget.style.backgroundColor = "transparent";
 										}}
 										title="Rename favorite"
@@ -702,7 +726,7 @@ export const SearchBar: React.FC = () => {
 										style={{
 											background: "none",
 											border: "none",
-											color: "#666",
+											color: "var(--meld-text-secondary)",
 											padding: "6px",
 											display: "flex",
 											alignItems: "center",
@@ -713,10 +737,11 @@ export const SearchBar: React.FC = () => {
 										onMouseEnter={(e) => {
 											e.currentTarget.style.color = "var(--meld-danger-color)";
 											e.currentTarget.style.backgroundColor =
-												"rgba(255,0,0,0.1)";
+												"var(--comfy-input-bg-active, rgba(255,0,0,0.1))";
 										}}
 										onMouseLeave={(e) => {
-											e.currentTarget.style.color = "#666";
+											e.currentTarget.style.color =
+												"var(--meld-text-secondary)";
 											e.currentTarget.style.backgroundColor = "transparent";
 										}}
 										title="Delete favorite"

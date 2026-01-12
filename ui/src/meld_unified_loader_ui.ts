@@ -35,14 +35,16 @@ app.registerExtension({
 
 			if (positive) {
 				if (positive.inputEl) {
-					positive.inputEl.style.borderLeft = "4px solid #44bb44";
+					positive.inputEl.style.borderLeft =
+						"4px solid var(--comfy-input-text-active, #44bb44)";
 					positive.inputEl.style.paddingLeft = "8px";
 				}
 			}
 
 			if (negative) {
 				if (negative.inputEl) {
-					negative.inputEl.style.borderLeft = "4px solid #ff4444";
+					negative.inputEl.style.borderLeft =
+						"4px solid var(--error-color, #ff4444)";
 					negative.inputEl.style.paddingLeft = "8px";
 				}
 			}
