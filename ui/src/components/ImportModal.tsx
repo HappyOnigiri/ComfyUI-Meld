@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import * as api from "../api";
 import { useGallery } from "../store/GalleryContext";
 
@@ -98,7 +99,7 @@ export const ImportModal: React.FC = () => {
 				)
 			: 0;
 
-	return (
+	return createPortal(
 		<div className="meld-modal-overlay" onClick={handleClose}>
 			<div
 				className="meld-modal-content meld-modal-content--large"
@@ -335,6 +336,7 @@ export const ImportModal: React.FC = () => {
 					)}
 				</div>
 			</div>
-		</div>
+		</div>,
+		document.body,
 	);
 };

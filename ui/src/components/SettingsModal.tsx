@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { useGallery } from "../store/GalleryContext";
 import type { Settings } from "../types";
 
@@ -100,7 +101,7 @@ export const SettingsModal: React.FC = () => {
 		(config) => config.category === activeTab,
 	);
 
-	return (
+	return createPortal(
 		<div
 			className="meld-modal-overlay"
 			onClick={() => dispatch({ type: "CLOSE_MODAL" })}
@@ -175,6 +176,7 @@ export const SettingsModal: React.FC = () => {
 					</div>
 				</div>
 			</div>
-		</div>
+		</div>,
+		document.body,
 	);
 };

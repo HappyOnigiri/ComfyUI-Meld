@@ -9,7 +9,8 @@ import {
 	X,
 } from "lucide-react";
 import type React from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import * as api from "../api";
 import { useGallery } from "../store/GalleryContext";
 
@@ -18,6 +19,7 @@ export const ImageViewer: React.FC = () => {
 	const { viewerImageId, images, viewerMode, lineageImages } = state;
 	const [isFullscreen, setIsFullscreen] = useState(false);
 	const [isLoadingLineage, setIsLoadingLineage] = useState(false);
+	const overlayRef = useRef<HTMLDivElement>(null);
 
 	const currentThumbnails =
 		viewerMode === "lineage"
@@ -39,8 +41,12 @@ export const ImageViewer: React.FC = () => {
 			if (e && "stopPropagation" in e) {
 				e.stopPropagation();
 			}
+
+			const element = overlayRef.current;
+			if (!element) return;
+
 			if (!document.fullscreenElement) {
-				document.documentElement.requestFullscreen().catch((err) => {
+				element.requestFullscreen().catch((err) => {
 					console.error(
 						`Error attempting to enable full-screen mode: ${err.message}`,
 					);
@@ -167,9 +173,11 @@ export const ImageViewer: React.FC = () => {
 		image.subfolder ? `&subfolder=${encodeURIComponent(image.subfolder)}` : ""
 	}`;
 
-	return (
+	return createPortal(
 		<div
+			ref={overlayRef}
 			className="meld-viewer-overlay"
+			style={{ background: "rgba(0, 0, 0, 0.85)" }} /* color-check-ignore */
 			onClick={() => dispatch({ type: "CLOSE_VIEWER" })}
 			role="button"
 			tabIndex={0}
@@ -306,6 +314,7 @@ export const ImageViewer: React.FC = () => {
 					</div>
 				)}
 			</div>
-		</div>
+		</div>,
+		document.body,
 	);
 };

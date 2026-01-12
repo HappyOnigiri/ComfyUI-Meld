@@ -1,6 +1,7 @@
 import { Upload, X } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import * as api from "../api";
 import { useGallery } from "../store/GalleryContext";
 
@@ -89,7 +90,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 	const sourceMatches = suggestions.filter((s) => s.is_source_match);
 	const visualMatches = suggestions.filter((s) => !s.is_source_match);
 
-	return (
+	return createPortal(
 		<div
 			className="meld-modal-overlay"
 			onClick={() => dispatch({ type: "CLOSE_MODAL" })}
@@ -196,6 +197,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 					)}
 				</div>
 			</div>
-		</div>
+		</div>,
+		document.body,
 	);
 };
