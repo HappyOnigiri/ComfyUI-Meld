@@ -52,6 +52,7 @@ ignore = [
     "N806", # Variable name should be lowercase
     "N812", # Lowercase functional imported as non-lowercase F
     "N999", # Invalid module name
+    "E501", # Line too long
 ]
 
 [tool.ruff.lint.isort]
