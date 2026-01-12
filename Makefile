@@ -51,7 +51,7 @@ check-only-ascii:
 
 REPOMIX_IGNORE := **/__pycache__/**,**/node_modules/**,**/.git/**,tmp/**,web/js/gallery_extension.js,**/package-lock.json,**/.mypy_cache/**,**/.pytest_cache/**,**/.ruff_cache/**,**/.venv/**,env/**,**/.cursor/**,**/.DS_Store
 
-repomix: repomix-full repomix-src repomix-tests repomix-nodes
+repomix: repomix-full repomix-src repomix-tests repomix-nodes repomix-ui
 
 repomix-full:
 	@mkdir -p tmp/repomix
@@ -64,6 +64,10 @@ repomix-src:
 repomix-tests:
 	@mkdir -p tmp/repomix
 	npx --yes repomix --include "tests/**,pyproject.toml" --ignore "$(REPOMIX_IGNORE)" --output tmp/repomix/repomix-tests.xml
+
+repomix-ui:
+	@mkdir -p tmp/repomix
+	npx --yes repomix --include "ui/**,*.md,*.toml,requirements.txt,Makefile,__init__.py" --ignore "$(REPOMIX_IGNORE)" --output tmp/repomix/repomix-ui.xml
 
 repomix-nodes:
 	@mkdir -p tmp/repomix
