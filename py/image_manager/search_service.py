@@ -176,3 +176,73 @@ class SearchService:
         results.sort(key=lambda x: x["value"].lower())
 
         return results[:limit]
+
+    @classmethod
+    def get_random_search_suggestions(cls, cursor):
+        """
+        Returns suggestions for pos, tag, model, and date by picking keywords
+        that appear in less than 5% of total images.
+        """
+
+        # 1. Get total image count
+        cursor.execute("SELECT COUNT(*) FROM images WHERE is_deleted = 0")
+        total_images = cursor.fetchone()[0]
+        if total_images == 0:
+            return []
+
+        # 10% threshold (at least 1, at most total_images)
+        upper_threshold = max(1, int(total_images * 0.1))
+
+        suggestions = []
+
+        # Helper to pick a random keyword (prefer rare ones)
+        def pick_keyword(table, rel_table, rel_id_col):
+            # Try rare first (<= 5%)
+            sql_rare = f"""
+                SELECT t.name
+                FROM {table} t
+                JOIN {rel_table} r ON t.id = r.{rel_id_col}
+                GROUP BY t.id
+                HAVING COUNT(r.image_id) <= ?
+                ORDER BY RANDOM() LIMIT 1
+            """
+            cursor.execute(sql_rare, (upper_threshold,))
+            row = cursor.fetchone()
+            if row:
+                return row[0]
+
+            # Fallback to any random keyword if no rare ones found
+            sql_any = f"""
+                SELECT t.name
+                FROM {table} t
+                JOIN {rel_table} r ON t.id = r.{rel_id_col}
+                GROUP BY t.id
+                ORDER BY RANDOM() LIMIT 1
+            """
+            cursor.execute(sql_any)
+            row = cursor.fetchone()
+            return row[0] if row else None
+
+        # 1. Positive Prompt
+        pos = pick_keyword("positive_prompts", "positive_prompt_image_relations", "positive_prompt_id")
+        if pos:
+            suggestions.append({"type": "pos", "value": pos})
+
+        # 2. Tag
+        tag = pick_keyword("tags", "tag_image_relations", "tag_id")
+        if tag:
+            suggestions.append({"type": "tag", "value": tag})
+
+        # 3. Model
+        model = pick_keyword("models", "model_image_relations", "model_id")
+        if model:
+            suggestions.append({"type": "model", "value": model})
+
+        # 4. Date (pick a random date that exists)
+        cursor.execute("SELECT created_at FROM images WHERE is_deleted = 0 ORDER BY RANDOM() LIMIT 1")
+        date_row = cursor.fetchone()
+        if date_row:
+            dt = datetime.fromtimestamp(date_row[0])
+            suggestions.append({"type": "date", "value": dt.strftime("%Y-%m-%d")})
+
+        return suggestions

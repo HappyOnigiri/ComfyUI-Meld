@@ -15,11 +15,25 @@ export const SearchBar: React.FC = () => {
 	const [inputValue, setInputValue] = useState(state.searchQuery);
 	const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
 	const [showSuggestions, setShowSuggestions] = useState(false);
+	const [searchSuggestions, setSearchSuggestions] = useState<
+		{ type: string; value: string }[]
+	>([]);
 	const [selectedIndex, setSelectedIndex] = useState(-1);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const suggestionsRef = useRef<HTMLDivElement>(null);
 
 	const lastSearchedValueRef = useRef(state.searchQuery);
+
+	// Fetch random search suggestions on mount or when search is cleared
+	useEffect(() => {
+		if (!inputValue && !state.searchQuery) {
+			api.fetchSearchSuggestions().then((results) => {
+				setSearchSuggestions(results);
+			});
+		} else {
+			setSearchSuggestions([]);
+		}
+	}, [inputValue, state.searchQuery]);
 
 	// Synchronize inputValue with state.searchQuery if changed externally
 	useEffect(() => {
@@ -120,6 +134,14 @@ export const SearchBar: React.FC = () => {
 		handleSearch("");
 	};
 
+	const applySearchSuggestion = (type: string, value: string) => {
+		const isDate = ["date", "after", "before"].includes(type);
+		const valueWithQuotes = isDate ? value : `"${value}"`;
+		const newQuery = `${type}:${valueWithQuotes}`;
+		setInputValue(newQuery);
+		handleSearch(newQuery);
+	};
+
 	const getIcon = (type: string) => {
 		switch (type) {
 			case "tag":
@@ -180,7 +202,7 @@ export const SearchBar: React.FC = () => {
 								setShowSuggestions(true);
 							}
 						}}
-						placeholder="Search prompts, tags, models, dates, or keywords..."
+						placeholder="Search anything: prompts, tags, models, dates, or free keywords..."
 						style={{
 							flex: 1,
 							background: "none",
@@ -273,6 +295,73 @@ export const SearchBar: React.FC = () => {
 					</div>
 				)}
 			</div>
+
+			{!inputValue && !state.searchQuery && searchSuggestions.length > 0 && (
+				<div
+					className="meld-search-quick-suggestions"
+					style={{
+						display: "flex",
+						flexWrap: "wrap",
+						gap: "8px",
+						padding: "0 4px",
+					}}
+				>
+					{searchSuggestions.map((s) => (
+						<button
+							key={`${s.type}:${s.value}`}
+							type="button"
+							onClick={() => applySearchSuggestion(s.type, s.value)}
+							style={{
+								display: "flex",
+								alignItems: "center",
+								gap: "6px",
+								backgroundColor: "#2a2a2a",
+								border: "1px solid #333",
+								borderRadius: "16px",
+								padding: "4px 12px",
+								cursor: "pointer",
+								transition: "all 0.2s",
+								color: "#ccc",
+								fontSize: "12px",
+							}}
+							onMouseEnter={(e) => {
+								e.currentTarget.style.backgroundColor = "#333";
+								e.currentTarget.style.borderColor = "#444";
+								e.currentTarget.style.color = "#fff";
+							}}
+							onMouseLeave={(e) => {
+								e.currentTarget.style.backgroundColor = "#2a2a2a";
+								e.currentTarget.style.borderColor = "#333";
+								e.currentTarget.style.color = "#ccc";
+							}}
+						>
+							<span style={{ display: "flex", color: "#888" }}>
+								{getIcon(s.type)}
+							</span>
+							<span
+								style={{
+									color: "#3b82f6",
+									fontWeight: "bold",
+									textTransform: "uppercase",
+									fontSize: "10px",
+								}}
+							>
+								{s.type}
+							</span>
+							<span
+								style={{
+									maxWidth: "200px",
+									overflow: "hidden",
+									textOverflow: "ellipsis",
+									whiteSpace: "nowrap",
+								}}
+							>
+								{s.value}
+							</span>
+						</button>
+					))}
+				</div>
+			)}
 		</div>
 	);
 };

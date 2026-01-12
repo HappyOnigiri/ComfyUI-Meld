@@ -162,6 +162,12 @@ def init_db():
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_model_name ON models(name)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_tag_name ON tags(name)")
 
+    # Added indices for frequency analysis
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_pp_rel_ppid ON positive_prompt_image_relations(positive_prompt_id)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_np_rel_npid ON negative_prompt_image_relations(negative_prompt_id)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_tag_rel_tagid ON tag_image_relations(tag_id)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_model_rel_mid ON model_image_relations(model_id)")
+
     # Data Migration: model_name -> models table
     try:
         cursor.execute("SELECT id, model_name FROM images WHERE model_name IS NOT NULL AND model_name != ''")

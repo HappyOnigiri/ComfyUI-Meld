@@ -633,6 +633,19 @@ async def suggest_endpoint(request):
         return web.json_response({"error": str(e)}, status=500)
 
 
+@server.PromptServer.instance.routes.get("/api/meld-nexus/search-suggestions")
+async def search_suggestions_endpoint(request):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        suggestions = SearchService.get_random_search_suggestions(cursor)
+        conn.close()
+
+        return web.json_response(suggestions)
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
 @server.PromptServer.instance.routes.get("/api/meld-nexus/list")
 async def list_images(request):
     try:

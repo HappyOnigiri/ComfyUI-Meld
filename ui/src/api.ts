@@ -42,6 +42,19 @@ export const fetchSuggestions = async (
 	return await res.json();
 };
 
+export const fetchSearchSuggestions = async (): Promise<
+	{
+		type: string;
+		value: string;
+	}[]
+> => {
+	const res = await api.fetchApi("/meld-nexus/search-suggestions");
+	if (!res.ok) {
+		return [];
+	}
+	return await res.json();
+};
+
 export const cleanupDatabase = async (): Promise<{ count: number }> => {
 	const res = await api.fetchApi("/meld-nexus/cleanup", {
 		method: "POST",
