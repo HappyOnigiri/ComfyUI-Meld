@@ -4,7 +4,6 @@ import {
 	Copy,
 	MoreVertical,
 	PlusCircle,
-	PlusSquare,
 	RefreshCw,
 	X,
 } from "lucide-react";
