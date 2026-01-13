@@ -6882,7 +6882,6 @@ Physical files will also be permanently deleted. This operation cannot be undone
             className: "meld-image-card__thumbnail",
             alt: e.filename,
             loading: "lazy",
-            decoding: "async",
             onMouseDown: w,
             onClick: (h) => {
               h.stopPropagation(), d(h);
@@ -6900,7 +6899,6 @@ Physical files will also be permanently deleted. This operation cannot be undone
                   src: h.imgSrc,
                   className: "meld-lineage-badge__parent-thumb",
                   loading: "lazy",
-                  decoding: "async",
                   onClick: (L) => {
                     L.stopPropagation(), n({
                       type: "OPEN_VIEWER",
@@ -7191,15 +7189,7 @@ Physical files will also be permanently deleted. This operation cannot be undone
         }),
         title: e.filename,
         children: [
-          /* @__PURE__ */ s.jsx(
-            "img",
-            {
-              src: a,
-              alt: e.filename,
-              loading: "lazy",
-              decoding: "async"
-            }
-          ),
+          /* @__PURE__ */ s.jsx("img", { src: a, alt: e.filename }),
           (o || i) && /* @__PURE__ */ s.jsx(
             "div",
             {

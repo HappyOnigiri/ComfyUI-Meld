@@ -52,12 +52,7 @@ const ThumbnailItem = memo(
 					}
 					title={thumb.filename}
 				>
-					<img
-						src={thumbSrc}
-						alt={thumb.filename}
-						loading="lazy"
-						decoding="async"
-					/>
+					<img src={thumbSrc} alt={thumb.filename} />
 					{(isParent || isChild) && (
 						<div
 							className={`meld-viewer-thumbnail-relation-icon ${isParent ? "meld-viewer-thumbnail-relation-icon--parent" : "meld-viewer-thumbnail-relation-icon--child"}`}

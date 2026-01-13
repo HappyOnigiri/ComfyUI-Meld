@@ -259,7 +259,6 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 					className="meld-image-card__thumbnail"
 					alt={image.filename}
 					loading="lazy"
-					decoding="async"
 					onMouseDown={handleMouseDown}
 					onClick={(e) => {
 						e.stopPropagation();
@@ -285,7 +284,6 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 												src={p.imgSrc}
 												className="meld-lineage-badge__parent-thumb"
 												loading="lazy"
-												decoding="async"
 												onClick={(e) => {
 													e.stopPropagation();
 													dispatch({
