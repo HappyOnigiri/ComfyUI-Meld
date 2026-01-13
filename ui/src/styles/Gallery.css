@@ -1608,6 +1608,33 @@
 	color: var(--meld-danger-color);
 }
 
+.meld-tag-item__btn--save:hover {
+	background: var(--comfy-input-bg-active, rgba(68, 255, 136, 0.2));
+	color: var(--meld-success-color);
+}
+
+.meld-tag-rename-form {
+	display: flex;
+	flex: 1;
+	gap: 4px;
+	align-items: center;
+}
+
+.meld-tag-rename-input {
+	flex: 1;
+	padding: 4px 8px;
+	font-size: 13px;
+	background: var(--comfy-input-bg);
+	color: var(--comfy-input-fg);
+	border: 1px solid var(--meld-accent-color);
+	border-radius: 4px;
+	outline: none;
+}
+
+.meld-tag-rename-input:focus {
+	border-color: var(--meld-accent-color);
+}
+
 /* Tag Edit Modal Styles */
 .meld-tag-edit-section {
 	margin-bottom: 20px;

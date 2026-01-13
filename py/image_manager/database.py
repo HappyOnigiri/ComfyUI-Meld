@@ -314,6 +314,22 @@ def delete_tag(conn: sqlite3.Connection, tag_id: int) -> bool:
         raise
 
 
+def rename_tag(conn: sqlite3.Connection, tag_id: int, new_name: str) -> bool:
+    cursor = conn.cursor()
+    try:
+        # Check if the new name already exists
+        cursor.execute("SELECT id FROM tags WHERE name = ?", (new_name,))
+        if cursor.fetchone():
+            return False
+
+        cursor.execute("UPDATE tags SET name = ? WHERE id = ?", (new_name, tag_id))
+        conn.commit()
+        return cursor.rowcount > 0
+    except Exception:
+        conn.rollback()
+        raise
+
+
 def calculate_sha256(file_path: str) -> str | None:
     if not os.path.exists(file_path):
         return None

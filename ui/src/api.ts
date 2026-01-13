@@ -352,6 +352,18 @@ export const deleteTag = async (id: number): Promise<void> => {
 	}
 };
 
+export const renameTag = async (id: number, name: string): Promise<void> => {
+	const res = await api.fetchApi("/meld-nexus/tags/rename", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ id, name }),
+	});
+	if (!res.ok) {
+		const data = await res.json();
+		throw new Error(data.error || "Failed to rename tag");
+	}
+};
+
 export const updateImageTags = async (
 	imageId: number,
 	tags: string[],

@@ -26,6 +26,7 @@ from .database import (
     get_all_tags,
     get_db_connection,
     get_or_create_model,
+    rename_tag,
     upsert_setting,
 )
 from .search_service import SearchService
@@ -749,6 +750,28 @@ async def remove_tag(request: web.Request) -> web.Response:
         if success:
             return web.json_response({"success": True})
         return web.json_response({"error": "Tag not found"}, status=404)
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
+@server.PromptServer.instance.routes.post("/api/meld-nexus/tags/rename")
+async def tag_rename_endpoint(request: web.Request) -> web.Response:
+    try:
+        data = await request.json()
+        tag_id = data.get("id")
+        new_name = data.get("name")
+
+        if tag_id is None or not new_name:
+            return web.json_response({"error": "id and name are required"}, status=400)
+
+        conn = get_db_connection()
+        try:
+            success = rename_tag(conn, int(tag_id), new_name)
+            if success:
+                return web.json_response({"success": True})
+            return web.json_response({"error": "Failed to rename tag (maybe name already exists?)"}, status=400)
+        finally:
+            conn.close()
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 

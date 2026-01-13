@@ -1,7 +1,7 @@
-import { Plus, Search, Tag, Trash2, X } from "lucide-react";
+import { Check, Edit2, Plus, Search, Tag, Trash2, X } from "lucide-react";
 import type React from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { createTag, deleteTag, fetchTags } from "../api";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createTag, deleteTag, fetchTags, renameTag } from "../api";
 import type { Tag as TagType } from "../types";
 
 interface TagManagerViewProps {
@@ -18,6 +18,10 @@ export const TagManagerView: React.FC<TagManagerViewProps> = ({
 	const [searchQuery, setSearchQuery] = useState("");
 	const [newTagName, setNewTagName] = useState("");
 	const [isAdding, setIsAdding] = useState(false);
+	const [editingTagId, setEditingTagId] = useState<number | null>(null);
+	const [editingTagName, setEditingTagName] = useState("");
+	const [isRenaming, setIsRenaming] = useState(false);
+	const renameInputRef = useRef<HTMLInputElement>(null);
 
 	const loadTags = useCallback(async () => {
 		setIsLoading(true);
@@ -35,13 +39,27 @@ export const TagManagerView: React.FC<TagManagerViewProps> = ({
 		loadTags();
 	}, [loadTags]);
 
+	useEffect(() => {
+		if (editingTagId !== null && renameInputRef.current) {
+			renameInputRef.current.focus();
+			renameInputRef.current.select();
+		}
+	}, [editingTagId]);
+
 	const handleAddTag = async (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!newTagName.trim() || isAdding) return;
+		const name = newTagName.trim();
+		if (!name || isAdding) return;
+
+		// Client side duplicate check
+		if (tags.some((t) => t.name.toLowerCase() === name.toLowerCase())) {
+			alert(`Tag "${name}" already exists.`);
+			return;
+		}
 
 		setIsAdding(true);
 		try {
-			await createTag(newTagName.trim());
+			await createTag(name);
 			setNewTagName("");
 			await loadTags();
 		} catch (error) {
@@ -59,6 +77,51 @@ export const TagManagerView: React.FC<TagManagerViewProps> = ({
 			await loadTags();
 		} catch (error) {
 			console.error("Failed to delete tag:", error);
+		}
+	};
+
+	const handleStartRename = (tag: TagType) => {
+		setEditingTagId(tag.id);
+		setEditingTagName(tag.name);
+	};
+
+	const handleCancelRename = () => {
+		setEditingTagId(null);
+		setEditingTagName("");
+	};
+
+	const handleRenameTag = async (e: React.FormEvent) => {
+		e.preventDefault();
+		const name = editingTagName.trim();
+		if (!name || editingTagId === null || isRenaming) return;
+
+		const currentTag = tags.find((t) => t.id === editingTagId);
+		if (currentTag && currentTag.name === name) {
+			handleCancelRename();
+			return;
+		}
+
+		// Client side duplicate check
+		if (
+			tags.some(
+				(t) =>
+					t.id !== editingTagId && t.name.toLowerCase() === name.toLowerCase(),
+			)
+		) {
+			alert(`Tag "${name}" already exists.`);
+			return;
+		}
+
+		setIsRenaming(true);
+		try {
+			await renameTag(editingTagId, name);
+			handleCancelRename();
+			await loadTags();
+		} catch (error) {
+			console.error("Failed to rename tag:", error);
+			alert(error instanceof Error ? error.message : "Failed to rename tag");
+		} finally {
+			setIsRenaming(false);
 		}
 	};
 
@@ -129,25 +192,70 @@ export const TagManagerView: React.FC<TagManagerViewProps> = ({
 						) : (
 							filteredTags.map((tag) => (
 								<div key={tag.id} className="meld-tag-item">
-									<span className="meld-tag-item__name">{tag.name}</span>
-									<div className="meld-tag-item__actions">
-										<button
-											type="button"
-											className="meld-tag-item__btn"
-											title="Search by this tag"
-											onClick={() => handleSearchByTag(tag.name)}
+									{editingTagId === tag.id ? (
+										<form
+											className="meld-tag-rename-form"
+											onSubmit={handleRenameTag}
 										>
-											<Search size={14} />
-										</button>
-										<button
-											type="button"
-											className="meld-tag-item__btn meld-tag-item__btn--delete"
-											title="Delete tag"
-											onClick={() => handleDeleteTag(tag.id, tag.name)}
-										>
-											<Trash2 size={14} />
-										</button>
-									</div>
+											<input
+												type="text"
+												ref={renameInputRef}
+												className="meld-tag-rename-input"
+												value={editingTagName}
+												onChange={(e) => setEditingTagName(e.target.value)}
+												onKeyDown={(e) =>
+													e.key === "Escape" && handleCancelRename()
+												}
+											/>
+											<button
+												type="submit"
+												className="meld-tag-item__btn meld-tag-item__btn--save"
+												title="Save"
+												disabled={isRenaming || !editingTagName.trim()}
+											>
+												<Check size={14} />
+											</button>
+											<button
+												type="button"
+												className="meld-tag-item__btn"
+												title="Cancel"
+												onClick={handleCancelRename}
+												disabled={isRenaming}
+											>
+												<X size={14} />
+											</button>
+										</form>
+									) : (
+										<>
+											<span className="meld-tag-item__name">{tag.name}</span>
+											<div className="meld-tag-item__actions">
+												<button
+													type="button"
+													className="meld-tag-item__btn"
+													title="Search by this tag"
+													onClick={() => handleSearchByTag(tag.name)}
+												>
+													<Search size={14} />
+												</button>
+												<button
+													type="button"
+													className="meld-tag-item__btn"
+													title="Rename tag"
+													onClick={() => handleStartRename(tag)}
+												>
+													<Edit2 size={14} />
+												</button>
+												<button
+													type="button"
+													className="meld-tag-item__btn meld-tag-item__btn--delete"
+													title="Delete tag"
+													onClick={() => handleDeleteTag(tag.id, tag.name)}
+												>
+													<Trash2 size={14} />
+												</button>
+											</div>
+										</>
+									)}
 								</div>
 							))
 						)}
