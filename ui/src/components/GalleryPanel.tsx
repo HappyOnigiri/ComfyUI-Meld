@@ -257,7 +257,7 @@ export const GalleryPanel: React.FC = () => {
 
 			{state.activeModal.type === "tag_edit" && (
 				<TagEditModal
-					imageId={state.activeModal.imageId}
+					imageIds={state.activeModal.imageIds}
 					initialTags={state.activeModal.tags}
 					onClose={() => dispatch({ type: "CLOSE_MODAL" })}
 				/>

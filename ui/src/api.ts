@@ -361,6 +361,21 @@ export const updateImageTags = async (
 	}
 };
 
+export const bulkUpdateImageTags = async (
+	imageIds: number[],
+	addTags: string[],
+	removeTags: string[],
+): Promise<void> => {
+	const res = await api.fetchApi("/meld-nexus/bulk-image-tags", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ imageIds, addTags, removeTags }),
+	});
+	if (!res.ok) {
+		throw new Error("Failed to bulk update image tags");
+	}
+};
+
 export const fetchImageWorkflow = async (
 	imageId: number,
 ): Promise<{ workflow: unknown }> => {

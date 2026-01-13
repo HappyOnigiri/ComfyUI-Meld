@@ -1,4 +1,4 @@
-import { Trash2, X } from "lucide-react";
+import { Tag, Trash2, X } from "lucide-react";
 import type React from "react";
 import { useGallery } from "../store/GalleryContext";
 
@@ -8,9 +8,44 @@ export const BulkActionBar: React.FC = () => {
 
 	if (count === 0) return null;
 
+	const handleBulkTagEdit = () => {
+		const selectedImages = state.images.filter((img) =>
+			state.selectedIds.has(img.id),
+		);
+		const allTags = new Set<string>();
+		for (const img of selectedImages) {
+			if (img.tags) {
+				for (const tag of img.tags) {
+					allTags.add(tag);
+				}
+			}
+		}
+
+		dispatch({
+			type: "OPEN_MODAL",
+			payload: {
+				type: "tag_edit",
+				imageIds: Array.from(state.selectedIds),
+				tags: Array.from(allTags),
+			},
+		});
+	};
+
 	return (
 		<div className="meld-bulk-bar">
 			<span className="meld-bulk-bar__info">{count} items selected</span>
+
+			<button
+				type="button"
+				className="meld-bulk-bar__button meld-bulk-bar__button--edit"
+				onClick={handleBulkTagEdit}
+			>
+				<Tag
+					size={16}
+					style={{ marginRight: "8px", verticalAlign: "middle" }}
+				/>
+				Edit Tags
+			</button>
 
 			<button
 				type="button"

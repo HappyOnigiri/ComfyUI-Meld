@@ -76,6 +76,69 @@ async def update_image_tags(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
+@server.PromptServer.instance.routes.post("/api/meld-nexus/bulk-image-tags")
+async def bulk_update_image_tags(request: web.Request) -> web.Response:
+    try:
+        data = await request.json()
+        image_ids = data.get("imageIds", [])
+        add_tags = data.get("addTags", [])
+        remove_tags = data.get("removeTags", [])
+
+        if not image_ids:
+            return web.json_response({"error": "imageIds is required"}, status=400)
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        try:
+            # 1. Process tags to add
+            for tag_name in add_tags:
+                tag_name = tag_name.strip()
+                if not tag_name:
+                    continue
+
+                # Get or create tag
+                cursor.execute("INSERT OR IGNORE INTO tags (name) VALUES (?)", (tag_name,))
+                cursor.execute("SELECT id FROM tags WHERE name = ?", (tag_name,))
+                tag_row = cursor.fetchone()
+                if tag_row:
+                    tag_id = tag_row[0]
+                    # Add to all selected images
+                    for image_id in image_ids:
+                        cursor.execute(
+                            "INSERT OR IGNORE INTO tag_image_relations (image_id, tag_id) VALUES (?, ?)",
+                            (image_id, tag_id),
+                        )
+
+            # 2. Process tags to remove
+            for tag_name in remove_tags:
+                tag_name = tag_name.strip()
+                if not tag_name:
+                    continue
+
+                cursor.execute("SELECT id FROM tags WHERE name = ?", (tag_name,))
+                tag_row = cursor.fetchone()
+                if tag_row:
+                    tag_id = tag_row[0]
+                    # Remove from all selected images
+                    placeholders = ",".join(["?"] * len(image_ids))
+                    cursor.execute(
+                        f"DELETE FROM tag_image_relations WHERE tag_id = ? AND image_id IN ({placeholders})",
+                        (tag_id, *image_ids),
+                    )
+
+            conn.commit()
+            return web.json_response({"success": True})
+        except Exception as e:
+            conn.rollback()
+            raise e
+        finally:
+            conn.close()
+
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
 _scan_state = {"is_running": False, "should_cancel": False}
 
 

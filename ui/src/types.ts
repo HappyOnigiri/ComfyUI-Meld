@@ -65,7 +65,7 @@ export type ScanStatus = {
 export type ActiveModal =
 	| { type: "none" }
 	| { type: "parent_selection"; imageId: number }
-	| { type: "tag_edit"; imageId: number; tags: string[] }
+	| { type: "tag_edit"; imageIds: number[]; tags: string[] }
 	| { type: "import" }
 	| { type: "settings" };
 

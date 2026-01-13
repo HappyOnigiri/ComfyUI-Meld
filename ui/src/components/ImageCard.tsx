@@ -400,7 +400,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 								type: "OPEN_MODAL",
 								payload: {
 									type: "tag_edit",
-									imageId: image.id,
+									imageIds: [image.id],
 									tags: image.tags || [],
 								},
 							});
@@ -499,7 +499,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 									type: "OPEN_MODAL",
 									payload: {
 										type: "tag_edit",
-										imageId: image.id,
+										imageIds: [image.id],
 										tags: image.tags || [],
 									},
 								});

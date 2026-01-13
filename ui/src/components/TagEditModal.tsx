@@ -1,18 +1,18 @@
 import { Plus, Search, Tag, X } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { fetchTags, updateImageTags } from "../api";
+import { bulkUpdateImageTags, fetchTags, updateImageTags } from "../api";
 import { useGallery } from "../store/GalleryContext";
 import type { Tag as TagType } from "../types";
 
 interface TagEditModalProps {
-	imageId: number;
+	imageIds: number[];
 	initialTags: string[];
 	onClose: () => void;
 }
 
 export const TagEditModal: React.FC<TagEditModalProps> = ({
-	imageId,
+	imageIds,
 	initialTags,
 	onClose,
 }) => {
@@ -23,6 +23,8 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 	const [isLoading, setIsLoading] = useState(true);
 	const [isSaving, setIsSaving] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
+
+	const isBulk = imageIds.length > 1;
 
 	const loadTags = useCallback(async () => {
 		setIsLoading(true);
@@ -70,7 +72,17 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 	const handleSave = async () => {
 		setIsSaving(true);
 		try {
-			await updateImageTags(imageId, selectedTags);
+			if (isBulk) {
+				// Calculate diff
+				const tagsToAdd = selectedTags.filter((t) => !initialTags.includes(t));
+				const tagsToRemove = initialTags.filter(
+					(t) => !selectedTags.includes(t),
+				);
+
+				await bulkUpdateImageTags(imageIds, tagsToAdd, tagsToRemove);
+			} else {
+				await updateImageTags(imageIds[0], selectedTags);
+			}
 			await refreshImages();
 			onClose();
 		} catch (error) {
@@ -96,7 +108,9 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 				<div className="meld-modal-header">
 					<div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
 						<Tag size={18} />
-						<h3 style={{ margin: 0 }}>Edit Tags</h3>
+						<h3 style={{ margin: 0 }}>
+							{isBulk ? `Edit Tags (${imageIds.length} images)` : "Edit Tags"}
+						</h3>
 					</div>
 					<button type="button" className="meld-modal-close" onClick={onClose}>
 						<X size={20} />
@@ -104,8 +118,25 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 				</div>
 
 				<div className="meld-modal-body">
+					{isBulk && (
+						<div
+							style={{
+								fontSize: "0.85rem",
+								color: "var(--meld-text-secondary)",
+								marginBottom: "16px",
+								padding: "8px",
+								backgroundColor: "var(--meld-card-bg)",
+								borderRadius: "4px",
+							}}
+						>
+							Adding tags will apply them to all selected images. Removing tags
+							will remove them only from images that currently have them.
+						</div>
+					)}
 					<div className="meld-tag-edit-section">
-						<div className="meld-tag-edit-label">Selected Tags</div>
+						<div className="meld-tag-edit-label">
+							{isBulk ? "Collective Tags" : "Selected Tags"}
+						</div>
 						<div className="meld-tag-edit-selected">
 							{selectedTags.length === 0 ? (
 								<span className="meld-tag-edit-empty">No tags selected</span>
