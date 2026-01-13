@@ -1,6 +1,6 @@
 import { Download, RefreshCw, Search, Settings, Tag } from "lucide-react";
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { logger } from "../logger";
 import { useGallery } from "../store/GalleryContext";
 import { LazyRender } from "../utils/LazyRender";
@@ -24,10 +24,15 @@ export const GalleryPanel: React.FC = () => {
 
 	const isSearchActive = state.searchQuery.trim() !== "";
 	const loadMoreRef = useRef<HTMLDivElement>(null);
-	const displayedImages = state.images.filter(
-		(img) =>
-			img.exists !== false &&
-			!(state.settings["gallery.hide_parent_images"] && img.has_children),
+	const lastScrolledId = useRef<number | null>(null);
+	const displayedImages = useMemo(
+		() =>
+			state.images.filter(
+				(img) =>
+					img.exists !== false &&
+					!(state.settings["gallery.hide_parent_images"] && img.has_children),
+			),
+		[state.images, state.settings],
 	);
 
 	// If there are no images to display but more exist, automatically load the next page
@@ -86,6 +91,29 @@ export const GalleryPanel: React.FC = () => {
 			}
 		};
 	}, [loadMoreImages, state.isLoading, state.pagination.hasMore]);
+
+	// Scroll synchronization with ImageViewer
+	useEffect(() => {
+		const idToScroll = state.viewerImageId ?? lastScrolledId.current;
+		if (idToScroll !== null) {
+			const isDisplayed = displayedImages.some((img) => img.id === idToScroll);
+			if (isDisplayed) {
+				const element = document.querySelector(
+					`[data-image-id="${idToScroll}"]`,
+				);
+				if (element) {
+					element.scrollIntoView({ behavior: "smooth", block: "nearest" });
+					if (state.viewerImageId === null) {
+						lastScrolledId.current = null;
+					}
+				}
+			}
+		}
+
+		if (state.viewerImageId !== null) {
+			lastScrolledId.current = state.viewerImageId;
+		}
+	}, [state.viewerImageId, displayedImages]);
 
 	return (
 		<div className="meld-gallery">
@@ -227,9 +255,11 @@ export const GalleryPanel: React.FC = () => {
 				<>
 					<div className="meld-gallery__list">
 						{displayedImages.map((image) => (
-							<LazyRender key={image.id} height={150}>
-								<ImageCard image={image} />
-							</LazyRender>
+							<div key={image.id} data-image-id={image.id}>
+								<LazyRender height={150}>
+									<ImageCard image={image} />
+								</LazyRender>
+							</div>
 						))}
 					</div>
 					<div
