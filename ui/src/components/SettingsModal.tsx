@@ -53,6 +53,13 @@ export const SettingsModal: React.FC = () => {
 			category: "Sidebar",
 		},
 		{
+			key: "sidebar.show_dimensions",
+			label: "Show Dimensions",
+			description: "Display the image dimensions (width x height) on the card.",
+			type: "boolean",
+			category: "Sidebar",
+		},
+		{
 			key: "gallery.show_parent_image",
 			label: "Show Source Info",
 			description:

@@ -267,13 +267,20 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 				/>
 			</div>
 			<div className="meld-image-card__details">
-				{state.settings["sidebar.show_filename"] && (
-					<div className="meld-image-card__filename">{fullFilename}</div>
-				)}
-
-				{image.width && image.height && (
-					<div className="meld-image-card__dimensions">
-						{image.width} x {image.height}
+				{(state.settings["sidebar.show_filename"] ||
+					state.settings["sidebar.show_dimensions"]) && (
+					<div className="meld-image-card__filename">
+						{state.settings["sidebar.show_filename"] && fullFilename}
+						{state.settings["sidebar.show_filename"] &&
+							state.settings["sidebar.show_dimensions"] &&
+							image.width &&
+							image.height &&
+							` (${image.width} x ${image.height})`}
+						{!state.settings["sidebar.show_filename"] &&
+							state.settings["sidebar.show_dimensions"] &&
+							image.width &&
+							image.height &&
+							`${image.width} x ${image.height}`}
 					</div>
 				)}
 
