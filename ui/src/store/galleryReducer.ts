@@ -33,7 +33,6 @@ export const initialState: GalleryState = {
 		"search.quick_suggestions": true,
 		"search.input_suggest": true,
 		"search.realtime_search": true,
-		"viewer.show_filename": true,
 		"viewer.loop": true,
 		"fullscreen.show_filename": true,
 		"fullscreen.loop": true,

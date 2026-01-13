@@ -48,7 +48,6 @@ export interface Settings {
 	"search.quick_suggestions": boolean;
 	"search.input_suggest": boolean;
 	"search.realtime_search": boolean;
-	"viewer.show_filename": boolean;
 	"viewer.loop": boolean;
 	"fullscreen.show_filename": boolean;
 	"fullscreen.loop": boolean;
