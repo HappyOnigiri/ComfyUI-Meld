@@ -78,6 +78,7 @@ export const ImageViewer: React.FC = () => {
 	const { viewerImageId, images, viewerMode, lineageImages } = state;
 	const [isFullscreen, setIsFullscreen] = useState(false);
 	const [isLoadingLineage, setIsLoadingLineage] = useState(false);
+	const [isJumping, setIsJumping] = useState(false);
 	const overlayRef = useRef<HTMLDivElement>(null);
 
 	const currentThumbnails = useMemo(() => {
@@ -146,6 +147,58 @@ export const ImageViewer: React.FC = () => {
 		[],
 	);
 
+	const handleNext = useCallback(() => {
+		dispatch({ type: "NEXT_IMAGE" });
+	}, [dispatch]);
+
+	const handlePrevious = useCallback(async () => {
+		if (
+			currentIndex === 0 &&
+			viewerMode === "gallery" &&
+			state.pagination.hasMore &&
+			!isJumping
+		) {
+			setIsJumping(true);
+			try {
+				// Calculate offset for the last page to jump to the very end
+				const pageSize = state.pagination.limit;
+				const total = state.pagination.total;
+				const lastOffset = Math.max(0, total - pageSize);
+
+				const result = await api.fetchImages(
+					lastOffset,
+					pageSize,
+					state.searchQuery,
+				);
+				dispatch({ type: "APPEND_IMAGES", payload: result });
+
+				// Open the very last image
+				if (result.images.length > 0) {
+					const lastImg = result.images[result.images.length - 1];
+					dispatch({
+						type: "OPEN_VIEWER",
+						payload: { id: lastImg.id, mode: "gallery" },
+					});
+				}
+			} catch (err) {
+				console.error("Failed to jump to end:", err);
+			} finally {
+				setIsJumping(false);
+			}
+		} else {
+			dispatch({ type: "PREVIOUS_IMAGE" });
+		}
+	}, [
+		currentIndex,
+		viewerMode,
+		state.pagination.hasMore,
+		state.pagination.total,
+		state.pagination.limit,
+		state.searchQuery,
+		dispatch,
+		isJumping,
+	]);
+
 	// Load more images if we are near the end of the current list in gallery mode
 	useEffect(() => {
 		if (
@@ -157,9 +210,6 @@ export const ImageViewer: React.FC = () => {
 			return;
 		}
 
-		const currentIndex = currentThumbnails.findIndex(
-			(img) => img.id === viewerImageId,
-		);
 		if (currentIndex === -1) return;
 
 		// Trigger load more when 15 images from the end
@@ -173,7 +223,7 @@ export const ImageViewer: React.FC = () => {
 		state.isLoading,
 		state.pagination.hasMore,
 		loadMoreImages,
-		currentThumbnails,
+		currentIndex,
 	]);
 
 	useEffect(() => {
@@ -187,9 +237,9 @@ export const ImageViewer: React.FC = () => {
 					dispatch({ type: "CLOSE_VIEWER" });
 				}
 			} else if (e.key === "ArrowRight") {
-				dispatch({ type: "NEXT_IMAGE" });
+				handleNext();
 			} else if (e.key === "ArrowLeft") {
-				dispatch({ type: "PREVIOUS_IMAGE" });
+				handlePrevious();
 			} else if (e.key === "f" || e.key === "F") {
 				toggleFullscreen(e);
 			}
@@ -206,7 +256,7 @@ export const ImageViewer: React.FC = () => {
 			window.removeEventListener("keydown", handleKeyDown);
 			document.removeEventListener("fullscreenchange", handleFullscreenChange);
 		};
-	}, [viewerImageId, dispatch, toggleFullscreen]);
+	}, [viewerImageId, dispatch, toggleFullscreen, handleNext, handlePrevious]);
 
 	// Fetch lineage if needed
 	useEffect(() => {
@@ -336,17 +386,23 @@ export const ImageViewer: React.FC = () => {
 
 				<button
 					className="meld-viewer-nav meld-viewer-nav--prev"
-					onClick={() => dispatch({ type: "PREVIOUS_IMAGE" })}
+					onClick={handlePrevious}
 					type="button"
+					disabled={isJumping}
 				>
 					<ChevronLeft size={32} />
 				</button>
 
 				<div className="meld-viewer-image-container">
+					{isJumping && (
+						<div className="meld-viewer-loading-overlay">
+							<RefreshCw className="animate-spin" size={48} />
+						</div>
+					)}
 					<img
 						src={imgSrc}
 						alt={image.filename}
-						className="meld-viewer-image"
+						className={`meld-viewer-image ${isJumping ? "meld-viewer-image--loading" : ""}`}
 						// @ts-expect-error - fetchpriority is a valid but sometimes untyped attribute
 						fetchpriority="high"
 					/>
@@ -354,7 +410,7 @@ export const ImageViewer: React.FC = () => {
 
 				<button
 					className="meld-viewer-nav meld-viewer-nav--next"
-					onClick={() => dispatch({ type: "NEXT_IMAGE" })}
+					onClick={handleNext}
 					type="button"
 				>
 					<ChevronRight size={32} />
