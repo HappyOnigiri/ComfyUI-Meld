@@ -48,6 +48,7 @@ export const initialState: GalleryState = {
 		"viewer.details.max_negative_prompt_lines": 7,
 		"gallery.page_size": 30,
 		"viewer.thumbnail_window_size": 15,
+		"viewer.show_thumbnails": true,
 	},
 	pagination: {
 		total: 0,

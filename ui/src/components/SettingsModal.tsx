@@ -216,6 +216,14 @@ export const SettingsModal: React.FC = () => {
 			category: "View Details",
 		},
 		{
+			key: "viewer.show_thumbnails",
+			label: "Show Thumbnails",
+			description:
+				"Display the thumbnail strip at the bottom of the viewer. Disabling this can improve performance on slower systems.",
+			type: "boolean",
+			category: "View",
+		},
+		{
 			key: "viewer.thumbnail_window_size",
 			label: "Thumbnail Window Size",
 			description: "Number of thumbnails to keep in the viewer (1-10000).",

@@ -489,6 +489,12 @@
 	transform: scale(1.1);
 }
 
+.meld-viewer-action-btn--active {
+	background: var(--comfy-menu-bg, rgba(0, 0, 0, 0.5));
+	color: var(--meld-text-primary, white);
+	border: 1px solid var(--comfy-menu-border, rgba(255, 255, 255, 0.2));
+}
+
 .meld-viewer-action-btn--close:hover {
 	background: var(--error-color, rgba(255, 68, 68, 0.7));
 }

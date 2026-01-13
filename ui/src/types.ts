@@ -63,6 +63,7 @@ export interface Settings {
 	"viewer.details.max_negative_prompt_lines": number;
 	"gallery.page_size": number;
 	"viewer.thumbnail_window_size": number;
+	"viewer.show_thumbnails": boolean;
 }
 
 export type ScanStatus = {
