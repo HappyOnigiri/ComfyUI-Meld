@@ -190,8 +190,8 @@ class MeldNexusSaveImage:
             # Insert Image
             sql = """
                 INSERT INTO images
-                (filename, subfolder, created_at, phash, sha256, width, height, parent_id, is_deleted, positive_prompt, negative_prompt, workflow)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)
+                (filename, subfolder, created_at, phash, sha256, width, height, parent_id, deleted_at, positive_prompt, negative_prompt, workflow)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?)
             """
             cursor.execute(
                 sql,

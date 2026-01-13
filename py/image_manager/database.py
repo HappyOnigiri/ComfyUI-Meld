@@ -27,7 +27,7 @@ def init_db() -> None:
             negative_prompt TEXT,
             workflow TEXT,
             type TEXT DEFAULT 'output',
-            is_deleted INTEGER DEFAULT 0
+            deleted_at REAL
         )
     """)
 
@@ -81,10 +81,24 @@ def init_db() -> None:
     except sqlite3.OperationalError:
         pass
 
-    # Add is_deleted column if not exists
+    # Add deleted_at column if not exists
     try:
-        cursor.execute("ALTER TABLE images ADD COLUMN is_deleted INTEGER DEFAULT 0")
+        cursor.execute("ALTER TABLE images ADD COLUMN deleted_at REAL")
     except sqlite3.OperationalError:
+        pass
+
+    # Migration: is_deleted -> deleted_at
+    try:
+        cursor.execute("SELECT id FROM images WHERE is_deleted = 1 AND deleted_at IS NULL")
+        rows = cursor.fetchall()
+        if rows:
+            import time
+
+            now = time.time()
+            for (img_id,) in rows:
+                cursor.execute("UPDATE images SET deleted_at = ? WHERE id = ?", (now, img_id))
+    except sqlite3.OperationalError:
+        # is_deleted column might not exist
         pass
 
     # Migration: Update width/height for existing images if NULL
@@ -230,8 +244,8 @@ def init_db() -> None:
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_images_phash ON images(phash)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_images_filename_subfolder ON images(filename, subfolder)")
 
-    # Optimize list query (is_deleted filter + sort)
-    cursor.execute("CREATE INDEX IF NOT EXISTS idx_images_is_deleted_created_at ON images(is_deleted, created_at)")
+    # Optimize list query (deleted_at filter + sort)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_images_deleted_at_created_at ON images(deleted_at, created_at)")
 
     # Data Migration: model_name -> models table
     try:
@@ -350,7 +364,7 @@ def find_closest_parent(
     if not phash:
         return None
 
-    query = "SELECT id, phash FROM images WHERE phash IS NOT NULL AND is_deleted = 0"
+    query = "SELECT id, phash FROM images WHERE phash IS NOT NULL AND deleted_at IS NULL"
     params: list[int | float] = []
 
     if exclude_id:

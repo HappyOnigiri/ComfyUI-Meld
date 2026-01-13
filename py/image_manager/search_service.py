@@ -192,7 +192,7 @@ class SearchService:
         """
 
         # 1. Get total image count
-        cursor.execute("SELECT COUNT(*) FROM images WHERE is_deleted = 0")
+        cursor.execute("SELECT COUNT(*) FROM images WHERE deleted_at IS NULL")
         total_images = cursor.fetchone()[0]
         if total_images == 0:
             return []
@@ -246,7 +246,7 @@ class SearchService:
             suggestions.append({"type": "model", "value": model})
 
         # 4. Date (pick a random date that exists)
-        cursor.execute("SELECT created_at FROM images WHERE is_deleted = 0 ORDER BY RANDOM() LIMIT 1")
+        cursor.execute("SELECT created_at FROM images WHERE deleted_at IS NULL ORDER BY RANDOM() LIMIT 1")
         date_row = cursor.fetchone()
         if date_row:
             dt = datetime.fromtimestamp(date_row[0])

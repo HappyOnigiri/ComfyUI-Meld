@@ -149,7 +149,7 @@ def perform_cleanup() -> int:
     cursor = conn.cursor()
     try:
         # 削除されていない全画像を取得
-        cursor.execute("SELECT id, filename, subfolder, type FROM images WHERE is_deleted = 0")
+        cursor.execute("SELECT id, filename, subfolder, type FROM images WHERE deleted_at IS NULL")
         images = cursor.fetchall()
 
         missing_count = 0
@@ -166,9 +166,9 @@ def perform_cleanup() -> int:
 
             full_path = os.path.join(base_dir, subfolder, filename)
 
-            # ファイルが存在しなければ is_deleted = 1 に更新
+            # ファイルが存在しなければ削除日時を記録
             if not os.path.exists(full_path):
-                cursor.execute("UPDATE images SET is_deleted = 1 WHERE id = ?", (img_id,))
+                cursor.execute("UPDATE images SET deleted_at = ? WHERE id = ?", (time.time(), img_id))
                 missing_count += 1
 
         if missing_count > 0:
@@ -236,7 +236,7 @@ def _scan_thread(
 
                 # Check if already registered (by filename and subfolder or by sha256)
                 sha256 = calculate_sha256(full_path)
-                cursor.execute("SELECT id FROM images WHERE sha256 = ? AND is_deleted = 0", (sha256,))
+                cursor.execute("SELECT id FROM images WHERE sha256 = ? AND deleted_at IS NULL", (sha256,))
                 existing = cursor.fetchone()
                 if existing:
                     image_id = existing[0]
@@ -275,8 +275,8 @@ def _scan_thread(
                 img_type = "output" if "output" in base_dir else "input"  # Simple heuristic
                 sql = """
                     INSERT INTO images
-                    (filename, subfolder, type, created_at, phash, sha256, width, height, is_deleted, positive_prompt, negative_prompt, workflow)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)
+                    (filename, subfolder, type, created_at, phash, sha256, width, height, deleted_at, positive_prompt, negative_prompt, workflow)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?)
                 """
                 cursor.execute(
                     sql,
@@ -393,7 +393,7 @@ def _scan_thread(
                         placeholders = ",".join(["?"] * len(source_filenames))
                         sql = (
                             f"SELECT id FROM images WHERE filename IN ({placeholders}) "
-                            "AND is_deleted = 0 AND created_at < ? ORDER BY created_at DESC LIMIT 1"
+                            "AND deleted_at IS NULL AND created_at < ? ORDER BY created_at DESC LIMIT 1"
                         )
                         cursor.execute(sql, (*source_filenames, icreated))
                         res = cursor.fetchone()
@@ -586,7 +586,7 @@ async def get_image_workflow(request: web.Request) -> web.Response:
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        cursor.execute("SELECT workflow FROM images WHERE id = ? AND is_deleted = 0", (image_id,))
+        cursor.execute("SELECT workflow FROM images WHERE id = ? AND deleted_at IS NULL", (image_id,))
         row = cursor.fetchone()
         conn.close()
 
@@ -617,7 +617,7 @@ async def get_image_snapshot_data(request: web.Request) -> web.Response:
                     JOIN model_image_relations mir ON m.id = mir.model_id
                     WHERE mir.image_id = i.id LIMIT 1) as model_name,
                    i.width, i.height
-            FROM images i WHERE i.id = ? AND i.is_deleted = 0
+            FROM images i WHERE i.id = ? AND i.deleted_at IS NULL
         """,
             (image_id,),
         )
@@ -873,7 +873,7 @@ async def register_image(request: web.Request) -> web.Response:
 
         # Check if already registered
         cursor.execute(
-            "SELECT id FROM images WHERE filename = ? AND subfolder = ? AND is_deleted = 0", (filename, subfolder)
+            "SELECT id FROM images WHERE filename = ? AND subfolder = ? AND deleted_at IS NULL", (filename, subfolder)
         )
         existing = cursor.fetchone()
         if existing:
@@ -909,8 +909,8 @@ async def register_image(request: web.Request) -> web.Response:
         # Insert Image
         sql = """
             INSERT INTO images
-            (filename, subfolder, type, created_at, phash, sha256, width, height, parent_id, is_deleted, positive_prompt, negative_prompt, workflow)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)
+            (filename, subfolder, type, created_at, phash, sha256, width, height, parent_id, deleted_at, positive_prompt, negative_prompt, workflow)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?)
         """
         cursor.execute(
             sql,
@@ -1024,7 +1024,7 @@ async def list_images(request: web.Request) -> web.Response:
         search_sql, search_params = SearchService.build_search_sql(query_str)
 
         # Get total count
-        count_sql = f"SELECT COUNT(*) FROM images i WHERE i.is_deleted = 0{search_sql}"
+        count_sql = f"SELECT COUNT(*) FROM images i WHERE i.deleted_at IS NULL{search_sql}"
         cursor.execute(count_sql, search_params)
         total_count = cursor.fetchone()[0]
 
@@ -1032,14 +1032,14 @@ async def list_images(request: web.Request) -> web.Response:
         fetch_sql = f"""
             SELECT i.id, i.filename, i.subfolder, i.type, i.created_at, i.phash, i.sha256, i.parent_id,
                    p.filename as parent_filename, p.subfolder as parent_subfolder, p.type as parent_type,
-                   EXISTS(SELECT 1 FROM images c WHERE c.parent_id = i.id AND c.is_deleted = 0) as has_children,
+                   EXISTS(SELECT 1 FROM images c WHERE c.parent_id = i.id AND c.deleted_at IS NULL) as has_children,
                    i.positive_prompt, i.negative_prompt,
                    (SELECT GROUP_CONCAT(m.name, ', ') FROM models m
                     JOIN model_image_relations mir ON m.id = mir.model_id
                     WHERE mir.image_id = i.id) as model_name,
                    i.workflow, i.width, i.height
             FROM images i LEFT JOIN images p ON i.parent_id = p.id
-            WHERE i.is_deleted = 0{search_sql} ORDER BY i.created_at DESC LIMIT ? OFFSET ?
+            WHERE i.deleted_at IS NULL{search_sql} ORDER BY i.created_at DESC LIMIT ? OFFSET ?
         """
         cursor.execute(fetch_sql, (*search_params, limit, offset))
         images = cursor.fetchall()
@@ -1174,7 +1174,7 @@ async def get_related_images(request: web.Request) -> web.Response:
 
         # Fetch all other images with phash
         cursor.execute(
-            "SELECT id, filename, subfolder, type, phash FROM images WHERE id != ? AND phash IS NOT NULL AND is_deleted = 0",
+            "SELECT id, filename, subfolder, type, phash FROM images WHERE id != ? AND phash IS NOT NULL AND deleted_at IS NULL",
             (image_id,),
         )
         other_images = cursor.fetchall()
@@ -1242,7 +1242,7 @@ async def bulk_delete_images(request: web.Request) -> web.Response:
                     except Exception as e:
                         logging.warning(f"[Meld-Flow] Failed to delete file {full_path}: {e}")
 
-            cursor.execute("UPDATE images SET is_deleted = 1 WHERE id = ?", (img_id,))
+            cursor.execute("UPDATE images SET deleted_at = ? WHERE id = ?", (time.time(), img_id))
             # Update children to set parent_id to NULL when parent is deleted
             cursor.execute("UPDATE images SET parent_id = NULL WHERE parent_id = ?", (img_id,))
             deleted_count += 1
@@ -1271,14 +1271,14 @@ async def delete_image(request: web.Request) -> web.Response:
         if image_id:
             # Update children to set parent_id to NULL when parent is deleted
             cursor.execute("UPDATE images SET parent_id = NULL WHERE parent_id = ?", (image_id,))
-            cursor.execute("UPDATE images SET is_deleted = 1 WHERE id = ?", (image_id,))
+            cursor.execute("UPDATE images SET deleted_at = ? WHERE id = ?", (time.time(), image_id))
         else:
             # Update children for all images with this filename
             cursor.execute(
                 "UPDATE images SET parent_id = NULL WHERE parent_id IN (SELECT id FROM images WHERE filename = ?)",
                 (filename,),
             )
-            cursor.execute("UPDATE images SET is_deleted = 1 WHERE filename = ?", (filename,))
+            cursor.execute("UPDATE images SET deleted_at = ? WHERE filename = ?", (time.time(), filename))
 
         if cursor.rowcount == 0:
             conn.close()
@@ -1376,7 +1376,7 @@ async def suggest_parents(request: web.Request) -> web.Response:
                     if source_filenames:
                         placeholders = ",".join(["?"] * len(source_filenames))
                         cursor.execute(
-                            f"SELECT id, filename, subfolder, type, phash, created_at FROM images WHERE filename IN ({placeholders}) AND is_deleted = 0 AND id != ? AND created_at < ?",
+                            f"SELECT id, filename, subfolder, type, phash, created_at FROM images WHERE filename IN ({placeholders}) AND deleted_at IS NULL AND id != ? AND created_at < ?",
                             (*source_filenames, image_id, target_created_at),
                         )
                         for match in cursor.fetchall():
@@ -1399,7 +1399,7 @@ async def suggest_parents(request: web.Request) -> web.Response:
         if target_phash:
             # Fetch images created BEFORE the target image
             cursor.execute(
-                "SELECT id, filename, subfolder, type, phash, created_at FROM images WHERE id != ? AND phash IS NOT NULL AND is_deleted = 0 AND created_at < ? ORDER BY created_at DESC",
+                "SELECT id, filename, subfolder, type, phash, created_at FROM images WHERE id != ? AND phash IS NOT NULL AND deleted_at IS NULL AND created_at < ? ORDER BY created_at DESC",
                 (image_id, target_created_at),
             )
             other_images = cursor.fetchall()
@@ -1473,7 +1473,7 @@ async def get_lineage(request: web.Request) -> web.Response:
                 WHERE mir.image_id = i.id) as model_name,
                i.workflow, i.width, i.height
         FROM images i LEFT JOIN images p ON i.parent_id = p.id
-        WHERE (i.id IN (SELECT id FROM ancestors) OR i.id IN (SELECT id FROM descendants)) AND i.is_deleted = 0
+        WHERE (i.id IN (SELECT id FROM ancestors) OR i.id IN (SELECT id FROM descendants)) AND i.deleted_at IS NULL
         ORDER BY i.created_at
         """
 
