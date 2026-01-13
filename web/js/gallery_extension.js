@@ -7932,7 +7932,8 @@ Physical files will also be permanently deleted. This operation cannot be undone
     v(!0);
     try {
       await up(e.searchQuery, e.searchQuery), await n(), N(
-        "Favorite added! You can select favorites when the search query is empty."
+        `Favorite added!
+You can select favorites when the search query is empty.`
       );
     } catch (I) {
       console.error("Failed to save favorite:", I);
@@ -7973,7 +7974,7 @@ Physical files will also be permanently deleted. This operation cannot be undone
                 {
                   style: {
                     position: "absolute",
-                    top: "-45px",
+                    top: "calc(100% + 8px)",
                     left: "50%",
                     transform: "translateX(-50%)",
                     backgroundColor: "var(--comfy-menu-bg, #333)",
@@ -7981,13 +7982,16 @@ Physical files will also be permanently deleted. This operation cannot be undone
                     padding: "8px 16px",
                     borderRadius: "4px",
                     fontSize: "12px",
-                    zIndex: 1e3,
-                    whiteSpace: "nowrap",
+                    zIndex: 2e3,
+                    whiteSpace: "pre-wrap",
+                    textAlign: "center",
                     boxShadow: "0 4px 12px var(--comfy-menu-shadow, rgba(0,0,0,0.5))",
                     pointerEvents: "none",
                     fontWeight: "bold",
                     border: "1px solid var(--comfy-menu-border, #444)",
-                    animation: "meld-fade-in 0.3s ease-out"
+                    animation: "meld-fade-in-down 0.3s ease-out",
+                    width: "max-content",
+                    maxWidth: "300px"
                   },
                   children: S
                 }

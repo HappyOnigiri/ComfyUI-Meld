@@ -260,7 +260,7 @@ export const SearchBar: React.FC = () => {
 			await api.saveFavorite(state.searchQuery, state.searchQuery);
 			await refreshFavorites();
 			setToastMessage(
-				"Favorite added! You can select favorites when the search query is empty.",
+				"Favorite added!\nYou can select favorites when the search query is empty.",
 			);
 		} catch (err) {
 			console.error("Failed to save favorite:", err);
@@ -300,7 +300,7 @@ export const SearchBar: React.FC = () => {
 					<div
 						style={{
 							position: "absolute",
-							top: "-45px",
+							top: "calc(100% + 8px)",
 							left: "50%",
 							transform: "translateX(-50%)",
 							backgroundColor: "var(--comfy-menu-bg, #333)",
@@ -308,13 +308,16 @@ export const SearchBar: React.FC = () => {
 							padding: "8px 16px",
 							borderRadius: "4px",
 							fontSize: "12px",
-							zIndex: 1000,
-							whiteSpace: "nowrap",
+							zIndex: 2000,
+							whiteSpace: "pre-wrap",
+							textAlign: "center",
 							boxShadow: "0 4px 12px var(--comfy-menu-shadow, rgba(0,0,0,0.5))",
 							pointerEvents: "none",
 							fontWeight: "bold",
 							border: "1px solid var(--comfy-menu-border, #444)",
-							animation: "meld-fade-in 0.3s ease-out",
+							animation: "meld-fade-in-down 0.3s ease-out",
+							width: "max-content",
+							maxWidth: "300px",
 						}}
 					>
 						{toastMessage}
