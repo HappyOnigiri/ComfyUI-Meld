@@ -50,7 +50,8 @@ export const SettingsModal: React.FC = () => {
 		key: keyof Settings;
 		label: string;
 		description: string;
-		type: "boolean" | "number";
+		type: "boolean" | "number" | "select";
+		options?: { value: string; label: string }[];
 		category: Category;
 		min?: number;
 		max?: number;
@@ -71,6 +72,18 @@ export const SettingsModal: React.FC = () => {
 				"Hide images that have been used as a basis for other images (sources).",
 			type: "boolean",
 			category: "General",
+		},
+		{
+			key: "gallery.matching_strategy",
+			label: "Source Matching Strategy",
+			description: "Algorithm used to identify the source image.",
+			type: "select",
+			category: "General",
+			options: [
+				{ value: "filename_phash", label: "Filename -> pHash" },
+				{ value: "phash_created", label: "pHash & Created Time" },
+				{ value: "phash_only", label: "pHash Only" },
+			],
 		},
 		{
 			key: "sidebar.show_filename",
@@ -592,6 +605,25 @@ export const SettingsModal: React.FC = () => {
 													}
 												}}
 											/>
+										)}
+										{config.type === "select" && (
+											<select
+												className="meld-select"
+												value={localSettings[config.key] as string}
+												onChange={(e) =>
+													setLocalSettings((prev) => ({
+														...prev,
+														[config.key]: e.target
+															.value as Settings[keyof Settings],
+													}))
+												}
+											>
+												{config.options?.map((opt) => (
+													<option key={opt.value} value={opt.value}>
+														{opt.label}
+													</option>
+												))}
+											</select>
 										)}
 									</div>
 								</div>

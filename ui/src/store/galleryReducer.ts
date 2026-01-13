@@ -60,6 +60,7 @@ export const initialState: GalleryState = {
 		"viewer.thumbnail_window_size": 15,
 		"viewer.show_thumbnails": true,
 		"viewer.show_icons": true,
+		"gallery.matching_strategy": "filename_phash",
 	},
 	pagination: {
 		total: 0,

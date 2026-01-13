@@ -1545,6 +1545,21 @@
 	border-color: var(--meld-accent-color);
 }
 
+.meld-select {
+	background: var(--comfy-input-bg, #1a1a1a);
+	border: 1px solid var(--comfy-menu-border, #444);
+	border-radius: 4px;
+	padding: 4px 8px;
+	color: var(--meld-text-color);
+	font-size: 14px;
+	outline: none;
+	cursor: pointer;
+}
+
+.meld-select:focus {
+	border-color: var(--meld-accent-color);
+}
+
 /* Favorites Dropdown */
 .meld-favorites-dropdown {
 	display: none;

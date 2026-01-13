@@ -75,6 +75,10 @@ export interface Settings {
 	"viewer.thumbnail_window_size": number;
 	"viewer.show_thumbnails": boolean;
 	"viewer.show_icons": boolean;
+	"gallery.matching_strategy":
+		| "filename_phash"
+		| "phash_created"
+		| "phash_only";
 }
 
 export type ScanStatus = {
