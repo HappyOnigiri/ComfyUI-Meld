@@ -22,8 +22,42 @@
 	font-family: var(--comfy-ui-font, sans-serif);
 	background: var(--meld-bg-color);
 	color: var(--meld-text-color);
-	padding: 10px;
+	padding: 0;
 	padding-bottom: 70px;
+}
+
+.meld-gallery__header {
+	position: sticky;
+	top: 0;
+	background: var(--meld-bg-color);
+	z-index: 100;
+	padding: 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	border-bottom: 1px solid var(--meld-border-color);
+}
+
+.meld-gallery__actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 15px;
+	flex-shrink: 0;
+	padding-top: 4px;
+}
+
+.meld-gallery__search-wrapper {
+	width: 100%;
+}
+
+.meld-gallery__error,
+.meld-gallery__list,
+.meld-gallery__loading,
+.meld-gallery__empty,
+.meld-gallery__end,
+.meld-tag-manager-view {
+	margin-left: 10px;
+	margin-right: 10px;
 }
 
 .meld-gallery__loading {

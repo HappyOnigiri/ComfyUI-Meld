@@ -9744,133 +9744,110 @@ You can select favorites when the search query is empty.`
       h && g.unobserve(h);
     };
   }, [r, e.isLoading, e.pagination.hasMore]), /* @__PURE__ */ o.jsxs("div", { className: "meld-gallery", children: [
-    /* @__PURE__ */ o.jsxs(
-      "div",
-      {
-        style: {
-          display: "flex",
-          flexDirection: "column",
-          marginBottom: "15px",
-          gap: "10px"
-        },
-        children: [
-          /* @__PURE__ */ o.jsxs(
-            "div",
-            {
-              style: {
-                display: "flex",
-                justifyContent: "flex-end",
-                gap: "15px",
-                flexShrink: 0,
-                paddingTop: "4px"
-              },
-              children: [
-                /* @__PURE__ */ o.jsx(
-                  "button",
-                  {
-                    type: "button",
-                    onClick: () => {
-                      l === "search" ? (e.searchQuery && (a(e.searchQuery), t({ type: "SET_SEARCH_QUERY", payload: "" })), i("gallery")) : (!e.searchQuery && s && t({
-                        type: "SET_SEARCH_QUERY",
-                        payload: s
-                      }), i("search"));
-                    },
-                    style: {
-                      background: "none",
-                      border: "none",
-                      color: u ? "var(--meld-success-color)" : l === "search" ? "var(--meld-text-color)" : "var(--meld-text-secondary)",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      fontWeight: u ? "bold" : "normal"
-                    },
-                    title: "Search",
-                    children: /* @__PURE__ */ o.jsx(yn, { size: 14 })
-                  }
-                ),
-                /* @__PURE__ */ o.jsx(
-                  "button",
-                  {
-                    type: "button",
-                    onClick: () => i(l === "tags" ? "gallery" : "tags"),
-                    style: {
-                      background: "none",
-                      border: "none",
-                      color: l === "tags" ? "var(--meld-accent-color)" : "var(--meld-text-secondary)",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      fontWeight: l === "tags" ? "bold" : "normal"
-                    },
-                    title: "Tag Manager",
-                    children: /* @__PURE__ */ o.jsx(Sn, { size: 14 })
-                  }
-                ),
-                /* @__PURE__ */ o.jsx(
-                  "button",
-                  {
-                    type: "button",
-                    onClick: () => t({ type: "OPEN_MODAL", payload: { type: "import" } }),
-                    style: {
-                      background: "none",
-                      border: "none",
-                      color: "var(--meld-text-secondary)",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center"
-                    },
-                    title: "Import",
-                    children: /* @__PURE__ */ o.jsx(Fp, { size: 14 })
-                  }
-                ),
-                /* @__PURE__ */ o.jsx(
-                  "button",
-                  {
-                    type: "button",
-                    onClick: () => n(),
-                    style: {
-                      background: "none",
-                      border: "none",
-                      color: "var(--meld-text-secondary)",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center"
-                    },
-                    disabled: e.isLoading,
-                    title: "Refresh",
-                    children: /* @__PURE__ */ o.jsx(
-                      ml,
-                      {
-                        size: 14,
-                        className: e.isLoading ? "animate-spin" : ""
-                      }
-                    )
-                  }
-                ),
-                /* @__PURE__ */ o.jsx(
-                  "button",
-                  {
-                    type: "button",
-                    onClick: () => t({ type: "OPEN_MODAL", payload: { type: "settings" } }),
-                    style: {
-                      background: "none",
-                      border: "none",
-                      color: "var(--meld-text-secondary)",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center"
-                    },
-                    title: "Settings",
-                    children: /* @__PURE__ */ o.jsx(Wp, { size: 14 })
-                  }
-                )
-              ]
-            }
-          ),
-          l === "search" && /* @__PURE__ */ o.jsx("div", { style: { width: "100%" }, children: /* @__PURE__ */ o.jsx(am, {}) })
-        ]
-      }
-    ),
+    /* @__PURE__ */ o.jsxs("div", { className: "meld-gallery__header", children: [
+      /* @__PURE__ */ o.jsxs("div", { className: "meld-gallery__actions", children: [
+        /* @__PURE__ */ o.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: () => {
+              l === "search" ? (e.searchQuery && (a(e.searchQuery), t({ type: "SET_SEARCH_QUERY", payload: "" })), i("gallery")) : (!e.searchQuery && s && t({
+                type: "SET_SEARCH_QUERY",
+                payload: s
+              }), i("search"));
+            },
+            style: {
+              background: "none",
+              border: "none",
+              color: u ? "var(--meld-success-color)" : l === "search" ? "var(--meld-text-color)" : "var(--meld-text-secondary)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              fontWeight: u ? "bold" : "normal"
+            },
+            title: "Search",
+            children: /* @__PURE__ */ o.jsx(yn, { size: 14 })
+          }
+        ),
+        /* @__PURE__ */ o.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: () => i(l === "tags" ? "gallery" : "tags"),
+            style: {
+              background: "none",
+              border: "none",
+              color: l === "tags" ? "var(--meld-accent-color)" : "var(--meld-text-secondary)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              fontWeight: l === "tags" ? "bold" : "normal"
+            },
+            title: "Tag Manager",
+            children: /* @__PURE__ */ o.jsx(Sn, { size: 14 })
+          }
+        ),
+        /* @__PURE__ */ o.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: () => t({ type: "OPEN_MODAL", payload: { type: "import" } }),
+            style: {
+              background: "none",
+              border: "none",
+              color: "var(--meld-text-secondary)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center"
+            },
+            title: "Import",
+            children: /* @__PURE__ */ o.jsx(Fp, { size: 14 })
+          }
+        ),
+        /* @__PURE__ */ o.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: () => n(),
+            style: {
+              background: "none",
+              border: "none",
+              color: "var(--meld-text-secondary)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center"
+            },
+            disabled: e.isLoading,
+            title: "Refresh",
+            children: /* @__PURE__ */ o.jsx(
+              ml,
+              {
+                size: 14,
+                className: e.isLoading ? "animate-spin" : ""
+              }
+            )
+          }
+        ),
+        /* @__PURE__ */ o.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: () => t({ type: "OPEN_MODAL", payload: { type: "settings" } }),
+            style: {
+              background: "none",
+              border: "none",
+              color: "var(--meld-text-secondary)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center"
+            },
+            title: "Settings",
+            children: /* @__PURE__ */ o.jsx(Wp, { size: 14 })
+          }
+        )
+      ] }),
+      l === "search" && /* @__PURE__ */ o.jsx("div", { className: "meld-gallery__search-wrapper", children: /* @__PURE__ */ o.jsx(am, {}) })
+    ] }),
     e.error && /* @__PURE__ */ o.jsx("div", { className: "meld-gallery__error", children: e.error }),
     l === "tags" ? /* @__PURE__ */ o.jsx(
       dm,

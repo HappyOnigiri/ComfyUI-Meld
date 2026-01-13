@@ -89,23 +89,8 @@ export const GalleryPanel: React.FC = () => {
 
 	return (
 		<div className="meld-gallery">
-			<div
-				style={{
-					display: "flex",
-					flexDirection: "column",
-					marginBottom: "15px",
-					gap: "10px",
-				}}
-			>
-				<div
-					style={{
-						display: "flex",
-						justifyContent: "flex-end",
-						gap: "15px",
-						flexShrink: 0,
-						paddingTop: "4px",
-					}}
-				>
+			<div className="meld-gallery__header">
+				<div className="meld-gallery__actions">
 					<button
 						type="button"
 						onClick={() => {
@@ -218,7 +203,7 @@ export const GalleryPanel: React.FC = () => {
 					</button>
 				</div>
 				{viewMode === "search" && (
-					<div style={{ width: "100%" }}>
+					<div className="meld-gallery__search-wrapper">
 						<SearchBar />
 					</div>
 				)}
