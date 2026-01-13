@@ -1,4 +1,4 @@
-.PHONY: ci test-all lint repomix local-check-scripts check-scripts
+.PHONY: ci test-all lint repomix repomix-nexus local-check-scripts check-scripts
 
 ci: local-check-scripts check-only-ascii lint build-ui test-all
 
@@ -59,9 +59,9 @@ check-only-ascii:
 		echo "All files are ASCII (English) only."; \
 	fi
 
-REPOMIX_IGNORE := **/__pycache__/**,**/node_modules/**,**/.git/**,tmp/**,web/js/gallery_extension.js,**/package-lock.json,**/.mypy_cache/**,**/.pytest_cache/**,**/.ruff_cache/**,**/.venv/**,env/**,**/.cursor/**,**/.DS_Store
+REPOMIX_IGNORE := **/__pycache__/**,**/node_modules/**,**/.git/**,tmp/**,web/js/gallery_extension.js,**/package-lock.json,**/.mypy_cache/**,**/.pytest_cache/**,**/.ruff_cache/**,**/.venv/**,env/**,**/.cursor/history/**,**/.DS_Store
 
-repomix: repomix-full repomix-src repomix-tests repomix-nodes repomix-ui
+repomix: repomix-full repomix-src repomix-tests repomix-nodes repomix-ui repomix-nexus
 
 repomix-full:
 	@mkdir -p tmp/repomix
@@ -78,6 +78,10 @@ repomix-tests:
 repomix-ui:
 	@mkdir -p tmp/repomix
 	npx --yes repomix --include "ui/**,*.md,*.toml,requirements.txt,Makefile,__init__.py" --ignore "$(REPOMIX_IGNORE)" --output tmp/repomix/repomix-ui.xml
+
+repomix-nexus:
+	@mkdir -p tmp/repomix
+	npx --yes repomix --include "ui/**,py/image_manager/**,.cursor/rules/**,*.md,*.toml,requirements.txt,Makefile,__init__.py" --ignore "$(REPOMIX_IGNORE),tests/**" --output tmp/repomix/repomix-nexus.xml
 
 repomix-nodes:
 	@mkdir -p tmp/repomix
