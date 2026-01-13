@@ -18,6 +18,7 @@ export const GalleryPanel: React.FC = () => {
 	const { state, dispatch, refreshImages, loadMoreImages } = useGallery();
 	type SidebarView = "gallery" | "search" | "tags";
 	const [viewMode, setViewMode] = useState<SidebarView>("gallery");
+	const [lastSearchQuery, setLastSearchQuery] = useState("");
 
 	const isSearchActive = state.searchQuery.trim() !== "";
 	const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -105,9 +106,23 @@ export const GalleryPanel: React.FC = () => {
 				>
 					<button
 						type="button"
-						onClick={() =>
-							setViewMode(viewMode === "search" ? "gallery" : "search")
-						}
+						onClick={() => {
+							if (viewMode === "search") {
+								if (state.searchQuery) {
+									setLastSearchQuery(state.searchQuery);
+									dispatch({ type: "SET_SEARCH_QUERY", payload: "" });
+								}
+								setViewMode("gallery");
+							} else {
+								if (!state.searchQuery && lastSearchQuery) {
+									dispatch({
+										type: "SET_SEARCH_QUERY",
+										payload: lastSearchQuery,
+									});
+								}
+								setViewMode("search");
+							}
+						}}
 						style={{
 							background: "none",
 							border: "none",
