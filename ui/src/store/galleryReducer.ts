@@ -35,6 +35,7 @@ export const initialState: GalleryState = {
 		"viewer.show_filename": true,
 		"fullscreen.show_filename": true,
 		"gallery.page_size": 30,
+		"viewer.thumbnail_window_size": 15,
 	},
 	pagination: {
 		total: 0,

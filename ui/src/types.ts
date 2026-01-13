@@ -48,6 +48,7 @@ export interface Settings {
 	"viewer.show_filename": boolean;
 	"fullscreen.show_filename": boolean;
 	"gallery.page_size": number;
+	"viewer.thumbnail_window_size": number;
 }
 
 export type ScanStatus = {

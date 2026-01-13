@@ -16,6 +16,8 @@ export const SettingsModal: React.FC = () => {
 	const [pageSizeInput, setPageSizeInput] = useState<string>(
 		state.settings["gallery.page_size"].toString(),
 	);
+	const [thumbnailWindowSizeInput, setThumbnailWindowSizeInput] =
+		useState<string>(state.settings["viewer.thumbnail_window_size"].toString());
 
 	const settingsConfig: {
 		key: keyof Settings;
@@ -116,6 +118,15 @@ export const SettingsModal: React.FC = () => {
 			category: "View",
 		},
 		{
+			key: "viewer.thumbnail_window_size",
+			label: "Thumbnail Window Size",
+			description: "Number of thumbnails to keep in the viewer (1-10000).",
+			type: "number",
+			category: "View",
+			min: 1,
+			max: 10000,
+		},
+		{
 			key: "fullscreen.show_filename",
 			label: "Show Filename",
 			description: "Display the filename in fullscreen mode.",
@@ -156,18 +167,12 @@ export const SettingsModal: React.FC = () => {
 	) => {
 		if (key === "gallery.page_size") {
 			setPageSizeInput(value);
-			const num = Number.parseInt(value, 10);
-			if (!Number.isNaN(num)) {
-				let val = num;
-				if (min !== undefined && val < min) val = min;
-				if (max !== undefined && val > max) val = max;
-				setLocalSettings((prev) => ({
-					...prev,
-					[key]: val,
-				}));
-			}
-		} else {
-			const num = Number.parseInt(value, 10) || 0;
+		} else if (key === "viewer.thumbnail_window_size") {
+			setThumbnailWindowSizeInput(value);
+		}
+
+		const num = Number.parseInt(value, 10);
+		if (!Number.isNaN(num)) {
 			let val = num;
 			if (min !== undefined && val < min) val = min;
 			if (max !== undefined && val > max) val = max;
@@ -269,7 +274,9 @@ export const SettingsModal: React.FC = () => {
 											value={
 												config.key === "gallery.page_size"
 													? pageSizeInput
-													: (localSettings[config.key] as unknown as number)
+													: config.key === "viewer.thumbnail_window_size"
+														? thumbnailWindowSizeInput
+														: (localSettings[config.key] as unknown as number)
 											}
 											min={config.min}
 											max={config.max}
@@ -285,6 +292,14 @@ export const SettingsModal: React.FC = () => {
 												if (config.key === "gallery.page_size") {
 													setPageSizeInput(
 														localSettings["gallery.page_size"].toString(),
+													);
+												} else if (
+													config.key === "viewer.thumbnail_window_size"
+												) {
+													setThumbnailWindowSizeInput(
+														localSettings[
+															"viewer.thumbnail_window_size"
+														].toString(),
 													);
 												}
 											}}

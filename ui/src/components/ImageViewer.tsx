@@ -98,7 +98,7 @@ export const ImageViewer: React.FC = () => {
 	// Windowed thumbnails: only render a subset around the current image for performance
 	const windowedThumbnails = useMemo(() => {
 		if (currentIndex === -1) return [];
-		const windowSize = 50; // Total thumbnails to keep in DOM
+		const windowSize = state.settings["viewer.thumbnail_window_size"]; // Total thumbnails to keep in DOM
 		const halfWindow = Math.floor(windowSize / 2);
 		let start = Math.max(0, currentIndex - halfWindow);
 		const end = Math.min(currentThumbnails.length, start + windowSize);
@@ -112,7 +112,11 @@ export const ImageViewer: React.FC = () => {
 			img,
 			absIndex: start + idx,
 		}));
-	}, [currentThumbnails, currentIndex]);
+	}, [
+		currentThumbnails,
+		currentIndex,
+		state.settings["viewer.thumbnail_window_size"],
+	]);
 
 	const image = (
 		viewerMode === "lineage" && lineageImages.length > 0
@@ -356,37 +360,38 @@ export const ImageViewer: React.FC = () => {
 					<ChevronRight size={32} />
 				</button>
 
-				{!isFullscreen && (
-					<div className="meld-viewer-thumbnails-container">
-						<div className="meld-viewer-thumbnails">
-							{isLoadingLineage ? (
-								<div
-									style={{
-										padding: "10px",
-										color: "var(--meld-text-secondary)",
-									}}
-								>
-									Loading lineage...
-								</div>
-							) : (
-								windowedThumbnails.map(({ img }) => (
-									<ThumbnailItem
-										key={img.id}
-										thumb={img}
-										viewerImageId={viewerImageId}
-										currentImage={image}
-										dispatch={dispatch}
-									/>
-								))
-							)}
-							{viewerMode === "gallery" && state.isLoading && (
-								<div className="meld-viewer-thumbnail meld-viewer-thumbnail--loading">
-									<RefreshCw className="animate-spin" size={20} />
-								</div>
-							)}
+				{!isFullscreen &&
+					state.settings["viewer.thumbnail_window_size"] > 1 && (
+						<div className="meld-viewer-thumbnails-container">
+							<div className="meld-viewer-thumbnails">
+								{isLoadingLineage ? (
+									<div
+										style={{
+											padding: "10px",
+											color: "var(--meld-text-secondary)",
+										}}
+									>
+										Loading lineage...
+									</div>
+								) : (
+									windowedThumbnails.map(({ img }) => (
+										<ThumbnailItem
+											key={img.id}
+											thumb={img}
+											viewerImageId={viewerImageId}
+											currentImage={image}
+											dispatch={dispatch}
+										/>
+									))
+								)}
+								{viewerMode === "gallery" && state.isLoading && (
+									<div className="meld-viewer-thumbnail meld-viewer-thumbnail--loading">
+										<RefreshCw className="animate-spin" size={20} />
+									</div>
+								)}
+							</div>
 						</div>
-					</div>
-				)}
+					)}
 			</div>
 		</div>,
 		document.body,
