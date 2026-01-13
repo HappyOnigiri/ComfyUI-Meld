@@ -10,14 +10,31 @@ type Category = "General" | "Sidebar" | "Search" | "View" | "Full Screen";
 export const SettingsModal: React.FC = () => {
 	const { state, dispatch, updateSetting } = useGallery();
 	const [activeTab, setActiveTab] = useState<Category>("General");
+	const [localSettings, setLocalSettings] = useState<Settings>({
+		...state.settings,
+	});
+	const [pageSizeInput, setPageSizeInput] = useState<string>(
+		state.settings["gallery.page_size"].toString(),
+	);
 
 	const settingsConfig: {
 		key: keyof Settings;
 		label: string;
 		description: string;
-		type: "boolean";
+		type: "boolean" | "number";
 		category: Category;
+		min?: number;
+		max?: number;
 	}[] = [
+		{
+			key: "gallery.page_size",
+			label: "Page Size",
+			description: "Number of images to display per page (10-10000).",
+			type: "number",
+			category: "General",
+			min: 10,
+			max: 10000,
+		},
 		{
 			key: "gallery.hide_parent_images",
 			label: "Hide Source Images",
@@ -107,8 +124,58 @@ export const SettingsModal: React.FC = () => {
 		},
 	];
 
+	const handleClose = async () => {
+		// Identify changed settings
+		const changedKeys = (
+			Object.keys(localSettings) as (keyof Settings)[]
+		).filter((key) => localSettings[key] !== state.settings[key]);
+
+		if (changedKeys.length > 0) {
+			// Save each changed setting
+			// Note: We process them sequentially to avoid race conditions in the state updates
+			for (const key of changedKeys) {
+				await updateSetting(key, localSettings[key]);
+			}
+		}
+
+		dispatch({ type: "CLOSE_MODAL" });
+	};
+
 	const handleToggle = (key: keyof Settings, currentValue: boolean) => {
-		updateSetting(key, !currentValue);
+		setLocalSettings((prev) => ({
+			...prev,
+			[key]: !currentValue,
+		}));
+	};
+
+	const handleNumberChange = (
+		key: keyof Settings,
+		value: string,
+		min?: number,
+		max?: number,
+	) => {
+		if (key === "gallery.page_size") {
+			setPageSizeInput(value);
+			const num = Number.parseInt(value, 10);
+			if (!Number.isNaN(num)) {
+				let val = num;
+				if (min !== undefined && val < min) val = min;
+				if (max !== undefined && val > max) val = max;
+				setLocalSettings((prev) => ({
+					...prev,
+					[key]: val,
+				}));
+			}
+		} else {
+			const num = Number.parseInt(value, 10) || 0;
+			let val = num;
+			if (min !== undefined && val < min) val = min;
+			if (max !== undefined && val > max) val = max;
+			setLocalSettings((prev) => ({
+				...prev,
+				[key]: val,
+			}));
+		}
 	};
 
 	const filteredSettings = settingsConfig.filter(
@@ -116,10 +183,7 @@ export const SettingsModal: React.FC = () => {
 	);
 
 	return createPortal(
-		<div
-			className="meld-modal-overlay"
-			onClick={() => dispatch({ type: "CLOSE_MODAL" })}
-		>
+		<div className="meld-modal-overlay" onClick={handleClose}>
 			<div
 				className="meld-modal-content meld-settings-modal"
 				onClick={(e) => e.stopPropagation()}
@@ -129,7 +193,7 @@ export const SettingsModal: React.FC = () => {
 					<button
 						type="button"
 						className="meld-modal-close"
-						onClick={() => dispatch({ type: "CLOSE_MODAL" })}
+						onClick={handleClose}
 					>
 						<X size={20} />
 					</button>
@@ -190,13 +254,41 @@ export const SettingsModal: React.FC = () => {
 										<label className="meld-switch">
 											<input
 												type="checkbox"
-												checked={!!state.settings[config.key]}
+												checked={!!localSettings[config.key]}
 												onChange={() =>
-													handleToggle(config.key, !!state.settings[config.key])
+													handleToggle(config.key, !!localSettings[config.key])
 												}
 											/>
 											<span className="meld-switch__slider" />
 										</label>
+									)}
+									{config.type === "number" && (
+										<input
+											type="number"
+											className="meld-number-input"
+											value={
+												config.key === "gallery.page_size"
+													? pageSizeInput
+													: (localSettings[config.key] as unknown as number)
+											}
+											min={config.min}
+											max={config.max}
+											onChange={(e) =>
+												handleNumberChange(
+													config.key,
+													e.target.value,
+													config.min,
+													config.max,
+												)
+											}
+											onBlur={() => {
+												if (config.key === "gallery.page_size") {
+													setPageSizeInput(
+														localSettings["gallery.page_size"].toString(),
+													);
+												}
+											}}
+										/>
 									)}
 								</div>
 							</div>

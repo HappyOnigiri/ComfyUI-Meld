@@ -47,6 +47,7 @@ export interface Settings {
 	"search.realtime_search": boolean;
 	"viewer.show_filename": boolean;
 	"fullscreen.show_filename": boolean;
+	"gallery.page_size": number;
 }
 
 export type ScanStatus = {

@@ -34,6 +34,7 @@ export const initialState: GalleryState = {
 		"search.realtime_search": true,
 		"viewer.show_filename": true,
 		"fullscreen.show_filename": true,
+		"gallery.page_size": 30,
 	},
 	pagination: {
 		total: 0,
@@ -56,7 +57,7 @@ export function galleryReducer(
 				favorites: action.payload,
 			};
 		case "SET_IMAGES": {
-			const { images, total, offset, limit } = action.payload;
+			const { images, total, offset } = action.payload;
 			// If viewer is open and in gallery mode, check if the image still exists
 			let newViewerId = state.viewerImageId;
 			if (
@@ -75,13 +76,13 @@ export function galleryReducer(
 				pagination: {
 					total,
 					offset,
-					limit,
+					limit: state.pagination.limit,
 					hasMore: offset + images.length < total,
 				},
 			};
 		}
 		case "APPEND_IMAGES": {
-			const { images, total, offset, limit } = action.payload;
+			const { images, total, offset } = action.payload;
 			const combinedImages = [...state.images, ...images];
 			// Filter out potential duplicates if any (shouldn't happen with correct offset/limit)
 			const uniqueImages = Array.from(
@@ -94,9 +95,9 @@ export function galleryReducer(
 				isLoading: false,
 				error: null,
 				pagination: {
+					...state.pagination,
 					total,
 					offset,
-					limit,
 					hasMore: offset + images.length < total,
 				},
 			};
@@ -302,14 +303,21 @@ export function galleryReducer(
 					},
 				},
 			};
-		case "SET_SETTINGS":
+		case "SET_SETTINGS": {
+			const newSettings = {
+				...state.settings,
+				...action.payload,
+			};
+			const newPagination = { ...state.pagination };
+			if (action.payload["gallery.page_size"] !== undefined) {
+				newPagination.limit = action.payload["gallery.page_size"];
+			}
 			return {
 				...state,
-				settings: {
-					...state.settings,
-					...action.payload,
-				},
+				settings: newSettings,
+				pagination: newPagination,
 			};
+		}
 		case "SET_SEARCH_QUERY":
 			return {
 				...state,

@@ -1415,6 +1415,22 @@
 	background-color: var(--comfy-input-text-active, #4a9eff);
 }
 
+/* Number Input */
+.meld-number-input {
+	background: var(--comfy-input-bg, #1a1a1a);
+	border: 1px solid var(--comfy-menu-border, #444);
+	border-radius: 4px;
+	padding: 4px 8px;
+	color: var(--meld-text-color);
+	font-size: 14px;
+	width: 80px;
+	outline: none;
+}
+
+.meld-number-input:focus {
+	border-color: var(--meld-accent-color);
+}
+
 /* Favorites Dropdown */
 .meld-favorites-dropdown {
 	display: none;
