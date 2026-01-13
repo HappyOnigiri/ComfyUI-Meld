@@ -52,6 +52,14 @@ export interface Settings {
 	"viewer.loop": boolean;
 	"fullscreen.show_filename": boolean;
 	"fullscreen.loop": boolean;
+	"viewer.show_details_by_default": boolean;
+	"viewer.details.show_filename": boolean;
+	"viewer.details.show_dimensions": boolean;
+	"viewer.details.show_created_at": boolean;
+	"viewer.details.show_tags": boolean;
+	"viewer.details.show_model_name": boolean;
+	"viewer.details.show_positive_prompt": boolean;
+	"viewer.details.show_negative_prompt": boolean;
 	"gallery.page_size": number;
 	"viewer.thumbnail_window_size": number;
 }

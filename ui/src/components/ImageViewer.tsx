@@ -3,6 +3,7 @@ import {
 	ArrowUp,
 	ChevronLeft,
 	ChevronRight,
+	Info,
 	Maximize,
 	Minimize,
 	RefreshCw,
@@ -72,6 +73,9 @@ export const ImageViewer: React.FC = () => {
 	const { state, dispatch, loadMoreImages } = useGallery();
 	const { viewerImageId, images, viewerMode, lineageImages } = state;
 	const [isFullscreen, setIsFullscreen] = useState(false);
+	const [showDetails, setShowDetails] = useState(
+		state.settings["viewer.show_details_by_default"],
+	);
 	const [isLoadingLineage, setIsLoadingLineage] = useState(false);
 	const [isJumping, setIsJumping] = useState(false);
 	const overlayRef = useRef<HTMLDivElement>(null);
@@ -244,6 +248,8 @@ export const ImageViewer: React.FC = () => {
 				handlePrevious();
 			} else if (e.key === "f" || e.key === "F") {
 				toggleFullscreen(e);
+			} else if (e.key === "i" || e.key === "I") {
+				setShowDetails((prev) => !prev);
 			}
 		};
 
@@ -361,18 +367,15 @@ export const ImageViewer: React.FC = () => {
 				className={`meld-viewer-content ${isFullscreen ? "meld-viewer-content--fullscreen" : ""}`}
 				onClick={(e) => e.stopPropagation()}
 			>
-				{((!isFullscreen && state.settings["viewer.show_filename"]) ||
-					(isFullscreen && state.settings["fullscreen.show_filename"])) && (
-					<div className="meld-viewer-info">
-						<div className="meld-viewer-filename">{image.filename}</div>
-						{image.width && image.height && (
-							<div className="meld-viewer-dimensions">
-								{image.width} x {image.height} px
-							</div>
-						)}
-					</div>
-				)}
 				<div className="meld-viewer-actions">
+					<button
+						className="meld-viewer-action-btn"
+						onClick={() => setShowDetails(!showDetails)}
+						type="button"
+						title={showDetails ? "Hide Details (I)" : "Show Details (I)"}
+					>
+						<Info size={20} />
+					</button>
 					<button
 						className="meld-viewer-action-btn"
 						onClick={toggleFullscreen}
@@ -422,6 +425,84 @@ export const ImageViewer: React.FC = () => {
 				>
 					<ChevronRight size={32} />
 				</button>
+
+				{!isFullscreen && showDetails && (
+					<div className="meld-viewer-details-overlay">
+						{state.settings["viewer.details.show_filename"] && (
+							<div className="meld-viewer-details-item">
+								<div className="meld-viewer-details-label">Filename</div>
+								<div className="meld-viewer-details-value">
+									{image.filename}
+								</div>
+							</div>
+						)}
+
+						{state.settings["viewer.details.show_dimensions"] &&
+							image.width &&
+							image.height && (
+								<div className="meld-viewer-details-item">
+									<div className="meld-viewer-details-label">Dimensions</div>
+									<div className="meld-viewer-details-value">
+										{image.width} x {image.height} px
+									</div>
+								</div>
+							)}
+
+						{state.settings["viewer.details.show_created_at"] && (
+							<div className="meld-viewer-details-item">
+								<div className="meld-viewer-details-label">Created At</div>
+								<div className="meld-viewer-details-value">
+									{new Date(image.created_at * 1000).toLocaleString()}
+								</div>
+							</div>
+						)}
+
+						{state.settings["viewer.details.show_model_name"] &&
+							image.model_name && (
+								<div className="meld-viewer-details-item">
+									<div className="meld-viewer-details-label">Model</div>
+									<div className="meld-viewer-details-value">
+										{image.model_name}
+									</div>
+								</div>
+							)}
+
+						{state.settings["viewer.details.show_positive_prompt"] &&
+							(image.positive_prompt || image.positive) && (
+								<div className="meld-viewer-details-item">
+									<div className="meld-viewer-details-label">Positive</div>
+									<div className="meld-viewer-details-value meld-viewer-details-value--prompt">
+										{image.positive_prompt || image.positive}
+									</div>
+								</div>
+							)}
+
+						{state.settings["viewer.details.show_negative_prompt"] &&
+							(image.negative_prompt || image.negative) && (
+								<div className="meld-viewer-details-item">
+									<div className="meld-viewer-details-label">Negative</div>
+									<div className="meld-viewer-details-value meld-viewer-details-value--prompt">
+										{image.negative_prompt || image.negative}
+									</div>
+								</div>
+							)}
+
+						{state.settings["viewer.details.show_tags"] &&
+							image.tags &&
+							image.tags.length > 0 && (
+								<div className="meld-viewer-details-item">
+									<div className="meld-viewer-details-label">Tags</div>
+									<div className="meld-viewer-details-tags">
+										{image.tags.map((tag) => (
+											<span key={tag} className="meld-viewer-details-tag">
+												{tag}
+											</span>
+										))}
+									</div>
+								</div>
+							)}
+					</div>
+				)}
 
 				{!isFullscreen &&
 					state.settings["viewer.thumbnail_window_size"] > 1 && (
