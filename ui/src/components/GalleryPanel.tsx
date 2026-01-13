@@ -5,6 +5,7 @@ import { logger } from "../logger";
 import { useGallery } from "../store/GalleryContext";
 import { LazyRender } from "../utils/LazyRender";
 import { BulkActionBar } from "./BulkActionBar";
+import { DeleteConfirmModal } from "./DeleteConfirmModal";
 import { ImageCard } from "./ImageCard";
 import { ImageViewer } from "./ImageViewer";
 import { ImportModal } from "./ImportModal";
@@ -278,6 +279,13 @@ export const GalleryPanel: React.FC = () => {
 					imageIds={state.activeModal.imageIds}
 					initialTags={state.activeModal.tags}
 					onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+				/>
+			)}
+
+			{state.activeModal.type === "delete_confirm" && (
+				<DeleteConfirmModal
+					imageIds={state.activeModal.imageIds}
+					hasLineage={state.activeModal.hasLineage}
 				/>
 			)}
 		</div>

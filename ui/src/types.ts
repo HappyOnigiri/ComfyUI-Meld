@@ -73,7 +73,8 @@ export type ActiveModal =
 	| { type: "parent_selection"; imageId: number }
 	| { type: "tag_edit"; imageIds: number[]; tags: string[] }
 	| { type: "import" }
-	| { type: "settings" };
+	| { type: "settings" }
+	| { type: "delete_confirm"; imageIds: number[]; hasLineage: boolean };
 
 export type GalleryViewMode = "grid" | "list";
 

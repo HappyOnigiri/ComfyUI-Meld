@@ -88,22 +88,19 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 		if (state.selectedIds.size === 0) return;
 
 		const ids = Array.from(state.selectedIds) as number[];
-		const confirmMsg = `Are you sure you want to delete the selected ${ids.length} images?\n\n[WARNING]\nPhysical files will also be permanently deleted. This operation cannot be undone.`;
+		const selectedImages = state.images.filter((img) =>
+			state.selectedIds.has(img.id),
+		);
 
-		if (window.confirm(confirmMsg)) {
-			dispatch({ type: "SET_LOADING", payload: true });
-			try {
-				await api.deleteImages(ids, true);
-				dispatch({ type: "CLEAR_SELECTION" });
-				await refreshImages();
-			} catch (err: unknown) {
-				dispatch({
-					type: "SET_ERROR",
-					payload: err instanceof Error ? err.message : String(err),
-				});
-			}
-		}
-	}, [state.selectedIds, refreshImages]);
+		const hasLineage = selectedImages.some(
+			(img) => img.parent_id || img.has_children,
+		);
+
+		dispatch({
+			type: "OPEN_MODAL",
+			payload: { type: "delete_confirm", imageIds: ids, hasLineage },
+		});
+	}, [state.selectedIds, state.images]);
 
 	const updateSetting = useCallback(
 		async (key: string, value: string | number | boolean | null) => {
