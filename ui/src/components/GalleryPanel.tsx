@@ -1,4 +1,4 @@
-import { Download, RefreshCw, Search, Settings } from "lucide-react";
+import { Download, RefreshCw, Search, Settings, Tag } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { logger } from "../logger";
@@ -10,11 +10,13 @@ import { ImportModal } from "./ImportModal";
 import { ParentSelectionModal } from "./ParentSelectionModal";
 import { SearchBar } from "./SearchBar";
 import { SettingsModal } from "./SettingsModal";
+import { TagManagerView } from "./TagManagerView";
 import "../styles/Gallery.css";
 
 export const GalleryPanel: React.FC = () => {
 	const { state, dispatch, refreshImages, loadMoreImages } = useGallery();
-	const [isSearchVisible, setIsSearchVisible] = useState(false);
+	type SidebarView = "gallery" | "search" | "tags";
+	const [viewMode, setViewMode] = useState<SidebarView>("gallery");
 
 	const isSearchActive = state.searchQuery.trim() !== "";
 	const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -102,13 +104,15 @@ export const GalleryPanel: React.FC = () => {
 				>
 					<button
 						type="button"
-						onClick={() => setIsSearchVisible(!isSearchVisible)}
+						onClick={() =>
+							setViewMode(viewMode === "search" ? "gallery" : "search")
+						}
 						style={{
 							background: "none",
 							border: "none",
 							color: isSearchActive
 								? "var(--meld-success-color)"
-								: isSearchVisible
+								: viewMode === "search"
 									? "var(--meld-text-color)"
 									: "var(--meld-text-secondary)",
 							cursor: "pointer",
@@ -119,6 +123,27 @@ export const GalleryPanel: React.FC = () => {
 						title="Search"
 					>
 						<Search size={14} />
+					</button>
+					<button
+						type="button"
+						onClick={() =>
+							setViewMode(viewMode === "tags" ? "gallery" : "tags")
+						}
+						style={{
+							background: "none",
+							border: "none",
+							color:
+								viewMode === "tags"
+									? "var(--meld-accent-color)"
+									: "var(--meld-text-secondary)",
+							cursor: "pointer",
+							display: "flex",
+							alignItems: "center",
+							fontWeight: viewMode === "tags" ? "bold" : "normal",
+						}}
+						title="Tag Manager"
+					>
+						<Tag size={14} />
 					</button>
 					<button
 						type="button"
@@ -174,7 +199,7 @@ export const GalleryPanel: React.FC = () => {
 						<Settings size={14} />
 					</button>
 				</div>
-				{isSearchVisible && (
+				{viewMode === "search" && (
 					<div style={{ width: "100%" }}>
 						<SearchBar />
 					</div>
@@ -183,7 +208,15 @@ export const GalleryPanel: React.FC = () => {
 
 			{state.error && <div className="meld-gallery__error">{state.error}</div>}
 
-			{state.isLoading && displayedImages.length === 0 ? (
+			{viewMode === "tags" ? (
+				<TagManagerView
+					onClose={() => setViewMode("gallery")}
+					onSearch={(query) => {
+						dispatch({ type: "SET_SEARCH_QUERY", payload: query });
+						setViewMode("search");
+					}}
+				/>
+			) : state.isLoading && displayedImages.length === 0 ? (
 				<div className="meld-gallery__loading">Loading images...</div>
 			) : displayedImages.length === 0 ? (
 				<div className="meld-gallery__empty">No images found.</div>

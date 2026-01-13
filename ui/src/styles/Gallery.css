@@ -1456,6 +1456,147 @@
 	text-align: center;
 }
 
+/* Tag Manager View */
+.meld-tag-manager-view {
+	display: flex;
+	flex-direction: column;
+	background: var(--comfy-input-bg, rgba(0, 0, 0, 0.1));
+	border-radius: 6px;
+	border: 1px solid var(--meld-border-color);
+	margin-bottom: 15px;
+	overflow: hidden;
+}
+
+.meld-tag-manager-header {
+	padding: 10px 12px;
+	background: var(--comfy-menu-bg, rgba(255, 255, 255, 0.05));
+	border-bottom: 1px solid var(--meld-border-color);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.meld-tag-manager-close {
+	background: none;
+	border: none;
+	color: var(--meld-text-secondary);
+	cursor: pointer;
+	padding: 4px;
+	display: flex;
+	align-items: center;
+	border-radius: 4px;
+}
+
+.meld-tag-manager-close:hover {
+	background: var(--comfy-input-bg-active, rgba(255, 255, 255, 0.1));
+	color: var(--meld-text-color);
+}
+
+.meld-tag-manager-content {
+	padding: 12px;
+	max-height: 500px;
+	overflow-y: auto;
+}
+
+/* Tag Manager Modal */
+.meld-tag-manager-modal {
+	height: 600px;
+}
+
+.meld-tag-add-form {
+	display: flex;
+	gap: 10px;
+	margin-bottom: 20px;
+}
+
+.meld-tag-add-form input {
+	flex: 1;
+	background: var(--comfy-input-bg, #1a1a1a);
+	border: 1px solid var(--comfy-menu-border, #444);
+	border-radius: 4px;
+	padding: 8px 12px;
+	color: var(--meld-text-color);
+	font-size: 14px;
+}
+
+.meld-tag-search-container {
+	position: relative;
+	margin-bottom: 15px;
+}
+
+.meld-tag-search-icon {
+	position: absolute;
+	left: 10px;
+	top: 50%;
+	transform: translateY(-50%);
+	color: var(--meld-text-secondary);
+}
+
+.meld-tag-search-input {
+	width: 100%;
+	background: var(--comfy-input-bg, #1a1a1a);
+	border: 1px solid var(--comfy-menu-border, #333);
+	border-radius: 4px;
+	padding: 6px 10px 6px 30px;
+	color: var(--meld-text-color);
+	font-size: 13px;
+	box-sizing: border-box;
+}
+
+.meld-tag-list {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.meld-tag-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px 12px;
+	background: var(--comfy-input-bg, rgba(255, 255, 255, 0.03));
+	border-radius: 4px;
+	transition: background 0.2s;
+}
+
+.meld-tag-item:hover {
+	background: var(--comfy-input-bg-active, rgba(255, 255, 255, 0.06));
+}
+
+.meld-tag-item__name {
+	font-size: 13px;
+	color: var(--meld-text-color);
+	font-weight: 500;
+}
+
+.meld-tag-item__actions {
+	display: flex;
+	gap: 8px;
+}
+
+.meld-tag-item__btn {
+	background: none;
+	border: none;
+	color: var(--meld-text-secondary);
+	cursor: pointer;
+	padding: 4px;
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.2s;
+}
+
+.meld-tag-item__btn:hover {
+	background: var(--comfy-input-bg-active, rgba(68, 136, 255, 0.2));
+	color: var(--meld-accent-color);
+}
+
+.meld-tag-item__btn--delete:hover {
+	background: var(--error-color, rgba(255, 68, 68, 0.2));
+	color: var(--meld-danger-color);
+}
+
 @keyframes meld-fade-in {
 	from {
 		opacity: 0;

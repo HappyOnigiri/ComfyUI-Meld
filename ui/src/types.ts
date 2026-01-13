@@ -28,6 +28,11 @@ export interface Favorite {
 	created_at: number;
 }
 
+export interface Tag {
+	id: number;
+	name: string;
+}
+
 export interface Settings {
 	dev_mode: boolean;
 	"gallery.show_parent_image": boolean;

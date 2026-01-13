@@ -3,7 +3,7 @@ import { api } from "../../../scripts/api.js";
 
 (window as unknown as { api: unknown }).api = api;
 
-import type { Favorite, MeldImage, Settings } from "./types";
+import type { Favorite, MeldImage, Settings, Tag } from "./types";
 
 export const fetchImages = async (
 	offset = 0,
@@ -315,6 +315,35 @@ export const updateFavorite = async (
 	});
 	if (!res.ok) {
 		throw new Error("Failed to update favorite");
+	}
+};
+
+export const fetchTags = async (): Promise<Tag[]> => {
+	const res = await api.fetchApi("/meld-nexus/tags");
+	if (!res.ok) {
+		return [];
+	}
+	return await res.json();
+};
+
+export const createTag = async (name: string): Promise<Tag> => {
+	const res = await api.fetchApi("/meld-nexus/tags", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ name }),
+	});
+	if (!res.ok) {
+		throw new Error("Failed to create tag");
+	}
+	return await res.json();
+};
+
+export const deleteTag = async (id: number): Promise<void> => {
+	const res = await api.fetchApi(`/meld-nexus/tags?id=${id}`, {
+		method: "DELETE",
+	});
+	if (!res.ok) {
+		throw new Error("Failed to delete tag");
 	}
 };
 
