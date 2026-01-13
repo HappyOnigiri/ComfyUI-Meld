@@ -247,6 +247,26 @@ def add_model_relation(cursor: sqlite3.Cursor, image_id: int | None, model_id: i
         )
 
 
+def get_all_tags(cursor: sqlite3.Cursor) -> list[dict]:
+    cursor.execute("SELECT id, name FROM tags ORDER BY name ASC")
+    rows = cursor.fetchall()
+    return [{"id": row[0], "name": row[1]} for row in rows]
+
+
+def delete_tag(conn: sqlite3.Connection, tag_id: int) -> bool:
+    cursor = conn.cursor()
+    try:
+        # Delete relations first
+        cursor.execute("DELETE FROM tag_image_relations WHERE tag_id = ?", (tag_id,))
+        # Delete the tag itself
+        cursor.execute("DELETE FROM tags WHERE id = ?", (tag_id,))
+        conn.commit()
+        return cursor.rowcount > 0
+    except Exception:
+        conn.rollback()
+        raise
+
+
 def calculate_sha256(file_path: str) -> str | None:
     if not os.path.exists(file_path):
         return None

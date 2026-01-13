@@ -20,8 +20,10 @@ from ..load_image_configs.core.metadata_helper import MetadataHelper
 from .database import (
     add_model_relation,
     calculate_sha256,
+    delete_tag,
     find_closest_parent,
     get_all_settings,
+    get_all_tags,
     get_db_connection,
     get_or_create_model,
     upsert_setting,
@@ -546,6 +548,59 @@ async def get_image_snapshot_data(request: web.Request) -> web.Response:
         return web.json_response(data)
     except Exception as e:
         logging.exception(f"[Meld-Flow] Failed to get snapshot data: {e}")
+        return web.json_response({"error": str(e)}, status=500)
+
+
+@server.PromptServer.instance.routes.get("/api/meld-nexus/tags")
+async def list_tags(request: web.Request) -> web.Response:
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        tags = get_all_tags(cursor)
+        conn.close()
+        return web.json_response(tags)
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
+@server.PromptServer.instance.routes.post("/api/meld-nexus/tags")
+async def create_tag(request: web.Request) -> web.Response:
+    try:
+        data = await request.json()
+        name = data.get("name")
+        if not name:
+            return web.json_response({"error": "name is required"}, status=400)
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("INSERT OR IGNORE INTO tags (name) VALUES (?)", (name,))
+        conn.commit()
+        cursor.execute("SELECT id, name FROM tags WHERE name = ?", (name,))
+        row = cursor.fetchone()
+        conn.close()
+
+        if row:
+            return web.json_response({"id": row[0], "name": row[1]})
+        return web.json_response({"error": "Failed to create tag"}, status=500)
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
+@server.PromptServer.instance.routes.delete("/api/meld-nexus/tags")
+async def remove_tag(request: web.Request) -> web.Response:
+    try:
+        tag_id = request.query.get("id")
+        if not tag_id:
+            return web.json_response({"error": "id is required"}, status=400)
+
+        conn = get_db_connection()
+        success = delete_tag(conn, int(tag_id))
+        conn.close()
+
+        if success:
+            return web.json_response({"success": True})
+        return web.json_response({"error": "Tag not found"}, status=404)
+    except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 
 
