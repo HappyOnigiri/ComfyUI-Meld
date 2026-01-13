@@ -172,6 +172,12 @@
 	font-size: 10px;
 	color: var(--meld-text-secondary);
 	word-break: break-all;
+	margin-bottom: 2px;
+}
+
+.meld-image-card__dimensions {
+	font-size: 9px;
+	color: var(--meld-text-secondary);
 	margin-bottom: 4px;
 }
 
@@ -470,6 +476,18 @@
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.meld-viewer-filename {
+	font-weight: bold;
+}
+
+.meld-viewer-dimensions {
+	font-size: 11px;
+	color: var(--meld-text-secondary);
 }
 
 .meld-viewer-actions {

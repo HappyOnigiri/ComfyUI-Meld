@@ -6895,6 +6895,11 @@ Physical files will also be permanently deleted. This operation cannot be undone
         ) }),
         /* @__PURE__ */ s.jsxs("div", { className: "meld-image-card__details", children: [
           t.settings["sidebar.show_filename"] && /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__filename", children: I }),
+          e.width && e.height && /* @__PURE__ */ s.jsxs("div", { className: "meld-image-card__dimensions", children: [
+            e.width,
+            " x ",
+            e.height
+          ] }),
           t.settings["gallery.show_parent_image"] && k.length > 0 && /* @__PURE__ */ s.jsxs("div", { className: "meld-image-card__lineage-v2", children: [
             /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__meta-label", children: "Source" }),
             /* @__PURE__ */ s.jsx("div", { className: "meld-lineage-thumbs", children: k.map(
@@ -7350,7 +7355,15 @@ const em = () => {
             className: `meld-viewer-content ${a ? "meld-viewer-content--fullscreen" : ""}`,
             onClick: (v) => v.stopPropagation(),
             children: [
-              (!a && e.settings["viewer.show_filename"] || a && e.settings["fullscreen.show_filename"]) && /* @__PURE__ */ s.jsx("div", { className: "meld-viewer-info", children: /* @__PURE__ */ s.jsx("div", { className: "meld-viewer-filename", children: c.filename }) }),
+              (!a && e.settings["viewer.show_filename"] || a && e.settings["fullscreen.show_filename"]) && /* @__PURE__ */ s.jsxs("div", { className: "meld-viewer-info", children: [
+                /* @__PURE__ */ s.jsx("div", { className: "meld-viewer-filename", children: c.filename }),
+                c.width && c.height && /* @__PURE__ */ s.jsxs("div", { className: "meld-viewer-dimensions", children: [
+                  c.width,
+                  " x ",
+                  c.height,
+                  " px"
+                ] })
+              ] }),
               /* @__PURE__ */ s.jsxs("div", { className: "meld-viewer-actions", children: [
                 /* @__PURE__ */ s.jsx(
                   "button",

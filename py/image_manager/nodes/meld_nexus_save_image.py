@@ -157,6 +157,7 @@ class MeldNexusSaveImage:
         for batch_number, image in enumerate(images):
             # Tensor [B, H, W, C] -> PIL
             # ComfyUI images are [B, H, W, C] Tensors
+            h, w, _ = image.shape
             i = 255.0 * image.cpu().numpy()
             img = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
 
@@ -189,8 +190,8 @@ class MeldNexusSaveImage:
             # Insert Image
             sql = """
                 INSERT INTO images
-                (filename, subfolder, created_at, phash, sha256, parent_id, is_deleted, positive_prompt, negative_prompt, workflow)
-                VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?, ?)
+                (filename, subfolder, created_at, phash, sha256, width, height, parent_id, is_deleted, positive_prompt, negative_prompt, workflow)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)
             """
             cursor.execute(
                 sql,
@@ -200,6 +201,8 @@ class MeldNexusSaveImage:
                     timestamp,
                     phash,
                     sha256,
+                    w,
+                    h,
                     parent_id,
                     resolved_positive,
                     resolved_negative,

@@ -252,10 +252,19 @@ def _scan_thread(
                 pos, neg, model, wf_json, pr_json, a1111_text, logs = MetadataHelper.extract_metadata(full_path)
                 timestamp = os.path.getmtime(full_path)
 
+                # Get image dimensions
+                width, height = 0, 0
+                try:
+                    with Image.open(full_path) as img:
+                        width, height = img.size
+                except Exception:
+                    pass
+
                 # Calculate pHash
                 phash = None
                 if imagehash is not None:
                     try:
+                        # Re-use already opened image if possible, but for now simple
                         with Image.open(full_path) as img:
                             phash = str(imagehash.phash(img))
                     except Exception:
@@ -265,8 +274,8 @@ def _scan_thread(
                 img_type = "output" if "output" in base_dir else "input"  # Simple heuristic
                 sql = """
                     INSERT INTO images
-                    (filename, subfolder, type, created_at, phash, sha256, is_deleted, positive_prompt, negative_prompt, workflow)
-                    VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?, ?)
+                    (filename, subfolder, type, created_at, phash, sha256, width, height, is_deleted, positive_prompt, negative_prompt, workflow)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)
                 """
                 cursor.execute(
                     sql,
@@ -277,6 +286,8 @@ def _scan_thread(
                         timestamp,
                         phash,
                         sha256,
+                        width,
+                        height,
                         pos,
                         neg,
                         wf_json,
@@ -603,7 +614,8 @@ async def get_image_snapshot_data(request: web.Request) -> web.Response:
             SELECT i.filename, i.subfolder, i.type, i.positive_prompt, i.negative_prompt, i.workflow,
                    (SELECT m.name FROM models m
                     JOIN model_image_relations mir ON m.id = mir.model_id
-                    WHERE mir.image_id = i.id LIMIT 1) as model_name
+                    WHERE mir.image_id = i.id LIMIT 1) as model_name,
+                   i.width, i.height
             FROM images i WHERE i.id = ? AND i.is_deleted = 0
         """,
             (image_id,),
@@ -614,7 +626,7 @@ async def get_image_snapshot_data(request: web.Request) -> web.Response:
         if not row:
             return web.json_response({"error": "Image not found"}, status=404)
 
-        filename, subfolder, img_type, db_pos, db_neg, workflow_json, model_name = row
+        filename, subfolder, img_type, db_pos, db_neg, workflow_json, model_name, db_width, db_height = row
 
         # Resolve path to extract full metadata if possible
         if img_type == "output":
@@ -635,8 +647,8 @@ async def get_image_snapshot_data(request: web.Request) -> web.Response:
             "cfg": 8.0,
             "sampler_name": "euler",
             "scheduler": "normal",
-            "width": 512,
-            "height": 512,
+            "width": db_width or 512,
+            "height": db_height or 512,
         }
 
         if base_dir:
@@ -850,6 +862,14 @@ async def register_image(request: web.Request) -> web.Response:
 
         timestamp = os.path.getmtime(full_path)
 
+        # Get image dimensions
+        width, height = 0, 0
+        try:
+            with Image.open(full_path) as img:
+                width, height = img.size
+        except Exception:
+            pass
+
         # Calculate pHash
         phash = None
         sha256 = calculate_sha256(full_path)
@@ -866,8 +886,8 @@ async def register_image(request: web.Request) -> web.Response:
         # Insert Image
         sql = """
             INSERT INTO images
-            (filename, subfolder, type, created_at, phash, sha256, parent_id, is_deleted, positive_prompt, negative_prompt, workflow)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)
+            (filename, subfolder, type, created_at, phash, sha256, width, height, parent_id, is_deleted, positive_prompt, negative_prompt, workflow)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)
         """
         cursor.execute(
             sql,
@@ -878,6 +898,8 @@ async def register_image(request: web.Request) -> web.Response:
                 timestamp,
                 phash,
                 sha256,
+                width,
+                height,
                 parent_id,
                 pos,
                 neg,
@@ -992,7 +1014,7 @@ async def list_images(request: web.Request) -> web.Response:
                    (SELECT GROUP_CONCAT(m.name, ', ') FROM models m
                     JOIN model_image_relations mir ON m.id = mir.model_id
                     WHERE mir.image_id = i.id) as model_name,
-                   i.workflow
+                   i.workflow, i.width, i.height
             FROM images i LEFT JOIN images p ON i.parent_id = p.id
             WHERE i.is_deleted = 0{search_sql} ORDER BY i.created_at DESC LIMIT ? OFFSET ?
         """
@@ -1019,6 +1041,8 @@ async def list_images(request: web.Request) -> web.Response:
                 db_negative,
                 model_name,
                 workflow,
+                width,
+                height,
             ) = img
 
             # Fetch positive prompt (reconstructed from normalized tables as fallback or secondary)
@@ -1090,6 +1114,8 @@ async def list_images(request: web.Request) -> web.Response:
                     "negative_prompt": db_negative,
                     "model_name": model_name,
                     "workflow": workflow,
+                    "width": width,
+                    "height": height,
                     "tags": tags,
                     "exists": exists,
                 }
@@ -1422,7 +1448,7 @@ async def get_lineage(request: web.Request) -> web.Response:
                (SELECT GROUP_CONCAT(m.name, ', ') FROM models m
                 JOIN model_image_relations mir ON m.id = mir.model_id
                 WHERE mir.image_id = i.id) as model_name,
-               i.workflow
+               i.workflow, i.width, i.height
         FROM images i LEFT JOIN images p ON i.parent_id = p.id
         WHERE (i.id IN (SELECT id FROM ancestors) OR i.id IN (SELECT id FROM descendants)) AND i.is_deleted = 0
         ORDER BY i.created_at
@@ -1451,6 +1477,8 @@ async def get_lineage(request: web.Request) -> web.Response:
                     "negative_prompt": row[11],
                     "model_name": row[12],
                     "workflow": row[13],
+                    "width": row[14],
+                    "height": row[15],
                 }
             )
 

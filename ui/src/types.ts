@@ -17,6 +17,8 @@ export interface MeldImage {
 	parent_filename?: string | null;
 	parent_subfolder?: string | null;
 	parent_type?: "output" | "input" | "temp" | null;
+	width?: number | null;
+	height?: number | null;
 	exists?: boolean;
 	has_children?: boolean;
 }

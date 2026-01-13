@@ -365,6 +365,11 @@ export const ImageViewer: React.FC = () => {
 					(isFullscreen && state.settings["fullscreen.show_filename"])) && (
 					<div className="meld-viewer-info">
 						<div className="meld-viewer-filename">{image.filename}</div>
+						{image.width && image.height && (
+							<div className="meld-viewer-dimensions">
+								{image.width} x {image.height} px
+							</div>
+						)}
 					</div>
 				)}
 				<div className="meld-viewer-actions">

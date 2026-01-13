@@ -271,6 +271,12 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 					<div className="meld-image-card__filename">{fullFilename}</div>
 				)}
 
+				{image.width && image.height && (
+					<div className="meld-image-card__dimensions">
+						{image.width} x {image.height}
+					</div>
+				)}
+
 				{state.settings["gallery.show_parent_image"] &&
 					parentChain.length > 0 && (
 						<div className="meld-image-card__lineage-v2">

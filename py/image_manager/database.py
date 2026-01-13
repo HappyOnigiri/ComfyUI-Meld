@@ -19,16 +19,33 @@ def init_db() -> None:
             subfolder TEXT,
             created_at REAL,
             sha256 TEXT,
+            phash TEXT,
+            width INTEGER,
+            height INTEGER,
             parent_id INTEGER,
             positive_prompt TEXT,
             negative_prompt TEXT,
-            workflow TEXT
+            workflow TEXT,
+            type TEXT DEFAULT 'output',
+            is_deleted INTEGER DEFAULT 0
         )
     """)
 
     # Add phash column if not exists
     try:
         cursor.execute("ALTER TABLE images ADD COLUMN phash TEXT")
+    except sqlite3.OperationalError:
+        pass
+
+    # Add width column if not exists
+    try:
+        cursor.execute("ALTER TABLE images ADD COLUMN width INTEGER")
+    except sqlite3.OperationalError:
+        pass
+
+    # Add height column if not exists
+    try:
+        cursor.execute("ALTER TABLE images ADD COLUMN height INTEGER")
     except sqlite3.OperationalError:
         pass
 
@@ -68,6 +85,36 @@ def init_db() -> None:
     try:
         cursor.execute("ALTER TABLE images ADD COLUMN is_deleted INTEGER DEFAULT 0")
     except sqlite3.OperationalError:
+        pass
+
+    # Migration: Update width/height for existing images if NULL
+    try:
+        cursor.execute("SELECT id, filename, subfolder, type FROM images WHERE width IS NULL OR height IS NULL")
+        rows = cursor.fetchall()
+        if rows:
+            import folder_paths
+            from PIL import Image
+
+            for img_id, filename, subfolder, img_type in rows:
+                try:
+                    if img_type == "output":
+                        base_dir = folder_paths.get_output_directory()
+                    elif img_type == "input":
+                        base_dir = folder_paths.get_input_directory()
+                    elif img_type == "temp":
+                        base_dir = folder_paths.get_temp_directory()
+                    else:
+                        continue
+
+                    full_path = os.path.join(base_dir, subfolder, filename)
+                    if os.path.exists(full_path):
+                        with Image.open(full_path) as img:
+                            w, h = img.size
+                            cursor.execute("UPDATE images SET width = ?, height = ? WHERE id = ?", (w, h, img_id))
+                except Exception:
+                    continue
+            conn.commit()
+    except Exception:
         pass
 
     # Add strength column to relations if not exists
