@@ -30,6 +30,52 @@ from .database import (
 )
 from .search_service import SearchService
 
+
+@server.PromptServer.instance.routes.post("/api/meld-nexus/image-tags")
+async def update_image_tags(request: web.Request) -> web.Response:
+    try:
+        data = await request.json()
+        image_id = data.get("imageId")
+        tags = data.get("tags", [])  # List of tag names
+
+        if image_id is None:
+            return web.json_response({"error": "imageId is required"}, status=400)
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        try:
+            # 1. Clear existing tags for this image
+            cursor.execute("DELETE FROM tag_image_relations WHERE image_id = ?", (image_id,))
+
+            # 2. Add new tags and create relations
+            for tag_name in tags:
+                tag_name = tag_name.strip()
+                if not tag_name:
+                    continue
+
+                # Get or create tag
+                cursor.execute("INSERT OR IGNORE INTO tags (name) VALUES (?)", (tag_name,))
+                cursor.execute("SELECT id FROM tags WHERE name = ?", (tag_name,))
+                tag_row = cursor.fetchone()
+                if tag_row:
+                    tag_id = tag_row[0]
+                    cursor.execute(
+                        "INSERT OR IGNORE INTO tag_image_relations (image_id, tag_id) VALUES (?, ?)", (image_id, tag_id)
+                    )
+
+            conn.commit()
+            return web.json_response({"success": True})
+        except Exception as e:
+            conn.rollback()
+            raise e
+        finally:
+            conn.close()
+
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
 _scan_state = {"is_running": False, "should_cancel": False}
 
 

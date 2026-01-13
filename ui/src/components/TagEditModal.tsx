@@ -1,0 +1,204 @@
+import { Plus, Search, Tag, X } from "lucide-react";
+import type React from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { fetchTags, updateImageTags } from "../api";
+import { useGallery } from "../store/GalleryContext";
+import type { Tag as TagType } from "../types";
+
+interface TagEditModalProps {
+	imageId: number;
+	initialTags: string[];
+	onClose: () => void;
+}
+
+export const TagEditModal: React.FC<TagEditModalProps> = ({
+	imageId,
+	initialTags,
+	onClose,
+}) => {
+	const { refreshImages } = useGallery();
+	const [allTags, setAllTags] = useState<TagType[]>([]);
+	const [selectedTags, setSelectedTags] = useState<string[]>(initialTags);
+	const [searchQuery, setSearchQuery] = useState("");
+	const [isLoading, setIsLoading] = useState(true);
+	const [isSaving, setIsSaving] = useState(false);
+	const inputRef = useRef<HTMLInputElement>(null);
+
+	const loadTags = useCallback(async () => {
+		setIsLoading(true);
+		try {
+			const data = await fetchTags();
+			setAllTags(data);
+		} catch (error) {
+			console.error("Failed to fetch tags:", error);
+		} finally {
+			setIsLoading(false);
+		}
+	}, []);
+
+	useEffect(() => {
+		loadTags();
+	}, [loadTags]);
+
+	useEffect(() => {
+		// Focus input on mount
+		if (inputRef.current) {
+			inputRef.current.focus();
+		}
+	}, []);
+
+	const filteredTags = useMemo(() => {
+		return allTags.filter(
+			(tag) =>
+				tag.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+				!selectedTags.includes(tag.name),
+		);
+	}, [allTags, searchQuery, selectedTags]);
+
+	const handleAddTag = (tagName: string) => {
+		const trimmed = tagName.trim();
+		if (trimmed && !selectedTags.includes(trimmed)) {
+			setSelectedTags([...selectedTags, trimmed]);
+			setSearchQuery("");
+		}
+	};
+
+	const handleRemoveTag = (tagName: string) => {
+		setSelectedTags(selectedTags.filter((t) => t !== tagName));
+	};
+
+	const handleSave = async () => {
+		setIsSaving(true);
+		try {
+			await updateImageTags(imageId, selectedTags);
+			await refreshImages();
+			onClose();
+		} catch (error) {
+			console.error("Failed to update tags:", error);
+			alert("Failed to update tags.");
+		} finally {
+			setIsSaving(false);
+		}
+	};
+
+	const handleKeyDown = (e: React.KeyboardEvent) => {
+		if (e.key === "Enter" && searchQuery.trim()) {
+			e.preventDefault();
+			handleAddTag(searchQuery.trim());
+		} else if (e.key === "Escape") {
+			onClose();
+		}
+	};
+
+	return (
+		<div className="meld-modal-overlay" onClick={onClose}>
+			<div className="meld-modal-content" onClick={(e) => e.stopPropagation()}>
+				<div className="meld-modal-header">
+					<div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+						<Tag size={18} />
+						<h3 style={{ margin: 0 }}>Edit Tags</h3>
+					</div>
+					<button type="button" className="meld-modal-close" onClick={onClose}>
+						<X size={20} />
+					</button>
+				</div>
+
+				<div className="meld-modal-body">
+					<div className="meld-tag-edit-section">
+						<div className="meld-tag-edit-label">Selected Tags</div>
+						<div className="meld-tag-edit-selected">
+							{selectedTags.length === 0 ? (
+								<span className="meld-tag-edit-empty">No tags selected</span>
+							) : (
+								selectedTags.map((tag) => (
+									<span key={tag} className="meld-tag-edit-badge">
+										{tag}
+										<button
+											type="button"
+											className="meld-tag-edit-remove"
+											onClick={() => handleRemoveTag(tag)}
+										>
+											<X size={12} />
+										</button>
+									</span>
+								))
+							)}
+						</div>
+					</div>
+
+					<div className="meld-tag-edit-section">
+						<div className="meld-tag-edit-label">Add Tags</div>
+						<div className="meld-tag-search-container">
+							<Search size={14} className="meld-tag-search-icon" />
+							<input
+								ref={inputRef}
+								type="text"
+								className="meld-tag-search-input"
+								placeholder="Search or create new tag..."
+								value={searchQuery}
+								onChange={(e) => setSearchQuery(e.target.value)}
+								onKeyDown={handleKeyDown}
+							/>
+							{searchQuery.trim() &&
+								!selectedTags.includes(searchQuery.trim()) && (
+									<button
+										type="button"
+										className="meld-tag-add-btn"
+										onClick={() => handleAddTag(searchQuery)}
+									>
+										<Plus size={14} />
+										Create
+									</button>
+								)}
+						</div>
+
+						<div className="meld-tag-suggestions">
+							{isLoading ? (
+								<div className="meld-tag-suggestions-loading">Loading...</div>
+							) : filteredTags.length === 0 ? (
+								searchQuery ? (
+									<div className="meld-tag-suggestions-empty">
+										No existing tags match. Press Enter to create.
+									</div>
+								) : (
+									<div className="meld-tag-suggestions-empty">
+										No more tags available.
+									</div>
+								)
+							) : (
+								filteredTags.map((tag) => (
+									<button
+										key={tag.id}
+										type="button"
+										className="meld-tag-suggestion-item"
+										onClick={() => handleAddTag(tag.name)}
+									>
+										{tag.name}
+									</button>
+								))
+							)}
+						</div>
+					</div>
+				</div>
+
+				<div className="meld-modal-footer">
+					<button
+						type="button"
+						className="meld-btn meld-btn-secondary"
+						onClick={onClose}
+					>
+						Cancel
+					</button>
+					<button
+						type="button"
+						className="meld-btn meld-btn-primary"
+						onClick={handleSave}
+						disabled={isSaving}
+					>
+						{isSaving ? "Saving..." : "Save Changes"}
+					</button>
+				</div>
+			</div>
+		</div>
+	);
+};

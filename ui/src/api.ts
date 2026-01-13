@@ -347,6 +347,20 @@ export const deleteTag = async (id: number): Promise<void> => {
 	}
 };
 
+export const updateImageTags = async (
+	imageId: number,
+	tags: string[],
+): Promise<void> => {
+	const res = await api.fetchApi("/meld-nexus/image-tags", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ imageId, tags }),
+	});
+	if (!res.ok) {
+		throw new Error("Failed to update image tags");
+	}
+};
+
 export const fetchImageWorkflow = async (
 	imageId: number,
 ): Promise<{ workflow: unknown }> => {

@@ -10,6 +10,7 @@ import { ImportModal } from "./ImportModal";
 import { ParentSelectionModal } from "./ParentSelectionModal";
 import { SearchBar } from "./SearchBar";
 import { SettingsModal } from "./SettingsModal";
+import { TagEditModal } from "./TagEditModal";
 import { TagManagerView } from "./TagManagerView";
 import "../styles/Gallery.css";
 
@@ -253,6 +254,14 @@ export const GalleryPanel: React.FC = () => {
 			{state.activeModal.type === "import" && <ImportModal />}
 
 			{state.activeModal.type === "settings" && <SettingsModal />}
+
+			{state.activeModal.type === "tag_edit" && (
+				<TagEditModal
+					imageId={state.activeModal.imageId}
+					initialTags={state.activeModal.tags}
+					onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+				/>
+			)}
 		</div>
 	);
 };

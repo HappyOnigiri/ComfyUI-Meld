@@ -5,6 +5,7 @@ import {
 	MoreVertical,
 	PlusCircle,
 	RefreshCw,
+	Tag,
 	X,
 } from "lucide-react";
 import type React from "react";
@@ -391,7 +392,20 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 				)}
 
 				{state.settings["sidebar.show_tags"] && (
-					<div className="meld-image-card__meta-item">
+					<div
+						className="meld-image-card__meta-item meld-image-card__meta-item--clickable"
+						onClick={(e) => {
+							e.stopPropagation();
+							dispatch({
+								type: "OPEN_MODAL",
+								payload: {
+									type: "tag_edit",
+									imageId: image.id,
+									tags: image.tags || [],
+								},
+							});
+						}}
+					>
 						<div className="meld-image-card__meta-label">Tags</div>
 						<div className="meld-image-card__tags">
 							{image.tags && image.tags.length > 0 ? (
@@ -476,6 +490,24 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 						>
 							<PlusCircle size={14} />
 							<span>Add source image</span>
+						</div>
+						<div
+							className="meld-image-card__menu-item"
+							onClick={(e) => {
+								e.stopPropagation();
+								dispatch({
+									type: "OPEN_MODAL",
+									payload: {
+										type: "tag_edit",
+										imageId: image.id,
+										tags: image.tags || [],
+									},
+								});
+								setIsMenuOpen(false);
+							}}
+						>
+							<Tag size={14} />
+							<span>Edit Tags</span>
 						</div>
 					</div>
 				)}
