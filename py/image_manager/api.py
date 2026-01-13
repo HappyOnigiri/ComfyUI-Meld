@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import sqlite3
 from typing import Any
 
 import folder_paths
@@ -178,6 +179,64 @@ def perform_cleanup() -> int:
         conn.close()
 
 
+def infer_parent_id(
+    cursor: sqlite3.Cursor,
+    filename: str | None = None,
+    subfolder: str | None = None,
+    img_type: str | None = None,
+    phash: str | None = None,
+    created_at: float | None = None,
+    strategy: str = "filename_phash",
+    workflow_json: str | dict | None = None,
+    prompt_json: str | dict | None = None,
+) -> int | None:
+    parent_id = None
+    if created_at is None:
+        created_at = time.time()
+
+    # 1. Try to get source filenames (for filename_phash strategy)
+    source_filenames = []
+    if strategy == "filename_phash":
+        if workflow_json or prompt_json:
+            source_filenames = extract_source_filenames(workflow_json, prompt_json)
+        elif filename and subfolder and img_type:
+            # Fallback to reading from disk
+            try:
+                if img_type == "output":
+                    base_dir = folder_paths.get_output_directory()
+                elif img_type == "input":
+                    base_dir = folder_paths.get_input_directory()
+                elif img_type == "temp":
+                    base_dir = folder_paths.get_temp_directory()
+                else:
+                    base_dir = None
+
+                if base_dir:
+                    full_path = os.path.join(base_dir, subfolder, filename)
+                    if os.path.exists(full_path):
+                        _, _, _, wf, pr, _, _ = MetadataHelper.extract_metadata(full_path)
+                        source_filenames = extract_source_filenames(wf, pr)
+            except Exception:
+                pass
+
+        if source_filenames:
+            placeholders = ",".join(["?"] * len(source_filenames))
+            sql = (
+                f"SELECT id FROM images WHERE filename IN ({placeholders}) "
+                "AND deleted_at IS NULL AND created_at < ? ORDER BY created_at DESC LIMIT 1"
+            )
+            cursor.execute(sql, (*source_filenames, created_at))
+            res = cursor.fetchone()
+            if res:
+                parent_id = res[0]
+
+    # 2. Fallback to pHash match (or if strategy is pHash-based)
+    if parent_id is None and phash:
+        parent_id = find_closest_parent(phash, cursor, before_timestamp=created_at, sort_strategy=strategy)
+
+    return parent_id
+
+
 def _scan_thread(
     base_dir: str, subfolder: str, recursive: bool, auto_link_parent: bool, tags: list[str] | None = None
 ) -> None:
@@ -189,6 +248,10 @@ def _scan_thread(
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
+
+        # Get settings for matching strategy
+        db_settings = get_all_settings(cursor)
+        matching_strategy = db_settings.get("gallery.matching_strategy", "filename_phash")
 
         def add_tags_to_image(img_id: int, tag_list: list[str] | None) -> None:
             if not tag_list:
@@ -375,36 +438,7 @@ def _scan_thread(
                     continue
                 fname, subf, itype, iphash, icreated = row
 
-                parent_id = None
-
-                # Rule 1: Filename match in metadata
-                try:
-                    if itype == "output":
-                        base = folder_paths.get_output_directory()
-                    elif itype == "input":
-                        base = folder_paths.get_input_directory()
-                    else:
-                        base = folder_paths.get_temp_directory()
-
-                    p_full = os.path.join(base, subf, fname)
-                    _, _, _, wf_json, pr_json, _, _ = MetadataHelper.extract_metadata(p_full)
-                    source_filenames = extract_source_filenames(wf_json, pr_json)
-                    if source_filenames:
-                        placeholders = ",".join(["?"] * len(source_filenames))
-                        sql = (
-                            f"SELECT id FROM images WHERE filename IN ({placeholders}) "
-                            "AND deleted_at IS NULL AND created_at < ? ORDER BY created_at DESC LIMIT 1"
-                        )
-                        cursor.execute(sql, (*source_filenames, icreated))
-                        res = cursor.fetchone()
-                        if res:
-                            parent_id = res[0]
-                except Exception:
-                    pass
-
-                # Rule 2: pHash match
-                if parent_id is None and iphash:
-                    parent_id = find_closest_parent(iphash, cursor, exclude_id=img_id, before_timestamp=icreated)
+                parent_id = infer_parent_id(cursor, fname, subf, itype, iphash, icreated, strategy=matching_strategy)
 
                 if parent_id and parent_id != img_id:
                     cursor.execute("UPDATE images SET parent_id = ? WHERE id = ?", (parent_id, img_id))
@@ -802,6 +836,7 @@ async def get_settings(request: web.Request) -> web.Response:
             "viewer.details.max_positive_prompt_lines": 7,
             "viewer.details.max_negative_prompt_lines": 7,
             "viewer.show_icons": True,
+            "gallery.matching_strategy": "filename_phash",
         }
 
         # Merge with DB settings
@@ -874,6 +909,10 @@ async def register_image(request: web.Request) -> web.Response:
         conn = get_db_connection()
         cursor = conn.cursor()
 
+        # Get matching strategy from settings
+        db_settings = get_all_settings(cursor)
+        matching_strategy = db_settings.get("gallery.matching_strategy", "filename_phash")
+
         # Check if already registered
         cursor.execute(
             "SELECT id FROM images WHERE filename = ? AND subfolder = ? AND deleted_at IS NULL", (filename, subfolder)
@@ -907,7 +946,7 @@ async def register_image(request: web.Request) -> web.Response:
                 logging.warning(f"[Meld-Flow] Failed to calculate phash for {full_path}")
 
         # Infer parent_id
-        parent_id = find_closest_parent(phash, cursor, before_timestamp=timestamp)
+        parent_id = infer_parent_id(cursor, filename, subfolder, img_type, phash, timestamp, strategy=matching_strategy)
 
         # Insert Image
         sql = """
@@ -1332,35 +1371,21 @@ async def link_parent(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.get("/api/meld-nexus/suggest-parents")
-async def suggest_parents(request: web.Request) -> web.Response:
-    try:
-        image_id = request.query.get("id")
-        threshold = int(request.query.get("threshold", 12))  # Slightly higher threshold for suggestions
-
-        if not image_id:
-            return web.json_response({"error": "id is required"}, status=400)
-
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        # Get the target phash and file info
-        cursor.execute("SELECT phash, created_at, filename, subfolder, type FROM images WHERE id = ?", (image_id,))
-        row = cursor.fetchone()
-        if not row:
-            conn.close()
-            return web.json_response([])
-
-        target_phash = row[0]
-        target_created_at = row[1]
-        filename = row[2]
-        subfolder = row[3]
-        img_type = row[4]
-
-        # 1. Find source filenames from metadata
-        source_matches = []
+def get_parent_suggestions(
+    cursor: sqlite3.Cursor,
+    image_id: int,
+    target_phash: str | None,
+    target_created_at: float,
+    filename: str,
+    subfolder: str,
+    img_type: str,
+    strategy: str = "filename_phash",
+    threshold: int = 12,
+) -> list[dict]:
+    # 1. Find source filename matches (if strategy includes it)
+    source_matches = []
+    if strategy == "filename_phash":
         try:
-            # Resolve base directory
             if img_type == "output":
                 base_dir = folder_paths.get_output_directory()
             elif img_type == "input":
@@ -1373,9 +1398,8 @@ async def suggest_parents(request: web.Request) -> web.Response:
             if base_dir:
                 full_path = os.path.join(base_dir, subfolder, filename)
                 if os.path.exists(full_path):
-                    pos, neg, model, wf_json, pr_json, a1111_text, logs = MetadataHelper.extract_metadata(full_path)
-                    source_filenames = extract_source_filenames(wf_json, pr_json)
-
+                    _, _, _, wf, pr, _, _ = MetadataHelper.extract_metadata(full_path)
+                    source_filenames = extract_source_filenames(wf, pr)
                     if source_filenames:
                         placeholders = ",".join(["?"] * len(source_filenames))
                         cursor.execute(
@@ -1394,52 +1418,96 @@ async def suggest_parents(request: web.Request) -> web.Response:
                                     "is_source_match": True,
                                 }
                             )
-        except Exception as e:
-            logging.warning(f"[Meld-Flow] Failed to extract source filenames: {e}")
+        except Exception:
+            pass
 
-        # 2. Find pHash matches
-        phash_matches = []
-        if target_phash:
-            # Fetch images created BEFORE the target image
-            cursor.execute(
-                "SELECT id, filename, subfolder, type, phash, created_at FROM images WHERE id != ? AND phash IS NOT NULL AND deleted_at IS NULL AND created_at < ? ORDER BY created_at DESC",
-                (image_id, target_created_at),
-            )
-            other_images = cursor.fetchall()
+    # 2. Find pHash matches
+    phash_matches = []
+    if target_phash:
+        cursor.execute(
+            "SELECT id, filename, subfolder, type, phash, created_at FROM images WHERE id != ? AND phash IS NOT NULL AND deleted_at IS NULL AND created_at < ? ORDER BY created_at DESC",
+            (image_id, target_created_at),
+        )
+        rows = cursor.fetchall()
 
-            def hamming_distance(h1: str, h2: str) -> int:
-                try:
-                    return bin(int(h1, 16) ^ int(h2, 16)).count("1")
-                except Exception:
-                    return 999
+        def hamming_distance(h1: str, h2: str) -> int:
+            try:
+                return bin(int(h1, 16) ^ int(h2, 16)).count("1")
+            except Exception:
+                return 999
 
-            for img_id, filename, subfolder, img_type, phash, created_at in other_images:
-                # Skip if already in source matches
-                if any(m["id"] == img_id for m in source_matches):
-                    continue
+        for img_id, fname, subf, itype, iphash, icreated in rows:
+            # Skip if already in source matches
+            if any(m["id"] == img_id for m in source_matches):
+                continue
 
-                dist = hamming_distance(target_phash, phash)
-                if dist <= threshold:
-                    phash_matches.append(
-                        {
-                            "id": img_id,
-                            "filename": filename,
-                            "subfolder": subfolder,
-                            "type": img_type,
-                            "distance": dist,
-                            "created_at": created_at,
-                            "is_source_match": False,
-                        }
-                    )
+            dist = hamming_distance(target_phash, iphash)
+            if dist <= threshold:
+                phash_matches.append(
+                    {
+                        "id": img_id,
+                        "filename": fname,
+                        "subfolder": subf,
+                        "type": itype,
+                        "distance": dist,
+                        "created_at": icreated,
+                        "is_source_match": False,
+                    }
+                )
 
-            # Sort by distance, then by created_at (most recent first)
+        # Sort pHash matches based on strategy
+        if strategy == "phash_created":
+            phash_matches.sort(key=lambda x: (x["distance"], abs(target_created_at - x["created_at"])))
+        else:
+            # Default/phash_only: distance then recency
             phash_matches.sort(key=lambda x: (x["distance"], -x["created_at"]))
 
-        # Combine: Source matches first, then top 3 pHash matches
-        final_suggestions = source_matches + phash_matches[:3]
+    return source_matches + phash_matches
+
+
+@server.PromptServer.instance.routes.get("/api/meld-nexus/suggest-parents")
+async def suggest_parents(request: web.Request) -> web.Response:
+    try:
+        image_id = request.query.get("id")
+        threshold = int(request.query.get("threshold", 12))
+
+        if not image_id:
+            return web.json_response({"error": "id is required"}, status=400)
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Get settings
+        db_settings = get_all_settings(cursor)
+        strategy = db_settings.get("gallery.matching_strategy", "filename_phash")
+
+        # Get target image info
+        cursor.execute(
+            "SELECT phash, created_at, filename, subfolder, type FROM images WHERE id = ?",
+            (image_id,),
+        )
+        row = cursor.fetchone()
+        if not row:
+            conn.close()
+            return web.json_response([])
+
+        target_phash, target_created_at, filename, subfolder, img_type = row
+
+        suggestions = get_parent_suggestions(
+            cursor,
+            int(image_id),
+            target_phash,
+            target_created_at,
+            filename,
+            subfolder,
+            img_type,
+            strategy=strategy,
+            threshold=threshold,
+        )
 
         conn.close()
-        return web.json_response(final_suggestions)
+        # Return top matches
+        return web.json_response(suggestions[:20])
     except Exception as e:
         logging.exception("[Meld-Flow] Failed to suggest parents")
         return web.json_response({"error": str(e)}, status=500)

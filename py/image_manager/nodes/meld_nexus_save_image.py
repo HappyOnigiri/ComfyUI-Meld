@@ -19,7 +19,15 @@ from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 
 from ...load_image_configs.core.metadata_helper import MetadataHelper
-from ..database import add_model_relation, calculate_sha256, find_closest_parent, get_db_connection, get_or_create_model
+from ..api import infer_parent_id
+from ..database import (
+    add_model_relation,
+    calculate_sha256,
+    find_closest_parent,
+    get_all_settings,
+    get_db_connection,
+    get_or_create_model,
+)
 
 
 # --- Custom Node Definition ---
@@ -140,17 +148,40 @@ class MeldNexusSaveImage:
         pos_list = MetadataHelper.smart_split(resolved_positive) if resolved_positive else []
         neg_list = MetadataHelper.smart_split(resolved_negative) if resolved_negative else []
 
-        # Parent ID inference from origin_image
+        # Parent ID inference
+        db_settings = get_all_settings(cursor)
+        matching_strategy = db_settings.get("gallery.matching_strategy", "filename_phash")
         parent_id = None
+
         if origin_image is not None and imagehash is not None:
             try:
-                # Use the first image in batch for phash calculation
+                # If origin_image is explicitly provided, we find its match in DB
                 o_i = 255.0 * origin_image[0].cpu().numpy()
                 o_img = Image.fromarray(np.clip(o_i, 0, 255).astype(np.uint8))
                 o_phash = str(imagehash.phash(o_img))
-                # Current time as timestamp for the new image being saved
-                current_timestamp = time.time()
-                parent_id = find_closest_parent(o_phash, cursor, before_timestamp=current_timestamp)
+                # When origin is explicit, we use the strategy to find it (usually phash-based)
+                parent_id = find_closest_parent(
+                    o_phash, cursor, before_timestamp=time.time(), sort_strategy=matching_strategy
+                )
+            except Exception:
+                pass
+
+        if parent_id is None:
+            # Fallback to metadata-based inference (same as scan/register)
+            try:
+                # Calculate phash of the first image in batch being saved to use as child phash
+                i_0 = 255.0 * images[0].cpu().numpy()
+                img_0 = Image.fromarray(np.clip(i_0, 0, 255).astype(np.uint8))
+                child_phash = str(imagehash.phash(img_0)) if imagehash else None
+
+                parent_id = infer_parent_id(
+                    cursor,
+                    phash=child_phash,
+                    created_at=time.time(),
+                    strategy=matching_strategy,
+                    workflow_json=resolved_workflow,
+                    prompt_json=prompt,
+                )
             except Exception:
                 pass
 

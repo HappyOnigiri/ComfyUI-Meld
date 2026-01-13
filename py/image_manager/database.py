@@ -360,11 +360,12 @@ def find_closest_parent(
     threshold: int = 8,
     exclude_id: int | None = None,
     before_timestamp: float | None = None,
+    sort_strategy: str = "phash_only",
 ) -> int | None:
     if not phash:
         return None
 
-    query = "SELECT id, phash FROM images WHERE phash IS NOT NULL AND deleted_at IS NULL"
+    query = "SELECT id, phash, created_at FROM images WHERE phash IS NOT NULL AND deleted_at IS NULL"
     params: list[int | float] = []
 
     if exclude_id:
@@ -375,7 +376,8 @@ def find_closest_parent(
         query += " AND created_at < ?"
         params.append(before_timestamp)
 
-    query += " ORDER BY id DESC"
+    # For performance, we still want some order, but we'll do the final selection in Python
+    query += " ORDER BY created_at DESC"
 
     cursor.execute(query, params)
     rows = cursor.fetchall()
@@ -386,15 +388,22 @@ def find_closest_parent(
         except Exception:
             return 999
 
-    best_id = None
-    min_dist = threshold + 1
-
-    for img_id, other_phash in rows:
+    candidates = []
+    for img_id, other_phash, other_created_at in rows:
         dist = hamming_distance(phash, other_phash)
-        if dist < min_dist:
-            min_dist = dist
-            best_id = img_id
-            if min_dist == 0:
-                break  # Latest exact match found
+        if dist <= threshold:
+            candidates.append({"id": img_id, "dist": dist, "created_at": other_created_at})
+            if dist == 0 and sort_strategy != "phash_created":
+                return img_id  # Optimization: Exact match found and we don't need further sorting
 
-    return best_id
+    if not candidates:
+        return None
+
+    if sort_strategy == "phash_created" and before_timestamp:
+        # Sort by distance (ASC), then by time difference (ASC)
+        candidates.sort(key=lambda x: (x["dist"], abs(before_timestamp - x["created_at"])))
+    else:
+        # Default: Sort by distance (ASC), then by created_at (DESC - most recent first)
+        candidates.sort(key=lambda x: (x["dist"], -x["created_at"]))
+
+    return candidates[0]["id"]
