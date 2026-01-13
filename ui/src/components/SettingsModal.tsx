@@ -5,7 +5,13 @@ import { createPortal } from "react-dom";
 import { useGallery } from "../store/GalleryContext";
 import type { Settings } from "../types";
 
-type Category = "General" | "Sidebar" | "Search" | "View" | "Full Screen";
+type Category =
+	| "General"
+	| "Sidebar"
+	| "Search"
+	| "View"
+	| "View Details"
+	| "Full Screen";
 
 export const SettingsModal: React.FC = () => {
 	const { state, dispatch, updateSetting } = useGallery();
@@ -118,13 +124,6 @@ export const SettingsModal: React.FC = () => {
 			category: "Search",
 		},
 		{
-			key: "viewer.show_filename",
-			label: "Show Filename",
-			description: "Display the filename in the image viewer.",
-			type: "boolean",
-			category: "View",
-		},
-		{
 			key: "viewer.loop",
 			label: "Loop Navigation",
 			description: "Loop to the beginning/end when navigating in the viewer.",
@@ -133,60 +132,60 @@ export const SettingsModal: React.FC = () => {
 		},
 		{
 			key: "viewer.show_details_by_default",
-			label: "Show Details by Default",
+			label: "Show by Default",
 			description:
 				"Show the image details panel automatically when opening the viewer.",
 			type: "boolean",
-			category: "View",
+			category: "View Details",
 		},
 		{
 			key: "viewer.details.show_filename",
-			label: "Details: Show Filename",
+			label: "Show Filename",
 			description: "Display the filename in the details panel.",
 			type: "boolean",
-			category: "View",
+			category: "View Details",
 		},
 		{
 			key: "viewer.details.show_dimensions",
-			label: "Details: Show Dimensions",
+			label: "Show Dimensions",
 			description: "Display dimensions in the details panel.",
 			type: "boolean",
-			category: "View",
+			category: "View Details",
 		},
 		{
 			key: "viewer.details.show_created_at",
-			label: "Details: Show Created At",
+			label: "Show Created At",
 			description: "Display generation date/time in the details panel.",
 			type: "boolean",
-			category: "View",
+			category: "View Details",
 		},
 		{
 			key: "viewer.details.show_model_name",
-			label: "Details: Show Model",
+			label: "Show Model",
 			description: "Display model name in the details panel.",
 			type: "boolean",
-			category: "View",
+			category: "View Details",
 		},
 		{
 			key: "viewer.details.show_positive_prompt",
-			label: "Details: Show Positive",
+			label: "Show Positive",
 			description: "Display positive prompt in the details panel.",
 			type: "boolean",
-			category: "View",
+			category: "View Details",
 		},
 		{
 			key: "viewer.details.show_negative_prompt",
-			label: "Details: Show Negative",
+			label: "Show Negative",
 			description: "Display negative prompt in the details panel.",
 			type: "boolean",
-			category: "View",
+			category: "View Details",
 		},
 		{
 			key: "viewer.details.show_tags",
-			label: "Details: Show Tags",
+			label: "Show Tags",
 			description: "Display tags in the details panel.",
 			type: "boolean",
-			category: "View",
+			category: "View Details",
 		},
 		{
 			key: "viewer.thumbnail_window_size",
@@ -282,110 +281,124 @@ export const SettingsModal: React.FC = () => {
 					</button>
 				</div>
 
-				<div className="meld-tabs">
-					<button
-						type="button"
-						className={`meld-tab ${activeTab === "General" ? "active" : ""}`}
-						onClick={() => setActiveTab("General")}
-					>
-						General
-					</button>
-					<button
-						type="button"
-						className={`meld-tab ${activeTab === "Sidebar" ? "active" : ""}`}
-						onClick={() => setActiveTab("Sidebar")}
-					>
-						Sidebar
-					</button>
-					<button
-						type="button"
-						className={`meld-tab ${activeTab === "Search" ? "active" : ""}`}
-						onClick={() => setActiveTab("Search")}
-					>
-						Search
-					</button>
-					<button
-						type="button"
-						className={`meld-tab ${activeTab === "View" ? "active" : ""}`}
-						onClick={() => setActiveTab("View")}
-					>
-						View
-					</button>
-					<button
-						type="button"
-						className={`meld-tab ${activeTab === "Full Screen" ? "active" : ""}`}
-						onClick={() => setActiveTab("Full Screen")}
-					>
-						Full Screen
-					</button>
-				</div>
+				<div className="meld-settings-layout">
+					<div className="meld-settings-sidebar">
+						<div className="meld-tabs">
+							<button
+								type="button"
+								className={`meld-tab ${activeTab === "General" ? "active" : ""}`}
+								onClick={() => setActiveTab("General")}
+							>
+								General
+							</button>
+							<button
+								type="button"
+								className={`meld-tab ${activeTab === "Sidebar" ? "active" : ""}`}
+								onClick={() => setActiveTab("Sidebar")}
+							>
+								Sidebar
+							</button>
+							<button
+								type="button"
+								className={`meld-tab ${activeTab === "Search" ? "active" : ""}`}
+								onClick={() => setActiveTab("Search")}
+							>
+								Search
+							</button>
+							<button
+								type="button"
+								className={`meld-tab ${activeTab === "View" ? "active" : ""}`}
+								onClick={() => setActiveTab("View")}
+							>
+								View
+							</button>
+							<button
+								type="button"
+								className={`meld-tab ${activeTab === "View Details" ? "active" : ""}`}
+								onClick={() => setActiveTab("View Details")}
+							>
+								View Details
+							</button>
+							<button
+								type="button"
+								className={`meld-tab ${activeTab === "Full Screen" ? "active" : ""}`}
+								onClick={() => setActiveTab("Full Screen")}
+							>
+								Full Screen
+							</button>
+						</div>
+					</div>
 
-				<div className="meld-modal-body">
-					<div className="meld-settings-list">
-						{filteredSettings.map((config) => (
-							<div key={config.key} className="meld-settings-item">
-								<div className="meld-settings-item__info">
-									<div className="meld-settings-item__label">
-										{config.label}
+					<div className="meld-modal-body">
+						<div className="meld-settings-list">
+							{filteredSettings.map((config) => (
+								<div key={config.key} className="meld-settings-item">
+									<div className="meld-settings-item__info">
+										<div className="meld-settings-item__label">
+											{config.label}
+										</div>
+										<div className="meld-settings-item__description">
+											{config.description}
+										</div>
 									</div>
-									<div className="meld-settings-item__description">
-										{config.description}
-									</div>
-								</div>
-								<div className="meld-settings-item__control">
-									{config.type === "boolean" && (
-										<label className="meld-switch">
+									<div className="meld-settings-item__control">
+										{config.type === "boolean" && (
+											<label className="meld-switch">
+												<input
+													type="checkbox"
+													checked={!!localSettings[config.key]}
+													onChange={() =>
+														handleToggle(
+															config.key,
+															!!localSettings[config.key],
+														)
+													}
+												/>
+												<span className="meld-switch__slider" />
+											</label>
+										)}
+										{config.type === "number" && (
 											<input
-												type="checkbox"
-												checked={!!localSettings[config.key]}
-												onChange={() =>
-													handleToggle(config.key, !!localSettings[config.key])
+												type="number"
+												className="meld-number-input"
+												value={
+													config.key === "gallery.page_size"
+														? pageSizeInput
+														: config.key === "viewer.thumbnail_window_size"
+															? thumbnailWindowSizeInput
+															: (localSettings[config.key] as unknown as number)
 												}
+												min={config.min}
+												max={config.max}
+												onChange={(e) =>
+													handleNumberChange(
+														config.key,
+														e.target.value,
+														config.min,
+														config.max,
+													)
+												}
+												onBlur={() => {
+													if (config.key === "gallery.page_size") {
+														setPageSizeInput(
+															localSettings["gallery.page_size"].toString(),
+														);
+													} else if (
+														config.key === "viewer.thumbnail_window_size"
+													) {
+														setThumbnailWindowSizeInput(
+															localSettings[
+																"viewer.thumbnail_window_size"
+															].toString(),
+														);
+													}
+												}}
 											/>
-											<span className="meld-switch__slider" />
-										</label>
-									)}
-									{config.type === "number" && (
-										<input
-											type="number"
-											className="meld-number-input"
-											value={
-												config.key === "gallery.page_size"
-													? pageSizeInput
-													: config.key === "viewer.thumbnail_window_size"
-														? thumbnailWindowSizeInput
-														: (localSettings[config.key] as unknown as number)
-											}
-											min={config.min}
-											max={config.max}
-											onChange={(e) =>
-												handleNumberChange(
-													config.key,
-													e.target.value,
-													config.min,
-													config.max,
-												)
-											}
-											onBlur={() => {
-												if (config.key === "gallery.page_size") {
-													setPageSizeInput(
-														localSettings["gallery.page_size"].toString(),
-													);
-												} else if (
-													config.key === "viewer.thumbnail_window_size"
-												) {
-													setThumbnailWindowSizeInput(
-														localSettings[
-															"viewer.thumbnail_window_size"
-														].toString(),
-													);
-												}
-											}}
-										/>
-									)}
+										)}
+									</div>
 								</div>
-							</div>
-						))}
+							))}
+						</div>
 					</div>
 				</div>
 			</div>
