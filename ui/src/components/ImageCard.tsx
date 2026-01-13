@@ -108,6 +108,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 	const fullFilename = image.subfolder
 		? `${image.subfolder}/${image.filename}`
 		: image.filename;
+
 	const imgSrc = `/api/view?filename=${encodeURIComponent(image.filename)}&type=${image.type || "output"}${
 		image.subfolder ? `&subfolder=${encodeURIComponent(image.subfolder)}` : ""
 	}`;
@@ -258,6 +259,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 					className="meld-image-card__thumbnail"
 					alt={image.filename}
 					loading="lazy"
+					decoding="async"
 					onMouseDown={handleMouseDown}
 					onClick={(e) => {
 						e.stopPropagation();
@@ -282,6 +284,8 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 												key={p.id || index}
 												src={p.imgSrc}
 												className="meld-lineage-badge__parent-thumb"
+												loading="lazy"
+												decoding="async"
 												onClick={(e) => {
 													e.stopPropagation();
 													dispatch({

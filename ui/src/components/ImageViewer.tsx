@@ -9,10 +9,69 @@ import {
 	X,
 } from "lucide-react";
 import type React from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import * as api from "../api";
 import { useGallery } from "../store/GalleryContext";
+import type { GalleryAction, MeldImage } from "../types";
+
+// Memoized Thumbnail item to prevent unnecessary re-renders when navigating images
+const ThumbnailItem = memo(
+	({
+		thumb,
+		viewerImageId,
+		currentImage,
+		dispatch,
+	}: {
+		thumb: MeldImage;
+		viewerImageId: number | null;
+		currentImage: MeldImage;
+		dispatch: React.Dispatch<GalleryAction>;
+	}) => {
+		const isCurrent = thumb.id === viewerImageId;
+		const isParent =
+			typeof currentImage.parent_id === "number" &&
+			currentImage.parent_id === thumb.id;
+		const isChild =
+			typeof thumb.parent_id === "number" &&
+			thumb.parent_id === currentImage.id;
+
+		const thumbSrc = `/api/view?filename=${encodeURIComponent(thumb.filename)}&type=${thumb.type || "output"}${
+			thumb.subfolder ? `&subfolder=${encodeURIComponent(thumb.subfolder)}` : ""
+		}`;
+
+		return (
+			<div className="meld-viewer-thumbnail-wrapper">
+				<div
+					className={`meld-viewer-thumbnail ${isCurrent ? "meld-viewer-thumbnail--active" : ""} ${isParent ? "meld-viewer-thumbnail--parent" : ""} ${isChild ? "meld-viewer-thumbnail--child" : ""}`}
+					onClick={() =>
+						dispatch({
+							type: "OPEN_VIEWER",
+							payload: { id: thumb.id, mode: "gallery" }, // Default to gallery mode when clicking a thumbnail
+						})
+					}
+					title={thumb.filename}
+				>
+					<img
+						src={thumbSrc}
+						alt={thumb.filename}
+						loading="lazy"
+						decoding="async"
+					/>
+					{(isParent || isChild) && (
+						<div
+							className={`meld-viewer-thumbnail-relation-icon ${isParent ? "meld-viewer-thumbnail-relation-icon--parent" : "meld-viewer-thumbnail-relation-icon--child"}`}
+						>
+							{isParent ? <ArrowUp size={12} /> : <ArrowDown size={12} />}
+						</div>
+					)}
+				</div>
+			</div>
+		);
+	},
+);
+
+ThumbnailItem.displayName = "ThumbnailItem";
 
 export const ImageViewer: React.FC = () => {
 	const { state, dispatch, loadMoreImages } = useGallery();
@@ -21,14 +80,39 @@ export const ImageViewer: React.FC = () => {
 	const [isLoadingLineage, setIsLoadingLineage] = useState(false);
 	const overlayRef = useRef<HTMLDivElement>(null);
 
-	const currentThumbnails =
-		viewerMode === "lineage"
+	const currentThumbnails = useMemo(() => {
+		return viewerMode === "lineage"
 			? lineageImages
 			: images.filter(
 					(img) =>
 						img.exists !== false &&
 						!(state.settings["gallery.hide_parent_images"] && img.has_children),
 				);
+	}, [viewerMode, lineageImages, images, state.settings]);
+
+	const currentIndex = useMemo(() => {
+		if (viewerImageId === null) return -1;
+		return currentThumbnails.findIndex((img) => img.id === viewerImageId);
+	}, [currentThumbnails, viewerImageId]);
+
+	// Windowed thumbnails: only render a subset around the current image for performance
+	const windowedThumbnails = useMemo(() => {
+		if (currentIndex === -1) return [];
+		const windowSize = 50; // Total thumbnails to keep in DOM
+		const halfWindow = Math.floor(windowSize / 2);
+		let start = Math.max(0, currentIndex - halfWindow);
+		const end = Math.min(currentThumbnails.length, start + windowSize);
+
+		// Adjust start if we're near the end
+		if (end === currentThumbnails.length) {
+			start = Math.max(0, end - windowSize);
+		}
+
+		return currentThumbnails.slice(start, end).map((img, idx) => ({
+			img,
+			absIndex: start + idx,
+		}));
+	}, [currentThumbnails, currentIndex]);
 
 	const image = (
 		viewerMode === "lineage" && lineageImages.length > 0
@@ -167,6 +251,41 @@ export const ImageViewer: React.FC = () => {
 		}
 	}, [viewerImageId]);
 
+	// Preload next and previous images
+	useEffect(() => {
+		if (viewerImageId === null || currentThumbnails.length === 0) return;
+
+		const currentIndex = currentThumbnails.findIndex(
+			(img) => img.id === viewerImageId,
+		);
+		if (currentIndex === -1) return;
+
+		const getImgSrc = (img: MeldImage) => {
+			return `/api/view?filename=${encodeURIComponent(img.filename)}&type=${img.type || "output"}${
+				img.subfolder ? `&subfolder=${encodeURIComponent(img.subfolder)}` : ""
+			}`;
+		};
+
+		// Preload more images ahead (1 next for decode, others just for cache)
+		const indicesToPreload = [
+			currentIndex + 1,
+			currentIndex + 2,
+			currentIndex - 1,
+		];
+
+		const timer = setTimeout(() => {
+			for (const idx of indicesToPreload) {
+				if (idx >= 0 && idx < currentThumbnails.length) {
+					const img = currentThumbnails[idx];
+					const preloader = new Image();
+					preloader.src = getImgSrc(img);
+				}
+			}
+		}, 150); // Wait for user to stop navigating before loading next images
+
+		return () => clearTimeout(timer);
+	}, [viewerImageId, currentThumbnails]);
+
 	if (!image) return null;
 
 	const imgSrc = `/api/view?filename=${encodeURIComponent(image.filename)}&type=${image.type || "output"}${
@@ -224,6 +343,8 @@ export const ImageViewer: React.FC = () => {
 						src={imgSrc}
 						alt={image.filename}
 						className="meld-viewer-image"
+						// @ts-expect-error - fetchpriority is a valid but sometimes untyped attribute
+						fetchpriority="high"
 					/>
 				</div>
 
@@ -248,65 +369,15 @@ export const ImageViewer: React.FC = () => {
 									Loading lineage...
 								</div>
 							) : (
-								currentThumbnails.map((thumb, index) => {
-									const isCurrent = thumb.id === viewerImageId;
-									const isParent =
-										typeof image.parent_id === "number" &&
-										image.parent_id === thumb.id;
-									const isChild =
-										typeof thumb.parent_id === "number" &&
-										thumb.parent_id === image.id;
-
-									const thumbSrc = `/api/view?filename=${encodeURIComponent(thumb.filename)}&type=${thumb.type || "output"}${
-										thumb.subfolder
-											? `&subfolder=${encodeURIComponent(thumb.subfolder)}`
-											: ""
-									}`;
-
-									return (
-										<div
-											key={thumb.id}
-											className="meld-viewer-thumbnail-wrapper"
-										>
-											{viewerMode === "lineage" && index > 0 && (
-												<div className="meld-viewer-lineage-connector">
-													<ChevronLeft size={16} />
-												</div>
-											)}
-											<div
-												className={`meld-viewer-thumbnail ${isCurrent ? "meld-viewer-thumbnail--active" : ""} ${isParent ? "meld-viewer-thumbnail--parent" : ""} ${isChild ? "meld-viewer-thumbnail--child" : ""}`}
-												onClick={() =>
-													dispatch({
-														type: "OPEN_VIEWER",
-														payload: { id: thumb.id, mode: viewerMode },
-													})
-												}
-											>
-												<img src={thumbSrc} alt={thumb.filename} />
-												{(isParent || isChild) && (
-													<div
-														className={`meld-viewer-thumbnail-relation-icon ${isParent ? "meld-viewer-thumbnail-relation-icon--parent" : "meld-viewer-thumbnail-relation-icon--child"}`}
-													>
-														{isParent ? (
-															<ArrowUp size={12} />
-														) : (
-															<ArrowDown size={12} />
-														)}
-													</div>
-												)}
-												<div className="meld-viewer-thumbnail-label-v2">
-													{isCurrent
-														? "Current"
-														: isParent
-															? "Source"
-															: isChild
-																? "Derivative"
-																: ""}
-												</div>
-											</div>
-										</div>
-									);
-								})
+								windowedThumbnails.map(({ img }) => (
+									<ThumbnailItem
+										key={img.id}
+										thumb={img}
+										viewerImageId={viewerImageId}
+										currentImage={image}
+										dispatch={dispatch}
+									/>
+								))
 							)}
 							{viewerMode === "gallery" && state.isLoading && (
 								<div className="meld-viewer-thumbnail meld-viewer-thumbnail--loading">

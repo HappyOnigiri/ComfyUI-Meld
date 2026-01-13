@@ -3,6 +3,7 @@ import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { logger } from "../logger";
 import { useGallery } from "../store/GalleryContext";
+import { LazyRender } from "../utils/LazyRender";
 import { BulkActionBar } from "./BulkActionBar";
 import { ImageCard } from "./ImageCard";
 import { ImageViewer } from "./ImageViewer";
@@ -240,7 +241,9 @@ export const GalleryPanel: React.FC = () => {
 				<>
 					<div className="meld-gallery__list">
 						{displayedImages.map((image) => (
-							<ImageCard key={image.id} image={image} />
+							<LazyRender key={image.id} height={150}>
+								<ImageCard image={image} />
+							</LazyRender>
 						))}
 					</div>
 					<div
