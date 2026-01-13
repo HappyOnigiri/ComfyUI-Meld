@@ -4,28 +4,42 @@ import {
 	ChevronRight,
 	Folder,
 	Play,
+	Plus,
+	Search,
 	Square,
 	X,
 } from "lucide-react";
 import type React from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import * as api from "../api";
 import { useGallery } from "../store/GalleryContext";
+import type { Tag as TagType } from "../types";
 
 export const ImportModal: React.FC = () => {
 	const { state, dispatch } = useGallery();
 	const { scanStatus } = state;
-	const [config, setConfig] = useState({
+	const [config, setConfig] = useState<{
+		type: string;
+		subfolder: string;
+		custom_path: string;
+		recursive: boolean;
+		auto_link_parent: boolean;
+		tags: string[];
+	}>({
 		type: "output",
 		subfolder: "",
 		custom_path: "",
 		recursive: true,
 		auto_link_parent: true,
+		tags: [],
 	});
 
 	const [folders, setFolders] = useState<string[]>([]);
 	const [isLoadingFolders, setIsLoadingFolders] = useState(false);
+	const [allTags, setAllTags] = useState<TagType[]>([]);
+	const [tagSearchQuery, setTagSearchQuery] = useState("");
+	const [isLoadingTags, setIsLoadingTags] = useState(false);
 
 	const loadFolders = useCallback(async () => {
 		if (config.type === "custom") return;
@@ -43,6 +57,49 @@ export const ImportModal: React.FC = () => {
 	useEffect(() => {
 		loadFolders();
 	}, [loadFolders]);
+
+	const loadTags = useCallback(async () => {
+		setIsLoadingTags(true);
+		try {
+			const data = await api.fetchTags();
+			setAllTags(data);
+		} catch (error) {
+			console.error("Failed to fetch tags:", error);
+		} finally {
+			setIsLoadingTags(false);
+		}
+	}, []);
+
+	useEffect(() => {
+		loadTags();
+	}, [loadTags]);
+
+	const filteredTags = useMemo(() => {
+		return allTags.filter(
+			(tag) =>
+				tag.name.toLowerCase().includes(tagSearchQuery.toLowerCase()) &&
+				!config.tags.includes(tag.name),
+		);
+	}, [allTags, tagSearchQuery, config.tags]);
+
+	const handleAddTag = (tagName: string) => {
+		const trimmed = tagName.trim();
+		if (trimmed && !config.tags.includes(trimmed)) {
+			setConfig({ ...config, tags: [...config.tags, trimmed] });
+			setTagSearchQuery("");
+		}
+	};
+
+	const handleRemoveTag = (tagName: string) => {
+		setConfig({ ...config, tags: config.tags.filter((t) => t !== tagName) });
+	};
+
+	const handleTagKeyDown = (e: React.KeyboardEvent) => {
+		if (e.key === "Enter" && tagSearchQuery.trim()) {
+			e.preventDefault();
+			handleAddTag(tagSearchQuery.trim());
+		}
+	};
 
 	const handleStart = async () => {
 		try {
@@ -263,6 +320,78 @@ export const ImportModal: React.FC = () => {
 										/>
 										Auto Link Parent
 									</label>
+								</div>
+
+								<div className="meld-form-group">
+									<label htmlFor="import-tags">Tags to Add</label>
+									<div className="meld-tag-edit-selected">
+										{config.tags.length === 0 ? (
+											<span className="meld-tag-edit-empty">
+												No tags selected
+											</span>
+										) : (
+											config.tags.map((tag) => (
+												<span key={tag} className="meld-tag-edit-badge">
+													{tag}
+													<button
+														type="button"
+														className="meld-tag-edit-remove"
+														onClick={() => handleRemoveTag(tag)}
+													>
+														<X size={12} />
+													</button>
+												</span>
+											))
+										)}
+									</div>
+
+									<div className="meld-tag-search-container">
+										<Search size={14} className="meld-tag-search-icon" />
+										<input
+											id="import-tags"
+											type="text"
+											className="meld-tag-search-input"
+											placeholder="Search or create tag..."
+											value={tagSearchQuery}
+											onChange={(e) => setTagSearchQuery(e.target.value)}
+											onKeyDown={handleTagKeyDown}
+										/>
+										{tagSearchQuery.trim() &&
+											!config.tags.includes(tagSearchQuery.trim()) && (
+												<button
+													type="button"
+													className="meld-tag-add-btn"
+													onClick={() => handleAddTag(tagSearchQuery)}
+												>
+													<Plus size={14} />
+												</button>
+											)}
+									</div>
+
+									<div className="meld-tag-suggestions">
+										{isLoadingTags ? (
+											<div className="meld-tag-suggestions-loading">
+												Loading...
+											</div>
+										) : filteredTags.length === 0 ? (
+											tagSearchQuery && (
+												<div className="meld-tag-suggestions-empty">
+													New tag: {tagSearchQuery}
+												</div>
+											)
+										) : (
+											filteredTags.map((tag) => (
+												<button
+													key={tag.id}
+													type="button"
+													className="meld-tag-suggestion-item"
+													onClick={() => handleAddTag(tag.name)}
+												>
+													{tag.name}
+												</button>
+											))
+										)}
+									</div>
 								</div>
 
 								<div className="meld-scan-actions">

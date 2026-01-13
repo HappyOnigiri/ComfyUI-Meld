@@ -177,7 +177,9 @@ def perform_cleanup() -> int:
         conn.close()
 
 
-def _scan_thread(base_dir: str, subfolder: str, recursive: bool, auto_link_parent: bool) -> None:
+def _scan_thread(
+    base_dir: str, subfolder: str, recursive: bool, auto_link_parent: bool, tags: list[str] | None = None
+) -> None:
     global _scan_state
     conn = None
     new_count = 0
@@ -186,6 +188,23 @@ def _scan_thread(base_dir: str, subfolder: str, recursive: bool, auto_link_paren
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
+
+        def add_tags_to_image(img_id: int, tag_list: list[str] | None) -> None:
+            if not tag_list:
+                return
+            for tag_name in tag_list:
+                tag_name = tag_name.strip()
+                if not tag_name:
+                    continue
+                # Get or create tag
+                cursor.execute("INSERT OR IGNORE INTO tags (name) VALUES (?)", (tag_name,))
+                cursor.execute("SELECT id FROM tags WHERE name = ?", (tag_name,))
+                tag_row = cursor.fetchone()
+                if tag_row:
+                    tag_id = tag_row[0]
+                    cursor.execute(
+                        "INSERT OR IGNORE INTO tag_image_relations (image_id, tag_id) VALUES (?, ?)", (img_id, tag_id)
+                    )
 
         target_dir = os.path.join(base_dir, subfolder)
         image_files = []
@@ -219,6 +238,10 @@ def _scan_thread(base_dir: str, subfolder: str, recursive: bool, auto_link_paren
                 cursor.execute("SELECT id FROM images WHERE sha256 = ? AND is_deleted = 0", (sha256,))
                 existing = cursor.fetchone()
                 if existing:
+                    image_id = existing[0]
+                    # Even if already exists, add specified tags
+                    add_tags_to_image(image_id, tags)
+
                     processed += 1
                     server.PromptServer.instance.send_sync(
                         "meld-nexus-scan-progress", {"current": processed, "total": total, "phase": "registering"}
@@ -260,6 +283,10 @@ def _scan_thread(base_dir: str, subfolder: str, recursive: bool, auto_link_paren
                     ),
                 )
                 image_id = cursor.lastrowid
+
+                # Add specified tags
+                if image_id is not None:
+                    add_tags_to_image(image_id, tags)
 
                 # Insert Model Relation
                 if model:
@@ -448,6 +475,7 @@ async def start_scan(request: web.Request) -> web.Response:
         custom_path = data.get("custom_path", "")
         recursive = data.get("recursive", True)
         auto_link_parent = data.get("auto_link_parent", True)
+        tags = data.get("tags", [])
         base_dir = ""
 
         if img_type == "output":
@@ -475,7 +503,7 @@ async def start_scan(request: web.Request) -> web.Response:
 
         thread = threading.Thread(
             target=_scan_thread,
-            args=(calc_base, subfolder if img_type != "custom" else "", recursive, auto_link_parent),
+            args=(calc_base, subfolder if img_type != "custom" else "", recursive, auto_link_parent, tags),
         )
         thread.start()
 
