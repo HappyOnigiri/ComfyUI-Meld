@@ -900,7 +900,7 @@
 }
 
 .meld-modal-body {
-	padding: 20px;
+	padding: 12px 20px;
 	overflow-y: auto;
 	flex: 1;
 }
@@ -1356,21 +1356,54 @@
 /* Settings Modal */
 .meld-settings-modal {
 	height: 80vh;
+	width: 800px;
+}
+
+.meld-settings-layout {
+	display: flex;
+	flex: 1;
+	min-height: 0;
+}
+
+.meld-settings-sidebar {
+	width: 180px;
+	border-right: 1px solid var(--meld-border-color);
+	background: var(--comfy-input-bg);
+	overflow-y: auto;
+}
+
+.meld-settings-sidebar .meld-tabs {
+	flex-direction: column;
+	padding: 10px 0;
+	border-bottom: none;
+}
+
+.meld-settings-sidebar .meld-tab {
+	text-align: left;
+	padding: 12px 20px;
+	border-bottom: none;
+	border-left: 3px solid transparent;
+	width: 100%;
+}
+
+.meld-settings-sidebar .meld-tab.active {
+	background: var(--comfy-menu-bg);
+	border-left-color: var(--meld-accent-color);
 }
 
 .meld-settings-list {
 	display: flex;
 	flex-direction: column;
-	gap: 20px;
-	padding: 10px 0;
+	gap: 8px;
+	padding: 5px 0;
 }
 
 .meld-settings-item {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	gap: 20px;
-	padding-bottom: 15px;
+	gap: 12px;
+	padding-bottom: 8px;
 	border-bottom: 1px solid var(--comfy-menu-border, #333);
 }
 
@@ -1384,7 +1417,7 @@
 
 .meld-settings-item__label {
 	font-weight: 500;
-	margin-bottom: 4px;
+	margin-bottom: 2px;
 	color: var(--meld-text-color);
 }
 
