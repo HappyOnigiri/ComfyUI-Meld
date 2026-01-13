@@ -261,7 +261,13 @@ export const ImageViewer: React.FC = () => {
 		};
 
 		const handleFullscreenChange = () => {
-			setIsFullscreen(!!document.fullscreenElement);
+			const isFull = !!document.fullscreenElement;
+			setIsFullscreen(isFull);
+			if (isFull) {
+				setShowDetails(state.settings["fullscreen.show_details_by_default"]);
+			} else {
+				setShowDetails(state.settings["viewer.show_details_by_default"]);
+			}
 		};
 
 		window.addEventListener("keydown", handleKeyDown);
@@ -271,7 +277,14 @@ export const ImageViewer: React.FC = () => {
 			window.removeEventListener("keydown", handleKeyDown);
 			document.removeEventListener("fullscreenchange", handleFullscreenChange);
 		};
-	}, [viewerImageId, dispatch, toggleFullscreen, handleNext, handlePrevious]);
+	}, [
+		viewerImageId,
+		dispatch,
+		toggleFullscreen,
+		handleNext,
+		handlePrevious,
+		state.settings,
+	]);
 
 	// Fetch lineage if needed
 	useEffect(() => {
@@ -361,6 +374,10 @@ export const ImageViewer: React.FC = () => {
 		image.subfolder ? `&subfolder=${encodeURIComponent(image.subfolder)}` : ""
 	}`;
 
+	const showIcons = isFullscreen
+		? state.settings["fullscreen.show_icons"]
+		: state.settings["viewer.show_icons"];
+
 	return createPortal(
 		<div
 			ref={overlayRef}
@@ -374,17 +391,18 @@ export const ImageViewer: React.FC = () => {
 				className={`meld-viewer-content ${isFullscreen ? "meld-viewer-content--fullscreen" : ""}`}
 				onClick={(e) => e.stopPropagation()}
 			>
-				{((!isFullscreen && state.settings["viewer.show_icons"]) ||
-					(isFullscreen && state.settings["fullscreen.show_icons"])) && (
+				{showIcons && (
 					<div className="meld-viewer-actions">
-						<button
-							className={`meld-viewer-action-btn ${showThumbnails ? "meld-viewer-action-btn--active" : ""}`}
-							onClick={() => setShowThumbnailsOverride(!showThumbnails)}
-							type="button"
-							title={showThumbnails ? "Hide Thumbnails" : "Show Thumbnails"}
-						>
-							<LayoutGrid size={20} />
-						</button>
+						{!isFullscreen && (
+							<button
+								className={`meld-viewer-action-btn ${showThumbnails ? "meld-viewer-action-btn--active" : ""}`}
+								onClick={() => setShowThumbnailsOverride(!showThumbnails)}
+								type="button"
+								title={showThumbnails ? "Hide Thumbnails" : "Show Thumbnails"}
+							>
+								<LayoutGrid size={20} />
+							</button>
+						)}
 						<button
 							className="meld-viewer-action-btn"
 							onClick={() => setShowDetails(!showDetails)}
@@ -412,8 +430,7 @@ export const ImageViewer: React.FC = () => {
 					</div>
 				)}
 
-				{((!isFullscreen && state.settings["viewer.show_icons"]) ||
-					(isFullscreen && state.settings["fullscreen.show_icons"])) && (
+				{showIcons && (
 					<button
 						className="meld-viewer-nav meld-viewer-nav--prev"
 						onClick={handlePrevious}
@@ -439,8 +456,7 @@ export const ImageViewer: React.FC = () => {
 					/>
 				</div>
 
-				{((!isFullscreen && state.settings["viewer.show_icons"]) ||
-					(isFullscreen && state.settings["fullscreen.show_icons"])) && (
+				{showIcons && (
 					<button
 						className="meld-viewer-nav meld-viewer-nav--next"
 						onClick={handleNext}
@@ -450,9 +466,13 @@ export const ImageViewer: React.FC = () => {
 					</button>
 				)}
 
-				{!isFullscreen && showDetails && (
-					<div className="meld-viewer-details-overlay">
-						{state.settings["viewer.details.show_filename"] && (
+				{showDetails && (
+					<div
+						className={`meld-viewer-details-overlay ${isFullscreen ? "meld-viewer-details-overlay--fullscreen" : ""} ${!showIcons ? "meld-viewer-details-overlay--no-icons" : ""}`}
+					>
+						{(isFullscreen
+							? state.settings["fullscreen.details.show_filename"]
+							: state.settings["viewer.details.show_filename"]) && (
 							<div className="meld-viewer-details-item">
 								<div className="meld-viewer-details-label">Filename</div>
 								<div className="meld-viewer-details-value">
@@ -461,7 +481,9 @@ export const ImageViewer: React.FC = () => {
 							</div>
 						)}
 
-						{state.settings["viewer.details.show_dimensions"] &&
+						{(isFullscreen
+							? state.settings["fullscreen.details.show_dimensions"]
+							: state.settings["viewer.details.show_dimensions"]) &&
 							image.width &&
 							image.height && (
 								<div className="meld-viewer-details-item">
@@ -472,7 +494,9 @@ export const ImageViewer: React.FC = () => {
 								</div>
 							)}
 
-						{state.settings["viewer.details.show_created_at"] && (
+						{(isFullscreen
+							? state.settings["fullscreen.details.show_created_at"]
+							: state.settings["viewer.details.show_created_at"]) && (
 							<div className="meld-viewer-details-item">
 								<div className="meld-viewer-details-label">Created At</div>
 								<div className="meld-viewer-details-value">
@@ -481,7 +505,9 @@ export const ImageViewer: React.FC = () => {
 							</div>
 						)}
 
-						{state.settings["viewer.details.show_model_name"] &&
+						{(isFullscreen
+							? state.settings["fullscreen.details.show_model_name"]
+							: state.settings["viewer.details.show_model_name"]) &&
 							image.model_name && (
 								<div className="meld-viewer-details-item">
 									<div className="meld-viewer-details-label">Model</div>
@@ -491,7 +517,9 @@ export const ImageViewer: React.FC = () => {
 								</div>
 							)}
 
-						{state.settings["viewer.details.show_positive_prompt"] &&
+						{(isFullscreen
+							? state.settings["fullscreen.details.show_positive_prompt"]
+							: state.settings["viewer.details.show_positive_prompt"]) &&
 							(image.positive_prompt || image.positive) && (
 								<div className="meld-viewer-details-item">
 									<div className="meld-viewer-details-label">Positive</div>
@@ -499,10 +527,13 @@ export const ImageViewer: React.FC = () => {
 										className="meld-viewer-details-value meld-viewer-details-value--prompt"
 										style={
 											{
-												"--meld-prompt-max-lines":
-													state.settings[
-														"viewer.details.max_positive_prompt_lines"
-													],
+												"--meld-prompt-max-lines": isFullscreen
+													? state.settings[
+															"fullscreen.details.max_positive_prompt_lines"
+														]
+													: state.settings[
+															"viewer.details.max_positive_prompt_lines"
+														],
 											} as React.CSSProperties
 										}
 									>
@@ -511,7 +542,9 @@ export const ImageViewer: React.FC = () => {
 								</div>
 							)}
 
-						{state.settings["viewer.details.show_negative_prompt"] &&
+						{(isFullscreen
+							? state.settings["fullscreen.details.show_negative_prompt"]
+							: state.settings["viewer.details.show_negative_prompt"]) &&
 							(image.negative_prompt || image.negative) && (
 								<div className="meld-viewer-details-item">
 									<div className="meld-viewer-details-label">Negative</div>
@@ -519,10 +552,13 @@ export const ImageViewer: React.FC = () => {
 										className="meld-viewer-details-value meld-viewer-details-value--prompt"
 										style={
 											{
-												"--meld-prompt-max-lines":
-													state.settings[
-														"viewer.details.max_negative_prompt_lines"
-													],
+												"--meld-prompt-max-lines": isFullscreen
+													? state.settings[
+															"fullscreen.details.max_negative_prompt_lines"
+														]
+													: state.settings[
+															"viewer.details.max_negative_prompt_lines"
+														],
 											} as React.CSSProperties
 										}
 									>
@@ -531,7 +567,9 @@ export const ImageViewer: React.FC = () => {
 								</div>
 							)}
 
-						{state.settings["viewer.details.show_tags"] &&
+						{(isFullscreen
+							? state.settings["fullscreen.details.show_tags"]
+							: state.settings["viewer.details.show_tags"]) &&
 							image.tags &&
 							image.tags.length > 0 && (
 								<div className="meld-viewer-details-item">

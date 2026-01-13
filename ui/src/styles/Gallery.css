@@ -466,7 +466,7 @@
 	right: 15px;
 	display: flex;
 	gap: 10px;
-	z-index: 2010;
+	z-index: 2020;
 }
 
 .meld-viewer-action-btn {
@@ -542,7 +542,7 @@
 	color: white;
 	cursor: pointer;
 	padding: 10px;
-	z-index: 2010;
+	z-index: 2020;
 	transition: all 0.2s;
 	border-radius: 4px;
 	display: flex;
@@ -566,18 +566,18 @@
 }
 
 .meld-viewer-content--fullscreen .meld-viewer-nav {
-	bottom: auto;
-	top: 50%;
-	transform: translateY(-50%);
-	height: auto;
-	padding: 20px 15px;
-	border-radius: 8px;
-	border: none;
-	background: var(--comfy-menu-bg, rgba(0, 0, 0, 0.5));
+	bottom: 15px;
+	top: auto;
+	transform: none;
+	height: 62px; /* Match non-fullscreen height */
+	padding: 10px;
+	border-radius: 4px;
+	border: 1px solid var(--meld-border-color);
+	background: var(--comfy-menu-bg, #111);
 }
 
 .meld-viewer-content--fullscreen .meld-viewer-nav:hover {
-	transform: translateY(-50%) scale(1.05);
+	transform: scale(1.05);
 }
 
 /* Viewer Details Overlay */
@@ -601,6 +601,17 @@
 	flex-direction: column;
 	gap: 10px;
 	box-shadow: -4px 0 15px rgba(0, 0, 0, 0.3); /* color-check-ignore */
+}
+
+.meld-viewer-details-overlay--fullscreen {
+	top: 70px; /* Below top actions */
+	bottom: 90px; /* Clear nav buttons at the bottom */
+	background: rgba(0, 0, 0, 0.6); /* color-check-ignore */
+}
+
+.meld-viewer-details-overlay--no-icons {
+	top: 15px;
+	bottom: 20px;
 }
 
 .meld-viewer-details-item {

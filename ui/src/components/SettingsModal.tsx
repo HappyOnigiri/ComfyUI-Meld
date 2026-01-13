@@ -11,7 +11,8 @@ type Category =
 	| "Search"
 	| "View"
 	| "View Details"
-	| "Full Screen";
+	| "Full Screen"
+	| "Full Screen Detail";
 
 export const SettingsModal: React.FC = () => {
 	const { state, dispatch, updateSetting } = useGallery();
@@ -32,6 +33,18 @@ export const SettingsModal: React.FC = () => {
 		useState<string>(
 			state.settings["viewer.details.max_negative_prompt_lines"].toString(),
 		);
+	const [
+		fullscreenMaxPositivePromptLinesInput,
+		setFullscreenMaxPositivePromptLinesInput,
+	] = useState<string>(
+		state.settings["fullscreen.details.max_positive_prompt_lines"].toString(),
+	);
+	const [
+		fullscreenMaxNegativePromptLinesInput,
+		setFullscreenMaxNegativePromptLinesInput,
+	] = useState<string>(
+		state.settings["fullscreen.details.max_negative_prompt_lines"].toString(),
+	);
 
 	const settingsConfig: {
 		key: keyof Settings;
@@ -240,13 +253,6 @@ export const SettingsModal: React.FC = () => {
 			max: 10000,
 		},
 		{
-			key: "fullscreen.show_filename",
-			label: "Show Filename",
-			description: "Display the filename in fullscreen mode.",
-			type: "boolean",
-			category: "Full Screen",
-		},
-		{
 			key: "fullscreen.show_icons",
 			label: "Show Tool Icons",
 			description: "Display navigation and close icons in fullscreen mode.",
@@ -259,6 +265,83 @@ export const SettingsModal: React.FC = () => {
 			description: "Loop to the beginning/end when navigating in fullscreen.",
 			type: "boolean",
 			category: "Full Screen",
+		},
+		{
+			key: "fullscreen.show_details_by_default",
+			label: "Show Detail by Default",
+			description:
+				"Show the image details panel automatically when entering fullscreen.",
+			type: "boolean",
+			category: "Full Screen Detail",
+		},
+		{
+			key: "fullscreen.details.show_filename",
+			label: "Show Filename",
+			description: "Display the filename in fullscreen details.",
+			type: "boolean",
+			category: "Full Screen Detail",
+		},
+		{
+			key: "fullscreen.details.show_dimensions",
+			label: "Show Dimensions",
+			description: "Display dimensions in fullscreen details.",
+			type: "boolean",
+			category: "Full Screen Detail",
+		},
+		{
+			key: "fullscreen.details.show_created_at",
+			label: "Show Created At",
+			description: "Display generation date/time in fullscreen details.",
+			type: "boolean",
+			category: "Full Screen Detail",
+		},
+		{
+			key: "fullscreen.details.show_model_name",
+			label: "Show Model",
+			description: "Display model name in fullscreen details.",
+			type: "boolean",
+			category: "Full Screen Detail",
+		},
+		{
+			key: "fullscreen.details.show_positive_prompt",
+			label: "Show Positive",
+			description: "Display positive prompt in fullscreen details.",
+			type: "boolean",
+			category: "Full Screen Detail",
+		},
+		{
+			key: "fullscreen.details.show_negative_prompt",
+			label: "Show Negative",
+			description: "Display negative prompt in fullscreen details.",
+			type: "boolean",
+			category: "Full Screen Detail",
+		},
+		{
+			key: "fullscreen.details.max_positive_prompt_lines",
+			label: "Max Positive Prompt Lines",
+			description:
+				"Maximum number of lines to display for the positive prompt in fullscreen.",
+			type: "number",
+			category: "Full Screen Detail",
+			min: 1,
+			max: 100,
+		},
+		{
+			key: "fullscreen.details.max_negative_prompt_lines",
+			label: "Max Negative Prompt Lines",
+			description:
+				"Maximum number of lines to display for the negative prompt in fullscreen.",
+			type: "number",
+			category: "Full Screen Detail",
+			min: 1,
+			max: 100,
+		},
+		{
+			key: "fullscreen.details.show_tags",
+			label: "Show Tags",
+			description: "Display tags in fullscreen details.",
+			type: "boolean",
+			category: "Full Screen Detail",
 		},
 	];
 
@@ -300,6 +383,10 @@ export const SettingsModal: React.FC = () => {
 			setMaxPositivePromptLinesInput(value);
 		} else if (key === "viewer.details.max_negative_prompt_lines") {
 			setMaxNegativePromptLinesInput(value);
+		} else if (key === "fullscreen.details.max_positive_prompt_lines") {
+			setFullscreenMaxPositivePromptLinesInput(value);
+		} else if (key === "fullscreen.details.max_negative_prompt_lines") {
+			setFullscreenMaxNegativePromptLinesInput(value);
 		}
 
 		const num = Number.parseInt(value, 10);
@@ -380,6 +467,13 @@ export const SettingsModal: React.FC = () => {
 							>
 								Full Screen
 							</button>
+							<button
+								type="button"
+								className={`meld-tab ${activeTab === "Full Screen Detail" ? "active" : ""}`}
+								onClick={() => setActiveTab("Full Screen Detail")}
+							>
+								Full Screen Detail
+							</button>
 						</div>
 					</div>
 
@@ -426,9 +520,15 @@ export const SettingsModal: React.FC = () => {
 																: config.key ===
 																		"viewer.details.max_negative_prompt_lines"
 																	? maxNegativePromptLinesInput
-																	: (localSettings[
-																			config.key
-																		] as unknown as number)
+																	: config.key ===
+																			"fullscreen.details.max_positive_prompt_lines"
+																		? fullscreenMaxPositivePromptLinesInput
+																		: config.key ===
+																				"fullscreen.details.max_negative_prompt_lines"
+																			? fullscreenMaxNegativePromptLinesInput
+																			: (localSettings[
+																					config.key
+																				] as unknown as number)
 												}
 												min={config.min}
 												max={config.max}
@@ -469,6 +569,24 @@ export const SettingsModal: React.FC = () => {
 														setMaxNegativePromptLinesInput(
 															localSettings[
 																"viewer.details.max_negative_prompt_lines"
+															].toString(),
+														);
+													} else if (
+														config.key ===
+														"fullscreen.details.max_positive_prompt_lines"
+													) {
+														setFullscreenMaxPositivePromptLinesInput(
+															localSettings[
+																"fullscreen.details.max_positive_prompt_lines"
+															].toString(),
+														);
+													} else if (
+														config.key ===
+														"fullscreen.details.max_negative_prompt_lines"
+													) {
+														setFullscreenMaxNegativePromptLinesInput(
+															localSettings[
+																"fullscreen.details.max_negative_prompt_lines"
 															].toString(),
 														);
 													}
