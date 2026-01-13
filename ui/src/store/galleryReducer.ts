@@ -33,7 +33,9 @@ export const initialState: GalleryState = {
 		"search.input_suggest": true,
 		"search.realtime_search": true,
 		"viewer.show_filename": true,
+		"viewer.loop": true,
 		"fullscreen.show_filename": true,
+		"fullscreen.loop": true,
 		"gallery.page_size": 30,
 		"viewer.thumbnail_window_size": 15,
 	},
@@ -222,6 +224,11 @@ export function galleryReducer(
 				lineageImages: [],
 			};
 		case "NEXT_IMAGE": {
+			const isFullscreen = action.payload?.isFullscreen ?? false;
+			const loopEnabled = isFullscreen
+				? state.settings["fullscreen.loop"]
+				: state.settings["viewer.loop"];
+
 			const currentList =
 				state.viewerMode === "lineage" && state.lineageImages.length > 0
 					? state.lineageImages
@@ -250,6 +257,11 @@ export function galleryReducer(
 				return state;
 			}
 
+			// If loop is disabled and we're at the end, don't wrap around
+			if (currentIndex === currentList.length - 1 && !loopEnabled) {
+				return state;
+			}
+
 			const nextIndex = (currentIndex + 1) % currentList.length;
 			return {
 				...state,
@@ -257,6 +269,11 @@ export function galleryReducer(
 			};
 		}
 		case "PREVIOUS_IMAGE": {
+			const isFullscreen = action.payload?.isFullscreen ?? false;
+			const loopEnabled = isFullscreen
+				? state.settings["fullscreen.loop"]
+				: state.settings["viewer.loop"];
+
 			const currentList =
 				state.viewerMode === "lineage" && state.lineageImages.length > 0
 					? state.lineageImages
@@ -283,6 +300,11 @@ export function galleryReducer(
 				state.viewerMode === "gallery" &&
 				state.pagination.hasMore
 			) {
+				return state;
+			}
+
+			// If loop is disabled and we're at the beginning, don't wrap around
+			if (currentIndex === 0 && !loopEnabled) {
 				return state;
 			}
 

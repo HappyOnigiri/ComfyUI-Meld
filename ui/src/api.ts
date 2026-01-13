@@ -81,7 +81,9 @@ export const fetchSettings = async (): Promise<Settings> => {
 			"search.input_suggest": true,
 			"search.realtime_search": true,
 			"viewer.show_filename": true,
+			"viewer.loop": true,
 			"fullscreen.show_filename": true,
+			"fullscreen.loop": true,
 			"gallery.page_size": 30,
 			"viewer.thumbnail_window_size": 15,
 		};

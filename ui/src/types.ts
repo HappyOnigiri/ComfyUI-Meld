@@ -46,7 +46,9 @@ export interface Settings {
 	"search.input_suggest": boolean;
 	"search.realtime_search": boolean;
 	"viewer.show_filename": boolean;
+	"viewer.loop": boolean;
 	"fullscreen.show_filename": boolean;
+	"fullscreen.loop": boolean;
 	"gallery.page_size": number;
 	"viewer.thumbnail_window_size": number;
 }
@@ -130,8 +132,8 @@ export type GalleryAction =
 			payload: number | { id: number; mode: "gallery" | "lineage" };
 	  }
 	| { type: "CLOSE_VIEWER" }
-	| { type: "NEXT_IMAGE" }
-	| { type: "PREVIOUS_IMAGE" }
+	| { type: "NEXT_IMAGE"; payload?: { isFullscreen: boolean } }
+	| { type: "PREVIOUS_IMAGE"; payload?: { isFullscreen: boolean } }
 	| { type: "OPEN_MODAL"; payload: ActiveModal }
 	| { type: "CLOSE_MODAL" }
 	| { type: "SET_SCAN_STATUS"; payload: Partial<ScanStatus> }

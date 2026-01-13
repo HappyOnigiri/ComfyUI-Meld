@@ -143,15 +143,20 @@ export const ImageViewer: React.FC = () => {
 	);
 
 	const handleNext = useCallback(() => {
-		dispatch({ type: "NEXT_IMAGE" });
-	}, [dispatch]);
+		dispatch({ type: "NEXT_IMAGE", payload: { isFullscreen } });
+	}, [dispatch, isFullscreen]);
 
 	const handlePrevious = useCallback(async () => {
+		const loopEnabled = isFullscreen
+			? state.settings["fullscreen.loop"]
+			: state.settings["viewer.loop"];
+
 		if (
 			currentIndex === 0 &&
 			viewerMode === "gallery" &&
 			state.pagination.hasMore &&
-			!isJumping
+			!isJumping &&
+			loopEnabled
 		) {
 			setIsJumping(true);
 			try {
@@ -181,7 +186,7 @@ export const ImageViewer: React.FC = () => {
 				setIsJumping(false);
 			}
 		} else {
-			dispatch({ type: "PREVIOUS_IMAGE" });
+			dispatch({ type: "PREVIOUS_IMAGE", payload: { isFullscreen } });
 		}
 	}, [
 		currentIndex,
@@ -190,8 +195,10 @@ export const ImageViewer: React.FC = () => {
 		state.pagination.total,
 		state.pagination.limit,
 		state.searchQuery,
+		state.settings,
 		dispatch,
 		isJumping,
+		isFullscreen,
 	]);
 
 	// Load more images if we are near the end of the current list in gallery mode

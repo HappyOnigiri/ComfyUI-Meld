@@ -118,6 +118,13 @@ export const SettingsModal: React.FC = () => {
 			category: "View",
 		},
 		{
+			key: "viewer.loop",
+			label: "Loop Navigation",
+			description: "Loop to the beginning/end when navigating in the viewer.",
+			type: "boolean",
+			category: "View",
+		},
+		{
 			key: "viewer.thumbnail_window_size",
 			label: "Thumbnail Window Size",
 			description: "Number of thumbnails to keep in the viewer (1-10000).",
@@ -130,6 +137,13 @@ export const SettingsModal: React.FC = () => {
 			key: "fullscreen.show_filename",
 			label: "Show Filename",
 			description: "Display the filename in fullscreen mode.",
+			type: "boolean",
+			category: "Full Screen",
+		},
+		{
+			key: "fullscreen.loop",
+			label: "Loop Navigation",
+			description: "Loop to the beginning/end when navigating in fullscreen.",
 			type: "boolean",
 			category: "Full Screen",
 		},
