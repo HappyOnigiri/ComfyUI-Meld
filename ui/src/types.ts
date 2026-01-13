@@ -50,6 +50,7 @@ export interface Settings {
 	"search.realtime_search": boolean;
 	"viewer.loop": boolean;
 	"fullscreen.show_filename": boolean;
+	"fullscreen.show_icons": boolean;
 	"fullscreen.loop": boolean;
 	"viewer.show_details_by_default": boolean;
 	"viewer.details.show_filename": boolean;

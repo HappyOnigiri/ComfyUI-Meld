@@ -374,49 +374,53 @@ export const ImageViewer: React.FC = () => {
 				className={`meld-viewer-content ${isFullscreen ? "meld-viewer-content--fullscreen" : ""}`}
 				onClick={(e) => e.stopPropagation()}
 			>
-				<div className="meld-viewer-actions">
-					<button
-						className={`meld-viewer-action-btn ${showThumbnails ? "meld-viewer-action-btn--active" : ""}`}
-						onClick={() => setShowThumbnailsOverride(!showThumbnails)}
-						type="button"
-						title={showThumbnails ? "Hide Thumbnails" : "Show Thumbnails"}
-					>
-						<LayoutGrid size={20} />
-					</button>
-					<button
-						className="meld-viewer-action-btn"
-						onClick={() => setShowDetails(!showDetails)}
-						type="button"
-						title={showDetails ? "Hide Details (I)" : "Show Details (I)"}
-					>
-						<Info size={20} />
-					</button>
-					<button
-						className="meld-viewer-action-btn"
-						onClick={toggleFullscreen}
-						type="button"
-						title={isFullscreen ? "Exit Fullscreen (F)" : "Fullscreen (F)"}
-					>
-						{isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
-					</button>
-					<button
-						className="meld-viewer-action-btn meld-viewer-action-btn--close"
-						onClick={() => dispatch({ type: "CLOSE_VIEWER" })}
-						type="button"
-						title="Close (Esc)"
-					>
-						<X size={20} />
-					</button>
-				</div>
+				{(!isFullscreen || state.settings["fullscreen.show_icons"]) && (
+					<div className="meld-viewer-actions">
+						<button
+							className={`meld-viewer-action-btn ${showThumbnails ? "meld-viewer-action-btn--active" : ""}`}
+							onClick={() => setShowThumbnailsOverride(!showThumbnails)}
+							type="button"
+							title={showThumbnails ? "Hide Thumbnails" : "Show Thumbnails"}
+						>
+							<LayoutGrid size={20} />
+						</button>
+						<button
+							className="meld-viewer-action-btn"
+							onClick={() => setShowDetails(!showDetails)}
+							type="button"
+							title={showDetails ? "Hide Details (I)" : "Show Details (I)"}
+						>
+							<Info size={20} />
+						</button>
+						<button
+							className="meld-viewer-action-btn"
+							onClick={toggleFullscreen}
+							type="button"
+							title={isFullscreen ? "Exit Fullscreen (F)" : "Fullscreen (F)"}
+						>
+							{isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
+						</button>
+						<button
+							className="meld-viewer-action-btn meld-viewer-action-btn--close"
+							onClick={() => dispatch({ type: "CLOSE_VIEWER" })}
+							type="button"
+							title="Close (Esc)"
+						>
+							<X size={20} />
+						</button>
+					</div>
+				)}
 
-				<button
-					className="meld-viewer-nav meld-viewer-nav--prev"
-					onClick={handlePrevious}
-					type="button"
-					disabled={isJumping}
-				>
-					<ChevronLeft size={32} />
-				</button>
+				{(!isFullscreen || state.settings["fullscreen.show_icons"]) && (
+					<button
+						className="meld-viewer-nav meld-viewer-nav--prev"
+						onClick={handlePrevious}
+						type="button"
+						disabled={isJumping}
+					>
+						<ChevronLeft size={32} />
+					</button>
+				)}
 
 				<div className="meld-viewer-image-container">
 					{isJumping && (
@@ -433,13 +437,15 @@ export const ImageViewer: React.FC = () => {
 					/>
 				</div>
 
-				<button
-					className="meld-viewer-nav meld-viewer-nav--next"
-					onClick={handleNext}
-					type="button"
-				>
-					<ChevronRight size={32} />
-				</button>
+				{(!isFullscreen || state.settings["fullscreen.show_icons"]) && (
+					<button
+						className="meld-viewer-nav meld-viewer-nav--next"
+						onClick={handleNext}
+						type="button"
+					>
+						<ChevronRight size={32} />
+					</button>
+				)}
 
 				{!isFullscreen && showDetails && (
 					<div className="meld-viewer-details-overlay">

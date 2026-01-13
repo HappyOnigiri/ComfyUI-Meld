@@ -240,6 +240,13 @@ export const SettingsModal: React.FC = () => {
 			category: "Full Screen",
 		},
 		{
+			key: "fullscreen.show_icons",
+			label: "Show Tool Icons",
+			description: "Display navigation and close icons in fullscreen mode.",
+			type: "boolean",
+			category: "Full Screen",
+		},
+		{
 			key: "fullscreen.loop",
 			label: "Loop Navigation",
 			description: "Loop to the beginning/end when navigating in fullscreen.",

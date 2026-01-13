@@ -83,6 +83,7 @@ export const fetchSettings = async (): Promise<Settings> => {
 			"search.realtime_search": true,
 			"viewer.loop": true,
 			"fullscreen.show_filename": true,
+			"fullscreen.show_icons": true,
 			"fullscreen.loop": true,
 			"viewer.show_details_by_default": true,
 			"viewer.details.show_filename": true,
