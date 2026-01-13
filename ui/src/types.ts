@@ -59,6 +59,8 @@ export interface Settings {
 	"viewer.details.show_model_name": boolean;
 	"viewer.details.show_positive_prompt": boolean;
 	"viewer.details.show_negative_prompt": boolean;
+	"viewer.details.max_positive_prompt_lines": number;
+	"viewer.details.max_negative_prompt_lines": number;
 	"gallery.page_size": number;
 	"viewer.thumbnail_window_size": number;
 }

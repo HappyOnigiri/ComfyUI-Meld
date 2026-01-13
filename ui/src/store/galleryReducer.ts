@@ -44,6 +44,8 @@ export const initialState: GalleryState = {
 		"viewer.details.show_model_name": true,
 		"viewer.details.show_positive_prompt": true,
 		"viewer.details.show_negative_prompt": true,
+		"viewer.details.max_positive_prompt_lines": 7,
+		"viewer.details.max_negative_prompt_lines": 7,
 		"gallery.page_size": 30,
 		"viewer.thumbnail_window_size": 15,
 	},

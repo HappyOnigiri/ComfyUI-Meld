@@ -799,6 +799,8 @@ async def get_settings(request: web.Request) -> web.Response:
             "sidebar.show_positive_prompt": True,
             "sidebar.show_negative_prompt": False,
             "sidebar.show_tags": True,
+            "viewer.details.max_positive_prompt_lines": 7,
+            "viewer.details.max_negative_prompt_lines": 7,
         }
 
         # Merge with DB settings

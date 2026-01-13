@@ -471,7 +471,17 @@ export const ImageViewer: React.FC = () => {
 							(image.positive_prompt || image.positive) && (
 								<div className="meld-viewer-details-item">
 									<div className="meld-viewer-details-label">Positive</div>
-									<div className="meld-viewer-details-value meld-viewer-details-value--prompt">
+									<div
+										className="meld-viewer-details-value meld-viewer-details-value--prompt"
+										style={
+											{
+												"--meld-prompt-max-lines":
+													state.settings[
+														"viewer.details.max_positive_prompt_lines"
+													],
+											} as React.CSSProperties
+										}
+									>
 										{image.positive_prompt || image.positive}
 									</div>
 								</div>
@@ -481,7 +491,17 @@ export const ImageViewer: React.FC = () => {
 							(image.negative_prompt || image.negative) && (
 								<div className="meld-viewer-details-item">
 									<div className="meld-viewer-details-label">Negative</div>
-									<div className="meld-viewer-details-value meld-viewer-details-value--prompt">
+									<div
+										className="meld-viewer-details-value meld-viewer-details-value--prompt"
+										style={
+											{
+												"--meld-prompt-max-lines":
+													state.settings[
+														"viewer.details.max_negative_prompt_lines"
+													],
+											} as React.CSSProperties
+										}
+									>
 										{image.negative_prompt || image.negative}
 									</div>
 								</div>

@@ -24,6 +24,14 @@ export const SettingsModal: React.FC = () => {
 	);
 	const [thumbnailWindowSizeInput, setThumbnailWindowSizeInput] =
 		useState<string>(state.settings["viewer.thumbnail_window_size"].toString());
+	const [maxPositivePromptLinesInput, setMaxPositivePromptLinesInput] =
+		useState<string>(
+			state.settings["viewer.details.max_positive_prompt_lines"].toString(),
+		);
+	const [maxNegativePromptLinesInput, setMaxNegativePromptLinesInput] =
+		useState<string>(
+			state.settings["viewer.details.max_negative_prompt_lines"].toString(),
+		);
 
 	const settingsConfig: {
 		key: keyof Settings;
@@ -181,6 +189,26 @@ export const SettingsModal: React.FC = () => {
 			category: "View Details",
 		},
 		{
+			key: "viewer.details.max_positive_prompt_lines",
+			label: "Max Positive Prompt Lines",
+			description:
+				"Maximum number of lines to display for the positive prompt.",
+			type: "number",
+			category: "View Details",
+			min: 1,
+			max: 100,
+		},
+		{
+			key: "viewer.details.max_negative_prompt_lines",
+			label: "Max Negative Prompt Lines",
+			description:
+				"Maximum number of lines to display for the negative prompt.",
+			type: "number",
+			category: "View Details",
+			min: 1,
+			max: 100,
+		},
+		{
 			key: "viewer.details.show_tags",
 			label: "Show Tags",
 			description: "Display tags in the details panel.",
@@ -246,6 +274,10 @@ export const SettingsModal: React.FC = () => {
 			setPageSizeInput(value);
 		} else if (key === "viewer.thumbnail_window_size") {
 			setThumbnailWindowSizeInput(value);
+		} else if (key === "viewer.details.max_positive_prompt_lines") {
+			setMaxPositivePromptLinesInput(value);
+		} else if (key === "viewer.details.max_negative_prompt_lines") {
+			setMaxNegativePromptLinesInput(value);
 		}
 
 		const num = Number.parseInt(value, 10);
@@ -366,7 +398,15 @@ export const SettingsModal: React.FC = () => {
 														? pageSizeInput
 														: config.key === "viewer.thumbnail_window_size"
 															? thumbnailWindowSizeInput
-															: (localSettings[config.key] as unknown as number)
+															: config.key ===
+																	"viewer.details.max_positive_prompt_lines"
+																? maxPositivePromptLinesInput
+																: config.key ===
+																		"viewer.details.max_negative_prompt_lines"
+																	? maxNegativePromptLinesInput
+																	: (localSettings[
+																			config.key
+																		] as unknown as number)
 												}
 												min={config.min}
 												max={config.max}
@@ -389,6 +429,24 @@ export const SettingsModal: React.FC = () => {
 														setThumbnailWindowSizeInput(
 															localSettings[
 																"viewer.thumbnail_window_size"
+															].toString(),
+														);
+													} else if (
+														config.key ===
+														"viewer.details.max_positive_prompt_lines"
+													) {
+														setMaxPositivePromptLinesInput(
+															localSettings[
+																"viewer.details.max_positive_prompt_lines"
+															].toString(),
+														);
+													} else if (
+														config.key ===
+														"viewer.details.max_negative_prompt_lines"
+													) {
+														setMaxNegativePromptLinesInput(
+															localSettings[
+																"viewer.details.max_negative_prompt_lines"
 															].toString(),
 														);
 													}

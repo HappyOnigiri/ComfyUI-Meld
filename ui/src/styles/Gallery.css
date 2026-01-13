@@ -627,7 +627,11 @@
 	white-space: pre-wrap;
 	text-shadow: 0 1px 2px rgba(0, 0, 0, 1); /* color-check-ignore */
 	line-height: 1.3;
-	max-height: calc(1.3em * 10 + 12px); /* lines + padding */
+	max-height: calc(
+		1.3em *
+		var(--meld-prompt-max-lines, 10) +
+		12px
+	); /* lines + padding */
 	overflow-y: auto;
 }
 
