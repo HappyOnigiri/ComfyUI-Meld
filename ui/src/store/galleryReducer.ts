@@ -50,6 +50,7 @@ export const initialState: GalleryState = {
 		"gallery.page_size": 30,
 		"viewer.thumbnail_window_size": 15,
 		"viewer.show_thumbnails": true,
+		"viewer.show_icons": true,
 	},
 	pagination: {
 		total: 0,

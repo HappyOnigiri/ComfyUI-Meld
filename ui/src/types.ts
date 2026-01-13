@@ -65,6 +65,7 @@ export interface Settings {
 	"gallery.page_size": number;
 	"viewer.thumbnail_window_size": number;
 	"viewer.show_thumbnails": boolean;
+	"viewer.show_icons": boolean;
 }
 
 export type ScanStatus = {

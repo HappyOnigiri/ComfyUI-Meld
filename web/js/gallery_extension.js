@@ -5724,7 +5724,8 @@ const qi = async (e = 0, t = 30, n = "") => {
     "viewer.details.max_negative_prompt_lines": 7,
     "gallery.page_size": 30,
     "viewer.thumbnail_window_size": 15,
-    "viewer.show_thumbnails": !0
+    "viewer.show_thumbnails": !0,
+    "viewer.show_icons": !0
   };
 }, lp = async (e, t) => {
   if (!(await b.fetchApi("/meld-nexus/settings", {
@@ -6382,7 +6383,8 @@ const Kp = (e) => {
     "viewer.details.max_negative_prompt_lines": 7,
     "gallery.page_size": 30,
     "viewer.thumbnail_window_size": 15,
-    "viewer.show_thumbnails": !0
+    "viewer.show_thumbnails": !0,
+    "viewer.show_icons": !0
   },
   pagination: {
     total: 0,
@@ -7578,7 +7580,7 @@ const im = () => {
             className: `meld-viewer-content ${a ? "meld-viewer-content--fullscreen" : ""}`,
             onClick: (N) => N.stopPropagation(),
             children: [
-              (!a || e.settings["fullscreen.show_icons"]) && /* @__PURE__ */ o.jsxs("div", { className: "meld-viewer-actions", children: [
+              (!a && e.settings["viewer.show_icons"] || a && e.settings["fullscreen.show_icons"]) && /* @__PURE__ */ o.jsxs("div", { className: "meld-viewer-actions", children: [
                 /* @__PURE__ */ o.jsx(
                   "button",
                   {
@@ -7620,7 +7622,7 @@ const im = () => {
                   }
                 )
               ] }),
-              (!a || e.settings["fullscreen.show_icons"]) && /* @__PURE__ */ o.jsx(
+              (!a && e.settings["viewer.show_icons"] || a && e.settings["fullscreen.show_icons"]) && /* @__PURE__ */ o.jsx(
                 "button",
                 {
                   className: "meld-viewer-nav meld-viewer-nav--prev",
@@ -7642,7 +7644,7 @@ const im = () => {
                   }
                 )
               ] }),
-              (!a || e.settings["fullscreen.show_icons"]) && /* @__PURE__ */ o.jsx(
+              (!a && e.settings["viewer.show_icons"] || a && e.settings["fullscreen.show_icons"]) && /* @__PURE__ */ o.jsx(
                 "button",
                 {
                   className: "meld-viewer-nav meld-viewer-nav--next",
@@ -9031,6 +9033,13 @@ You can select favorites when the search query is empty.`
       description: "Display tags in the details panel.",
       type: "boolean",
       category: "View Details"
+    },
+    {
+      key: "viewer.show_icons",
+      label: "Show Tool Icons",
+      description: "Display navigation and action icons in view mode.",
+      type: "boolean",
+      category: "View"
     },
     {
       key: "viewer.show_thumbnails",

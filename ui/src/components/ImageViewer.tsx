@@ -374,7 +374,8 @@ export const ImageViewer: React.FC = () => {
 				className={`meld-viewer-content ${isFullscreen ? "meld-viewer-content--fullscreen" : ""}`}
 				onClick={(e) => e.stopPropagation()}
 			>
-				{(!isFullscreen || state.settings["fullscreen.show_icons"]) && (
+				{((!isFullscreen && state.settings["viewer.show_icons"]) ||
+					(isFullscreen && state.settings["fullscreen.show_icons"])) && (
 					<div className="meld-viewer-actions">
 						<button
 							className={`meld-viewer-action-btn ${showThumbnails ? "meld-viewer-action-btn--active" : ""}`}
@@ -411,7 +412,8 @@ export const ImageViewer: React.FC = () => {
 					</div>
 				)}
 
-				{(!isFullscreen || state.settings["fullscreen.show_icons"]) && (
+				{((!isFullscreen && state.settings["viewer.show_icons"]) ||
+					(isFullscreen && state.settings["fullscreen.show_icons"])) && (
 					<button
 						className="meld-viewer-nav meld-viewer-nav--prev"
 						onClick={handlePrevious}
@@ -437,7 +439,8 @@ export const ImageViewer: React.FC = () => {
 					/>
 				</div>
 
-				{(!isFullscreen || state.settings["fullscreen.show_icons"]) && (
+				{((!isFullscreen && state.settings["viewer.show_icons"]) ||
+					(isFullscreen && state.settings["fullscreen.show_icons"])) && (
 					<button
 						className="meld-viewer-nav meld-viewer-nav--next"
 						onClick={handleNext}

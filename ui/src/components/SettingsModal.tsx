@@ -216,6 +216,13 @@ export const SettingsModal: React.FC = () => {
 			category: "View Details",
 		},
 		{
+			key: "viewer.show_icons",
+			label: "Show Tool Icons",
+			description: "Display navigation and action icons in view mode.",
+			type: "boolean",
+			category: "View",
+		},
+		{
 			key: "viewer.show_thumbnails",
 			label: "Show Thumbnails",
 			description:
