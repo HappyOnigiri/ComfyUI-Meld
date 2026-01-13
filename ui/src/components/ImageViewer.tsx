@@ -4,6 +4,7 @@ import {
 	ChevronLeft,
 	ChevronRight,
 	Info,
+	LayoutGrid,
 	Maximize,
 	Minimize,
 	RefreshCw,
@@ -76,6 +77,11 @@ export const ImageViewer: React.FC = () => {
 	const [showDetails, setShowDetails] = useState(
 		state.settings["viewer.show_details_by_default"],
 	);
+	const [showThumbnailsOverride, setShowThumbnailsOverride] = useState<
+		boolean | null
+	>(null);
+	const showThumbnails =
+		showThumbnailsOverride ?? state.settings["viewer.show_thumbnails"];
 	const [isLoadingLineage, setIsLoadingLineage] = useState(false);
 	const [isJumping, setIsJumping] = useState(false);
 	const overlayRef = useRef<HTMLDivElement>(null);
@@ -97,7 +103,7 @@ export const ImageViewer: React.FC = () => {
 
 	// Windowed thumbnails: only render a subset around the current image for performance
 	const windowedThumbnails = useMemo(() => {
-		if (currentIndex === -1) return [];
+		if (!showThumbnails || currentIndex === -1) return [];
 		const windowSize = state.settings["viewer.thumbnail_window_size"]; // Total thumbnails to keep in DOM
 		const halfWindow = Math.floor(windowSize / 2);
 		let start = Math.max(0, currentIndex - halfWindow);
@@ -116,6 +122,7 @@ export const ImageViewer: React.FC = () => {
 		currentThumbnails,
 		currentIndex,
 		state.settings["viewer.thumbnail_window_size"],
+		showThumbnails,
 	]);
 
 	const image = (
@@ -299,7 +306,7 @@ export const ImageViewer: React.FC = () => {
 
 	// Scroll active thumbnail into view
 	useEffect(() => {
-		if (viewerImageId !== null) {
+		if (showThumbnails && viewerImageId !== null) {
 			const activeThumb = document.querySelector(
 				".meld-viewer-thumbnail--active",
 			);
@@ -311,7 +318,7 @@ export const ImageViewer: React.FC = () => {
 				});
 			}
 		}
-	}, [viewerImageId]);
+	}, [viewerImageId, showThumbnails]);
 
 	// Preload next and previous images
 	useEffect(() => {
@@ -368,6 +375,14 @@ export const ImageViewer: React.FC = () => {
 				onClick={(e) => e.stopPropagation()}
 			>
 				<div className="meld-viewer-actions">
+					<button
+						className={`meld-viewer-action-btn ${showThumbnails ? "meld-viewer-action-btn--active" : ""}`}
+						onClick={() => setShowThumbnailsOverride(!showThumbnails)}
+						type="button"
+						title={showThumbnails ? "Hide Thumbnails" : "Show Thumbnails"}
+					>
+						<LayoutGrid size={20} />
+					</button>
 					<button
 						className="meld-viewer-action-btn"
 						onClick={() => setShowDetails(!showDetails)}
@@ -525,6 +540,7 @@ export const ImageViewer: React.FC = () => {
 				)}
 
 				{!isFullscreen &&
+					showThumbnails &&
 					state.settings["viewer.thumbnail_window_size"] > 1 && (
 						<div className="meld-viewer-thumbnails-container">
 							<div className="meld-viewer-thumbnails">
