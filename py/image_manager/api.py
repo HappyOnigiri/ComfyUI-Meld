@@ -1068,6 +1068,7 @@ async def list_images(request: web.Request) -> web.Response:
 
         # Get settings
         db_settings = get_all_settings(cursor)
+        lineage_max_depth = int(db_settings.get("gallery.lineage_max_depth", 5))
 
         # Get total count
         count_sql = f"SELECT COUNT(*) FROM images i WHERE i.deleted_at IS NULL{search_sql}"
@@ -1090,11 +1091,11 @@ async def list_images(request: web.Request) -> web.Response:
         cursor.execute(fetch_sql, (*search_params, limit, offset))
         images = cursor.fetchall()
 
-        # Fetch ancestors in bulk (up to max levels)
+        # Fetch ancestors in bulk if requested and depth > 1
+        # (depth 1 is already joined in fetch_sql as p_filename etc.)
         image_ids = [img[0] for img in images]
         ancestors_map: dict[int, list[dict[str, Any]]] = {}
-        if image_ids:
-            lineage_max_depth = db_settings.get("gallery.lineage_max_depth", 5)
+        if image_ids and lineage_max_depth > 1:
             placeholders = ",".join(["?"] * len(image_ids))
             ancestor_sql = f"""
                 WITH RECURSIVE lineage AS (
@@ -1117,7 +1118,14 @@ async def list_images(request: web.Request) -> web.Response:
             for start_id, a_id, a_fname, a_subf, a_type in cursor.fetchall():
                 if start_id not in ancestors_map:
                     ancestors_map[start_id] = []
-                ancestors_map[start_id].append({"id": a_id, "filename": a_fname, "subfolder": a_subf, "type": a_type})
+                if len(ancestors_map[start_id]) < lineage_max_depth:
+                    ancestors_map[start_id].append(
+                        {"id": a_id, "filename": a_fname, "subfolder": a_subf, "type": a_type}
+                    )
+        elif image_ids and lineage_max_depth == 1:
+            # If depth is 1, we just use the immediate parent from the main query's results
+            # No additional query needed here, we'll handle it in the loop below
+            pass
 
         result_list = []
 
@@ -1192,6 +1200,11 @@ async def list_images(request: web.Request) -> web.Response:
                 full_path = os.path.join(base_dir, subfolder, filename)
                 exists = os.path.exists(full_path)
 
+            # Fallback for depth 1 or missing in ancestors_map
+            ancestors = ancestors_map.get(img_id, [])
+            if not ancestors and lineage_max_depth >= 1 and parent_id and p_filename:
+                ancestors = [{"id": parent_id, "filename": p_filename, "subfolder": p_subfolder, "type": p_type}]
+
             result_list.append(
                 {
                     "id": img_id,
@@ -1216,7 +1229,7 @@ async def list_images(request: web.Request) -> web.Response:
                     "height": height,
                     "tags": tags,
                     "exists": exists,
-                    "ancestors": ancestors_map.get(img_id, []),
+                    "ancestors": ancestors,
                 }
             )
 

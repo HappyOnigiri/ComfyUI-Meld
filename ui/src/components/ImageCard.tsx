@@ -63,8 +63,11 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 	const getParentChain = (
 		img: MeldImage,
 	): { id: number | null; imgSrc: string | null }[] => {
+		const maxDepth = state.settings["gallery.lineage_max_depth"];
+		if (maxDepth === 0) return [];
+
 		if (img.ancestors && img.ancestors.length > 0) {
-			return img.ancestors.map((a) => ({
+			return img.ancestors.slice(0, maxDepth).map((a) => ({
 				id: a.id,
 				imgSrc: `/api/view?filename=${encodeURIComponent(a.filename)}&type=${
 					a.type || "output"
@@ -73,9 +76,9 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 		}
 
 		const pId = img.parent_id;
-		if (!pId && !img.parent_filename) return [];
+		if (!pId || !img.parent_filename) return [];
 
-		const parentInState = pId ? state.images.find((p) => p.id === pId) : null;
+		const parentInState = state.images.find((p) => p.id === pId);
 
 		let imgSrc: string | null = null;
 		if (parentInState) {
@@ -86,7 +89,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 					? `&subfolder=${encodeURIComponent(parentInState.subfolder)}`
 					: ""
 			}`;
-		} else if (pId && img.parent_filename) {
+		} else {
 			imgSrc = `/api/view?filename=${encodeURIComponent(img.parent_filename)}&type=${
 				img.parent_type || "output"
 			}${
@@ -103,13 +106,10 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 			imgSrc,
 		};
 
-		if (parentInState) {
+		if (parentInState && maxDepth > 1) {
 			// If we found it in state, we can still try to recurse manually
 			const rest = getParentChain(parentInState);
-			return [currentParent, ...rest].slice(
-				0,
-				state.settings["gallery.lineage_max_depth"] || 5,
-			);
+			return [currentParent, ...rest].slice(0, maxDepth);
 		}
 
 		return [currentParent];
