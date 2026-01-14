@@ -1898,6 +1898,120 @@
 	font-size: 13px;
 }
 
+/* Sidebar Import Progress */
+.meld-import-progress-sidebar {
+	padding: 8px 12px;
+	background: var(--comfy-menu-bg, rgba(30, 30, 30, 0.95));
+	border-bottom: 1px solid var(--comfy-menu-border, #333);
+	animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+	from {
+		transform: translateY(-10px);
+		opacity: 0;
+	}
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
+.meld-scan-progress-compact {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	position: relative;
+	padding-right: 24px;
+}
+
+.meld-scan-info {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 11px;
+}
+
+.meld-scan-status-text-compact {
+	color: var(--meld-text-color);
+	font-weight: 500;
+}
+
+.meld-progress-stats-compact {
+	color: var(--meld-text-secondary);
+}
+
+.meld-progress-container-compact {
+	width: 100%;
+	height: 4px;
+	background: var(--comfy-input-bg, rgba(255, 255, 255, 0.1));
+	border-radius: 2px;
+	overflow: hidden;
+}
+
+.meld-btn-stop-compact {
+	position: absolute;
+	right: -4px;
+	top: 50%;
+	transform: translateY(-50%);
+	background: none;
+	border: none;
+	color: var(--meld-text-secondary);
+	cursor: pointer;
+	padding: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: color 0.2s;
+}
+
+.meld-btn-stop-compact:hover:not(:disabled) {
+	color: var(--meld-danger-color, #ff4444);
+}
+
+.meld-btn-stop-compact:disabled {
+	color: var(--meld-text-secondary);
+	cursor: not-allowed;
+}
+
+.meld-scan-finished-compact {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 8px;
+}
+
+.meld-finished-info {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 12px;
+}
+
+.meld-success-icon {
+	color: var(--meld-success-color, #44ff88);
+}
+
+.meld-finished-text {
+	color: var(--meld-text-color);
+}
+
+.meld-btn-ok-compact {
+	background: var(--meld-accent-color);
+	color: white;
+	border: none;
+	border-radius: 4px;
+	padding: 2px 10px;
+	font-size: 11px;
+	font-weight: bold;
+	cursor: pointer;
+	transition: background 0.2s;
+}
+
+.meld-btn-ok-compact:hover {
+	background: var(--meld-accent-color-hover, #5599ff);
+}
+
 @keyframes meld-fade-in {
 	from {
 		opacity: 0;

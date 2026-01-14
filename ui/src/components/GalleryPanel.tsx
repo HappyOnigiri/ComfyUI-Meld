@@ -9,6 +9,7 @@ import { DeleteConfirmModal } from "./DeleteConfirmModal";
 import { ImageCard } from "./ImageCard";
 import { ImageViewer } from "./ImageViewer";
 import { ImportModal } from "./ImportModal";
+import { ImportProgress } from "./ImportProgress";
 import { ParentSelectionModal } from "./ParentSelectionModal";
 import { SearchBar } from "./SearchBar";
 import { SettingsModal } from "./SettingsModal";
@@ -236,6 +237,8 @@ export const GalleryPanel: React.FC = () => {
 					</div>
 				)}
 			</div>
+
+			<ImportProgress />
 
 			{state.error && <div className="meld-gallery__error">{state.error}</div>}
 
