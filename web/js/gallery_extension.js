@@ -5682,19 +5682,19 @@ kc = sa.createRoot, sa.hydrateRoot;
 window.api = Q;
 const qi = async (e = 0, t = 30, n = "") => {
   const r = await Q.fetchApi(
-    `/meld-nexus/list?offset=${e}&limit=${t}&query=${encodeURIComponent(n)}`
+    `/meld/list?offset=${e}&limit=${t}&query=${encodeURIComponent(n)}`
   );
   if (!r.ok)
     throw new Error(`Failed to fetch images: ${r.statusText}`);
   return await r.json();
 }, np = async (e, t) => {
-  const n = `/meld-nexus/suggest?query=${encodeURIComponent(e)}${t ? `&type=${t}` : ""}`, r = await Q.fetchApi(n);
+  const n = `/meld/suggest?query=${encodeURIComponent(e)}${t ? `&type=${t}` : ""}`, r = await Q.fetchApi(n);
   return r.ok ? await r.json() : [];
 }, rp = async () => {
-  const e = await Q.fetchApi("/meld-nexus/search-suggestions");
+  const e = await Q.fetchApi("/meld/search-suggestions");
   return e.ok ? await e.json() : [];
 }, Ec = async () => {
-  const e = await Q.fetchApi("/meld-nexus/settings");
+  const e = await Q.fetchApi("/meld/settings");
   return e.ok ? await e.json() : {
     dev_mode: !1,
     "gallery.show_parent_image": !0,
@@ -5739,14 +5739,14 @@ const qi = async (e = 0, t = 30, n = "") => {
     "gallery.lineage_max_depth": 5
   };
 }, lp = async (e, t) => {
-  if (!(await Q.fetchApi("/meld-nexus/settings", {
+  if (!(await Q.fetchApi("/meld/settings", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ key: e, value: t })
   })).ok)
     throw new Error("Failed to save setting");
 }, ip = async (e, t) => {
-  if (!(await Q.fetchApi("/meld-nexus/link-parent", {
+  if (!(await Q.fetchApi("/meld/link-parent", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ childId: e, parentId: t })
@@ -5754,11 +5754,11 @@ const qi = async (e = 0, t = 30, n = "") => {
     throw new Error("Failed to link parent");
 }, sp = async (e, t = 12) => {
   const n = await Q.fetchApi(
-    `/meld-nexus/suggest-parents?id=${e}&threshold=${t}`
+    `/meld/suggest-parents?id=${e}&threshold=${t}`
   );
   return n.ok ? await n.json() : [];
 }, Cc = async (e) => {
-  const t = await Q.fetchApi(`/meld-nexus/lineage?id=${e}`);
+  const t = await Q.fetchApi(`/meld/lineage?id=${e}`);
   return t.ok ? await t.json() : [];
 }, op = async (e) => {
   const t = new FormData();
@@ -5771,7 +5771,7 @@ const qi = async (e = 0, t = 30, n = "") => {
     throw new Error("Failed to upload image");
   return await n.json();
 }, oa = async (e, t = !0) => {
-  const n = await Q.fetchApi("/meld-nexus/bulk-delete", {
+  const n = await Q.fetchApi("/meld/bulk-delete", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -5784,7 +5784,7 @@ const qi = async (e = 0, t = 30, n = "") => {
     throw new Error(r.error || "Failed to delete images");
   }
 }, Nc = async (e) => {
-  const t = await Q.fetchApi("/meld-nexus/register", {
+  const t = await Q.fetchApi("/meld/register", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(e)
@@ -5794,11 +5794,11 @@ const qi = async (e = 0, t = 30, n = "") => {
   return await t.json();
 }, ap = async (e, t) => {
   const n = await Q.fetchApi(
-    `/meld-nexus/folders?type=${e}&path=${encodeURIComponent(t)}`
+    `/meld/folders?type=${e}&path=${encodeURIComponent(t)}`
   );
   return n.ok ? await n.json() : [];
 }, up = async (e) => {
-  const t = await Q.fetchApi("/meld-nexus/scan", {
+  const t = await Q.fetchApi("/meld/scan", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(e)
@@ -5808,39 +5808,39 @@ const qi = async (e = 0, t = 30, n = "") => {
     throw new Error(n.error || "Failed to start scan");
   }
 }, cp = async () => {
-  if (!(await Q.fetchApi("/meld-nexus/scan/cancel", {
+  if (!(await Q.fetchApi("/meld/scan/cancel", {
     method: "POST"
   })).ok)
     throw new Error("Failed to cancel scan");
 }, dp = async () => {
-  const e = await Q.fetchApi("/meld-nexus/favorites");
+  const e = await Q.fetchApi("/meld/favorites");
   return e.ok ? await e.json() : [];
 }, fp = async (e, t) => {
-  if (!(await Q.fetchApi("/meld-nexus/favorites", {
+  if (!(await Q.fetchApi("/meld/favorites", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name: e, query: t })
   })).ok)
     throw new Error("Failed to save favorite");
 }, aa = async (e) => {
-  if (!(await Q.fetchApi("/meld-nexus/favorites/delete", {
+  if (!(await Q.fetchApi("/meld/favorites/delete", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ id: e })
   })).ok)
     throw new Error("Failed to delete favorite");
 }, pp = async (e, t) => {
-  if (!(await Q.fetchApi("/meld-nexus/favorites/update", {
+  if (!(await Q.fetchApi("/meld/favorites/update", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ id: e, name: t })
   })).ok)
     throw new Error("Failed to update favorite");
 }, Ks = async () => {
-  const e = await Q.fetchApi("/meld-nexus/tags");
+  const e = await Q.fetchApi("/meld/tags");
   return e.ok ? await e.json() : [];
 }, mp = async (e) => {
-  const t = await Q.fetchApi("/meld-nexus/tags", {
+  const t = await Q.fetchApi("/meld/tags", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name: e })
@@ -5849,12 +5849,12 @@ const qi = async (e = 0, t = 30, n = "") => {
     throw new Error("Failed to create tag");
   return await t.json();
 }, hp = async (e) => {
-  if (!(await Q.fetchApi(`/meld-nexus/tags?id=${e}`, {
+  if (!(await Q.fetchApi(`/meld/tags?id=${e}`, {
     method: "DELETE"
   })).ok)
     throw new Error("Failed to delete tag");
 }, gp = async (e, t) => {
-  const n = await Q.fetchApi("/meld-nexus/tags/rename", {
+  const n = await Q.fetchApi("/meld/tags/rename", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ id: e, name: t })
@@ -5864,26 +5864,26 @@ const qi = async (e = 0, t = 30, n = "") => {
     throw new Error(r.error || "Failed to rename tag");
   }
 }, yp = async (e, t) => {
-  if (!(await Q.fetchApi("/meld-nexus/image-tags", {
+  if (!(await Q.fetchApi("/meld/image-tags", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ imageId: e, tags: t })
   })).ok)
     throw new Error("Failed to update image tags");
 }, vp = async (e, t, n) => {
-  if (!(await Q.fetchApi("/meld-nexus/bulk-image-tags", {
+  if (!(await Q.fetchApi("/meld/bulk-image-tags", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ imageIds: e, addTags: t, removeTags: n })
   })).ok)
     throw new Error("Failed to bulk update image tags");
 }, wp = async (e) => {
-  const t = await Q.fetchApi(`/meld-nexus/image/${e}/workflow`);
+  const t = await Q.fetchApi(`/meld/image/${e}/workflow`);
   if (!t.ok)
     throw new Error("Failed to fetch workflow");
   return await t.json();
 }, xp = async (e) => {
-  const t = await Q.fetchApi(`/meld-nexus/image/${e}/snapshot_data`);
+  const t = await Q.fetchApi(`/meld/image/${e}/snapshot_data`);
   if (!t.ok)
     throw new Error("Failed to fetch snapshot data");
   return await t.json();
@@ -6736,14 +6736,8 @@ const zc = S.createContext(void 0), em = ({
         }
       }), r();
     };
-    return window.addEventListener("meld-nexus-refresh", u), window.addEventListener("meld-nexus-scan-progress", c), window.addEventListener("meld-nexus-scan-finished", v), () => {
-      window.removeEventListener("meld-nexus-refresh", u), window.removeEventListener(
-        "meld-nexus-scan-progress",
-        c
-      ), window.removeEventListener(
-        "meld-nexus-scan-finished",
-        v
-      );
+    return window.addEventListener("meld-refresh", u), window.addEventListener("meld-scan-progress", c), window.addEventListener("meld-scan-finished", v), () => {
+      window.removeEventListener("meld-refresh", u), window.removeEventListener("meld-scan-progress", c), window.removeEventListener("meld-scan-finished", v);
     };
   }, [r, t.scanStatus.progress.total]), S.useEffect(() => {
     r();
@@ -7078,7 +7072,7 @@ const zc = S.createContext(void 0), em = ({
       }
       await window.app.loadGraphData(
         g.workflow
-      ), console.log("Workflow restored successfully from Meld Nexus");
+      ), console.log("Workflow restored successfully from Meld");
     } catch (g) {
       console.error("Error restoring workflow:", g), alert("Failed to restore workflow.");
     }
@@ -9982,13 +9976,13 @@ zl.href = "/extensions/ComfyUI-Meld/js/style.css";
 document.head.appendChild(zl);
 let Pr = null, $e = null;
 fa.registerExtension({
-  name: "ComfyUI.MeldNexus",
+  name: "ComfyUI.Meld",
   async beforeRegisterNodeDef(e, t, n) {
-    if (t.name === "MeldNexusSaveImage") {
+    if (t.name === "MeldSaveImage") {
       const r = e.prototype.onExecuted;
       e.prototype.onExecuted = function(...l) {
         r == null || r.apply(this, l);
-        const i = n.ui.meldNexus;
+        const i = n.ui.meld;
         i != null && i.isVisible() && i.refresh();
       };
     }
@@ -10002,9 +9996,9 @@ fa.registerExtension({
       console.error("[Meld] Failed to fetch settings", n), ge.init(!1);
     }
     if ((t = e.extensionManager) != null && t.registerSidebarTab) {
-      e.ui.meldNexus = {
+      e.ui.meld = {
         refresh: () => {
-          window.dispatchEvent(new CustomEvent("meld-nexus-refresh"));
+          window.dispatchEvent(new CustomEvent("meld-refresh"));
         },
         isVisible: () => {
           const n = document.getElementById("meld-gallery-container");
@@ -10018,18 +10012,18 @@ fa.registerExtension({
             console.error("Error toggling sidebar:", r);
           }
         }
-      }, Q.addEventListener("meld-nexus-image-saved", () => {
+      }, Q.addEventListener("meld-image-saved", () => {
         var n;
-        (n = e.ui.meldNexus) == null || n.refresh();
-      }), Q.addEventListener("meld-nexus-scan-progress", (n) => {
+        (n = e.ui.meld) == null || n.refresh();
+      }), Q.addEventListener("meld-scan-progress", (n) => {
         window.dispatchEvent(
-          new CustomEvent("meld-nexus-scan-progress", { detail: n.detail })
+          new CustomEvent("meld-scan-progress", { detail: n.detail })
         );
-      }), Q.addEventListener("meld-nexus-scan-finished", (n) => {
+      }), Q.addEventListener("meld-scan-finished", (n) => {
         var r;
         window.dispatchEvent(
-          new CustomEvent("meld-nexus-scan-finished", { detail: n.detail })
-        ), (r = e.ui.meldNexus) == null || r.refresh(), console.log("Meld Nexus: Import completed.");
+          new CustomEvent("meld-scan-finished", { detail: n.detail })
+        ), (r = e.ui.meld) == null || r.refresh(), console.log("Meld: Import completed.");
       }), Q.addEventListener(
         "executed",
         async ({
@@ -10054,20 +10048,18 @@ fa.registerExtension({
       try {
         e.extensionManager.registerSidebarTab({
           id: "meld-gallery",
-          icon: "meld-nexus-icon",
-          title: "Nexus",
-          tooltip: "Meld: Nexus",
+          icon: "meld-icon",
+          title: "Meld",
+          tooltip: "Meld Image Manager",
           type: "custom",
           render: (n) => {
-            ge.log("MeldNexus: render called", {
+            ge.log("Meld: render called", {
               el: n,
               galleryRoot: Pr,
               galleryContainer: $e
-            }), $e || (ge.log(
-              "MeldNexus: galleryContainer not found, creating new one"
-            ), $e = document.createElement("div"), $e.id = "meld-gallery-container", $e.style.height = "100%", $e.style.width = "100%", $e.style.display = "flex", $e.style.flexDirection = "column"), n.contains($e) || (ge.log("MeldNexus: Appending galleryContainer to el"), n.appendChild($e)), Pr ? ge.log(
-              "MeldNexus: Gallery root already exists, React should handle re-render if needed"
-            ) : (ge.log("MeldNexus: Creating new gallery root"), Pr = kc($e), Pr.render(
+            }), $e || (ge.log("Meld: galleryContainer not found, creating new one"), $e = document.createElement("div"), $e.id = "meld-gallery-container", $e.style.height = "100%", $e.style.width = "100%", $e.style.display = "flex", $e.style.flexDirection = "column"), n.contains($e) || (ge.log("Meld: Appending galleryContainer to el"), n.appendChild($e)), Pr ? ge.log(
+              "Meld: Gallery root already exists, React should handle re-render if needed"
+            ) : (ge.log("Meld: Creating new gallery root"), Pr = kc($e), Pr.render(
               qs.createElement(
                 em,
                 null,

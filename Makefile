@@ -1,4 +1,4 @@
-.PHONY: ci test-all lint repomix repomix-nexus local-check-scripts check-scripts
+.PHONY: ci test-all lint repomix repomix-image-manager local-check-scripts check-scripts
 
 ci: local-check-scripts check-only-ascii lint build-ui test-all
 
@@ -61,7 +61,7 @@ check-only-ascii:
 
 REPOMIX_IGNORE := **/__pycache__/**,**/node_modules/**,**/.git/**,tmp/**,web/js/gallery_extension.js,**/package-lock.json,**/.mypy_cache/**,**/.pytest_cache/**,**/.ruff_cache/**,**/.venv/**,env/**,**/.cursor/history/**,**/.DS_Store
 
-repomix: repomix-full repomix-src repomix-tests repomix-nodes repomix-ui repomix-nexus
+repomix: repomix-full repomix-src repomix-tests repomix-nodes repomix-ui repomix-image-manager
 
 repomix-full:
 	@mkdir -p tmp/repomix
@@ -79,9 +79,9 @@ repomix-ui:
 	@mkdir -p tmp/repomix
 	npx --yes repomix --include "ui/**,*.md,*.toml,requirements.txt,Makefile,__init__.py" --ignore "$(REPOMIX_IGNORE)" --output tmp/repomix/repomix-ui.xml
 
-repomix-nexus:
+repomix-image-manager:
 	@mkdir -p tmp/repomix
-	npx --yes repomix --include "ui/**,py/image_manager/**,.cursor/rules/**,*.md,*.toml,requirements.txt,Makefile,__init__.py" --ignore "$(REPOMIX_IGNORE),tests/**" --output tmp/repomix/repomix-nexus.xml
+	npx --yes repomix --include "ui/**,py/image_manager/**,.cursor/rules/**,*.md,*.toml,requirements.txt,Makefile,__init__.py" --ignore "$(REPOMIX_IGNORE),tests/**" --output tmp/repomix/repomix-image-manager.xml
 
 repomix-nodes:
 	@mkdir -p tmp/repomix
