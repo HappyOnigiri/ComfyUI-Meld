@@ -486,6 +486,18 @@ def count_images_recursive(path: str) -> int:
     return count
 
 
+def get_first_image_recursive(path: str) -> str | None:
+    """Find the first image in a directory recursively."""
+    try:
+        for root, _, files in os.walk(path):
+            for f in files:
+                if f.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
+                    return os.path.join(root, f)
+    except (PermissionError, OSError):
+        pass
+    return None
+
+
 @server.PromptServer.instance.routes.get("/meld/folders")
 async def list_folders(request: web.Request) -> web.Response:
     try:
@@ -508,28 +520,43 @@ async def list_folders(request: web.Request) -> web.Response:
             return web.json_response({"error": "Not a directory"}, status=400)
 
         folders = []
+        images = []
         image_count = 0
         try:
-            # Count images in the current directory (non-recursive for the 'image_count' field?)
-            # Count images in the current directory recursively including subdirectories.
-            # This applies to both the Current Path count and the subfolder list counts.
-
             items = os.listdir(target_path)
             for item in items:
                 full_item_path = os.path.join(target_path, item)
                 if os.path.isdir(full_item_path):
                     # Recursive count for subfolder
                     sub_count = count_images_recursive(full_item_path)
-                    folders.append({"name": item, "count": sub_count})
+
+                    # Get sample image for preview
+                    preview = None
+                    if base_dir:
+                        sample_img_path = get_first_image_recursive(full_item_path)
+                        if sample_img_path:
+                            rel_path = os.path.relpath(sample_img_path, base_dir)
+                            filename = os.path.basename(rel_path)
+                            subfolder = os.path.dirname(rel_path).replace("\\", "/")
+                            preview = {
+                                "filename": filename,
+                                "subfolder": subfolder,
+                                "type": base_type,
+                            }
+
+                    folders.append({"name": item, "count": sub_count, "preview": preview})
                 elif item.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
                     image_count += 1
+                    if base_dir:
+                        images.append(
+                            {
+                                "filename": item,
+                                "subfolder": path.replace("\\", "/"),
+                                "type": base_type,
+                            }
+                        )
 
             # The top-level 'image_count' should also be recursive if it includes subdirectories.
-            # However, if 'image_count' is intended to show what's in 'Current Path' specifically,
-            # and the subfolders are listed separately, usually 'image_count' is for files in target_path.
-            # But "including subdirectories" suggests the total recursive count.
-            # Let's make the top-level 'image_count' the TOTAL recursive count for target_path.
-
             total_recursive_count = count_images_recursive(target_path)
 
         except PermissionError:
@@ -538,6 +565,7 @@ async def list_folders(request: web.Request) -> web.Response:
         return web.json_response(
             {
                 "folders": sorted(folders, key=lambda x: x["name"]),
+                "images": images,
                 "image_count": total_recursive_count,
             }
         )

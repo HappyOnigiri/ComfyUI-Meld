@@ -913,6 +913,7 @@
 }
 
 .meld-modal-content {
+	position: relative;
 	background: var(--comfy-menu-bg, #222);
 	border: 1px solid var(--meld-border-color);
 	border-radius: 8px;
@@ -1340,7 +1341,7 @@
 .meld-folder-item {
 	display: flex;
 	align-items: center;
-	gap: 10px;
+	gap: 12px;
 	padding: 8px 12px;
 	border-radius: 4px;
 	cursor: pointer;
@@ -1351,6 +1352,117 @@
 .meld-folder-item:hover {
 	background: var(--comfy-input-bg-active, rgba(68, 136, 255, 0.1));
 	color: var(--meld-accent-color);
+}
+
+.meld-folder-preview {
+	width: 32px;
+	height: 32px;
+	border-radius: 4px;
+	object-fit: cover;
+	background: var(--comfy-input-bg);
+	flex-shrink: 0;
+}
+
+.meld-browser-image-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+	gap: 10px;
+	padding: 15px 12px;
+	border-top: 1px solid var(--comfy-menu-border, #333);
+}
+
+.meld-browser-image-item {
+	aspect-ratio: 1 / 1;
+	border-radius: 4px;
+	overflow: hidden;
+	background: var(--comfy-input-bg);
+	border: 1px solid transparent;
+	transition: border-color 0.2s;
+}
+
+.meld-browser-image-item:hover {
+	border-color: var(--meld-accent-color);
+}
+
+.meld-browser-image-item img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+/* Import Modal Preview */
+.meld-import-preview-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: transparent;
+	z-index: 20000;
+	border-radius: 0;
+}
+
+.meld-import-preview-content {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 15px;
+	width: auto;
+	max-width: 98%;
+	max-height: 98%;
+}
+
+.meld-import-preview-image-wrapper {
+	position: relative;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	max-width: 100%;
+}
+
+.meld-import-preview-content img {
+	max-width: 100%;
+	max-height: 95vh;
+	object-fit: contain;
+	box-shadow: 0 10px 50px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.6));
+	border-radius: 4px;
+	background: var(--comfy-input-bg, #000);
+	border: 1px solid var(--comfy-menu-border, #444);
+}
+
+.meld-import-preview-close {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	background: rgba(0, 0, 0, 0.5); /* color-check-ignore */
+	border: 1px solid rgba(255, 255, 255, 0.2); /* color-check-ignore */
+	color: white;
+	cursor: pointer;
+	padding: 4px;
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1001;
+	transition: background 0.2s;
+}
+
+.meld-import-preview-close:hover {
+	background: rgba(0, 0, 0, 0.8); /* color-check-ignore */
+	color: var(--meld-accent-color);
+}
+
+.meld-import-preview-info {
+	color: var(--meld-text-color, #eee);
+	font-size: 13px;
+	background: var(--comfy-input-bg, #222);
+	padding: 4px 12px;
+	border-radius: 20px;
+	border: 1px solid var(--comfy-menu-border, #333);
 }
 
 .meld-folder-name {

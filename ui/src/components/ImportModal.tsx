@@ -32,18 +32,33 @@ export const ImportModal: React.FC = () => {
 		tags: [],
 	});
 
-	const [folders, setFolders] = useState<{ name: string; count: number }[]>([]);
+	const [folders, setFolders] = useState<
+		{
+			name: string;
+			count: number;
+			preview?: { filename: string; subfolder: string; type: string };
+		}[]
+	>([]);
+	const [images, setImages] = useState<
+		{ filename: string; subfolder: string; type: string }[]
+	>([]);
 	const [currentPathImageCount, setCurrentPathImageCount] = useState(0);
 	const [isLoadingFolders, setIsLoadingFolders] = useState(false);
 	const [allTags, setAllTags] = useState<TagType[]>([]);
 	const [tagSearchQuery, setTagSearchQuery] = useState("");
 	const [isLoadingTags, setIsLoadingTags] = useState(false);
+	const [previewImage, setPreviewImage] = useState<{
+		filename: string;
+		subfolder: string;
+		type: string;
+	} | null>(null);
 
 	const loadFolders = useCallback(async () => {
 		const path =
 			config.type === "custom" ? config.custom_path : config.subfolder;
 		if (config.type === "custom" && !path) {
 			setFolders([]);
+			setImages([]);
 			setCurrentPathImageCount(0);
 			return;
 		}
@@ -52,10 +67,12 @@ export const ImportModal: React.FC = () => {
 		try {
 			const result = await api.fetchFolders(config.type, path);
 			setFolders(result.folders);
+			setImages(result.images);
 			setCurrentPathImageCount(result.image_count);
 		} catch (err) {
 			console.error("Failed to load folders:", err);
 			setFolders([]);
+			setImages([]);
 			setCurrentPathImageCount(0);
 		} finally {
 			setIsLoadingFolders(false);
@@ -81,6 +98,16 @@ export const ImportModal: React.FC = () => {
 	useEffect(() => {
 		loadTags();
 	}, [loadTags]);
+
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.key === "Escape" && previewImage) {
+				setPreviewImage(null);
+			}
+		};
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, [previewImage]);
 
 	const filteredTags = useMemo(() => {
 		return allTags.filter(
@@ -348,25 +375,51 @@ export const ImportModal: React.FC = () => {
 									<div className="meld-folder-list">
 										{isLoadingFolders ? (
 											<div className="meld-browser-loading">Loading...</div>
-										) : folders.length === 0 ? (
-											<div className="meld-browser-empty">
-												No subfolders found.
-											</div>
+										) : folders.length === 0 && images.length === 0 ? (
+											<div className="meld-browser-empty">No items found.</div>
 										) : (
-											folders.map((f) => (
-												<div
-													key={f.name}
-													className="meld-folder-item"
-													onClick={() => enterFolder(f.name)}
-												>
-													<Folder size={16} />
-													<span className="meld-folder-name">{f.name}</span>
-													<span className="meld-folder-count">
-														{f.count} total
-													</span>
-													<ChevronRight size={14} />
-												</div>
-											))
+											<>
+												{folders.map((f) => (
+													<div
+														key={f.name}
+														className="meld-folder-item"
+														onClick={() => enterFolder(f.name)}
+													>
+														{f.preview ? (
+															<img
+																className="meld-folder-preview"
+																src={`/api/view?filename=${encodeURIComponent(f.preview.filename)}&type=${f.preview.type}&subfolder=${encodeURIComponent(f.preview.subfolder)}`}
+																alt=""
+															/>
+														) : (
+															<Folder size={16} />
+														)}
+														<span className="meld-folder-name">{f.name}</span>
+														<span className="meld-folder-count">
+															{f.count} total
+														</span>
+														<ChevronRight size={14} />
+													</div>
+												))}
+
+												{images.length > 0 && (
+													<div className="meld-browser-image-grid">
+														{images.map((img) => (
+															<div
+																key={img.filename}
+																className="meld-browser-image-item"
+																onClick={() => setPreviewImage(img)}
+															>
+																<img
+																	src={`/api/view?filename=${encodeURIComponent(img.filename)}&type=${img.type}&subfolder=${encodeURIComponent(img.subfolder)}`}
+																	alt={img.filename}
+																	title={img.filename}
+																/>
+															</div>
+														))}
+													</div>
+												)}
+											</>
 										)}
 									</div>
 								</>
@@ -389,6 +442,35 @@ export const ImportModal: React.FC = () => {
 					</div>
 				</div>
 			</div>
+
+			{previewImage && (
+				<div
+					className="meld-import-preview-overlay"
+					onClick={() => setPreviewImage(null)}
+				>
+					<div
+						className="meld-import-preview-content"
+						onClick={(e) => e.stopPropagation()}
+					>
+						<div className="meld-import-preview-image-wrapper">
+							<button
+								type="button"
+								className="meld-import-preview-close"
+								onClick={() => setPreviewImage(null)}
+							>
+								<X size={24} />
+							</button>
+							<img
+								src={`/api/view?filename=${encodeURIComponent(previewImage.filename)}&type=${previewImage.type}&subfolder=${encodeURIComponent(previewImage.subfolder)}`}
+								alt={previewImage.filename}
+							/>
+						</div>
+						<div className="meld-import-preview-info">
+							{previewImage.filename}
+						</div>
+					</div>
+				</div>
+			)}
 		</div>,
 		document.body,
 	);
