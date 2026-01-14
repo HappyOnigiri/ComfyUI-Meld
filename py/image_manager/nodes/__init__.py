@@ -1,3 +1,3 @@
-from .meld_nexus_save_image import MeldNexusSaveImage
+from .meld_save_image import MeldSaveImage
 
-__all__ = ["MeldNexusSaveImage"]
+__all__ = ["MeldSaveImage"]

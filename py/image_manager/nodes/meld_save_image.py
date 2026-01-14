@@ -31,7 +31,7 @@ from ..database import (
 
 
 # --- Custom Node Definition ---
-class MeldNexusSaveImage:
+class MeldSaveImage:
     def __init__(self) -> None:
         self.output_dir = folder_paths.get_output_directory()
         self.type = "output"
@@ -69,7 +69,7 @@ class MeldNexusSaveImage:
     RETURN_NAMES = ("images",)
     FUNCTION = "save_images"
     OUTPUT_NODE = True
-    CATEGORY = "Meld/Nexus"
+    CATEGORY = "Meld/Image Manager"
 
     def save_images(
         self,
@@ -290,6 +290,6 @@ class MeldNexusSaveImage:
         conn.close()
 
         # Notify the frontend that images have been saved (Rule 2: Real-time update)
-        server.PromptServer.instance.send_sync("meld-nexus-image-saved", {"count": len(results)})
+        server.PromptServer.instance.send_sync("meld-image-saved", {"count": len(results)})
 
         return {"ui": {"images": results}, "result": (images,)}

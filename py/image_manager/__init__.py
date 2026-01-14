@@ -1,10 +1,10 @@
 from . import api
 from .database import init_db
-from .nodes import MeldNexusSaveImage
+from .nodes import MeldSaveImage
 
 # Initialize database on module load
 init_db()
 
-NODE_CLASS_MAPPINGS = {"MeldNexusSaveImage": MeldNexusSaveImage}
+NODE_CLASS_MAPPINGS = {"MeldSaveImage": MeldSaveImage}
 
-__all__ = ["MeldNexusSaveImage", "NODE_CLASS_MAPPINGS", "api"]
+__all__ = ["MeldSaveImage", "NODE_CLASS_MAPPINGS", "api"]

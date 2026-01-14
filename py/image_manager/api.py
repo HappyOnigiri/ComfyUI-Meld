@@ -33,7 +33,7 @@ from .database import (
 from .search_service import SearchService
 
 
-@server.PromptServer.instance.routes.post("/meld-nexus/image-tags")
+@server.PromptServer.instance.routes.post("/meld/image-tags")
 async def update_image_tags(request: web.Request) -> web.Response:
     try:
         data = await request.json()
@@ -78,7 +78,7 @@ async def update_image_tags(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.post("/meld-nexus/bulk-image-tags")
+@server.PromptServer.instance.routes.post("/meld/bulk-image-tags")
 async def bulk_update_image_tags(request: web.Request) -> web.Response:
     try:
         data = await request.json()
@@ -308,7 +308,7 @@ def _scan_thread(
 
                     processed += 1
                     server.PromptServer.instance.send_sync(
-                        "meld-nexus-scan-progress", {"current": processed, "total": total, "phase": "registering"}
+                        "meld-scan-progress", {"current": processed, "total": total, "phase": "registering"}
                     )
                     continue
 
@@ -407,7 +407,7 @@ def _scan_thread(
 
                 processed += 1
                 server.PromptServer.instance.send_sync(
-                    "meld-nexus-scan-progress", {"current": processed, "total": total, "phase": "registering"}
+                    "meld-scan-progress", {"current": processed, "total": total, "phase": "registering"}
                 )
 
                 # Commit periodically or at the end
@@ -446,7 +446,7 @@ def _scan_thread(
                 processed_linking += 1
                 if processed_linking % 5 == 0 or processed_linking == total_linking:
                     server.PromptServer.instance.send_sync(
-                        "meld-nexus-scan-progress",
+                        "meld-scan-progress",
                         {"current": processed_linking, "total": total_linking, "phase": "linking"},
                     )
 
@@ -460,11 +460,11 @@ def _scan_thread(
         _scan_state["is_running"] = False
         _scan_state["should_cancel"] = False
         server.PromptServer.instance.send_sync(
-            "meld-nexus-scan-finished", {"status": "completed", "new_count": new_count, "total_count": processed}
+            "meld-scan-finished", {"status": "completed", "new_count": new_count, "total_count": processed}
         )
 
 
-@server.PromptServer.instance.routes.post("/meld-nexus/cleanup")
+@server.PromptServer.instance.routes.post("/meld/cleanup")
 async def cleanup_endpoint(request: web.Request) -> web.Response:
     try:
         count = perform_cleanup()
@@ -473,7 +473,7 @@ async def cleanup_endpoint(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.get("/meld-nexus/folders")
+@server.PromptServer.instance.routes.get("/meld/folders")
 async def list_folders(request: web.Request) -> web.Response:
     try:
         path = request.query.get("path", "")
@@ -508,7 +508,7 @@ async def list_folders(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.post("/meld-nexus/scan")
+@server.PromptServer.instance.routes.post("/meld/scan")
 async def start_scan(request: web.Request) -> web.Response:
     global _scan_state
     if _scan_state["is_running"]:
@@ -558,14 +558,14 @@ async def start_scan(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.post("/meld-nexus/scan/cancel")
+@server.PromptServer.instance.routes.post("/meld/scan/cancel")
 async def cancel_scan(request: web.Request) -> web.Response:
     global _scan_state
     _scan_state["should_cancel"] = True
     return web.json_response({"status": "cancelling"})
 
 
-@server.PromptServer.instance.routes.get("/meld-nexus/scan/status")
+@server.PromptServer.instance.routes.get("/meld/scan/status")
 async def get_scan_status(request: web.Request) -> web.Response:
     return web.json_response(_scan_state)
 
@@ -613,7 +613,7 @@ def extract_source_filenames(workflow_json: str | dict | None, prompt_json: str 
     return list(filenames)
 
 
-@server.PromptServer.instance.routes.get("/meld-nexus/image/{image_id}/workflow")
+@server.PromptServer.instance.routes.get("/meld/image/{image_id}/workflow")
 async def get_image_workflow(request: web.Request) -> web.Response:
     try:
         image_id = request.match_info["image_id"]
@@ -637,7 +637,7 @@ async def get_image_workflow(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.get("/meld-nexus/image/{image_id}/snapshot_data")
+@server.PromptServer.instance.routes.get("/meld/image/{image_id}/snapshot_data")
 async def get_image_snapshot_data(request: web.Request) -> web.Response:
     try:
         image_id = request.match_info["image_id"]
@@ -735,7 +735,7 @@ async def get_image_snapshot_data(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.get("/meld-nexus/tags")
+@server.PromptServer.instance.routes.get("/meld/tags")
 async def list_tags(request: web.Request) -> web.Response:
     try:
         conn = get_db_connection()
@@ -747,7 +747,7 @@ async def list_tags(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.post("/meld-nexus/tags")
+@server.PromptServer.instance.routes.post("/meld/tags")
 async def create_tag(request: web.Request) -> web.Response:
     try:
         data = await request.json()
@@ -770,7 +770,7 @@ async def create_tag(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.delete("/meld-nexus/tags")
+@server.PromptServer.instance.routes.delete("/meld/tags")
 async def remove_tag(request: web.Request) -> web.Response:
     try:
         tag_id = request.query.get("id")
@@ -788,7 +788,7 @@ async def remove_tag(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.post("/meld-nexus/tags/rename")
+@server.PromptServer.instance.routes.post("/meld/tags/rename")
 async def tag_rename_endpoint(request: web.Request) -> web.Response:
     try:
         data = await request.json()
@@ -810,12 +810,12 @@ async def tag_rename_endpoint(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.get("/meld-nexus/test")
+@server.PromptServer.instance.routes.get("/meld/test")
 async def test_endpoint(request: web.Request) -> web.Response:
-    return web.json_response({"status": "ok", "message": "Meld Nexus is running"})
+    return web.json_response({"status": "ok", "message": "Meld is running"})
 
 
-@server.PromptServer.instance.routes.get("/meld-nexus/settings")
+@server.PromptServer.instance.routes.get("/meld/settings")
 async def get_settings(request: web.Request) -> web.Response:
     try:
         conn = get_db_connection()
@@ -848,7 +848,7 @@ async def get_settings(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.post("/meld-nexus/settings")
+@server.PromptServer.instance.routes.post("/meld/settings")
 async def save_settings(request: web.Request) -> web.Response:
     try:
         data = await request.json()
@@ -869,7 +869,7 @@ async def save_settings(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.post("/meld-nexus/register")
+@server.PromptServer.instance.routes.post("/meld/register")
 async def register_image(request: web.Request) -> web.Response:
     try:
         if request.has_body and request.content_type == "application/json":
@@ -1017,7 +1017,7 @@ async def register_image(request: web.Request) -> web.Response:
         conn.close()
 
         # Notify frontend
-        server.PromptServer.instance.send_sync("meld-nexus-image-saved", {"count": 1})
+        server.PromptServer.instance.send_sync("meld-image-saved", {"count": 1})
 
         return web.json_response({"success": True, "id": image_id})
     except Exception:
@@ -1025,7 +1025,7 @@ async def register_image(request: web.Request) -> web.Response:
         return web.json_response({"error": "internal error"}, status=500)
 
 
-@server.PromptServer.instance.routes.get("/meld-nexus/suggest")
+@server.PromptServer.instance.routes.get("/meld/suggest")
 async def suggest_endpoint(request: web.Request) -> web.Response:
     try:
         query = request.query.get("query", "")
@@ -1041,7 +1041,7 @@ async def suggest_endpoint(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.get("/meld-nexus/search-suggestions")
+@server.PromptServer.instance.routes.get("/meld/search-suggestions")
 async def search_suggestions_endpoint(request: web.Request) -> web.Response:
     try:
         conn = get_db_connection()
@@ -1054,7 +1054,7 @@ async def search_suggestions_endpoint(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.get("/meld-nexus/list")
+@server.PromptServer.instance.routes.get("/meld/list")
 async def list_images(request: web.Request) -> web.Response:
     try:
         offset = int(request.query.get("offset", 0))
@@ -1240,7 +1240,7 @@ async def list_images(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.get("/meld-nexus/related")
+@server.PromptServer.instance.routes.get("/meld/related")
 async def get_related_images(request: web.Request) -> web.Response:
     try:
         image_id = request.query.get("id")
@@ -1292,7 +1292,7 @@ async def get_related_images(request: web.Request) -> web.Response:
         return web.json_response({"error": "internal error"}, status=500)
 
 
-@server.PromptServer.instance.routes.post("/meld-nexus/bulk-delete")
+@server.PromptServer.instance.routes.post("/meld/bulk-delete")
 async def bulk_delete_images(request: web.Request) -> web.Response:
     try:
         data = await request.json()
@@ -1344,7 +1344,7 @@ async def bulk_delete_images(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.post("/meld-nexus/delete")
+@server.PromptServer.instance.routes.post("/meld/delete")
 async def delete_image(request: web.Request) -> web.Response:
     try:
         data = await request.json()
@@ -1380,7 +1380,7 @@ async def delete_image(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.post("/meld-nexus/link-parent")
+@server.PromptServer.instance.routes.post("/meld/link-parent")
 async def link_parent(request: web.Request) -> web.Response:
     try:
         data = await request.json()
@@ -1512,7 +1512,7 @@ def get_parent_suggestions(
     return source_matches + phash_matches
 
 
-@server.PromptServer.instance.routes.get("/meld-nexus/suggest-parents")
+@server.PromptServer.instance.routes.get("/meld/suggest-parents")
 async def suggest_parents(request: web.Request) -> web.Response:
     try:
         image_id = request.query.get("id")
@@ -1560,7 +1560,7 @@ async def suggest_parents(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.get("/meld-nexus/lineage")
+@server.PromptServer.instance.routes.get("/meld/lineage")
 async def get_lineage(request: web.Request) -> web.Response:
     try:
         image_id = request.query.get("id")
@@ -1630,7 +1630,7 @@ async def get_lineage(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.get("/meld-nexus/favorites")
+@server.PromptServer.instance.routes.get("/meld/favorites")
 async def list_favorites(request: web.Request) -> web.Response:
     try:
         conn = get_db_connection()
@@ -1648,7 +1648,7 @@ async def list_favorites(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.post("/meld-nexus/favorites")
+@server.PromptServer.instance.routes.post("/meld/favorites")
 async def save_favorite(request: web.Request) -> web.Response:
     try:
         data = await request.json()
@@ -1669,7 +1669,7 @@ async def save_favorite(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.post("/meld-nexus/favorites/update")
+@server.PromptServer.instance.routes.post("/meld/favorites/update")
 async def update_favorite(request: web.Request) -> web.Response:
     try:
         data = await request.json()
@@ -1690,7 +1690,7 @@ async def update_favorite(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.post("/meld-nexus/favorites/delete")
+@server.PromptServer.instance.routes.post("/meld/favorites/delete")
 async def delete_favorite(request: web.Request) -> web.Response:
     try:
         data = await request.json()
