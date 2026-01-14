@@ -837,6 +837,7 @@ async def get_settings(request: web.Request) -> web.Response:
             "viewer.details.max_negative_prompt_lines": 7,
             "viewer.show_icons": True,
             "gallery.matching_strategy": "filename_phash",
+            "gallery.lineage_max_depth": 5,
         }
 
         # Merge with DB settings
@@ -1065,6 +1066,9 @@ async def list_images(request: web.Request) -> web.Response:
 
         search_sql, search_params = SearchService.build_search_sql(query_str)
 
+        # Get settings
+        db_settings = get_all_settings(cursor)
+
         # Get total count
         count_sql = f"SELECT COUNT(*) FROM images i WHERE i.deleted_at IS NULL{search_sql}"
         cursor.execute(count_sql, search_params)
@@ -1086,10 +1090,11 @@ async def list_images(request: web.Request) -> web.Response:
         cursor.execute(fetch_sql, (*search_params, limit, offset))
         images = cursor.fetchall()
 
-        # Fetch ancestors in bulk (up to 5 levels)
+        # Fetch ancestors in bulk (up to max levels)
         image_ids = [img[0] for img in images]
         ancestors_map: dict[int, list[dict[str, Any]]] = {}
         if image_ids:
+            lineage_max_depth = db_settings.get("gallery.lineage_max_depth", 5)
             placeholders = ",".join(["?"] * len(image_ids))
             ancestor_sql = f"""
                 WITH RECURSIVE lineage AS (
@@ -1100,7 +1105,7 @@ async def list_images(request: web.Request) -> web.Response:
                     SELECT l.start_id, i.parent_id, l.depth + 1
                     FROM images i
                     JOIN lineage l ON i.id = l.parent_id
-                    WHERE i.parent_id IS NOT NULL AND l.depth < 5
+                    WHERE i.parent_id IS NOT NULL AND l.depth < ?
                 )
                 SELECT l.start_id, i.id, i.filename, i.subfolder, i.type
                 FROM lineage l
@@ -1108,7 +1113,7 @@ async def list_images(request: web.Request) -> web.Response:
                 WHERE i.deleted_at IS NULL
                 ORDER BY l.start_id, l.depth
             """
-            cursor.execute(ancestor_sql, image_ids)
+            cursor.execute(ancestor_sql, (*image_ids, lineage_max_depth))
             for start_id, a_id, a_fname, a_subf, a_type in cursor.fetchall():
                 if start_id not in ancestors_map:
                     ancestors_map[start_id] = []

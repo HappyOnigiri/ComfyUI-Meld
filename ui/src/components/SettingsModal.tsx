@@ -23,6 +23,9 @@ export const SettingsModal: React.FC = () => {
 	const [pageSizeInput, setPageSizeInput] = useState<string>(
 		state.settings["gallery.page_size"].toString(),
 	);
+	const [lineageMaxDepthInput, setLineageMaxDepthInput] = useState<string>(
+		state.settings["gallery.lineage_max_depth"].toString(),
+	);
 	const [thumbnailWindowSizeInput, setThumbnailWindowSizeInput] =
 		useState<string>(state.settings["viewer.thumbnail_window_size"].toString());
 	const [maxPositivePromptLinesInput, setMaxPositivePromptLinesInput] =
@@ -84,6 +87,16 @@ export const SettingsModal: React.FC = () => {
 				{ value: "phash_created", label: "pHash & Created Time" },
 				{ value: "phash_only", label: "pHash Only" },
 			],
+		},
+		{
+			key: "gallery.lineage_max_depth",
+			label: "Max Lineage Depth",
+			description:
+				"Maximum number of ancestor levels to fetch and display (1-10).",
+			type: "number",
+			category: "General",
+			min: 1,
+			max: 10,
 		},
 		{
 			key: "sidebar.show_filename",
@@ -390,6 +403,8 @@ export const SettingsModal: React.FC = () => {
 	) => {
 		if (key === "gallery.page_size") {
 			setPageSizeInput(value);
+		} else if (key === "gallery.lineage_max_depth") {
+			setLineageMaxDepthInput(value);
 		} else if (key === "viewer.thumbnail_window_size") {
 			setThumbnailWindowSizeInput(value);
 		} else if (key === "viewer.details.max_positive_prompt_lines") {
@@ -525,23 +540,25 @@ export const SettingsModal: React.FC = () => {
 												value={
 													config.key === "gallery.page_size"
 														? pageSizeInput
-														: config.key === "viewer.thumbnail_window_size"
-															? thumbnailWindowSizeInput
-															: config.key ===
-																	"viewer.details.max_positive_prompt_lines"
-																? maxPositivePromptLinesInput
+														: config.key === "gallery.lineage_max_depth"
+															? lineageMaxDepthInput
+															: config.key === "viewer.thumbnail_window_size"
+																? thumbnailWindowSizeInput
 																: config.key ===
-																		"viewer.details.max_negative_prompt_lines"
-																	? maxNegativePromptLinesInput
+																		"viewer.details.max_positive_prompt_lines"
+																	? maxPositivePromptLinesInput
 																	: config.key ===
-																			"fullscreen.details.max_positive_prompt_lines"
-																		? fullscreenMaxPositivePromptLinesInput
+																			"viewer.details.max_negative_prompt_lines"
+																		? maxNegativePromptLinesInput
 																		: config.key ===
-																				"fullscreen.details.max_negative_prompt_lines"
-																			? fullscreenMaxNegativePromptLinesInput
-																			: (localSettings[
-																					config.key
-																				] as unknown as number)
+																				"fullscreen.details.max_positive_prompt_lines"
+																			? fullscreenMaxPositivePromptLinesInput
+																			: config.key ===
+																					"fullscreen.details.max_negative_prompt_lines"
+																				? fullscreenMaxNegativePromptLinesInput
+																				: (localSettings[
+																						config.key
+																					] as unknown as number)
 												}
 												min={config.min}
 												max={config.max}
@@ -557,6 +574,14 @@ export const SettingsModal: React.FC = () => {
 													if (config.key === "gallery.page_size") {
 														setPageSizeInput(
 															localSettings["gallery.page_size"].toString(),
+														);
+													} else if (
+														config.key === "gallery.lineage_max_depth"
+													) {
+														setLineageMaxDepthInput(
+															localSettings[
+																"gallery.lineage_max_depth"
+															].toString(),
 														);
 													} else if (
 														config.key === "viewer.thumbnail_window_size"

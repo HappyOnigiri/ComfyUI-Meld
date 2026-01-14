@@ -85,6 +85,7 @@ export interface Settings {
 		| "filename_phash"
 		| "phash_created"
 		| "phash_only";
+	"gallery.lineage_max_depth": number;
 }
 
 export type ScanStatus = {

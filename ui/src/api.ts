@@ -109,6 +109,7 @@ export const fetchSettings = async (): Promise<Settings> => {
 			"viewer.show_thumbnails": true,
 			"viewer.show_icons": true,
 			"gallery.matching_strategy": "filename_phash",
+			"gallery.lineage_max_depth": 5,
 		};
 	}
 	return await res.json();

@@ -61,6 +61,7 @@ export const initialState: GalleryState = {
 		"viewer.show_thumbnails": true,
 		"viewer.show_icons": true,
 		"gallery.matching_strategy": "filename_phash",
+		"gallery.lineage_max_depth": 5,
 	},
 	pagination: {
 		total: 0,

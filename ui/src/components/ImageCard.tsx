@@ -106,7 +106,10 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 		if (parentInState) {
 			// If we found it in state, we can still try to recurse manually
 			const rest = getParentChain(parentInState);
-			return [currentParent, ...rest].slice(0, 5);
+			return [currentParent, ...rest].slice(
+				0,
+				state.settings["gallery.lineage_max_depth"] || 5,
+			);
 		}
 
 		return [currentParent];
