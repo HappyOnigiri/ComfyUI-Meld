@@ -20,10 +20,18 @@ Designed for stability, security, and zero-dependency hell.
 * **Privacy-Focused Metadata Handling**: Extracts only generation data, naturally ignoring private EXIF fields.
 * **Scoped File Loading**: Reads files exclusively from the specified directory and its subdirectories.
 * **Advanced Prompting**: A powerful engine that handles file-based wildcards, dynamic weights, and automatic negative prompt extraction.
+* **Meld Image Manager**: Integrated image management system with search, tagging, and lineage tracking.
 
 ---
 
-## Node Usage: Meld Prompt Constructor
+## Node Usage: Meld Save Image
+
+This node saves generated images to the output directory and automatically registers them in the **Meld Image Manager** database.
+
+* **Automatic Metadata Extraction**: Saves prompts, workflow, and model information.
+* **Lineage Tracking**: Automatically links child images to their parents based on metadata or pHash.
+* **Tagging**: Support for adding custom tags at generation time.
+
 
 This node is the heart of workflow organization. It allows for dynamic prompt generation with a sophisticated randomization engine.
 
