@@ -62,9 +62,15 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 
 	const getParentChain = (
 		img: MeldImage,
-		depth = 0,
 	): { id: number | null; imgSrc: string | null }[] => {
-		if (depth >= 5) return [];
+		if (img.ancestors && img.ancestors.length > 0) {
+			return img.ancestors.map((a) => ({
+				id: a.id,
+				imgSrc: `/api/view?filename=${encodeURIComponent(a.filename)}&type=${
+					a.type || "output"
+				}${a.subfolder ? `&subfolder=${encodeURIComponent(a.subfolder)}` : ""}`,
+			}));
+		}
 
 		const pId = img.parent_id;
 		if (!pId && !img.parent_filename) return [];
@@ -90,7 +96,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 			}`;
 		}
 
-		if (!imgSrc && !parentInState) return [];
+		if (!imgSrc) return [];
 
 		const currentParent = {
 			id: pId || null,
@@ -98,8 +104,11 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 		};
 
 		if (parentInState) {
-			return [currentParent, ...getParentChain(parentInState, depth + 1)];
+			// If we found it in state, we can still try to recurse manually
+			const rest = getParentChain(parentInState);
+			return [currentParent, ...rest].slice(0, 5);
 		}
+
 		return [currentParent];
 	};
 

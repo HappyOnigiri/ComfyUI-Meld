@@ -21,6 +21,12 @@ export interface MeldImage {
 	height?: number | null;
 	exists?: boolean;
 	has_children?: boolean;
+	ancestors?: {
+		id: number;
+		filename: string;
+		subfolder: string;
+		type: string;
+	}[];
 }
 
 export interface Favorite {

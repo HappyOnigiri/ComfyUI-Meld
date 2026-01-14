@@ -1086,6 +1086,34 @@ async def list_images(request: web.Request) -> web.Response:
         cursor.execute(fetch_sql, (*search_params, limit, offset))
         images = cursor.fetchall()
 
+        # Fetch ancestors in bulk (up to 5 levels)
+        image_ids = [img[0] for img in images]
+        ancestors_map: dict[int, list[dict[str, Any]]] = {}
+        if image_ids:
+            placeholders = ",".join(["?"] * len(image_ids))
+            ancestor_sql = f"""
+                WITH RECURSIVE lineage AS (
+                    SELECT i.id as start_id, i.parent_id, 1 as depth
+                    FROM images i
+                    WHERE i.id IN ({placeholders}) AND i.parent_id IS NOT NULL
+                    UNION ALL
+                    SELECT l.start_id, i.parent_id, l.depth + 1
+                    FROM images i
+                    JOIN lineage l ON i.id = l.parent_id
+                    WHERE i.parent_id IS NOT NULL AND l.depth < 5
+                )
+                SELECT l.start_id, i.id, i.filename, i.subfolder, i.type
+                FROM lineage l
+                JOIN images i ON l.parent_id = i.id
+                WHERE i.deleted_at IS NULL
+                ORDER BY l.start_id, l.depth
+            """
+            cursor.execute(ancestor_sql, image_ids)
+            for start_id, a_id, a_fname, a_subf, a_type in cursor.fetchall():
+                if start_id not in ancestors_map:
+                    ancestors_map[start_id] = []
+                ancestors_map[start_id].append({"id": a_id, "filename": a_fname, "subfolder": a_subf, "type": a_type})
+
         result_list = []
 
         for img in images:
@@ -1183,6 +1211,7 @@ async def list_images(request: web.Request) -> web.Response:
                     "height": height,
                     "tags": tags,
                     "exists": exists,
+                    "ancestors": ancestors_map.get(img_id, []),
                 }
             )
 
