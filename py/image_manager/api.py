@@ -33,7 +33,7 @@ from .database import (
 from .search_service import SearchService
 
 
-@server.PromptServer.instance.routes.post("/api/meld-nexus/image-tags")
+@server.PromptServer.instance.routes.post("/meld-nexus/image-tags")
 async def update_image_tags(request: web.Request) -> web.Response:
     try:
         data = await request.json()
@@ -78,7 +78,7 @@ async def update_image_tags(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.post("/api/meld-nexus/bulk-image-tags")
+@server.PromptServer.instance.routes.post("/meld-nexus/bulk-image-tags")
 async def bulk_update_image_tags(request: web.Request) -> web.Response:
     try:
         data = await request.json()
@@ -415,7 +415,7 @@ def _scan_thread(
                     conn.commit()
 
             except Exception as e:
-                logging.warning(f"[Meld-Flow] Failed to process {full_path}: {e}")
+                logging.warning(f"[Meld] Failed to process {full_path}: {e}")
                 processed += 1
 
         conn.commit()
@@ -453,7 +453,7 @@ def _scan_thread(
             conn.commit()
 
     except Exception as e:
-        logging.exception(f"[Meld-Flow] Scan thread failed: {e}")
+        logging.exception(f"[Meld] Scan thread failed: {e}")
     finally:
         if conn:
             conn.close()
@@ -464,7 +464,7 @@ def _scan_thread(
         )
 
 
-@server.PromptServer.instance.routes.post("/api/meld-nexus/cleanup")
+@server.PromptServer.instance.routes.post("/meld-nexus/cleanup")
 async def cleanup_endpoint(request: web.Request) -> web.Response:
     try:
         count = perform_cleanup()
@@ -473,7 +473,7 @@ async def cleanup_endpoint(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.get("/api/meld-nexus/folders")
+@server.PromptServer.instance.routes.get("/meld-nexus/folders")
 async def list_folders(request: web.Request) -> web.Response:
     try:
         path = request.query.get("path", "")
@@ -508,7 +508,7 @@ async def list_folders(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.post("/api/meld-nexus/scan")
+@server.PromptServer.instance.routes.post("/meld-nexus/scan")
 async def start_scan(request: web.Request) -> web.Response:
     global _scan_state
     if _scan_state["is_running"]:
@@ -558,14 +558,14 @@ async def start_scan(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.post("/api/meld-nexus/scan/cancel")
+@server.PromptServer.instance.routes.post("/meld-nexus/scan/cancel")
 async def cancel_scan(request: web.Request) -> web.Response:
     global _scan_state
     _scan_state["should_cancel"] = True
     return web.json_response({"status": "cancelling"})
 
 
-@server.PromptServer.instance.routes.get("/api/meld-nexus/scan/status")
+@server.PromptServer.instance.routes.get("/meld-nexus/scan/status")
 async def get_scan_status(request: web.Request) -> web.Response:
     return web.json_response(_scan_state)
 
@@ -613,7 +613,7 @@ def extract_source_filenames(workflow_json: str | dict | None, prompt_json: str 
     return list(filenames)
 
 
-@server.PromptServer.instance.routes.get("/api/meld-nexus/image/{image_id}/workflow")
+@server.PromptServer.instance.routes.get("/meld-nexus/image/{image_id}/workflow")
 async def get_image_workflow(request: web.Request) -> web.Response:
     try:
         image_id = request.match_info["image_id"]
@@ -637,7 +637,7 @@ async def get_image_workflow(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.get("/api/meld-nexus/image/{image_id}/snapshot_data")
+@server.PromptServer.instance.routes.get("/meld-nexus/image/{image_id}/snapshot_data")
 async def get_image_snapshot_data(request: web.Request) -> web.Response:
     try:
         image_id = request.match_info["image_id"]
@@ -731,11 +731,11 @@ async def get_image_snapshot_data(request: web.Request) -> web.Response:
 
         return web.json_response(data)
     except Exception as e:
-        logging.exception(f"[Meld-Flow] Failed to get snapshot data: {e}")
+        logging.exception(f"[Meld] Failed to get snapshot data: {e}")
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.get("/api/meld-nexus/tags")
+@server.PromptServer.instance.routes.get("/meld-nexus/tags")
 async def list_tags(request: web.Request) -> web.Response:
     try:
         conn = get_db_connection()
@@ -747,7 +747,7 @@ async def list_tags(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.post("/api/meld-nexus/tags")
+@server.PromptServer.instance.routes.post("/meld-nexus/tags")
 async def create_tag(request: web.Request) -> web.Response:
     try:
         data = await request.json()
@@ -770,7 +770,7 @@ async def create_tag(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.delete("/api/meld-nexus/tags")
+@server.PromptServer.instance.routes.delete("/meld-nexus/tags")
 async def remove_tag(request: web.Request) -> web.Response:
     try:
         tag_id = request.query.get("id")
@@ -788,7 +788,7 @@ async def remove_tag(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.post("/api/meld-nexus/tags/rename")
+@server.PromptServer.instance.routes.post("/meld-nexus/tags/rename")
 async def tag_rename_endpoint(request: web.Request) -> web.Response:
     try:
         data = await request.json()
@@ -810,12 +810,12 @@ async def tag_rename_endpoint(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.get("/api/meld-nexus/test")
+@server.PromptServer.instance.routes.get("/meld-nexus/test")
 async def test_endpoint(request: web.Request) -> web.Response:
     return web.json_response({"status": "ok", "message": "Meld Nexus is running"})
 
 
-@server.PromptServer.instance.routes.get("/api/meld-nexus/settings")
+@server.PromptServer.instance.routes.get("/meld-nexus/settings")
 async def get_settings(request: web.Request) -> web.Response:
     try:
         conn = get_db_connection()
@@ -825,7 +825,7 @@ async def get_settings(request: web.Request) -> web.Response:
 
         # Default settings
         settings = {
-            "dev_mode": os.environ.get("MELDFLOW_DEV") == "true",
+            "dev_mode": os.environ.get("MELD_DEV") == "true",
             "gallery.show_parent_image": True,
             "gallery.hide_parent_images": True,
             "sidebar.show_filename": True,
@@ -848,7 +848,7 @@ async def get_settings(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.post("/api/meld-nexus/settings")
+@server.PromptServer.instance.routes.post("/meld-nexus/settings")
 async def save_settings(request: web.Request) -> web.Response:
     try:
         data = await request.json()
@@ -869,7 +869,7 @@ async def save_settings(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.post("/api/meld-nexus/register")
+@server.PromptServer.instance.routes.post("/meld-nexus/register")
 async def register_image(request: web.Request) -> web.Response:
     try:
         if request.has_body and request.content_type == "application/json":
@@ -944,7 +944,7 @@ async def register_image(request: web.Request) -> web.Response:
                 with Image.open(full_path) as img:
                     phash = str(imagehash.phash(img))
             except Exception:
-                logging.warning(f"[Meld-Flow] Failed to calculate phash for {full_path}")
+                logging.warning(f"[Meld] Failed to calculate phash for {full_path}")
 
         # Infer parent_id
         parent_id = infer_parent_id(cursor, filename, subfolder, img_type, phash, timestamp, strategy=matching_strategy)
@@ -1021,11 +1021,11 @@ async def register_image(request: web.Request) -> web.Response:
 
         return web.json_response({"success": True, "id": image_id})
     except Exception:
-        logging.exception("[Meld-Flow] Failed to register image")
+        logging.exception("[Meld] Failed to register image")
         return web.json_response({"error": "internal error"}, status=500)
 
 
-@server.PromptServer.instance.routes.get("/api/meld-nexus/suggest")
+@server.PromptServer.instance.routes.get("/meld-nexus/suggest")
 async def suggest_endpoint(request: web.Request) -> web.Response:
     try:
         query = request.query.get("query", "")
@@ -1041,7 +1041,7 @@ async def suggest_endpoint(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.get("/api/meld-nexus/search-suggestions")
+@server.PromptServer.instance.routes.get("/meld-nexus/search-suggestions")
 async def search_suggestions_endpoint(request: web.Request) -> web.Response:
     try:
         conn = get_db_connection()
@@ -1054,7 +1054,7 @@ async def search_suggestions_endpoint(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.get("/api/meld-nexus/list")
+@server.PromptServer.instance.routes.get("/meld-nexus/list")
 async def list_images(request: web.Request) -> web.Response:
     try:
         offset = int(request.query.get("offset", 0))
@@ -1236,11 +1236,11 @@ async def list_images(request: web.Request) -> web.Response:
         conn.close()
         return web.json_response({"images": result_list, "total": total_count, "offset": offset, "limit": limit})
     except Exception as e:
-        logging.exception("[Meld-Flow] Failed to list images")
+        logging.exception("[Meld] Failed to list images")
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.get("/api/meld-nexus/related")
+@server.PromptServer.instance.routes.get("/meld-nexus/related")
 async def get_related_images(request: web.Request) -> web.Response:
     try:
         image_id = request.query.get("id")
@@ -1288,11 +1288,11 @@ async def get_related_images(request: web.Request) -> web.Response:
         conn.close()
         return web.json_response(related[:20])  # Limit to top 20
     except Exception:
-        logging.exception("[Meld-Flow] Failed to get related images")
+        logging.exception("[Meld] Failed to get related images")
         return web.json_response({"error": "internal error"}, status=500)
 
 
-@server.PromptServer.instance.routes.post("/api/meld-nexus/bulk-delete")
+@server.PromptServer.instance.routes.post("/meld-nexus/bulk-delete")
 async def bulk_delete_images(request: web.Request) -> web.Response:
     try:
         data = await request.json()
@@ -1329,7 +1329,7 @@ async def bulk_delete_images(request: web.Request) -> web.Response:
                     try:
                         os.remove(full_path)
                     except Exception as e:
-                        logging.warning(f"[Meld-Flow] Failed to delete file {full_path}: {e}")
+                        logging.warning(f"[Meld] Failed to delete file {full_path}: {e}")
 
             cursor.execute("UPDATE images SET deleted_at = ? WHERE id = ?", (time.time(), img_id))
             # Update children to set parent_id to NULL when parent is deleted
@@ -1340,11 +1340,11 @@ async def bulk_delete_images(request: web.Request) -> web.Response:
         conn.close()
         return web.json_response({"success": True, "count": deleted_count})
     except Exception as e:
-        logging.exception("[Meld-Flow] Bulk delete failed")
+        logging.exception("[Meld] Bulk delete failed")
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.post("/api/meld-nexus/delete")
+@server.PromptServer.instance.routes.post("/meld-nexus/delete")
 async def delete_image(request: web.Request) -> web.Response:
     try:
         data = await request.json()
@@ -1380,7 +1380,7 @@ async def delete_image(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.post("/api/meld-nexus/link-parent")
+@server.PromptServer.instance.routes.post("/meld-nexus/link-parent")
 async def link_parent(request: web.Request) -> web.Response:
     try:
         data = await request.json()
@@ -1512,7 +1512,7 @@ def get_parent_suggestions(
     return source_matches + phash_matches
 
 
-@server.PromptServer.instance.routes.get("/api/meld-nexus/suggest-parents")
+@server.PromptServer.instance.routes.get("/meld-nexus/suggest-parents")
 async def suggest_parents(request: web.Request) -> web.Response:
     try:
         image_id = request.query.get("id")
@@ -1556,11 +1556,11 @@ async def suggest_parents(request: web.Request) -> web.Response:
         # Return top matches
         return web.json_response(suggestions[:20])
     except Exception as e:
-        logging.exception("[Meld-Flow] Failed to suggest parents")
+        logging.exception("[Meld] Failed to suggest parents")
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.get("/api/meld-nexus/lineage")
+@server.PromptServer.instance.routes.get("/meld-nexus/lineage")
 async def get_lineage(request: web.Request) -> web.Response:
     try:
         image_id = request.query.get("id")
@@ -1626,11 +1626,11 @@ async def get_lineage(request: web.Request) -> web.Response:
         conn.close()
         return web.json_response(result)
     except Exception as e:
-        logging.exception("[Meld-Flow] Failed to get lineage")
+        logging.exception("[Meld] Failed to get lineage")
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.get("/api/meld-nexus/favorites")
+@server.PromptServer.instance.routes.get("/meld-nexus/favorites")
 async def list_favorites(request: web.Request) -> web.Response:
     try:
         conn = get_db_connection()
@@ -1648,7 +1648,7 @@ async def list_favorites(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.post("/api/meld-nexus/favorites")
+@server.PromptServer.instance.routes.post("/meld-nexus/favorites")
 async def save_favorite(request: web.Request) -> web.Response:
     try:
         data = await request.json()
@@ -1669,7 +1669,7 @@ async def save_favorite(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.post("/api/meld-nexus/favorites/update")
+@server.PromptServer.instance.routes.post("/meld-nexus/favorites/update")
 async def update_favorite(request: web.Request) -> web.Response:
     try:
         data = await request.json()
@@ -1690,7 +1690,7 @@ async def update_favorite(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.post("/api/meld-nexus/favorites/delete")
+@server.PromptServer.instance.routes.post("/meld-nexus/favorites/delete")
 async def delete_favorite(request: web.Request) -> web.Response:
     try:
         data = await request.json()
@@ -1719,9 +1719,9 @@ def _run_auto_cleanup() -> None:
     try:
         count = perform_cleanup()
         if count > 0:
-            logging.info(f"[Meld-Flow] Extension load cleanup: Removed {count} missing images from database.")
+            logging.info(f"[Meld] Extension load cleanup: Removed {count} missing images from database.")
     except Exception as e:
-        logging.warning(f"[Meld-Flow] Extension load cleanup failed: {e}")
+        logging.warning(f"[Meld] Extension load cleanup failed: {e}")
 
 
 threading.Thread(target=_run_auto_cleanup, daemon=True).start()
