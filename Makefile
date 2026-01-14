@@ -52,7 +52,7 @@ check-ts-rules:
 
 check-only-ascii:
 	@echo "Checking for non-ASCII characters..."
-	@if git ls-files | grep -v "README_ja.md" | grep -v "Makefile" | grep -v "py/image_manager/" | xargs grep -nP "[^\x00-\x7f]"; then \
+	@if git ls-files | grep -vE "_ja\.md$$" | xargs grep -nP "[^\x00-\x7f]"; then \
 		echo "Error: Non-ASCII characters found!"; \
 		exit 1; \
 	else \
