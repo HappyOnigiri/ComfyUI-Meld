@@ -180,7 +180,7 @@ export type GalleryAction =
 export interface ComfyApp {
 	registerExtension(extension: ComfyExtension): void;
 	ui: {
-		meldNexus?: {
+		meld?: {
 			refresh: () => void;
 			isVisible: () => boolean | null;
 			toggle: () => void;

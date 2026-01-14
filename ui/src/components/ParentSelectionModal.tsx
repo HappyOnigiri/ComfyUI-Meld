@@ -60,7 +60,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 		try {
 			// 1. Upload file to ComfyUI
 			const uploaded = await api.uploadImage(file);
-			// 2. Register it in Meld Nexus
+			// 2. Register it in Meld
 			const { id } = await api.registerImage({
 				filename: uploaded.name,
 				subfolder: uploaded.subfolder || "",

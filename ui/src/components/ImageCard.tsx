@@ -173,7 +173,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 			await (window as unknown as { app: ComfyApp }).app.loadGraphData(
 				data.workflow,
 			);
-			console.log("Workflow restored successfully from Meld Nexus");
+			console.log("Workflow restored successfully from Meld");
 		} catch (error) {
 			console.error("Error restoring workflow:", error);
 			alert("Failed to restore workflow.");

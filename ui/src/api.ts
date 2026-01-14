@@ -16,7 +16,7 @@ export const fetchImages = async (
 	limit: number;
 }> => {
 	const res = await api.fetchApi(
-		`/meld-nexus/list?offset=${offset}&limit=${limit}&query=${encodeURIComponent(query)}`,
+		`/meld/list?offset=${offset}&limit=${limit}&query=${encodeURIComponent(query)}`,
 	);
 	if (!res.ok) {
 		throw new Error(`Failed to fetch images: ${res.statusText}`);
@@ -34,7 +34,7 @@ export const fetchSuggestions = async (
 		count: number;
 	}[]
 > => {
-	const url = `/meld-nexus/suggest?query=${encodeURIComponent(query)}${type ? `&type=${type}` : ""}`;
+	const url = `/meld/suggest?query=${encodeURIComponent(query)}${type ? `&type=${type}` : ""}`;
 	const res = await api.fetchApi(url);
 	if (!res.ok) {
 		return [];
@@ -48,7 +48,7 @@ export const fetchSearchSuggestions = async (): Promise<
 		value: string;
 	}[]
 > => {
-	const res = await api.fetchApi("/meld-nexus/search-suggestions");
+	const res = await api.fetchApi("/meld/search-suggestions");
 	if (!res.ok) {
 		return [];
 	}
@@ -56,7 +56,7 @@ export const fetchSearchSuggestions = async (): Promise<
 };
 
 export const cleanupDatabase = async (): Promise<{ count: number }> => {
-	const res = await api.fetchApi("/meld-nexus/cleanup", {
+	const res = await api.fetchApi("/meld/cleanup", {
 		method: "POST",
 	});
 	if (!res.ok) {
@@ -66,7 +66,7 @@ export const cleanupDatabase = async (): Promise<{ count: number }> => {
 };
 
 export const fetchSettings = async (): Promise<Settings> => {
-	const res = await api.fetchApi("/meld-nexus/settings");
+	const res = await api.fetchApi("/meld/settings");
 	if (!res.ok) {
 		return {
 			dev_mode: false,
@@ -119,7 +119,7 @@ export const saveSetting = async (
 	key: string,
 	value: string | number | boolean | null,
 ): Promise<void> => {
-	const res = await api.fetchApi("/meld-nexus/settings", {
+	const res = await api.fetchApi("/meld/settings", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ key, value }),
@@ -133,7 +133,7 @@ export const linkParent = async (
 	childId: number,
 	parentId: number | null,
 ): Promise<void> => {
-	const res = await api.fetchApi("/meld-nexus/link-parent", {
+	const res = await api.fetchApi("/meld/link-parent", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ childId, parentId }),
@@ -158,7 +158,7 @@ export const suggestParents = async (
 	}[]
 > => {
 	const res = await api.fetchApi(
-		`/meld-nexus/suggest-parents?id=${id}&threshold=${threshold}`,
+		`/meld/suggest-parents?id=${id}&threshold=${threshold}`,
 	);
 	if (!res.ok) {
 		return [];
@@ -167,7 +167,7 @@ export const suggestParents = async (
 };
 
 export const fetchLineage = async (id: number): Promise<MeldImage[]> => {
-	const res = await api.fetchApi(`/meld-nexus/lineage?id=${id}`);
+	const res = await api.fetchApi(`/meld/lineage?id=${id}`);
 	if (!res.ok) {
 		return [];
 	}
@@ -197,7 +197,7 @@ export const deleteImages = async (
 	ids: number[],
 	deleteFiles = true,
 ): Promise<void> => {
-	const res = await api.fetchApi("/meld-nexus/bulk-delete", {
+	const res = await api.fetchApi("/meld/bulk-delete", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({
@@ -216,7 +216,7 @@ export const registerImage = async (image: {
 	subfolder: string;
 	type: string;
 }): Promise<{ id: number }> => {
-	const res = await api.fetchApi("/meld-nexus/register", {
+	const res = await api.fetchApi("/meld/register", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify(image),
@@ -240,7 +240,7 @@ export const fetchRelatedImages = async (
 	}[]
 > => {
 	const res = await api.fetchApi(
-		`/meld-nexus/related?id=${id}&threshold=${threshold}`,
+		`/meld/related?id=${id}&threshold=${threshold}`,
 	);
 	if (!res.ok) {
 		return [];
@@ -253,7 +253,7 @@ export const fetchFolders = async (
 	path: string,
 ): Promise<string[]> => {
 	const res = await api.fetchApi(
-		`/meld-nexus/folders?type=${type}&path=${encodeURIComponent(path)}`,
+		`/meld/folders?type=${type}&path=${encodeURIComponent(path)}`,
 	);
 	if (!res.ok) {
 		return [];
@@ -269,7 +269,7 @@ export const startScan = async (params: {
 	auto_link_parent: boolean;
 	tags?: string[];
 }): Promise<void> => {
-	const res = await api.fetchApi("/meld-nexus/scan", {
+	const res = await api.fetchApi("/meld/scan", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify(params),
@@ -281,7 +281,7 @@ export const startScan = async (params: {
 };
 
 export const cancelScan = async (): Promise<void> => {
-	const res = await api.fetchApi("/meld-nexus/scan/cancel", {
+	const res = await api.fetchApi("/meld/scan/cancel", {
 		method: "POST",
 	});
 	if (!res.ok) {
@@ -293,7 +293,7 @@ export const fetchScanStatus = async (): Promise<{
 	is_running: boolean;
 	should_cancel: boolean;
 }> => {
-	const res = await api.fetchApi("/meld-nexus/scan/status");
+	const res = await api.fetchApi("/meld/scan/status");
 	if (!res.ok) {
 		return { is_running: false, should_cancel: false };
 	}
@@ -301,7 +301,7 @@ export const fetchScanStatus = async (): Promise<{
 };
 
 export const fetchFavorites = async (): Promise<Favorite[]> => {
-	const res = await api.fetchApi("/meld-nexus/favorites");
+	const res = await api.fetchApi("/meld/favorites");
 	if (!res.ok) {
 		return [];
 	}
@@ -312,7 +312,7 @@ export const saveFavorite = async (
 	name: string,
 	query: string,
 ): Promise<void> => {
-	const res = await api.fetchApi("/meld-nexus/favorites", {
+	const res = await api.fetchApi("/meld/favorites", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ name, query }),
@@ -323,7 +323,7 @@ export const saveFavorite = async (
 };
 
 export const deleteFavorite = async (id: number): Promise<void> => {
-	const res = await api.fetchApi("/meld-nexus/favorites/delete", {
+	const res = await api.fetchApi("/meld/favorites/delete", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ id }),
@@ -337,7 +337,7 @@ export const updateFavorite = async (
 	id: number,
 	name: string,
 ): Promise<void> => {
-	const res = await api.fetchApi("/meld-nexus/favorites/update", {
+	const res = await api.fetchApi("/meld/favorites/update", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ id, name }),
@@ -348,7 +348,7 @@ export const updateFavorite = async (
 };
 
 export const fetchTags = async (): Promise<Tag[]> => {
-	const res = await api.fetchApi("/meld-nexus/tags");
+	const res = await api.fetchApi("/meld/tags");
 	if (!res.ok) {
 		return [];
 	}
@@ -356,7 +356,7 @@ export const fetchTags = async (): Promise<Tag[]> => {
 };
 
 export const createTag = async (name: string): Promise<Tag> => {
-	const res = await api.fetchApi("/meld-nexus/tags", {
+	const res = await api.fetchApi("/meld/tags", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ name }),
@@ -368,7 +368,7 @@ export const createTag = async (name: string): Promise<Tag> => {
 };
 
 export const deleteTag = async (id: number): Promise<void> => {
-	const res = await api.fetchApi(`/meld-nexus/tags?id=${id}`, {
+	const res = await api.fetchApi(`/meld/tags?id=${id}`, {
 		method: "DELETE",
 	});
 	if (!res.ok) {
@@ -377,7 +377,7 @@ export const deleteTag = async (id: number): Promise<void> => {
 };
 
 export const renameTag = async (id: number, name: string): Promise<void> => {
-	const res = await api.fetchApi("/meld-nexus/tags/rename", {
+	const res = await api.fetchApi("/meld/tags/rename", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ id, name }),
@@ -392,7 +392,7 @@ export const updateImageTags = async (
 	imageId: number,
 	tags: string[],
 ): Promise<void> => {
-	const res = await api.fetchApi("/meld-nexus/image-tags", {
+	const res = await api.fetchApi("/meld/image-tags", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ imageId, tags }),
@@ -407,7 +407,7 @@ export const bulkUpdateImageTags = async (
 	addTags: string[],
 	removeTags: string[],
 ): Promise<void> => {
-	const res = await api.fetchApi("/meld-nexus/bulk-image-tags", {
+	const res = await api.fetchApi("/meld/bulk-image-tags", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ imageIds, addTags, removeTags }),
@@ -420,7 +420,7 @@ export const bulkUpdateImageTags = async (
 export const fetchImageWorkflow = async (
 	imageId: number,
 ): Promise<{ workflow: unknown }> => {
-	const res = await api.fetchApi(`/meld-nexus/image/${imageId}/workflow`);
+	const res = await api.fetchApi(`/meld/image/${imageId}/workflow`);
 	if (!res.ok) {
 		throw new Error("Failed to fetch workflow");
 	}
@@ -439,7 +439,7 @@ export const fetchSnapshotData = async (
 	sampler_name: string;
 	scheduler: string;
 }> => {
-	const res = await api.fetchApi(`/meld-nexus/image/${imageId}/snapshot_data`);
+	const res = await api.fetchApi(`/meld/image/${imageId}/snapshot_data`);
 	if (!res.ok) {
 		throw new Error("Failed to fetch snapshot data");
 	}

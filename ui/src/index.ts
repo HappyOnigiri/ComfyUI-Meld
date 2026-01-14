@@ -21,14 +21,14 @@ let galleryRoot: Root | null = null;
 let galleryContainer: HTMLDivElement | null = null;
 
 app.registerExtension({
-	name: "ComfyUI.MeldNexus",
+	name: "ComfyUI.Meld",
 
 	async beforeRegisterNodeDef(
 		nodeType: unknown,
 		nodeData: { name: string },
 		app: ComfyApp,
 	) {
-		if (nodeData.name === "MeldNexusSaveImage") {
+		if (nodeData.name === "MeldSaveImage") {
 			const onExecuted = (
 				nodeType as { prototype: { onExecuted: (...args: unknown[]) => void } }
 			).prototype.onExecuted;
@@ -38,9 +38,9 @@ app.registerExtension({
 				onExecuted?.apply(this, args);
 
 				// Refresh content if the gallery is visible
-				const meldNexus = app.ui.meldNexus;
-				if (meldNexus?.isVisible()) {
-					meldNexus.refresh();
+				const meld = app.ui.meld;
+				if (meld?.isVisible()) {
+					meld.refresh();
 				}
 			};
 		}
@@ -62,11 +62,11 @@ app.registerExtension({
 		}
 
 		// Expose to app.ui for external control
-		app.ui.meldNexus = {
+		app.ui.meld = {
 			refresh: () => {
 				// Mechanism needed to update via React Context
 				// Trigger custom event to be detected on the React side
-				window.dispatchEvent(new CustomEvent("meld-nexus-refresh"));
+				window.dispatchEvent(new CustomEvent("meld-refresh"));
 			},
 			isVisible: () => {
 				const el = document.getElementById("meld-gallery-container");
@@ -82,23 +82,23 @@ app.registerExtension({
 		};
 
 		// Real-time update notification from backend
-		api.addEventListener("meld-nexus-image-saved", () => {
-			app.ui.meldNexus?.refresh();
+		api.addEventListener("meld-image-saved", () => {
+			app.ui.meld?.refresh();
 		});
 
-		api.addEventListener("meld-nexus-scan-progress", (e: CustomEvent) => {
+		api.addEventListener("meld-scan-progress", (e: CustomEvent) => {
 			window.dispatchEvent(
-				new CustomEvent("meld-nexus-scan-progress", { detail: e.detail }),
+				new CustomEvent("meld-scan-progress", { detail: e.detail }),
 			);
 		});
 
-		api.addEventListener("meld-nexus-scan-finished", (e: CustomEvent) => {
+		api.addEventListener("meld-scan-finished", (e: CustomEvent) => {
 			window.dispatchEvent(
-				new CustomEvent("meld-nexus-scan-finished", { detail: e.detail }),
+				new CustomEvent("meld-scan-finished", { detail: e.detail }),
 			);
-			app.ui.meldNexus?.refresh();
+			app.ui.meld?.refresh();
 			// Show toast if available (ComfyUI doesn't have a standard toast API easily accessible, but we can alert or log)
-			console.log("Meld Nexus: Import completed.");
+			console.log("Meld: Import completed.");
 		});
 
 		// Auto-register when image generation is complete
@@ -132,21 +132,19 @@ app.registerExtension({
 		try {
 			app.extensionManager.registerSidebarTab({
 				id: "meld-gallery",
-				icon: "meld-nexus-icon",
-				title: "Nexus",
-				tooltip: "Meld: Nexus",
+				icon: "meld-icon",
+				title: "Meld",
+				tooltip: "Meld Image Manager",
 				type: "custom",
 				render: (el: HTMLElement) => {
-					logger.log("MeldNexus: render called", {
+					logger.log("Meld: render called", {
 						el,
 						galleryRoot,
 						galleryContainer,
 					});
 
 					if (!galleryContainer) {
-						logger.log(
-							"MeldNexus: galleryContainer not found, creating new one",
-						);
+						logger.log("Meld: galleryContainer not found, creating new one");
 						galleryContainer = document.createElement("div");
 						galleryContainer.id = "meld-gallery-container";
 						galleryContainer.style.height = "100%";
@@ -156,12 +154,12 @@ app.registerExtension({
 					}
 
 					if (!el.contains(galleryContainer)) {
-						logger.log("MeldNexus: Appending galleryContainer to el");
+						logger.log("Meld: Appending galleryContainer to el");
 						el.appendChild(galleryContainer);
 					}
 
 					if (!galleryRoot) {
-						logger.log("MeldNexus: Creating new gallery root");
+						logger.log("Meld: Creating new gallery root");
 						galleryRoot = createRoot(galleryContainer);
 						galleryRoot.render(
 							React.createElement(
@@ -172,7 +170,7 @@ app.registerExtension({
 						);
 					} else {
 						logger.log(
-							"MeldNexus: Gallery root already exists, React should handle re-render if needed",
+							"Meld: Gallery root already exists, React should handle re-render if needed",
 						);
 					}
 				},

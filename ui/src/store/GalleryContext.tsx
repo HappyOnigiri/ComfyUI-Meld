@@ -164,20 +164,14 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 			refreshImages();
 		};
 
-		window.addEventListener("meld-nexus-refresh", handleRefresh);
-		window.addEventListener("meld-nexus-scan-progress", handleScanProgress);
-		window.addEventListener("meld-nexus-scan-finished", handleScanFinished);
+		window.addEventListener("meld-refresh", handleRefresh);
+		window.addEventListener("meld-scan-progress", handleScanProgress);
+		window.addEventListener("meld-scan-finished", handleScanFinished);
 
 		return () => {
-			window.removeEventListener("meld-nexus-refresh", handleRefresh);
-			window.removeEventListener(
-				"meld-nexus-scan-progress",
-				handleScanProgress,
-			);
-			window.removeEventListener(
-				"meld-nexus-scan-finished",
-				handleScanFinished,
-			);
+			window.removeEventListener("meld-refresh", handleRefresh);
+			window.removeEventListener("meld-scan-progress", handleScanProgress);
+			window.removeEventListener("meld-scan-finished", handleScanFinished);
 		};
 	}, [refreshImages, state.scanStatus.progress.total]);
 
