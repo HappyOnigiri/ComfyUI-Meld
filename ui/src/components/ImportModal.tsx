@@ -32,24 +32,35 @@ export const ImportModal: React.FC = () => {
 		tags: [],
 	});
 
-	const [folders, setFolders] = useState<string[]>([]);
+	const [folders, setFolders] = useState<{ name: string; count: number }[]>([]);
+	const [currentPathImageCount, setCurrentPathImageCount] = useState(0);
 	const [isLoadingFolders, setIsLoadingFolders] = useState(false);
 	const [allTags, setAllTags] = useState<TagType[]>([]);
 	const [tagSearchQuery, setTagSearchQuery] = useState("");
 	const [isLoadingTags, setIsLoadingTags] = useState(false);
 
 	const loadFolders = useCallback(async () => {
-		if (config.type === "custom") return;
+		const path =
+			config.type === "custom" ? config.custom_path : config.subfolder;
+		if (config.type === "custom" && !path) {
+			setFolders([]);
+			setCurrentPathImageCount(0);
+			return;
+		}
+
 		setIsLoadingFolders(true);
 		try {
-			const result = await api.fetchFolders(config.type, config.subfolder);
-			setFolders(result);
+			const result = await api.fetchFolders(config.type, path);
+			setFolders(result.folders);
+			setCurrentPathImageCount(result.image_count);
 		} catch (err) {
 			console.error("Failed to load folders:", err);
+			setFolders([]);
+			setCurrentPathImageCount(0);
 		} finally {
 			setIsLoadingFolders(false);
 		}
-	}, [config.type, config.subfolder]);
+	}, [config.type, config.subfolder, config.custom_path]);
 
 	useEffect(() => {
 		loadFolders();
@@ -183,13 +194,23 @@ export const ImportModal: React.FC = () => {
 											setConfig({ ...config, custom_path: e.target.value })
 										}
 									/>
+									{config.custom_path && (
+										<div className="meld-path-count">
+											{currentPathImageCount} total images found
+										</div>
+									)}
 								</div>
 							) : (
 								<div className="meld-form-group">
 									<span className="meld-form-label">Current Path</span>
 									<div className="meld-path-display">
-										<span>{config.type}/</span>
-										{config.subfolder}
+										<div className="meld-path-text">
+											<span>{config.type}/</span>
+											{config.subfolder}
+										</div>
+										<div className="meld-path-count">
+											{currentPathImageCount} total images
+										</div>
 									</div>
 								</div>
 							)}
@@ -334,12 +355,15 @@ export const ImportModal: React.FC = () => {
 										) : (
 											folders.map((f) => (
 												<div
-													key={f}
+													key={f.name}
 													className="meld-folder-item"
-													onClick={() => enterFolder(f)}
+													onClick={() => enterFolder(f.name)}
 												>
 													<Folder size={16} />
-													<span>{f}</span>
+													<span className="meld-folder-name">{f.name}</span>
+													<span className="meld-folder-count">
+														{f.count} total
+													</span>
 													<ChevronRight size={14} />
 												</div>
 											))

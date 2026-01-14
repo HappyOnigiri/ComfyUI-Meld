@@ -1353,19 +1353,40 @@
 	color: var(--meld-accent-color);
 }
 
-.meld-folder-item span {
+.meld-folder-name {
 	flex: 1;
 	font-size: 13px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.meld-folder-count {
+	font-size: 11px;
+	color: var(--meld-text-secondary);
+	background: var(--comfy-input-bg);
+	padding: 2px 6px;
+	border-radius: 10px;
 }
 
 .meld-path-display {
 	background: var(--comfy-input-bg, #000);
-	padding: 6px 10px;
+	padding: 8px 10px;
 	border-radius: 4px;
 	font-family: monospace;
 	font-size: 11px;
-	word-break: break-all;
 	color: var(--meld-accent-color);
+}
+
+.meld-path-text {
+	word-break: break-all;
+	margin-bottom: 4px;
+}
+
+.meld-path-count {
+	font-size: 10px;
+	color: var(--meld-text-secondary);
+	font-family: var(--meld-font-sans, sans-serif);
 }
 
 .meld-browser-loading,

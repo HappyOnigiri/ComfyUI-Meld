@@ -149,13 +149,13 @@ def perform_cleanup() -> int:
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        # 削除されていない全画像を取得
+        # Get all images that have not been deleted
         cursor.execute("SELECT id, filename, subfolder, type FROM images WHERE deleted_at IS NULL")
         images = cursor.fetchall()
 
         missing_count = 0
         for img_id, filename, subfolder, img_type in images:
-            # パスの解決
+            # Resolve path
             if img_type == "output":
                 base_dir = folder_paths.get_output_directory()
             elif img_type == "input":
@@ -167,7 +167,7 @@ def perform_cleanup() -> int:
 
             full_path = os.path.join(base_dir, subfolder, filename)
 
-            # ファイルが存在しなければ削除日時を記録
+            # If file does not exist, record deletion timestamp
             if not os.path.exists(full_path):
                 cursor.execute("UPDATE images SET deleted_at = ? WHERE id = ?", (time.time(), img_id))
                 missing_count += 1
@@ -473,6 +473,19 @@ async def cleanup_endpoint(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
+def count_images_recursive(path: str) -> int:
+    """Helper to count images in a directory and all its subdirectories."""
+    count = 0
+    try:
+        for _, _, files in os.walk(path):
+            for f in files:
+                if f.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
+                    count += 1
+    except (PermissionError, OSError):
+        pass
+    return count
+
+
 @server.PromptServer.instance.routes.get("/meld/folders")
 async def list_folders(request: web.Request) -> web.Response:
     try:
@@ -489,21 +502,45 @@ async def list_folders(request: web.Request) -> web.Response:
         target_path = os.path.abspath(os.path.join(base_dir, path))
 
         if not os.path.exists(target_path):
-            return web.json_response([])
+            return web.json_response({"folders": [], "image_count": 0})
 
         if not os.path.isdir(target_path):
             return web.json_response({"error": "Not a directory"}, status=400)
 
         folders = []
+        image_count = 0
         try:
-            for item in os.listdir(target_path):
+            # Count images in the current directory (non-recursive for the 'image_count' field?)
+            # Count images in the current directory recursively including subdirectories.
+            # This applies to both the Current Path count and the subfolder list counts.
+
+            items = os.listdir(target_path)
+            for item in items:
                 full_item_path = os.path.join(target_path, item)
                 if os.path.isdir(full_item_path):
-                    folders.append(item)
+                    # Recursive count for subfolder
+                    sub_count = count_images_recursive(full_item_path)
+                    folders.append({"name": item, "count": sub_count})
+                elif item.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
+                    image_count += 1
+
+            # The top-level 'image_count' should also be recursive if it includes subdirectories.
+            # However, if 'image_count' is intended to show what's in 'Current Path' specifically,
+            # and the subfolders are listed separately, usually 'image_count' is for files in target_path.
+            # But "including subdirectories" suggests the total recursive count.
+            # Let's make the top-level 'image_count' the TOTAL recursive count for target_path.
+
+            total_recursive_count = count_images_recursive(target_path)
+
         except PermissionError:
             return web.json_response({"error": "Permission denied"}, status=403)
 
-        return web.json_response(sorted(folders))
+        return web.json_response(
+            {
+                "folders": sorted(folders, key=lambda x: x["name"]),
+                "image_count": total_recursive_count,
+            }
+        )
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 

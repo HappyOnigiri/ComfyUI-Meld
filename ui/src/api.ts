@@ -251,12 +251,15 @@ export const fetchRelatedImages = async (
 export const fetchFolders = async (
 	type: string,
 	path: string,
-): Promise<string[]> => {
+): Promise<{
+	folders: { name: string; count: number }[];
+	image_count: number;
+}> => {
 	const res = await api.fetchApi(
 		`/meld/folders?type=${type}&path=${encodeURIComponent(path)}`,
 	);
 	if (!res.ok) {
-		return [];
+		return { folders: [], image_count: 0 };
 	}
 	return await res.json();
 };
