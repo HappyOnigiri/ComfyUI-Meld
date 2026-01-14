@@ -24,7 +24,7 @@ class MeldPatternHeart:
 
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "fill_with_pattern"
-    CATEGORY = "MeldFlow/Image"
+    CATEGORY = "Meld/Image"
 
     def fill_with_pattern(
         self,

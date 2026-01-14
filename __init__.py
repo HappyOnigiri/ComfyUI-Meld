@@ -37,10 +37,10 @@ NODE_DISPLAY_NAME_MAPPINGS = {
 }
 
 # Conditional registration of Meld Nexus
-if os.environ.get("MELDFLOW_DEV") == "true":
+if os.environ.get("MELD_DEV") == "true":
     NODE_CLASS_MAPPINGS["MeldNexusSaveImage"] = MeldNexusSaveImage
     NODE_DISPLAY_NAME_MAPPINGS["MeldNexusSaveImage"] = "Meld Nexus Save Image"
-    print("\033[34m[Meld-Flow] Meld Nexus enabled (Dev Mode)\033[0m")
+    print("\033[34m[Meld] Meld Nexus enabled (Dev Mode)\033[0m")
 
 WEB_DIRECTORY = "web"
 

@@ -4,7 +4,7 @@ import { ComfyWidgets } from "../../../scripts/widgets.js";
 // --- Load Image Configs UI Display Extension ---
 
 app.registerExtension({
-    name: "MeldFlow.MeldImageLoader",
+    name: "Meld.MeldImageLoader",
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
         if (nodeData.name === "MeldImageLoader" || nodeData.name === "MeldImageLoaderBatch") {
 

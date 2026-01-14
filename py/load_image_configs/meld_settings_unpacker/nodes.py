@@ -6,7 +6,7 @@ class MeldSettingsUnpacker:
     RETURN_TYPES = ("INT", "INT", "FLOAT", "STRING", "STRING", "INT", "INT")
     RETURN_NAMES = ("seed", "steps", "cfg", "sampler_name", "scheduler", "width", "height")
     FUNCTION = "unpack"
-    CATEGORY = "MeldFlow/Utils"
+    CATEGORY = "Meld/Utils"
 
     def unpack(self, base_settings: dict) -> tuple[int, int, float, str, str, int, int]:
         if not isinstance(base_settings, dict):

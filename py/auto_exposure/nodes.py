@@ -23,7 +23,7 @@ class MeldAutoExposure:
     RETURN_TYPES = ("IMAGE", "FLOAT", "FLOAT")
     RETURN_NAMES = ("image", "calculated_gamma", "current_brightness")
     FUNCTION = "adjust_gamma"
-    CATEGORY = "MeldFlow/Image"
+    CATEGORY = "Meld/Image"
 
     def adjust_gamma(
         self,

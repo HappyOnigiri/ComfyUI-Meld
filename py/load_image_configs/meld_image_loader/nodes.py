@@ -17,7 +17,7 @@ class MeldImageLoader:
     RETURN_TYPES = ("IMAGE", "MODEL", "CLIP", "VAE", "STRING", "STRING", "STRING", "BASE_SETTINGS")
     RETURN_NAMES = ("IMAGE", "MODEL", "CLIP", "VAE", "positive", "negative", "summary", "base_settings")
     FUNCTION = "load"
-    CATEGORY = "MeldFlow/Image"
+    CATEGORY = "Meld/Image"
     OUTPUT_NODE = True
 
     def load(self, image: str) -> dict:

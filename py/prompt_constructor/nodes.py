@@ -23,7 +23,7 @@ class MeldPromptConstructor:
     RETURN_TYPES = ("STRING", "STRING")
     RETURN_NAMES = ("positive_prompt", "negative_prompt")
     FUNCTION = "process"
-    CATEGORY = "MeldFlow/Text"
+    CATEGORY = "Meld/Text"
 
     # --- Node Description ---
     DESCRIPTION = "Randomly or sequentially loads prompts from text files in a specified directory.\nFeatures:\n- Comment removal (//, #, /* */)\n- Dynamic syntax {A|B} and weighting {0.1::rare|common}\n- Tags starting with a hyphen (-) are automatically assigned to negative prompts\n- Recursive file search"

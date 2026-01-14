@@ -59,7 +59,7 @@ class TestImageManager(unittest.TestCase):
         """Verify that filename_prefix is correctly passed to get_save_image_path"""
         images = torch.zeros((1, 64, 64, 3))
         mock_get_save_path = meld_nexus_node.folder_paths.get_save_image_path
-        mock_get_save_path.return_value = (self.mock_output_dir, "MeldFlow", 1, "", "MeldFlow")
+        mock_get_save_path.return_value = (self.mock_output_dir, "Meld", 1, "", "Meld")
 
         self.node.save_images(images=images, filename_prefix="CustomPrefix")
 

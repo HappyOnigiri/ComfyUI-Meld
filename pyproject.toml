@@ -1,5 +1,5 @@
 [project]
-name = "comfyui-meld-flow"
+name = "comfyui-meld"
 description = "High-performance nodes for Prompt Construction, Metadata Extraction, and Workflow Consolidation."
 version = "0.1.0"
 license = { text = "Apache-2.0" }
@@ -26,12 +26,12 @@ dependencies = [
 ]
 
 [project.urls]
-Repository = "https://github.com/NodeMeld/ComfyUI-Meld-Flow"
-"Bug Tracker" = "https://github.com/NodeMeld/ComfyUI-Meld-Flow/issues"
+Repository = "https://github.com/NodeMeld/ComfyUI-Meld"
+"Bug Tracker" = "https://github.com/NodeMeld/ComfyUI-Meld/issues"
 
 [tool.comfy]
 PublisherId = "nodemeld"
-DisplayName = "Meld-Flow: Workflow Consolidator"
+DisplayName = "Meld: Workflow Consolidator"
 Icon = ""
 
 [tool.ruff]

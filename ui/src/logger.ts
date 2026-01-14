@@ -1,5 +1,5 @@
 /**
- * Meld-Flow dedicated logger.
+ * Meld dedicated logger.
  * Logs are only output when dev mode is enabled.
  */
 
@@ -11,7 +11,7 @@ let isDevMode = false;
 export const initLogger = (devMode: boolean) => {
 	isDevMode = devMode;
 	if (isDevMode) {
-		console.log("[Meld-Flow] Logger initialized in DEV mode.");
+		console.log("[Meld] Logger initialized in DEV mode.");
 	}
 };
 
@@ -20,10 +20,10 @@ export const initLogger = (devMode: boolean) => {
  */
 export const log = (...args: unknown[]) => {
 	if (isDevMode) {
-		console.log("[Meld-Flow]", ...args);
+		console.log("[Meld]", ...args);
 	} else {
 		// For debugging: verify that the log is being skipped
-		// console.debug("[Meld-Flow] Log skipped (devMode is false)");
+		// console.debug("[Meld] Log skipped (devMode is false)");
 	}
 };
 
@@ -32,17 +32,17 @@ export const log = (...args: unknown[]) => {
  */
 export const warn = (...args: unknown[]) => {
 	if (isDevMode) {
-		console.warn("[Meld-Flow]", ...args);
+		console.warn("[Meld]", ...args);
 	}
 };
 
 /**
  * Log error message.
  * Error logs are output regardless of dev mode for debugging critical issues,
- * but prefixed with [Meld-Flow].
+ * but prefixed with [Meld].
  */
 export const error = (...args: unknown[]) => {
-	console.error("[Meld-Flow]", ...args);
+	console.error("[Meld]", ...args);
 };
 
 export const logger = {

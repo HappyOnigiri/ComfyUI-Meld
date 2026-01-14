@@ -25,7 +25,7 @@ class MeldUnifiedLoader:
     RETURN_TYPES = ("MODEL", "CLIP", "VAE", "STRING", "STRING", "BASE_SETTINGS")
     RETURN_NAMES = ("MODEL", "CLIP", "VAE", "positive", "negative", "base_settings")
     FUNCTION = "load_and_process"
-    CATEGORY = "MeldFlow/Loaders"
+    CATEGORY = "Meld/Loaders"
 
     def load_and_process(
         self,

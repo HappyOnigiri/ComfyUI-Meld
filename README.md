@@ -1,4 +1,4 @@
-# ComfyUI-Meld-Flow
+# ComfyUI-Meld
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![ComfyUI](https://img.shields.io/badge/ComfyUI-Registry-green)](https://registry.comfy.org/)
@@ -7,7 +7,7 @@
 
 **Meld your workflow. Eliminate the spaghetti.**
 
-`ComfyUI-Meld-Flow` is a suite of high-performance infrastructure nodes designed to streamline complex ComfyUI workflows. It aggregates multi-step logic--such as advanced prompt construction, metadata extraction, and adaptive image processing--into single, atomic operations.
+`ComfyUI-Meld` is a suite of high-performance infrastructure nodes designed to streamline complex ComfyUI workflows. It aggregates multi-step logic--such as advanced prompt construction, metadata extraction, and adaptive image processing--into single, atomic operations.
 
 Designed for stability, security, and zero-dependency hell.
 
@@ -79,14 +79,14 @@ Provides professional-grade luminance correction to stabilize your generations.
 ### Option 1: Comfy Registry (Recommended)
 
 ```bash
-comfy node install nodemeld/comfyui-meld-flow
+comfy node install nodemeld/comfyui-meld
 ```
 
 ### Option 2: Manual Clone
 
 ```bash
 cd custom_nodes
-git clone https://github.com/NodeMeld/ComfyUI-Meld-Flow.git
+git clone https://github.com/NodeMeld/ComfyUI-Meld.git
 ```
 
 ---

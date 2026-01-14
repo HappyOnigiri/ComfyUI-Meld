@@ -46,7 +46,7 @@ class MeldNexusSaveImage:
                 "filename_prefix": (
                     "STRING",
                     {
-                        "default": "MeldFlow",
+                        "default": "Meld",
                         "tooltip": (
                             "The prefix for the file to save. This may include formatting "
                             "information such as %date:yyyy-MM-dd%, %date:yyyy_MM_dd_HHmmss%, "
@@ -69,12 +69,12 @@ class MeldNexusSaveImage:
     RETURN_NAMES = ("images",)
     FUNCTION = "save_images"
     OUTPUT_NODE = True
-    CATEGORY = "MeldFlow/Nexus"
+    CATEGORY = "Meld/Nexus"
 
     def save_images(
         self,
         images: torch.Tensor,
-        filename_prefix: str = "MeldFlow",
+        filename_prefix: str = "Meld",
         origin_image: torch.Tensor | None = None,
         positive: str | None = None,
         negative: str | None = None,
@@ -83,7 +83,7 @@ class MeldNexusSaveImage:
         extra_pnginfo: dict | None = None,
     ) -> dict:
         if filename_prefix is None:
-            filename_prefix = "MeldFlow"
+            filename_prefix = "Meld"
 
         filename_prefix += self.prefix_append
 

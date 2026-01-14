@@ -1,4 +1,4 @@
-# ComfyUI-Meld-Flow
+# ComfyUI-Meld
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![ComfyUI](https://img.shields.io/badge/ComfyUI-Registry-green)](https://registry.comfy.org/)
@@ -7,7 +7,7 @@
 
 **ワークフローを "融合（Meld）" し、制作プロセスを次世代の効率へ。**
 
-`ComfyUI-Meld-Flow` は、複雑化した ComfyUI のワークフローを統合・整理し、制作現場における「保守性の向上」と「ヒューマンエラーの削減」を実現するために設計された高品質ノードパックです。
+`ComfyUI-Meld` は、複雑化した ComfyUI のワークフローを統合・整理し、制作現場における「保守性の向上」と「ヒューマンエラーの削減」を実現するために設計された高品質ノードパックです。
 
 従来のワークフローで発生しがちだった、数十個のノードが複雑に絡み合う「スパゲッティ状態」を解消。複数の工程を単一の高性能ノードへと集約（Meld）することで、キャンバスの視認性を劇的に改善します。
 
@@ -89,11 +89,11 @@
 ## インストール方法
 
 ### 推奨：ComfyUI Manager または Registry
-ComfyUI Managerの検索画面から **「Meld Flow」** と入力し、インストールしてください。
+ComfyUI Managerの検索画面から **「Meld」** と入力し、インストールしてください。
 または、CLI（コマンドライン）より以下のコマンドを実行します。
 
 ```bash
-comfy node install NodeMeld/ComfyUI-Meld-Flow
+comfy node install NodeMeld/ComfyUI-Meld
 
 ```
 
@@ -102,7 +102,7 @@ comfy node install NodeMeld/ComfyUI-Meld-Flow
 `custom_nodes` ディレクトリで以下のコマンドを実行し、ComfyUIを再起動してください。
 
 ```bash
-git clone [https://github.com/NodeMeld/ComfyUI-Meld-Flow.git](https://github.com/NodeMeld/ComfyUI-Meld-Flow.git)
+git clone [https://github.com/NodeMeld/ComfyUI-Meld.git](https://github.com/NodeMeld/ComfyUI-Meld.git)
 
 ```
 
@@ -117,6 +117,12 @@ git clone [https://github.com/NodeMeld/ComfyUI-Meld-Flow.git](https://github.com
 
 ---
 
-**開発元**: [NodeMeld](https://www.google.com/search?q=https://github.com/NodeMeld)
+## お問い合わせ/Issue
 
-**お問い合わせ/Issue**: [GitHub Issues](https://www.google.com/search?q=https://github.com/NodeMeld/ComfyUI-Meld-Flow/issues)
+[GitHub Issues](https://github.com/NodeMeld/ComfyUI-Meld/issues)
+
+---
+
+**開発元**: [NodeMeld](https://github.com/NodeMeld)
+
+---

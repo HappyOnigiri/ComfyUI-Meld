@@ -22,7 +22,7 @@ class MeldImageLoaderBatch:
     RETURN_TYPES = ("IMAGE", "MODEL", "CLIP", "VAE", "STRING", "STRING", "STRING", "BASE_SETTINGS")
     RETURN_NAMES = ("IMAGE", "MODEL", "CLIP", "VAE", "positive", "negative", "summary", "base_settings")
     FUNCTION = "load_batch"
-    CATEGORY = "MeldFlow/Image"
+    CATEGORY = "Meld/Image"
     OUTPUT_NODE = True
 
     def load_batch(self, directory_path: str, index: int, stop_at_limit: bool) -> dict:

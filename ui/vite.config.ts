@@ -11,7 +11,7 @@ export default defineConfig({
     // Output JS file so ComfyUI can load it
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
-      name: 'MeldFlowGallery',
+      name: 'MeldGallery',
       formats: ['es'],
       fileName: 'gallery_extension'
     },

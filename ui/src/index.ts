@@ -14,7 +14,7 @@ import "./meld_unified_loader_ui";
 const style = document.createElement("link");
 style.rel = "stylesheet";
 style.type = "text/css";
-style.href = "/extensions/ComfyUI-Meld-Flow/js/style.css";
+style.href = "/extensions/ComfyUI-Meld/js/style.css";
 document.head.appendChild(style);
 
 let galleryRoot: Root | null = null;
@@ -53,7 +53,7 @@ app.registerExtension({
 			logger.init(settings.dev_mode);
 			logger.log("Settings received:", settings);
 		} catch (e) {
-			console.error("[Meld-Flow] Failed to fetch settings", e);
+			console.error("[Meld] Failed to fetch settings", e);
 			logger.init(false);
 		}
 
@@ -69,12 +69,12 @@ app.registerExtension({
 				window.dispatchEvent(new CustomEvent("meld-nexus-refresh"));
 			},
 			isVisible: () => {
-				const el = document.getElementById("meld-flow-gallery-container");
+				const el = document.getElementById("meld-gallery-container");
 				return el && el.offsetParent !== null;
 			},
 			toggle: () => {
 				try {
-					app.extensionManager?.setSidebarTabActive("meld-flow-gallery");
+					app.extensionManager?.setSidebarTabActive("meld-gallery");
 				} catch (e) {
 					console.error("Error toggling sidebar:", e);
 				}
@@ -131,10 +131,10 @@ app.registerExtension({
 
 		try {
 			app.extensionManager.registerSidebarTab({
-				id: "meld-flow-gallery",
+				id: "meld-gallery",
 				icon: "meld-nexus-icon",
 				title: "Nexus",
-				tooltip: "Meld Flow: Nexus",
+				tooltip: "Meld: Nexus",
 				type: "custom",
 				render: (el: HTMLElement) => {
 					logger.log("MeldNexus: render called", {
@@ -148,7 +148,7 @@ app.registerExtension({
 							"MeldNexus: galleryContainer not found, creating new one",
 						);
 						galleryContainer = document.createElement("div");
-						galleryContainer.id = "meld-flow-gallery-container";
+						galleryContainer.id = "meld-gallery-container";
 						galleryContainer.style.height = "100%";
 						galleryContainer.style.width = "100%";
 						galleryContainer.style.display = "flex";
