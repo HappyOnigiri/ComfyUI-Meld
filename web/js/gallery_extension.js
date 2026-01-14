@@ -6333,13 +6333,13 @@ const Ie = V("X", [
 ]);
 let hl = !1;
 const Kp = (e) => {
-  hl = e, hl && console.log("[Meld-Flow] Logger initialized in DEV mode.");
+  hl = e, hl && console.log("[Meld] Logger initialized in DEV mode.");
 }, Yp = (...e) => {
-  hl && console.log("[Meld-Flow]", ...e);
+  hl && console.log("[Meld]", ...e);
 }, Xp = (...e) => {
-  hl && console.warn("[Meld-Flow]", ...e);
+  hl && console.warn("[Meld]", ...e);
 }, Zp = (...e) => {
-  console.error("[Meld-Flow]", ...e);
+  console.error("[Meld]", ...e);
 }, ge = {
   log: Yp,
   warn: Xp,
@@ -9978,7 +9978,7 @@ fa.registerExtension({
 const zl = document.createElement("link");
 zl.rel = "stylesheet";
 zl.type = "text/css";
-zl.href = "/extensions/ComfyUI-Meld-Flow/js/style.css";
+zl.href = "/extensions/ComfyUI-Meld/js/style.css";
 document.head.appendChild(zl);
 let Pr = null, $e = null;
 fa.registerExtension({
@@ -9999,7 +9999,7 @@ fa.registerExtension({
       const n = await Ec();
       ge.init(n.dev_mode), ge.log("Settings received:", n);
     } catch (n) {
-      console.error("[Meld-Flow] Failed to fetch settings", n), ge.init(!1);
+      console.error("[Meld] Failed to fetch settings", n), ge.init(!1);
     }
     if ((t = e.extensionManager) != null && t.registerSidebarTab) {
       e.ui.meldNexus = {
@@ -10007,13 +10007,13 @@ fa.registerExtension({
           window.dispatchEvent(new CustomEvent("meld-nexus-refresh"));
         },
         isVisible: () => {
-          const n = document.getElementById("meld-flow-gallery-container");
+          const n = document.getElementById("meld-gallery-container");
           return n && n.offsetParent !== null;
         },
         toggle: () => {
           var n;
           try {
-            (n = e.extensionManager) == null || n.setSidebarTabActive("meld-flow-gallery");
+            (n = e.extensionManager) == null || n.setSidebarTabActive("meld-gallery");
           } catch (r) {
             console.error("Error toggling sidebar:", r);
           }
@@ -10053,10 +10053,10 @@ fa.registerExtension({
       );
       try {
         e.extensionManager.registerSidebarTab({
-          id: "meld-flow-gallery",
+          id: "meld-gallery",
           icon: "meld-nexus-icon",
           title: "Nexus",
-          tooltip: "Meld Flow: Nexus",
+          tooltip: "Meld: Nexus",
           type: "custom",
           render: (n) => {
             ge.log("MeldNexus: render called", {
@@ -10065,7 +10065,7 @@ fa.registerExtension({
               galleryContainer: $e
             }), $e || (ge.log(
               "MeldNexus: galleryContainer not found, creating new one"
-            ), $e = document.createElement("div"), $e.id = "meld-flow-gallery-container", $e.style.height = "100%", $e.style.width = "100%", $e.style.display = "flex", $e.style.flexDirection = "column"), n.contains($e) || (ge.log("MeldNexus: Appending galleryContainer to el"), n.appendChild($e)), Pr ? ge.log(
+            ), $e = document.createElement("div"), $e.id = "meld-gallery-container", $e.style.height = "100%", $e.style.width = "100%", $e.style.display = "flex", $e.style.flexDirection = "column"), n.contains($e) || (ge.log("MeldNexus: Appending galleryContainer to el"), n.appendChild($e)), Pr ? ge.log(
               "MeldNexus: Gallery root already exists, React should handle re-render if needed"
             ) : (ge.log("MeldNexus: Creating new gallery root"), Pr = kc($e), Pr.render(
               qs.createElement(
