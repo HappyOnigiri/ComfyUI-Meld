@@ -150,7 +150,7 @@ class MeldSaveImage:
 
         # Parent ID inference
         db_settings = get_all_settings(cursor)
-        matching_strategy = db_settings.get("gallery.matching_strategy", "filename_phash")
+        matching_strategy = db_settings.get("gallery.matching_strategy", "phash_created")
         parent_id = None
 
         if origin_image is not None and imagehash is not None:

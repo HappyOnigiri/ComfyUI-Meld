@@ -187,7 +187,7 @@ def infer_parent_id(
     img_type: str | None = None,
     phash: str | None = None,
     created_at: float | None = None,
-    strategy: str = "filename_phash",
+    strategy: str = "phash_created",
     workflow_json: str | dict | None = None,
     prompt_json: str | dict | None = None,
 ) -> int | None:
@@ -252,7 +252,7 @@ def _scan_thread(
 
         # Get settings for matching strategy
         db_settings = get_all_settings(cursor)
-        matching_strategy = db_settings.get("gallery.matching_strategy", "filename_phash")
+        matching_strategy = db_settings.get("gallery.matching_strategy", "phash_created")
 
         def add_tags_to_image(img_id: int, tag_list: list[str] | None) -> None:
             if not tag_list:
@@ -1034,7 +1034,7 @@ async def get_settings(request: web.Request) -> web.Response:
             "viewer.details.max_positive_prompt_lines": 7,
             "viewer.details.max_negative_prompt_lines": 7,
             "viewer.show_icons": True,
-            "gallery.matching_strategy": "filename_phash",
+            "gallery.matching_strategy": "phash_created",
             "gallery.lineage_max_depth": 5,
         }
 
@@ -1110,7 +1110,7 @@ async def register_image(request: web.Request) -> web.Response:
 
         # Get matching strategy from settings
         db_settings = get_all_settings(cursor)
-        matching_strategy = db_settings.get("gallery.matching_strategy", "filename_phash")
+        matching_strategy = db_settings.get("gallery.matching_strategy", "phash_created")
 
         # Check if already registered
         cursor.execute(
@@ -1624,7 +1624,7 @@ def get_parent_suggestions(
     filename: str,
     subfolder: str,
     img_type: str,
-    strategy: str = "filename_phash",
+    strategy: str = "phash_created",
     threshold: int = 12,
 ) -> list[dict]:
     # 1. Find source filename matches (if strategy includes it)
@@ -1724,7 +1724,7 @@ async def suggest_parents(request: web.Request) -> web.Response:
 
         # Get settings
         db_settings = get_all_settings(cursor)
-        strategy = db_settings.get("gallery.matching_strategy", "filename_phash")
+        strategy = db_settings.get("gallery.matching_strategy", "phash_created")
 
         # Get target image info
         cursor.execute(

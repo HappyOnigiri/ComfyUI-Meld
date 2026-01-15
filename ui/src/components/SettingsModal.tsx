@@ -83,8 +83,8 @@ export const SettingsModal: React.FC = () => {
 			type: "select",
 			category: "General",
 			options: [
-				{ value: "filename_phash", label: "Filename -> pHash" },
 				{ value: "phash_created", label: "pHash & Created Time" },
+				{ value: "filename_phash", label: "Filename -> pHash" },
 				{ value: "phash_only", label: "pHash Only" },
 			],
 		},
