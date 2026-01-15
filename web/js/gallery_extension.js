@@ -5740,7 +5740,7 @@ const tp = async () => {
     "viewer.thumbnail_window_size": 15,
     "viewer.show_thumbnails": !0,
     "viewer.show_icons": !0,
-    "gallery.matching_strategy": "filename_phash",
+    "gallery.matching_strategy": "phash_created",
     "gallery.lineage_max_depth": 5
   };
 }, lp = async (e, t) => {
@@ -6424,7 +6424,7 @@ const Zp = (e) => {
     "viewer.thumbnail_window_size": 15,
     "viewer.show_thumbnails": !0,
     "viewer.show_icons": !0,
-    "gallery.matching_strategy": "filename_phash",
+    "gallery.matching_strategy": "phash_created",
     "gallery.lineage_max_depth": 5
   },
   pagination: {
@@ -9090,8 +9090,8 @@ You can select favorites when the search query is empty.`
       type: "select",
       category: "General",
       options: [
-        { value: "filename_phash", label: "Filename -> pHash" },
         { value: "phash_created", label: "pHash & Created Time" },
+        { value: "filename_phash", label: "Filename -> pHash" },
         { value: "phash_only", label: "pHash Only" }
       ]
     },
