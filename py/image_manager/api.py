@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import os
@@ -498,11 +499,34 @@ def get_first_image_recursive(path: str) -> str | None:
     return None
 
 
+@server.PromptServer.instance.routes.get("/meld/view-custom")
+async def view_custom(request: web.Request) -> web.StreamResponse:
+    try:
+        filename = request.query.get("filename", "")
+        subfolder = request.query.get("subfolder", "")
+
+        # Use subfolder as the base directory for custom paths
+        full_path = os.path.abspath(os.path.join(subfolder, filename))
+
+        if not os.path.exists(full_path):
+            return web.Response(status=404)
+
+        # Basic security check: ensure it's an image file
+        if not filename.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
+            return web.Response(status=403)
+
+        return web.FileResponse(full_path)
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
 @server.PromptServer.instance.routes.get("/meld/folders")
 async def list_folders(request: web.Request) -> web.Response:
     try:
         path = request.query.get("path", "")
         base_type = request.query.get("type", "output")
+        fast = request.query.get("fast", "false").lower() == "true"
+        logging.info(f"[Meld] GET /meld/folders type={base_type} path={path} fast={fast}")
 
         if base_type == "output":
             base_dir = folder_paths.get_output_directory()
@@ -514,39 +538,54 @@ async def list_folders(request: web.Request) -> web.Response:
         target_path = os.path.abspath(os.path.join(base_dir, path))
 
         if not os.path.exists(target_path):
-            return web.json_response({"folders": [], "image_count": 0})
+            return web.json_response({"folders": [], "images": [], "image_count": 0})
 
         if not os.path.isdir(target_path):
             return web.json_response({"error": "Not a directory"}, status=400)
 
-        folders = []
+        folders: list[dict[str, Any]] = []
         images = []
-        image_count = 0
+        total_recursive_count = 0
+
         try:
-            items = os.listdir(target_path)
+            # Run blocking IO in a separate thread to avoid blocking the event loop
+            loop = asyncio.get_event_loop()
+            items = await loop.run_in_executor(None, os.listdir, target_path)
+
             for item in items:
                 full_item_path = os.path.join(target_path, item)
-                if os.path.isdir(full_item_path):
-                    # Recursive count for subfolder
-                    sub_count = count_images_recursive(full_item_path)
+                # Check isdir in a thread if needed, but for simple listdir results it's usually fast enough.
+                # However, count_images_recursive and get_first_image_recursive MUST be in threads.
+                if await loop.run_in_executor(None, os.path.isdir, full_item_path):
+                    if fast:
+                        folders.append({"name": item, "count": None, "preview": None})
+                    else:
+                        # Recursive count for subfolder
+                        sub_count = await loop.run_in_executor(None, count_images_recursive, full_item_path)
 
-                    # Get sample image for preview
-                    preview = None
-                    if base_dir:
-                        sample_img_path = get_first_image_recursive(full_item_path)
+                        # Get sample image for preview
+                        preview = None
+                        sample_img_path = await loop.run_in_executor(None, get_first_image_recursive, full_item_path)
                         if sample_img_path:
-                            rel_path = os.path.relpath(sample_img_path, base_dir)
-                            filename = os.path.basename(rel_path)
-                            subfolder = os.path.dirname(rel_path).replace("\\", "/")
-                            preview = {
-                                "filename": filename,
-                                "subfolder": subfolder,
-                                "type": base_type,
-                            }
+                            if base_dir:
+                                rel_path = os.path.relpath(sample_img_path, base_dir)
+                                filename = os.path.basename(rel_path)
+                                subfolder = os.path.dirname(rel_path).replace("\\", "/")
+                                preview = {
+                                    "filename": filename,
+                                    "subfolder": subfolder,
+                                    "type": base_type,
+                                }
+                            else:
+                                # Custom path mode
+                                preview = {
+                                    "filename": os.path.basename(sample_img_path),
+                                    "subfolder": os.path.dirname(sample_img_path).replace("\\", "/"),
+                                    "type": base_type,
+                                }
 
-                    folders.append({"name": item, "count": sub_count, "preview": preview})
+                        folders.append({"name": item, "count": sub_count, "preview": preview})
                 elif item.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
-                    image_count += 1
                     if base_dir:
                         images.append(
                             {
@@ -555,9 +594,19 @@ async def list_folders(request: web.Request) -> web.Response:
                                 "type": base_type,
                             }
                         )
+                    else:
+                        # Custom path mode
+                        images.append(
+                            {
+                                "filename": item,
+                                "subfolder": target_path.replace("\\", "/"),
+                                "type": base_type,
+                            }
+                        )
 
             # The top-level 'image_count' should also be recursive if it includes subdirectories.
-            total_recursive_count = count_images_recursive(target_path)
+            if not fast:
+                total_recursive_count = await loop.run_in_executor(None, count_images_recursive, target_path)
 
         except PermissionError:
             return web.json_response({"error": "Permission denied"}, status=403)
@@ -569,6 +618,81 @@ async def list_folders(request: web.Request) -> web.Response:
                 "image_count": total_recursive_count,
             }
         )
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
+@server.PromptServer.instance.routes.get("/meld/folder-metadata")
+async def get_folder_metadata(request: web.Request) -> web.Response:
+    try:
+        path = request.query.get("path", "")
+        base_type = request.query.get("type", "output")
+        folder_names = request.query.get("folders", "").split(",")
+        logging.info(f"[Meld] GET /meld/folder-metadata type={base_type} path={path} folders={folder_names}")
+
+        if base_type == "output":
+            base_dir = folder_paths.get_output_directory()
+        elif base_type == "input":
+            base_dir = folder_paths.get_input_directory()
+        else:
+            base_dir = ""  # Absolute path mode
+
+        target_path = os.path.abspath(os.path.join(base_dir, path))
+
+        results = {}
+        loop = asyncio.get_event_loop()
+        for name in folder_names:
+            if not name:
+                continue
+            full_item_path = os.path.join(target_path, name)
+            if await loop.run_in_executor(None, os.path.isdir, full_item_path):
+                sub_count = await loop.run_in_executor(None, count_images_recursive, full_item_path)
+                preview = None
+                sample_img_path = await loop.run_in_executor(None, get_first_image_recursive, full_item_path)
+                if sample_img_path:
+                    if base_dir:
+                        rel_path = os.path.relpath(sample_img_path, base_dir)
+                        filename = os.path.basename(rel_path)
+                        subfolder = os.path.dirname(rel_path).replace("\\", "/")
+                        preview = {
+                            "filename": filename,
+                            "subfolder": subfolder,
+                            "type": base_type,
+                        }
+                    else:
+                        # Custom path mode
+                        preview = {
+                            "filename": os.path.basename(sample_img_path),
+                            "subfolder": os.path.dirname(sample_img_path).replace("\\", "/"),
+                            "type": base_type,
+                        }
+                results[name] = {"count": sub_count, "preview": preview}
+
+        return web.json_response(results)
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
+@server.PromptServer.instance.routes.get("/meld/path-image-count")
+async def get_path_image_count(request: web.Request) -> web.Response:
+    try:
+        path = request.query.get("path", "")
+        base_type = request.query.get("type", "output")
+        logging.info(f"[Meld] GET /meld/path-image-count type={base_type} path={path}")
+
+        if base_type == "output":
+            base_dir = folder_paths.get_output_directory()
+        elif base_type == "input":
+            base_dir = folder_paths.get_input_directory()
+        else:
+            base_dir = ""
+
+        target_path = os.path.abspath(os.path.join(base_dir, path))
+        loop = asyncio.get_event_loop()
+        if await loop.run_in_executor(None, os.path.isdir, target_path):
+            count = await loop.run_in_executor(None, count_images_recursive, target_path)
+            return web.json_response({"count": count})
+        return web.json_response({"count": 0})
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 
@@ -871,6 +995,15 @@ async def tag_rename_endpoint(request: web.Request) -> web.Response:
             return web.json_response({"error": "Failed to rename tag (maybe name already exists?)"}, status=400)
         finally:
             conn.close()
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
+@server.PromptServer.instance.routes.get("/meld/home-dir")
+async def get_home_dir(request: web.Request) -> web.Response:
+    try:
+        home_dir = os.path.expanduser("~")
+        return web.json_response({"home": home_dir})
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 

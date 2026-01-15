@@ -5,6 +5,15 @@ import { api } from "../../../scripts/api.js";
 
 import type { Favorite, MeldImage, Settings, Tag } from "./types";
 
+export const fetchHomeDir = async (): Promise<string> => {
+	const res = await api.fetchApi("/meld/home-dir");
+	if (!res.ok) {
+		throw new Error("Failed to fetch home directory");
+	}
+	const data = await res.json();
+	return data.home;
+};
+
 export const fetchImages = async (
 	offset = 0,
 	limit = 30,
@@ -251,22 +260,66 @@ export const fetchRelatedImages = async (
 export const fetchFolders = async (
 	type: string,
 	path: string,
+	fast = false,
+	signal?: AbortSignal,
 ): Promise<{
 	folders: {
 		name: string;
-		count: number;
+		count: number | null;
 		preview?: { filename: string; subfolder: string; type: string };
 	}[];
 	images: { filename: string; subfolder: string; type: string }[];
 	image_count: number;
 }> => {
 	const res = await api.fetchApi(
-		`/meld/folders?type=${type}&path=${encodeURIComponent(path)}`,
+		`/meld/folders?type=${type}&path=${encodeURIComponent(path)}&fast=${fast}`,
+		{ signal },
 	);
 	if (!res.ok) {
 		return { folders: [], images: [], image_count: 0 };
 	}
 	return await res.json();
+};
+
+export const fetchFolderMetadata = async (
+	type: string,
+	path: string,
+	folders: string[],
+	signal?: AbortSignal,
+): Promise<
+	Record<
+		string,
+		{
+			count: number;
+			preview?: { filename: string; subfolder: string; type: string };
+		}
+	>
+> => {
+	if (folders.length === 0) return {};
+	const res = await api.fetchApi(
+		`/meld/folder-metadata?type=${type}&path=${encodeURIComponent(path)}&folders=${encodeURIComponent(folders.join(","))}`,
+		{ signal },
+	);
+	if (!res.ok) {
+		return {};
+	}
+	return await res.json();
+};
+
+export const fetchPathImageCount = async (
+	type: string,
+	path: string,
+	signal?: AbortSignal,
+): Promise<number> => {
+	const res = await api.fetchApi(
+		`/meld/path-image-count?type=${type}&path=${encodeURIComponent(path)}`,
+		{ signal },
+	);
+	if (!res.ok) {
+		return 0;
+	}
+	const data = await res.json();
+	return data.count;
 };
 
 export const startScan = async (params: {
