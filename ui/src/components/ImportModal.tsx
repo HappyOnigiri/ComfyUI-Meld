@@ -35,14 +35,16 @@ export const ImportModal: React.FC = () => {
 	const [folders, setFolders] = useState<
 		{
 			name: string;
-			count: number;
+			count: number | null;
 			preview?: { filename: string; subfolder: string; type: string };
 		}[]
 	>([]);
 	const [images, setImages] = useState<
 		{ filename: string; subfolder: string; type: string }[]
 	>([]);
-	const [currentPathImageCount, setCurrentPathImageCount] = useState(0);
+	const [currentPathImageCount, setCurrentPathImageCount] = useState<
+		number | null
+	>(0);
 	const [isLoadingFolders, setIsLoadingFolders] = useState(false);
 	const [allTags, setAllTags] = useState<TagType[]>([]);
 	const [tagSearchQuery, setTagSearchQuery] = useState("");
@@ -53,35 +55,132 @@ export const ImportModal: React.FC = () => {
 		type: string;
 	} | null>(null);
 
-	const loadFolders = useCallback(async () => {
-		const path =
-			config.type === "custom" ? config.custom_path : config.subfolder;
-		if (config.type === "custom" && !path) {
-			setFolders([]);
-			setImages([]);
-			setCurrentPathImageCount(0);
-			return;
-		}
-
-		setIsLoadingFolders(true);
-		try {
-			const result = await api.fetchFolders(config.type, path);
-			setFolders(result.folders);
-			setImages(result.images);
-			setCurrentPathImageCount(result.image_count);
-		} catch (err) {
-			console.error("Failed to load folders:", err);
-			setFolders([]);
-			setImages([]);
-			setCurrentPathImageCount(0);
-		} finally {
-			setIsLoadingFolders(false);
-		}
-	}, [config.type, config.subfolder, config.custom_path]);
+	useEffect(() => {
+		const initHomeDir = async () => {
+			try {
+				const home = await api.fetchHomeDir();
+				setConfig((prev) => ({ ...prev, custom_path: home }));
+			} catch (err) {
+				console.error("Failed to fetch home directory:", err);
+			}
+		};
+		initHomeDir();
+	}, []);
 
 	useEffect(() => {
+		const controller = new AbortController();
+
+		const loadFolders = async () => {
+			const path =
+				config.type === "custom" ? config.custom_path : config.subfolder;
+			console.log(
+				`[Meld] loadFolders started. Path: "${path}", Type: "${config.type}"`,
+			);
+
+			if (config.type === "custom" && !path) {
+				console.log("[Meld] Custom path is empty, skipping load.");
+				setFolders([]);
+				setImages([]);
+				setCurrentPathImageCount(0);
+				return;
+			}
+
+			setIsLoadingFolders(true);
+			const currentPath = path;
+			const currentType = config.type;
+
+			try {
+				// Step 1: Fast load (Folders and Images in current dir)
+				console.log("[Meld] Step 1: Fast load starting...");
+				const result = await api.fetchFolders(
+					config.type,
+					path,
+					true,
+					controller.signal,
+				);
+				if (controller.signal.aborted) {
+					console.log("[Meld] Step 1: Aborted.");
+					return;
+				}
+				console.log(
+					`[Meld] Step 1 complete. Found ${result.folders.length} folders, ${result.images.length} images.`,
+				);
+				setFolders(result.folders);
+				setImages(result.images);
+				setCurrentPathImageCount(null);
+
+				// Step 2: Fetch folder metadata (counts and previews)
+				const folderNames = result.folders.map((f) => f.name);
+				if (folderNames.length > 0) {
+					console.log(
+						`[Meld] Step 2: Metadata fetch starting for ${folderNames.length} folders...`,
+					);
+					api
+						.fetchFolderMetadata(
+							currentType,
+							currentPath,
+							folderNames,
+							controller.signal,
+						)
+						.then((metadata) => {
+							if (controller.signal.aborted) {
+								console.log("[Meld] Step 2: Aborted.");
+								return;
+							}
+							console.log("[Meld] Step 2: Metadata fetch complete.");
+							setFolders((prev) =>
+								prev.map((f) => {
+									const m = metadata[f.name];
+									return m ? { ...f, count: m.count, preview: m.preview } : f;
+								}),
+							);
+						})
+						.catch((err) => {
+							if (err.name !== "AbortError") {
+								console.error("[Meld] Step 2: Metadata fetch failed:", err);
+							}
+						});
+				}
+
+				// Step 3: Fetch total recursive image count
+				console.log("[Meld] Step 3: Path image count starting...");
+				api
+					.fetchPathImageCount(currentType, currentPath, controller.signal)
+					.then((count) => {
+						if (controller.signal.aborted) {
+							console.log("[Meld] Step 3: Aborted.");
+							return;
+						}
+						console.log(`[Meld] Step 3: Path image count complete: ${count}`);
+						setCurrentPathImageCount(count);
+					})
+					.catch((err) => {
+						if (err.name !== "AbortError") {
+							console.error("[Meld] Step 3: Path image count failed:", err);
+						}
+					});
+			} catch (err: unknown) {
+				if ((err as Error).name === "AbortError") {
+					console.log("[Meld] Request aborted.");
+					return;
+				}
+				console.error("[Meld] Failed to load folders:", err);
+				setFolders([]);
+				setImages([]);
+				setCurrentPathImageCount(0);
+			} finally {
+				if (!controller.signal.aborted) {
+					setIsLoadingFolders(false);
+				}
+			}
+		};
+
 		loadFolders();
-	}, [loadFolders]);
+
+		return () => {
+			controller.abort();
+		};
+	}, [config.type, config.subfolder, config.custom_path]);
 
 	const loadTags = useCallback(async () => {
 		setIsLoadingTags(true);
@@ -156,15 +255,45 @@ export const ImportModal: React.FC = () => {
 		}
 	};
 
+	const getImageViewUrl = (img: {
+		filename: string;
+		subfolder: string;
+		type: string;
+	}) => {
+		if (img.type === "custom") {
+			return `/api/meld/view-custom?filename=${encodeURIComponent(img.filename)}&subfolder=${encodeURIComponent(img.subfolder)}`;
+		}
+		return `/api/view?filename=${encodeURIComponent(img.filename)}&type=${img.type}&subfolder=${encodeURIComponent(img.subfolder)}`;
+	};
+
 	const enterFolder = (name: string) => {
-		const newSub = config.subfolder ? `${config.subfolder}/${name}` : name;
-		setConfig({ ...config, subfolder: newSub });
+		if (config.type === "custom") {
+			const separator = config.custom_path.includes("\\") ? "\\" : "/";
+			const newPath = config.custom_path.endsWith(separator)
+				? `${config.custom_path}${name}`
+				: `${config.custom_path}${separator}${name}`;
+			setConfig({ ...config, custom_path: newPath });
+		} else {
+			const newSub = config.subfolder ? `${config.subfolder}/${name}` : name;
+			setConfig({ ...config, subfolder: newSub });
+		}
 	};
 
 	const goUp = () => {
-		const parts = config.subfolder.split("/");
-		parts.pop();
-		setConfig({ ...config, subfolder: parts.join("/") });
+		if (config.type === "custom") {
+			const separator = config.custom_path.includes("\\") ? "\\" : "/";
+			const parts = config.custom_path.split(separator);
+			if (parts.length > 1) {
+				parts.pop();
+				let newPath = parts.join(separator);
+				if (newPath === "" && separator === "/") newPath = "/"; // Root on Linux
+				setConfig({ ...config, custom_path: newPath });
+			}
+		} else {
+			const parts = config.subfolder.split("/");
+			parts.pop();
+			setConfig({ ...config, subfolder: parts.join("/") });
+		}
 	};
 
 	return createPortal(
@@ -209,38 +338,18 @@ export const ImportModal: React.FC = () => {
 								</select>
 							</div>
 
-							{config.type === "custom" ? (
-								<div className="meld-form-group">
-									<label htmlFor="custom-path">Absolute Path</label>
-									<input
-										id="custom-path"
-										type="text"
-										placeholder="C:\path\to\images or /path/to/images"
-										value={config.custom_path}
-										onChange={(e) =>
-											setConfig({ ...config, custom_path: e.target.value })
-										}
-									/>
-									{config.custom_path && (
-										<div className="meld-path-count">
-											{currentPathImageCount} total images found
-										</div>
+							<div className="meld-form-group">
+								<span className="meld-form-label">Images Found</span>
+								<div className="meld-path-count">
+									{currentPathImageCount === null ? (
+										<span className="meld-path-count--loading">
+											Scanning...
+										</span>
+									) : (
+										`${currentPathImageCount} images`
 									)}
 								</div>
-							) : (
-								<div className="meld-form-group">
-									<span className="meld-form-label">Current Path</span>
-									<div className="meld-path-display">
-										<div className="meld-path-text">
-											<span>{config.type}/</span>
-											{config.subfolder}
-										</div>
-										<div className="meld-path-count">
-											{currentPathImageCount} total images
-										</div>
-									</div>
-								</div>
-							)}
+							</div>
 
 							<div className="meld-form-group checkbox">
 								<label>
@@ -357,87 +466,100 @@ export const ImportModal: React.FC = () => {
 						</div>
 
 						<div className="meld-import-browser">
-							{config.type !== "custom" && (
-								<>
-									<div className="meld-browser-header">
-										<button
-											type="button"
-											className="meld-browser-back"
-											disabled={!config.subfolder}
-											onClick={goUp}
-										>
-											<ChevronLeft size={16} />
-											Back
-										</button>
-										<span className="meld-browser-title">Browse Folders</span>
-									</div>
+							<div className="meld-browser-header">
+								<button
+									type="button"
+									className="meld-browser-back"
+									disabled={
+										config.type === "custom"
+											? config.custom_path === "/" ||
+												(!config.custom_path.includes("/") &&
+													!config.custom_path.includes("\\"))
+											: !config.subfolder
+									}
+									onClick={goUp}
+								>
+									<ChevronLeft size={16} />
+									Back
+								</button>
+								<div className="meld-browser-path-container">
+									{config.type === "custom" ? (
+										<input
+											type="text"
+											className="meld-browser-path-input"
+											value={config.custom_path}
+											onChange={(e) =>
+												setConfig({ ...config, custom_path: e.target.value })
+											}
+											placeholder="Enter absolute path..."
+										/>
+									) : (
+										<div className="meld-browser-path-display">
+											<span className="meld-browser-path-type">
+												{config.type}/
+											</span>
+											{config.subfolder}
+										</div>
+									)}
+								</div>
+							</div>
 
-									<div className="meld-folder-list">
-										{isLoadingFolders ? (
-											<div className="meld-browser-loading">Loading...</div>
-										) : folders.length === 0 && images.length === 0 ? (
-											<div className="meld-browser-empty">No items found.</div>
-										) : (
-											<>
-												{folders.map((f) => (
+							<div className="meld-folder-list">
+								{isLoadingFolders ? (
+									<div className="meld-browser-loading">Loading...</div>
+								) : folders.length === 0 && images.length === 0 ? (
+									<div className="meld-browser-empty">No items found.</div>
+								) : (
+									<>
+										{folders.map((f) => (
+											<div
+												key={f.name}
+												className="meld-folder-item"
+												onClick={() => enterFolder(f.name)}
+											>
+												<div className="meld-folder-icon-wrapper">
+													{f.preview ? (
+														<img
+															className="meld-folder-preview"
+															src={getImageViewUrl(f.preview)}
+															alt=""
+														/>
+													) : (
+														<Folder size={16} />
+													)}
+												</div>
+												<span className="meld-folder-name">{f.name}</span>
+												<span
+													className={`meld-folder-count ${
+														f.count === null ? "meld-folder-count--loading" : ""
+													}`}
+												>
+													{f.count !== null ? `${f.count} total` : "..."}
+												</span>
+												<ChevronRight size={14} />
+											</div>
+										))}
+
+										{images.length > 0 && (
+											<div className="meld-browser-image-grid">
+												{images.map((img) => (
 													<div
-														key={f.name}
-														className="meld-folder-item"
-														onClick={() => enterFolder(f.name)}
+														key={img.filename}
+														className="meld-browser-image-item"
+														onClick={() => setPreviewImage(img)}
 													>
-														{f.preview ? (
-															<img
-																className="meld-folder-preview"
-																src={`/api/view?filename=${encodeURIComponent(f.preview.filename)}&type=${f.preview.type}&subfolder=${encodeURIComponent(f.preview.subfolder)}`}
-																alt=""
-															/>
-														) : (
-															<Folder size={16} />
-														)}
-														<span className="meld-folder-name">{f.name}</span>
-														<span className="meld-folder-count">
-															{f.count} total
-														</span>
-														<ChevronRight size={14} />
+														<img
+															src={getImageViewUrl(img)}
+															alt={img.filename}
+															title={img.filename}
+														/>
 													</div>
 												))}
-
-												{images.length > 0 && (
-													<div className="meld-browser-image-grid">
-														{images.map((img) => (
-															<div
-																key={img.filename}
-																className="meld-browser-image-item"
-																onClick={() => setPreviewImage(img)}
-															>
-																<img
-																	src={`/api/view?filename=${encodeURIComponent(img.filename)}&type=${img.type}&subfolder=${encodeURIComponent(img.subfolder)}`}
-																	alt={img.filename}
-																	title={img.filename}
-																/>
-															</div>
-														))}
-													</div>
-												)}
-											</>
+											</div>
 										)}
-									</div>
-								</>
-							)}
-							{config.type === "custom" && (
-								<div className="meld-browser-info">
-									<Folder size={48} />
-									<p>Please enter an absolute path in the sidebar.</p>
-									<span
-										style={{
-											fontSize: "11px",
-											color: "var(--meld-text-secondary)",
-										}}
-									>
-										Example: C:\Users\Me\Pictures or /home/me/images
-									</span>
-								</div>
-							)}
+									</>
+								)}
+							</div>
 						</div>
 					</div>
 				</div>
@@ -446,7 +568,10 @@ export const ImportModal: React.FC = () => {
 			{previewImage && (
 				<div
 					className="meld-import-preview-overlay"
-					onClick={() => setPreviewImage(null)}
+					onClick={(e) => {
+						e.stopPropagation();
+						setPreviewImage(null);
+					}}
 				>
 					<div
 						className="meld-import-preview-content"
@@ -461,7 +586,7 @@ export const ImportModal: React.FC = () => {
 								<X size={24} />
 							</button>
 							<img
-								src={`/api/view?filename=${encodeURIComponent(previewImage.filename)}&type=${previewImage.type}&subfolder=${encodeURIComponent(previewImage.subfolder)}`}
+								src={getImageViewUrl(previewImage)}
 								alt={previewImage.filename}
 							/>
 						</div>
