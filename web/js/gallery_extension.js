@@ -7194,7 +7194,7 @@ const zc = E.createContext(void 0), im = ({
       return [w, ..._].slice(0, D);
     }
     return [w];
-  }, j = N(e), R = e.subfolder ? `${e.subfolder}/${e.filename}` : e.filename, d = Re(e), f = (y) => {
+  }, j = N(e), R = e.filename, d = Re(e), f = (y) => {
     y.shiftKey ? (y.preventDefault(), y.stopPropagation(), n({ type: "SELECT_RANGE", payload: e.id })) : y.ctrlKey || y.metaKey || t.selectedIds.size > 0 ? (y.preventDefault(), y.stopPropagation(), n({ type: "TOGGLE_SELECT", payload: e.id })) : n({ type: "OPEN_VIEWER", payload: e.id });
   }, p = (y) => {
     y.shiftKey ? (y.preventDefault(), y.stopPropagation(), n({ type: "SELECT_RANGE", payload: e.id })) : n({ type: "TOGGLE_SELECT", payload: e.id });
