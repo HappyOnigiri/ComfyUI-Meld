@@ -163,6 +163,8 @@ def perform_cleanup() -> int:
                 base_dir = folder_paths.get_input_directory()
             elif img_type == "temp":
                 base_dir = folder_paths.get_temp_directory()
+            elif img_type == "custom":
+                base_dir = ""
             else:
                 continue
 
@@ -209,10 +211,12 @@ def infer_parent_id(
                     base_dir = folder_paths.get_input_directory()
                 elif img_type == "temp":
                     base_dir = folder_paths.get_temp_directory()
+                elif img_type == "custom":
+                    base_dir = ""
                 else:
                     base_dir = None
 
-                if base_dir:
+                if base_dir is not None:
                     full_path = os.path.join(base_dir, subfolder, filename)
                     if os.path.exists(full_path):
                         _, _, _, wf, pr, _, _ = MetadataHelper.extract_metadata(full_path)
@@ -239,7 +243,12 @@ def infer_parent_id(
 
 
 def _scan_thread(
-    base_dir: str, subfolder: str, recursive: bool, auto_link_parent: bool, tags: list[str] | None = None
+    base_dir: str,
+    subfolder: str,
+    img_type: str,
+    recursive: bool,
+    auto_link_parent: bool,
+    tags: list[str] | None = None,
 ) -> None:
     global _scan_state
     conn = None
@@ -298,6 +307,13 @@ def _scan_thread(
                 if rel_path == ".":
                     rel_path = ""
 
+                # If custom type, we want rel_path to include the base_dir if it's outside standard dirs?
+                # Actually, /meld/view-custom uses subfolder as base.
+                # If we store the absolute path in subfolder for custom types, it works.
+                actual_subfolder = rel_path
+                if img_type == "custom":
+                    actual_subfolder = os.path.abspath(os.path.dirname(full_path)).replace("\\", "/")
+
                 # Check if already registered (by filename and subfolder or by sha256)
                 sha256 = calculate_sha256(full_path)
                 cursor.execute("SELECT id FROM images WHERE sha256 = ? AND deleted_at IS NULL", (sha256,))
@@ -336,7 +352,6 @@ def _scan_thread(
                         pass
 
                 # Insert Image
-                img_type = "output" if "output" in base_dir else "input"  # Simple heuristic
                 sql = """
                     INSERT INTO images
                     (filename, subfolder, type, created_at, phash, sha256, width, height, deleted_at, positive_prompt, negative_prompt, workflow)
@@ -346,7 +361,7 @@ def _scan_thread(
                     sql,
                     (
                         filename,
-                        rel_path,
+                        actual_subfolder,
                         img_type,
                         timestamp,
                         phash,
@@ -738,7 +753,14 @@ async def start_scan(request: web.Request) -> web.Response:
 
         thread = threading.Thread(
             target=_scan_thread,
-            args=(calc_base, subfolder if img_type != "custom" else "", recursive, auto_link_parent, tags),
+            args=(
+                calc_base,
+                subfolder if img_type != "custom" else "",
+                img_type,
+                recursive,
+                auto_link_parent,
+                tags,
+            ),
         )
         thread.start()
 
@@ -1093,14 +1115,20 @@ async def register_image(request: web.Request) -> web.Response:
             base_dir = folder_paths.get_input_directory()
         elif img_type == "temp":
             base_dir = folder_paths.get_temp_directory()
+        elif img_type == "custom":
+            base_dir = ""  # Absolute path mode
         else:
             return web.json_response({"error": f"invalid type: {img_type}"}, status=400)
 
         # Resolve full path safely (prevent path traversal)
-        full_path = os.path.abspath(os.path.join(base_dir, subfolder, filename))
-        base_abs = os.path.abspath(base_dir)
-        if os.path.commonpath([base_abs, full_path]) != base_abs:
-            return web.json_response({"error": "invalid path"}, status=400)
+        if img_type == "custom":
+            # For custom type, subfolder is already an absolute path
+            full_path = os.path.abspath(os.path.join(subfolder, filename))
+        else:
+            full_path = os.path.abspath(os.path.join(base_dir, subfolder, filename))
+            base_abs = os.path.abspath(base_dir)
+            if os.path.commonpath([base_abs, full_path]) != base_abs:
+                return web.json_response({"error": "invalid path"}, status=400)
 
         if not os.path.exists(full_path):
             return web.json_response({"error": f"File not found: {full_path}"}, status=404)
@@ -1390,11 +1418,13 @@ async def list_images(request: web.Request) -> web.Response:
                 base_dir = folder_paths.get_input_directory()
             elif img_type == "temp":
                 base_dir = folder_paths.get_temp_directory()
+            elif img_type == "custom":
+                base_dir = ""  # subfolder is absolute path
             else:
                 base_dir = None
 
             exists = False
-            if base_dir:
+            if base_dir is not None:
                 full_path = os.path.join(base_dir, subfolder, filename)
                 exists = os.path.exists(full_path)
 
@@ -1518,6 +1548,8 @@ async def bulk_delete_images(request: web.Request) -> web.Response:
                     base_dir = folder_paths.get_input_directory()
                 elif img_type == "temp":
                     base_dir = folder_paths.get_temp_directory()
+                elif img_type == "custom":
+                    base_dir = ""
                 else:
                     continue
 

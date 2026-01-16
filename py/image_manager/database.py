@@ -117,6 +117,8 @@ def init_db() -> None:
                         base_dir = folder_paths.get_input_directory()
                     elif img_type == "temp":
                         base_dir = folder_paths.get_temp_directory()
+                    elif img_type == "custom":
+                        base_dir = ""  # subfolder is absolute
                     else:
                         continue
 
