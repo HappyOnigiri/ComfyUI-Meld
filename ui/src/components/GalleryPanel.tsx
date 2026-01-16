@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { logger } from "../logger";
 import { useGallery } from "../store/GalleryContext";
 import { LazyRender } from "../utils/LazyRender";
@@ -78,6 +79,20 @@ export const GalleryPanel: React.FC = () => {
 		isLoading: state.isLoading,
 		activeModal: state.activeModal.type,
 	});
+
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.key === "Escape") {
+				// Only close if a modal is active and no other element is handling it (like ImageViewer)
+				if (state.activeModal.type !== "none" && state.viewerImageId === null) {
+					dispatch({ type: "CLOSE_MODAL" });
+				}
+			}
+		};
+
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, [state.activeModal.type, state.viewerImageId, dispatch]);
 
 	useEffect(() => {
 		const observer = new IntersectionObserver(
@@ -331,28 +346,36 @@ export const GalleryPanel: React.FC = () => {
 
 			{state.viewerImageId !== null && <ImageViewer />}
 
-			{state.activeModal.type === "parent_selection" && (
-				<ParentSelectionModal imageId={state.activeModal.imageId} />
-			)}
+			{state.activeModal.type === "parent_selection" &&
+				createPortal(
+					<ParentSelectionModal imageId={state.activeModal.imageId} />,
+					document.body,
+				)}
 
-			{state.activeModal.type === "import" && <ImportModal />}
+			{state.activeModal.type === "import" &&
+				createPortal(<ImportModal />, document.body)}
 
-			{state.activeModal.type === "settings" && <SettingsModal />}
+			{state.activeModal.type === "settings" &&
+				createPortal(<SettingsModal />, document.body)}
 
-			{state.activeModal.type === "tag_edit" && (
-				<TagEditModal
-					imageIds={state.activeModal.imageIds}
-					initialTags={state.activeModal.tags}
-					onClose={() => dispatch({ type: "CLOSE_MODAL" })}
-				/>
-			)}
+			{state.activeModal.type === "tag_edit" &&
+				createPortal(
+					<TagEditModal
+						imageIds={state.activeModal.imageIds}
+						initialTags={state.activeModal.tags}
+						onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+					/>,
+					document.body,
+				)}
 
-			{state.activeModal.type === "delete_confirm" && (
-				<DeleteConfirmModal
-					imageIds={state.activeModal.imageIds}
-					hasLineage={state.activeModal.hasLineage}
-				/>
-			)}
+			{state.activeModal.type === "delete_confirm" &&
+				createPortal(
+					<DeleteConfirmModal
+						imageIds={state.activeModal.imageIds}
+						hasLineage={state.activeModal.hasLineage}
+					/>,
+					document.body,
+				)}
 		</div>
 	);
 };

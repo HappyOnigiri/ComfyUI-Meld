@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { fetchImageWorkflow, fetchSnapshotData } from "../api";
 import { useGallery } from "../store/GalleryContext";
 import type { ComfyApp, MeldImage } from "../types";
@@ -47,19 +48,31 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 	};
 
 	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.key === "Escape") {
+				if (popupContent) {
+					setPopupContent(null);
+				} else {
+					setIsMenuOpen(false);
+				}
+			}
+		};
+
 		const handleClickOutside = (event: MouseEvent) => {
 			if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
 				setIsMenuOpen(false);
 			}
 		};
 
+		window.addEventListener("keydown", handleKeyDown);
 		if (isMenuOpen) {
 			document.addEventListener("mousedown", handleClickOutside);
 		}
 		return () => {
+			window.removeEventListener("keydown", handleKeyDown);
 			document.removeEventListener("mousedown", handleClickOutside);
 		};
-	}, [isMenuOpen]);
+	}, [isMenuOpen, popupContent]);
 
 	const getParentChain = (
 		img: MeldImage,
@@ -540,46 +553,48 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 				)}
 			</div>
 
-			{popupContent && (
-				<div
-					className="meld-prompt-popup-overlay"
-					onClick={(e) => {
-						e.stopPropagation();
-						setPopupContent(null);
-					}}
-				>
+			{popupContent &&
+				createPortal(
 					<div
-						className="meld-prompt-popup-content"
-						onClick={(e) => e.stopPropagation()}
+						className="meld-prompt-popup-overlay"
+						onClick={(e) => {
+							e.stopPropagation();
+							setPopupContent(null);
+						}}
 					>
-						<div className="meld-prompt-popup-header">
-							<span>{popupContent.title}</span>
-							<div
-								style={{ display: "flex", alignItems: "center", gap: "10px" }}
-							>
-								{popupCopied ? (
-									<Check
+						<div
+							className="meld-prompt-popup-content"
+							onClick={(e) => e.stopPropagation()}
+						>
+							<div className="meld-prompt-popup-header">
+								<span>{popupContent.title}</span>
+								<div
+									style={{ display: "flex", alignItems: "center", gap: "10px" }}
+								>
+									{popupCopied ? (
+										<Check
+											size={18}
+											style={{ color: "var(--meld-success-color)" }}
+										/>
+									) : (
+										<Copy
+											className="meld-prompt-popup-copy"
+											size={18}
+											onClick={() => handleCopy(popupContent.text, "", true)}
+										/>
+									)}
+									<X
+										className="meld-prompt-popup-close"
 										size={18}
-										style={{ color: "var(--meld-success-color)" }}
+										onClick={() => setPopupContent(null)}
 									/>
-								) : (
-									<Copy
-										className="meld-prompt-popup-copy"
-										size={18}
-										onClick={() => handleCopy(popupContent.text, "", true)}
-									/>
-								)}
-								<X
-									className="meld-prompt-popup-close"
-									size={18}
-									onClick={() => setPopupContent(null)}
-								/>
+								</div>
 							</div>
+							<div className="meld-prompt-popup-text">{popupContent.text}</div>
 						</div>
-						<div className="meld-prompt-popup-text">{popupContent.text}</div>
-					</div>
-				</div>
-			)}
+					</div>,
+					document.body,
+				)}
 		</div>
 	);
 };
