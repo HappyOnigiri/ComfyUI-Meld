@@ -28,6 +28,8 @@ export const SettingsModal: React.FC = () => {
 	);
 	const [thumbnailWindowSizeInput, setThumbnailWindowSizeInput] =
 		useState<string>(state.settings["viewer.thumbnail_window_size"].toString());
+	const [trashRetentionDaysInput, setTrashRetentionDaysInput] =
+		useState<string>(state.settings["gallery.trash_retention_days"].toString());
 	const [maxPositivePromptLinesInput, setMaxPositivePromptLinesInput] =
 		useState<string>(
 			state.settings["viewer.details.max_positive_prompt_lines"].toString(),
@@ -97,6 +99,15 @@ export const SettingsModal: React.FC = () => {
 			category: "General",
 			min: 1,
 			max: 10,
+		},
+		{
+			key: "gallery.trash_retention_days",
+			label: "Trash Retention Period (Days)",
+			description: "How many days to keep deleted items in trash (0-365).",
+			type: "number",
+			category: "General",
+			min: 0,
+			max: 365,
 		},
 		{
 			key: "sidebar.show_filename",
@@ -407,6 +418,8 @@ export const SettingsModal: React.FC = () => {
 			setLineageMaxDepthInput(value);
 		} else if (key === "viewer.thumbnail_window_size") {
 			setThumbnailWindowSizeInput(value);
+		} else if (key === "gallery.trash_retention_days") {
+			setTrashRetentionDaysInput(value);
 		} else if (key === "viewer.details.max_positive_prompt_lines") {
 			setMaxPositivePromptLinesInput(value);
 		} else if (key === "viewer.details.max_negative_prompt_lines") {
@@ -556,9 +569,12 @@ export const SettingsModal: React.FC = () => {
 																			: config.key ===
 																					"fullscreen.details.max_negative_prompt_lines"
 																				? fullscreenMaxNegativePromptLinesInput
-																				: (localSettings[
-																						config.key
-																					] as unknown as number)
+																				: config.key ===
+																						"gallery.trash_retention_days"
+																					? trashRetentionDaysInput
+																					: (localSettings[
+																							config.key
+																						] as unknown as number)
 												}
 												min={config.min}
 												max={config.max}
@@ -589,6 +605,14 @@ export const SettingsModal: React.FC = () => {
 														setThumbnailWindowSizeInput(
 															localSettings[
 																"viewer.thumbnail_window_size"
+															].toString(),
+														);
+													} else if (
+														config.key === "gallery.trash_retention_days"
+													) {
+														setTrashRetentionDaysInput(
+															localSettings[
+																"gallery.trash_retention_days"
 															].toString(),
 														);
 													} else if (
@@ -654,6 +678,33 @@ export const SettingsModal: React.FC = () => {
 								</div>
 							))}
 						</div>
+
+						{activeTab === "General" && (
+							<div className="meld-settings-extra">
+								<div className="meld-settings-item">
+									<div className="meld-settings-item__info">
+										<div className="meld-settings-item__label">
+											Trash Management
+										</div>
+										<div className="meld-settings-item__description">
+											View and manage items currently in the trash bin.
+										</div>
+									</div>
+									<div className="meld-settings-item__control">
+										<button
+											type="button"
+											className="meld-button meld-button--secondary"
+											onClick={() => {
+												dispatch({ type: "SET_VIEW_SCOPE", payload: "trash" });
+												dispatch({ type: "CLOSE_MODAL" });
+											}}
+										>
+											View Trash Items
+										</button>
+									</div>
+								</div>
+							</div>
+						)}
 					</div>
 				</div>
 			</div>

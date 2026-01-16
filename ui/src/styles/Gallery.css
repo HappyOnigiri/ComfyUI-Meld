@@ -89,6 +89,62 @@
 	margin-top: 20px;
 }
 
+/* Trash Mode Styles */
+.meld-gallery--trash {
+	background: var(--meld-bg-color);
+}
+
+.meld-gallery__trash-indicator {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 6px 10px;
+	background: var(--comfy-input-bg);
+	border: 1px solid var(--meld-border-color);
+	color: var(--meld-text-color);
+	border-radius: 4px;
+	margin-bottom: 10px;
+}
+
+.meld-gallery__trash-label {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-weight: bold;
+	font-size: 13px;
+	color: var(
+		--meld-danger-color
+	); /* Keep warning color for icon and label only */
+}
+
+.meld-gallery__exit-trash {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	background: var(--comfy-input-bg-active);
+	border: 1px solid var(--meld-border-color);
+	color: var(--meld-text-color);
+	padding: 4px 10px;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 12px;
+	font-weight: bold;
+	transition: all 0.2s;
+}
+
+.meld-gallery__exit-trash:hover {
+	background: var(--secondary-background-hover);
+}
+
+.meld-bulk-bar--trash {
+	border-top: 2px solid var(--meld-danger-color);
+}
+
+.meld-bulk-bar__button--restore {
+	background: var(--meld-success-color);
+	color: white;
+}
+
 /* ImageCard Styles */
 .meld-image-card {
 	display: flex;

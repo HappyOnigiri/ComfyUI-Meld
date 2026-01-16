@@ -11,6 +11,10 @@ export const getImageViewUrl = (img: {
 		)}&subfolder=${encodeURIComponent(img.subfolder)}`;
 	}
 
+	if (img.type === "trash") {
+		return `/api/meld/view-trash?filename=${encodeURIComponent(img.filename)}`;
+	}
+
 	const type = img.type || "output";
 	return `/api/view?filename=${encodeURIComponent(
 		img.filename,

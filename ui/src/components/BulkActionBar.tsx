@@ -1,12 +1,14 @@
-import { Tag, Trash2, X } from "lucide-react";
+import { RefreshCw, Tag, Trash2, X } from "lucide-react";
 import type React from "react";
 import { useGallery } from "../store/GalleryContext";
 
 export const BulkActionBar: React.FC = () => {
-	const { state, dispatch, deleteSelected } = useGallery();
+	const { state, dispatch, deleteSelected, restoreSelected } = useGallery();
 	const count = state.selectedIds.size;
 
 	if (count === 0) return null;
+
+	const isTrashMode = state.viewScope === "trash";
 
 	const handleBulkTagEdit = () => {
 		const selectedImages = state.images.filter((img) =>
@@ -32,32 +34,63 @@ export const BulkActionBar: React.FC = () => {
 	};
 
 	return (
-		<div className="meld-bulk-bar">
+		<div
+			className={`meld-bulk-bar ${isTrashMode ? "meld-bulk-bar--trash" : ""}`}
+		>
 			<span className="meld-bulk-bar__info">{count} items selected</span>
 
-			<button
-				type="button"
-				className="meld-bulk-bar__button meld-bulk-bar__button--edit"
-				onClick={handleBulkTagEdit}
-			>
-				<Tag
-					size={16}
-					style={{ marginRight: "8px", verticalAlign: "middle" }}
-				/>
-				Edit Tags
-			</button>
+			{isTrashMode ? (
+				<>
+					<button
+						type="button"
+						className="meld-bulk-bar__button meld-bulk-bar__button--restore"
+						onClick={restoreSelected}
+					>
+						<RefreshCw
+							size={16}
+							style={{ marginRight: "8px", verticalAlign: "middle" }}
+						/>
+						Restore
+					</button>
+					<button
+						type="button"
+						className="meld-bulk-bar__button meld-bulk-bar__button--delete"
+						onClick={deleteSelected}
+					>
+						<Trash2
+							size={16}
+							style={{ marginRight: "8px", verticalAlign: "middle" }}
+						/>
+						Delete Permanently
+					</button>
+				</>
+			) : (
+				<>
+					<button
+						type="button"
+						className="meld-bulk-bar__button meld-bulk-bar__button--edit"
+						onClick={handleBulkTagEdit}
+					>
+						<Tag
+							size={16}
+							style={{ marginRight: "8px", verticalAlign: "middle" }}
+						/>
+						Edit Tags
+					</button>
 
-			<button
-				type="button"
-				className="meld-bulk-bar__button meld-bulk-bar__button--delete"
-				onClick={deleteSelected}
-			>
-				<Trash2
-					size={16}
-					style={{ marginRight: "8px", verticalAlign: "middle" }}
-				/>
-				Delete
-			</button>
+					<button
+						type="button"
+						className="meld-bulk-bar__button meld-bulk-bar__button--delete"
+						onClick={deleteSelected}
+					>
+						<Trash2
+							size={16}
+							style={{ marginRight: "8px", verticalAlign: "middle" }}
+						/>
+						Delete
+					</button>
+				</>
+			)}
 
 			<button
 				type="button"

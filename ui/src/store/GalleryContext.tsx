@@ -19,6 +19,7 @@ interface GalleryContextType {
 	loadMoreImages: () => Promise<void>;
 	refreshFavorites: () => Promise<void>;
 	deleteSelected: () => Promise<void>;
+	restoreSelected: () => Promise<void>;
 	updateSetting: (
 		key: string,
 		value: string | number | boolean | null,
@@ -39,6 +40,7 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 				0,
 				state.pagination.limit,
 				state.searchQuery,
+				state.viewScope,
 			);
 			dispatch({ type: "SET_IMAGES", payload: result });
 		} catch (err: unknown) {
@@ -47,7 +49,7 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 				payload: err instanceof Error ? err.message : String(err),
 			});
 		}
-	}, [state.pagination.limit, state.searchQuery]);
+	}, [state.pagination.limit, state.searchQuery, state.viewScope]);
 
 	const loadMoreImages = useCallback(async () => {
 		if (state.isLoading || !state.pagination.hasMore) return;
@@ -59,6 +61,7 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 				nextOffset,
 				state.pagination.limit,
 				state.searchQuery,
+				state.viewScope,
 			);
 			dispatch({ type: "APPEND_IMAGES", payload: result });
 		} catch (err: unknown) {
@@ -73,6 +76,7 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 		state.pagination.limit,
 		state.images.length,
 		state.searchQuery,
+		state.viewScope,
 	]);
 
 	const refreshFavorites = useCallback(async () => {
@@ -98,9 +102,30 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 
 		dispatch({
 			type: "OPEN_MODAL",
-			payload: { type: "delete_confirm", imageIds: ids, hasLineage },
+			payload: {
+				type: "delete_confirm",
+				imageIds: ids,
+				hasLineage,
+				isPermanent: state.viewScope === "trash",
+			},
 		});
-	}, [state.selectedIds, state.images]);
+	}, [state.selectedIds, state.images, state.viewScope]);
+
+	const restoreSelected = useCallback(async () => {
+		if (state.selectedIds.size === 0) return;
+		const ids = Array.from(state.selectedIds) as number[];
+		try {
+			dispatch({ type: "SET_LOADING", payload: true });
+			await api.restoreImages(ids);
+			dispatch({ type: "CLEAR_SELECTION" });
+			await refreshImages();
+		} catch (err: unknown) {
+			dispatch({
+				type: "SET_ERROR",
+				payload: err instanceof Error ? err.message : String(err),
+			});
+		}
+	}, [state.selectedIds, refreshImages]);
 
 	const updateSetting = useCallback(
 		async (key: string, value: string | number | boolean | null) => {
@@ -188,6 +213,7 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 				loadMoreImages,
 				refreshFavorites,
 				deleteSelected,
+				restoreSelected,
 				updateSetting,
 			}}
 		>

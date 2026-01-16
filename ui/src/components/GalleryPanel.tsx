@@ -1,4 +1,12 @@
-import { Download, RefreshCw, Search, Settings, Tag } from "lucide-react";
+import {
+	Download,
+	RefreshCw,
+	Search,
+	Settings,
+	Tag,
+	Trash2,
+	X,
+} from "lucide-react";
 import type React from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { logger } from "../logger";
@@ -31,9 +39,12 @@ export const GalleryPanel: React.FC = () => {
 			state.images.filter(
 				(img) =>
 					img.exists !== false &&
-					!(state.settings["gallery.hide_parent_images"] && img.has_children),
+					(state.viewScope === "trash" ||
+						!(
+							state.settings["gallery.hide_parent_images"] && img.has_children
+						)),
 			),
-		[state.images, state.settings],
+		[state.images, state.settings, state.viewScope],
 	);
 
 	// If there are no images to display but more exist, automatically load the next page
@@ -117,120 +128,142 @@ export const GalleryPanel: React.FC = () => {
 	}, [state.viewerImageId, displayedImages]);
 
 	return (
-		<div className="meld-gallery">
+		<div
+			className={`meld-gallery ${state.viewScope === "trash" ? "meld-gallery--trash" : ""}`}
+		>
 			<div className="meld-gallery__header">
-				<div className="meld-gallery__actions">
-					<button
-						type="button"
-						onClick={() => {
-							if (viewMode === "search") {
-								if (state.searchQuery) {
-									setLastSearchQuery(state.searchQuery);
-									dispatch({ type: "SET_SEARCH_QUERY", payload: "" });
-								}
-								setViewMode("gallery");
-							} else {
-								if (!state.searchQuery && lastSearchQuery) {
-									dispatch({
-										type: "SET_SEARCH_QUERY",
-										payload: lastSearchQuery,
-									});
-								}
-								setViewMode("search");
+				{state.viewScope === "trash" ? (
+					<div className="meld-gallery__trash-indicator">
+						<div className="meld-gallery__trash-label">
+							<Trash2 size={14} />
+							<span>Trash Bin</span>
+						</div>
+						<button
+							type="button"
+							className="meld-gallery__exit-trash"
+							onClick={() =>
+								dispatch({ type: "SET_VIEW_SCOPE", payload: "default" })
 							}
-						}}
-						style={{
-							background: "none",
-							border: "none",
-							color: isSearchActive
-								? "var(--meld-success-color)"
-								: viewMode === "search"
-									? "var(--meld-text-color)"
-									: "var(--meld-text-secondary)",
-							cursor: "pointer",
-							display: "flex",
-							alignItems: "center",
-							fontWeight: isSearchActive ? "bold" : "normal",
-						}}
-						title="Search"
-					>
-						<Search size={14} />
-					</button>
-					<button
-						type="button"
-						onClick={() =>
-							setViewMode(viewMode === "tags" ? "gallery" : "tags")
-						}
-						style={{
-							background: "none",
-							border: "none",
-							color:
-								viewMode === "tags"
-									? "var(--meld-accent-color)"
-									: "var(--meld-text-secondary)",
-							cursor: "pointer",
-							display: "flex",
-							alignItems: "center",
-							fontWeight: viewMode === "tags" ? "bold" : "normal",
-						}}
-						title="Tag Manager"
-					>
-						<Tag size={14} />
-					</button>
-					<button
-						type="button"
-						onClick={() =>
-							dispatch({ type: "OPEN_MODAL", payload: { type: "import" } })
-						}
-						style={{
-							background: "none",
-							border: "none",
-							color: "var(--meld-text-secondary)",
-							cursor: "pointer",
-							display: "flex",
-							alignItems: "center",
-						}}
-						title="Import"
-					>
-						<Download size={14} />
-					</button>
-					<button
-						type="button"
-						onClick={() => refreshImages()}
-						style={{
-							background: "none",
-							border: "none",
-							color: "var(--meld-text-secondary)",
-							cursor: "pointer",
-							display: "flex",
-							alignItems: "center",
-						}}
-						disabled={state.isLoading}
-						title="Refresh"
-					>
-						<RefreshCw
-							size={14}
-							className={state.isLoading ? "animate-spin" : ""}
-						/>
-					</button>
-					<button
-						type="button"
-						onClick={() =>
-							dispatch({ type: "OPEN_MODAL", payload: { type: "settings" } })
-						}
-						style={{
-							background: "none",
-							border: "none",
-							color: "var(--meld-text-secondary)",
-							cursor: "pointer",
-							display: "flex",
-							alignItems: "center",
-						}}
-						title="Settings"
-					>
-						<Settings size={14} />
-					</button>
-				</div>
+							title="Exit Trash View"
+						>
+							<X size={14} />
+							<span>Exit</span>
+						</button>
+					</div>
+				) : (
+					<div className="meld-gallery__actions">
+						<button
+							type="button"
+							onClick={() => {
+								if (viewMode === "search") {
+									if (state.searchQuery) {
+										setLastSearchQuery(state.searchQuery);
+										dispatch({ type: "SET_SEARCH_QUERY", payload: "" });
+									}
+									setViewMode("gallery");
+								} else {
+									if (!state.searchQuery && lastSearchQuery) {
+										dispatch({
+											type: "SET_SEARCH_QUERY",
+											payload: lastSearchQuery,
+										});
+									}
+									setViewMode("search");
+								}
+							}}
+							style={{
+								background: "none",
+								border: "none",
+								color: isSearchActive
+									? "var(--meld-success-color)"
+									: viewMode === "search"
+										? "var(--meld-text-color)"
+										: "var(--meld-text-secondary)",
+								cursor: "pointer",
+								display: "flex",
+								alignItems: "center",
+								fontWeight: isSearchActive ? "bold" : "normal",
+							}}
+							title="Search"
+						>
+							<Search size={14} />
+						</button>
+						<button
+							type="button"
+							onClick={() =>
+								setViewMode(viewMode === "tags" ? "gallery" : "tags")
+							}
+							style={{
+								background: "none",
+								border: "none",
+								color:
+									viewMode === "tags"
+										? "var(--meld-accent-color)"
+										: "var(--meld-text-secondary)",
+								cursor: "pointer",
+								display: "flex",
+								alignItems: "center",
+								fontWeight: viewMode === "tags" ? "bold" : "normal",
+							}}
+							title="Tag Manager"
+						>
+							<Tag size={14} />
+						</button>
+						<button
+							type="button"
+							onClick={() =>
+								dispatch({ type: "OPEN_MODAL", payload: { type: "import" } })
+							}
+							style={{
+								background: "none",
+								border: "none",
+								color: "var(--meld-text-secondary)",
+								cursor: "pointer",
+								display: "flex",
+								alignItems: "center",
+							}}
+							title="Import"
+						>
+							<Download size={14} />
+						</button>
+						<button
+							type="button"
+							onClick={() => refreshImages()}
+							style={{
+								background: "none",
+								border: "none",
+								color: "var(--meld-text-secondary)",
+								cursor: "pointer",
+								display: "flex",
+								alignItems: "center",
+							}}
+							disabled={state.isLoading}
+							title="Refresh"
+						>
+							<RefreshCw
+								size={14}
+								className={state.isLoading ? "animate-spin" : ""}
+							/>
+						</button>
+						<button
+							type="button"
+							onClick={() =>
+								dispatch({ type: "OPEN_MODAL", payload: { type: "settings" } })
+							}
+							style={{
+								background: "none",
+								border: "none",
+								color: "var(--meld-text-secondary)",
+								cursor: "pointer",
+								display: "flex",
+								alignItems: "center",
+							}}
+							title="Settings"
+						>
+							<Settings size={14} />
+						</button>
+					</div>
+				)}
 				{viewMode === "search" && (
 					<div className="meld-gallery__search-wrapper">
 						<SearchBar />

@@ -18,6 +18,7 @@ export const fetchImages = async (
 	offset = 0,
 	limit = 30,
 	query = "",
+	view = "default",
 ): Promise<{
 	images: MeldImage[];
 	total: number;
@@ -25,7 +26,7 @@ export const fetchImages = async (
 	limit: number;
 }> => {
 	const res = await api.fetchApi(
-		`/meld/list?offset=${offset}&limit=${limit}&query=${encodeURIComponent(query)}`,
+		`/meld/list?offset=${offset}&limit=${limit}&query=${encodeURIComponent(query)}&view=${view}`,
 	);
 	if (!res.ok) {
 		throw new Error(`Failed to fetch images: ${res.statusText}`);
@@ -119,6 +120,7 @@ export const fetchSettings = async (): Promise<Settings> => {
 			"viewer.show_icons": true,
 			"gallery.matching_strategy": "phash_created",
 			"gallery.lineage_max_depth": 5,
+			"gallery.trash_retention_days": 30,
 		};
 	}
 	return await res.json();
@@ -204,19 +206,31 @@ export const uploadImage = async (
 
 export const deleteImages = async (
 	ids: number[],
-	deleteFiles = true,
+	permanent = false,
 ): Promise<void> => {
 	const res = await api.fetchApi("/meld/bulk-delete", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({
 			ids,
-			delete_files: deleteFiles,
+			permanent,
 		}),
 	});
 	if (!res.ok) {
 		const errData = await res.json();
 		throw new Error(errData.error || "Failed to delete images");
+	}
+};
+
+export const restoreImages = async (ids: number[]): Promise<void> => {
+	const res = await api.fetchApi("/meld/restore", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ ids }),
+	});
+	if (!res.ok) {
+		const errData = await res.json();
+		throw new Error(errData.error || "Failed to restore images");
 	}
 };
 

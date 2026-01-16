@@ -7,6 +7,7 @@ export const initialState: GalleryState = {
 	error: null,
 	lastUpdated: Date.now(),
 	viewMode: "list",
+	viewScope: "default",
 	viewerImageId: null,
 	viewerMode: "gallery",
 	lineageImages: [],
@@ -62,6 +63,7 @@ export const initialState: GalleryState = {
 		"viewer.show_icons": true,
 		"gallery.matching_strategy": "phash_created",
 		"gallery.lineage_max_depth": 5,
+		"gallery.trash_retention_days": 30,
 	},
 	pagination: {
 		total: 0,
@@ -218,6 +220,20 @@ export function galleryReducer(
 			return {
 				...state,
 				viewMode: action.payload,
+			};
+		case "SET_VIEW_SCOPE":
+			return {
+				...state,
+				viewScope: action.payload,
+				images: [], // Clear images to force a fresh fetch
+				selectedIds: new Set<number>(), // Clear selection when switching modes
+				viewerImageId: null, // Close viewer when switching modes
+				pagination: {
+					...state.pagination,
+					offset: 0,
+					total: 0,
+					hasMore: false,
+				},
 			};
 		case "REFRESH":
 			return {

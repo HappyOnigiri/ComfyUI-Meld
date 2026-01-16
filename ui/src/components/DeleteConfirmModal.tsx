@@ -7,11 +7,13 @@ import { useGallery } from "../store/GalleryContext";
 interface DeleteConfirmModalProps {
 	imageIds: number[];
 	hasLineage: boolean;
+	isPermanent?: boolean;
 }
 
 export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 	imageIds,
 	hasLineage,
+	isPermanent = false,
 }) => {
 	const { dispatch, refreshImages } = useGallery();
 
@@ -22,7 +24,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 	const handleDeleteSelected = async () => {
 		try {
 			dispatch({ type: "SET_LOADING", payload: true });
-			await api.deleteImages(imageIds, true);
+			await api.deleteImages(imageIds, isPermanent);
 			dispatch({ type: "CLEAR_SELECTION" });
 			dispatch({ type: "CLOSE_MODAL" });
 			await refreshImages();
@@ -49,7 +51,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 				}
 			}
 
-			await api.deleteImages(Array.from(allIdsToDelete), true);
+			await api.deleteImages(Array.from(allIdsToDelete), isPermanent);
 			dispatch({ type: "CLEAR_SELECTION" });
 			dispatch({ type: "CLOSE_MODAL" });
 			await refreshImages();
@@ -71,7 +73,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 				<div className="meld-modal-header">
 					<h2 style={{ display: "flex", alignItems: "center", gap: "10px" }}>
 						<Trash2 size={20} color="var(--meld-danger-color)" />
-						Confirm Deletion
+						{isPermanent ? "Permanent Deletion" : "Move to Trash"}
 					</h2>
 					<button
 						type="button"
@@ -92,15 +94,16 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 						}}
 					>
 						<p>
-							Are you sure you want to delete <strong>{imageIds.length}</strong>{" "}
-							selected items?
+							Are you sure you want to{" "}
+							{isPermanent ? "permanently delete" : "move to trash"}{" "}
+							<strong>{imageIds.length}</strong> selected items?
 						</p>
 
 						<div
 							style={{
 								padding: "12px",
 								backgroundColor: "var(--comfy-input-bg, rgba(255, 0, 0, 0.1))",
-								border: "1px solid var(--meld-danger-color)",
+								border: `1px solid ${isPermanent ? "var(--meld-danger-color)" : "var(--meld-accent-color)"}`,
 								borderRadius: "4px",
 								display: "flex",
 								gap: "10px",
@@ -108,11 +111,25 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 						>
 							<AlertTriangle
 								size={20}
-								style={{ color: "var(--meld-danger-color)", flexShrink: 0 }}
+								style={{
+									color: isPermanent
+										? "var(--meld-danger-color)"
+										: "var(--meld-accent-color)",
+									flexShrink: 0,
+								}}
 							/>
 							<div style={{ fontSize: "13px" }}>
-								<strong>WARNING:</strong> Physical files will be permanently
-								deleted. This operation cannot be undone.
+								{isPermanent ? (
+									<>
+										<strong>WARNING:</strong> Physical files will be permanently
+										deleted from the trash bin. This operation cannot be undone.
+									</>
+								) : (
+									<>
+										<strong>INFO:</strong> Selected items will be moved to the
+										trash bin. You can restore them later from the settings.
+									</>
+								)}
 							</div>
 						</div>
 
@@ -150,17 +167,21 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 							className="meld-btn meld-btn-danger"
 							onClick={handleDeleteSelected}
 						>
-							Delete Selected
+							{isPermanent ? "Delete Permanently" : "Move to Trash"}
 						</button>
 
 						{hasLineage && (
 							<button
 								type="button"
 								className="meld-btn meld-btn-danger"
-								title="Delete all images in the lineage (Source + all descendants)"
+								title={
+									isPermanent
+										? "Permanently delete all images in the lineage"
+										: "Move all images in the lineage to trash"
+								}
 								onClick={handleDeleteAllInLineage}
 							>
-								Delete All Related
+								{isPermanent ? "Delete All Related" : "Move All Related"}
 							</button>
 						)}
 					</div>

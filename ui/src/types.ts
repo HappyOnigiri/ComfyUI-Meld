@@ -20,6 +20,7 @@ export interface MeldImage {
 	width?: number | null;
 	height?: number | null;
 	exists?: boolean;
+	deleted_at?: number | null;
 	has_children?: boolean;
 	ancestors?: {
 		id: number;
@@ -86,6 +87,7 @@ export interface Settings {
 		| "phash_created"
 		| "phash_only";
 	"gallery.lineage_max_depth": number;
+	"gallery.trash_retention_days": number;
 }
 
 export type ScanStatus = {
@@ -107,7 +109,12 @@ export type ActiveModal =
 	| { type: "tag_edit"; imageIds: number[]; tags: string[] }
 	| { type: "import" }
 	| { type: "settings" }
-	| { type: "delete_confirm"; imageIds: number[]; hasLineage: boolean };
+	| {
+			type: "delete_confirm";
+			imageIds: number[];
+			hasLineage: boolean;
+			isPermanent?: boolean;
+	  };
 
 export type GalleryViewMode = "grid" | "list";
 
@@ -118,6 +125,7 @@ export interface GalleryState {
 	error: string | null;
 	lastUpdated: number;
 	viewMode: GalleryViewMode;
+	viewScope: "default" | "trash";
 	viewerImageId: number | null;
 	viewerMode: "gallery" | "lineage";
 	lineageImages: MeldImage[];
@@ -162,6 +170,7 @@ export type GalleryAction =
 	| { type: "SELECT_ALL" }
 	| { type: "CLEAR_SELECTION" }
 	| { type: "SET_VIEW_MODE"; payload: GalleryViewMode }
+	| { type: "SET_VIEW_SCOPE"; payload: "default" | "trash" }
 	| { type: "REFRESH" }
 	| {
 			type: "OPEN_VIEWER";
