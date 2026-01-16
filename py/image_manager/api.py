@@ -658,6 +658,49 @@ async def test_endpoint(request: web.Request) -> web.Response:
     return web.json_response({"status": "ok", "message": "Meld is running"})
 
 
+@server.PromptServer.instance.routes.get("/meld/view-trash")
+async def view_trash(request: web.Request) -> web.StreamResponse:
+    try:
+        filename = request.query.get("filename")
+        if not filename:
+            return web.Response(status=400)
+
+        # Basic path traversal protection
+        if os.path.basename(filename) != filename:
+            return web.Response(status=403)
+
+        file_path = os.path.normpath(os.path.join(TRASH_DIR, filename))
+        if not os.path.exists(file_path):
+            return web.Response(status=404)
+
+        return web.FileResponse(file_path)
+    except Exception as e:
+        logging.error(f"[Meld] Error in view_trash: {e}")
+        return web.Response(status=500)
+
+
+@server.PromptServer.instance.routes.get("/meld/view-custom")
+async def view_custom(request: web.Request) -> web.StreamResponse:
+    try:
+        filename = request.query.get("filename")
+        subfolder = request.query.get("subfolder")  # Absolute path for custom
+        if not filename or subfolder is None:
+            return web.Response(status=400)
+
+        file_path = os.path.normpath(os.path.join(subfolder, filename))
+        if not os.path.exists(file_path):
+            return web.Response(status=404)
+
+        # Basic validation: ensure it's an image
+        if not filename.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
+            return web.Response(status=403)
+
+        return web.FileResponse(file_path)
+    except Exception as e:
+        logging.error(f"[Meld] Error in view_custom: {e}")
+        return web.Response(status=500)
+
+
 @server.PromptServer.instance.routes.get("/meld/settings")
 async def get_settings(request: web.Request) -> web.Response:
     try:
@@ -684,6 +727,7 @@ async def get_settings(request: web.Request) -> web.Response:
             "viewer.show_icons": True,
             "gallery.matching_strategy": "phash_created",
             "gallery.lineage_max_depth": 5,
+            "gallery.trash.show_missing": False,
         }
 
         # Merge with DB settings
@@ -1077,8 +1121,11 @@ async def list_images(request: web.Request) -> web.Response:
 
             exists = False
             if base_dir is not None:
-                full_path = os.path.join(base_dir, effective_subfolder, filename)
+                # Normalize path for the current OS (especially important for Windows)
+                full_path = os.path.normpath(os.path.abspath(os.path.join(base_dir, effective_subfolder, filename)))
                 exists = os.path.exists(full_path)
+                if not exists and effective_type == "trash":
+                    logging.info(f"[Meld] Trash file not found at: {full_path}")
 
             # Fallback for depth 1 or missing in ancestors_map
             ancestors = ancestors_map.get(img_id, [])
@@ -1223,7 +1270,7 @@ async def restore_images(request: web.Request) -> web.Response:
             else:
                 continue
 
-            trash_full_path = os.path.join(TRASH_DIR, trash_filename)
+            trash_full_path = os.path.normpath(os.path.join(TRASH_DIR, trash_filename))
             if not os.path.exists(trash_full_path):
                 # File missing from trash, but we can still "restore" its DB status
                 cursor.execute("UPDATE images SET deleted_at = NULL WHERE id = ?", (img_id,))
@@ -1309,7 +1356,7 @@ async def bulk_delete_images(request: web.Request) -> web.Response:
                     continue
                 current_subfolder = subfolder
 
-            current_full_path = os.path.abspath(os.path.join(base_dir, current_subfolder, filename))
+            current_full_path = os.path.normpath(os.path.abspath(os.path.join(base_dir, current_subfolder, filename)))
 
             if permanent:
                 # --- Permanent Delete ---
@@ -1416,7 +1463,9 @@ async def delete_image(request: web.Request) -> web.Response:
                     continue
                 current_subfolder = subfolder
 
-            current_full_path = os.path.abspath(os.path.join(base_dir, current_subfolder, img_filename))
+            current_full_path = os.path.normpath(
+                os.path.abspath(os.path.join(base_dir, current_subfolder, img_filename))
+            )
 
             if req.permanent:
                 if os.path.exists(current_full_path):
