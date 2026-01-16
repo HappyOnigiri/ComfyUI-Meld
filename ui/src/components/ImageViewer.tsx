@@ -623,6 +623,15 @@ export const ImageViewer: React.FC = () => {
 							</div>
 						)}
 
+						{image.deleted_at && (
+							<div className="meld-viewer-details-item">
+								<div className="meld-viewer-details-label">Deleted At</div>
+								<div className="meld-viewer-details-value">
+									{new Date(image.deleted_at * 1000).toLocaleString()}
+								</div>
+							</div>
+						)}
+
 						{(isFullscreen
 							? state.settings["fullscreen.details.show_model_name"]
 							: state.settings["viewer.details.show_model_name"]) &&
