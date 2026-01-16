@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 import os
+import shutil
 import sqlite3
 from typing import Any
 
@@ -20,6 +21,7 @@ from PIL import Image
 
 from ..load_image_configs.core.metadata_helper import MetadataHelper
 from .database import (
+    TRASH_DIR,
     add_model_relation,
     calculate_sha256,
     delete_tag,
@@ -146,15 +148,17 @@ _scan_state = {"is_running": False, "should_cancel": False}
 
 
 def perform_cleanup() -> int:
-    """Logic to logically delete image data that does not exist in the DB"""
+    """Logic to logically delete image data that does not exist in the DB and permanently delete old trash items"""
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
+        # 1. Logical delete missing files
         # Get all images that have not been deleted
         cursor.execute("SELECT id, filename, subfolder, type FROM images WHERE deleted_at IS NULL")
         images = cursor.fetchall()
 
         missing_count = 0
+        now = time.time()
         for img_id, filename, subfolder, img_type in images:
             # Resolve path
             if img_type == "output":
@@ -170,14 +174,39 @@ def perform_cleanup() -> int:
 
             full_path = os.path.join(base_dir, subfolder, filename)
 
-            # If file does not exist, record deletion timestamp
+            # If file does not exist, record deletion timestamp (move to "ghost" trash)
             if not os.path.exists(full_path):
-                cursor.execute("UPDATE images SET deleted_at = ? WHERE id = ?", (time.time(), img_id))
+                cursor.execute("UPDATE images SET deleted_at = ? WHERE id = ?", (now, img_id))
                 missing_count += 1
 
-        if missing_count > 0:
+        # 2. Permanent delete old trash items
+        db_settings = get_all_settings(cursor)
+        retention_days = int(db_settings.get("gallery.trash_retention_days", 30))
+        retention_seconds = retention_days * 24 * 60 * 60
+        threshold = now - retention_seconds
+
+        cursor.execute("SELECT id, filename FROM images WHERE deleted_at IS NOT NULL AND deleted_at < ?", (threshold,))
+        to_delete = cursor.fetchall()
+
+        for img_id, trash_filename in to_delete:
+            trash_path = os.path.join(TRASH_DIR, trash_filename)
+            if os.path.exists(trash_path):
+                try:
+                    os.remove(trash_path)
+                except Exception:
+                    pass
+            # Update children and delete from DB
+            cursor.execute("UPDATE images SET parent_id = NULL WHERE parent_id = ?", (img_id,))
+            cursor.execute("DELETE FROM images WHERE id = ?", (img_id,))
+            # Cleanup relations
+            cursor.execute("DELETE FROM positive_prompt_image_relations WHERE image_id = ?", (img_id,))
+            cursor.execute("DELETE FROM negative_prompt_image_relations WHERE image_id = ?", (img_id,))
+            cursor.execute("DELETE FROM model_image_relations WHERE image_id = ?", (img_id,))
+            cursor.execute("DELETE FROM tag_image_relations WHERE image_id = ?", (img_id,))
+
+        if missing_count > 0 or to_delete:
             conn.commit()
-        return missing_count
+        return missing_count + len(to_delete)
     finally:
         conn.close()
 
@@ -512,6 +541,30 @@ def get_first_image_recursive(path: str) -> str | None:
     except (PermissionError, OSError):
         pass
     return None
+
+
+@server.PromptServer.instance.routes.get("/meld/view-trash")
+async def view_trash(request: web.Request) -> web.StreamResponse:
+    try:
+        filename = request.query.get("filename", "")
+        if not filename:
+            return web.Response(status=400)
+
+        full_path = os.path.abspath(os.path.join(TRASH_DIR, filename))
+
+        # Basic security: ensure it's within TRASH_DIR and is an image
+        if not full_path.startswith(os.path.abspath(TRASH_DIR)):
+            return web.Response(status=403)
+
+        if not os.path.exists(full_path):
+            return web.Response(status=404)
+
+        if not filename.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
+            return web.Response(status=403)
+
+        return web.FileResponse(full_path)
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
 
 
 @server.PromptServer.instance.routes.get("/meld/view-custom")
@@ -1048,6 +1101,7 @@ async def get_settings(request: web.Request) -> web.Response:
             "dev_mode": os.environ.get("MELD_DEV") == "true",
             "gallery.show_parent_image": True,
             "gallery.hide_parent_images": True,
+            "gallery.trash_retention_days": 30,
             "sidebar.show_filename": True,
             "sidebar.show_model_name": True,
             "sidebar.show_positive_prompt": True,
@@ -1286,6 +1340,7 @@ async def list_images(request: web.Request) -> web.Response:
         offset = int(request.query.get("offset", 0))
         limit = int(request.query.get("limit", 1000000))
         query_str = request.query.get("query", "")
+        view = request.query.get("view", "default")  # "default" or "trash"
 
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -1296,8 +1351,11 @@ async def list_images(request: web.Request) -> web.Response:
         db_settings = get_all_settings(cursor)
         lineage_max_depth = int(db_settings.get("gallery.lineage_max_depth", 5))
 
+        # Determine deletion filter
+        deleted_filter = "i.deleted_at IS NOT NULL" if view == "trash" else "i.deleted_at IS NULL"
+
         # Get total count
-        count_sql = f"SELECT COUNT(*) FROM images i WHERE i.deleted_at IS NULL{search_sql}"
+        count_sql = f"SELECT COUNT(*) FROM images i WHERE {deleted_filter}{search_sql}"
         cursor.execute(count_sql, search_params)
         total_count = cursor.fetchone()[0]
 
@@ -1310,9 +1368,9 @@ async def list_images(request: web.Request) -> web.Response:
                    (SELECT GROUP_CONCAT(m.name, ', ') FROM models m
                     JOIN model_image_relations mir ON m.id = mir.model_id
                     WHERE mir.image_id = i.id) as model_name,
-                   i.workflow, i.width, i.height
+                   i.workflow, i.width, i.height, i.deleted_at
             FROM images i LEFT JOIN images p ON i.parent_id = p.id
-            WHERE i.deleted_at IS NULL{search_sql} ORDER BY i.created_at DESC LIMIT ? OFFSET ?
+            WHERE {deleted_filter}{search_sql} ORDER BY {"i.deleted_at DESC" if view == "trash" else "i.created_at DESC"} LIMIT ? OFFSET ?
         """
         cursor.execute(fetch_sql, (*search_params, limit, offset))
         images = cursor.fetchall()
@@ -1375,7 +1433,11 @@ async def list_images(request: web.Request) -> web.Response:
                 workflow,
                 width,
                 height,
+                deleted_at,
             ) = img
+
+            # If viewing trash, we treat type as 'trash' for the frontend
+            effective_type = "trash" if deleted_at is not None else img_type
 
             # Fetch positive prompt (reconstructed from normalized tables as fallback or secondary)
             cursor.execute(
@@ -1412,20 +1474,28 @@ async def list_images(request: web.Request) -> web.Response:
             tags = [t[0] for t in tag_rows]
 
             # Check if file exists
-            if img_type == "output":
+            if effective_type == "trash":
+                base_dir = TRASH_DIR
+                effective_subfolder = ""  # Trash files are in the root of TRASH_DIR
+            elif img_type == "output":
                 base_dir = folder_paths.get_output_directory()
+                effective_subfolder = subfolder
             elif img_type == "input":
                 base_dir = folder_paths.get_input_directory()
+                effective_subfolder = subfolder
             elif img_type == "temp":
                 base_dir = folder_paths.get_temp_directory()
+                effective_subfolder = subfolder
             elif img_type == "custom":
                 base_dir = ""  # subfolder is absolute path
+                effective_subfolder = subfolder
             else:
                 base_dir = None
+                effective_subfolder = subfolder
 
             exists = False
             if base_dir is not None:
-                full_path = os.path.join(base_dir, subfolder, filename)
+                full_path = os.path.join(base_dir, effective_subfolder, filename)
                 exists = os.path.exists(full_path)
 
             # Fallback for depth 1 or missing in ancestors_map
@@ -1438,8 +1508,9 @@ async def list_images(request: web.Request) -> web.Response:
                     "id": img_id,
                     "filename": filename,
                     "subfolder": subfolder,
-                    "type": img_type,
+                    "type": effective_type,
                     "created_at": created_at,
+                    "deleted_at": deleted_at,
                     "phash": phash,
                     "sha256": sha256,
                     "parent_id": parent_id,
@@ -1520,12 +1591,22 @@ async def get_related_images(request: web.Request) -> web.Response:
         return web.json_response({"error": "internal error"}, status=500)
 
 
-@server.PromptServer.instance.routes.post("/meld/bulk-delete")
-async def bulk_delete_images(request: web.Request) -> web.Response:
+def get_unique_filename(base_dir: str, subfolder: str, filename: str) -> str:
+    """Find a unique filename by appending _1, _2, etc. if needed."""
+    name, ext = os.path.splitext(filename)
+    counter = 1
+    new_filename = filename
+    while os.path.exists(os.path.join(base_dir, subfolder, new_filename)):
+        new_filename = f"{name}_{counter}{ext}"
+        counter += 1
+    return new_filename
+
+
+@server.PromptServer.instance.routes.post("/meld/restore")
+async def restore_images(request: web.Request) -> web.Response:
     try:
         data = await request.json()
         image_ids = data.get("ids", [])
-        delete_files = data.get("delete_files", False)
 
         if not image_ids:
             return web.json_response({"error": "ids are required"}, status=400)
@@ -1533,15 +1614,99 @@ async def bulk_delete_images(request: web.Request) -> web.Response:
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # Get file paths before deleting from DB
         placeholders = ",".join(["?"] * len(image_ids))
-        cursor.execute(f"SELECT id, filename, subfolder, type FROM images WHERE id IN ({placeholders})", image_ids)
+        cursor.execute(
+            f"SELECT id, filename, subfolder, type, deleted_at FROM images WHERE id IN ({placeholders})", image_ids
+        )
+        images = cursor.fetchall()
+
+        restored_count = 0
+        for img_id, trash_filename, subfolder, img_type, deleted_at in images:
+            if deleted_at is None:
+                continue
+
+            # 1. Resolve original base directory
+            if img_type == "output":
+                base_dir = folder_paths.get_output_directory()
+            elif img_type == "input":
+                base_dir = folder_paths.get_input_directory()
+            elif img_type == "temp":
+                base_dir = folder_paths.get_temp_directory()
+            elif img_type == "custom":
+                base_dir = ""
+            else:
+                continue
+
+            trash_full_path = os.path.join(TRASH_DIR, trash_filename)
+            if not os.path.exists(trash_full_path):
+                # File missing from trash, but we can still "restore" its DB status
+                cursor.execute("UPDATE images SET deleted_at = NULL WHERE id = ?", (img_id,))
+                restored_count += 1
+                continue
+
+            # 2. Reconstruct original filename (remove timestamp prefix)
+            # The format was f"{int(now)}_{filename}"
+            parts = trash_filename.split("_", 1)
+            original_filename = parts[1] if len(parts) > 1 else trash_filename
+
+            # 3. Ensure subfolder exists
+            target_dir = os.path.join(base_dir, subfolder)
+            os.makedirs(target_dir, exist_ok=True)
+
+            # 4. Handle filename collision
+            final_filename = get_unique_filename(base_dir, subfolder, original_filename)
+            target_full_path = os.path.join(target_dir, final_filename)
+
+            try:
+                shutil.move(trash_full_path, target_full_path)
+                # 5. Update DB
+                cursor.execute(
+                    "UPDATE images SET deleted_at = NULL, filename = ? WHERE id = ?", (final_filename, img_id)
+                )
+                restored_count += 1
+            except Exception as e:
+                logging.error(f"[Meld] Failed to restore file {trash_filename}: {e}")
+                continue
+
+        conn.commit()
+        conn.close()
+        return web.json_response({"success": True, "count": restored_count})
+    except Exception as e:
+        logging.exception("[Meld] Restore failed")
+        return web.json_response({"error": str(e)}, status=500)
+
+
+@server.PromptServer.instance.routes.post("/meld/bulk-delete")
+async def bulk_delete_images(request: web.Request) -> web.Response:
+    try:
+        data = await request.json()
+        image_ids = data.get("ids", [])
+        permanent = data.get("permanent", False) or data.get("delete_files", False)  # Backward compatibility
+
+        if not image_ids:
+            return web.json_response({"error": "ids are required"}, status=400)
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Get file paths and current status
+        placeholders = ",".join(["?"] * len(image_ids))
+        cursor.execute(
+            f"SELECT id, filename, subfolder, type, deleted_at FROM images WHERE id IN ({placeholders})", image_ids
+        )
         images = cursor.fetchall()
 
         deleted_count = 0
-        for img_id, filename, subfolder, img_type in images:
-            if delete_files:
-                # Resolve base directory
+        now = time.time()
+
+        for img_id, filename, subfolder, img_type, deleted_at in images:
+            # 1. Resolve current full path
+            if deleted_at is not None:
+                # Already in trash
+                base_dir = TRASH_DIR
+                current_subfolder = ""
+            else:
+                # Normal location
                 if img_type == "output":
                     base_dir = folder_paths.get_output_directory()
                 elif img_type == "input":
@@ -1552,18 +1717,51 @@ async def bulk_delete_images(request: web.Request) -> web.Response:
                     base_dir = ""
                 else:
                     continue
+                current_subfolder = subfolder
 
-                # Resolve full path safely
-                full_path = os.path.abspath(os.path.join(base_dir, subfolder, filename))
-                if os.path.exists(full_path):
+            current_full_path = os.path.abspath(os.path.join(base_dir, current_subfolder, filename))
+
+            if permanent:
+                # --- Permanent Delete ---
+                if os.path.exists(current_full_path):
                     try:
-                        os.remove(full_path)
+                        os.remove(current_full_path)
                     except Exception as e:
-                        logging.warning(f"[Meld] Failed to delete file {full_path}: {e}")
+                        logging.warning(f"[Meld] Failed to permanently delete file {current_full_path}: {e}")
 
-            cursor.execute("UPDATE images SET deleted_at = ? WHERE id = ?", (time.time(), img_id))
-            # Update children to set parent_id to NULL when parent is deleted
-            cursor.execute("UPDATE images SET parent_id = NULL WHERE parent_id = ?", (img_id,))
+                # Update children to set parent_id to NULL
+                cursor.execute("UPDATE images SET parent_id = NULL WHERE parent_id = ?", (img_id,))
+                # Remove from DB
+                cursor.execute("DELETE FROM images WHERE id = ?", (img_id,))
+                # Also cleanup relations
+                cursor.execute("DELETE FROM positive_prompt_image_relations WHERE image_id = ?", (img_id,))
+                cursor.execute("DELETE FROM negative_prompt_image_relations WHERE image_id = ?", (img_id,))
+                cursor.execute("DELETE FROM model_image_relations WHERE image_id = ?", (img_id,))
+                cursor.execute("DELETE FROM tag_image_relations WHERE image_id = ?", (img_id,))
+
+            else:
+                # --- Logical Delete (Move to Trash) ---
+                if deleted_at is not None:
+                    # Already logically deleted, skip
+                    continue
+
+                if os.path.exists(current_full_path):
+                    new_filename = f"{int(now)}_{filename}"
+                    new_full_path = os.path.join(TRASH_DIR, new_filename)
+                    try:
+                        shutil.move(current_full_path, new_full_path)
+                        # Update DB with new filename and deleted_at
+                        # IMPORTANT: subfolder is NOT changed (used for restoration)
+                        cursor.execute(
+                            "UPDATE images SET deleted_at = ?, filename = ? WHERE id = ?", (now, new_filename, img_id)
+                        )
+                    except Exception as e:
+                        logging.error(f"[Meld] Failed to move file to trash {current_full_path}: {e}")
+                        continue
+                else:
+                    # File missing but we still mark it as deleted in DB
+                    cursor.execute("UPDATE images SET deleted_at = ? WHERE id = ?", (now, img_id))
+
             deleted_count += 1
 
         conn.commit()
@@ -1580,28 +1778,95 @@ async def delete_image(request: web.Request) -> web.Response:
         data = await request.json()
         image_id = data.get("id")
         filename = data.get("filename")  # Fallback for old frontend
+        permanent = data.get("permanent", False)
 
         if not image_id and not filename:
             return web.json_response({"error": "id or filename is required"}, status=400)
 
+        # Re-use bulk_delete logic by wrapping id in a list
+        if image_id:
+            ids = [image_id]
+        else:
+            # Find IDs from filename
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT id FROM images WHERE filename = ?", (filename,))
+            ids = [row[0] for row in cursor.fetchall()]
+            conn.close()
+
+        if not ids:
+            return web.json_response({"error": "Image not found"}, status=404)
+
+        # Call bulk_delete internal logic or just redirect request context-wise
+        # For simplicity, we implement the same logic here or reuse bulk_delete function
+        # But we can't easily call bulk_delete because it expects a Request object.
+        # Let's just use a helper or reimplement briefly.
+
+        # Actually, let's just make it a call to a helper function if needed,
+        # but for now, I'll just reuse the logic as it's cleaner to keep them separate but consistent.
+
+        # To avoid code duplication, I'll define a helper internally if this was a larger refactor,
+        # but following the rules, I'll keep it straightforward.
+        # Wait, I can just use a modified version of the request or similar? No.
+
+        # Let's just implement it simply.
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        if image_id:
-            # Update children to set parent_id to NULL when parent is deleted
-            cursor.execute("UPDATE images SET parent_id = NULL WHERE parent_id = ?", (image_id,))
-            cursor.execute("UPDATE images SET deleted_at = ? WHERE id = ?", (time.time(), image_id))
-        else:
-            # Update children for all images with this filename
-            cursor.execute(
-                "UPDATE images SET parent_id = NULL WHERE parent_id IN (SELECT id FROM images WHERE filename = ?)",
-                (filename,),
-            )
-            cursor.execute("UPDATE images SET deleted_at = ? WHERE filename = ?", (time.time(), filename))
+        placeholders = ",".join(["?"] * len(ids))
+        cursor.execute(
+            f"SELECT id, filename, subfolder, type, deleted_at FROM images WHERE id IN ({placeholders})", ids
+        )
+        images = cursor.fetchall()
 
-        if cursor.rowcount == 0:
-            conn.close()
-            return web.json_response({"error": "Image not found"}, status=404)
+        now = time.time()
+        for img_id, img_filename, subfolder, img_type, deleted_at in images:
+            # Resolve current path
+            if deleted_at is not None:
+                base_dir = TRASH_DIR
+                current_subfolder = ""
+            else:
+                if img_type == "output":
+                    base_dir = folder_paths.get_output_directory()
+                elif img_type == "input":
+                    base_dir = folder_paths.get_input_directory()
+                elif img_type == "temp":
+                    base_dir = folder_paths.get_temp_directory()
+                elif img_type == "custom":
+                    base_dir = ""
+                else:
+                    continue
+                current_subfolder = subfolder
+
+            current_full_path = os.path.abspath(os.path.join(base_dir, current_subfolder, img_filename))
+
+            if permanent:
+                if os.path.exists(current_full_path):
+                    try:
+                        os.remove(current_full_path)
+                    except Exception:
+                        pass
+                cursor.execute("UPDATE images SET parent_id = NULL WHERE parent_id = ?", (img_id,))
+                cursor.execute("DELETE FROM images WHERE id = ?", (img_id,))
+                cursor.execute("DELETE FROM positive_prompt_image_relations WHERE image_id = ?", (img_id,))
+                cursor.execute("DELETE FROM negative_prompt_image_relations WHERE image_id = ?", (img_id,))
+                cursor.execute("DELETE FROM model_image_relations WHERE image_id = ?", (img_id,))
+                cursor.execute("DELETE FROM tag_image_relations WHERE image_id = ?", (img_id,))
+            else:
+                if deleted_at is None:
+                    if os.path.exists(current_full_path):
+                        new_filename = f"{int(now)}_{img_filename}"
+                        new_full_path = os.path.join(TRASH_DIR, new_filename)
+                        try:
+                            shutil.move(current_full_path, new_full_path)
+                            cursor.execute(
+                                "UPDATE images SET deleted_at = ?, filename = ? WHERE id = ?",
+                                (now, new_filename, img_id),
+                            )
+                        except Exception:
+                            continue
+                    else:
+                        cursor.execute("UPDATE images SET deleted_at = ? WHERE id = ?", (now, img_id))
 
         conn.commit()
         conn.close()

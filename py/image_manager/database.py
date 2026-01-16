@@ -7,9 +7,11 @@ import sqlite3
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data")
 os.makedirs(DATA_DIR, exist_ok=True)
 DB_PATH = os.path.join(DATA_DIR, "default.db")
+TRASH_DIR = os.path.join(DATA_DIR, "trash")
 
 
 def init_db() -> None:
+    os.makedirs(TRASH_DIR, exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("""
