@@ -347,11 +347,43 @@ export const ImageViewer: React.FC = () => {
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (viewerImageId === null) return;
 
-			// Don't trigger shortcuts if user is typing in an input or textarea
-			if (
+			const isTargetInput =
 				document.activeElement?.tagName === "INPUT" ||
-				document.activeElement?.tagName === "TEXTAREA"
+				document.activeElement?.tagName === "TEXTAREA" ||
+				(document.activeElement as HTMLElement)?.isContentEditable;
+
+			const isDeleteKey = e.key === "Delete" || e.key === "Backspace";
+			const isNavigationKey = e.key === "ArrowRight" || e.key === "ArrowLeft";
+			const isToggleKey =
+				e.key === "f" || e.key === "F" || e.key === "i" || e.key === "I";
+			const isEscapeKey = e.key === "Escape";
+			const isUndoKey =
+				(e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z");
+
+			// Always prevent propagation for these keys when viewer is open,
+			// unless we are in an input field and it's not a shortcut we want to catch.
+			if (
+				isDeleteKey ||
+				isNavigationKey ||
+				isToggleKey ||
+				isEscapeKey ||
+				isUndoKey
 			) {
+				if (!isTargetInput) {
+					e.preventDefault();
+					e.stopPropagation();
+					e.stopImmediatePropagation();
+				} else if (isEscapeKey) {
+					// Escape should probably still close the viewer even if an input has focus
+					e.preventDefault();
+					e.stopPropagation();
+					e.stopImmediatePropagation();
+				} else {
+					// In input, don't prevent default/propagation for normal typing
+					return;
+				}
+			} else {
+				// Not a key we care about
 				return;
 			}
 
@@ -374,10 +406,12 @@ export const ImageViewer: React.FC = () => {
 			} else if (e.key === "Delete") {
 				handleDelete();
 			} else if ((e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z")) {
-				e.preventDefault();
 				handleUndoDelete();
 			}
 		};
+
+		window.addEventListener("keydown", handleKeyDown, { capture: true });
+		window.addEventListener("keyup", handleKeyDown, { capture: true }); // Also block keyup just in case
 
 		const handleFullscreenChange = () => {
 			const isFull = !!document.fullscreenElement;
@@ -389,11 +423,11 @@ export const ImageViewer: React.FC = () => {
 			}
 		};
 
-		window.addEventListener("keydown", handleKeyDown);
 		document.addEventListener("fullscreenchange", handleFullscreenChange);
 
 		return () => {
-			window.removeEventListener("keydown", handleKeyDown);
+			window.removeEventListener("keydown", handleKeyDown, { capture: true });
+			window.removeEventListener("keyup", handleKeyDown, { capture: true });
 			document.removeEventListener("fullscreenchange", handleFullscreenChange);
 		};
 	}, [
@@ -439,19 +473,26 @@ export const ImageViewer: React.FC = () => {
 		};
 	}, []);
 
-	// Scroll active thumbnail into view
+	// Scroll active thumbnail into view and focus overlay
 	useEffect(() => {
-		if (showThumbnails && viewerImageId !== null) {
-			const activeThumb = document.querySelector(
-				".meld-viewer-thumbnail--active",
-			);
-			if (activeThumb) {
-				activeThumb.scrollIntoView({
-					behavior: "auto",
-					block: "nearest",
-					inline: "center",
-				});
+		if (viewerImageId !== null) {
+			if (showThumbnails) {
+				const activeThumb = document.querySelector(
+					".meld-viewer-thumbnail--active",
+				);
+				if (activeThumb) {
+					activeThumb.scrollIntoView({
+						behavior: "auto",
+						block: "nearest",
+						inline: "center",
+					});
+				}
 			}
+			// Focus the overlay to capture keyboard events better
+			if (document.activeElement?.tagName === "CANVAS") {
+				(document.activeElement as HTMLElement).blur();
+			}
+			overlayRef.current?.focus();
 		}
 	}, [viewerImageId, showThumbnails]);
 
