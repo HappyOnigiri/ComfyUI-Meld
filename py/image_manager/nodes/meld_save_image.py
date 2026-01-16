@@ -19,7 +19,6 @@ from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 
 from ...load_image_configs.core.metadata_helper import MetadataHelper
-from ..api import infer_parent_id
 from ..database import (
     add_model_relation,
     calculate_sha256,
@@ -28,6 +27,7 @@ from ..database import (
     get_db_connection,
     get_or_create_model,
 )
+from ..services import scan_service
 
 
 # --- Custom Node Definition ---
@@ -174,7 +174,7 @@ class MeldSaveImage:
                 img_0 = Image.fromarray(np.clip(i_0, 0, 255).astype(np.uint8))
                 child_phash = str(imagehash.phash(img_0)) if imagehash else None
 
-                parent_id = infer_parent_id(
+                parent_id = scan_service.infer_parent_id(
                     cursor,
                     phash=child_phash,
                     created_at=time.time(),

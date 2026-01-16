@@ -3,7 +3,8 @@ import json
 import logging
 import os
 import shutil
-import sqlite3
+import threading
+import time
 from typing import Any
 
 import folder_paths
@@ -12,8 +13,6 @@ try:
     import imagehash
 except ImportError:
     imagehash = None  # type: ignore
-import threading
-import time
 
 import server
 from aiohttp import web
@@ -25,7 +24,6 @@ from .database import (
     add_model_relation,
     calculate_sha256,
     delete_tag,
-    find_closest_parent,
     get_all_settings,
     get_all_tags,
     get_db_connection,
@@ -34,6 +32,7 @@ from .database import (
     upsert_setting,
 )
 from .search_service import SearchService
+from .services import image_service, scan_service
 
 
 @server.PromptServer.instance.routes.post("/meld/image-tags")
@@ -144,446 +143,11 @@ async def bulk_update_image_tags(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-_scan_state = {"is_running": False, "should_cancel": False}
-
-
-def perform_cleanup() -> int:
-    """Logic to logically delete image data that does not exist in the DB and permanently delete old trash items"""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    try:
-        # 1. Logical delete missing files
-        # Get all images that have not been deleted
-        cursor.execute("SELECT id, filename, subfolder, type FROM images WHERE deleted_at IS NULL")
-        images = cursor.fetchall()
-
-        missing_count = 0
-        now = time.time()
-        for img_id, filename, subfolder, img_type in images:
-            # Resolve path
-            if img_type == "output":
-                base_dir = folder_paths.get_output_directory()
-            elif img_type == "input":
-                base_dir = folder_paths.get_input_directory()
-            elif img_type == "temp":
-                base_dir = folder_paths.get_temp_directory()
-            elif img_type == "custom":
-                base_dir = ""
-            else:
-                continue
-
-            full_path = os.path.join(base_dir, subfolder, filename)
-
-            # If file does not exist, record deletion timestamp (move to "ghost" trash)
-            if not os.path.exists(full_path):
-                cursor.execute("UPDATE images SET deleted_at = ? WHERE id = ?", (now, img_id))
-                missing_count += 1
-
-        # 2. Permanent delete old trash items
-        db_settings = get_all_settings(cursor)
-        retention_days = int(db_settings.get("gallery.trash_retention_days", 30))
-        retention_seconds = retention_days * 24 * 60 * 60
-        threshold = now - retention_seconds
-
-        cursor.execute("SELECT id, filename FROM images WHERE deleted_at IS NOT NULL AND deleted_at < ?", (threshold,))
-        to_delete = cursor.fetchall()
-
-        for img_id, trash_filename in to_delete:
-            trash_path = os.path.join(TRASH_DIR, trash_filename)
-            if os.path.exists(trash_path):
-                try:
-                    os.remove(trash_path)
-                except Exception:
-                    pass
-            # Update children and delete from DB
-            cursor.execute("UPDATE images SET parent_id = NULL WHERE parent_id = ?", (img_id,))
-            cursor.execute("DELETE FROM images WHERE id = ?", (img_id,))
-            # Cleanup relations
-            cursor.execute("DELETE FROM positive_prompt_image_relations WHERE image_id = ?", (img_id,))
-            cursor.execute("DELETE FROM negative_prompt_image_relations WHERE image_id = ?", (img_id,))
-            cursor.execute("DELETE FROM model_image_relations WHERE image_id = ?", (img_id,))
-            cursor.execute("DELETE FROM tag_image_relations WHERE image_id = ?", (img_id,))
-
-        if missing_count > 0 or to_delete:
-            conn.commit()
-        return missing_count + len(to_delete)
-    finally:
-        conn.close()
-
-
-def infer_parent_id(
-    cursor: sqlite3.Cursor,
-    filename: str | None = None,
-    subfolder: str | None = None,
-    img_type: str | None = None,
-    phash: str | None = None,
-    created_at: float | None = None,
-    strategy: str = "phash_created",
-    workflow_json: str | dict | None = None,
-    prompt_json: str | dict | None = None,
-) -> int | None:
-    parent_id = None
-    if created_at is None:
-        created_at = time.time()
-
-    # 1. Try to get source filenames (for filename_phash strategy)
-    source_filenames = []
-    if strategy == "filename_phash":
-        if workflow_json or prompt_json:
-            source_filenames = extract_source_filenames(workflow_json, prompt_json)
-        elif filename and subfolder and img_type:
-            # Fallback to reading from disk
-            try:
-                if img_type == "output":
-                    base_dir = folder_paths.get_output_directory()
-                elif img_type == "input":
-                    base_dir = folder_paths.get_input_directory()
-                elif img_type == "temp":
-                    base_dir = folder_paths.get_temp_directory()
-                elif img_type == "custom":
-                    base_dir = ""
-                else:
-                    base_dir = None
-
-                if base_dir is not None:
-                    full_path = os.path.join(base_dir, subfolder, filename)
-                    if os.path.exists(full_path):
-                        _, _, _, wf, pr, _, _ = MetadataHelper.extract_metadata(full_path)
-                        source_filenames = extract_source_filenames(wf, pr)
-            except Exception:
-                pass
-
-        if source_filenames:
-            placeholders = ",".join(["?"] * len(source_filenames))
-            sql = (
-                f"SELECT id FROM images WHERE filename IN ({placeholders}) "
-                "AND deleted_at IS NULL AND created_at < ? ORDER BY created_at DESC LIMIT 1"
-            )
-            cursor.execute(sql, (*source_filenames, created_at))
-            res = cursor.fetchone()
-            if res:
-                parent_id = res[0]
-
-    # 2. Fallback to pHash match (or if strategy is pHash-based)
-    if parent_id is None and phash:
-        parent_id = find_closest_parent(phash, cursor, before_timestamp=created_at, sort_strategy=strategy)
-
-    return parent_id
-
-
-def _scan_thread(
-    base_dir: str,
-    subfolder: str,
-    img_type: str,
-    recursive: bool,
-    auto_link_parent: bool,
-    tags: list[str] | None = None,
-) -> None:
-    global _scan_state
-    conn = None
-    new_count = 0
-    total = 0
-    processed = 0
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        # Get settings for matching strategy
-        db_settings = get_all_settings(cursor)
-        matching_strategy = db_settings.get("gallery.matching_strategy", "phash_created")
-
-        def add_tags_to_image(img_id: int, tag_list: list[str] | None) -> None:
-            if not tag_list:
-                return
-            for tag_name in tag_list:
-                tag_name = tag_name.strip()
-                if not tag_name:
-                    continue
-                # Get or create tag
-                cursor.execute("INSERT OR IGNORE INTO tags (name) VALUES (?)", (tag_name,))
-                cursor.execute("SELECT id FROM tags WHERE name = ?", (tag_name,))
-                tag_row = cursor.fetchone()
-                if tag_row:
-                    tag_id = tag_row[0]
-                    cursor.execute(
-                        "INSERT OR IGNORE INTO tag_image_relations (image_id, tag_id) VALUES (?, ?)", (img_id, tag_id)
-                    )
-
-        target_dir = os.path.join(base_dir, subfolder)
-        image_files = []
-
-        # Collect all image files
-        for root, _, files in os.walk(target_dir):
-            if not recursive and root != target_dir:
-                continue
-            for f in files:
-                if f.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
-                    image_files.append(os.path.join(root, f))
-
-        total = len(image_files)
-
-        # Step 1: Register all images
-        newly_registered_ids = []
-        for full_path in image_files:
-            if _scan_state["should_cancel"]:
-                break
-
-            try:
-                # Basic info
-                filename = os.path.basename(full_path)
-                # subfolder relative to base_dir
-                rel_path = os.path.relpath(os.path.dirname(full_path), base_dir)
-                if rel_path == ".":
-                    rel_path = ""
-
-                # If custom type, we want rel_path to include the base_dir if it's outside standard dirs?
-                # Actually, /meld/view-custom uses subfolder as base.
-                # If we store the absolute path in subfolder for custom types, it works.
-                actual_subfolder = rel_path
-                if img_type == "custom":
-                    actual_subfolder = os.path.abspath(os.path.dirname(full_path)).replace("\\", "/")
-
-                # Check if already registered (by filename and subfolder or by sha256)
-                sha256 = calculate_sha256(full_path)
-                cursor.execute("SELECT id FROM images WHERE sha256 = ? AND deleted_at IS NULL", (sha256,))
-                existing = cursor.fetchone()
-                if existing:
-                    image_id = existing[0]
-                    # Even if already exists, add specified tags
-                    add_tags_to_image(image_id, tags)
-
-                    processed += 1
-                    server.PromptServer.instance.send_sync(
-                        "meld-scan-progress", {"current": processed, "total": total, "phase": "registering"}
-                    )
-                    continue
-
-                # Extract metadata
-                pos, neg, model, wf_json, pr_json, a1111_text, logs = MetadataHelper.extract_metadata(full_path)
-                timestamp = os.path.getmtime(full_path)
-
-                # Get image dimensions
-                width, height = 0, 0
-                try:
-                    with Image.open(full_path) as img:
-                        width, height = img.size
-                except Exception:
-                    pass
-
-                # Calculate pHash
-                phash = None
-                if imagehash is not None:
-                    try:
-                        # Re-use already opened image if possible, but for now simple
-                        with Image.open(full_path) as img:
-                            phash = str(imagehash.phash(img))
-                    except Exception:
-                        pass
-
-                # Insert Image
-                sql = """
-                    INSERT INTO images
-                    (filename, subfolder, type, created_at, phash, sha256, width, height, deleted_at, positive_prompt, negative_prompt, workflow)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?)
-                """
-                cursor.execute(
-                    sql,
-                    (
-                        filename,
-                        actual_subfolder,
-                        img_type,
-                        timestamp,
-                        phash,
-                        sha256,
-                        width,
-                        height,
-                        pos,
-                        neg,
-                        wf_json,
-                    ),
-                )
-                image_id = cursor.lastrowid
-
-                # Add specified tags
-                if image_id is not None:
-                    add_tags_to_image(image_id, tags)
-
-                # Insert Model Relation
-                if model:
-                    m_id = get_or_create_model(cursor, model)
-                    add_model_relation(cursor, image_id, m_id)
-
-                newly_registered_ids.append(image_id)
-                new_count += 1
-
-                # Insert Prompts
-                pos_list = MetadataHelper.smart_split(pos) if pos else []
-                neg_list = MetadataHelper.smart_split(neg) if neg else []
-
-                for p in pos_list:
-                    prompt_results = MetadataHelper.parse_prompt_with_weight(p)
-                    for clean_name, strength in prompt_results:
-                        if not clean_name:
-                            continue
-                        cursor.execute("INSERT OR IGNORE INTO positive_prompts (name) VALUES (?)", (clean_name,))
-                        cursor.execute("SELECT id FROM positive_prompts WHERE name = ?", (clean_name,))
-                        row = cursor.fetchone()
-                        if row:
-                            pp_id = row[0]
-                            cursor.execute(
-                                "INSERT INTO positive_prompt_image_relations (image_id, positive_prompt_id, strength) VALUES (?, ?, ?)",
-                                (image_id, pp_id, strength),
-                            )
-
-                for n in neg_list:
-                    prompt_results = MetadataHelper.parse_prompt_with_weight(n)
-                    for clean_name, strength in prompt_results:
-                        if not clean_name:
-                            continue
-                        cursor.execute("INSERT OR IGNORE INTO negative_prompts (name) VALUES (?)", (clean_name,))
-                        cursor.execute("SELECT id FROM negative_prompts WHERE name = ?", (clean_name,))
-                        row = cursor.fetchone()
-                        if row:
-                            np_id = row[0]
-                            cursor.execute(
-                                "INSERT INTO negative_prompt_image_relations (image_id, negative_prompt_id, strength) VALUES (?, ?, ?)",
-                                (image_id, np_id, strength),
-                            )
-
-                processed += 1
-                server.PromptServer.instance.send_sync(
-                    "meld-scan-progress", {"current": processed, "total": total, "phase": "registering"}
-                )
-
-                # Commit periodically or at the end
-                if processed % 10 == 0:
-                    conn.commit()
-
-            except Exception as e:
-                logging.warning(f"[Meld] Failed to process {full_path}: {e}")
-                processed += 1
-
-        conn.commit()
-
-        # Step 2: Parent Linking (Auto)
-        if auto_link_parent and not _scan_state["should_cancel"]:
-            total_linking = len(newly_registered_ids)
-            processed_linking = 0
-            for img_id in newly_registered_ids:
-                if _scan_state["should_cancel"]:
-                    break
-
-                # Get phash and metadata for linking
-                cursor.execute(
-                    "SELECT filename, subfolder, type, phash, created_at FROM images WHERE id = ?", (img_id,)
-                )
-                row = cursor.fetchone()
-                if not row:
-                    processed_linking += 1
-                    continue
-                fname, subf, itype, iphash, icreated = row
-
-                parent_id = infer_parent_id(cursor, fname, subf, itype, iphash, icreated, strategy=matching_strategy)
-
-                if parent_id and parent_id != img_id:
-                    cursor.execute("UPDATE images SET parent_id = ? WHERE id = ?", (parent_id, img_id))
-
-                processed_linking += 1
-                if processed_linking % 5 == 0 or processed_linking == total_linking:
-                    server.PromptServer.instance.send_sync(
-                        "meld-scan-progress",
-                        {"current": processed_linking, "total": total_linking, "phase": "linking"},
-                    )
-
-            conn.commit()
-
-    except Exception as e:
-        logging.exception(f"[Meld] Scan thread failed: {e}")
-    finally:
-        if conn:
-            conn.close()
-        _scan_state["is_running"] = False
-        _scan_state["should_cancel"] = False
-        server.PromptServer.instance.send_sync(
-            "meld-scan-finished", {"status": "completed", "new_count": new_count, "total_count": processed}
-        )
-
-
 @server.PromptServer.instance.routes.post("/meld/cleanup")
 async def cleanup_endpoint(request: web.Request) -> web.Response:
     try:
-        count = perform_cleanup()
+        count = scan_service.perform_cleanup()
         return web.json_response({"success": True, "count": count})
-    except Exception as e:
-        return web.json_response({"error": str(e)}, status=500)
-
-
-def count_images_recursive(path: str) -> int:
-    """Helper to count images in a directory and all its subdirectories."""
-    count = 0
-    try:
-        for _, _, files in os.walk(path):
-            for f in files:
-                if f.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
-                    count += 1
-    except (PermissionError, OSError):
-        pass
-    return count
-
-
-def get_first_image_recursive(path: str) -> str | None:
-    """Find the first image in a directory recursively."""
-    try:
-        for root, _, files in os.walk(path):
-            for f in files:
-                if f.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
-                    return os.path.join(root, f)
-    except (PermissionError, OSError):
-        pass
-    return None
-
-
-@server.PromptServer.instance.routes.get("/meld/view-trash")
-async def view_trash(request: web.Request) -> web.StreamResponse:
-    try:
-        filename = request.query.get("filename", "")
-        if not filename:
-            return web.Response(status=400)
-
-        full_path = os.path.abspath(os.path.join(TRASH_DIR, filename))
-
-        # Basic security: ensure it's within TRASH_DIR and is an image
-        if not full_path.startswith(os.path.abspath(TRASH_DIR)):
-            return web.Response(status=403)
-
-        if not os.path.exists(full_path):
-            return web.Response(status=404)
-
-        if not filename.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
-            return web.Response(status=403)
-
-        return web.FileResponse(full_path)
-    except Exception as e:
-        return web.json_response({"error": str(e)}, status=500)
-
-
-@server.PromptServer.instance.routes.get("/meld/view-custom")
-async def view_custom(request: web.Request) -> web.StreamResponse:
-    try:
-        filename = request.query.get("filename", "")
-        subfolder = request.query.get("subfolder", "")
-
-        # Use subfolder as the base directory for custom paths
-        full_path = os.path.abspath(os.path.join(subfolder, filename))
-
-        if not os.path.exists(full_path):
-            return web.Response(status=404)
-
-        # Basic security check: ensure it's an image file
-        if not filename.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
-            return web.Response(status=403)
-
-        return web.FileResponse(full_path)
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 
@@ -629,11 +193,15 @@ async def list_folders(request: web.Request) -> web.Response:
                         folders.append({"name": item, "count": None, "preview": None})
                     else:
                         # Recursive count for subfolder
-                        sub_count = await loop.run_in_executor(None, count_images_recursive, full_item_path)
+                        sub_count = await loop.run_in_executor(
+                            None, scan_service.count_images_recursive, full_item_path
+                        )
 
                         # Get sample image for preview
                         preview = None
-                        sample_img_path = await loop.run_in_executor(None, get_first_image_recursive, full_item_path)
+                        sample_img_path = await loop.run_in_executor(
+                            None, scan_service.get_first_image_recursive, full_item_path
+                        )
                         if sample_img_path:
                             if base_dir:
                                 rel_path = os.path.relpath(sample_img_path, base_dir)
@@ -674,7 +242,9 @@ async def list_folders(request: web.Request) -> web.Response:
 
             # The top-level 'image_count' should also be recursive if it includes subdirectories.
             if not fast:
-                total_recursive_count = await loop.run_in_executor(None, count_images_recursive, target_path)
+                total_recursive_count = await loop.run_in_executor(
+                    None, scan_service.count_images_recursive, target_path
+                )
 
         except PermissionError:
             return web.json_response({"error": "Permission denied"}, status=403)
@@ -714,9 +284,11 @@ async def get_folder_metadata(request: web.Request) -> web.Response:
                 continue
             full_item_path = os.path.join(target_path, name)
             if await loop.run_in_executor(None, os.path.isdir, full_item_path):
-                sub_count = await loop.run_in_executor(None, count_images_recursive, full_item_path)
+                sub_count = await loop.run_in_executor(None, scan_service.count_images_recursive, full_item_path)
                 preview = None
-                sample_img_path = await loop.run_in_executor(None, get_first_image_recursive, full_item_path)
+                sample_img_path = await loop.run_in_executor(
+                    None, scan_service.get_first_image_recursive, full_item_path
+                )
                 if sample_img_path:
                     if base_dir:
                         rel_path = os.path.relpath(sample_img_path, base_dir)
@@ -758,7 +330,7 @@ async def get_path_image_count(request: web.Request) -> web.Response:
         target_path = os.path.abspath(os.path.join(base_dir, path))
         loop = asyncio.get_event_loop()
         if await loop.run_in_executor(None, os.path.isdir, target_path):
-            count = await loop.run_in_executor(None, count_images_recursive, target_path)
+            count = await loop.run_in_executor(None, scan_service.count_images_recursive, target_path)
             return web.json_response({"count": count})
         return web.json_response({"count": 0})
     except Exception as e:
@@ -767,8 +339,7 @@ async def get_path_image_count(request: web.Request) -> web.Response:
 
 @server.PromptServer.instance.routes.post("/meld/scan")
 async def start_scan(request: web.Request) -> web.Response:
-    global _scan_state
-    if _scan_state["is_running"]:
+    if scan_service.get_scan_state()["is_running"]:
         return web.json_response({"error": "Scan already running"}, status=400)
 
     try:
@@ -798,24 +369,17 @@ async def start_scan(request: web.Request) -> web.Response:
         if not os.path.exists(target_base):
             return web.json_response({"error": f"Path does not exist: {target_base}"}, status=404)
 
-        _scan_state["is_running"] = True
-        _scan_state["should_cancel"] = False
-
         # In custom mode, base_dir for relative path calculation should be the target itself
         calc_base = target_base if img_type == "custom" else base_dir
 
-        thread = threading.Thread(
-            target=_scan_thread,
-            args=(
-                calc_base,
-                subfolder if img_type != "custom" else "",
-                img_type,
-                recursive,
-                auto_link_parent,
-                tags,
-            ),
+        scan_service.start_scan_thread(
+            calc_base,
+            subfolder if img_type != "custom" else "",
+            img_type,
+            recursive,
+            auto_link_parent,
+            tags,
         )
-        thread.start()
 
         return web.json_response({"status": "started"})
     except Exception as e:
@@ -824,57 +388,13 @@ async def start_scan(request: web.Request) -> web.Response:
 
 @server.PromptServer.instance.routes.post("/meld/scan/cancel")
 async def cancel_scan(request: web.Request) -> web.Response:
-    global _scan_state
-    _scan_state["should_cancel"] = True
+    scan_service.cancel_scan()
     return web.json_response({"status": "cancelling"})
 
 
 @server.PromptServer.instance.routes.get("/meld/scan/status")
 async def get_scan_status(request: web.Request) -> web.Response:
-    return web.json_response(_scan_state)
-
-
-def extract_source_filenames(workflow_json: str | dict | None, prompt_json: str | dict | None) -> list[str]:
-    filenames = set()
-
-    # Helper to check for image inputs
-    def check_inputs(inputs: dict) -> None:
-        if not isinstance(inputs, dict):
-            return
-        # Common widget names for image loading
-        for key, val in inputs.items():
-            if key in ["image", "filename", "image_path"] and isinstance(val, str):
-                filenames.add(val)
-
-    # Parse workflow_json (graph format)
-    if workflow_json:
-        try:
-            data = json.loads(workflow_json) if isinstance(workflow_json, str) else workflow_json
-            if isinstance(data, dict):
-                nodes = data.get("nodes", [])
-                if isinstance(nodes, list):
-                    for node in nodes:
-                        widgets_values = node.get("widgets_values")
-                        if isinstance(widgets_values, list):
-                            for val in widgets_values:
-                                if isinstance(val, str) and any(
-                                    val.lower().endswith(ext) for ext in [".png", ".jpg", ".jpeg", ".webp"]
-                                ):
-                                    filenames.add(val)
-        except Exception:
-            pass
-
-    # Parse prompt_json (API format)
-    if prompt_json:
-        try:
-            data = json.loads(prompt_json) if isinstance(prompt_json, str) else prompt_json
-            if isinstance(data, dict):
-                for node_data in data.values():
-                    check_inputs(node_data.get("inputs", {}))
-        except Exception:
-            pass
-
-    return list(filenames)
+    return web.json_response(scan_service.get_scan_state())
 
 
 @server.PromptServer.instance.routes.get("/meld/image/{image_id}/workflow")
@@ -1229,7 +749,9 @@ async def register_image(request: web.Request) -> web.Response:
                 logging.warning(f"[Meld] Failed to calculate phash for {full_path}")
 
         # Infer parent_id
-        parent_id = infer_parent_id(cursor, filename, subfolder, img_type, phash, timestamp, strategy=matching_strategy)
+        parent_id = scan_service.infer_parent_id(
+            cursor, filename, subfolder, img_type, phash, timestamp, strategy=matching_strategy
+        )
 
         # Insert Image
         sql = """
@@ -1593,17 +1115,6 @@ async def get_related_images(request: web.Request) -> web.Response:
         return web.json_response({"error": "internal error"}, status=500)
 
 
-def get_unique_filename(base_dir: str, subfolder: str, filename: str) -> str:
-    """Find a unique filename by appending _1, _2, etc. if needed."""
-    name, ext = os.path.splitext(filename)
-    counter = 1
-    new_filename = filename
-    while os.path.exists(os.path.join(base_dir, subfolder, new_filename)):
-        new_filename = f"{name}_{counter}{ext}"
-        counter += 1
-    return new_filename
-
-
 @server.PromptServer.instance.routes.post("/meld/restore")
 async def restore_images(request: web.Request) -> web.Response:
     try:
@@ -1656,7 +1167,7 @@ async def restore_images(request: web.Request) -> web.Response:
             os.makedirs(target_dir, exist_ok=True)
 
             # 4. Handle filename collision
-            final_filename = get_unique_filename(base_dir, subfolder, original_filename)
+            final_filename = image_service.get_unique_filename(base_dir, subfolder, original_filename)
             target_full_path = os.path.join(target_dir, final_filename)
 
             try:
@@ -1915,100 +1426,6 @@ async def link_parent(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-def get_parent_suggestions(
-    cursor: sqlite3.Cursor,
-    image_id: int,
-    target_phash: str | None,
-    target_created_at: float,
-    filename: str,
-    subfolder: str,
-    img_type: str,
-    strategy: str = "phash_created",
-    threshold: int = 12,
-) -> list[dict]:
-    # 1. Find source filename matches (if strategy includes it)
-    source_matches = []
-    if strategy == "filename_phash":
-        try:
-            if img_type == "output":
-                base_dir = folder_paths.get_output_directory()
-            elif img_type == "input":
-                base_dir = folder_paths.get_input_directory()
-            elif img_type == "temp":
-                base_dir = folder_paths.get_temp_directory()
-            else:
-                base_dir = None
-
-            if base_dir:
-                full_path = os.path.join(base_dir, subfolder, filename)
-                if os.path.exists(full_path):
-                    _, _, _, wf, pr, _, _ = MetadataHelper.extract_metadata(full_path)
-                    source_filenames = extract_source_filenames(wf, pr)
-                    if source_filenames:
-                        placeholders = ",".join(["?"] * len(source_filenames))
-                        cursor.execute(
-                            f"SELECT id, filename, subfolder, type, phash, created_at FROM images WHERE filename IN ({placeholders}) AND deleted_at IS NULL AND id != ? AND created_at < ?",
-                            (*source_filenames, image_id, target_created_at),
-                        )
-                        for match in cursor.fetchall():
-                            source_matches.append(
-                                {
-                                    "id": match[0],
-                                    "filename": match[1],
-                                    "subfolder": match[2],
-                                    "type": match[3],
-                                    "distance": 0,
-                                    "created_at": match[5],
-                                    "is_source_match": True,
-                                }
-                            )
-        except Exception:
-            pass
-
-    # 2. Find pHash matches
-    phash_matches = []
-    if target_phash:
-        cursor.execute(
-            "SELECT id, filename, subfolder, type, phash, created_at FROM images WHERE id != ? AND phash IS NOT NULL AND deleted_at IS NULL AND created_at < ? ORDER BY created_at DESC",
-            (image_id, target_created_at),
-        )
-        rows = cursor.fetchall()
-
-        def hamming_distance(h1: str, h2: str) -> int:
-            try:
-                return bin(int(h1, 16) ^ int(h2, 16)).count("1")
-            except Exception:
-                return 999
-
-        for img_id, fname, subf, itype, iphash, icreated in rows:
-            # Skip if already in source matches
-            if any(m["id"] == img_id for m in source_matches):
-                continue
-
-            dist = hamming_distance(target_phash, iphash)
-            if dist <= threshold:
-                phash_matches.append(
-                    {
-                        "id": img_id,
-                        "filename": fname,
-                        "subfolder": subf,
-                        "type": itype,
-                        "distance": dist,
-                        "created_at": icreated,
-                        "is_source_match": False,
-                    }
-                )
-
-        # Sort pHash matches based on strategy
-        if strategy == "phash_created":
-            phash_matches.sort(key=lambda x: (x["distance"], abs(target_created_at - x["created_at"])))
-        else:
-            # Default/phash_only: distance then recency
-            phash_matches.sort(key=lambda x: (x["distance"], -x["created_at"]))
-
-    return source_matches + phash_matches
-
-
 @server.PromptServer.instance.routes.get("/meld/suggest-parents")
 async def suggest_parents(request: web.Request) -> web.Response:
     try:
@@ -2037,7 +1454,7 @@ async def suggest_parents(request: web.Request) -> web.Response:
 
         target_phash, target_created_at, filename, subfolder, img_type = row
 
-        suggestions = get_parent_suggestions(
+        suggestions = image_service.get_parent_suggestions(
             cursor,
             int(image_id),
             target_phash,
@@ -2214,7 +1631,7 @@ def _run_auto_cleanup() -> None:
 
     time.sleep(5)  # Wait a bit to prioritize other initialization tasks
     try:
-        count = perform_cleanup()
+        count = scan_service.perform_cleanup()
         if count > 0:
             logging.info(f"[Meld] Extension load cleanup: Removed {count} missing images from database.")
     except Exception as e:
