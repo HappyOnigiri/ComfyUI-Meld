@@ -75,7 +75,7 @@ class DataclassUsageChecker(ast.NodeVisitor):
         # Handle Python versions < 3.9 where node.slice is ast.Index(value=...)
         # Use string-based type check to avoid deprecation warnings for ast.Index
         if type(index_node).__name__ == "Index":
-            index_node = index_node.value
+            index_node = getattr(index_node, "value")  # noqa: B009
 
         value = None
         if isinstance(index_node, ast.Constant) and isinstance(index_node.value, str):
