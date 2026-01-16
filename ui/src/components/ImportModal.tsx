@@ -13,6 +13,7 @@ import { createPortal } from "react-dom";
 import * as api from "../api";
 import { useGallery } from "../store/GalleryContext";
 import type { Tag as TagType } from "../types";
+import { getImageViewUrl } from "../utils/url";
 
 export const ImportModal: React.FC = () => {
 	const { dispatch } = useGallery();
@@ -253,17 +254,6 @@ export const ImportModal: React.FC = () => {
 			console.error("Failed to start scan:", err);
 			alert(`Failed to start scan: ${err}`);
 		}
-	};
-
-	const getImageViewUrl = (img: {
-		filename: string;
-		subfolder: string;
-		type: string;
-	}) => {
-		if (img.type === "custom") {
-			return `/api/meld/view-custom?filename=${encodeURIComponent(img.filename)}&subfolder=${encodeURIComponent(img.subfolder)}`;
-		}
-		return `/api/view?filename=${encodeURIComponent(img.filename)}&type=${img.type}&subfolder=${encodeURIComponent(img.subfolder)}`;
 	};
 
 	const enterFolder = (name: string) => {

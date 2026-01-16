@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from "react";
 import { fetchImageWorkflow, fetchSnapshotData } from "../api";
 import { useGallery } from "../store/GalleryContext";
 import type { ComfyApp, MeldImage } from "../types";
+import { getImageViewUrl } from "../utils/url";
 
 interface ImageCardProps {
 	image: MeldImage;
@@ -69,9 +70,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 		if (img.ancestors && img.ancestors.length > 0) {
 			return img.ancestors.slice(0, maxDepth).map((a) => ({
 				id: a.id,
-				imgSrc: `/api/view?filename=${encodeURIComponent(a.filename)}&type=${
-					a.type || "output"
-				}${a.subfolder ? `&subfolder=${encodeURIComponent(a.subfolder)}` : ""}`,
+				imgSrc: getImageViewUrl(a),
 			}));
 		}
 
@@ -82,21 +81,13 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 
 		let imgSrc: string | null = null;
 		if (parentInState) {
-			imgSrc = `/api/view?filename=${encodeURIComponent(parentInState.filename)}&type=${
-				parentInState.type || "output"
-			}${
-				parentInState.subfolder
-					? `&subfolder=${encodeURIComponent(parentInState.subfolder)}`
-					: ""
-			}`;
+			imgSrc = getImageViewUrl(parentInState);
 		} else {
-			imgSrc = `/api/view?filename=${encodeURIComponent(img.parent_filename)}&type=${
-				img.parent_type || "output"
-			}${
-				img.parent_subfolder
-					? `&subfolder=${encodeURIComponent(img.parent_subfolder)}`
-					: ""
-			}`;
+			imgSrc = getImageViewUrl({
+				filename: img.parent_filename,
+				subfolder: img.parent_subfolder || "",
+				type: img.parent_type,
+			});
 		}
 
 		if (!imgSrc) return [];
@@ -121,9 +112,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 		? `${image.subfolder}/${image.filename}`
 		: image.filename;
 
-	const imgSrc = `/api/view?filename=${encodeURIComponent(image.filename)}&type=${image.type || "output"}${
-		image.subfolder ? `&subfolder=${encodeURIComponent(image.subfolder)}` : ""
-	}`;
+	const imgSrc = getImageViewUrl(image);
 
 	const handleClick = (e: React.MouseEvent) => {
 		if (e.shiftKey) {

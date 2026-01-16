@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import * as api from "../api";
 import { useGallery } from "../store/GalleryContext";
+import { getImageViewUrl } from "../utils/url";
 
 interface Suggestion {
 	id: number;
@@ -146,10 +147,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 												className="meld-suggestion-card"
 												onClick={() => handleSelect(sug.id)}
 											>
-												<img
-													src={`/api/view?filename=${encodeURIComponent(sug.filename)}&type=${sug.type || "output"}${sug.subfolder ? `&subfolder=${encodeURIComponent(sug.subfolder)}` : ""}`}
-													alt={sug.filename}
-												/>
+												<img src={getImageViewUrl(sug)} alt={sug.filename} />
 												<div className="meld-suggestion-info">
 													<span className="meld-suggestion-filename">
 														{sug.filename}
@@ -171,10 +169,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 												className="meld-suggestion-card"
 												onClick={() => handleSelect(sug.id)}
 											>
-												<img
-													src={`/api/view?filename=${encodeURIComponent(sug.filename)}&type=${sug.type || "output"}${sug.subfolder ? `&subfolder=${encodeURIComponent(sug.subfolder)}` : ""}`}
-													alt={sug.filename}
-												/>
+												<img src={getImageViewUrl(sug)} alt={sug.filename} />
 												<div className="meld-suggestion-info">
 													<span className="meld-suggestion-filename">
 														{sug.filename}

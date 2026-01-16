@@ -2,7 +2,7 @@ export interface MeldImage {
 	id: number;
 	filename: string;
 	subfolder: string;
-	type: "output" | "input" | "temp";
+	type: "output" | "input" | "temp" | "custom";
 	created_at: number;
 	positive: string;
 	negative: string;
@@ -16,7 +16,7 @@ export interface MeldImage {
 	parent_id?: number | null;
 	parent_filename?: string | null;
 	parent_subfolder?: string | null;
-	parent_type?: "output" | "input" | "temp" | null;
+	parent_type?: "output" | "input" | "temp" | "custom" | null;
 	width?: number | null;
 	height?: number | null;
 	exists?: boolean;

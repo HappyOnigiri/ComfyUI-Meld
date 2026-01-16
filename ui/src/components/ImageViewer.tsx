@@ -16,6 +16,7 @@ import { createPortal } from "react-dom";
 import * as api from "../api";
 import { useGallery } from "../store/GalleryContext";
 import type { GalleryAction, MeldImage } from "../types";
+import { getImageViewUrl } from "../utils/url";
 
 // Memoized Thumbnail item to prevent unnecessary re-renders when navigating images
 const ThumbnailItem = memo(
@@ -38,9 +39,7 @@ const ThumbnailItem = memo(
 			typeof thumb.parent_id === "number" &&
 			thumb.parent_id === currentImage.id;
 
-		const thumbSrc = `/api/view?filename=${encodeURIComponent(thumb.filename)}&type=${thumb.type || "output"}${
-			thumb.subfolder ? `&subfolder=${encodeURIComponent(thumb.subfolder)}` : ""
-		}`;
+		const thumbSrc = getImageViewUrl(thumb);
 
 		return (
 			<div className="meld-viewer-thumbnail-wrapper">
@@ -343,9 +342,7 @@ export const ImageViewer: React.FC = () => {
 		if (currentIndex === -1) return;
 
 		const getImgSrc = (img: MeldImage) => {
-			return `/api/view?filename=${encodeURIComponent(img.filename)}&type=${img.type || "output"}${
-				img.subfolder ? `&subfolder=${encodeURIComponent(img.subfolder)}` : ""
-			}`;
+			return getImageViewUrl(img);
 		};
 
 		// Preload more images ahead (1 next for decode, others just for cache)
@@ -370,9 +367,7 @@ export const ImageViewer: React.FC = () => {
 
 	if (!image) return null;
 
-	const imgSrc = `/api/view?filename=${encodeURIComponent(image.filename)}&type=${image.type || "output"}${
-		image.subfolder ? `&subfolder=${encodeURIComponent(image.subfolder)}` : ""
-	}`;
+	const imgSrc = getImageViewUrl(image);
 
 	const showIcons = isFullscreen
 		? state.settings["fullscreen.show_icons"]
