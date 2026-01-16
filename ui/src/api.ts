@@ -84,6 +84,7 @@ export const fetchSettings = async (): Promise<Settings> => {
 			"gallery.hide_parent_images": true,
 			"sidebar.show_filename": "filename",
 			"sidebar.show_dimensions": true,
+			"sidebar.show_created_at": false,
 			"sidebar.show_model_name": true,
 			"sidebar.show_positive_prompt": true,
 			"sidebar.show_negative_prompt": false,

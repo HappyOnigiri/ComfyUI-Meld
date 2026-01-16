@@ -116,7 +116,7 @@ export const SettingsModal: React.FC = () => {
 			type: "select",
 			category: "Sidebar",
 			options: [
-				{ value: "filename", label: "Filename (Default)" },
+				{ value: "filename", label: "Filename" },
 				{ value: "filepath", label: "Filepath" },
 				{ value: "none", label: "None" },
 			],
@@ -125,6 +125,13 @@ export const SettingsModal: React.FC = () => {
 			key: "sidebar.show_dimensions",
 			label: "Show Dimensions",
 			description: "Display the image dimensions (width x height) on the card.",
+			type: "boolean",
+			category: "Sidebar",
+		},
+		{
+			key: "sidebar.show_created_at",
+			label: "Show Created At",
+			description: "Display the image creation date and time on the card.",
 			type: "boolean",
 			category: "Sidebar",
 		},

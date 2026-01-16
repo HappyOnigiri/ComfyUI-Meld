@@ -322,6 +322,15 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 						</div>
 					)}
 
+				{state.settings["sidebar.show_created_at"] && (
+					<div className="meld-image-card__meta-item">
+						<div className="meld-image-card__meta-label">Created At</div>
+						<div className="meld-image-card__meta-content">
+							{new Date(image.created_at * 1000).toLocaleString()}
+						</div>
+					</div>
+				)}
+
 				{state.settings["sidebar.show_model_name"] && (
 					<div
 						className="meld-image-card__meta-item meld-image-card__meta-item--clickable"

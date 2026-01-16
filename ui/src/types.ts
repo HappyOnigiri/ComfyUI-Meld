@@ -48,6 +48,7 @@ export interface Settings {
 	"gallery.hide_parent_images": boolean;
 	"sidebar.show_filename": "filename" | "filepath" | "none";
 	"sidebar.show_dimensions": boolean;
+	"sidebar.show_created_at": boolean;
 	"sidebar.show_model_name": boolean;
 	"sidebar.show_positive_prompt": boolean;
 	"sidebar.show_negative_prompt": boolean;

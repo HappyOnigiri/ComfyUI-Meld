@@ -5707,6 +5707,7 @@ const np = async () => {
       "gallery.hide_parent_images": !0,
       "sidebar.show_filename": "filename",
       "sidebar.show_dimensions": !0,
+      "sidebar.show_created_at": !1,
       "sidebar.show_model_name": !0,
       "sidebar.show_positive_prompt": !0,
       "sidebar.show_negative_prompt": !1,
@@ -6405,6 +6406,7 @@ const qp = (e) => {
     "gallery.hide_parent_images": !0,
     "sidebar.show_filename": "filename",
     "sidebar.show_dimensions": !0,
+    "sidebar.show_created_at": !1,
     "sidebar.show_model_name": !0,
     "sidebar.show_positive_prompt": !0,
     "sidebar.show_negative_prompt": !1,
@@ -7311,6 +7313,10 @@ const zc = S.createContext(void 0), im = ({
                 C.id || z
               )
             ) })
+          ] }),
+          t.settings["sidebar.show_created_at"] && /* @__PURE__ */ o.jsxs("div", { className: "meld-image-card__meta-item", children: [
+            /* @__PURE__ */ o.jsx("div", { className: "meld-image-card__meta-label", children: "Created At" }),
+            /* @__PURE__ */ o.jsx("div", { className: "meld-image-card__meta-content", children: new Date(e.created_at * 1e3).toLocaleString() })
           ] }),
           t.settings["sidebar.show_model_name"] && /* @__PURE__ */ o.jsxs(
             "div",
@@ -9231,7 +9237,7 @@ You can select favorites when the search query is empty.`
       type: "select",
       category: "Sidebar",
       options: [
-        { value: "filename", label: "Filename (Default)" },
+        { value: "filename", label: "Filename" },
         { value: "filepath", label: "Filepath" },
         { value: "none", label: "None" }
       ]
@@ -9240,6 +9246,13 @@ You can select favorites when the search query is empty.`
       key: "sidebar.show_dimensions",
       label: "Show Dimensions",
       description: "Display the image dimensions (width x height) on the card.",
+      type: "boolean",
+      category: "Sidebar"
+    },
+    {
+      key: "sidebar.show_created_at",
+      label: "Show Created At",
+      description: "Display the image creation date and time on the card.",
       type: "boolean",
       category: "Sidebar"
     },

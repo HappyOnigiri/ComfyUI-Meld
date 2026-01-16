@@ -1103,6 +1103,8 @@ async def get_settings(request: web.Request) -> web.Response:
             "gallery.hide_parent_images": True,
             "gallery.trash_retention_days": 30,
             "sidebar.show_filename": "filename",
+            "sidebar.show_dimensions": True,
+            "sidebar.show_created_at": False,
             "sidebar.show_model_name": True,
             "sidebar.show_positive_prompt": True,
             "sidebar.show_negative_prompt": False,
