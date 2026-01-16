@@ -587,6 +587,6 @@ export const ImportModal: React.FC = () => {
 				</div>
 			)}
 		</div>,
-		document.body,
+		(document.fullscreenElement as HTMLElement) || document.body,
 	);
 };

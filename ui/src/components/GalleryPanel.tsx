@@ -346,37 +346,42 @@ export const GalleryPanel: React.FC = () => {
 
 			{state.viewerImageId !== null && <ImageViewer />}
 
-			{state.activeModal.type === "parent_selection" &&
-				createPortal(
-					<ParentSelectionModal imageId={state.activeModal.imageId} />,
-					document.body,
-				)}
+			{/* Only render modals here if viewer is NOT open. If viewer is open, it handles its own modals to support fullscreen. */}
+			{state.viewerImageId === null && (
+				<>
+					{state.activeModal.type === "parent_selection" &&
+						createPortal(
+							<ParentSelectionModal imageId={state.activeModal.imageId} />,
+							document.body,
+						)}
 
-			{state.activeModal.type === "import" &&
-				createPortal(<ImportModal />, document.body)}
+					{state.activeModal.type === "import" &&
+						createPortal(<ImportModal />, document.body)}
 
-			{state.activeModal.type === "settings" &&
-				createPortal(<SettingsModal />, document.body)}
+					{state.activeModal.type === "settings" &&
+						createPortal(<SettingsModal />, document.body)}
 
-			{state.activeModal.type === "tag_edit" &&
-				createPortal(
-					<TagEditModal
-						imageIds={state.activeModal.imageIds}
-						initialTags={state.activeModal.tags}
-						onClose={() => dispatch({ type: "CLOSE_MODAL" })}
-					/>,
-					document.body,
-				)}
+					{state.activeModal.type === "tag_edit" &&
+						createPortal(
+							<TagEditModal
+								imageIds={state.activeModal.imageIds}
+								initialTags={state.activeModal.tags}
+								onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+							/>,
+							document.body,
+						)}
 
-			{state.activeModal.type === "delete_confirm" &&
-				createPortal(
-					<DeleteConfirmModal
-						imageIds={state.activeModal.imageIds}
-						hasLineage={state.activeModal.hasLineage}
-						isPermanent={state.activeModal.isPermanent}
-					/>,
-					document.body,
-				)}
+					{state.activeModal.type === "delete_confirm" &&
+						createPortal(
+							<DeleteConfirmModal
+								imageIds={state.activeModal.imageIds}
+								hasLineage={state.activeModal.hasLineage}
+								isPermanent={state.activeModal.isPermanent}
+							/>,
+							document.body,
+						)}
+				</>
+			)}
 		</div>
 	);
 };

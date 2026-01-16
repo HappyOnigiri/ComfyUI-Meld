@@ -1,6 +1,7 @@
 import { Plus, Search, Tag, X } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { bulkUpdateImageTags, fetchTags, updateImageTags } from "../api";
 import { useGallery } from "../store/GalleryContext";
 import type { Tag as TagType } from "../types";
@@ -102,7 +103,7 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 		}
 	};
 
-	return (
+	return createPortal(
 		<div className="meld-modal-overlay" onClick={onClose}>
 			<div className="meld-modal-content" onClick={(e) => e.stopPropagation()}>
 				<div className="meld-modal-header">
@@ -230,6 +231,7 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 					</button>
 				</div>
 			</div>
-		</div>
+		</div>,
+		(document.fullscreenElement as HTMLElement) || document.body,
 	);
 };

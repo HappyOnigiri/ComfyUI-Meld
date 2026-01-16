@@ -193,6 +193,6 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 				</div>
 			</div>
 		</div>,
-		document.body,
+		(document.fullscreenElement as HTMLElement) || document.body,
 	);
 };
