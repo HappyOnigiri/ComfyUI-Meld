@@ -1,5 +1,6 @@
 import { AlertTriangle, Trash2, X } from "lucide-react";
 import type React from "react";
+import { useCallback, useEffect } from "react";
 import { createPortal } from "react-dom";
 import * as api from "../api";
 import { useGallery } from "../store/GalleryContext";
@@ -15,15 +16,83 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 	hasLineage,
 	isPermanent = false,
 }) => {
-	const { dispatch, refreshImages } = useGallery();
+	const { state, dispatch, refreshImages } = useGallery();
 
-	const handleClose = () => {
+	const handleClose = useCallback(() => {
 		dispatch({ type: "CLOSE_MODAL" });
-	};
+	}, [dispatch]);
+
+	const navigateViewerIfNeeded = useCallback(
+		(idsToDelete: Set<number>) => {
+			if (
+				state.viewerImageId === null ||
+				!idsToDelete.has(state.viewerImageId)
+			) {
+				return;
+			}
+
+			const currentList =
+				state.viewerMode === "lineage" && state.lineageImages.length > 0
+					? state.lineageImages
+					: state.images.filter(
+							(img) =>
+								img.exists !== false &&
+								!(
+									state.settings["gallery.hide_parent_images"] &&
+									img.has_children
+								),
+						);
+
+			const currentIndex = currentList.findIndex(
+				(img) => img.id === state.viewerImageId,
+			);
+			if (currentIndex === -1) return;
+
+			// Find the next image that is NOT in the idsToDelete set
+			let found = false;
+			for (let i = 1; i < currentList.length; i++) {
+				const idx = (currentIndex + i) % currentList.length;
+				if (!idsToDelete.has(currentList[idx].id)) {
+					dispatch({
+						type: "OPEN_VIEWER",
+						payload: { id: currentList[idx].id, mode: state.viewerMode },
+					});
+					found = true;
+					break;
+				}
+			}
+
+			if (!found) {
+				dispatch({ type: "CLOSE_VIEWER" });
+			}
+		},
+		[
+			state.viewerImageId,
+			state.viewerMode,
+			state.lineageImages,
+			state.images,
+			state.settings,
+			dispatch,
+		],
+	);
+
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.key === "Escape") {
+				handleClose();
+			}
+		};
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, [handleClose]);
 
 	const handleDeleteSelected = async () => {
 		try {
 			dispatch({ type: "SET_LOADING", payload: true });
+
+			const idsToDeleteSet = new Set(imageIds);
+			navigateViewerIfNeeded(idsToDeleteSet);
+
 			await api.deleteImages(imageIds, isPermanent);
 			dispatch({ type: "CLEAR_SELECTION" });
 			dispatch({ type: "CLOSE_MODAL" });
@@ -50,6 +119,8 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 					allIdsToDelete.add(img.id);
 				}
 			}
+
+			navigateViewerIfNeeded(allIdsToDelete);
 
 			await api.deleteImages(Array.from(allIdsToDelete), isPermanent);
 			dispatch({ type: "CLEAR_SELECTION" });
@@ -188,6 +259,6 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 				</div>
 			</div>
 		</div>,
-		document.body,
+		(document.fullscreenElement as HTMLElement) || document.body,
 	);
 };

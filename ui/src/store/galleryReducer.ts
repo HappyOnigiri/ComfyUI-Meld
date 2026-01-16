@@ -62,6 +62,8 @@ export const initialState: GalleryState = {
 		"viewer.thumbnail_window_size": 15,
 		"viewer.show_thumbnails": true,
 		"viewer.show_icons": true,
+		"viewer.delete_mode": "confirm",
+		"fullscreen.delete_mode": "confirm",
 		"gallery.matching_strategy": "phash_created",
 		"gallery.lineage_max_depth": 5,
 		"gallery.trash_retention_days": 30,

@@ -293,6 +293,18 @@ export const SettingsModal: React.FC = () => {
 			category: "View",
 		},
 		{
+			key: "viewer.delete_mode",
+			label: "Delete Mode",
+			description: "Choose how images are deleted in view mode.",
+			type: "select",
+			category: "View",
+			options: [
+				{ value: "confirm", label: "Confirmed" },
+				{ value: "target_only", label: "Unconfirmed (Target Only)" },
+				{ value: "lineage", label: "Unconfirmed (Include Lineage)" },
+			],
+		},
+		{
 			key: "viewer.thumbnail_window_size",
 			label: "Thumbnail Window Size",
 			description: "Number of thumbnails to keep in the viewer (1-10000).",
@@ -307,6 +319,18 @@ export const SettingsModal: React.FC = () => {
 			description: "Display navigation and close icons in fullscreen mode.",
 			type: "boolean",
 			category: "Full Screen",
+		},
+		{
+			key: "fullscreen.delete_mode",
+			label: "Delete Mode",
+			description: "Choose how images are deleted in fullscreen mode.",
+			type: "select",
+			category: "Full Screen",
+			options: [
+				{ value: "confirm", label: "Confirmed" },
+				{ value: "target_only", label: "Unconfirmed (Target Only)" },
+				{ value: "lineage", label: "Unconfirmed (Include Lineage)" },
+			],
 		},
 		{
 			key: "fullscreen.loop",
@@ -721,6 +745,6 @@ export const SettingsModal: React.FC = () => {
 				</div>
 			</div>
 		</div>,
-		document.body,
+		(document.fullscreenElement as HTMLElement) || document.body,
 	);
 };

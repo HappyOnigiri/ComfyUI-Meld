@@ -83,6 +83,8 @@ export interface Settings {
 	"viewer.thumbnail_window_size": number;
 	"viewer.show_thumbnails": boolean;
 	"viewer.show_icons": boolean;
+	"viewer.delete_mode": "confirm" | "target_only" | "lineage";
+	"fullscreen.delete_mode": "confirm" | "target_only" | "lineage";
 	"gallery.matching_strategy":
 		| "filename_phash"
 		| "phash_created"

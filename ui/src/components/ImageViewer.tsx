@@ -17,6 +17,11 @@ import * as api from "../api";
 import { useGallery } from "../store/GalleryContext";
 import type { GalleryAction, MeldImage } from "../types";
 import { getImageViewUrl } from "../utils/url";
+import { DeleteConfirmModal } from "./DeleteConfirmModal";
+import { ImportModal } from "./ImportModal";
+import { ParentSelectionModal } from "./ParentSelectionModal";
+import { SettingsModal } from "./SettingsModal";
+import { TagEditModal } from "./TagEditModal";
 
 // Memoized Thumbnail item to prevent unnecessary re-renders when navigating images
 const ThumbnailItem = memo(
@@ -70,7 +75,7 @@ const ThumbnailItem = memo(
 ThumbnailItem.displayName = "ThumbnailItem";
 
 export const ImageViewer: React.FC = () => {
-	const { state, dispatch, loadMoreImages } = useGallery();
+	const { state, dispatch, loadMoreImages, refreshImages } = useGallery();
 	const { viewerImageId, images, viewerMode, lineageImages } = state;
 	const [isFullscreen, setIsFullscreen] = useState(false);
 	const [showDetails, setShowDetails] = useState(
@@ -100,6 +105,14 @@ export const ImageViewer: React.FC = () => {
 		return currentThumbnails.findIndex((img) => img.id === viewerImageId);
 	}, [currentThumbnails, viewerImageId]);
 
+	const image = useMemo(() => {
+		return (
+			viewerMode === "lineage" && lineageImages.length > 0
+				? lineageImages
+				: images
+		).find((img) => img.id === viewerImageId);
+	}, [viewerMode, lineageImages, images, viewerImageId]);
+
 	// Windowed thumbnails: only render a subset around the current image for performance
 	const windowedThumbnails = useMemo(() => {
 		if (!showThumbnails || currentIndex === -1) return [];
@@ -124,11 +137,80 @@ export const ImageViewer: React.FC = () => {
 		showThumbnails,
 	]);
 
-	const image = (
-		viewerMode === "lineage" && lineageImages.length > 0
-			? lineageImages
-			: images
-	).find((img) => img.id === viewerImageId);
+	const handleDelete = useCallback(async () => {
+		if (!image) return;
+
+		const deleteMode = isFullscreen
+			? state.settings["fullscreen.delete_mode"]
+			: state.settings["viewer.delete_mode"];
+
+		if (deleteMode === "confirm") {
+			dispatch({
+				type: "OPEN_MODAL",
+				payload: {
+					type: "delete_confirm",
+					imageIds: [image.id],
+					hasLineage: !!(image.parent_id || image.has_children),
+					isPermanent: state.viewScope === "trash",
+				},
+			});
+			return;
+		}
+
+		try {
+			const isPermanent = state.viewScope === "trash";
+			const idsToDelete = new Set<number>([image.id]);
+
+			if (deleteMode === "lineage") {
+				// Fetch all related images in the lineage
+				const lineage = await api.fetchLineage(image.id);
+				for (const img of lineage) {
+					idsToDelete.add(img.id);
+				}
+			}
+
+			// Move to next image before deleting for better UX
+			// If we are deleting multiple images (lineage), we should skip all of them
+			if (currentThumbnails.length > idsToDelete.size) {
+				// Find the next image that is NOT in the idsToDelete set
+				let found = false;
+				for (let i = 1; i < currentThumbnails.length; i++) {
+					const idx = (currentIndex + i) % currentThumbnails.length;
+					if (!idsToDelete.has(currentThumbnails[idx].id)) {
+						dispatch({
+							type: "OPEN_VIEWER",
+							payload: { id: currentThumbnails[idx].id, mode: viewerMode },
+						});
+						found = true;
+						break;
+					}
+				}
+				if (!found) {
+					dispatch({ type: "CLOSE_VIEWER" });
+				}
+			} else {
+				dispatch({ type: "CLOSE_VIEWER" });
+			}
+
+			await api.deleteImages(Array.from(idsToDelete), isPermanent);
+			await refreshImages();
+		} catch (err: unknown) {
+			dispatch({
+				type: "SET_ERROR",
+				payload: err instanceof Error ? err.message : String(err),
+			});
+		}
+	}, [
+		image,
+		isFullscreen,
+		state.settings,
+		state.viewScope,
+		currentThumbnails,
+		currentIndex,
+		viewerMode,
+		dispatch,
+		refreshImages,
+	]);
 
 	const toggleFullscreen = useCallback(
 		(e?: React.MouseEvent | KeyboardEvent) => {
@@ -242,7 +324,17 @@ export const ImageViewer: React.FC = () => {
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (viewerImageId === null) return;
 
+			// Don't trigger shortcuts if user is typing in an input or textarea
+			if (
+				document.activeElement?.tagName === "INPUT" ||
+				document.activeElement?.tagName === "TEXTAREA"
+			) {
+				return;
+			}
+
 			if (e.key === "Escape") {
+				if (state.activeModal.type !== "none") return;
+
 				if (document.fullscreenElement) {
 					document.exitFullscreen();
 				} else {
@@ -256,6 +348,8 @@ export const ImageViewer: React.FC = () => {
 				toggleFullscreen(e);
 			} else if (e.key === "i" || e.key === "I") {
 				setShowDetails((prev) => !prev);
+			} else if (e.key === "Delete") {
+				handleDelete();
 			}
 		};
 
@@ -283,6 +377,8 @@ export const ImageViewer: React.FC = () => {
 		handleNext,
 		handlePrevious,
 		state.settings,
+		handleDelete,
+		state.activeModal.type,
 	]);
 
 	// Fetch lineage if needed
@@ -615,6 +711,27 @@ export const ImageViewer: React.FC = () => {
 						</div>
 					)}
 			</div>
+
+			{/* Render modals inside viewer to ensure visibility in fullscreen */}
+			{state.activeModal.type === "delete_confirm" && (
+				<DeleteConfirmModal
+					imageIds={state.activeModal.imageIds}
+					hasLineage={state.activeModal.hasLineage}
+					isPermanent={state.activeModal.isPermanent}
+				/>
+			)}
+			{state.activeModal.type === "parent_selection" && (
+				<ParentSelectionModal imageId={state.activeModal.imageId} />
+			)}
+			{state.activeModal.type === "import" && <ImportModal />}
+			{state.activeModal.type === "settings" && <SettingsModal />}
+			{state.activeModal.type === "tag_edit" && (
+				<TagEditModal
+					imageIds={state.activeModal.imageIds}
+					initialTags={state.activeModal.tags}
+					onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+				/>
+			)}
 		</div>,
 		document.body,
 	);
