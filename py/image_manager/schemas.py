@@ -294,6 +294,20 @@ class ParentSuggestion(BaseSchema):
 
 
 @dataclass
+class ImageSnapshotResponse(BaseSchema):
+    model_name: str
+    positive: str
+    negative: str
+    seed: int
+    steps: int
+    cfg: float
+    sampler_name: str
+    scheduler: str
+    width: int
+    height: int
+
+
+@dataclass
 class ScanStatus(BaseSchema):
     is_running: bool  # noqa: N815
     should_cancel: bool  # noqa: N815

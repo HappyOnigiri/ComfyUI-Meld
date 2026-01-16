@@ -3,7 +3,6 @@ import os
 import sqlite3
 import threading
 import time
-from typing import Any
 
 import folder_paths
 from PIL import Image
@@ -25,23 +24,24 @@ from ..database import (
     get_db_connection,
     get_or_create_model,
 )
+from ..schemas import ScanStatus
 
 # State for scanning
-_scan_state = {"is_running": False, "should_cancel": False}
+_scan_state = ScanStatus(is_running=False, should_cancel=False)
 
 
-def get_scan_state() -> dict[str, Any]:
+def get_scan_state() -> ScanStatus:
     return _scan_state
 
 
 def cancel_scan() -> None:
-    _scan_state["should_cancel"] = True
+    _scan_state.should_cancel = True
 
 
 def set_scan_running(running: bool) -> None:
-    _scan_state["is_running"] = running
+    _scan_state.is_running = running
     if running:
-        _scan_state["should_cancel"] = False
+        _scan_state.should_cancel = False
 
 
 def perform_cleanup() -> int:
@@ -248,7 +248,7 @@ def _scan_thread(
         # Step 1: Register all images
         newly_registered_ids = []
         for full_path in image_files:
-            if _scan_state["should_cancel"]:
+            if _scan_state.should_cancel:
                 break
 
             try:
@@ -385,11 +385,11 @@ def _scan_thread(
         conn.commit()
 
         # Step 2: Parent Linking (Auto)
-        if auto_link_parent and not _scan_state["should_cancel"]:
+        if auto_link_parent and not _scan_state.should_cancel:
             total_linking = len(newly_registered_ids)
             processed_linking = 0
             for img_id in newly_registered_ids:
-                if _scan_state["should_cancel"]:
+                if _scan_state.should_cancel:
                     break
 
                 # Get phash and metadata for linking
@@ -421,8 +421,8 @@ def _scan_thread(
     finally:
         if conn:
             conn.close()
-        _scan_state["is_running"] = False
-        _scan_state["should_cancel"] = False
+        _scan_state.is_running = False
+        _scan_state.should_cancel = False
         server.PromptServer.instance.send_sync(
             "meld-scan-finished", {"status": "completed", "new_count": new_count, "total_count": processed}
         )

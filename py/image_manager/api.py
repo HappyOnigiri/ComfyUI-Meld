@@ -48,6 +48,7 @@ from .schemas import (
     ImageItem,
     ImageListItem,
     ImageListResponse,
+    ImageSnapshotResponse,
     LineageItem,
     LinkParentRequest,
     RegisterImageRequest,
@@ -55,7 +56,6 @@ from .schemas import (
     RenameTagRequest,
     RestoreImagesRequest,
     ScanRequest,
-    ScanStatus,
     SearchImagesRequest,
     TagRecord,
     UpdateFavoriteRequest,
@@ -378,7 +378,7 @@ async def get_path_image_count(request: web.Request) -> web.Response:
 
 @server.PromptServer.instance.routes.post("/meld/scan")
 async def start_scan(request: web.Request) -> web.Response:
-    if scan_service.get_scan_state()["is_running"]:
+    if scan_service.get_scan_state().is_running:
         return web.json_response({"error": "Scan already running"}, status=400)
 
     try:
@@ -433,7 +433,7 @@ async def cancel_scan(request: web.Request) -> web.Response:
 @server.PromptServer.instance.routes.get("/meld/scan/status")
 async def get_scan_status(request: web.Request) -> web.Response:
     state = scan_service.get_scan_state()
-    return web.json_response(ScanStatus.from_dict(state).to_dict())
+    return web.json_response(state.to_dict())
 
 
 @server.PromptServer.instance.routes.get("/meld/image/{image_id}/workflow")
@@ -496,24 +496,24 @@ async def get_image_snapshot_data(request: web.Request) -> web.Response:
         else:
             base_dir = None
 
-        data = {
-            "model_name": model_name or "v1-5-pruned-emaonly.ckpt",
-            "positive": db_pos or "",
-            "negative": db_neg or "",
-            "seed": 0,
-            "steps": 20,
-            "cfg": 8.0,
-            "sampler_name": "euler",
-            "scheduler": "normal",
-            "width": db_width or 512,
-            "height": db_height or 512,
-        }
+        data = ImageSnapshotResponse(
+            model_name=model_name or "v1-5-pruned-emaonly.ckpt",
+            positive=db_pos or "",
+            negative=db_neg or "",
+            seed=0,
+            steps=20,
+            cfg=8.0,
+            sampler_name="euler",
+            scheduler="normal",
+            width=db_width or 512,
+            height=db_height or 512,
+        )
 
         if base_dir:
             full_path = os.path.join(base_dir, subfolder, filename)
             if os.path.exists(full_path):
                 with Image.open(full_path) as img:
-                    data["width"], data["height"] = img.size
+                    data.width, data.height = img.size
 
                 # Use MetadataHelper to get more details (seed, steps, etc.)
                 (
@@ -528,11 +528,11 @@ async def get_image_snapshot_data(request: web.Request) -> web.Response:
 
                 # Update with more accurate info if found
                 if m_name:
-                    data["model_name"] = m_name
+                    data.model_name = m_name
                 if pos:
-                    data["positive"] = pos
+                    data.positive = pos
                 if neg:
-                    data["negative"] = neg
+                    data.negative = neg
 
                 # Get KSampler params
                 k_params: dict[str, Any] = {}
@@ -550,9 +550,9 @@ async def get_image_snapshot_data(request: web.Request) -> web.Response:
                 if found_k:
                     for k in ["seed", "steps", "cfg", "sampler_name", "scheduler"]:
                         if k in k_params and k_params[k] is not None:
-                            data[k] = k_params[k]
+                            setattr(data, k, k_params[k])
 
-        return web.json_response(data)
+        return web.json_response(data.to_dict())
     except Exception as e:
         logging.exception(f"[Meld] Failed to get snapshot data: {e}")
         return web.json_response({"error": str(e)}, status=500)
