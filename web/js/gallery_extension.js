@@ -6965,7 +6965,7 @@ const zc = _.createContext(void 0), im = ({
                     style: { marginRight: "8px", verticalAlign: "middle" }
                   }
                 ),
-                "Delete"
+                "Move to Trash"
               ]
             }
           )
@@ -9706,7 +9706,7 @@ You can select favorites when the search query is empty.`
                     onClick: () => {
                       t({ type: "SET_VIEW_SCOPE", payload: "trash" }), t({ type: "CLOSE_MODAL" });
                     },
-                    children: "View Trash Items"
+                    children: "View Trash"
                   }
                 ) })
               ] }) })
@@ -10307,7 +10307,8 @@ You can select favorites when the search query is empty.`
             am,
             {
               imageIds: e.activeModal.imageIds,
-              hasLineage: e.activeModal.hasLineage
+              hasLineage: e.activeModal.hasLineage,
+              isPermanent: e.activeModal.isPermanent
             }
           ),
           document.body

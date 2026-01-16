@@ -711,7 +711,7 @@ export const SettingsModal: React.FC = () => {
 												dispatch({ type: "CLOSE_MODAL" });
 											}}
 										>
-											View Trash Items
+											View Trash
 										</button>
 									</div>
 								</div>

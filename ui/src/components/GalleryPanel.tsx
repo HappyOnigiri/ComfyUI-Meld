@@ -373,6 +373,7 @@ export const GalleryPanel: React.FC = () => {
 					<DeleteConfirmModal
 						imageIds={state.activeModal.imageIds}
 						hasLineage={state.activeModal.hasLineage}
+						isPermanent={state.activeModal.isPermanent}
 					/>,
 					document.body,
 				)}

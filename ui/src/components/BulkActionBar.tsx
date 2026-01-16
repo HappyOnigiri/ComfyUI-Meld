@@ -87,7 +87,7 @@ export const BulkActionBar: React.FC = () => {
 							size={16}
 							style={{ marginRight: "8px", verticalAlign: "middle" }}
 						/>
-						Delete
+						Move to Trash
 					</button>
 				</>
 			)}
