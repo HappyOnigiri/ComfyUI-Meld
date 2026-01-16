@@ -31,6 +31,37 @@ from .database import (
     rename_tag,
     upsert_setting,
 )
+from .schemas import (
+    ApiResponse,
+    BulkDeleteRequest,
+    BulkUpdateImageTagsRequest,
+    CreateFavoriteRequest,
+    CreateTagRequest,
+    DeleteFavoriteRequest,
+    DeleteImageRequest,
+    DeleteTagRequest,
+    FavoriteRecord,
+    FolderItem,
+    FolderMetadata,
+    FolderPreview,
+    FoldersResponse,
+    ImageItem,
+    ImageListItem,
+    ImageListResponse,
+    LineageItem,
+    LinkParentRequest,
+    RegisterImageRequest,
+    RelatedImageItem,
+    RenameTagRequest,
+    RestoreImagesRequest,
+    ScanRequest,
+    ScanStatus,
+    SearchImagesRequest,
+    TagRecord,
+    UpdateFavoriteRequest,
+    UpdateImageTagsRequest,
+    UpdateSettingsRequest,
+)
 from .search_service import SearchService
 from .services import image_service, scan_service
 
@@ -39,10 +70,12 @@ from .services import image_service, scan_service
 async def update_image_tags(request: web.Request) -> web.Response:
     try:
         data = await request.json()
-        image_id = data.get("imageId")
-        tags = data.get("tags", [])  # List of tag names
+        try:
+            req = UpdateImageTagsRequest.from_dict(data)
+        except (TypeError, ValueError) as e:
+            return web.json_response({"error": f"Invalid schema: {e}"}, status=400)
 
-        if image_id is None:
+        if req.imageId is None:
             return web.json_response({"error": "imageId is required"}, status=400)
 
         conn = get_db_connection()
@@ -50,10 +83,10 @@ async def update_image_tags(request: web.Request) -> web.Response:
 
         try:
             # 1. Clear existing tags for this image
-            cursor.execute("DELETE FROM tag_image_relations WHERE image_id = ?", (image_id,))
+            cursor.execute("DELETE FROM tag_image_relations WHERE image_id = ?", (req.imageId,))
 
             # 2. Add new tags and create relations
-            for tag_name in tags:
+            for tag_name in req.tags:
                 tag_name = tag_name.strip()
                 if not tag_name:
                     continue
@@ -65,11 +98,12 @@ async def update_image_tags(request: web.Request) -> web.Response:
                 if tag_row:
                     tag_id = tag_row[0]
                     cursor.execute(
-                        "INSERT OR IGNORE INTO tag_image_relations (image_id, tag_id) VALUES (?, ?)", (image_id, tag_id)
+                        "INSERT OR IGNORE INTO tag_image_relations (image_id, tag_id) VALUES (?, ?)",
+                        (req.imageId, tag_id),
                     )
 
             conn.commit()
-            return web.json_response({"success": True})
+            return web.json_response(ApiResponse(success=True).to_dict())
         except Exception as e:
             conn.rollback()
             raise e
@@ -84,11 +118,12 @@ async def update_image_tags(request: web.Request) -> web.Response:
 async def bulk_update_image_tags(request: web.Request) -> web.Response:
     try:
         data = await request.json()
-        image_ids = data.get("imageIds", [])
-        add_tags = data.get("addTags", [])
-        remove_tags = data.get("removeTags", [])
+        try:
+            req = BulkUpdateImageTagsRequest.from_dict(data)
+        except (TypeError, ValueError) as e:
+            return web.json_response({"error": f"Invalid schema: {e}"}, status=400)
 
-        if not image_ids:
+        if not req.imageIds:
             return web.json_response({"error": "imageIds is required"}, status=400)
 
         conn = get_db_connection()
@@ -96,7 +131,7 @@ async def bulk_update_image_tags(request: web.Request) -> web.Response:
 
         try:
             # 1. Process tags to add
-            for tag_name in add_tags:
+            for tag_name in req.addTags:
                 tag_name = tag_name.strip()
                 if not tag_name:
                     continue
@@ -108,14 +143,14 @@ async def bulk_update_image_tags(request: web.Request) -> web.Response:
                 if tag_row:
                     tag_id = tag_row[0]
                     # Add to all selected images
-                    for image_id in image_ids:
+                    for image_id in req.imageIds:
                         cursor.execute(
                             "INSERT OR IGNORE INTO tag_image_relations (image_id, tag_id) VALUES (?, ?)",
                             (image_id, tag_id),
                         )
 
             # 2. Process tags to remove
-            for tag_name in remove_tags:
+            for tag_name in req.removeTags:
                 tag_name = tag_name.strip()
                 if not tag_name:
                     continue
@@ -125,14 +160,14 @@ async def bulk_update_image_tags(request: web.Request) -> web.Response:
                 if tag_row:
                     tag_id = tag_row[0]
                     # Remove from all selected images
-                    placeholders = ",".join(["?"] * len(image_ids))
+                    placeholders = ",".join(["?"] * len(req.imageIds))
                     cursor.execute(
                         f"DELETE FROM tag_image_relations WHERE tag_id = ? AND image_id IN ({placeholders})",
-                        (tag_id, *image_ids),
+                        (tag_id, *req.imageIds),
                     )
 
             conn.commit()
-            return web.json_response({"success": True})
+            return web.json_response(ApiResponse(success=True).to_dict())
         except Exception as e:
             conn.rollback()
             raise e
@@ -175,8 +210,8 @@ async def list_folders(request: web.Request) -> web.Response:
         if not os.path.isdir(target_path):
             return web.json_response({"error": "Not a directory"}, status=400)
 
-        folders: list[dict[str, Any]] = []
-        images = []
+        folders: list[FolderItem] = []
+        images: list[ImageItem] = []
         total_recursive_count = 0
 
         try:
@@ -190,7 +225,7 @@ async def list_folders(request: web.Request) -> web.Response:
                 # However, count_images_recursive and get_first_image_recursive MUST be in threads.
                 if await loop.run_in_executor(None, os.path.isdir, full_item_path):
                     if fast:
-                        folders.append({"name": item, "count": None, "preview": None})
+                        folders.append(FolderItem(name=item, count=None, preview=None))
                     else:
                         # Recursive count for subfolder
                         sub_count = await loop.run_in_executor(
@@ -207,37 +242,37 @@ async def list_folders(request: web.Request) -> web.Response:
                                 rel_path = os.path.relpath(sample_img_path, base_dir)
                                 filename = os.path.basename(rel_path)
                                 subfolder = os.path.dirname(rel_path).replace("\\", "/")
-                                preview = {
-                                    "filename": filename,
-                                    "subfolder": subfolder,
-                                    "type": base_type,
-                                }
+                                preview = FolderPreview(
+                                    filename=filename,
+                                    subfolder=subfolder,
+                                    type=base_type,
+                                )
                             else:
                                 # Custom path mode
-                                preview = {
-                                    "filename": os.path.basename(sample_img_path),
-                                    "subfolder": os.path.dirname(sample_img_path).replace("\\", "/"),
-                                    "type": base_type,
-                                }
+                                preview = FolderPreview(
+                                    filename=os.path.basename(sample_img_path),
+                                    subfolder=os.path.dirname(sample_img_path).replace("\\", "/"),
+                                    type=base_type,
+                                )
 
-                        folders.append({"name": item, "count": sub_count, "preview": preview})
+                        folders.append(FolderItem(name=item, count=sub_count, preview=preview))
                 elif item.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
                     if base_dir:
                         images.append(
-                            {
-                                "filename": item,
-                                "subfolder": path.replace("\\", "/"),
-                                "type": base_type,
-                            }
+                            ImageItem(
+                                filename=item,
+                                subfolder=path.replace("\\", "/"),
+                                type=base_type,
+                            )
                         )
                     else:
                         # Custom path mode
                         images.append(
-                            {
-                                "filename": item,
-                                "subfolder": target_path.replace("\\", "/"),
-                                "type": base_type,
-                            }
+                            ImageItem(
+                                filename=item,
+                                subfolder=target_path.replace("\\", "/"),
+                                type=base_type,
+                            )
                         )
 
             # The top-level 'image_count' should also be recursive if it includes subdirectories.
@@ -245,17 +280,21 @@ async def list_folders(request: web.Request) -> web.Response:
                 total_recursive_count = await loop.run_in_executor(
                     None, scan_service.count_images_recursive, target_path
                 )
+            else:
+                total_recursive_count = len(images)
 
         except PermissionError:
             return web.json_response({"error": "Permission denied"}, status=403)
 
-        return web.json_response(
-            {
-                "folders": sorted(folders, key=lambda x: x["name"]),
-                "images": images,
-                "image_count": total_recursive_count,
-            }
+        folders.sort(key=lambda x: x.name.lower())
+        images.sort(key=lambda x: x.filename.lower())
+
+        response = FoldersResponse(
+            folders=folders,
+            images=images,
+            image_count=total_recursive_count,
         )
+        return web.json_response(response.to_dict())
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 
@@ -294,19 +333,19 @@ async def get_folder_metadata(request: web.Request) -> web.Response:
                         rel_path = os.path.relpath(sample_img_path, base_dir)
                         filename = os.path.basename(rel_path)
                         subfolder = os.path.dirname(rel_path).replace("\\", "/")
-                        preview = {
-                            "filename": filename,
-                            "subfolder": subfolder,
-                            "type": base_type,
-                        }
+                        preview = FolderPreview(
+                            filename=filename,
+                            subfolder=subfolder,
+                            type=base_type,
+                        )
                     else:
                         # Custom path mode
-                        preview = {
-                            "filename": os.path.basename(sample_img_path),
-                            "subfolder": os.path.dirname(sample_img_path).replace("\\", "/"),
-                            "type": base_type,
-                        }
-                results[name] = {"count": sub_count, "preview": preview}
+                        preview = FolderPreview(
+                            filename=os.path.basename(sample_img_path),
+                            subfolder=os.path.dirname(sample_img_path).replace("\\", "/"),
+                            type=base_type,
+                        )
+                results[name] = FolderMetadata(count=sub_count, preview=preview).to_dict()
 
         return web.json_response(results)
     except Exception as e:
@@ -331,8 +370,8 @@ async def get_path_image_count(request: web.Request) -> web.Response:
         loop = asyncio.get_event_loop()
         if await loop.run_in_executor(None, os.path.isdir, target_path):
             count = await loop.run_in_executor(None, scan_service.count_images_recursive, target_path)
-            return web.json_response({"count": count})
-        return web.json_response({"count": 0})
+            return web.json_response(ApiResponse(success=True, count=count).to_dict())
+        return web.json_response(ApiResponse(success=True, count=0).to_dict())
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 
@@ -344,24 +383,23 @@ async def start_scan(request: web.Request) -> web.Response:
 
     try:
         data = await request.json()
-        img_type = data.get("type", "output")
-        subfolder = data.get("subfolder", "")
-        custom_path = data.get("custom_path", "")
-        recursive = data.get("recursive", True)
-        auto_link_parent = data.get("auto_link_parent", True)
-        tags = data.get("tags", [])
+        try:
+            req = ScanRequest.from_dict(data)
+        except (TypeError, ValueError) as e:
+            return web.json_response({"error": f"Invalid schema: {e}"}, status=400)
+
         base_dir = ""
 
-        if img_type == "output":
+        if req.type == "output":
             base_dir = folder_paths.get_output_directory()
-            target_base = os.path.join(base_dir, subfolder)
-        elif img_type == "input":
+            target_base = os.path.join(base_dir, req.subfolder)
+        elif req.type == "input":
             base_dir = folder_paths.get_input_directory()
-            target_base = os.path.join(base_dir, subfolder)
-        elif img_type == "custom":
-            if not custom_path:
+            target_base = os.path.join(base_dir, req.subfolder)
+        elif req.type == "custom":
+            if not req.custom_path:
                 return web.json_response({"error": "Custom path is required"}, status=400)
-            target_base = custom_path
+            target_base = req.custom_path
         else:
             return web.json_response({"error": "Invalid type"}, status=400)
 
@@ -370,18 +408,18 @@ async def start_scan(request: web.Request) -> web.Response:
             return web.json_response({"error": f"Path does not exist: {target_base}"}, status=404)
 
         # In custom mode, base_dir for relative path calculation should be the target itself
-        calc_base = target_base if img_type == "custom" else base_dir
+        calc_base = target_base if req.type == "custom" else base_dir
 
         scan_service.start_scan_thread(
             calc_base,
-            subfolder if img_type != "custom" else "",
-            img_type,
-            recursive,
-            auto_link_parent,
-            tags,
+            req.subfolder if req.type != "custom" else "",
+            req.type,
+            req.recursive,
+            req.auto_link_parent,
+            req.tags,
         )
 
-        return web.json_response({"status": "started"})
+        return web.json_response(ApiResponse(success=True, message="started").to_dict())
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 
@@ -394,7 +432,8 @@ async def cancel_scan(request: web.Request) -> web.Response:
 
 @server.PromptServer.instance.routes.get("/meld/scan/status")
 async def get_scan_status(request: web.Request) -> web.Response:
-    return web.json_response(scan_service.get_scan_state())
+    state = scan_service.get_scan_state()
+    return web.json_response(ScanStatus.from_dict(state).to_dict())
 
 
 @server.PromptServer.instance.routes.get("/meld/image/{image_id}/workflow")
@@ -526,7 +565,7 @@ async def list_tags(request: web.Request) -> web.Response:
         cursor = conn.cursor()
         tags = get_all_tags(cursor)
         conn.close()
-        return web.json_response(tags)
+        return web.json_response([tag.to_dict() for tag in tags])
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 
@@ -535,20 +574,24 @@ async def list_tags(request: web.Request) -> web.Response:
 async def create_tag(request: web.Request) -> web.Response:
     try:
         data = await request.json()
-        name = data.get("name")
-        if not name:
+        try:
+            req = CreateTagRequest.from_dict(data)
+        except (TypeError, ValueError) as e:
+            return web.json_response({"error": f"Invalid schema: {e}"}, status=400)
+
+        if not req.name:
             return web.json_response({"error": "name is required"}, status=400)
 
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("INSERT OR IGNORE INTO tags (name) VALUES (?)", (name,))
+        cursor.execute("INSERT OR IGNORE INTO tags (name) VALUES (?)", (req.name,))
         conn.commit()
-        cursor.execute("SELECT id, name FROM tags WHERE name = ?", (name,))
+        cursor.execute("SELECT id, name FROM tags WHERE name = ?", (req.name,))
         row = cursor.fetchone()
         conn.close()
 
         if row:
-            return web.json_response({"id": row[0], "name": row[1]})
+            return web.json_response(TagRecord(id=row[0], name=row[1]).to_dict())
         return web.json_response({"error": "Failed to create tag"}, status=500)
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
@@ -557,16 +600,21 @@ async def create_tag(request: web.Request) -> web.Response:
 @server.PromptServer.instance.routes.delete("/meld/tags")
 async def remove_tag(request: web.Request) -> web.Response:
     try:
-        tag_id = request.query.get("id")
-        if not tag_id:
+        tag_id_str = request.query.get("id")
+        if not tag_id_str:
             return web.json_response({"error": "id is required"}, status=400)
 
+        try:
+            req = DeleteTagRequest(id=int(tag_id_str))
+        except ValueError:
+            return web.json_response({"error": "id must be an integer"}, status=400)
+
         conn = get_db_connection()
-        success = delete_tag(conn, int(tag_id))
+        success = delete_tag(conn, req.id)
         conn.close()
 
         if success:
-            return web.json_response({"success": True})
+            return web.json_response(ApiResponse(success=True).to_dict())
         return web.json_response({"error": "Tag not found"}, status=404)
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
@@ -576,17 +624,19 @@ async def remove_tag(request: web.Request) -> web.Response:
 async def tag_rename_endpoint(request: web.Request) -> web.Response:
     try:
         data = await request.json()
-        tag_id = data.get("id")
-        new_name = data.get("name")
+        try:
+            req = RenameTagRequest.from_dict(data)
+        except (TypeError, ValueError) as e:
+            return web.json_response({"error": f"Invalid schema: {e}"}, status=400)
 
-        if tag_id is None or not new_name:
+        if req.id is None or not req.name:
             return web.json_response({"error": "id and name are required"}, status=400)
 
         conn = get_db_connection()
         try:
-            success = rename_tag(conn, int(tag_id), new_name)
+            success = rename_tag(conn, req.id, req.name)
             if success:
-                return web.json_response({"success": True})
+                return web.json_response(ApiResponse(success=True).to_dict())
             return web.json_response({"error": "Failed to rename tag (maybe name already exists?)"}, status=400)
         finally:
             conn.close()
@@ -648,19 +698,21 @@ async def get_settings(request: web.Request) -> web.Response:
 async def save_settings(request: web.Request) -> web.Response:
     try:
         data = await request.json()
-        key = data.get("key")
-        value = data.get("value")
+        try:
+            req = UpdateSettingsRequest.from_dict(data)
+        except (TypeError, ValueError) as e:
+            return web.json_response({"error": f"Invalid schema: {e}"}, status=400)
 
-        if key is None:
+        if req.key is None:
             return web.json_response({"error": "key is required"}, status=400)
 
         conn = get_db_connection()
         cursor = conn.cursor()
-        upsert_setting(cursor, key, value)
+        upsert_setting(cursor, req.key, req.value)
         conn.commit()
         conn.close()
 
-        return web.json_response({"success": True})
+        return web.json_response(ApiResponse(success=True).to_dict())
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 
@@ -673,35 +725,36 @@ async def register_image(request: web.Request) -> web.Response:
         else:
             return web.json_response({"error": "Content-Type must be application/json"}, status=400)
 
-        filename = data.get("filename")
-        subfolder = data.get("subfolder", "")
-        img_type = data.get("type", "output")
+        try:
+            req = RegisterImageRequest.from_dict(data)
+        except (TypeError, ValueError) as e:
+            return web.json_response({"error": f"Invalid schema: {e}"}, status=400)
 
-        if not filename:
+        if not req.filename:
             return web.json_response({"error": "filename is required"}, status=400)
 
         # Basic validation: filename must not contain path separators
-        if os.path.basename(filename) != filename:
+        if os.path.basename(req.filename) != req.filename:
             return web.json_response({"error": "invalid filename"}, status=400)
 
         # Resolve base directory
-        if img_type == "output":
+        if req.type == "output":
             base_dir = folder_paths.get_output_directory()
-        elif img_type == "input":
+        elif req.type == "input":
             base_dir = folder_paths.get_input_directory()
-        elif img_type == "temp":
+        elif req.type == "temp":
             base_dir = folder_paths.get_temp_directory()
-        elif img_type == "custom":
+        elif req.type == "custom":
             base_dir = ""  # Absolute path mode
         else:
-            return web.json_response({"error": f"invalid type: {img_type}"}, status=400)
+            return web.json_response({"error": f"invalid type: {req.type}"}, status=400)
 
         # Resolve full path safely (prevent path traversal)
-        if img_type == "custom":
+        if req.type == "custom":
             # For custom type, subfolder is already an absolute path
-            full_path = os.path.abspath(os.path.join(subfolder, filename))
+            full_path = os.path.abspath(os.path.join(req.subfolder, req.filename))
         else:
-            full_path = os.path.abspath(os.path.join(base_dir, subfolder, filename))
+            full_path = os.path.abspath(os.path.join(base_dir, req.subfolder, req.filename))
             base_abs = os.path.abspath(base_dir)
             if os.path.commonpath([base_abs, full_path]) != base_abs:
                 return web.json_response({"error": "invalid path"}, status=400)
@@ -718,12 +771,15 @@ async def register_image(request: web.Request) -> web.Response:
 
         # Check if already registered
         cursor.execute(
-            "SELECT id FROM images WHERE filename = ? AND subfolder = ? AND deleted_at IS NULL", (filename, subfolder)
+            "SELECT id FROM images WHERE filename = ? AND subfolder = ? AND deleted_at IS NULL",
+            (req.filename, req.subfolder),
         )
         existing = cursor.fetchone()
         if existing:
             conn.close()
-            return web.json_response({"success": True, "message": "Already registered", "id": existing[0]})
+            return web.json_response(
+                ApiResponse(success=True, message="Already registered", data={"id": existing[0]}).to_dict()
+            )
 
         # Extract metadata from PNG
         pos, neg, model, wf_json, pr_json, a1111_text, logs = MetadataHelper.extract_metadata(full_path)
@@ -750,7 +806,7 @@ async def register_image(request: web.Request) -> web.Response:
 
         # Infer parent_id
         parent_id = scan_service.infer_parent_id(
-            cursor, filename, subfolder, img_type, phash, timestamp, strategy=matching_strategy
+            cursor, req.filename, req.subfolder, req.type, phash, timestamp, strategy=matching_strategy
         )
 
         # Insert Image
@@ -762,9 +818,9 @@ async def register_image(request: web.Request) -> web.Response:
         cursor.execute(
             sql,
             (
-                filename,
-                subfolder,
-                img_type,
+                req.filename,
+                req.subfolder,
+                req.type,
                 timestamp,
                 phash,
                 sha256,
@@ -823,7 +879,7 @@ async def register_image(request: web.Request) -> web.Response:
         # Notify frontend
         server.PromptServer.instance.send_sync("meld-image-saved", {"count": 1})
 
-        return web.json_response({"success": True, "id": image_id})
+        return web.json_response(ApiResponse(success=True, data={"id": image_id}).to_dict())
     except Exception:
         logging.exception("[Meld] Failed to register image")
         return web.json_response({"error": "internal error"}, status=500)
@@ -861,22 +917,24 @@ async def search_suggestions_endpoint(request: web.Request) -> web.Response:
 @server.PromptServer.instance.routes.get("/meld/list")
 async def list_images(request: web.Request) -> web.Response:
     try:
-        offset = int(request.query.get("offset", 0))
-        limit = int(request.query.get("limit", 1000000))
-        query_str = request.query.get("query", "")
-        view = request.query.get("view", "default")  # "default" or "trash"
+        req = SearchImagesRequest(
+            offset=int(request.query.get("offset", 0)),
+            limit=int(request.query.get("limit", 1000000)),
+            query=request.query.get("query", ""),
+            view=request.query.get("view", "default"),
+        )
 
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        search_sql, search_params = SearchService.build_search_sql(query_str)
+        search_sql, search_params = SearchService.build_search_sql(req.query)
 
         # Get settings
         db_settings = get_all_settings(cursor)
         lineage_max_depth = int(db_settings.get("gallery.lineage_max_depth", 5))
 
         # Determine deletion filter
-        deleted_filter = "i.deleted_at IS NOT NULL" if view == "trash" else "i.deleted_at IS NULL"
+        deleted_filter = "i.deleted_at IS NOT NULL" if req.view == "trash" else "i.deleted_at IS NULL"
 
         # Get total count
         count_sql = f"SELECT COUNT(*) FROM images i WHERE {deleted_filter}{search_sql}"
@@ -894,9 +952,9 @@ async def list_images(request: web.Request) -> web.Response:
                     WHERE mir.image_id = i.id) as model_name,
                    i.workflow, i.width, i.height, i.deleted_at
             FROM images i LEFT JOIN images p ON i.parent_id = p.id
-            WHERE {deleted_filter}{search_sql} ORDER BY {"i.deleted_at DESC" if view == "trash" else "i.created_at DESC"} LIMIT ? OFFSET ?
+            WHERE {deleted_filter}{search_sql} ORDER BY {"i.deleted_at DESC" if req.view == "trash" else "i.created_at DESC"} LIMIT ? OFFSET ?
         """
-        cursor.execute(fetch_sql, (*search_params, limit, offset))
+        cursor.execute(fetch_sql, (*search_params, req.limit, req.offset))
         images = cursor.fetchall()
 
         # Fetch ancestors in bulk if requested and depth > 1
@@ -1028,36 +1086,42 @@ async def list_images(request: web.Request) -> web.Response:
                 ancestors = [{"id": parent_id, "filename": p_filename, "subfolder": p_subfolder, "type": p_type}]
 
             result_list.append(
-                {
-                    "id": img_id,
-                    "filename": filename,
-                    "subfolder": subfolder,
-                    "type": effective_type,
-                    "created_at": created_at,
-                    "deleted_at": deleted_at,
-                    "phash": phash,
-                    "sha256": sha256,
-                    "parent_id": parent_id,
-                    "parent_filename": p_filename,
-                    "parent_subfolder": p_subfolder,
-                    "parent_type": p_type,
-                    "has_children": bool(has_children),
-                    "positive": positive,
-                    "negative": negative,
-                    "positive_prompt": db_positive,
-                    "negative_prompt": db_negative,
-                    "model_name": model_name,
-                    "workflow": workflow,
-                    "width": width,
-                    "height": height,
-                    "tags": tags,
-                    "exists": exists,
-                    "ancestors": ancestors,
-                }
+                ImageListItem(
+                    id=img_id,
+                    filename=filename,
+                    subfolder=subfolder,
+                    type=effective_type,
+                    created_at=created_at,
+                    deleted_at=deleted_at,
+                    phash=phash,
+                    sha256=sha256,
+                    parent_id=parent_id,
+                    parent_filename=p_filename,
+                    parent_subfolder=p_subfolder,
+                    parent_type=p_type,
+                    has_children=bool(has_children),
+                    positive=positive,
+                    negative=negative,
+                    positive_prompt=db_positive,
+                    negative_prompt=db_negative,
+                    model_name=model_name,
+                    workflow=workflow,
+                    width=width,
+                    height=height,
+                    tags=tags,
+                    exists=exists,
+                    ancestors=ancestors,
+                )
             )
 
         conn.close()
-        return web.json_response({"images": result_list, "total": total_count, "offset": offset, "limit": limit})
+        response = ImageListResponse(
+            images=result_list,
+            total=total_count,
+            offset=req.offset,
+            limit=req.limit,
+        )
+        return web.json_response(response.to_dict())
     except Exception as e:
         logging.exception("[Meld] Failed to list images")
         return web.json_response({"error": str(e)}, status=500)
@@ -1102,14 +1166,20 @@ async def get_related_images(request: web.Request) -> web.Response:
             dist = hamming_distance(target_phash, phash)
             if dist <= threshold:
                 related.append(
-                    {"id": img_id, "filename": filename, "subfolder": subfolder, "type": img_type, "distance": dist}
+                    RelatedImageItem(
+                        id=img_id,
+                        filename=filename,
+                        subfolder=subfolder,
+                        type=img_type,
+                        distance=dist,
+                    )
                 )
 
         # Sort by distance
-        related.sort(key=lambda x: x["distance"])
+        related.sort(key=lambda x: x.distance)
 
         conn.close()
-        return web.json_response(related[:20])  # Limit to top 20
+        return web.json_response([r.to_dict() for r in related[:20]])  # Limit to top 20
     except Exception:
         logging.exception("[Meld] Failed to get related images")
         return web.json_response({"error": "internal error"}, status=500)
@@ -1119,17 +1189,20 @@ async def get_related_images(request: web.Request) -> web.Response:
 async def restore_images(request: web.Request) -> web.Response:
     try:
         data = await request.json()
-        image_ids = data.get("ids", [])
+        try:
+            req = RestoreImagesRequest.from_dict(data)
+        except (TypeError, ValueError) as e:
+            return web.json_response({"error": f"Invalid schema: {e}"}, status=400)
 
-        if not image_ids:
+        if not req.ids:
             return web.json_response({"error": "ids are required"}, status=400)
 
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        placeholders = ",".join(["?"] * len(image_ids))
+        placeholders = ",".join(["?"] * len(req.ids))
         cursor.execute(
-            f"SELECT id, filename, subfolder, type, deleted_at FROM images WHERE id IN ({placeholders})", image_ids
+            f"SELECT id, filename, subfolder, type, deleted_at FROM images WHERE id IN ({placeholders})", req.ids
         )
         images = cursor.fetchall()
 
@@ -1183,7 +1256,7 @@ async def restore_images(request: web.Request) -> web.Response:
 
         conn.commit()
         conn.close()
-        return web.json_response({"success": True, "count": restored_count})
+        return web.json_response(ApiResponse(success=True, count=restored_count).to_dict())
     except Exception as e:
         logging.exception("[Meld] Restore failed")
         return web.json_response({"error": str(e)}, status=500)
@@ -1193,19 +1266,23 @@ async def restore_images(request: web.Request) -> web.Response:
 async def bulk_delete_images(request: web.Request) -> web.Response:
     try:
         data = await request.json()
-        image_ids = data.get("ids", [])
-        permanent = data.get("permanent", False) or data.get("delete_files", False)  # Backward compatibility
+        try:
+            req = BulkDeleteRequest.from_dict(data)
+        except (TypeError, ValueError) as e:
+            return web.json_response({"error": f"Invalid schema: {e}"}, status=400)
 
-        if not image_ids:
+        if not req.ids:
             return web.json_response({"error": "ids are required"}, status=400)
+
+        permanent = req.permanent or req.delete_files
 
         conn = get_db_connection()
         cursor = conn.cursor()
 
         # Get file paths and current status
-        placeholders = ",".join(["?"] * len(image_ids))
+        placeholders = ",".join(["?"] * len(req.ids))
         cursor.execute(
-            f"SELECT id, filename, subfolder, type, deleted_at FROM images WHERE id IN ({placeholders})", image_ids
+            f"SELECT id, filename, subfolder, type, deleted_at FROM images WHERE id IN ({placeholders})", req.ids
         )
         images = cursor.fetchall()
 
@@ -1279,7 +1356,7 @@ async def bulk_delete_images(request: web.Request) -> web.Response:
 
         conn.commit()
         conn.close()
-        return web.json_response({"success": True, "count": deleted_count})
+        return web.json_response(ApiResponse(success=True, count=deleted_count).to_dict())
     except Exception as e:
         logging.exception("[Meld] Bulk delete failed")
         return web.json_response({"error": str(e)}, status=500)
@@ -1289,40 +1366,28 @@ async def bulk_delete_images(request: web.Request) -> web.Response:
 async def delete_image(request: web.Request) -> web.Response:
     try:
         data = await request.json()
-        image_id = data.get("id")
-        filename = data.get("filename")  # Fallback for old frontend
-        permanent = data.get("permanent", False)
+        try:
+            req = DeleteImageRequest.from_dict(data)
+        except (TypeError, ValueError) as e:
+            return web.json_response({"error": f"Invalid schema: {e}"}, status=400)
 
-        if not image_id and not filename:
+        if not req.id and not req.filename:
             return web.json_response({"error": "id or filename is required"}, status=400)
 
         # Re-use bulk_delete logic by wrapping id in a list
-        if image_id:
-            ids = [image_id]
+        if req.id:
+            ids = [req.id]
         else:
             # Find IDs from filename
             conn = get_db_connection()
             cursor = conn.cursor()
-            cursor.execute("SELECT id FROM images WHERE filename = ?", (filename,))
+            cursor.execute("SELECT id FROM images WHERE filename = ?", (req.filename,))
             ids = [row[0] for row in cursor.fetchall()]
             conn.close()
 
         if not ids:
             return web.json_response({"error": "Image not found"}, status=404)
 
-        # Call bulk_delete internal logic or just redirect request context-wise
-        # For simplicity, we implement the same logic here or reuse bulk_delete function
-        # But we can't easily call bulk_delete because it expects a Request object.
-        # Let's just use a helper or reimplement briefly.
-
-        # Actually, let's just make it a call to a helper function if needed,
-        # but for now, I'll just reuse the logic as it's cleaner to keep them separate but consistent.
-
-        # To avoid code duplication, I'll define a helper internally if this was a larger refactor,
-        # but following the rules, I'll keep it straightforward.
-        # Wait, I can just use a modified version of the request or similar? No.
-
-        # Let's just implement it simply.
         conn = get_db_connection()
         cursor = conn.cursor()
 
@@ -1353,7 +1418,7 @@ async def delete_image(request: web.Request) -> web.Response:
 
             current_full_path = os.path.abspath(os.path.join(base_dir, current_subfolder, img_filename))
 
-            if permanent:
+            if req.permanent:
                 if os.path.exists(current_full_path):
                     try:
                         os.remove(current_full_path)
@@ -1383,7 +1448,7 @@ async def delete_image(request: web.Request) -> web.Response:
 
         conn.commit()
         conn.close()
-        return web.json_response({"success": True})
+        return web.json_response(ApiResponse(success=True).to_dict())
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 
@@ -1392,23 +1457,25 @@ async def delete_image(request: web.Request) -> web.Response:
 async def link_parent(request: web.Request) -> web.Response:
     try:
         data = await request.json()
-        child_id = data.get("childId")
-        parent_id = data.get("parentId")
+        try:
+            req = LinkParentRequest.from_dict(data)
+        except (TypeError, ValueError) as e:
+            return web.json_response({"error": f"Invalid schema: {e}"}, status=400)
 
-        if child_id is None:
+        if req.childId is None:
             return web.json_response({"error": "childId is required"}, status=400)
 
-        if child_id == parent_id:
+        if req.childId == req.parentId:
             return web.json_response({"error": "Cannot set an image as its own parent"}, status=400)
 
         conn = get_db_connection()
         cursor = conn.cursor()
 
         # Check created_at timestamps to prevent circular dependencies (parent must be older than child)
-        if parent_id is not None:
-            cursor.execute("SELECT created_at FROM images WHERE id = ?", (child_id,))
+        if req.parentId is not None:
+            cursor.execute("SELECT created_at FROM images WHERE id = ?", (req.childId,))
             child_row = cursor.fetchone()
-            cursor.execute("SELECT created_at FROM images WHERE id = ?", (parent_id,))
+            cursor.execute("SELECT created_at FROM images WHERE id = ?", (req.parentId,))
             parent_row = cursor.fetchone()
 
             if child_row and parent_row:
@@ -1418,10 +1485,10 @@ async def link_parent(request: web.Request) -> web.Response:
                     conn.close()
                     return web.json_response({"error": "Parent image must be older than the child image"}, status=400)
 
-        cursor.execute("UPDATE images SET parent_id = ? WHERE id = ?", (parent_id, child_id))
+        cursor.execute("UPDATE images SET parent_id = ? WHERE id = ?", (req.parentId, req.childId))
         conn.commit()
         conn.close()
-        return web.json_response({"success": True})
+        return web.json_response(ApiResponse(success=True).to_dict())
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 
@@ -1468,7 +1535,7 @@ async def suggest_parents(request: web.Request) -> web.Response:
 
         conn.close()
         # Return top matches
-        return web.json_response(suggestions[:20])
+        return web.json_response([s.to_dict() for s in suggestions[:20]])
     except Exception as e:
         logging.exception("[Meld] Failed to suggest parents")
         return web.json_response({"error": str(e)}, status=500)
@@ -1515,26 +1582,26 @@ async def get_lineage(request: web.Request) -> web.Response:
         result = []
         for row in rows:
             result.append(
-                {
-                    "id": row[0],
-                    "filename": row[1],
-                    "subfolder": row[2],
-                    "type": row[3],
-                    "created_at": row[4],
-                    "parent_id": row[5],
-                    "phash": row[6],
-                    "parent_filename": row[7],
-                    "parent_subfolder": row[8],
-                    "parent_type": row[9],
-                    "positive": row[10] or "",
-                    "negative": row[11] or "",
-                    "positive_prompt": row[10],
-                    "negative_prompt": row[11],
-                    "model_name": row[12],
-                    "workflow": row[13],
-                    "width": row[14],
-                    "height": row[15],
-                }
+                LineageItem(
+                    id=row[0],
+                    filename=row[1],
+                    subfolder=row[2],
+                    type=row[3],
+                    created_at=row[4],
+                    parent_id=row[5],
+                    phash=row[6],
+                    parent_filename=row[7],
+                    parent_subfolder=row[8],
+                    parent_type=row[9],
+                    positive=row[10] or "",
+                    negative=row[11] or "",
+                    positive_prompt=row[10],
+                    negative_prompt=row[11],
+                    model_name=row[12],
+                    workflow=row[13],
+                    width=row[14],
+                    height=row[15],
+                ).to_dict()
             )
 
         conn.close()
@@ -1553,9 +1620,7 @@ async def list_favorites(request: web.Request) -> web.Response:
         rows = cursor.fetchall()
         conn.close()
 
-        favorites = []
-        for row in rows:
-            favorites.append({"id": row[0], "name": row[1], "query": row[2], "created_at": row[3]})
+        favorites = [FavoriteRecord(id=row[0], name=row[1], query=row[2], created_at=row[3]).to_dict() for row in rows]
 
         return web.json_response(favorites)
     except Exception as e:
@@ -1566,19 +1631,23 @@ async def list_favorites(request: web.Request) -> web.Response:
 async def save_favorite(request: web.Request) -> web.Response:
     try:
         data = await request.json()
-        name = data.get("name", "")
-        query = data.get("query", "")
+        try:
+            req = CreateFavoriteRequest.from_dict(data)
+        except (TypeError, ValueError) as e:
+            return web.json_response({"error": f"Invalid schema: {e}"}, status=400)
 
-        if not query:
+        if not req.query:
             return web.json_response({"error": "query is required"}, status=400)
 
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO favorites (name, query, created_at) VALUES (?, ?, ?)", (name, query, time.time()))
+        cursor.execute(
+            "INSERT INTO favorites (name, query, created_at) VALUES (?, ?, ?)", (req.name, req.query, time.time())
+        )
         conn.commit()
         conn.close()
 
-        return web.json_response({"success": True})
+        return web.json_response(ApiResponse(success=True).to_dict())
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 
@@ -1587,19 +1656,24 @@ async def save_favorite(request: web.Request) -> web.Response:
 async def update_favorite(request: web.Request) -> web.Response:
     try:
         data = await request.json()
-        fav_id = data.get("id")
-        name = data.get("name")
+        try:
+            req = UpdateFavoriteRequest.from_dict(data)
+        except (TypeError, ValueError) as e:
+            return web.json_response({"error": f"Invalid schema: {e}"}, status=400)
 
-        if fav_id is None or name is None:
+        if req.id is None or req.name is None:
             return web.json_response({"error": "id and name are required"}, status=400)
 
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("UPDATE favorites SET name = ? WHERE id = ?", (name, fav_id))
+        if req.query:
+            cursor.execute("UPDATE favorites SET name = ?, query = ? WHERE id = ?", (req.name, req.query, req.id))
+        else:
+            cursor.execute("UPDATE favorites SET name = ? WHERE id = ?", (req.name, req.id))
         conn.commit()
         conn.close()
 
-        return web.json_response({"success": True})
+        return web.json_response(ApiResponse(success=True).to_dict())
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 
@@ -1608,18 +1682,21 @@ async def update_favorite(request: web.Request) -> web.Response:
 async def delete_favorite(request: web.Request) -> web.Response:
     try:
         data = await request.json()
-        fav_id = data.get("id")
+        try:
+            req = DeleteFavoriteRequest.from_dict(data)
+        except (TypeError, ValueError) as e:
+            return web.json_response({"error": f"Invalid schema: {e}"}, status=400)
 
-        if fav_id is None:
+        if req.id is None:
             return web.json_response({"error": "id is required"}, status=400)
 
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM favorites WHERE id = ?", (fav_id,))
+        cursor.execute("DELETE FROM favorites WHERE id = ?", (req.id,))
         conn.commit()
         conn.close()
 
-        return web.json_response({"success": True})
+        return web.json_response(ApiResponse(success=True).to_dict())
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 

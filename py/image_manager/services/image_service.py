@@ -1,11 +1,11 @@
 import json
 import os
 import sqlite3
-from typing import Any
 
 import folder_paths
 
 from ...load_image_configs.core.metadata_helper import MetadataHelper
+from ..schemas import ParentSuggestion
 
 
 def extract_source_filenames(workflow_json: str | dict | None, prompt_json: str | dict | None) -> list[str]:
@@ -72,7 +72,7 @@ def get_parent_suggestions(
     img_type: str,
     strategy: str = "phash_created",
     threshold: int = 12,
-) -> list[dict[str, Any]]:
+) -> list[ParentSuggestion]:
     # 1. Find source filename matches (if strategy includes it)
     source_matches = []
     if strategy == "filename_phash":
@@ -99,15 +99,15 @@ def get_parent_suggestions(
                         )
                         for match in cursor.fetchall():
                             source_matches.append(
-                                {
-                                    "id": match[0],
-                                    "filename": match[1],
-                                    "subfolder": match[2],
-                                    "type": match[3],
-                                    "distance": 0,
-                                    "created_at": match[5],
-                                    "is_source_match": True,
-                                }
+                                ParentSuggestion(
+                                    id=match[0],
+                                    filename=match[1],
+                                    subfolder=match[2],
+                                    type=match[3],
+                                    distance=0,
+                                    created_at=match[5],
+                                    is_source_match=True,
+                                )
                             )
         except Exception:
             pass
@@ -129,28 +129,28 @@ def get_parent_suggestions(
 
         for img_id, fname, subf, itype, iphash, icreated in rows:
             # Skip if already in source matches
-            if any(m["id"] == img_id for m in source_matches):
+            if any(m.id == img_id for m in source_matches):
                 continue
 
             dist = hamming_distance(target_phash, iphash)
             if dist <= threshold:
                 phash_matches.append(
-                    {
-                        "id": img_id,
-                        "filename": fname,
-                        "subfolder": subf,
-                        "type": itype,
-                        "distance": dist,
-                        "created_at": icreated,
-                        "is_source_match": False,
-                    }
+                    ParentSuggestion(
+                        id=img_id,
+                        filename=fname,
+                        subfolder=subf,
+                        type=itype,
+                        distance=dist,
+                        created_at=icreated,
+                        is_source_match=False,
+                    )
                 )
 
         # Sort pHash matches based on strategy
         if strategy == "phash_created":
-            phash_matches.sort(key=lambda x: (x["distance"], abs(target_created_at - x["created_at"])))
+            phash_matches.sort(key=lambda x: (x.distance, abs(target_created_at - x.created_at)))
         else:
             # Default/phash_only: distance then recency
-            phash_matches.sort(key=lambda x: (x["distance"], -x["created_at"]))
+            phash_matches.sort(key=lambda x: (x.distance, -x.created_at))
 
     return source_matches + phash_matches

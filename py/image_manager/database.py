@@ -3,6 +3,8 @@ import json
 import os
 import sqlite3
 
+from .schemas import TagRecord
+
 # --- DB Settings ---
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data")
 os.makedirs(DATA_DIR, exist_ok=True)
@@ -312,10 +314,10 @@ def add_model_relation(cursor: sqlite3.Cursor, image_id: int | None, model_id: i
         )
 
 
-def get_all_tags(cursor: sqlite3.Cursor) -> list[dict]:
+def get_all_tags(cursor: sqlite3.Cursor) -> list[TagRecord]:
     cursor.execute("SELECT id, name FROM tags ORDER BY name ASC")
     rows = cursor.fetchall()
-    return [{"id": row[0], "name": row[1]} for row in rows]
+    return [TagRecord(id=row[0], name=row[1]) for row in rows]
 
 
 def delete_tag(conn: sqlite3.Connection, tag_id: int) -> bool:
