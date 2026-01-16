@@ -9,12 +9,14 @@ interface DeleteConfirmModalProps {
 	imageIds: number[];
 	hasLineage: boolean;
 	isPermanent?: boolean;
+	onSuccess?: (ids: number[]) => void;
 }
 
 export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 	imageIds,
 	hasLineage,
 	isPermanent = false,
+	onSuccess,
 }) => {
 	const { state, dispatch, refreshImages } = useGallery();
 
@@ -94,6 +96,9 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 			navigateViewerIfNeeded(idsToDeleteSet);
 
 			await api.deleteImages(imageIds, isPermanent);
+			if (!isPermanent && onSuccess) {
+				onSuccess(imageIds);
+			}
 			dispatch({ type: "CLEAR_SELECTION" });
 			dispatch({ type: "CLOSE_MODAL" });
 			await refreshImages();
@@ -123,6 +128,9 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 			navigateViewerIfNeeded(allIdsToDelete);
 
 			await api.deleteImages(Array.from(allIdsToDelete), isPermanent);
+			if (!isPermanent && onSuccess) {
+				onSuccess(Array.from(allIdsToDelete));
+			}
 			dispatch({ type: "CLEAR_SELECTION" });
 			dispatch({ type: "CLOSE_MODAL" });
 			await refreshImages();

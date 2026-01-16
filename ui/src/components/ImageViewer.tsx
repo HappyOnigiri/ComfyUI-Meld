@@ -88,6 +88,7 @@ export const ImageViewer: React.FC = () => {
 		showThumbnailsOverride ?? state.settings["viewer.show_thumbnails"];
 	const [isLoadingLineage, setIsLoadingLineage] = useState(false);
 	const [isJumping, setIsJumping] = useState(false);
+	const [lastDeletedIds, setLastDeletedIds] = useState<number[] | null>(null);
 	const overlayRef = useRef<HTMLDivElement>(null);
 
 	const currentThumbnails = useMemo(() => {
@@ -193,6 +194,7 @@ export const ImageViewer: React.FC = () => {
 			}
 
 			await api.deleteImages(Array.from(idsToDelete), isPermanent);
+			setLastDeletedIds(isPermanent ? null : Array.from(idsToDelete));
 			await refreshImages();
 		} catch (err: unknown) {
 			dispatch({
@@ -211,6 +213,27 @@ export const ImageViewer: React.FC = () => {
 		dispatch,
 		refreshImages,
 	]);
+
+	const handleUndoDelete = useCallback(async () => {
+		if (!lastDeletedIds || lastDeletedIds.length === 0) return;
+		const idToOpen = lastDeletedIds[0];
+
+		try {
+			await api.restoreImages(lastDeletedIds);
+			setLastDeletedIds(null);
+			await refreshImages();
+
+			dispatch({
+				type: "OPEN_VIEWER",
+				payload: { id: idToOpen, mode: viewerMode },
+			});
+		} catch (err: unknown) {
+			dispatch({
+				type: "SET_ERROR",
+				payload: err instanceof Error ? err.message : String(err),
+			});
+		}
+	}, [lastDeletedIds, refreshImages, dispatch, viewerMode]);
 
 	const toggleFullscreen = useCallback(
 		(e?: React.MouseEvent | KeyboardEvent) => {
@@ -350,6 +373,9 @@ export const ImageViewer: React.FC = () => {
 				setShowDetails((prev) => !prev);
 			} else if (e.key === "Delete") {
 				handleDelete();
+			} else if ((e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z")) {
+				e.preventDefault();
+				handleUndoDelete();
 			}
 		};
 
@@ -379,6 +405,7 @@ export const ImageViewer: React.FC = () => {
 		state.settings,
 		handleDelete,
 		state.activeModal.type,
+		handleUndoDelete,
 	]);
 
 	// Fetch lineage if needed
@@ -718,6 +745,7 @@ export const ImageViewer: React.FC = () => {
 					imageIds={state.activeModal.imageIds}
 					hasLineage={state.activeModal.hasLineage}
 					isPermanent={state.activeModal.isPermanent}
+					onSuccess={setLastDeletedIds}
 				/>
 			)}
 			{state.activeModal.type === "parent_selection" && (
