@@ -122,6 +122,7 @@ export const fetchSettings = async (): Promise<Settings> => {
 			"gallery.matching_strategy": "phash_created",
 			"gallery.lineage_max_depth": 5,
 			"gallery.trash_retention_days": 30,
+			"gallery.trash.show_missing": false,
 		};
 	}
 	const settings = (await res.json()) as Settings;

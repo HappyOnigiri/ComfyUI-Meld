@@ -65,6 +65,7 @@ export const initialState: GalleryState = {
 		"gallery.matching_strategy": "phash_created",
 		"gallery.lineage_max_depth": 5,
 		"gallery.trash_retention_days": 30,
+		"gallery.trash.show_missing": false,
 	},
 	pagination: {
 		total: 0,

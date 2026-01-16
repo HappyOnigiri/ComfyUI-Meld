@@ -26,7 +26,8 @@ import { TagManagerView } from "./TagManagerView";
 import "../styles/Gallery.css";
 
 export const GalleryPanel: React.FC = () => {
-	const { state, dispatch, refreshImages, loadMoreImages } = useGallery();
+	const { state, dispatch, refreshImages, loadMoreImages, updateSetting } =
+		useGallery();
 	type SidebarView = "gallery" | "search" | "tags";
 	const [viewMode, setViewMode] = useState<SidebarView>("gallery");
 	const [lastSearchQuery, setLastSearchQuery] = useState("");
@@ -36,14 +37,17 @@ export const GalleryPanel: React.FC = () => {
 	const lastScrolledId = useRef<number | null>(null);
 	const displayedImages = useMemo(
 		() =>
-			state.images.filter(
-				(img) =>
+			state.images.filter((img) => {
+				if (state.viewScope === "trash") {
+					return (
+						img.exists !== false || state.settings["gallery.trash.show_missing"]
+					);
+				}
+				return (
 					img.exists !== false &&
-					(state.viewScope === "trash" ||
-						!(
-							state.settings["gallery.hide_parent_images"] && img.has_children
-						)),
-			),
+					!(state.settings["gallery.hide_parent_images"] && img.has_children)
+				);
+			}),
 		[state.images, state.settings, state.viewScope],
 	);
 
@@ -138,6 +142,16 @@ export const GalleryPanel: React.FC = () => {
 							<Trash2 size={14} />
 							<span>Trash Bin</span>
 						</div>
+						<label className="meld-gallery__trash-toggle">
+							<input
+								type="checkbox"
+								checked={state.settings["gallery.trash.show_missing"] || false}
+								onChange={(e) =>
+									updateSetting("gallery.trash.show_missing", e.target.checked)
+								}
+							/>
+							<span>Show missing files</span>
+						</label>
 						<button
 							type="button"
 							className="meld-gallery__exit-trash"

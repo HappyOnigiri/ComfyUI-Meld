@@ -89,6 +89,7 @@ export interface Settings {
 		| "phash_only";
 	"gallery.lineage_max_depth": number;
 	"gallery.trash_retention_days": number;
+	"gallery.trash.show_missing": boolean;
 }
 
 export type ScanStatus = {
