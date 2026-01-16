@@ -111,10 +111,15 @@ export const SettingsModal: React.FC = () => {
 		},
 		{
 			key: "sidebar.show_filename",
-			label: "Show Filename",
-			description: "Display the filename on the card.",
-			type: "boolean",
+			label: "Show Filename/Path",
+			description: "Choose how to display the filename or path on the card.",
+			type: "select",
 			category: "Sidebar",
+			options: [
+				{ value: "filename", label: "Filename (Default)" },
+				{ value: "filepath", label: "Filepath" },
+				{ value: "none", label: "None" },
+			],
 		},
 		{
 			key: "sidebar.show_dimensions",

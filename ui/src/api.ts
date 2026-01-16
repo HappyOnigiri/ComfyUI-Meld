@@ -82,7 +82,7 @@ export const fetchSettings = async (): Promise<Settings> => {
 			dev_mode: false,
 			"gallery.show_parent_image": true,
 			"gallery.hide_parent_images": true,
-			"sidebar.show_filename": true,
+			"sidebar.show_filename": "filename",
 			"sidebar.show_dimensions": true,
 			"sidebar.show_model_name": true,
 			"sidebar.show_positive_prompt": true,
@@ -123,7 +123,19 @@ export const fetchSettings = async (): Promise<Settings> => {
 			"gallery.trash_retention_days": 30,
 		};
 	}
-	return await res.json();
+	const settings = (await res.json()) as Settings;
+	// Migration: Convert boolean sidebar.show_filename to string
+	if (
+		typeof (settings as unknown as Record<string, unknown>)[
+			"sidebar.show_filename"
+		] === "boolean"
+	) {
+		(settings as unknown as Record<string, unknown>)["sidebar.show_filename"] =
+			(settings as unknown as Record<string, unknown>)["sidebar.show_filename"]
+				? "filename"
+				: "none";
+	}
+	return settings;
 };
 
 export const saveSetting = async (

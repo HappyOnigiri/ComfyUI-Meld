@@ -46,7 +46,7 @@ export interface Settings {
 	dev_mode: boolean;
 	"gallery.show_parent_image": boolean;
 	"gallery.hide_parent_images": boolean;
-	"sidebar.show_filename": boolean;
+	"sidebar.show_filename": "filename" | "filepath" | "none";
 	"sidebar.show_dimensions": boolean;
 	"sidebar.show_model_name": boolean;
 	"sidebar.show_positive_prompt": boolean;

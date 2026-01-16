@@ -107,8 +107,11 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 	};
 
 	const parentChain = getParentChain(image);
-
-	const displayFilename = image.filename;
+	const showFilename = state.settings["sidebar.show_filename"];
+	const displayFilename =
+		showFilename === "filepath"
+			? `${image.subfolder ? `${image.subfolder}/` : ""}${image.filename}`
+			: image.filename;
 
 	const imgSrc = getImageViewUrl(image);
 
@@ -266,16 +269,17 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 				/>
 			</div>
 			<div className="meld-image-card__details">
-				{(state.settings["sidebar.show_filename"] ||
+				{(state.settings["sidebar.show_filename"] !== "none" ||
 					state.settings["sidebar.show_dimensions"]) && (
 					<div className="meld-image-card__filename">
-						{state.settings["sidebar.show_filename"] && displayFilename}
-						{state.settings["sidebar.show_filename"] &&
+						{state.settings["sidebar.show_filename"] !== "none" &&
+							displayFilename}
+						{state.settings["sidebar.show_filename"] !== "none" &&
 							state.settings["sidebar.show_dimensions"] &&
 							image.width &&
 							image.height &&
 							` (${image.width} x ${image.height})`}
-						{!state.settings["sidebar.show_filename"] &&
+						{state.settings["sidebar.show_filename"] === "none" &&
 							state.settings["sidebar.show_dimensions"] &&
 							image.width &&
 							image.height &&
