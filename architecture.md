@@ -25,10 +25,9 @@ This document serves as a comprehensive guide for AI agents and developers to un
 | Directory | Responsibility |
 |-----------|----------------|
 | `image_manager/` | **Core System**. Handles database operations, REST API, and image management logic. |
-| `image_manager/api.py` | **API Gateway**. Defines all REST endpoints (`/meld/...`) called by the frontend. |
-| `image_manager/database.py` | Database connection and initialization (SQLite). |
-| `image_manager/services/` | Business logic (scanning, image processing, cleanup). |
-| `image_manager/repositories/`| Data access layer (CRUD operations for images, tags, settings). |
+| `image_manager/api.py` | **API Entry Point**. Integrates feature-specific routers and registers them with ComfyUI. |
+| `image_manager/common/` | **Shared Backend Logic**. Database connection, constants, and common schemas. |
+| `image_manager/features/` | **Feature Modules**. Modularized logic for images, tags, search, settings, and importer. |
 | `image_manager/nodes/` | Custom nodes related to saving/management (e.g., `MeldSaveImage`). |
 | `load_image_configs/` | Logic for loading images and parsing metadata (Unified Loader). |
 | `auto_exposure/`, `pixelate/`, etc. | Standalone utility nodes for image processing. |
@@ -38,33 +37,34 @@ This document serves as a comprehensive guide for AI agents and developers to un
 |-----------|----------------|
 | `src/index.ts` | **Web Extension Entry**. Registers the extension with `app.registerExtension`. |
 | `src/api.ts` | **API Client**. Typed functions to communicate with the backend (`api.fetchApi`). |
-| `src/components/` | React components for the Gallery, Settings, and Image Cards. |
+| `src/features/` | **Feature Modules**. Components, hooks, and logic organized by feature (gallery, viewer, search, etc.). |
+| `src/components/shared/` | **Reusable UI Components**. Shared parts like modals, buttons, and basic cards. |
 | `src/store/` | State management (Context/Reducer) for the Gallery UI. |
-| `src/hooks/` | Custom React hooks for logic separation. |
+| `src/styles/` | Global and component-specific CSS files. |
 
 ## 3. Key Logic & Functions Map
 
 ### Entry Points
 - **Python Load**: `__init__.py` imports nodes from submodules and defines `NODE_CLASS_MAPPINGS`.
 - **Web Load**: ComfyUI loads `web/js/gallery_extension.js` (compiled from `ui/src/index.ts`), which calls `app.registerExtension`.
-- **API Routes**: Registered in `py/image_manager/api.py` using `@server.PromptServer.instance.routes`.
+- **API Routes**: Defined in `py/image_manager/features/*/router.py` and integrated into `py/image_manager/api.py`.
 
 ### Core Data Flow
 1. **Image Generation**:
    - User runs a workflow.
    - `MeldSaveImage` node saves the image OR standard save node triggers `executed` event.
-   - **Auto-Registration**: Frontend `src/index.ts` listens for `executed` event -> calls `registerImage` API -> Backend `api.register_image` saves metadata to DB.
+   - **Auto-Registration**: Frontend `src/index.ts` listens for `executed` event -> calls `registerImage` API -> Backend `features/images/router.py` calls `ImageService` to save metadata to DB.
 
 2. **Data Retrieval (Gallery)**:
    - User opens Meld tab.
-   - Frontend calls `fetchImages` (`src/api.ts`).
-   - Backend `list_images` (`py/image_manager/api.py`) queries SQLite via `SearchService`.
+   - Frontend feature components (e.g., `GalleryPanel`) call `fetchImages` (`src/api.ts`).
+   - Backend `search/router.py` receives request -> `SearchService` queries SQLite.
    - Results returned as JSON and rendered by `GalleryPanel`.
 
 ### Critical Files
-- **Database Schema**: `py/image_manager/db/schema.py` (Defines tables: `images`, `tags`, `favorites`, etc.).
+- **Database Schema**: `py/image_manager/common/db/schema.py` (Defines tables: `images`, `tags`, `favorites`, etc.).
 - **Metadata Extraction**: `py/load_image_configs/core/metadata_helper.py` (Parses PNG info, Exif, and ComfyUI workflows).
-- **Search Logic**: `py/image_manager/search_service.py` (Parses search queries and builds SQL).
+- **Search Logic**: `py/image_manager/features/search/service.py` (Parses search queries and builds SQL).
 
 ## 4. Implementation Rules
 
@@ -86,6 +86,6 @@ This document serves as a comprehensive guide for AI agents and developers to un
 
 ### Modification Protocol
 - When adding a new API endpoint:
-  1. Define handler in `py/image_manager/api.py`.
+  1. Define handler in a feature-specific router (e.g., `py/image_manager/features/X/router.py`) and ensure it's integrated in `api.py`.
   2. Add typed wrapper in `ui/src/api.ts`.
   3. Update `architecture.md` if a new major service/module is created.
