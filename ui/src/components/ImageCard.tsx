@@ -11,7 +11,7 @@ import {
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { fetchImageWorkflow, fetchSnapshotData } from "../api";
+import * as api from "../api";
 import { logger } from "../logger";
 import { useGallery } from "../store/GalleryContext";
 import type { ComfyApp, MeldImage } from "../types";
@@ -175,7 +175,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 
 	const handleRestoreWorkflow = async () => {
 		try {
-			const data = await fetchImageWorkflow(image.id);
+			const data = await api.fetchImageWorkflow(image.id);
 			if (!data.workflow) {
 				alert("No workflow information is saved for this image.");
 				return;
@@ -194,7 +194,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 	const handleAddUnifiedLoader = async () => {
 		try {
 			// 1. Fetch data from API
-			const data = await fetchSnapshotData(image.id);
+			const data = await api.fetchSnapshotData(image.id);
 
 			// 2. Create node
 			const nodeName = "MeldUnifiedLoader";
@@ -561,7 +561,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 								}}
 							>
 								<PlusCircle size={14} />
-								<span>Add source image</span>
+								<span>Edit source image</span>
 							</div>
 							<div
 								className="meld-image-card__menu-item"
