@@ -1,6 +1,7 @@
 /**
  * Meld dedicated logger.
- * Logs are only output when dev mode is enabled.
+ * Investigation logs (log/warn) are only output when MELD_DEV=true (dev mode).
+ * Error logs are output regardless of dev mode.
  */
 
 let isDevMode = false;
@@ -11,24 +12,21 @@ let isDevMode = false;
 export const initLogger = (devMode: boolean) => {
 	isDevMode = devMode;
 	if (isDevMode) {
-		console.log("[Meld] Logger initialized in DEV mode.");
+		console.log("[Meld] Logger initialized in DEV mode (MELD_DEV=true).");
 	}
 };
 
 /**
- * Log message if dev mode is enabled.
+ * Log message if dev mode is enabled (Investigation logs).
  */
 export const log = (...args: unknown[]) => {
 	if (isDevMode) {
 		console.log("[Meld]", ...args);
-	} else {
-		// For debugging: verify that the log is being skipped
-		// console.debug("[Meld] Log skipped (devMode is false)");
 	}
 };
 
 /**
- * Log warning message if dev mode is enabled.
+ * Log warning message if dev mode is enabled (Investigation logs).
  */
 export const warn = (...args: unknown[]) => {
 	if (isDevMode) {
@@ -38,8 +36,7 @@ export const warn = (...args: unknown[]) => {
 
 /**
  * Log error message.
- * Error logs are output regardless of dev mode for debugging critical issues,
- * but prefixed with [Meld].
+ * Error logs are output regardless of dev mode (MELD_DEV status).
  */
 export const error = (...args: unknown[]) => {
 	console.error("[Meld]", ...args);

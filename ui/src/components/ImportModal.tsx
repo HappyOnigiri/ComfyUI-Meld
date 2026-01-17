@@ -11,6 +11,7 @@ import type React from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import * as api from "../api";
+import { logger } from "../logger";
 import { useGallery } from "../store/GalleryContext";
 import type { Tag as TagType } from "../types";
 import { getImageViewUrl } from "../utils/url";
@@ -62,7 +63,7 @@ export const ImportModal: React.FC = () => {
 				const home = await api.fetchHomeDir();
 				setConfig((prev) => ({ ...prev, custom_path: home }));
 			} catch (err) {
-				console.error("Failed to fetch home directory:", err);
+				logger.error("Failed to fetch home directory:", err);
 			}
 		};
 		initHomeDir();
@@ -74,12 +75,12 @@ export const ImportModal: React.FC = () => {
 		const loadFolders = async () => {
 			const path =
 				config.type === "custom" ? config.custom_path : config.subfolder;
-			console.log(
-				`[Meld] loadFolders started. Path: "${path}", Type: "${config.type}"`,
+			logger.log(
+				`loadFolders started. Path: "${path}", Type: "${config.type}"`,
 			);
 
 			if (config.type === "custom" && !path) {
-				console.log("[Meld] Custom path is empty, skipping load.");
+				logger.log("Custom path is empty, skipping load.");
 				setFolders([]);
 				setImages([]);
 				setCurrentPathImageCount(0);
@@ -92,7 +93,7 @@ export const ImportModal: React.FC = () => {
 
 			try {
 				// Step 1: Fast load (Folders and Images in current dir)
-				console.log("[Meld] Step 1: Fast load starting...");
+				logger.log("Step 1: Fast load starting...");
 				const result = await api.fetchFolders(
 					config.type,
 					path,
@@ -100,11 +101,11 @@ export const ImportModal: React.FC = () => {
 					controller.signal,
 				);
 				if (controller.signal.aborted) {
-					console.log("[Meld] Step 1: Aborted.");
+					logger.log("Step 1: Aborted.");
 					return;
 				}
-				console.log(
-					`[Meld] Step 1 complete. Found ${result.folders.length} folders, ${result.images.length} images.`,
+				logger.log(
+					`Step 1 complete. Found ${result.folders.length} folders, ${result.images.length} images.`,
 				);
 				setFolders(result.folders);
 				setImages(result.images);
@@ -113,8 +114,8 @@ export const ImportModal: React.FC = () => {
 				// Step 2: Fetch folder metadata (counts and previews)
 				const folderNames = result.folders.map((f) => f.name);
 				if (folderNames.length > 0) {
-					console.log(
-						`[Meld] Step 2: Metadata fetch starting for ${folderNames.length} folders...`,
+					logger.log(
+						`Step 2: Metadata fetch starting for ${folderNames.length} folders...`,
 					);
 					api
 						.fetchFolderMetadata(
@@ -125,10 +126,10 @@ export const ImportModal: React.FC = () => {
 						)
 						.then((metadata) => {
 							if (controller.signal.aborted) {
-								console.log("[Meld] Step 2: Aborted.");
+								logger.log("Step 2: Aborted.");
 								return;
 							}
-							console.log("[Meld] Step 2: Metadata fetch complete.");
+							logger.log("Step 2: Metadata fetch complete.");
 							setFolders((prev) =>
 								prev.map((f) => {
 									const m = metadata[f.name];
@@ -138,34 +139,34 @@ export const ImportModal: React.FC = () => {
 						})
 						.catch((err) => {
 							if (err.name !== "AbortError") {
-								console.error("[Meld] Step 2: Metadata fetch failed:", err);
+								logger.error("Step 2: Metadata fetch failed:", err);
 							}
 						});
 				}
 
 				// Step 3: Fetch total recursive image count
-				console.log("[Meld] Step 3: Path image count starting...");
+				logger.log("Step 3: Path image count starting...");
 				api
 					.fetchPathImageCount(currentType, currentPath, controller.signal)
 					.then((count) => {
 						if (controller.signal.aborted) {
-							console.log("[Meld] Step 3: Aborted.");
+							logger.log("Step 3: Aborted.");
 							return;
 						}
-						console.log(`[Meld] Step 3: Path image count complete: ${count}`);
+						logger.log(`Step 3: Path image count complete: ${count}`);
 						setCurrentPathImageCount(count);
 					})
 					.catch((err) => {
 						if (err.name !== "AbortError") {
-							console.error("[Meld] Step 3: Path image count failed:", err);
+							logger.error("Step 3: Path image count failed:", err);
 						}
 					});
 			} catch (err: unknown) {
 				if ((err as Error).name === "AbortError") {
-					console.log("[Meld] Request aborted.");
+					logger.log("Request aborted.");
 					return;
 				}
-				console.error("[Meld] Failed to load folders:", err);
+				logger.error("Failed to load folders:", err);
 				setFolders([]);
 				setImages([]);
 				setCurrentPathImageCount(0);
@@ -189,7 +190,7 @@ export const ImportModal: React.FC = () => {
 			const data = await api.fetchTags();
 			setAllTags(data);
 		} catch (error) {
-			console.error("Failed to fetch tags:", error);
+			logger.error("Failed to fetch tags:", error);
 		} finally {
 			setIsLoadingTags(false);
 		}
@@ -258,7 +259,7 @@ export const ImportModal: React.FC = () => {
 			});
 			dispatch({ type: "CLOSE_MODAL" });
 		} catch (err) {
-			console.error("Failed to start scan:", err);
+			logger.error("Failed to start scan:", err);
 			alert(`Failed to start scan: ${err}`);
 		}
 	};

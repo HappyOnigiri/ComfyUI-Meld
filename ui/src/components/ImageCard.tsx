@@ -12,6 +12,7 @@ import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { fetchImageWorkflow, fetchSnapshotData } from "../api";
+import { logger } from "../logger";
 import { useGallery } from "../store/GalleryContext";
 import type { ComfyApp, MeldImage } from "../types";
 import { getImageViewUrl } from "../utils/url";
@@ -183,9 +184,9 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 			await (window as unknown as { app: ComfyApp }).app.loadGraphData(
 				data.workflow,
 			);
-			console.log("Workflow restored successfully from Meld");
+			logger.log("Workflow restored successfully from Meld");
 		} catch (error) {
-			console.error("Error restoring workflow:", error);
+			logger.error("Error restoring workflow:", error);
 			alert("Failed to restore workflow.");
 		}
 	};

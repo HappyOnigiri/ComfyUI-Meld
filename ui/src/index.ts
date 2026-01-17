@@ -98,7 +98,7 @@ app.registerExtension({
 			);
 			app.ui.meld?.refresh();
 			// Show toast if available (ComfyUI doesn't have a standard toast API easily accessible, but we can alert or log)
-			console.log("Meld: Import completed.");
+			logger.log("Import completed.");
 		});
 
 		// Auto-register when image generation is complete
@@ -137,14 +137,14 @@ app.registerExtension({
 				tooltip: "Meld Image Manager",
 				type: "custom",
 				render: (el: HTMLElement) => {
-					logger.log("Meld: render called", {
+					logger.log("render called", {
 						el,
 						galleryRoot,
 						galleryContainer,
 					});
 
 					if (!galleryContainer) {
-						logger.log("Meld: galleryContainer not found, creating new one");
+						logger.log("galleryContainer not found, creating new one");
 						galleryContainer = document.createElement("div");
 						galleryContainer.id = "meld-gallery-container";
 						galleryContainer.style.height = "100%";
@@ -154,12 +154,12 @@ app.registerExtension({
 					}
 
 					if (!el.contains(galleryContainer)) {
-						logger.log("Meld: Appending galleryContainer to el");
+						logger.log("Appending galleryContainer to el");
 						el.appendChild(galleryContainer);
 					}
 
 					if (!galleryRoot) {
-						logger.log("Meld: Creating new gallery root");
+						logger.log("Creating new gallery root");
 						galleryRoot = createRoot(galleryContainer);
 						galleryRoot.render(
 							React.createElement(
@@ -170,7 +170,7 @@ app.registerExtension({
 						);
 					} else {
 						logger.log(
-							"Meld: Gallery root already exists, React should handle re-render if needed",
+							"[Meld] Gallery root already exists, React should handle re-render if needed",
 						);
 					}
 				},

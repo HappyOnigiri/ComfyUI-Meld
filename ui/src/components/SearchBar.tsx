@@ -83,6 +83,7 @@ export const SearchBar: React.FC = () => {
 		(query: string, shouldCloseSuggestions = true) => {
 			if (lastSearchedValueRef.current === query) return;
 
+			logger.log("SearchBar: triggering search", { query });
 			dispatch({ type: "SET_SEARCH_QUERY", payload: query });
 			if (shouldCloseSuggestions) {
 				setShowSuggestions(false);
@@ -272,7 +273,7 @@ export const SearchBar: React.FC = () => {
 					await refreshFavorites();
 					setToastMessage("Favorite removed.");
 				} catch (err) {
-					console.error("Failed to delete favorite:", err);
+					logger.error("Failed to delete favorite:", err);
 				} finally {
 					setIsSaving(false);
 				}
@@ -288,7 +289,7 @@ export const SearchBar: React.FC = () => {
 				"Favorite added!\nYou can select favorites when the search query is empty.",
 			);
 		} catch (err) {
-			console.error("Failed to save favorite:", err);
+			logger.error("Failed to save favorite:", err);
 		} finally {
 			setIsSaving(false);
 		}
