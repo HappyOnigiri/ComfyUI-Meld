@@ -6,15 +6,48 @@ interface SidebarTabProps {
 	localSettings: Settings;
 	setLocalSettings: React.Dispatch<React.SetStateAction<Settings>>;
 	handleToggle: (key: keyof Settings, currentValue: boolean) => void;
+	handleNumberChange: (
+		key: keyof Settings,
+		value: string,
+		min?: number,
+		max?: number,
+	) => void;
+	handleNumberBlur: (config: { key: keyof Settings }) => void;
+	thumbnailSizeInput: string;
 }
 
 export const SidebarTab: React.FC<SidebarTabProps> = ({
 	localSettings,
 	setLocalSettings,
 	handleToggle,
+	handleNumberChange,
+	handleNumberBlur,
+	thumbnailSizeInput,
 }) => {
 	return (
 		<div className="meld-settings-list">
+			<SettingItem
+				label="Thumbnail Size"
+				description="Size of the image thumbnails in the sidebar (50-500px)."
+			>
+				<input
+					type="number"
+					className="meld-number-input"
+					value={thumbnailSizeInput}
+					min={50}
+					max={500}
+					onChange={(e) =>
+						handleNumberChange(
+							"sidebar.thumbnail_size",
+							e.target.value,
+							50,
+							500,
+						)
+					}
+					onBlur={() => handleNumberBlur({ key: "sidebar.thumbnail_size" })}
+				/>
+			</SettingItem>
+
 			<SettingItem
 				label="Show Filename/Path"
 				description="Choose how to display the filename or path on the card."
@@ -164,26 +197,6 @@ export const SidebarTab: React.FC<SidebarTabProps> = ({
 					/>
 					<span className="meld-switch__slider" />
 				</label>
-			</SettingItem>
-
-			<SettingItem
-				label="Image Fit"
-				description="Choose how non-square images should be displayed in the sidebar."
-			>
-				<select
-					className="meld-select"
-					value={localSettings["sidebar.image_fit"]}
-					onChange={(e) =>
-						setLocalSettings((prev) => ({
-							...prev,
-							"sidebar.image_fit": e.target
-								.value as Settings["sidebar.image_fit"],
-						}))
-					}
-				>
-					<option value="cover">Zoom to Fill (Cover)</option>
-					<option value="contain">Fit to Frame (Contain)</option>
-				</select>
 			</SettingItem>
 		</div>
 	);

@@ -250,14 +250,22 @@ export const GalleryPanel: React.FC = () => {
 				<>
 					<div
 						className={`meld-gallery__list ${state.settings["gallery.view_mode"] === "grid_only" ? "meld-gallery__list--grid-only" : ""}`}
+						style={
+							{
+								"--meld-thumbnail-size": `${state.settings["sidebar.thumbnail_size"] || 100}px`,
+							} as React.CSSProperties
+						}
 					>
 						{visibleImages.map((image) => (
 							<div key={image.id} data-image-id={image.id}>
 								<LazyRender
 									height={
 										state.settings["gallery.view_mode"] === "grid_only"
-											? 100
-											: 150
+											? state.settings["sidebar.thumbnail_size"] || 100
+											: Math.max(
+													state.settings["sidebar.thumbnail_size"] || 100,
+													150,
+												)
 									}
 								>
 									<ImageCard image={image} />

@@ -36,6 +36,7 @@ export const SettingsModal: React.FC = () => {
 		maxNegativePromptLinesInput,
 		fullscreenMaxPositivePromptLinesInput,
 		fullscreenMaxNegativePromptLinesInput,
+		thumbnailSizeInput,
 	} = useSettingsModalLogic();
 
 	const tabs: { id: typeof activeTab; label: string }[] = [
@@ -74,6 +75,9 @@ export const SettingsModal: React.FC = () => {
 						localSettings={localSettings}
 						setLocalSettings={setLocalSettings}
 						handleToggle={handleToggle}
+						handleNumberChange={handleNumberChange}
+						handleNumberBlur={handleNumberBlur}
+						thumbnailSizeInput={thumbnailSizeInput}
 					/>
 				);
 			case "Search":

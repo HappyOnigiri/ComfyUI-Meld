@@ -9,7 +9,6 @@ interface SimpleImageCardProps {
 export const SimpleImageCard: React.FC<SimpleImageCardProps> = React.memo(
 	({ image }) => {
 		const {
-			state,
 			isSelected,
 			imgSrc,
 			handleContainerClick,
@@ -17,8 +16,6 @@ export const SimpleImageCard: React.FC<SimpleImageCardProps> = React.memo(
 			handleKeyDown,
 			handleClick,
 		} = useImageCardLogic(image);
-
-		const imageFit = state.settings["sidebar.image_fit"] || "cover";
 
 		return (
 			<div
@@ -33,7 +30,6 @@ export const SimpleImageCard: React.FC<SimpleImageCardProps> = React.memo(
 					<img
 						src={imgSrc}
 						className="meld-image-card__thumbnail"
-						style={{ objectFit: imageFit }}
 						alt={image.filename}
 						loading="lazy"
 						onMouseDown={handleMouseDown}

@@ -64,6 +64,9 @@ export const useSettingsModalLogic = () => {
 	] = useState<string>(
 		state.settings["fullscreen.details.max_negative_prompt_lines"].toString(),
 	);
+	const [thumbnailSizeInput, setThumbnailSizeInput] = useState<string>(
+		state.settings["sidebar.thumbnail_size"].toString(),
+	);
 
 	const handleClose = async () => {
 		// Identify changed settings
@@ -133,6 +136,8 @@ export const useSettingsModalLogic = () => {
 			setFullscreenMaxPositivePromptLinesInput(value);
 		} else if (key === "fullscreen.details.max_negative_prompt_lines") {
 			setFullscreenMaxNegativePromptLinesInput(value);
+		} else if (key === "sidebar.thumbnail_size") {
+			setThumbnailSizeInput(value);
 		}
 
 		const num = Number.parseInt(value, 10);
@@ -194,6 +199,8 @@ export const useSettingsModalLogic = () => {
 					"fullscreen.details.max_negative_prompt_lines"
 				].toString(),
 			);
+		} else if (config.key === "sidebar.thumbnail_size") {
+			setThumbnailSizeInput(localSettings["sidebar.thumbnail_size"].toString());
 		}
 	};
 
@@ -245,5 +252,6 @@ export const useSettingsModalLogic = () => {
 		maxNegativePromptLinesInput,
 		fullscreenMaxPositivePromptLinesInput,
 		fullscreenMaxNegativePromptLinesInput,
+		thumbnailSizeInput,
 	};
 };
