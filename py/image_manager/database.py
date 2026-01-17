@@ -377,11 +377,16 @@ def find_closest_parent(
         row = cursor.fetchone()
         if row:
             try:
-                threshold = json.loads(row[0])
+                val = json.loads(row[0])
+                threshold = val if isinstance(val, int) else 8
             except Exception:
                 threshold = 8
         else:
             threshold = 8
+
+    # Final fallback to ensure threshold is not None for type checkers
+    if threshold is None:
+        threshold = 8
 
     query = "SELECT id, phash, created_at FROM images WHERE phash IS NOT NULL AND deleted_at IS NULL"
     params: list[int | float] = []
@@ -418,8 +423,10 @@ def find_closest_parent(
         return None
 
     if sort_strategy == "phash_created" and before_timestamp:
-        # Sort by distance (ASC), then by time difference (ASC)
-        candidates.sort(key=lambda x: (x["dist"], abs(before_timestamp - x["created_at"])))
+        # Sort by "similarity bucket" first, then by recency.
+        # This ensures that if multiple images are "similar enough" (e.g., distance <= 4),
+        # the most recent one (immediate ancestor) is chosen as the parent.
+        candidates.sort(key=lambda x: (x["dist"] // 5, -x["created_at"]))
     else:
         # Default: Sort by distance (ASC), then by created_at (DESC - most recent first)
         candidates.sort(key=lambda x: (x["dist"], -x["created_at"]))
