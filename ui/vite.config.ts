@@ -18,9 +18,13 @@ export default defineConfig({
     outDir: '../web/js',
     emptyOutDir: false, // Avoid deleting existing files (due to viewer.js, etc.)
     rollupOptions: {
-      // Must match "../../../scripts/app.js" used in the code
-      // Adjusted to be interpreted as relative path from built file (web/js/gallery_extension.js)
-      external: ["../../../scripts/app.js", "../../../scripts/api.js"],
+      // Externalize ComfyUI scripts
+      external: [
+        "/scripts/app.js",
+        "/scripts/api.js",
+        "../../../scripts/app.js",
+        "../../../scripts/api.js",
+      ],
       output: {
         // Fixed output filename
         entryFileNames: 'gallery_extension.js',
