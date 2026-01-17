@@ -36,8 +36,9 @@ This document serves as a comprehensive guide for AI agents and developers to un
 | Directory | Responsibility |
 |-----------|----------------|
 | `src/index.ts` | **Web Extension Entry**. Registers the extension with `app.registerExtension`. |
-| `src/api.ts` | **API Client**. Typed functions to communicate with the backend (`api.fetchApi`). |
-| `src/features/` | **Feature Modules**. Components, hooks, and logic organized by feature (gallery, viewer, search, etc.). |
+| `src/api.ts` | **Global API Client**. Shared or minimal API utilities (e.g., `fetchHomeDir`). |
+| `src/features/` | **Feature Modules**. Modularized components, hooks, and **API clients** organized by feature. |
+| `src/features/images/` | **Shared Image Logic**. Core image CRUD API and common hooks (lineage, actions) used across the app. |
 | `src/components/shared/` | **Reusable UI Components**. Shared parts like modals, buttons, and basic cards. |
 | `src/store/` | State management (Context/Reducer) for the Gallery UI. |
 | `src/styles/` | Global and component-specific CSS files. |
@@ -57,7 +58,7 @@ This document serves as a comprehensive guide for AI agents and developers to un
 
 2. **Data Retrieval (Gallery)**:
    - User opens Meld tab.
-   - Frontend feature components (e.g., `GalleryPanel`) call `fetchImages` (`src/api.ts`).
+   - Frontend feature components (e.g., `GalleryPanel`) call `fetchImages` from `features/images/api/imagesApi.ts`.
    - Backend `search/router.py` receives request -> `SearchService` queries SQLite.
    - Results returned as JSON and rendered by `GalleryPanel`.
 
@@ -87,5 +88,6 @@ This document serves as a comprehensive guide for AI agents and developers to un
 ### Modification Protocol
 - When adding a new API endpoint:
   1. Define handler in a feature-specific router (e.g., `py/image_manager/features/X/router.py`) and ensure it's integrated in `api.py`.
-  2. Add typed wrapper in `ui/src/api.ts`.
-  3. Update `architecture.md` if a new major service/module is created.
+  2. Add typed wrapper in the corresponding frontend feature directory (e.g., `ui/src/features/X/api/XApi.ts`).
+  3. If the logic is shared across multiple features (like basic image operations), place it in `features/images`.
+  4. Update `architecture.md` if a new major service/module is created.
