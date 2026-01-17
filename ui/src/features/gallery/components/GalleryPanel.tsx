@@ -256,22 +256,52 @@ export const GalleryPanel: React.FC = () => {
 							} as React.CSSProperties
 						}
 					>
-						{visibleImages.map((image) => (
-							<div key={image.id} data-image-id={image.id}>
-								<LazyRender
-									height={
-										state.settings["gallery.view_mode"] === "grid_only"
-											? state.settings["sidebar.thumbnail_size"] || 100
-											: Math.max(
-													state.settings["sidebar.thumbnail_size"] || 100,
-													150,
-												)
-									}
+						{visibleImages.map((image) => {
+							const thumbSize = state.settings["sidebar.thumbnail_size"] || 100;
+							const isGridOnly =
+								state.settings["gallery.view_mode"] === "grid_only";
+							// Estimate width based on aspect ratio if available
+							const estimatedWidth =
+								isGridOnly && image.width && image.height
+									? Math.min(
+											thumbSize,
+											(thumbSize * image.width) / image.height,
+										) + 10
+									: isGridOnly
+										? thumbSize + 10
+										: "100%";
+
+							return (
+								<div
+									key={image.id}
+									data-image-id={image.id}
+									style={{
+										width: isGridOnly ? "auto" : "100%",
+										flexShrink: 0,
+										display: isGridOnly ? "inline-block" : "block",
+									}}
 								>
-									<ImageCard image={image} />
-								</LazyRender>
-							</div>
-						))}
+									<LazyRender
+										height={
+											isGridOnly ? thumbSize + 10 : Math.max(thumbSize, 150)
+										}
+										style={{
+											width:
+												typeof estimatedWidth === "number"
+													? `${estimatedWidth}px`
+													: estimatedWidth,
+											minWidth:
+												typeof estimatedWidth === "number"
+													? `${estimatedWidth}px`
+													: estimatedWidth,
+											display: isGridOnly ? "inline-block" : "block",
+										}}
+									>
+										<ImageCard image={image} />
+									</LazyRender>
+								</div>
+							);
+						})}
 					</div>
 					<div
 						ref={loadMoreRef}

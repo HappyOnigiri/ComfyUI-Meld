@@ -32,6 +32,8 @@ export const SimpleImageCard: React.FC<SimpleImageCardProps> = React.memo(
 						className="meld-image-card__thumbnail"
 						alt={image.filename}
 						loading="lazy"
+						width={image.width || undefined}
+						height={image.height || undefined}
 						onMouseDown={handleMouseDown}
 						onClick={(e) => {
 							e.stopPropagation();

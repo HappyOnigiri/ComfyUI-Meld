@@ -24,6 +24,16 @@
 	color: var(--meld-text-color);
 	padding: 0;
 	padding-bottom: 70px;
+	scrollbar-gutter: stable;
+	overflow-y: auto;
+	height: 100%;
+	box-sizing: border-box;
+}
+
+.meld-gallery *,
+.meld-gallery *::before,
+.meld-gallery *::after {
+	box-sizing: inherit;
 }
 
 .meld-gallery__header {
