@@ -10602,17 +10602,15 @@ const Am = () => {
   const r = async () => {
     try {
       await Vp(), t({ type: "SET_SCAN_STATUS", payload: { shouldCancel: !0 } });
-    } catch (o) {
-      console.error("Failed to cancel scan:", o);
+    } catch (y) {
+      console.error("Failed to cancel scan:", y);
     }
   }, l = () => {
     t({
       type: "SET_SCAN_STATUS",
       payload: { isFinished: !1, isRunning: !1 }
     });
-  }, i = n.progress.phase === "linking", a = i ? 100 : n.progress.total > 0 ? Math.round(
-    n.progress.current / n.progress.total * 100
-  ) : 0;
+  }, i = n.progress.phase === "linking", { current: a, total: o } = n.progress, u = o > 0 ? a / o : 0, d = i ? 50 + Math.round(u * 50) : Math.round(u * 50);
   return /* @__PURE__ */ s.jsx("div", { className: "meld-import-progress-sidebar", children: n.isRunning ? /* @__PURE__ */ s.jsxs("div", { className: "meld-scan-progress-compact", children: [
     /* @__PURE__ */ s.jsxs("div", { className: "meld-scan-info", children: [
       /* @__PURE__ */ s.jsx("div", { className: "meld-scan-status-text-compact", children: n.shouldCancel ? /* @__PURE__ */ s.jsx("span", { className: "meld-status-cancelling", children: "Cancelling..." }) : i ? /* @__PURE__ */ s.jsx("span", { children: "Linking..." }) : /* @__PURE__ */ s.jsx("span", { children: "Scanning..." }) }),
@@ -10626,7 +10624,7 @@ const Am = () => {
       "div",
       {
         className: "meld-progress-bar",
-        style: { width: `${a}%` }
+        style: { width: `${d}%` }
       }
     ) }),
     /* @__PURE__ */ s.jsx(

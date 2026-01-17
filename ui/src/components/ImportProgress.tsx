@@ -28,13 +28,12 @@ export const ImportProgress: React.FC = () => {
 	};
 
 	const isLinking = scanStatus.progress.phase === "linking";
+	const { current, total } = scanStatus.progress;
+	const phaseProgress = total > 0 ? current / total : 0;
+
 	const progressPercent = isLinking
-		? 100
-		: scanStatus.progress.total > 0
-			? Math.round(
-					(scanStatus.progress.current / scanStatus.progress.total) * 100,
-				)
-			: 0;
+		? 50 + Math.round(phaseProgress * 50)
+		: Math.round(phaseProgress * 50);
 
 	return (
 		<div className="meld-import-progress-sidebar">
