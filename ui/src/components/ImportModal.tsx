@@ -24,15 +24,35 @@ export const ImportModal: React.FC = () => {
 		custom_path: string;
 		recursive: boolean;
 		auto_link_parent: boolean;
+		link_strategy: "none" | "new_only" | "all";
 		tags: string[];
-	}>({
-		type: "output",
-		subfolder: "",
-		custom_path: "",
-		recursive: true,
-		auto_link_parent: true,
-		tags: [],
+	}>(() => {
+		const saved = localStorage.getItem("meld-import-config");
+		const defaultConfig = {
+			type: "output",
+			subfolder: "",
+			custom_path: "",
+			recursive: true,
+			auto_link_parent: true,
+			link_strategy: "new_only" as const,
+			tags: [],
+		};
+
+		if (saved) {
+			try {
+				const parsed = JSON.parse(saved);
+				return { ...defaultConfig, ...parsed, tags: [] }; // Don't persist tags
+			} catch (_e) {
+				return defaultConfig;
+			}
+		}
+		return defaultConfig;
 	});
+
+	useEffect(() => {
+		const { tags, ...rest } = config;
+		localStorage.setItem("meld-import-config", JSON.stringify(rest));
+	}, [config]);
 
 	const [folders, setFolders] = useState<
 		{
@@ -61,7 +81,11 @@ export const ImportModal: React.FC = () => {
 		const initHomeDir = async () => {
 			try {
 				const home = await api.fetchHomeDir();
-				setConfig((prev) => ({ ...prev, custom_path: home }));
+				setConfig((prev) => {
+					// Only overwrite if custom_path is empty or not yet set
+					if (prev.custom_path) return prev;
+					return { ...prev, custom_path: home };
+				});
 			} catch (err) {
 				logger.error("Failed to fetch home directory:", err);
 			}
@@ -362,20 +386,26 @@ export const ImportModal: React.FC = () => {
 								</label>
 							</div>
 
-							<div className="meld-form-group checkbox">
-								<label>
-									<input
-										type="checkbox"
-										checked={config.auto_link_parent}
-										onChange={(e) =>
-											setConfig({
-												...config,
-												auto_link_parent: e.target.checked,
-											})
-										}
-									/>
-									Auto Link Parent
-								</label>
+							<div className="meld-form-group">
+								<label htmlFor="link-strategy">Parent Linking</label>
+								<select
+									id="link-strategy"
+									value={config.link_strategy}
+									onChange={(e) =>
+										setConfig({
+											...config,
+											link_strategy: e.target.value as
+												| "none"
+												| "new_only"
+												| "all",
+											auto_link_parent: e.target.value !== "none",
+										})
+									}
+								>
+									<option value="none">Do not link</option>
+									<option value="new_only">Only for new images</option>
+									<option value="all">Reset for all images</option>
+								</select>
 							</div>
 
 							<div className="meld-form-group">
