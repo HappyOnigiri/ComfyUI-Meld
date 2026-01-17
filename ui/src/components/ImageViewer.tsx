@@ -93,6 +93,12 @@ export const ImageViewer: React.FC = () => {
 	const [lastDeletedImages, setLastDeletedImages] = useState<
 		MeldImage[] | null
 	>(null);
+	const [lastShortcutAction, setLastShortcutAction] = useState<{
+		type: "tags";
+		imageId: number;
+		addTags: string[];
+		removeTags: string[];
+	} | null>(null);
 	const [activeShortcutKey, setActiveShortcutKey] = useState<string | null>(
 		null,
 	);
@@ -239,6 +245,7 @@ export const ImageViewer: React.FC = () => {
 						idsToDelete.has(img.id),
 					);
 					setLastDeletedImages(deletedImages);
+					setLastShortcutAction(null);
 				}
 				dispatch({ type: "REMOVE_IMAGES", payload: Array.from(idsToDelete) });
 			} catch (err: unknown) {
@@ -403,9 +410,63 @@ export const ImageViewer: React.FC = () => {
 		}
 	}, [lastDeletedImages, dispatch, viewerMode]);
 
+	const handleUndo = useCallback(async () => {
+		if (lastDeletedImages && lastDeletedImages.length > 0) {
+			await handleUndoDelete();
+		} else if (lastShortcutAction) {
+			if (lastShortcutAction.type === "tags") {
+				const { imageId, addTags, removeTags } = lastShortcutAction;
+				try {
+					await api.bulkUpdateImageTags([imageId], addTags, removeTags);
+
+					// Update the image in the global state (images and lineageImages)
+					// This works even if the image is not currently displayed
+					const targetImage = (
+						viewerMode === "lineage" ? lineageImages : images
+					).find((img) => img.id === imageId);
+
+					if (targetImage) {
+						const newTags = [...targetImage.tags];
+						for (const t of addTags) {
+							if (!newTags.includes(t)) newTags.push(t);
+						}
+						const finalTags = newTags.filter((t) => !removeTags.includes(t));
+						dispatch({
+							type: "UPDATE_IMAGE",
+							payload: { ...targetImage, tags: finalTags },
+						});
+
+						// Open the viewer for this image
+						dispatch({
+							type: "OPEN_VIEWER",
+							payload: { id: imageId, mode: viewerMode },
+						});
+					}
+					setLastShortcutAction(null);
+				} catch (err: unknown) {
+					dispatch({
+						type: "SET_ERROR",
+						payload: err instanceof Error ? err.message : String(err),
+					});
+				}
+			}
+		}
+	}, [
+		lastDeletedImages,
+		lastShortcutAction,
+		handleUndoDelete,
+		images,
+		lineageImages,
+		viewerMode,
+		dispatch,
+	]);
+
 	const executeCommand = useCallback(
 		async (command: string) => {
 			if (!command || !image) return;
+
+			const currentImageId = image.id;
+			const currentImageTags = [...image.tags];
 
 			const parts = command.split(/\s+/);
 			const addTags: string[] = [];
@@ -417,18 +478,26 @@ export const ImageViewer: React.FC = () => {
 			for (const part of parts) {
 				if (part.startsWith("tag:")) {
 					const tag = part.substring(4);
-					if (tag && !image.tags.includes(tag) && !addTags.includes(tag)) {
+					if (
+						tag &&
+						!currentImageTags.includes(tag) &&
+						!addTags.includes(tag)
+					) {
 						addTags.push(tag);
 					}
 				} else if (part.startsWith("-tag:")) {
 					const tag = part.substring(5);
-					if (tag && image.tags.includes(tag) && !removeTags.includes(tag)) {
+					if (
+						tag &&
+						currentImageTags.includes(tag) &&
+						!removeTags.includes(tag)
+					) {
 						removeTags.push(tag);
 					}
 				} else if (part.startsWith("tag-toggle:")) {
 					const tag = part.substring(11);
 					if (tag) {
-						if (image.tags.includes(tag)) {
+						if (currentImageTags.includes(tag)) {
 							if (!removeTags.includes(tag)) removeTags.push(tag);
 						} else {
 							if (!addTags.includes(tag)) addTags.push(tag);
@@ -445,17 +514,26 @@ export const ImageViewer: React.FC = () => {
 
 			if (addTags.length > 0 || removeTags.length > 0) {
 				try {
-					await api.bulkUpdateImageTags([image.id], addTags, removeTags);
+					await api.bulkUpdateImageTags([currentImageId], addTags, removeTags);
 					// Update local state
-					const newTags = [...image.tags];
+					const newTags = [...currentImageTags];
 					for (const t of addTags) {
 						if (!newTags.includes(t)) newTags.push(t);
 					}
 					const finalTags = newTags.filter((t) => !removeTags.includes(t));
 					dispatch({
 						type: "UPDATE_IMAGE",
-						payload: { ...image, tags: finalTags },
+						payload: { ...image, id: currentImageId, tags: finalTags },
 					});
+
+					// Store for undo
+					setLastShortcutAction({
+						type: "tags",
+						imageId: currentImageId,
+						addTags: [...removeTags],
+						removeTags: [...addTags],
+					});
+					setLastDeletedImages(null);
 				} catch (err) {
 					console.error("Failed to update tags via shortcut:", err);
 				}
@@ -521,9 +599,14 @@ export const ImageViewer: React.FC = () => {
 				e.key === "R";
 			const isEscapeKey = e.key === "Escape";
 			const isUndoKey =
-				(e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z");
+				(e.ctrlKey || e.metaKey) &&
+				(e.key === "z" || e.key === "Z" || e.code === "KeyZ");
 			const isShortcutKey =
-				/^[0-9]$/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey;
+				/^[0-9]$/.test(e.key) &&
+				!e.ctrlKey &&
+				!e.metaKey &&
+				!e.altKey &&
+				e.code !== "KeyZ"; // KeyZ can sometimes be reported as a shortcut if we are not careful
 
 			// Always prevent propagation for these keys when viewer is open,
 			// unless we are in an input field and it's not a shortcut we want to catch.
@@ -591,7 +674,7 @@ export const ImageViewer: React.FC = () => {
 			} else if (e.key === "Delete") {
 				handleDelete();
 			} else if ((e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z")) {
-				handleUndoDelete();
+				handleUndo();
 			} else if (isShortcutKey && !isTargetInput) {
 				const key = `viewer.shortcut.${e.key}` as keyof Settings;
 				const command = state.settings[key];
@@ -630,7 +713,7 @@ export const ImageViewer: React.FC = () => {
 		state.settings,
 		handleDelete,
 		state.activeModal.type,
-		handleUndoDelete,
+		handleUndo,
 		handleTagEdit,
 		handleRestore,
 		state.viewScope,
