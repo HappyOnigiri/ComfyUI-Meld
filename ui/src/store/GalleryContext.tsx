@@ -178,6 +178,7 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 					isFinished: true,
 					shouldCancel: false,
 					newCount: detail.new_count || 0,
+					updatedCount: detail.updated_count || 0,
 					totalCount: detail.total_count || 0,
 					progress: {
 						current: detail.total_count || state.scanStatus.progress.total,

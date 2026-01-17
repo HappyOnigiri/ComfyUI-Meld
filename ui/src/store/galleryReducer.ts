@@ -19,6 +19,7 @@ export const initialState: GalleryState = {
 		shouldCancel: false,
 		progress: { current: 0, total: 0, phase: "" },
 		newCount: 0,
+		updatedCount: 0,
 		totalCount: 0,
 	},
 	settings: {

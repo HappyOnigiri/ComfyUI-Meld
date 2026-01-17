@@ -104,6 +104,7 @@ export type ScanStatus = {
 		phase?: string;
 	};
 	newCount: number;
+	updatedCount: number;
 	totalCount: number;
 };
 

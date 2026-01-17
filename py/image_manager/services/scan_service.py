@@ -42,6 +42,9 @@ def set_scan_running(running: bool) -> None:
     _scan_state.is_running = running
     if running:
         _scan_state.should_cancel = False
+        _scan_state.new_count = 0
+        _scan_state.updated_count = 0
+        _scan_state.total_count = 0
 
 
 def perform_cleanup() -> int:
@@ -270,7 +273,9 @@ def _scan_thread(
                 if existing:
                     image_id = existing[0]
                     # Even if already exists, add specified tags
-                    add_tags_to_image(image_id, tags)
+                    if tags:
+                        add_tags_to_image(image_id, tags)
+                        _scan_state.updated_count += 1
 
                     processed += 1
                     server.PromptServer.instance.send_sync(
@@ -424,7 +429,13 @@ def _scan_thread(
         _scan_state.is_running = False
         _scan_state.should_cancel = False
         server.PromptServer.instance.send_sync(
-            "meld-scan-finished", {"status": "completed", "new_count": new_count, "total_count": processed}
+            "meld-scan-finished",
+            {
+                "status": "completed",
+                "new_count": new_count,
+                "updated_count": _scan_state.updated_count,
+                "total_count": processed,
+            },
         )
 
 

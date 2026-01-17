@@ -6410,6 +6410,7 @@ const um = (e) => {
     shouldCancel: !1,
     progress: { current: 0, total: 0, phase: "" },
     newCount: 0,
+    updatedCount: 0,
     totalCount: 0
   },
   settings: {
@@ -6815,6 +6816,7 @@ const Fc = x.createContext(void 0), hm = ({
           isFinished: !0,
           shouldCancel: !1,
           newCount: h.new_count || 0,
+          updatedCount: h.updated_count || 0,
           totalCount: h.total_count || 0,
           progress: {
             current: h.total_count || t.scanStatus.progress.total,
@@ -9453,7 +9455,9 @@ const wm = () => {
       /* @__PURE__ */ a.jsxs("span", { className: "meld-finished-text", children: [
         "Done! ",
         n.newCount,
-        " new images"
+        " new, ",
+        n.updatedCount,
+        " updated"
       ] })
     ] }),
     /* @__PURE__ */ a.jsx(

@@ -311,6 +311,9 @@ class ImageSnapshotResponse(BaseSchema):
 class ScanStatus(BaseSchema):
     is_running: bool  # noqa: N815
     should_cancel: bool  # noqa: N815
+    new_count: int = 0
+    updated_count: int = 0
+    total_count: int = 0
 
 
 @dataclass

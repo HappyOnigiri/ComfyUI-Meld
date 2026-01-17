@@ -77,7 +77,7 @@ export const ImportProgress: React.FC = () => {
 					<div className="meld-finished-info">
 						<CheckCircle size={14} className="meld-success-icon" />
 						<span className="meld-finished-text">
-							Done! {scanStatus.newCount} new images
+							Done! {scanStatus.newCount} new, {scanStatus.updatedCount} updated
 						</span>
 					</div>
 					<button
