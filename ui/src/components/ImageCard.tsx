@@ -127,7 +127,9 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 	const showFilename = state.settings["sidebar.show_filename"];
 	const displayFilename =
 		showFilename === "filepath"
-			? `${image.subfolder ? `${image.subfolder}/` : ""}${image.filename}`
+			? `${image.type !== "custom" ? `${image.type}/` : ""}${
+					image.subfolder ? `${image.subfolder}/` : ""
+				}${image.filename}`
 			: image.filename;
 
 	const imgSrc = getImageViewUrl(image);

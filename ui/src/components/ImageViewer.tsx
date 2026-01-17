@@ -1012,7 +1012,9 @@ export const ImageViewer: React.FC = () => {
 										? state.settings["fullscreen.details.show_filename"]
 										: state.settings["viewer.details.show_filename"]) ===
 									"filepath"
-										? `${image.subfolder ? `${image.subfolder}/` : ""}${image.filename}`
+										? `${image.type !== "custom" ? `${image.type}/` : ""}${
+												image.subfolder ? `${image.subfolder}/` : ""
+											}${image.filename}`
 										: image.filename}
 								</div>
 							</div>
