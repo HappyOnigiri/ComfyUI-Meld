@@ -1,5 +1,7 @@
 import {
 	Download,
+	LayoutGrid,
+	LayoutList,
 	RefreshCw,
 	Search,
 	Settings,
@@ -220,6 +222,35 @@ export const GalleryPanel: React.FC = () => {
 						</button>
 						<button
 							type="button"
+							onClick={() => {
+								const currentMode =
+									state.settings["gallery.view_mode"] || "grid_details";
+								const nextMode =
+									currentMode === "grid_details" ? "grid_only" : "grid_details";
+								updateSetting("gallery.view_mode", nextMode);
+							}}
+							style={{
+								background: "none",
+								border: "none",
+								color: "var(--meld-text-secondary)",
+								cursor: "pointer",
+								display: "flex",
+								alignItems: "center",
+							}}
+							title={
+								state.settings["gallery.view_mode"] === "grid_only"
+									? "Switch to Details View"
+									: "Switch to Grid Only View"
+							}
+						>
+							{state.settings["gallery.view_mode"] === "grid_only" ? (
+								<LayoutList size={14} />
+							) : (
+								<LayoutGrid size={14} />
+							)}
+						</button>
+						<button
+							type="button"
 							onClick={() =>
 								setViewMode(viewMode === "tags" ? "gallery" : "tags")
 							}
@@ -319,7 +350,9 @@ export const GalleryPanel: React.FC = () => {
 				<div className="meld-gallery__empty">No images found.</div>
 			) : (
 				<>
-					<div className="meld-gallery__list">
+					<div
+						className={`meld-gallery__list ${state.settings["gallery.view_mode"] === "grid_only" ? "meld-gallery__list--grid-only" : ""}`}
+					>
 						{displayedImages.map((image) => (
 							<div key={image.id} data-image-id={image.id}>
 								<LazyRender height={150}>

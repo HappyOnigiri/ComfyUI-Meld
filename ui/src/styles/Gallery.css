@@ -60,6 +60,13 @@
 	margin-right: 10px;
 }
 
+.meld-gallery__list--grid-only {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+	gap: 6px;
+	margin-top: 10px;
+}
+
 .meld-gallery__loading {
 	text-align: center;
 	padding: 20px;
@@ -193,6 +200,26 @@
 .meld-image-card--selected:hover {
 	background: var(--meld-card-selected-bg);
 	border-color: var(--meld-accent-color);
+}
+
+.meld-image-card--grid-only {
+	flex-direction: column;
+	padding: 4px;
+	margin-bottom: 0;
+	gap: 0;
+}
+
+.meld-image-card--grid-only .meld-image-card__thumbnail-wrapper {
+	flex: 1;
+	min-width: 0;
+	width: 100%;
+	aspect-ratio: 1 / 1;
+}
+
+.meld-image-card--grid-only .meld-image-card__thumbnail {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 }
 
 .meld-image-card__menu-container {

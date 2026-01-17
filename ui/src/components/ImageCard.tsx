@@ -23,6 +23,9 @@ interface ImageCardProps {
 export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 	const { state, dispatch } = useGallery();
 	const isSelected = state.selectedIds.has(image.id);
+	const viewMode = state.settings["gallery.view_mode"] || "grid_details";
+	const isGridOnly = viewMode === "grid_only";
+
 	const [popupContent, setPopupContent] = useState<{
 		title: string;
 		text: string;
@@ -261,7 +264,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 
 	return (
 		<div
-			className={`meld-image-card ${isSelected ? "meld-image-card--selected" : ""}`}
+			className={`meld-image-card ${isSelected ? "meld-image-card--selected" : ""} ${isGridOnly ? "meld-image-card--grid-only" : ""}`}
 			onClick={handleContainerClick}
 			onMouseDown={handleMouseDown}
 			onKeyDown={handleKeyDown}
@@ -281,267 +284,172 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 					}}
 				/>
 			</div>
-			<div className="meld-image-card__details">
-				{(state.settings["sidebar.show_filename"] !== "none" ||
-					state.settings["sidebar.show_dimensions"]) && (
-					<div className="meld-image-card__filename">
-						{state.settings["sidebar.show_filename"] !== "none" &&
-							displayFilename}
-						{state.settings["sidebar.show_filename"] !== "none" &&
-							state.settings["sidebar.show_dimensions"] &&
-							image.width &&
-							image.height &&
-							` (${image.width} x ${image.height})`}
-						{state.settings["sidebar.show_filename"] === "none" &&
-							state.settings["sidebar.show_dimensions"] &&
-							image.width &&
-							image.height &&
-							`${image.width} x ${image.height}`}
-					</div>
-				)}
+			{!isGridOnly && (
+				<div className="meld-image-card__details">
+					{(state.settings["sidebar.show_filename"] !== "none" ||
+						state.settings["sidebar.show_dimensions"]) && (
+						<div className="meld-image-card__filename">
+							{state.settings["sidebar.show_filename"] !== "none" &&
+								displayFilename}
+							{state.settings["sidebar.show_filename"] !== "none" &&
+								state.settings["sidebar.show_dimensions"] &&
+								image.width &&
+								image.height &&
+								` (${image.width} x ${image.height})`}
+							{state.settings["sidebar.show_filename"] === "none" &&
+								state.settings["sidebar.show_dimensions"] &&
+								image.width &&
+								image.height &&
+								`${image.width} x ${image.height}`}
+						</div>
+					)}
 
-				{state.settings["gallery.show_parent_image"] &&
-					parentChain.length > 0 && (
-						<div className="meld-image-card__lineage-v2">
-							<div className="meld-image-card__meta-label">Source</div>
-							<div className="meld-lineage-thumbs">
-								{parentChain.map(
-									(p, index) =>
-										p.imgSrc && (
-											<img
-												key={p.id || index}
-												src={p.imgSrc}
-												className="meld-lineage-badge__parent-thumb"
-												loading="lazy"
-												onClick={(e) => {
-													e.stopPropagation();
-													dispatch({
-														type: "OPEN_VIEWER",
-														payload: { id: p.id || image.id, mode: "lineage" },
-													});
-												}}
-												title={
-													index === 0
-														? "Source"
-														: index === 1
-															? "Grand-Source"
-															: `Ancestor (S${index + 1})`
-												}
-												alt="source thumb"
-											/>
-										),
-								)}
+					{state.settings["gallery.show_parent_image"] &&
+						parentChain.length > 0 && (
+							<div className="meld-image-card__lineage-v2">
+								<div className="meld-image-card__meta-label">Source</div>
+								<div className="meld-lineage-thumbs">
+									{parentChain.map(
+										(p, index) =>
+											p.imgSrc && (
+												<img
+													key={p.id || index}
+													src={p.imgSrc}
+													className="meld-lineage-badge__parent-thumb"
+													loading="lazy"
+													onClick={(e) => {
+														e.stopPropagation();
+														dispatch({
+															type: "OPEN_VIEWER",
+															payload: {
+																id: p.id || image.id,
+																mode: "lineage",
+															},
+														});
+													}}
+													title={
+														index === 0
+															? "Source"
+															: index === 1
+																? "Grand-Source"
+																: `Ancestor (S${index + 1})`
+													}
+													alt="source thumb"
+												/>
+											),
+									)}
+								</div>
+							</div>
+						)}
+
+					{state.settings["sidebar.show_created_at"] && (
+						<div className="meld-image-card__meta-item">
+							<div className="meld-image-card__meta-label">Created At</div>
+							<div className="meld-image-card__meta-content">
+								{new Date(image.created_at * 1000).toLocaleString()}
 							</div>
 						</div>
 					)}
 
-				{state.settings["sidebar.show_created_at"] && (
-					<div className="meld-image-card__meta-item">
-						<div className="meld-image-card__meta-label">Created At</div>
-						<div className="meld-image-card__meta-content">
-							{new Date(image.created_at * 1000).toLocaleString()}
+					{state.viewScope === "trash" && image.deleted_at && (
+						<div className="meld-image-card__meta-item">
+							<div className="meld-image-card__meta-label">Deleted At</div>
+							<div className="meld-image-card__meta-content">
+								{new Date(image.deleted_at * 1000).toLocaleString()}
+							</div>
 						</div>
-					</div>
-				)}
+					)}
 
-				{state.viewScope === "trash" && image.deleted_at && (
-					<div className="meld-image-card__meta-item">
-						<div className="meld-image-card__meta-label">Deleted At</div>
-						<div className="meld-image-card__meta-content">
-							{new Date(image.deleted_at * 1000).toLocaleString()}
-						</div>
-					</div>
-				)}
-
-				{state.settings["sidebar.show_model_name"] && (
-					<div
-						className="meld-image-card__meta-item meld-image-card__meta-item--clickable"
-						onClick={(e) => {
-							e.stopPropagation();
-							setPopupContent({
-								title: "Model",
-								text: image.model_name || "-",
-							});
-						}}
-					>
+					{state.settings["sidebar.show_model_name"] && (
 						<div
-							className={`meld-image-card__meta-label meld-image-card__meta-label--copyable ${copiedLabel === "Model" ? "meld-image-card__meta-label--copied" : ""}`}
-							title="Click to copy"
+							className="meld-image-card__meta-item meld-image-card__meta-item--clickable"
 							onClick={(e) => {
 								e.stopPropagation();
-								handleCopy(image.model_name || "-", "Model");
-							}}
-						>
-							{copiedLabel === "Model" ? "Copied!" : "Model"}
-						</div>
-						<div className="meld-image-card__meta-content">
-							{image.model_name || "-"}
-						</div>
-					</div>
-				)}
-
-				{state.settings["sidebar.show_positive_prompt"] && (
-					<div
-						className="meld-image-card__meta-item meld-image-card__meta-item--clickable"
-						onClick={(e) => {
-							e.stopPropagation();
-							setPopupContent({
-								title: "Positive Prompt",
-								text: image.positive_prompt || image.positive || "-",
-							});
-						}}
-					>
-						<div
-							className={`meld-image-card__meta-label meld-image-card__meta-label--copyable ${copiedLabel === "Positive" ? "meld-image-card__meta-label--copied" : ""}`}
-							title="Click to copy"
-							onClick={(e) => {
-								e.stopPropagation();
-								handleCopy(
-									image.positive_prompt || image.positive || "-",
-									"Positive",
-								);
-							}}
-						>
-							{copiedLabel === "Positive" ? "Copied!" : "Positive"}
-						</div>
-						<div className="meld-image-card__meta-content">
-							{image.positive_prompt || image.positive || "-"}
-						</div>
-					</div>
-				)}
-
-				{state.settings["sidebar.show_negative_prompt"] && (
-					<div
-						className="meld-image-card__meta-item meld-image-card__meta-item--clickable"
-						onClick={(e) => {
-							e.stopPropagation();
-							setPopupContent({
-								title: "Negative Prompt",
-								text: image.negative_prompt || image.negative || "-",
-							});
-						}}
-					>
-						<div
-							className={`meld-image-card__meta-label meld-image-card__meta-label--copyable ${copiedLabel === "Negative" ? "meld-image-card__meta-label--copied" : ""}`}
-							title="Click to copy"
-							onClick={(e) => {
-								e.stopPropagation();
-								handleCopy(
-									image.negative_prompt || image.negative || "-",
-									"Negative",
-								);
-							}}
-						>
-							{copiedLabel === "Negative" ? "Copied!" : "Negative"}
-						</div>
-						<div className="meld-image-card__meta-content">
-							{image.negative_prompt || image.negative || "-"}
-						</div>
-					</div>
-				)}
-
-				{state.settings["sidebar.show_tags"] && (
-					<div
-						className="meld-image-card__meta-item meld-image-card__meta-item--clickable"
-						onClick={(e) => {
-							e.stopPropagation();
-							dispatch({
-								type: "OPEN_MODAL",
-								payload: {
-									type: "tag_edit",
-									imageIds: [image.id],
-									tags: image.tags || [],
-								},
-							});
-						}}
-					>
-						<div className="meld-image-card__meta-label">Tags</div>
-						<div className="meld-image-card__tags">
-							{image.tags && image.tags.length > 0 ? (
-								image.tags.map((tag, i) => {
-									return (
-										<span key={`${tag}-${i}`} className="meld-image-card__tag">
-											{tag}
-										</span>
-									);
-								})
-							) : (
-								<span
-									style={{
-										color: "var(--meld-text-secondary)",
-									}}
-								>
-									-
-								</span>
-							)}
-						</div>
-					</div>
-				)}
-			</div>
-
-			<div className="meld-image-card__menu-container" ref={menuRef}>
-				<button
-					type="button"
-					className="meld-image-card__menu-btn"
-					onClick={(e) => {
-						e.stopPropagation();
-						setIsMenuOpen(!isMenuOpen);
-					}}
-					title="Menu"
-				>
-					<MoreVertical size={16} />
-				</button>
-				<button
-					type="button"
-					className="meld-image-card__menu-btn"
-					onClick={(e) => {
-						e.stopPropagation();
-						handleAddUnifiedLoader();
-					}}
-					title="Add Unified Loader"
-				>
-					<ArrowRight size={16} />
-				</button>
-				{isMenuOpen && (
-					<div className="meld-image-card__menu">
-						<div
-							className="meld-image-card__menu-item"
-							onClick={(e) => {
-								e.stopPropagation();
-								handleAddUnifiedLoader();
-								setIsMenuOpen(false);
-							}}
-						>
-							<ArrowRight size={14} />
-							<span>Add Unified Loader</span>
-						</div>
-						<div
-							className="meld-image-card__menu-item"
-							onClick={(e) => {
-								e.stopPropagation();
-								handleRestoreWorkflow();
-								setIsMenuOpen(false);
-							}}
-						>
-							<ArrowBigRight size={14} />
-							<span>Restore Full Workflow</span>
-						</div>
-						<div
-							className="meld-image-card__menu-item"
-							onClick={(e) => {
-								e.stopPropagation();
-								dispatch({
-									type: "OPEN_MODAL",
-									payload: { type: "parent_selection", imageId: image.id },
+								setPopupContent({
+									title: "Model",
+									text: image.model_name || "-",
 								});
-								setIsMenuOpen(false);
 							}}
 						>
-							<PlusCircle size={14} />
-							<span>Add source image</span>
+							<div
+								className={`meld-image-card__meta-label meld-image-card__meta-label--copyable ${copiedLabel === "Model" ? "meld-image-card__meta-label--copied" : ""}`}
+								title="Click to copy"
+								onClick={(e) => {
+									e.stopPropagation();
+									handleCopy(image.model_name || "-", "Model");
+								}}
+							>
+								{copiedLabel === "Model" ? "Copied!" : "Model"}
+							</div>
+							<div className="meld-image-card__meta-content">
+								{image.model_name || "-"}
+							</div>
 						</div>
+					)}
+
+					{state.settings["sidebar.show_positive_prompt"] && (
 						<div
-							className="meld-image-card__menu-item"
+							className="meld-image-card__meta-item meld-image-card__meta-item--clickable"
+							onClick={(e) => {
+								e.stopPropagation();
+								setPopupContent({
+									title: "Positive Prompt",
+									text: image.positive_prompt || image.positive || "-",
+								});
+							}}
+						>
+							<div
+								className={`meld-image-card__meta-label meld-image-card__meta-label--copyable ${copiedLabel === "Positive" ? "meld-image-card__meta-label--copied" : ""}`}
+								title="Click to copy"
+								onClick={(e) => {
+									e.stopPropagation();
+									handleCopy(
+										image.positive_prompt || image.positive || "-",
+										"Positive",
+									);
+								}}
+							>
+								{copiedLabel === "Positive" ? "Copied!" : "Positive"}
+							</div>
+							<div className="meld-image-card__meta-content">
+								{image.positive_prompt || image.positive || "-"}
+							</div>
+						</div>
+					)}
+
+					{state.settings["sidebar.show_negative_prompt"] && (
+						<div
+							className="meld-image-card__meta-item meld-image-card__meta-item--clickable"
+							onClick={(e) => {
+								e.stopPropagation();
+								setPopupContent({
+									title: "Negative Prompt",
+									text: image.negative_prompt || image.negative || "-",
+								});
+							}}
+						>
+							<div
+								className={`meld-image-card__meta-label meld-image-card__meta-label--copyable ${copiedLabel === "Negative" ? "meld-image-card__meta-label--copied" : ""}`}
+								title="Click to copy"
+								onClick={(e) => {
+									e.stopPropagation();
+									handleCopy(
+										image.negative_prompt || image.negative || "-",
+										"Negative",
+									);
+								}}
+							>
+								{copiedLabel === "Negative" ? "Copied!" : "Negative"}
+							</div>
+							<div className="meld-image-card__meta-content">
+								{image.negative_prompt || image.negative || "-"}
+							</div>
+						</div>
+					)}
+
+					{state.settings["sidebar.show_tags"] && (
+						<div
+							className="meld-image-card__meta-item meld-image-card__meta-item--clickable"
 							onClick={(e) => {
 								e.stopPropagation();
 								dispatch({
@@ -552,15 +460,120 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 										tags: image.tags || [],
 									},
 								});
-								setIsMenuOpen(false);
 							}}
 						>
-							<Tag size={14} />
-							<span>Edit Tags</span>
+							<div className="meld-image-card__meta-label">Tags</div>
+							<div className="meld-image-card__tags">
+								{image.tags && image.tags.length > 0 ? (
+									image.tags.map((tag, i) => {
+										return (
+											<span
+												key={`${tag}-${i}`}
+												className="meld-image-card__tag"
+											>
+												{tag}
+											</span>
+										);
+									})
+								) : (
+									<span
+										style={{
+											color: "var(--meld-text-secondary)",
+										}}
+									>
+										-
+									</span>
+								)}
+							</div>
 						</div>
-					</div>
-				)}
-			</div>
+					)}
+				</div>
+			)}
+
+			{!isGridOnly && (
+				<div className="meld-image-card__menu-container" ref={menuRef}>
+					<button
+						type="button"
+						className="meld-image-card__menu-btn"
+						onClick={(e) => {
+							e.stopPropagation();
+							setIsMenuOpen(!isMenuOpen);
+						}}
+						title="Menu"
+					>
+						<MoreVertical size={16} />
+					</button>
+					<button
+						type="button"
+						className="meld-image-card__menu-btn"
+						onClick={(e) => {
+							e.stopPropagation();
+							handleAddUnifiedLoader();
+						}}
+						title="Add Unified Loader"
+					>
+						<ArrowRight size={16} />
+					</button>
+					{isMenuOpen && (
+						<div className="meld-image-card__menu">
+							<div
+								className="meld-image-card__menu-item"
+								onClick={(e) => {
+									e.stopPropagation();
+									handleAddUnifiedLoader();
+									setIsMenuOpen(false);
+								}}
+							>
+								<ArrowRight size={14} />
+								<span>Add Unified Loader</span>
+							</div>
+							<div
+								className="meld-image-card__menu-item"
+								onClick={(e) => {
+									e.stopPropagation();
+									handleRestoreWorkflow();
+									setIsMenuOpen(false);
+								}}
+							>
+								<ArrowBigRight size={14} />
+								<span>Restore Full Workflow</span>
+							</div>
+							<div
+								className="meld-image-card__menu-item"
+								onClick={(e) => {
+									e.stopPropagation();
+									dispatch({
+										type: "OPEN_MODAL",
+										payload: { type: "parent_selection", imageId: image.id },
+									});
+									setIsMenuOpen(false);
+								}}
+							>
+								<PlusCircle size={14} />
+								<span>Add source image</span>
+							</div>
+							<div
+								className="meld-image-card__menu-item"
+								onClick={(e) => {
+									e.stopPropagation();
+									dispatch({
+										type: "OPEN_MODAL",
+										payload: {
+											type: "tag_edit",
+											imageIds: [image.id],
+											tags: image.tags || [],
+										},
+									});
+									setIsMenuOpen(false);
+								}}
+							>
+								<Tag size={14} />
+								<span>Edit Tags</span>
+							</div>
+						</div>
+					)}
+				</div>
+			)}
 
 			{popupContent &&
 				createPortal(
