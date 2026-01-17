@@ -30,7 +30,7 @@ class ApiUsageChecker(ASTChecker):
             # Filter out known false positives
             if receiver:
                 parts = receiver.split(".")
-                if "routes" in parts:
+                if any("routes" in part for part in parts):
                     return
                 if receiver in ("os.environ", "environ"):
                     return

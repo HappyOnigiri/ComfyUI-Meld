@@ -59,6 +59,7 @@ local_check_scripts/
 
 tmp/*
 data/*
+py/data/*
 
 # Node / JS
 node_modules/
