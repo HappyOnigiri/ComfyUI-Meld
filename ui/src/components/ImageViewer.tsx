@@ -265,56 +265,6 @@ export const ImageViewer: React.FC = () => {
 		});
 	}, [image, dispatch]);
 
-	const handleUndoDelete = useCallback(async () => {
-		if (!lastDeletedImages || lastDeletedImages.length === 0) return;
-		const idsToRestore = lastDeletedImages.map((img) => img.id);
-		const idToOpen = idsToRestore[0];
-
-		try {
-			await api.restoreImages(idsToRestore);
-			if (!isMounted.current) return;
-			dispatch({ type: "ADD_IMAGES", payload: lastDeletedImages });
-			setLastDeletedImages(null);
-			if (!isMounted.current) return;
-
-			dispatch({
-				type: "OPEN_VIEWER",
-				payload: { id: idToOpen, mode: viewerMode },
-			});
-		} catch (err: unknown) {
-			dispatch({
-				type: "SET_ERROR",
-				payload: err instanceof Error ? err.message : String(err),
-			});
-		}
-	}, [lastDeletedImages, dispatch, viewerMode]);
-
-	const toggleFullscreen = useCallback(
-		(e?: React.MouseEvent | KeyboardEvent) => {
-			if (e && "stopPropagation" in e) {
-				e.stopPropagation();
-			}
-
-			const element = overlayRef.current;
-			if (!element) return;
-
-			if (!document.fullscreenElement) {
-				element.requestFullscreen().catch((err) => {
-					console.error(
-						`Error attempting to enable full-screen mode: ${err.message}`,
-					);
-				});
-			} else {
-				document.exitFullscreen();
-			}
-		},
-		[],
-	);
-
-	const handleNext = useCallback(() => {
-		dispatch({ type: "NEXT_IMAGE", payload: { isFullscreen } });
-	}, [dispatch, isFullscreen]);
-
 	const handlePrevious = useCallback(async () => {
 		const loopEnabled = isFullscreen
 			? state.settings["fullscreen.loop"]
@@ -374,6 +324,78 @@ export const ImageViewer: React.FC = () => {
 		isFullscreen,
 	]);
 
+	const toggleFullscreen = useCallback(
+		(e?: React.MouseEvent | KeyboardEvent) => {
+			if (e && "stopPropagation" in e) {
+				e.stopPropagation();
+			}
+
+			const element = overlayRef.current;
+			if (!element) return;
+
+			if (!document.fullscreenElement) {
+				element.requestFullscreen().catch((err) => {
+					console.error(
+						`Error attempting to enable full-screen mode: ${err.message}`,
+					);
+				});
+			} else {
+				document.exitFullscreen();
+			}
+		},
+		[],
+	);
+
+	const handleNext = useCallback(() => {
+		dispatch({ type: "NEXT_IMAGE", payload: { isFullscreen } });
+	}, [dispatch, isFullscreen]);
+
+	const handleRestore = useCallback(async () => {
+		if (!image) return;
+		try {
+			const imageId = image.id;
+
+			// Move to next image before restoring for better UX
+			if (currentThumbnails.length > 1) {
+				handleNext();
+			} else {
+				dispatch({ type: "CLOSE_VIEWER" });
+			}
+
+			await api.restoreImages([imageId]);
+			dispatch({ type: "REMOVE_IMAGES", payload: [imageId] });
+		} catch (err: unknown) {
+			dispatch({
+				type: "SET_ERROR",
+				payload: err instanceof Error ? err.message : String(err),
+			});
+		}
+	}, [image, currentThumbnails.length, handleNext, dispatch]);
+
+	const handleUndoDelete = useCallback(async () => {
+		if (!lastDeletedImages || lastDeletedImages.length === 0) return;
+		const idsToRestore = lastDeletedImages.map((img) => img.id);
+		const idToOpen = idsToRestore[0];
+
+		try {
+			await api.restoreImages(idsToRestore);
+			if (!isMounted.current) return;
+			dispatch({ type: "ADD_IMAGES", payload: lastDeletedImages });
+			setLastDeletedImages(null);
+			if (!isMounted.current) return;
+
+			dispatch({
+				type: "OPEN_VIEWER",
+				payload: { id: idToOpen, mode: viewerMode },
+			});
+		} catch (err: unknown) {
+			dispatch({
+				type: "SET_ERROR",
+				payload: err instanceof Error ? err.message : String(err),
+			});
+		}
+	}, [lastDeletedImages, dispatch, viewerMode]);
+
 	// Load more images if we are near the end of the current list in gallery mode
 	useEffect(() => {
 		if (
@@ -418,7 +440,9 @@ export const ImageViewer: React.FC = () => {
 				e.key === "i" ||
 				e.key === "I" ||
 				e.key === "t" ||
-				e.key === "T";
+				e.key === "T" ||
+				e.key === "r" ||
+				e.key === "R";
 			const isEscapeKey = e.key === "Escape";
 			const isUndoKey =
 				(e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z");
@@ -480,6 +504,11 @@ export const ImageViewer: React.FC = () => {
 				setShowDetails((prev) => !prev);
 			} else if (e.key === "t" || e.key === "T") {
 				handleTagEdit();
+			} else if (
+				(e.key === "r" || e.key === "R") &&
+				state.viewScope === "trash"
+			) {
+				handleRestore();
 			} else if (e.key === "Delete") {
 				handleDelete();
 			} else if ((e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z")) {
@@ -516,6 +545,8 @@ export const ImageViewer: React.FC = () => {
 		state.activeModal.type,
 		handleUndoDelete,
 		handleTagEdit,
+		handleRestore,
+		state.viewScope,
 	]);
 
 	// Fetch lineage if needed
@@ -631,6 +662,16 @@ export const ImageViewer: React.FC = () => {
 			>
 				{showIcons && (
 					<div className="meld-viewer-actions">
+						{state.viewScope === "trash" && (
+							<button
+								className="meld-viewer-action-btn meld-viewer-action-btn--restore"
+								onClick={handleRestore}
+								type="button"
+								title="Restore Image"
+							>
+								<RefreshCw size={20} />
+							</button>
+						)}
 						{!isFullscreen && (
 							<button
 								className="meld-viewer-action-btn"

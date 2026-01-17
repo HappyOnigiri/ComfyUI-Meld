@@ -656,6 +656,10 @@
 	background: var(--error-color, rgba(255, 68, 68, 0.7));
 }
 
+.meld-viewer-action-btn--restore:hover {
+	background: var(--meld-success-color, #44bb44);
+}
+
 /* Fullscreen Specific Overrides */
 .meld-viewer-content--fullscreen {
 	width: 100%;
