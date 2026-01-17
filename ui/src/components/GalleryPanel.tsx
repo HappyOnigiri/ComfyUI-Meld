@@ -260,8 +260,8 @@ export const GalleryPanel: React.FC = () => {
 							type="button"
 							onClick={() => {
 								if (viewMode === "search") {
+									setLastSearchQuery(state.searchQuery);
 									if (state.searchQuery) {
-										setLastSearchQuery(state.searchQuery);
 										dispatch({ type: "SET_SEARCH_QUERY", payload: "" });
 									}
 									setViewMode("gallery");

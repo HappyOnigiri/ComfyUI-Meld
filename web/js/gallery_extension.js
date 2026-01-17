@@ -10877,7 +10877,7 @@ You can select favorites when the search query is empty.`
               {
                 type: "button",
                 onClick: () => {
-                  i === "search" ? (e.searchQuery && (u(e.searchQuery), t({ type: "SET_SEARCH_QUERY", payload: "" })), a("gallery")) : (!e.searchQuery && o && t({
+                  i === "search" ? (u(e.searchQuery), e.searchQuery && t({ type: "SET_SEARCH_QUERY", payload: "" }), a("gallery")) : (!e.searchQuery && o && t({
                     type: "SET_SEARCH_QUERY",
                     payload: o
                   }), a("search"));
