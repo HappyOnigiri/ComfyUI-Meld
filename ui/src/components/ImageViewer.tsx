@@ -91,6 +91,20 @@ export const ImageViewer: React.FC = () => {
 	const [lastDeletedIds, setLastDeletedIds] = useState<number[] | null>(null);
 	const overlayRef = useRef<HTMLDivElement>(null);
 
+	// Track if component is mounted to prevent state updates after unmount
+	const isMounted = useRef(true);
+	useEffect(() => {
+		return () => {
+			isMounted.current = false;
+		};
+	}, []);
+
+	// Track current viewer state to prevent re-opening if closed during async operations
+	const viewerImageIdRef = useRef(viewerImageId);
+	useEffect(() => {
+		viewerImageIdRef.current = viewerImageId;
+	}, [viewerImageId]);
+
 	const currentThumbnails = useMemo(() => {
 		return viewerMode === "lineage"
 			? lineageImages
@@ -170,6 +184,9 @@ export const ImageViewer: React.FC = () => {
 				}
 			}
 
+			// If the viewer was closed while fetching lineage, don't move to next image
+			if (!isMounted.current || viewerImageIdRef.current === null) return;
+
 			// Move to next image before deleting for better UX
 			// If we are deleting multiple images (lineage), we should skip all of them
 			if (currentThumbnails.length > idsToDelete.size) {
@@ -220,8 +237,10 @@ export const ImageViewer: React.FC = () => {
 
 		try {
 			await api.restoreImages(lastDeletedIds);
+			if (!isMounted.current) return;
 			setLastDeletedIds(null);
 			await refreshImages();
+			if (!isMounted.current) return;
 
 			dispatch({
 				type: "OPEN_VIEWER",
@@ -285,7 +304,11 @@ export const ImageViewer: React.FC = () => {
 					pageSize,
 					state.searchQuery,
 				);
+				if (!isMounted.current) return;
 				dispatch({ type: "APPEND_IMAGES", payload: result });
+
+				// If the viewer was closed while fetching images, don't open the last image
+				if (viewerImageIdRef.current === null) return;
 
 				// Open the very last image
 				if (result.images.length > 0) {
@@ -411,7 +434,6 @@ export const ImageViewer: React.FC = () => {
 		};
 
 		window.addEventListener("keydown", handleKeyDown, { capture: true });
-		window.addEventListener("keyup", handleKeyDown, { capture: true }); // Also block keyup just in case
 
 		const handleFullscreenChange = () => {
 			const isFull = !!document.fullscreenElement;
@@ -427,7 +449,6 @@ export const ImageViewer: React.FC = () => {
 
 		return () => {
 			window.removeEventListener("keydown", handleKeyDown, { capture: true });
-			window.removeEventListener("keyup", handleKeyDown, { capture: true });
 			document.removeEventListener("fullscreenchange", handleFullscreenChange);
 		};
 	}, [

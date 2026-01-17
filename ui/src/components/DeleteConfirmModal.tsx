@@ -1,6 +1,6 @@
 import { AlertTriangle, Trash2, X } from "lucide-react";
 import type React from "react";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import * as api from "../api";
 import { useGallery } from "../store/GalleryContext";
@@ -20,15 +20,31 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 }) => {
 	const { state, dispatch, refreshImages } = useGallery();
 
+	// Track if component is mounted
+	const isMounted = useRef(true);
+	useEffect(() => {
+		return () => {
+			isMounted.current = false;
+		};
+	}, []);
+
+	// Track current viewer state to prevent re-opening if closed during async operations
+	const viewerImageIdRef = useRef(state.viewerImageId);
+	useEffect(() => {
+		viewerImageIdRef.current = state.viewerImageId;
+	}, [state.viewerImageId]);
+
 	const handleClose = useCallback(() => {
 		dispatch({ type: "CLOSE_MODAL" });
 	}, [dispatch]);
 
 	const navigateViewerIfNeeded = useCallback(
 		(idsToDelete: Set<number>) => {
+			if (!isMounted.current) return;
+			const currentViewerImageId = viewerImageIdRef.current;
 			if (
-				state.viewerImageId === null ||
-				!idsToDelete.has(state.viewerImageId)
+				currentViewerImageId === null ||
+				!idsToDelete.has(currentViewerImageId)
 			) {
 				return;
 			}
@@ -46,7 +62,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 						);
 
 			const currentIndex = currentList.findIndex(
-				(img) => img.id === state.viewerImageId,
+				(img) => img.id === currentViewerImageId,
 			);
 			if (currentIndex === -1) return;
 
@@ -69,7 +85,6 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 			}
 		},
 		[
-			state.viewerImageId,
 			state.viewerMode,
 			state.lineageImages,
 			state.images,
@@ -96,6 +111,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 			navigateViewerIfNeeded(idsToDeleteSet);
 
 			await api.deleteImages(imageIds, isPermanent);
+			if (!isMounted.current) return;
 			if (!isPermanent && onSuccess) {
 				onSuccess(imageIds);
 			}
@@ -120,6 +136,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 			// Fetch lineage for each selected image to find all related images
 			for (const id of imageIds) {
 				const lineage = await api.fetchLineage(id);
+				if (!isMounted.current) return;
 				for (const img of lineage) {
 					allIdsToDelete.add(img.id);
 				}
