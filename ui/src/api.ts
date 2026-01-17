@@ -125,6 +125,7 @@ export const fetchSettings = async (): Promise<Settings> => {
 			"gallery.lineage_max_depth": 5,
 			"gallery.trash_retention_days": 30,
 			"gallery.trash.show_missing": false,
+			"gallery.view_mode": "grid_details",
 		};
 	}
 	const settings = (await res.json()) as Settings;

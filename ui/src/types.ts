@@ -92,6 +92,7 @@ export interface Settings {
 	"gallery.lineage_max_depth": number;
 	"gallery.trash_retention_days": number;
 	"gallery.trash.show_missing": boolean;
+	"gallery.view_mode": "grid_details" | "grid_only";
 }
 
 export type ScanStatus = {

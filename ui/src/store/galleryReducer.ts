@@ -69,6 +69,7 @@ export const initialState: GalleryState = {
 		"gallery.lineage_max_depth": 5,
 		"gallery.trash_retention_days": 30,
 		"gallery.trash.show_missing": false,
+		"gallery.view_mode": "grid_details",
 	},
 	pagination: {
 		total: 0,

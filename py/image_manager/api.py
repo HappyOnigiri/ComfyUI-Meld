@@ -739,6 +739,7 @@ async def get_settings(request: web.Request) -> web.Response:
             "gallery.matching_strategy": "phash_created",
             "gallery.lineage_max_depth": 5,
             "gallery.trash.show_missing": False,
+            "gallery.view_mode": "grid_details",
         }
 
         # Merge with DB settings

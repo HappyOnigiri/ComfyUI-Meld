@@ -62,6 +62,18 @@ export const SettingsModal: React.FC = () => {
 		max?: number;
 	}[] = [
 		{
+			key: "gallery.view_mode",
+			label: "Gallery View Mode",
+			description:
+				"Choose between standard view with details or grid only view.",
+			type: "select",
+			category: "General",
+			options: [
+				{ value: "grid_details", label: "Details View" },
+				{ value: "grid_only", label: "Grid Only View" },
+			],
+		},
+		{
 			key: "gallery.page_size",
 			label: "Page Size",
 			description: "Number of images to display per page (10-10000).",
