@@ -975,6 +975,7 @@ async def search_suggestions_endpoint(request: web.Request) -> web.Response:
 @server.PromptServer.instance.routes.get("/meld/list")
 async def list_images(request: web.Request) -> web.Response:
     try:
+        start_time = time.time()
         req = SearchImagesRequest(
             offset=int(request.query.get("offset", 0)),
             limit=int(request.query.get("limit", 1000000)),
@@ -1015,41 +1016,83 @@ async def list_images(request: web.Request) -> web.Response:
         cursor.execute(fetch_sql, (*search_params, req.limit, req.offset))
         images = cursor.fetchall()
 
+        logging.info(
+            f"[Meld] list_images: found {len(images)}/{total_count} images (limit={req.limit}, offset={req.offset}) in {time.time() - start_time:.3f}s"
+        )
+
         # Fetch ancestors in bulk if requested and depth > 1
         # (depth 1 is already joined in fetch_sql as p_filename etc.)
         image_ids = [img[0] for img in images]
         ancestors_map: dict[int, list[dict[str, Any]]] = {}
-        if image_ids and lineage_max_depth > 1:
+        tags_map: dict[int, list[str]] = {}
+        reconstructed_pos_map: dict[int, list[str]] = {}
+        reconstructed_neg_map: dict[int, list[str]] = {}
+
+        if image_ids:
             placeholders = ",".join(["?"] * len(image_ids))
-            ancestor_sql = f"""
-                WITH RECURSIVE lineage AS (
-                    SELECT i.id as start_id, i.parent_id, 1 as depth
-                    FROM images i
-                    WHERE i.id IN ({placeholders}) AND i.parent_id IS NOT NULL
-                    UNION ALL
-                    SELECT l.start_id, i.parent_id, l.depth + 1
-                    FROM images i
-                    JOIN lineage l ON i.id = l.parent_id
-                    WHERE i.parent_id IS NOT NULL AND l.depth < ?
-                )
-                SELECT l.start_id, i.id, i.filename, i.subfolder, i.type
-                FROM lineage l
-                JOIN images i ON l.parent_id = i.id
-                WHERE i.deleted_at IS NULL
-                ORDER BY l.start_id, l.depth
-            """
-            cursor.execute(ancestor_sql, (*image_ids, lineage_max_depth))
-            for start_id, a_id, a_fname, a_subf, a_type in cursor.fetchall():
-                if start_id not in ancestors_map:
-                    ancestors_map[start_id] = []
-                if len(ancestors_map[start_id]) < lineage_max_depth:
-                    ancestors_map[start_id].append(
-                        {"id": a_id, "filename": a_fname, "subfolder": a_subf, "type": a_type}
+
+            # Bulk fetch tags
+            cursor.execute(
+                f"SELECT r.image_id, t.name FROM tags t JOIN tag_image_relations r ON t.id = r.tag_id WHERE r.image_id IN ({placeholders})",
+                image_ids,
+            )
+            for img_id, tag_name in cursor.fetchall():
+                if img_id not in tags_map:
+                    tags_map[img_id] = []
+                tags_map[img_id].append(tag_name)
+
+            # Bulk fetch lineage (ancestors)
+            if lineage_max_depth > 1:
+                ancestor_sql = f"""
+                    WITH RECURSIVE lineage AS (
+                        SELECT i.id as start_id, i.parent_id, 1 as depth
+                        FROM images i
+                        WHERE i.id IN ({placeholders}) AND i.parent_id IS NOT NULL
+                        UNION ALL
+                        SELECT l.start_id, i.parent_id, l.depth + 1
+                        FROM images i
+                        JOIN lineage l ON i.id = l.parent_id
+                        WHERE i.parent_id IS NOT NULL AND l.depth < ?
                     )
-        elif image_ids and lineage_max_depth == 1:
-            # If depth is 1, we just use the immediate parent from the main query's results
-            # No additional query needed here, we'll handle it in the loop below
-            pass
+                    SELECT l.start_id, i.id, i.filename, i.subfolder, i.type
+                    FROM lineage l
+                    JOIN images i ON l.parent_id = i.id
+                    WHERE i.deleted_at IS NULL
+                    ORDER BY l.start_id, l.depth
+                """
+                cursor.execute(ancestor_sql, (*image_ids, lineage_max_depth))
+                for start_id, a_id, a_fname, a_subf, a_type in cursor.fetchall():
+                    if start_id not in ancestors_map:
+                        ancestors_map[start_id] = []
+                    if len(ancestors_map[start_id]) < lineage_max_depth:
+                        ancestors_map[start_id].append(
+                            {"id": a_id, "filename": a_fname, "subfolder": a_subf, "type": a_type}
+                        )
+
+            # Bulk fetch prompts ONLY for images that need reconstruction (where db_prompt is NULL)
+            needs_reconstruction_pos = [img[0] for img in images if img[12] is None]
+            if needs_reconstruction_pos:
+                ph = ",".join(["?"] * len(needs_reconstruction_pos))
+                cursor.execute(
+                    f"SELECT r.image_id, pp.name, r.strength FROM positive_prompts pp JOIN positive_prompt_image_relations r ON pp.id = r.positive_prompt_id WHERE r.image_id IN ({ph})",
+                    needs_reconstruction_pos,
+                )
+                for img_id, name, strength in cursor.fetchall():
+                    if img_id not in reconstructed_pos_map:
+                        reconstructed_pos_map[img_id] = []
+                    reconstructed_pos_map[img_id].append(name if strength == 1.0 else f"({name}:{strength})")
+
+            needs_reconstruction_neg = [img[0] for img in images if img[13] is None]
+            if needs_reconstruction_neg:
+                ph = ",".join(["?"] * len(needs_reconstruction_neg))
+                cursor.execute(
+                    f"SELECT r.image_id, np.name, r.strength FROM negative_prompts np JOIN negative_prompt_image_relations r ON np.id = r.negative_prompt_id WHERE r.image_id IN ({ph})",
+                    needs_reconstruction_neg,
+                )
+                for img_id, name, strength in cursor.fetchall():
+                    if img_id not in reconstructed_neg_map:
+                        reconstructed_neg_map[img_id] = []
+                    reconstructed_neg_map[img_id].append(name if strength == 1.0 else f"({name}:{strength})")
 
         result_list = []
 
@@ -1076,47 +1119,19 @@ async def list_images(request: web.Request) -> web.Response:
                 deleted_at,
             ) = img
 
-            # If viewing trash, we treat type as 'trash' for the frontend
             effective_type = "trash" if deleted_at is not None else img_type
 
-            # Fetch positive prompt (reconstructed from normalized tables as fallback or secondary)
-            cursor.execute(
-                "SELECT pp.name, r.strength FROM positive_prompts pp JOIN positive_prompt_image_relations r ON pp.id = r.positive_prompt_id WHERE r.image_id = ?",
-                (img_id,),
-            )
-            pos_rows = cursor.fetchall()
-            pos_list = []
-            for name, strength in pos_rows:
-                pos_list.append(name if strength == 1.0 else f"({name}:{strength})")
-            reconstructed_positive = ", ".join(pos_list)
-
-            # Fetch negative prompt
-            cursor.execute(
-                "SELECT np.name, r.strength FROM negative_prompts np JOIN negative_prompt_image_relations r ON np.id = r.negative_prompt_id WHERE r.image_id = ?",
-                (img_id,),
-            )
-            neg_rows = cursor.fetchall()
-            neg_list = []
-            for name, strength in neg_rows:
-                neg_list.append(name if strength == 1.0 else f"({name}:{strength})")
-            reconstructed_negative = ", ".join(neg_list)
-
-            # Use DB columns if available, otherwise fallback to reconstructed
-            positive = db_positive if db_positive is not None else reconstructed_positive
-            negative = db_negative if db_negative is not None else reconstructed_negative
-
-            # Fetch tags
-            cursor.execute(
-                "SELECT t.name FROM tags t JOIN tag_image_relations r ON t.id = r.tag_id WHERE r.image_id = ?",
-                (img_id,),
-            )
-            tag_rows = cursor.fetchall()
-            tags = [t[0] for t in tag_rows]
+            # Use DB columns if available, otherwise use bulk-fetched reconstructed prompts
+            positive = db_positive if db_positive is not None else ", ".join(reconstructed_pos_map.get(img_id, []))
+            negative = db_negative if db_negative is not None else ", ".join(reconstructed_neg_map.get(img_id, []))
+            tags = tags_map.get(img_id, [])
 
             # Check if file exists
+            base_dir = None
+            effective_subfolder = ""
             if effective_type == "trash":
                 base_dir = TRASH_DIR
-                effective_subfolder = ""  # Trash files are in the root of TRASH_DIR
+                effective_subfolder = ""
             elif img_type == "output":
                 base_dir = folder_paths.get_output_directory()
                 effective_subfolder = subfolder
@@ -1127,19 +1142,13 @@ async def list_images(request: web.Request) -> web.Response:
                 base_dir = folder_paths.get_temp_directory()
                 effective_subfolder = subfolder
             elif img_type == "custom":
-                base_dir = ""  # subfolder is absolute path
-                effective_subfolder = subfolder
-            else:
-                base_dir = None
+                base_dir = ""
                 effective_subfolder = subfolder
 
             exists = False
             if base_dir is not None:
-                # Normalize path for the current OS (especially important for Windows)
                 full_path = os.path.normpath(os.path.abspath(os.path.join(base_dir, effective_subfolder, filename)))
                 exists = os.path.exists(full_path)
-                if not exists and effective_type == "trash":
-                    logging.info(f"[Meld] Trash file not found at: {full_path}")
 
             # Fallback for depth 1 or missing in ancestors_map
             ancestors = ancestors_map.get(img_id, [])
