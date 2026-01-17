@@ -1,4 +1,4 @@
-import { Link2Off, Upload, X } from "lucide-react";
+import { Link, Link2Off, Upload, X } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
@@ -48,8 +48,25 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 	}, [loadSuggestions]);
 
 	const handleSelect = async (parentId: number) => {
+		if (parentId === undefined || parentId === null) {
+			console.error("handleSelect: parentId is undefined or null");
+			return;
+		}
+		if (!image || parentId === image.parent_id) {
+			return;
+		}
+
+		if (
+			image.parent_id &&
+			!confirm("Are you sure you want to change the source image?")
+		) {
+			return;
+		}
+
 		try {
 			await api.linkParent(imageId, parentId);
+			// Re-fetch child image details to ensure UI has latest parent info
+			await api.fetchImageDetails(imageId);
 			await refreshImages();
 			dispatch({ type: "CLOSE_MODAL" });
 		} catch (err) {
@@ -85,6 +102,12 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 				type: uploaded.type || "input",
 			});
 			// 3. Link it immediately as the parent
+			if (id === imageId) {
+				alert(
+					"Uploaded image is identical to the current image. Cannot set as source.",
+				);
+				return;
+			}
 			await handleSelect(id);
 		} catch (err) {
 			console.error("Failed to upload/register image:", err);
@@ -140,25 +163,104 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 							}}
 						>
 							<div
-								style={{ display: "flex", alignItems: "center", gap: "8px" }}
+								style={{
+									display: "flex",
+									alignItems: "center",
+									gap: "12px",
+									minWidth: 0,
+								}}
 							>
-								<Link2Off size={16} color="var(--meld-danger-color)" />
-								<span style={{ fontWeight: "bold" }}>Current Source</span>
-								<span
+								<Link size={16} color="var(--meld-accent-color)" />
+								<div
 									style={{
-										color: "var(--meld-text-secondary)",
-										fontSize: "0.9em",
+										display: "flex",
+										flexDirection: "column",
+										gap: "4px",
+										minWidth: 0,
 									}}
 								>
-									#{image.parent_id}
-								</span>
+									<span
+										style={{
+											fontSize: "0.8em",
+											color: "var(--meld-text-secondary)",
+											textTransform: "uppercase",
+											letterSpacing: "0.05em",
+										}}
+									>
+										Current Source
+									</span>
+									<div
+										style={{
+											display: "flex",
+											alignItems: "center",
+											gap: "10px",
+											minWidth: 0,
+										}}
+									>
+										{image.parent_filename && (
+											<img
+												src={getImageViewUrl({
+													filename: image.parent_filename,
+													subfolder: image.parent_subfolder || "",
+													type: image.parent_type || "output",
+												})}
+												alt="Current Parent"
+												style={{
+													width: "40px",
+													height: "40px",
+													objectFit: "cover",
+													borderRadius: "4px",
+													border: "1px solid var(--meld-border-color)",
+												}}
+											/>
+										)}
+										<div
+											style={{
+												display: "flex",
+												flexDirection: "column",
+												minWidth: 0,
+											}}
+										>
+											<span
+												style={{
+													fontWeight: "bold",
+													fontSize: "0.95em",
+													whiteSpace: "nowrap",
+													overflow: "hidden",
+													textOverflow: "ellipsis",
+												}}
+											>
+												{image.parent_filename || "Unknown Image"}
+											</span>
+											<span
+												style={{
+													color: "var(--meld-text-secondary)",
+													fontSize: "0.85em",
+												}}
+											>
+												#{image.parent_id}
+											</span>
+										</div>
+									</div>
+								</div>
 							</div>
 							<button
 								type="button"
 								className="meld-btn meld-btn-danger meld-btn--sm"
+								style={{
+									flexShrink: 0,
+									width: "32px",
+									height: "32px",
+									padding: 0,
+									display: "flex",
+									alignItems: "center",
+									justifyContent: "center",
+									borderRadius: "50%",
+								}}
 								onClick={handleRemove}
+								title="Remove Source"
 							>
-								Remove Source
+								<Link2Off size={16} />
 							</button>
 						</div>
 					)}
@@ -194,20 +296,45 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 								<section>
 									<h3>Source Matches (from metadata)</h3>
 									<div className="meld-suggestion-grid">
-										{sourceMatches.map((sug) => (
-											<div
-												key={sug.id}
-												className="meld-suggestion-card"
-												onClick={() => handleSelect(sug.id)}
-											>
-												<img src={getImageViewUrl(sug)} alt={sug.filename} />
-												<div className="meld-suggestion-info">
-													<span className="meld-suggestion-filename">
-														{sug.filename}
-													</span>
+										{sourceMatches.map((sug) => {
+											const isCurrent = sug.id === image.parent_id;
+											return (
+												<div
+													key={sug.id}
+													className={`meld-suggestion-card ${isCurrent ? "meld-suggestion-card--current" : ""}`}
+													onClick={() => !isCurrent && handleSelect(sug.id)}
+													style={{
+														cursor: isCurrent ? "default" : "pointer",
+														...(isCurrent
+															? {
+																	borderColor: "var(--meld-accent-color)",
+																	boxShadow:
+																		"0 0 0 2px var(--meld-accent-color)",
+																}
+															: {}),
+													}}
+												>
+													<img src={getImageViewUrl(sug)} alt={sug.filename} />
+													<div className="meld-suggestion-info">
+														<span className="meld-suggestion-filename">
+															{sug.filename}
+														</span>
+														{isCurrent && (
+															<span
+																style={{
+																	fontSize: "8px",
+																	color: "var(--meld-accent-color)",
+																	fontWeight: "bold",
+																	marginTop: "2px",
+																}}
+															>
+																CURRENT SOURCE
+															</span>
+														)}
+													</div>
 												</div>
-											</div>
-										))}
+											);
+										})}
 									</div>
 								</section>
 							)}
@@ -216,24 +343,57 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 								<h3>Visual Matches (pHash)</h3>
 								{visualMatches.length > 0 ? (
 									<div className="meld-suggestion-grid">
-										{visualMatches.map((sug) => (
-											<div
-												key={sug.id}
-												className="meld-suggestion-card"
-												onClick={() => handleSelect(sug.id)}
-											>
-												<img src={getImageViewUrl(sug)} alt={sug.filename} />
-												<div className="meld-suggestion-info">
-													<span className="meld-suggestion-filename">
-														{sug.filename}
-													</span>
-													<span className="meld-suggestion-distance">
-														Match:{" "}
-														{Math.round(((64 - sug.distance) / 64) * 100)}%
-													</span>
+										{visualMatches.map((sug) => {
+											const isCurrent = sug.id === image.parent_id;
+											return (
+												<div
+													key={sug.id}
+													className={`meld-suggestion-card ${isCurrent ? "meld-suggestion-card--current" : ""}`}
+													onClick={() => !isCurrent && handleSelect(sug.id)}
+													style={{
+														cursor: isCurrent ? "default" : "pointer",
+														...(isCurrent
+															? {
+																	borderColor: "var(--meld-accent-color)",
+																	boxShadow:
+																		"0 0 0 2px var(--meld-accent-color)",
+																}
+															: {}),
+													}}
+												>
+													<img src={getImageViewUrl(sug)} alt={sug.filename} />
+													<div className="meld-suggestion-info">
+														<span className="meld-suggestion-filename">
+															{sug.filename}
+														</span>
+														<div
+															style={{
+																display: "flex",
+																justifyContent: "space-between",
+																alignItems: "center",
+																marginTop: "2px",
+															}}
+														>
+															<span className="meld-suggestion-distance">
+																Match:{" "}
+																{Math.round(((64 - sug.distance) / 64) * 100)}%
+															</span>
+															{isCurrent && (
+																<span
+																	style={{
+																		fontSize: "8px",
+																		color: "var(--meld-accent-color)",
+																		fontWeight: "bold",
+																	}}
+																>
+																	CURRENT
+																</span>
+															)}
+														</div>
+													</div>
 												</div>
-											</div>
-										))}
+											);
+										})}
 									</div>
 								) : (
 									<p className="meld-no-suggestions">
