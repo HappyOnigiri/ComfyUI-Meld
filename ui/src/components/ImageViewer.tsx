@@ -159,61 +159,49 @@ export const ImageViewer: React.FC = () => {
 		showThumbnails,
 	]);
 
-	const handleDelete = useCallback(async () => {
-		if (!image) return;
+	const handleDelete = useCallback(
+		async (forceNoConfirm = false) => {
+			if (!image) return;
 
-		const deleteMode = isFullscreen
-			? state.settings["fullscreen.delete_mode"]
-			: state.settings["viewer.delete_mode"];
+			const deleteMode = isFullscreen
+				? state.settings["fullscreen.delete_mode"]
+				: state.settings["viewer.delete_mode"];
 
-		if (deleteMode === "confirm") {
-			dispatch({
-				type: "OPEN_MODAL",
-				payload: {
-					type: "delete_confirm",
-					imageIds: [image.id],
-					hasLineage: !!(image.parent_id || image.has_children),
-					isPermanent: state.viewScope === "trash",
-				},
-			});
-			return;
-		}
-
-		try {
-			const isPermanent = state.viewScope === "trash";
-			const idsToDelete = new Set<number>([image.id]);
-
-			if (deleteMode === "lineage") {
-				// Fetch all related images in the lineage
-				const lineage = await api.fetchLineage(image.id);
-				for (const img of lineage) {
-					idsToDelete.add(img.id);
-				}
+			if (!forceNoConfirm && deleteMode === "confirm") {
+				dispatch({
+					type: "OPEN_MODAL",
+					payload: {
+						type: "delete_confirm",
+						imageIds: [image.id],
+						hasLineage: !!(image.parent_id || image.has_children),
+						isPermanent: state.viewScope === "trash",
+					},
+				});
+				return;
 			}
 
-			// If the viewer was closed while fetching lineage, don't move to next image
-			if (!isMounted.current || viewerImageIdRef.current === null) return;
+			try {
+				const isPermanent = state.viewScope === "trash";
+				const idsToDelete = new Set<number>([image.id]);
 
-			// Move to next image before deleting for better UX
-			// If we are deleting multiple images (lineage), we should skip all of them
-			if (currentThumbnails.length > idsToDelete.size) {
-				// Find the next image that is NOT in the idsToDelete set
-				let found = false;
-				// Search forward first (without wrapping)
-				for (let i = currentIndex + 1; i < currentThumbnails.length; i++) {
-					if (!idsToDelete.has(currentThumbnails[i].id)) {
-						dispatch({
-							type: "OPEN_VIEWER",
-							payload: { id: currentThumbnails[i].id, mode: viewerMode },
-						});
-						found = true;
-						break;
+				if (deleteMode === "lineage") {
+					// Fetch all related images in the lineage
+					const lineage = await api.fetchLineage(image.id);
+					for (const img of lineage) {
+						idsToDelete.add(img.id);
 					}
 				}
 
-				// If not found forward, search backward
-				if (!found) {
-					for (let i = currentIndex - 1; i >= 0; i--) {
+				// If the viewer was closed while fetching lineage, don't move to next image
+				if (!isMounted.current || viewerImageIdRef.current === null) return;
+
+				// Move to next image before deleting for better UX
+				// If we are deleting multiple images (lineage), we should skip all of them
+				if (currentThumbnails.length > idsToDelete.size) {
+					// Find the next image that is NOT in the idsToDelete set
+					let found = false;
+					// Search forward first (without wrapping)
+					for (let i = currentIndex + 1; i < currentThumbnails.length; i++) {
 						if (!idsToDelete.has(currentThumbnails[i].id)) {
 							dispatch({
 								type: "OPEN_VIEWER",
@@ -223,39 +211,54 @@ export const ImageViewer: React.FC = () => {
 							break;
 						}
 					}
-				}
 
-				if (!found) {
+					// If not found forward, search backward
+					if (!found) {
+						for (let i = currentIndex - 1; i >= 0; i--) {
+							if (!idsToDelete.has(currentThumbnails[i].id)) {
+								dispatch({
+									type: "OPEN_VIEWER",
+									payload: { id: currentThumbnails[i].id, mode: viewerMode },
+								});
+								found = true;
+								break;
+							}
+						}
+					}
+
+					if (!found) {
+						dispatch({ type: "CLOSE_VIEWER" });
+					}
+				} else {
 					dispatch({ type: "CLOSE_VIEWER" });
 				}
-			} else {
-				dispatch({ type: "CLOSE_VIEWER" });
-			}
 
-			await api.deleteImages(Array.from(idsToDelete), isPermanent);
-			if (!isPermanent) {
-				const deletedImages = currentThumbnails.filter((img) =>
-					idsToDelete.has(img.id),
-				);
-				setLastDeletedImages(deletedImages);
+				await api.deleteImages(Array.from(idsToDelete), isPermanent);
+				if (!isPermanent) {
+					const deletedImages = currentThumbnails.filter((img) =>
+						idsToDelete.has(img.id),
+					);
+					setLastDeletedImages(deletedImages);
+				}
+				dispatch({ type: "REMOVE_IMAGES", payload: Array.from(idsToDelete) });
+			} catch (err: unknown) {
+				dispatch({
+					type: "SET_ERROR",
+					payload: err instanceof Error ? err.message : String(err),
+				});
 			}
-			dispatch({ type: "REMOVE_IMAGES", payload: Array.from(idsToDelete) });
-		} catch (err: unknown) {
-			dispatch({
-				type: "SET_ERROR",
-				payload: err instanceof Error ? err.message : String(err),
-			});
-		}
-	}, [
-		image,
-		isFullscreen,
-		state.settings,
-		state.viewScope,
-		currentThumbnails,
-		currentIndex,
-		viewerMode,
-		dispatch,
-	]);
+		},
+		[
+			image,
+			isFullscreen,
+			state.settings,
+			state.viewScope,
+			currentThumbnails,
+			currentIndex,
+			viewerMode,
+			dispatch,
+		],
+	);
 
 	const handleTagEdit = useCallback(() => {
 		if (!image) return;
@@ -409,6 +412,7 @@ export const ImageViewer: React.FC = () => {
 			const removeTags: string[] = [];
 			let moveNext = false;
 			let movePrev = false;
+			let isDeleted = false;
 
 			for (const part of parts) {
 				if (part.startsWith("tag:")) {
@@ -434,6 +438,8 @@ export const ImageViewer: React.FC = () => {
 					moveNext = true;
 				} else if (part === "prev") {
 					movePrev = true;
+				} else if (part === "delete") {
+					isDeleted = true;
 				}
 			}
 
@@ -455,13 +461,15 @@ export const ImageViewer: React.FC = () => {
 				}
 			}
 
-			if (moveNext) {
+			if (isDeleted) {
+				handleDelete(true);
+			} else if (moveNext) {
 				handleNext();
 			} else if (movePrev) {
 				handlePrevious();
 			}
 		},
-		[image, dispatch, handleNext, handlePrevious],
+		[image, dispatch, handleNext, handlePrevious, handleDelete],
 	);
 
 	// Load more images if we are near the end of the current list in gallery mode
