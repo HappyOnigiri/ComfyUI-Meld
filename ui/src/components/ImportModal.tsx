@@ -201,13 +201,20 @@ export const ImportModal: React.FC = () => {
 
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
-			if (e.key === "Escape" && previewImage) {
-				setPreviewImage(null);
+			if (e.key === "Escape") {
+				e.preventDefault();
+				e.stopImmediatePropagation();
+				if (previewImage) {
+					setPreviewImage(null);
+				} else {
+					dispatch({ type: "CLOSE_MODAL" });
+				}
 			}
 		};
-		window.addEventListener("keydown", handleKeyDown);
-		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [previewImage]);
+		window.addEventListener("keydown", handleKeyDown, { capture: true });
+		return () =>
+			window.removeEventListener("keydown", handleKeyDown, { capture: true });
+	}, [previewImage, dispatch]);
 
 	const filteredTags = useMemo(() => {
 		return allTags.filter(

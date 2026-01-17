@@ -393,10 +393,12 @@ export const ImageViewer: React.FC = () => {
 				isUndoKey
 			) {
 				if (!isTargetInput) {
+					if (isEscapeKey && state.activeModal.type !== "none") return;
 					e.preventDefault();
 					e.stopPropagation();
 					e.stopImmediatePropagation();
 				} else if (isEscapeKey) {
+					if (state.activeModal.type !== "none") return;
 					// Escape should probably still close the viewer even if an input has focus
 					e.preventDefault();
 					e.stopPropagation();

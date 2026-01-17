@@ -83,16 +83,17 @@ export const GalleryPanel: React.FC = () => {
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (e.key === "Escape") {
-				// Only close if a modal is active and no other element is handling it (like ImageViewer)
-				if (state.activeModal.type !== "none" && state.viewerImageId === null) {
+				if (state.activeModal.type !== "none") {
 					dispatch({ type: "CLOSE_MODAL" });
+					e.preventDefault();
+					e.stopPropagation();
 				}
 			}
 		};
 
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [state.activeModal.type, state.viewerImageId, dispatch]);
+	}, [state.activeModal.type, dispatch]);
 
 	useEffect(() => {
 		const observer = new IntersectionObserver(
