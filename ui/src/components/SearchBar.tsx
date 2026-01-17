@@ -47,6 +47,7 @@ export const SearchBar: React.FC = () => {
 	const suggestionsRef = useRef<HTMLDivElement>(null);
 
 	const lastSearchedValueRef = useRef(state.searchQuery);
+	const isQueryChanged = inputValue !== lastSearchedValueRef.current;
 
 	// Fetch quick search suggestions on mount or when search is cleared
 	useEffect(() => {
@@ -100,10 +101,14 @@ export const SearchBar: React.FC = () => {
 			}
 
 			// Implement real-time search
+			// Removed automatic handleSearch to prevent unwanted list reloads and page resets.
+			// Users must now press Enter or click the search icon to commit the search.
+			/*
 			if (state.settings["search.realtime_search"]) {
 				// Don't close suggestions if they are being shown
 				handleSearch(inputValue, false);
 			}
+			*/
 
 			if (!state.settings["search.input_suggest"]) {
 				setSuggestions([]);
@@ -138,12 +143,7 @@ export const SearchBar: React.FC = () => {
 		}, 300);
 
 		return () => clearTimeout(timer);
-	}, [
-		inputValue,
-		state.settings["search.realtime_search"],
-		state.settings["search.input_suggest"],
-		handleSearch,
-	]);
+	}, [inputValue, state.settings["search.input_suggest"]]);
 
 	const handleKeyDown = (e: React.KeyboardEvent) => {
 		if (e.key === "Enter") {
@@ -192,7 +192,8 @@ export const SearchBar: React.FC = () => {
 			.join(" ")
 			.trim()} `;
 		setInputValue(newQuery);
-		handleSearch(newQuery);
+		// Removed immediate handleSearch to follow manual commit policy
+		// handleSearch(newQuery);
 		setSuggestions([]);
 		setShowSuggestions(false);
 		inputRef.current?.focus();
@@ -254,6 +255,7 @@ export const SearchBar: React.FC = () => {
 		const valueWithQuotes = isNoQuote ? value : `"${value}"`;
 		const newQuery = `${type}:${valueWithQuotes}`;
 		setInputValue(newQuery);
+		// Apply search immediately for quick suggestions (empty input)
 		handleSearch(newQuery);
 	};
 
@@ -367,16 +369,100 @@ export const SearchBar: React.FC = () => {
 							"inset 0 1px 3px var(--comfy-input-shadow, rgba(0,0,0,0.2))",
 					}}
 				>
-					<Search
-						size={18}
-						color="var(--meld-text-secondary)"
-						style={{ marginRight: "10px", flexShrink: 0 }}
-					/>
+					<button
+						type="button"
+						onClick={() => handleSearch(inputValue)}
+						style={{
+							background: isQueryChanged
+								? "var(--meld-accent-color, #3b82f6)"
+								: "var(--comfy-input-bg-active, rgba(255,255,255,0.03))",
+							border: isQueryChanged
+								? "1px solid var(--meld-border-color, rgba(255,255,255,0.2))"
+								: "1px solid transparent",
+							cursor: "pointer",
+							padding: "6px 10px",
+							display: "flex",
+							alignItems: "center",
+							justifyContent: "center",
+							marginRight: "10px",
+							flexShrink: 0,
+							borderRadius: "4px",
+							transition: "all 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
+							boxShadow: isQueryChanged
+								? "0 2px 8px var(--meld-accent-glow, rgba(59, 130, 246, 0.4)), inset 0 1px 0 var(--meld-border-color, rgba(255,255,255,0.2))"
+								: "none",
+						}}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.transform = "translateY(-1px)";
+							if (isQueryChanged) {
+								e.currentTarget.style.filter = "brightness(1.15)";
+								e.currentTarget.style.boxShadow =
+									"0 4px 12px var(--meld-accent-glow-hover, rgba(59, 130, 246, 0.5)), inset 0 1px 0 var(--meld-border-color, rgba(255,255,255,0.2))";
+							} else {
+								e.currentTarget.style.backgroundColor =
+									"var(--comfy-input-bg-active, rgba(255,255,255,0.08))";
+							}
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.transform = "none";
+							if (isQueryChanged) {
+								e.currentTarget.style.filter = "none";
+								e.currentTarget.style.boxShadow =
+									"0 2px 8px var(--meld-accent-glow, rgba(59, 130, 246, 0.4)), inset 0 1px 0 var(--meld-border-color, rgba(255,255,255,0.2))";
+							} else {
+								e.currentTarget.style.backgroundColor =
+									"var(--comfy-input-bg-active, rgba(255,255,255,0.03))";
+							}
+						}}
+						onMouseDown={(e) => {
+							e.currentTarget.style.transform = "translateY(1px)";
+							e.currentTarget.style.boxShadow = "none";
+						}}
+						onMouseUp={(e) => {
+							e.currentTarget.style.transform = "translateY(-1px)";
+						}}
+						title="Search (Enter)"
+					>
+						<Search
+							size={16}
+							color={
+								isQueryChanged
+									? "var(--meld-text-color, #fff)"
+									: "var(--meld-text-secondary)"
+							}
+							style={{
+								transition: "color 0.2s",
+								filter: isQueryChanged
+									? "drop-shadow(0 1px 2px var(--meld-shadow-color, rgba(0,0,0,0.2)))"
+									: "none",
+							}}
+						/>
+						{isQueryChanged && (
+							<span
+								style={{
+									color: "var(--meld-text-color, #fff)",
+									fontSize: "12px",
+									fontWeight: "bold",
+									marginLeft: "6px",
+									textShadow:
+										"0 1px 2px var(--meld-shadow-color, rgba(0,0,0,0.2))",
+								}}
+							>
+								Search
+							</span>
+						)}
+					</button>
 					<input
 						ref={inputRef}
 						type="text"
 						value={inputValue}
-						onChange={(e) => setInputValue(e.target.value)}
+						onChange={(e) => {
+							const val = e.target.value;
+							setInputValue(val);
+							if (!val) {
+								handleSearch("");
+							}
+						}}
 						onKeyDown={handleKeyDown}
 						onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
 						onFocus={() => {
