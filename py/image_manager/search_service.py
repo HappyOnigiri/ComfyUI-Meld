@@ -20,7 +20,7 @@ class SearchService:
     def parse_query(query_str: str | None) -> list[dict[str, Any]]:
         """
         Parses the query string into a list of conditions.
-        Returns: list of dicts like {"prefix": "tag", "value": "blue", "is_partial": True, "is_global": False}
+        Returns: list of dicts like {"prefix": "tag", "value": "blue", "is_partial": True, "is_global": False, "is_negative": False}
         """
         if not query_str:
             return []
@@ -30,9 +30,24 @@ class SearchService:
 
         conditions = []
         for token in tokens:
+            is_negative = False
+            if token.startswith("-") or token.startswith("!"):
+                is_negative = True
+                token = token[1:]
+                if not token:
+                    continue
+
             # Global exact match: "value"
             if token.startswith('"') and token.endswith('"'):
-                conditions.append({"prefix": None, "value": token[1:-1], "is_partial": False, "is_global": True})
+                conditions.append(
+                    {
+                        "prefix": None,
+                        "value": token[1:-1],
+                        "is_partial": False,
+                        "is_global": True,
+                        "is_negative": is_negative,
+                    }
+                )
                 continue
 
             # Prefix match: prefix:value or prefix:"value"
@@ -47,11 +62,21 @@ class SearchService:
                         value = value[1:-1]
                         is_partial = False
 
-                    conditions.append({"prefix": prefix, "value": value, "is_partial": is_partial, "is_global": False})
+                    conditions.append(
+                        {
+                            "prefix": prefix,
+                            "value": value,
+                            "is_partial": is_partial,
+                            "is_global": False,
+                            "is_negative": is_negative,
+                        }
+                    )
                     continue
 
             # Default: Global partial match
-            conditions.append({"prefix": None, "value": token, "is_partial": True, "is_global": True})
+            conditions.append(
+                {"prefix": None, "value": token, "is_partial": True, "is_global": True, "is_negative": is_negative}
+            )
 
         return conditions
 
@@ -69,6 +94,9 @@ class SearchService:
         all_params: list[str | float] = []
 
         for cond in conditions:
+            is_negative = cond.get("is_negative", False)
+            in_clause = "NOT IN" if is_negative else "IN"
+
             if cond["is_global"]:
                 # Search across all tables
                 global_ids_sql = []
@@ -87,7 +115,7 @@ class SearchService:
                         )
                         all_params.append(cond["value"])
 
-                sub_queries.append(f"i.id IN ({' UNION '.join(global_ids_sql)})")
+                sub_queries.append(f"i.id {in_clause} ({' UNION '.join(global_ids_sql)})")
 
             elif cond["prefix"] in cls.DATE_PREFIXES:
                 prefix = cond["prefix"]
@@ -116,13 +144,16 @@ class SearchService:
                         continue
 
                     if prefix == "date":
-                        sub_queries.append("i.created_at BETWEEN ? AND ?")
+                        op = "NOT BETWEEN" if is_negative else "BETWEEN"
+                        sub_queries.append(f"i.created_at {op} ? AND ?")
                         all_params.extend([start_ts, end_ts])
                     elif prefix == "after":
-                        sub_queries.append("i.created_at >= ?")
+                        op = "<" if is_negative else ">="
+                        sub_queries.append(f"i.created_at {op} ?")
                         all_params.append(start_ts)
                     elif prefix == "before":
-                        sub_queries.append("i.created_at <= ?")
+                        op = ">" if is_negative else "<="
+                        sub_queries.append(f"i.created_at {op} ?")
                         all_params.append(end_ts)
                 except ValueError:
                     # Invalid date format, skip this condition
@@ -135,17 +166,19 @@ class SearchService:
 
                 # Special case for "none" (untagged, no model, etc.)
                 if cond["value"].lower() == RESERVED_TAG_KEYWORD:
-                    sub_queries.append(f"i.id NOT IN (SELECT image_id FROM {rel_table})")
+                    # is_negative=True means "has at least one tag/model"
+                    op = "IN" if is_negative else "NOT IN"
+                    sub_queries.append(f"i.id {op} (SELECT image_id FROM {rel_table})")
                     continue
 
                 if cond["is_partial"]:
                     sub_queries.append(
-                        f"i.id IN (SELECT image_id FROM {rel_table} WHERE {rel_id} IN (SELECT id FROM {table} WHERE name LIKE ? COLLATE NOCASE))"
+                        f"i.id {in_clause} (SELECT image_id FROM {rel_table} WHERE {rel_id} IN (SELECT id FROM {table} WHERE name LIKE ? COLLATE NOCASE))"
                     )
                     all_params.append(f"%{cond['value']}%")
                 else:
                     sub_queries.append(
-                        f"i.id IN (SELECT image_id FROM {rel_table} WHERE {rel_id} IN (SELECT id FROM {table} WHERE name = ? COLLATE NOCASE))"
+                        f"i.id {in_clause} (SELECT image_id FROM {rel_table} WHERE {rel_id} IN (SELECT id FROM {table} WHERE name = ? COLLATE NOCASE))"
                     )
                     all_params.append(cond["value"])
 
@@ -178,10 +211,6 @@ class SearchService:
         target_prefixes = [prefix_filter] if prefix_filter in cls.PREFIX_MAP else cls.PREFIX_MAP.keys()
 
         for prefix in target_prefixes:
-            # Add "none" suggestion for each prefix if it matches partial_query
-            if not partial_query or RESERVED_TAG_KEYWORD.startswith(partial_query.lower()):
-                results.append({"type": prefix, "value": RESERVED_TAG_KEYWORD, "count": 0})
-
             table, rel_table, rel_id = cls.PREFIX_MAP[prefix]
             # count usage
             sql = f"SELECT name FROM {table} WHERE name LIKE ? COLLATE NOCASE ORDER BY name ASC LIMIT ?"
@@ -263,13 +292,5 @@ class SearchService:
         if date_row:
             dt = datetime.fromtimestamp(date_row[0])
             suggestions.append({"type": "date", "value": dt.strftime("%Y-%m-%d")})
-
-        # 5. Untagged (if any exist)
-        cursor.execute(
-            "SELECT COUNT(*) FROM images WHERE id NOT IN (SELECT image_id FROM tag_image_relations) AND deleted_at IS NULL"
-        )
-        untagged_count = cursor.fetchone()[0]
-        if untagged_count > 0:
-            suggestions.append({"type": "tag", "value": RESERVED_TAG_KEYWORD})
 
         return suggestions

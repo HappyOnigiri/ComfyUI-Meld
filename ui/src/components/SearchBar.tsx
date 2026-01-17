@@ -114,7 +114,7 @@ export const SearchBar: React.FC = () => {
 			if (lastWord) {
 				// Only show suggestions when one of the prefixes is used
 				const match = lastWord.match(
-					/^(pos|neg|model|date|after|before):(.*)$/i,
+					/^[-!]?(tag|pos|neg|model|date|after|before):(.*)$/i,
 				);
 				if (match) {
 					const prefix = match[1].toLowerCase();
@@ -167,10 +167,16 @@ export const SearchBar: React.FC = () => {
 
 	const applySuggestion = (suggestion: Suggestion) => {
 		const words = inputValue.split(/\s+/);
-		words.pop(); // Remove the last partial word
+		const lastWord = words.pop() || ""; // Remove the last partial word
+		const negationMatch = lastWord.match(/^([-!])/);
+		const negationPrefix = negationMatch ? negationMatch[1] : "";
+
 		const isDate = ["date", "after", "before"].includes(suggestion.type);
 		const valueWithQuotes = isDate ? suggestion.value : `"${suggestion.value}"`;
-		const newQuery = `${[...words, `${suggestion.type}:${valueWithQuotes}`]
+		const newQuery = `${[
+			...words,
+			`${negationPrefix}${suggestion.type}:${valueWithQuotes}`,
+		]
 			.join(" ")
 			.trim()} `;
 		setInputValue(newQuery);
@@ -354,7 +360,9 @@ export const SearchBar: React.FC = () => {
 							if (inputValue === lastSearchedValueRef.current) return;
 							const words = inputValue.split(/\s+/);
 							const lastWord = words[words.length - 1];
-							if (lastWord?.match(/^(pos|neg|model|date|after|before):/i)) {
+							if (
+								lastWord?.match(/^[-!]?(tag|pos|neg|model|date|after|before):/i)
+							) {
 								setShowSuggestions(true);
 							}
 						}}

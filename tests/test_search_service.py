@@ -90,11 +90,10 @@ class TestSearchService(unittest.TestCase):
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0][0], 1)
 
-    def test_suggestions_include_none(self) -> None:
+    def test_suggestions_do_not_include_none(self) -> None:
         suggestions = SearchService.get_suggestions(self.cursor, "", prefix_filter="tag")
         none_suggestion = next((s for s in suggestions if s["value"] == RESERVED_TAG_KEYWORD), None)
-        self.assertIsNotNone(none_suggestion)
-        self.assertEqual(none_suggestion["type"], "tag")
+        self.assertIsNone(none_suggestion)
 
 
 if __name__ == "__main__":
