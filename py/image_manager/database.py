@@ -239,6 +239,39 @@ def init_db() -> None:
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_model_name ON models(name)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_tag_name ON tags(name)")
 
+    # Unique indices for relations to prevent duplicates
+    # Cleanup duplicates before creating unique index
+    try:
+        cursor.execute("""
+            DELETE FROM tag_image_relations
+            WHERE id NOT IN (
+                SELECT MIN(id)
+                FROM tag_image_relations
+                GROUP BY tag_id, image_id
+            )
+        """)
+        cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_tag_rel_unique ON tag_image_relations(tag_id, image_id)")
+    except sqlite3.OperationalError:
+        pass
+
+    try:
+        cursor.execute("""
+            DELETE FROM model_image_relations
+            WHERE id NOT IN (
+                SELECT MIN(id)
+                FROM model_image_relations
+                GROUP BY model_id, image_id
+            )
+        """)
+        cursor.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_model_rel_unique ON model_image_relations(model_id, image_id)"
+        )
+    except sqlite3.OperationalError:
+        pass
+    # Note: prompt relations include 'strength', so uniqueness might be (prompt_id, image_id, strength)
+    # but usually we only want one entry per prompt per image regardless of strength, or we update the strength.
+    # For now, let's focus on tags as requested.
+
     # Added indices for frequency analysis
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_pp_rel_ppid ON positive_prompt_image_relations(positive_prompt_id)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_np_rel_npid ON negative_prompt_image_relations(negative_prompt_id)")

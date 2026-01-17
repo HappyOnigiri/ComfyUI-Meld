@@ -87,7 +87,9 @@ async def update_image_tags(request: web.Request) -> web.Response:
             cursor.execute("DELETE FROM tag_image_relations WHERE image_id = ?", (req.imageId,))
 
             # 2. Add new tags and create relations
-            for tag_name in req.tags:
+            # Deduplicate tags from request
+            unique_tags = list(dict.fromkeys(req.tags))
+            for tag_name in unique_tags:
                 tag_name = tag_name.strip()
                 if not tag_name or tag_name.lower() == RESERVED_TAG_KEYWORD:
                     continue
@@ -132,7 +134,9 @@ async def bulk_update_image_tags(request: web.Request) -> web.Response:
 
         try:
             # 1. Process tags to add
-            for tag_name in req.addTags:
+            # Deduplicate tags from request
+            unique_add_tags = list(dict.fromkeys(req.addTags))
+            for tag_name in unique_add_tags:
                 tag_name = tag_name.strip()
                 if not tag_name or tag_name.lower() == RESERVED_TAG_KEYWORD:
                     continue

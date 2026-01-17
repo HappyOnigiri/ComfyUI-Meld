@@ -225,7 +225,9 @@ def _scan_thread(
         def add_tags_to_image(img_id: int, tag_list: list[str] | None) -> None:
             if not tag_list:
                 return
-            for tag_name in tag_list:
+            # Deduplicate tags
+            unique_tags = list(dict.fromkeys(tag_list))
+            for tag_name in unique_tags:
                 tag_name = tag_name.strip()
                 if not tag_name:
                     continue
