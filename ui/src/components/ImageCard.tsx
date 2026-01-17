@@ -150,8 +150,12 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 			e.preventDefault();
 			e.stopPropagation();
 			dispatch({ type: "SELECT_RANGE", payload: image.id });
-		} else {
+		} else if (e.ctrlKey || e.metaKey || state.selectedIds.size > 0) {
+			e.preventDefault();
+			e.stopPropagation();
 			dispatch({ type: "TOGGLE_SELECT", payload: image.id });
+		} else {
+			dispatch({ type: "OPEN_VIEWER", payload: image.id });
 		}
 	};
 

@@ -18,7 +18,7 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 	initialTags,
 	onClose,
 }) => {
-	const { refreshImages } = useGallery();
+	const { dispatch, refreshImages } = useGallery();
 	const [allTags, setAllTags] = useState<TagType[]>([]);
 	const [selectedTags, setSelectedTags] = useState<string[]>(initialTags);
 	const [searchQuery, setSearchQuery] = useState("");
@@ -92,6 +92,7 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 				await updateImageTags(imageIds[0], selectedTags);
 			}
 			await refreshImages();
+			dispatch({ type: "CLEAR_SELECTION" });
 			onClose();
 		} catch (error) {
 			console.error("Failed to update tags:", error);
