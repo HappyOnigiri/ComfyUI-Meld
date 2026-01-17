@@ -943,7 +943,24 @@ async def register_image(request: web.Request) -> web.Response:
         db_settings = get_all_settings(cursor)
         matching_strategy = db_settings.get("gallery.matching_strategy", "phash_created")
 
-        # Check if already registered
+        # Calculate pHash and SHA256
+        sha256 = calculate_sha256(full_path)
+
+        # Check if already registered by SHA256
+        cursor.execute(
+            "SELECT id FROM images WHERE sha256 = ? AND deleted_at IS NULL",
+            (sha256,),
+        )
+        existing_sha = cursor.fetchone()
+        if existing_sha:
+            conn.close()
+            return web.json_response(
+                ApiResponse(
+                    success=True, message="Already registered (hash match)", data={"id": existing_sha[0]}
+                ).to_dict()
+            )
+
+        # Check if already registered by filename/subfolder
         cursor.execute(
             "SELECT id FROM images WHERE filename = ? AND subfolder = ? AND deleted_at IS NULL",
             (req.filename, req.subfolder),
@@ -952,7 +969,7 @@ async def register_image(request: web.Request) -> web.Response:
         if existing:
             conn.close()
             return web.json_response(
-                ApiResponse(success=True, message="Already registered", data={"id": existing[0]}).to_dict()
+                ApiResponse(success=True, message="Already registered (path match)", data={"id": existing[0]}).to_dict()
             )
 
         # Extract metadata from PNG
@@ -970,7 +987,6 @@ async def register_image(request: web.Request) -> web.Response:
 
         # Calculate pHash
         phash = None
-        sha256 = calculate_sha256(full_path)
         if imagehash is not None:
             try:
                 with Image.open(full_path) as img:

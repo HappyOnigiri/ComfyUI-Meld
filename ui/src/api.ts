@@ -265,7 +265,6 @@ export const uploadImage = async (
 ): Promise<{ name: string; subfolder: string; type: string }> => {
 	const formData = new FormData();
 	formData.append("image", file);
-	formData.append("overwrite", "true");
 
 	const res = await api.fetchApi("/upload/image", {
 		method: "POST",
@@ -326,7 +325,8 @@ export const registerImage = async (image: {
 	if (!res.ok) {
 		throw new Error("Failed to register image");
 	}
-	return await res.json();
+	const result = await res.json();
+	return result.data; // Return data property from ApiResponse
 };
 
 export const fetchFolders = async (
