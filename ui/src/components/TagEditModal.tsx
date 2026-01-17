@@ -49,7 +49,26 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 		if (inputRef.current) {
 			inputRef.current.focus();
 		}
-	}, []);
+
+		// Handle Escape key globally for this modal
+		const handleGlobalKeyDown = (e: KeyboardEvent) => {
+			if (e.key === "Escape") {
+				e.preventDefault();
+				e.stopPropagation();
+				e.stopImmediatePropagation();
+				onClose();
+				if (document.fullscreenElement) {
+					document.exitFullscreen().catch(() => {});
+				}
+			}
+		};
+
+		window.addEventListener("keydown", handleGlobalKeyDown, { capture: true });
+		return () =>
+			window.removeEventListener("keydown", handleGlobalKeyDown, {
+				capture: true,
+			});
+	}, [onClose]);
 
 	const filteredTags = useMemo(() => {
 		return allTags.filter(
@@ -105,14 +124,26 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 	const handleKeyDown = (e: React.KeyboardEvent) => {
 		if (e.key === "Enter" && searchQuery.trim()) {
 			e.preventDefault();
+			e.stopPropagation();
 			handleAddTag(searchQuery.trim());
 		} else if (e.key === "Escape") {
+			e.preventDefault();
+			e.stopPropagation();
 			onClose();
+			if (document.fullscreenElement) {
+				document.exitFullscreen().catch(() => {});
+			}
 		}
 	};
 
 	return createPortal(
-		<div className="meld-modal-overlay" onClick={onClose}>
+		<div
+			className="meld-modal-overlay"
+			onClick={(e) => {
+				e.stopPropagation();
+				onClose();
+			}}
+		>
 			<div className="meld-modal-content" onClick={(e) => e.stopPropagation()}>
 				<div className="meld-modal-header">
 					<div style={{ display: "flex", alignItems: "center", gap: "8px" }}>

@@ -8,6 +8,7 @@ import {
 	Maximize,
 	Minimize,
 	RefreshCw,
+	Tag,
 	X,
 } from "lucide-react";
 import type React from "react";
@@ -231,6 +232,18 @@ export const ImageViewer: React.FC = () => {
 		refreshImages,
 	]);
 
+	const handleTagEdit = useCallback(() => {
+		if (!image) return;
+		dispatch({
+			type: "OPEN_MODAL",
+			payload: {
+				type: "tag_edit",
+				imageIds: [image.id],
+				tags: image.tags || [],
+			},
+		});
+	}, [image, dispatch]);
+
 	const handleUndoDelete = useCallback(async () => {
 		if (!lastDeletedIds || lastDeletedIds.length === 0) return;
 		const idToOpen = lastDeletedIds[0];
@@ -378,7 +391,12 @@ export const ImageViewer: React.FC = () => {
 			const isDeleteKey = e.key === "Delete" || e.key === "Backspace";
 			const isNavigationKey = e.key === "ArrowRight" || e.key === "ArrowLeft";
 			const isToggleKey =
-				e.key === "f" || e.key === "F" || e.key === "i" || e.key === "I";
+				e.key === "f" ||
+				e.key === "F" ||
+				e.key === "i" ||
+				e.key === "I" ||
+				e.key === "t" ||
+				e.key === "T";
 			const isEscapeKey = e.key === "Escape";
 			const isUndoKey =
 				(e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z");
@@ -393,12 +411,20 @@ export const ImageViewer: React.FC = () => {
 				isUndoKey
 			) {
 				if (!isTargetInput) {
-					if (isEscapeKey && state.activeModal.type !== "none") return;
+					if (isEscapeKey && state.activeModal.type !== "none") {
+						e.preventDefault();
+						e.stopPropagation();
+						return;
+					}
 					e.preventDefault();
 					e.stopPropagation();
 					e.stopImmediatePropagation();
 				} else if (isEscapeKey) {
-					if (state.activeModal.type !== "none") return;
+					if (state.activeModal.type !== "none") {
+						e.preventDefault();
+						e.stopPropagation();
+						return;
+					}
 					// Escape should probably still close the viewer even if an input has focus
 					e.preventDefault();
 					e.stopPropagation();
@@ -413,7 +439,9 @@ export const ImageViewer: React.FC = () => {
 			}
 
 			if (e.key === "Escape") {
-				if (state.activeModal.type !== "none") return;
+				if (state.activeModal.type !== "none") {
+					dispatch({ type: "CLOSE_MODAL" });
+				}
 
 				if (document.fullscreenElement) {
 					document.exitFullscreen();
@@ -428,6 +456,8 @@ export const ImageViewer: React.FC = () => {
 				toggleFullscreen(e);
 			} else if (e.key === "i" || e.key === "I") {
 				setShowDetails((prev) => !prev);
+			} else if (e.key === "t" || e.key === "T") {
+				handleTagEdit();
 			} else if (e.key === "Delete") {
 				handleDelete();
 			} else if ((e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z")) {
@@ -463,6 +493,7 @@ export const ImageViewer: React.FC = () => {
 		handleDelete,
 		state.activeModal.type,
 		handleUndoDelete,
+		handleTagEdit,
 	]);
 
 	// Fetch lineage if needed
@@ -564,7 +595,11 @@ export const ImageViewer: React.FC = () => {
 		<div
 			ref={overlayRef}
 			className="meld-viewer-overlay"
-			onClick={() => dispatch({ type: "CLOSE_VIEWER" })}
+			onClick={() => {
+				if (state.activeModal.type === "none") {
+					dispatch({ type: "CLOSE_VIEWER" });
+				}
+			}}
 			role="button"
 			tabIndex={0}
 		>
@@ -584,6 +619,14 @@ export const ImageViewer: React.FC = () => {
 								<LayoutGrid size={20} />
 							</button>
 						)}
+						<button
+							className="meld-viewer-action-btn"
+							onClick={handleTagEdit}
+							type="button"
+							title="Edit Tags (T)"
+						>
+							<Tag size={20} />
+						</button>
 						<button
 							className="meld-viewer-action-btn"
 							onClick={() => setShowDetails(!showDetails)}
