@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import * as api from "../../../api";
 import { logger } from "../../../logger";
 import { useGallery } from "../../../store/GalleryContext";
+import * as searchApi from "../api/searchApi";
 
 export interface Suggestion {
 	type: string;
@@ -31,7 +31,7 @@ export const useSearchLogic = () => {
 		}
 
 		if (!inputValue && !state.searchQuery) {
-			api.fetchSearchSuggestions().then((results) => {
+			searchApi.fetchSearchSuggestions().then((results) => {
 				setSearchSuggestions(results);
 			});
 		} else {
@@ -91,7 +91,7 @@ export const useSearchLogic = () => {
 					const prefix = match[1].toLowerCase();
 					const subQuery = match[2];
 
-					const results = await api.fetchSuggestions(subQuery, prefix);
+					const results = await searchApi.fetchSuggestions(subQuery, prefix);
 					setSuggestions(results);
 					setShowSuggestions(results.length > 0);
 					setSelectedIndex(-1);

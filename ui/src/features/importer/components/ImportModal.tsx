@@ -15,6 +15,8 @@ import { logger } from "../../../logger";
 import { useGallery } from "../../../store/GalleryContext";
 import type { Tag as TagType } from "../../../types";
 import { getImageViewUrl } from "../../../utils/url";
+import * as tagsApi from "../../tags/api/tagsApi";
+import * as importerApi from "../api/importerApi";
 
 export const ImportModal: React.FC = () => {
 	const { dispatch } = useGallery();
@@ -118,7 +120,7 @@ export const ImportModal: React.FC = () => {
 			try {
 				// Step 1: Fast load (Folders and Images in current dir)
 				logger.log("Step 1: Fast load starting...");
-				const result = await api.fetchFolders(
+				const result = await importerApi.fetchFolders(
 					config.type,
 					path,
 					true,
@@ -141,7 +143,7 @@ export const ImportModal: React.FC = () => {
 					logger.log(
 						`Step 2: Metadata fetch starting for ${folderNames.length} folders...`,
 					);
-					api
+					importerApi
 						.fetchFolderMetadata(
 							currentType,
 							currentPath,
@@ -170,7 +172,7 @@ export const ImportModal: React.FC = () => {
 
 				// Step 3: Fetch total recursive image count
 				logger.log("Step 3: Path image count starting...");
-				api
+				importerApi
 					.fetchPathImageCount(currentType, currentPath, controller.signal)
 					.then((count) => {
 						if (controller.signal.aborted) {
@@ -211,7 +213,7 @@ export const ImportModal: React.FC = () => {
 	const loadTags = useCallback(async () => {
 		setIsLoadingTags(true);
 		try {
-			const data = await api.fetchTags();
+			const data = await tagsApi.fetchTags();
 			setAllTags(data);
 		} catch (error) {
 			logger.error("Failed to fetch tags:", error);
@@ -270,7 +272,7 @@ export const ImportModal: React.FC = () => {
 
 	const handleStart = async () => {
 		try {
-			await api.startScan(config);
+			await importerApi.startScan(config);
 			dispatch({
 				type: "SET_SCAN_STATUS",
 				payload: {

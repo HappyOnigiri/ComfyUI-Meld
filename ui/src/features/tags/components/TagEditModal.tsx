@@ -2,10 +2,11 @@ import { Plus, Search, Tag, X } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { bulkUpdateImageTags, fetchTags, updateImageTags } from "../../../api";
 import { RESERVED_TAG_KEYWORD } from "../../../constants";
 import { useGallery } from "../../../store/GalleryContext";
 import type { Tag as TagType } from "../../../types";
+import * as imagesApi from "../../images/api/imagesApi";
+import * as tagsApi from "../api/tagsApi";
 
 interface TagEditModalProps {
 	imageIds: number[];
@@ -31,7 +32,7 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 	const loadTags = useCallback(async () => {
 		setIsLoading(true);
 		try {
-			const data = await fetchTags();
+			const data = await tagsApi.fetchTags();
 			setAllTags(data);
 		} catch (error) {
 			console.error("Failed to fetch tags:", error);
@@ -106,9 +107,9 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 					(t) => !selectedTags.includes(t),
 				);
 
-				await bulkUpdateImageTags(imageIds, tagsToAdd, tagsToRemove);
+				await imagesApi.bulkUpdateImageTags(imageIds, tagsToAdd, tagsToRemove);
 			} else {
-				await updateImageTags(imageIds[0], selectedTags);
+				await imagesApi.updateImageTags(imageIds[0], selectedTags);
 			}
 			await refreshImages();
 			dispatch({ type: "CLEAR_SELECTION" });

@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import * as api from "../../../api";
 import type {
 	GalleryAction,
 	GalleryState,
@@ -7,6 +6,9 @@ import type {
 	Settings,
 } from "../../../types";
 import { getImageViewUrl } from "../../../utils/url";
+import * as imagesApi from "../../images/api/imagesApi";
+import { useImageActions } from "../../images/hooks/useImageActions";
+import { useImageLineage } from "../../images/hooks/useImageLineage";
 
 interface UseImageViewerLogicProps {
 	state: GalleryState;
@@ -22,6 +24,9 @@ export const useImageViewerLogic = ({
 	fetchFullImageDetails,
 }: UseImageViewerLogicProps) => {
 	const { viewerImageId, images, viewerMode, lineageImages, settings } = state;
+
+	const { handleEditTags, handleRestore } = useImageActions(state, dispatch);
+	const { getParentChain } = useImageLineage(images, settings);
 
 	const [isFullscreen, setIsFullscreen] = useState(false);
 	const [showDetails, setShowDetails] = useState(
@@ -109,7 +114,7 @@ export const useImageViewerLogic = ({
 				const idsToDelete = new Set<number>([image.id]);
 
 				if (deleteMode === "lineage") {
-					const lineage = await api.fetchLineage(image.id);
+					const lineage = await imagesApi.fetchLineage(image.id);
 					for (const img of lineage) {
 						idsToDelete.add(img.id);
 					}
@@ -150,7 +155,7 @@ export const useImageViewerLogic = ({
 					dispatch({ type: "CLOSE_VIEWER" });
 				}
 
-				await api.deleteImages(Array.from(idsToDelete), isPermanent);
+				await imagesApi.deleteImages(Array.from(idsToDelete), isPermanent);
 				if (!isPermanent) {
 					const deletedImages = currentThumbnails.filter((img) =>
 						idsToDelete.has(img.id),
@@ -178,17 +183,10 @@ export const useImageViewerLogic = ({
 		],
 	);
 
-	const handleTagEdit = useCallback(() => {
+	const handleTagEditAction = useCallback(() => {
 		if (!image) return;
-		dispatch({
-			type: "OPEN_MODAL",
-			payload: {
-				type: "tag_edit",
-				imageIds: [image.id],
-				tags: image.tags || [],
-			},
-		});
-	}, [image, dispatch]);
+		handleEditTags(image);
+	}, [image, handleEditTags]);
 
 	const handleNext = useCallback(() => {
 		dispatch({ type: "NEXT_IMAGE", payload: { isFullscreen } });
@@ -212,7 +210,7 @@ export const useImageViewerLogic = ({
 				const total = state.pagination.total;
 				const lastOffset = Math.max(0, total - pageSize);
 
-				const result = await api.fetchImages(
+				const result = await imagesApi.fetchImages(
 					lastOffset,
 					pageSize,
 					state.searchQuery,
@@ -270,27 +268,15 @@ export const useImageViewerLogic = ({
 		[],
 	);
 
-	const handleRestore = useCallback(async () => {
+	const handleRestoreAction = useCallback(async () => {
 		if (!image) return;
-		try {
-			const imageId = image.id;
-
-			if (currentThumbnails.length > 1) {
-				handleNext();
-			} else {
-				dispatch({ type: "CLOSE_VIEWER" });
-			}
-
-			const result = await api.restoreImages([imageId]);
-			const restoredIds = result.restored_ids || [imageId];
-			dispatch({ type: "REMOVE_IMAGES", payload: restoredIds });
-		} catch (err: unknown) {
-			dispatch({
-				type: "SET_ERROR",
-				payload: err instanceof Error ? err.message : String(err),
-			});
+		if (currentThumbnails.length > 1) {
+			handleNext();
+		} else {
+			dispatch({ type: "CLOSE_VIEWER" });
 		}
-	}, [image, currentThumbnails.length, handleNext, dispatch]);
+		await handleRestore(image);
+	}, [image, currentThumbnails.length, handleNext, handleRestore, dispatch]);
 
 	const handleUndoDelete = useCallback(async () => {
 		if (!lastDeletedImages || lastDeletedImages.length === 0) return;
@@ -298,7 +284,7 @@ export const useImageViewerLogic = ({
 		const idToOpen = idsToRestore[0];
 
 		try {
-			const result = await api.restoreImages(idsToRestore);
+			const result = await imagesApi.restoreImages(idsToRestore);
 			if (!isMounted.current) return;
 			dispatch({ type: "ADD_IMAGES", payload: lastDeletedImages });
 
@@ -329,7 +315,7 @@ export const useImageViewerLogic = ({
 			if (lastShortcutAction.type === "tags") {
 				const { imageId, addTags, removeTags } = lastShortcutAction;
 				try {
-					await api.bulkUpdateImageTags([imageId], addTags, removeTags);
+					await imagesApi.bulkUpdateImageTags([imageId], addTags, removeTags);
 
 					const targetImage = (
 						viewerMode === "lineage" ? lineageImages : images
@@ -423,7 +409,11 @@ export const useImageViewerLogic = ({
 
 			if (addTags.length > 0 || removeTags.length > 0) {
 				try {
-					await api.bulkUpdateImageTags([currentImageId], addTags, removeTags);
+					await imagesApi.bulkUpdateImageTags(
+						[currentImageId],
+						addTags,
+						removeTags,
+					);
 					const newTags = [...currentImageTags];
 					for (const t of addTags) {
 						if (!newTags.includes(t)) newTags.push(t);
@@ -534,12 +524,12 @@ export const useImageViewerLogic = ({
 			} else if (e.key === "i" || e.key === "I") {
 				setShowDetails((prev) => !prev);
 			} else if (e.key === "t" || e.key === "T") {
-				handleTagEdit();
+				handleTagEditAction();
 			} else if (
 				(e.key === "r" || e.key === "R") &&
 				state.viewScope === "trash"
 			) {
-				handleRestore();
+				handleRestoreAction();
 			} else if (e.key === "Delete") {
 				handleDelete();
 			} else if ((e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z")) {
@@ -585,8 +575,8 @@ export const useImageViewerLogic = ({
 		handleDelete,
 		state.activeModal.type,
 		handleUndo,
-		handleTagEdit,
-		handleRestore,
+		handleTagEditAction,
+		handleRestoreAction,
 		state.viewScope,
 		executeCommand,
 	]);
@@ -608,7 +598,7 @@ export const useImageViewerLogic = ({
 			lineageImages.length === 0
 		) {
 			setIsLoadingLineage(true);
-			api
+			imagesApi
 				.fetchLineage(viewerImageId)
 				.then((results) => {
 					if (isMounted.current) {
@@ -669,51 +659,6 @@ export const useImageViewerLogic = ({
 			absIndex: start + idx,
 		}));
 	}, [currentThumbnails, currentIndex, settings, showThumbnails]);
-
-	const getParentChain = useCallback(
-		(img: MeldImage): { id: number | null; imgSrc: string | null }[] => {
-			const maxDepth = settings["gallery.lineage_max_depth"];
-			if (maxDepth === 0) return [];
-
-			if (img.ancestors && img.ancestors.length > 0) {
-				return img.ancestors.slice(0, maxDepth).map((a) => ({
-					id: a.id,
-					imgSrc: getImageViewUrl(a),
-				}));
-			}
-
-			const pId = img.parent_id;
-			if (!pId || !img.parent_filename) return [];
-
-			const parentInState = images.find((p) => p.id === pId);
-
-			let imgSrc: string | null = null;
-			if (parentInState) {
-				imgSrc = getImageViewUrl(parentInState);
-			} else {
-				imgSrc = getImageViewUrl({
-					filename: img.parent_filename,
-					subfolder: img.parent_subfolder || "",
-					type: img.parent_type,
-				});
-			}
-
-			if (!imgSrc) return [];
-
-			const currentParent = {
-				id: pId || null,
-				imgSrc,
-			};
-
-			if (parentInState && maxDepth > 1) {
-				const rest = getParentChain(parentInState);
-				return [currentParent, ...rest].slice(0, maxDepth);
-			}
-
-			return [currentParent];
-		},
-		[settings, images],
-	);
 
 	const parentChain = useMemo(() => {
 		return image ? getParentChain(image) : [];
@@ -790,8 +735,8 @@ export const useImageViewerLogic = ({
 		handleNext,
 		handlePrevious,
 		handleDelete,
-		handleTagEdit,
-		handleRestore,
+		handleTagEdit: handleTagEditAction,
+		handleRestore: handleRestoreAction,
 		handleUndo,
 		toggleFullscreen,
 		currentIndex,

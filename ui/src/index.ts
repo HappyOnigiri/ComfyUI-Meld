@@ -1,11 +1,12 @@
 import React from "react";
 import { createRoot, type Root } from "react-dom/client";
 // @ts-expect-error
-import { api } from "../../../scripts/api.js";
+import { api } from "/scripts/api.js";
 // @ts-expect-error
-import { app } from "../../../scripts/app.js";
-import * as apiLayer from "./api";
+import { app } from "/scripts/app.js";
 import { GalleryPanel } from "./features/gallery/components/GalleryPanel";
+import * as imagesApi from "./features/images/api/imagesApi";
+import * as settingsApi from "./features/settings/api/settingsApi";
 import { logger } from "./logger";
 import { GalleryProvider } from "./store/GalleryContext";
 import type { ComfyApp } from "./types";
@@ -49,7 +50,7 @@ app.registerExtension({
 	async setup(app: ComfyApp) {
 		// Initialize logger from server settings
 		try {
-			const settings = await apiLayer.fetchSettings();
+			const settings = await settingsApi.fetchSettings();
 			logger.init(settings.dev_mode);
 			logger.log("Settings received:", settings);
 		} catch (e) {
@@ -115,7 +116,7 @@ app.registerExtension({
 					for (const img of detail.output.images) {
 						if (img.type === "output") {
 							try {
-								await apiLayer.registerImage({
+								await imagesApi.registerImage({
 									filename: img.filename,
 									subfolder: img.subfolder,
 									type: img.type,

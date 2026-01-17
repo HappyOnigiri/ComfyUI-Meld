@@ -2,7 +2,8 @@ import { Link, Link2Off, Upload, X } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import * as api from "../../api";
+import * as imagesApi from "../../features/images/api/imagesApi";
+import * as importerApi from "../../features/importer/api/importerApi";
 import { useGallery } from "../../store/GalleryContext";
 import { getImageViewUrl } from "../../utils/url";
 
@@ -34,7 +35,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 		setIsLoading(true);
 		try {
 			const threshold = state.settings["gallery.suggest_phash_threshold"];
-			const results = await api.suggestParents(imageId, threshold);
+			const results = await imagesApi.suggestParents(imageId, threshold);
 			setSuggestions(results);
 		} catch (err) {
 			console.error("Failed to load suggestions:", err);
@@ -64,9 +65,9 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 		}
 
 		try {
-			await api.linkParent(imageId, parentId);
+			await imagesApi.linkParent(imageId, parentId);
 			// Re-fetch child image details to ensure UI has latest parent info
-			await api.fetchImageDetails(imageId);
+			await imagesApi.fetchImageDetails(imageId);
 			await refreshImages();
 			dispatch({ type: "CLOSE_MODAL" });
 		} catch (err) {
@@ -81,7 +82,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 			return;
 		}
 		try {
-			await api.linkParent(imageId, null);
+			await imagesApi.linkParent(imageId, null);
 			await refreshImages();
 			dispatch({ type: "CLOSE_MODAL" });
 		} catch (err) {
@@ -94,9 +95,9 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 		setIsLoading(true);
 		try {
 			// 1. Upload file to ComfyUI
-			const uploaded = await api.uploadImage(file);
+			const uploaded = await importerApi.uploadImage(file);
 			// 2. Register it in Meld
-			const { id } = await api.registerImage({
+			const { id } = await imagesApi.registerImage({
 				filename: uploaded.name,
 				subfolder: uploaded.subfolder || "",
 				type: uploaded.type || "input",

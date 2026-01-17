@@ -8,7 +8,9 @@ import {
 	useReducer,
 	useRef,
 } from "react";
-import * as api from "../api";
+import * as imagesApi from "../features/images/api/imagesApi";
+import * as searchApi from "../features/search/api/searchApi";
+import * as settingsApi from "../features/settings/api/settingsApi";
 import { logger } from "../logger";
 import type { GalleryAction, GalleryState, MeldImage } from "../types";
 import { galleryReducer, initialState } from "./galleryReducer";
@@ -59,7 +61,7 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 						limit,
 					});
 
-					const result = await api.fetchImages(
+					const result = await imagesApi.fetchImages(
 						currentOffset,
 						limit,
 						state.searchQuery,
@@ -105,7 +107,7 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 				scope: state.viewScope,
 			});
 
-			const result = await api.fetchImages(
+			const result = await imagesApi.fetchImages(
 				0,
 				initialLimit,
 				state.searchQuery,
@@ -155,7 +157,7 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 				isSearch,
 			});
 
-			const result = await api.fetchImages(
+			const result = await imagesApi.fetchImages(
 				nextOffset,
 				fetchLimit,
 				state.searchQuery,
@@ -187,7 +189,7 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 
 	const refreshFavorites = useCallback(async () => {
 		try {
-			const favorites = await api.fetchFavorites();
+			const favorites = await searchApi.fetchFavorites();
 			dispatch({ type: "SET_FAVORITES", payload: favorites });
 		} catch (err) {
 			logger.error("Failed to load favorites", err);
@@ -222,7 +224,7 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 		const ids = Array.from(state.selectedIds) as number[];
 		try {
 			dispatch({ type: "SET_LOADING", payload: true });
-			const result = await api.restoreImages(ids);
+			const result = await imagesApi.restoreImages(ids);
 			const restoredIds = result.restored_ids || ids;
 			if (state.viewScope === "trash") {
 				dispatch({ type: "REMOVE_IMAGES", payload: restoredIds });
@@ -240,7 +242,7 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 	const updateSetting = useCallback(
 		async (key: string, value: string | number | boolean | null) => {
 			try {
-				await api.saveSetting(key, value);
+				await settingsApi.saveSetting(key, value);
 				dispatch({ type: "SET_SETTINGS", payload: { [key]: value } });
 			} catch (err: unknown) {
 				dispatch({
@@ -261,7 +263,7 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 
 			try {
 				logger.log("fetchFullImageDetails: fetching full data", { id });
-				const fullImage = await api.fetchImageDetails(id);
+				const fullImage = await imagesApi.fetchImageDetails(id);
 				dispatch({ type: "UPDATE_IMAGE", payload: fullImage });
 				return fullImage;
 			} catch (err) {
@@ -275,7 +277,7 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 	useEffect(() => {
 		const loadSettings = async () => {
 			try {
-				const settings = await api.fetchSettings();
+				const settings = await settingsApi.fetchSettings();
 				dispatch({ type: "SET_SETTINGS", payload: settings });
 			} catch (err) {
 				logger.error("Failed to load settings", err);

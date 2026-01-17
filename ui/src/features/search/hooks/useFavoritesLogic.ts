@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
-import * as api from "../../../api";
 import { logger } from "../../../logger";
 import { useGallery } from "../../../store/GalleryContext";
 import type { Favorite } from "../../../types";
+import * as searchApi from "../api/searchApi";
 
 export const useFavoritesLogic = () => {
 	const { state, refreshFavorites } = useGallery();
@@ -28,7 +28,7 @@ export const useFavoritesLogic = () => {
 			if (!window.confirm(confirmMsg)) return;
 
 			try {
-				await api.deleteFavorite(id);
+				await searchApi.deleteFavorite(id);
 				await refreshFavorites();
 			} catch (err) {
 				logger.error("Failed to delete favorite", err);
@@ -57,7 +57,7 @@ export const useFavoritesLogic = () => {
 
 		try {
 			setIsSaving(true);
-			await api.updateFavorite(
+			await searchApi.updateFavorite(
 				editingFavorite.id,
 				editFavoriteName,
 				editFavoriteQuery,
@@ -84,7 +84,7 @@ export const useFavoritesLogic = () => {
 			if (fav) {
 				setIsSaving(true);
 				try {
-					await api.deleteFavorite(fav.id);
+					await searchApi.deleteFavorite(fav.id);
 					await refreshFavorites();
 					setToastMessage("Favorite removed.");
 				} catch (err) {
@@ -98,7 +98,7 @@ export const useFavoritesLogic = () => {
 
 		setIsSaving(true);
 		try {
-			await api.saveFavorite(state.searchQuery, state.searchQuery);
+			await searchApi.saveFavorite(state.searchQuery, state.searchQuery);
 			await refreshFavorites();
 			setToastMessage(
 				"Favorite added!\nYou can select favorites when the search query is empty.",

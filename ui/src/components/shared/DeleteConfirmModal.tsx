@@ -2,7 +2,7 @@ import { AlertTriangle, Trash2, X } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import * as api from "../../api";
+import * as imagesApi from "../../features/images/api/imagesApi";
 import { useGallery } from "../../store/GalleryContext";
 import type { MeldImage } from "../../types";
 
@@ -140,7 +140,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 			);
 			navigateViewerIfNeeded(idsToDeleteSet);
 
-			await api.deleteImages(imageIds, isPermanent);
+			await imagesApi.deleteImages(imageIds, isPermanent);
 			if (!isMounted.current) return;
 
 			if (!isPermanent && onSuccess) {
@@ -178,7 +178,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 
 			// Fetch lineage for each selected image to find all related images
 			for (const id of imageIds) {
-				const lineage = await api.fetchLineage(id);
+				const lineage = await imagesApi.fetchLineage(id);
 				if (!isMounted.current) return;
 				for (const img of lineage) {
 					allIdsToDelete.add(img.id);
@@ -190,7 +190,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 			);
 			navigateViewerIfNeeded(allIdsToDelete);
 
-			await api.deleteImages(Array.from(allIdsToDelete), isPermanent);
+			await imagesApi.deleteImages(Array.from(allIdsToDelete), isPermanent);
 			if (!isMounted.current) return;
 
 			if (!isPermanent && onSuccess) {

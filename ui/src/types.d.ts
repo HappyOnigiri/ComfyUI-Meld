@@ -26,11 +26,11 @@ declare module "../../scripts/api.js" {
 	export const api: ComfyApi;
 }
 
-declare module "../../../scripts/app.js" {
+declare module "/scripts/app.js" {
 	export const app: ComfyApp;
 }
 
-declare module "../../../scripts/api.js" {
+declare module "/scripts/api.js" {
 	export const api: ComfyApi;
 }
 

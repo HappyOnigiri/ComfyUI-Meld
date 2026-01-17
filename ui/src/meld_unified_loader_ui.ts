@@ -1,5 +1,5 @@
 // @ts-expect-error
-import { app } from "../../../scripts/app.js";
+import { app } from "/scripts/app.js";
 import type { ComfyApp } from "./types";
 
 interface Widget {
