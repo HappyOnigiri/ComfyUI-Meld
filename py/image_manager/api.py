@@ -986,7 +986,7 @@ async def list_images(request: web.Request) -> web.Response:
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        search_sql, search_params = SearchService.build_search_sql(req.query)
+        search_sql, search_params, order_sql = SearchService.build_search_sql(req.query)
 
         # Get settings
         db_settings = get_all_settings(cursor)
@@ -1000,6 +1000,12 @@ async def list_images(request: web.Request) -> web.Response:
         cursor.execute(count_sql, search_params)
         total_count = cursor.fetchone()[0]
 
+        # Determine order
+        if order_sql:
+            final_order = order_sql
+        else:
+            final_order = "i.deleted_at DESC" if req.view == "trash" else "i.created_at DESC"
+
         # Fetch images with basic info
         fetch_sql = f"""
             SELECT i.id, i.filename, i.subfolder, i.type, i.created_at, i.phash, i.sha256, i.parent_id,
@@ -1011,7 +1017,7 @@ async def list_images(request: web.Request) -> web.Response:
                     WHERE mir.image_id = i.id) as model_name,
                    i.workflow, i.width, i.height, i.deleted_at
             FROM images i LEFT JOIN images p ON i.parent_id = p.id
-            WHERE {deleted_filter}{search_sql} ORDER BY {"i.deleted_at DESC" if req.view == "trash" else "i.created_at DESC"} LIMIT ? OFFSET ?
+            WHERE {deleted_filter}{search_sql} ORDER BY {final_order} LIMIT ? OFFSET ?
         """
         cursor.execute(fetch_sql, (*search_params, req.limit, req.offset))
         images = cursor.fetchall()

@@ -1,6 +1,7 @@
 import {
 	ArrowDown,
 	ArrowUp,
+	ArrowUpDown,
 	Box,
 	Calendar,
 	Edit2,
@@ -122,7 +123,7 @@ export const SearchBar: React.FC = () => {
 			if (lastWord) {
 				// Only show suggestions when one of the prefixes is used
 				const match = lastWord.match(
-					/^[-!]?(tag|pos|neg|model|date|after|before|has_source|has_derivatives):(.*)$/i,
+					/^[-!]?(tag|pos|neg|model|date|after|before|has_source|has_derivatives|sort):(.*)$/i,
 				);
 				if (match) {
 					const prefix = match[1].toLowerCase();
@@ -314,6 +315,8 @@ export const SearchBar: React.FC = () => {
 				return <ArrowUp size={12} />;
 			case "has_derivatives":
 				return <ArrowDown size={12} />;
+			case "sort":
+				return <ArrowUpDown size={12} />;
 			default:
 				return null;
 		}
@@ -471,7 +474,7 @@ export const SearchBar: React.FC = () => {
 							const lastWord = words[words.length - 1];
 							if (
 								lastWord?.match(
-									/^[-!]?(tag|pos|neg|model|date|after|before|has_source|has_derivatives):/i,
+									/^[-!]?(tag|pos|neg|model|date|after|before|has_source|has_derivatives|sort):/i,
 								)
 							) {
 								setShowSuggestions(true);

@@ -61,7 +61,7 @@ class TestSearchService(unittest.TestCase):
         self.conn.close()
 
     def test_search_tag_none(self) -> None:
-        sql, params = SearchService.build_search_sql(f"tag:{RESERVED_TAG_KEYWORD}")
+        sql, params, order = SearchService.build_search_sql(f"tag:{RESERVED_TAG_KEYWORD}")
         query = f"SELECT id FROM images i WHERE 1=1 {sql}"
         self.cursor.execute(query, params)
         results = self.cursor.fetchall()
@@ -69,9 +69,10 @@ class TestSearchService(unittest.TestCase):
         # Should find image 2
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0][0], 2)
+        self.assertIsNone(order)
 
     def test_search_tag_none_quoted(self) -> None:
-        sql, params = SearchService.build_search_sql(f'tag:"{RESERVED_TAG_KEYWORD}"')
+        sql, params, order = SearchService.build_search_sql(f'tag:"{RESERVED_TAG_KEYWORD}"')
         query = f"SELECT id FROM images i WHERE 1=1 {sql}"
         self.cursor.execute(query, params)
         results = self.cursor.fetchall()
@@ -79,9 +80,10 @@ class TestSearchService(unittest.TestCase):
         # Should find image 2
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0][0], 2)
+        self.assertIsNone(order)
 
     def test_search_tag_existing(self) -> None:
-        sql, params = SearchService.build_search_sql("tag:blue")
+        sql, params, order = SearchService.build_search_sql("tag:blue")
         query = f"SELECT id FROM images i WHERE 1=1 {sql}"
         self.cursor.execute(query, params)
         results = self.cursor.fetchall()
@@ -89,6 +91,15 @@ class TestSearchService(unittest.TestCase):
         # Should find image 1
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0][0], 1)
+        self.assertIsNone(order)
+
+    def test_search_sort_asc(self) -> None:
+        sql, params, order = SearchService.build_search_sql("sort:created_at_asc")
+        self.assertEqual(order, "i.created_at ASC")
+
+    def test_search_sort_desc(self) -> None:
+        sql, params, order = SearchService.build_search_sql("sort:created_at_desc")
+        self.assertEqual(order, "i.created_at DESC")
 
     def test_suggestions_do_not_include_none(self) -> None:
         suggestions = SearchService.get_suggestions(self.cursor, "", prefix_filter="tag")

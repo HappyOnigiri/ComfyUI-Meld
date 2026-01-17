@@ -16,6 +16,7 @@ class SearchService:
     }
     DATE_PREFIXES = {"date", "after", "before"}
     BOOLEAN_PREFIXES = {"has_source", "has_derivatives"}
+    SORT_PREFIX = "sort"
 
     @staticmethod
     def parse_query(query_str: str | None) -> list[dict[str, Any]]:
@@ -60,6 +61,7 @@ class SearchService:
                     prefix in SearchService.PREFIX_MAP
                     or prefix in SearchService.DATE_PREFIXES
                     or prefix in SearchService.BOOLEAN_PREFIXES
+                    or prefix == SearchService.SORT_PREFIX
                 ):
                     is_partial = True
                     # If value is quoted, it's exact match
@@ -86,21 +88,30 @@ class SearchService:
         return conditions
 
     @classmethod
-    def build_search_sql(cls, query_str: str | None) -> tuple[str, list[str | float]]:
+    def build_search_sql(cls, query_str: str | None) -> tuple[str, list[str | float], str | None]:
         """
-        Builds a SQL WHERE clause and parameters for the search query.
-        Returns: (sql_fragment, params)
+        Builds a SQL WHERE clause, parameters, and ORDER BY fragment for the search query.
+        Returns: (where_fragment, params, order_fragment)
         """
         conditions = cls.parse_query(query_str)
         if not conditions:
-            return "", []
+            return "", [], None
 
         sub_queries = []
         all_params: list[str | float] = []
+        order_by = None
 
         for cond in conditions:
             is_negative = cond.get("is_negative", False)
             in_clause = "NOT IN" if is_negative else "IN"
+
+            if cond["prefix"] == cls.SORT_PREFIX:
+                value = cond["value"].lower()
+                if value == "created_at_asc":
+                    order_by = "i.created_at ASC"
+                elif value == "created_at_desc":
+                    order_by = "i.created_at DESC"
+                continue
 
             if cond["is_global"]:
                 # Search across all tables
@@ -205,11 +216,11 @@ class SearchService:
                     all_params.append(cond["value"])
 
         if not sub_queries:
-            return "", []
+            return "", [], order_by
 
         # Combine with AND
         sql_fragment = " AND " + " AND ".join(sub_queries)
-        return sql_fragment, all_params
+        return sql_fragment, all_params, order_by
 
     @classmethod
     def get_suggestions(
@@ -233,6 +244,12 @@ class SearchService:
         if prefix_filter in cls.BOOLEAN_PREFIXES:
             results.append({"type": prefix_filter, "value": "yes", "count": 0})
             results.append({"type": prefix_filter, "value": "no", "count": 0})
+            return results
+
+        # Special handling for sort prefix
+        if prefix_filter == cls.SORT_PREFIX:
+            results.append({"type": prefix_filter, "value": "created_at_asc", "count": 0})
+            results.append({"type": prefix_filter, "value": "created_at_desc", "count": 0})
             return results
 
         # Determine which prefixes to search
