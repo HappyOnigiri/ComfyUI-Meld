@@ -93,6 +93,40 @@ export function galleryReducer(
 				...state,
 				favorites: action.payload,
 			};
+		case "REMOVE_IMAGES": {
+			const idsToRemove = new Set(action.payload);
+			const newImages = state.images.filter((img) => !idsToRemove.has(img.id));
+			const newSelectedIds = new Set(state.selectedIds);
+			for (const id of action.payload) {
+				newSelectedIds.delete(id);
+			}
+			return {
+				...state,
+				images: newImages,
+				selectedIds: newSelectedIds,
+				pagination: {
+					...state.pagination,
+					total: Math.max(0, state.pagination.total - action.payload.length),
+				},
+			};
+		}
+		case "ADD_IMAGES": {
+			const imagesToAdd = action.payload;
+			const newImages = [...state.images, ...imagesToAdd];
+			// Deduplicate and sort by created_at DESC
+			const uniqueImages = Array.from(
+				new Map(newImages.map((img) => [img.id, img])).values(),
+			).sort((a, b) => b.created_at - a.created_at);
+
+			return {
+				...state,
+				images: uniqueImages,
+				pagination: {
+					...state.pagination,
+					total: state.pagination.total + imagesToAdd.length,
+				},
+			};
+		}
 		case "SET_IMAGES": {
 			const { images, total, offset } = action.payload;
 			// If viewer is open and in gallery mode, check if the image still exists

@@ -192,7 +192,9 @@ export type GalleryAction =
 	| { type: "SET_SCAN_STATUS"; payload: Partial<ScanStatus> }
 	| { type: "SET_SETTINGS"; payload: Partial<Settings> }
 	| { type: "SET_SEARCH_QUERY"; payload: string }
-	| { type: "SET_FAVORITES"; payload: Favorite[] };
+	| { type: "SET_FAVORITES"; payload: Favorite[] }
+	| { type: "REMOVE_IMAGES"; payload: number[] }
+	| { type: "ADD_IMAGES"; payload: MeldImage[] };
 
 export interface ComfyApp {
 	registerExtension(extension: ComfyExtension): void;
