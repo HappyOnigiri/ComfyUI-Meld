@@ -19,6 +19,7 @@ export interface MeldImage {
 	parent_type?: "output" | "input" | "temp" | "custom" | null;
 	width?: number | null;
 	height?: number | null;
+	is_minimal?: boolean;
 	exists?: boolean;
 	deleted_at?: number | null;
 	has_children?: boolean;
@@ -79,7 +80,8 @@ export interface Settings {
 	"viewer.details.show_negative_prompt": boolean;
 	"viewer.details.max_positive_prompt_lines": number;
 	"viewer.details.max_negative_prompt_lines": number;
-	"gallery.page_size": number;
+	"gallery.initial_load_count": number;
+	"gallery.max_load_count": number;
 	"viewer.thumbnail_window_size": number;
 	"viewer.show_thumbnails": boolean;
 	"viewer.show_icons": boolean;
@@ -194,7 +196,8 @@ export type GalleryAction =
 	| { type: "SET_SEARCH_QUERY"; payload: string }
 	| { type: "SET_FAVORITES"; payload: Favorite[] }
 	| { type: "REMOVE_IMAGES"; payload: number[] }
-	| { type: "ADD_IMAGES"; payload: MeldImage[] };
+	| { type: "ADD_IMAGES"; payload: MeldImage[] }
+	| { type: "UPDATE_IMAGE"; payload: MeldImage };
 
 export interface ComfyApp {
 	registerExtension(extension: ComfyExtension): void;

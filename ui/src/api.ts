@@ -19,6 +19,7 @@ export const fetchImages = async (
 	limit = 30,
 	query = "",
 	view = "default",
+	minimal = false,
 ): Promise<{
 	images: MeldImage[];
 	total: number;
@@ -26,10 +27,18 @@ export const fetchImages = async (
 	limit: number;
 }> => {
 	const res = await api.fetchApi(
-		`/meld/list?offset=${offset}&limit=${limit}&query=${encodeURIComponent(query)}&view=${view}`,
+		`/meld/list?offset=${offset}&limit=${limit}&query=${encodeURIComponent(query)}&view=${view}${minimal ? "&minimal=true" : ""}`,
 	);
 	if (!res.ok) {
 		throw new Error(`Failed to fetch images: ${res.statusText}`);
+	}
+	return await res.json();
+};
+
+export const fetchImageDetails = async (id: number): Promise<MeldImage> => {
+	const res = await api.fetchApi(`/meld/image/${id}/details`);
+	if (!res.ok) {
+		throw new Error(`Failed to fetch image details: ${res.statusText}`);
 	}
 	return await res.json();
 };
@@ -115,7 +124,8 @@ export const fetchSettings = async (): Promise<Settings> => {
 			"viewer.details.show_negative_prompt": true,
 			"viewer.details.max_positive_prompt_lines": 7,
 			"viewer.details.max_negative_prompt_lines": 7,
-			"gallery.page_size": 30,
+			"gallery.initial_load_count": 100,
+			"gallery.max_load_count": 10000,
 			"viewer.thumbnail_window_size": 15,
 			"viewer.show_thumbnails": true,
 			"viewer.show_icons": true,

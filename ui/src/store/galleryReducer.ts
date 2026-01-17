@@ -59,7 +59,8 @@ export const initialState: GalleryState = {
 		"viewer.details.show_negative_prompt": true,
 		"viewer.details.max_positive_prompt_lines": 7,
 		"viewer.details.max_negative_prompt_lines": 7,
-		"gallery.page_size": 30,
+		"gallery.initial_load_count": 100,
+		"gallery.max_load_count": 10000,
 		"viewer.thumbnail_window_size": 15,
 		"viewer.show_thumbnails": true,
 		"viewer.show_icons": true,
@@ -76,7 +77,7 @@ export const initialState: GalleryState = {
 	pagination: {
 		total: 0,
 		offset: 0,
-		limit: 30,
+		limit: 100,
 		hasMore: false,
 	},
 	searchQuery: "",
@@ -125,6 +126,20 @@ export function galleryReducer(
 					...state.pagination,
 					total: state.pagination.total + imagesToAdd.length,
 				},
+			};
+		}
+		case "UPDATE_IMAGE": {
+			const updatedImage = action.payload;
+			const newImages = state.images.map((img) =>
+				img.id === updatedImage.id ? updatedImage : img,
+			);
+			const newLineageImages = state.lineageImages.map((img) =>
+				img.id === updatedImage.id ? updatedImage : img,
+			);
+			return {
+				...state,
+				images: newImages,
+				lineageImages: newLineageImages,
 			};
 		}
 		case "SET_IMAGES": {
@@ -425,8 +440,8 @@ export function galleryReducer(
 				...action.payload,
 			};
 			const newPagination = { ...state.pagination };
-			if (action.payload["gallery.page_size"] !== undefined) {
-				newPagination.limit = action.payload["gallery.page_size"];
+			if (action.payload["gallery.initial_load_count"] !== undefined) {
+				newPagination.limit = action.payload["gallery.initial_load_count"];
 			}
 			return {
 				...state,

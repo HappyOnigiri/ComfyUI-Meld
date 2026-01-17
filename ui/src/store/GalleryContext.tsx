@@ -10,7 +10,7 @@ import {
 } from "react";
 import * as api from "../api";
 import { logger } from "../logger";
-import type { GalleryAction, GalleryState } from "../types";
+import type { GalleryAction, GalleryState, MeldImage } from "../types";
 import { galleryReducer, initialState } from "./galleryReducer";
 
 interface GalleryContextType {
@@ -25,6 +25,7 @@ interface GalleryContextType {
 		key: string,
 		value: string | number | boolean | null,
 	) => Promise<void>;
+	fetchFullImageDetails: (id: number) => Promise<MeldImage>;
 }
 
 const GalleryContext = createContext<GalleryContextType | undefined>(undefined);
@@ -35,42 +36,95 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 	const [state, dispatch] = useReducer(galleryReducer, initialState);
 
 	const imagesLengthRef = useRef(state.images.length);
+	const backgroundFetchIdRef = useRef<number>(0);
+
 	useEffect(() => {
 		imagesLengthRef.current = state.images.length;
 	}, [state.images.length]);
 
+	const startBackgroundFetch = useCallback(
+		async (startOffset: number, total: number, fetchId: number) => {
+			const maxItems = state.settings["gallery.max_load_count"];
+			const chunkSize = 200; // Use 200 items per background request for efficiency
+			let currentOffset = startOffset;
+
+			while (
+				currentOffset < Math.min(total, maxItems) &&
+				fetchId === backgroundFetchIdRef.current
+			) {
+				try {
+					const limit = Math.min(chunkSize, maxItems - currentOffset);
+					logger.log("Background fetch: starting chunk", {
+						offset: currentOffset,
+						limit,
+					});
+
+					const result = await api.fetchImages(
+						currentOffset,
+						limit,
+						state.searchQuery,
+						state.viewScope,
+						true, // minimal mode
+					);
+
+					if (fetchId !== backgroundFetchIdRef.current) break;
+
+					dispatch({ type: "APPEND_IMAGES", payload: result });
+					currentOffset += result.images.length;
+
+					// If we reached the end or fetched nothing, stop
+					if (result.images.length === 0 || currentOffset >= result.total)
+						break;
+
+					// Sleep a bit to keep browser responsive (300ms)
+					await new Promise((resolve) => setTimeout(resolve, 300));
+				} catch (err) {
+					logger.error("Background fetch failed", err);
+					break;
+				}
+			}
+		},
+		[state.searchQuery, state.viewScope, state.settings],
+	);
+
 	const refreshImages = useCallback(async () => {
 		dispatch({ type: "SET_LOADING", payload: true });
 		const startTime = performance.now();
+		// Increment fetch ID to cancel previous background fetches
+		const fetchId = ++backgroundFetchIdRef.current;
+
 		try {
 			const isSearch = state.searchQuery.trim() !== "";
-			const fetchLimit = state.pagination.limit;
+			// Initial load from settings
+			const initialLimit = state.settings["gallery.initial_load_count"];
 
-			logger.log("refreshImages: starting fetch", {
+			logger.log("refreshImages: starting initial fetch", {
 				isSearch,
-				fetchLimit,
+				fetchLimit: initialLimit,
 				query: state.searchQuery,
 				scope: state.viewScope,
 			});
 
 			const result = await api.fetchImages(
 				0,
-				fetchLimit,
+				initialLimit,
 				state.searchQuery,
 				state.viewScope,
+				false, // not minimal for initial load
 			);
 			const fetchTime = performance.now() - startTime;
-			logger.log("refreshImages: fetch complete", {
+			logger.log("refreshImages: initial fetch complete", {
 				count: result.images.length,
 				total: result.total,
 				offset: result.offset,
 				durationMs: fetchTime.toFixed(2),
 			});
 			dispatch({ type: "SET_IMAGES", payload: result });
-			logger.log(
-				"refreshImages: dispatch complete",
-				(performance.now() - startTime).toFixed(2),
-			);
+
+			// Start background fetch if there's more
+			if (result.total > initialLimit) {
+				startBackgroundFetch(initialLimit, result.total, fetchId);
+			}
 		} catch (err: unknown) {
 			logger.error("refreshImages: fetch failed", err);
 			dispatch({
@@ -78,7 +132,12 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 				payload: err instanceof Error ? err.message : String(err),
 			});
 		}
-	}, [state.pagination.limit, state.searchQuery, state.viewScope]);
+	}, [
+		state.searchQuery,
+		state.viewScope,
+		state.settings,
+		startBackgroundFetch,
+	]);
 
 	const loadMoreImages = useCallback(async () => {
 		if (state.isLoading || !state.pagination.hasMore) return;
@@ -101,6 +160,7 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 				fetchLimit,
 				state.searchQuery,
 				state.viewScope,
+				true, // use minimal mode for scroll-triggered loads
 			);
 			const fetchTime = performance.now() - startTime;
 			logger.log("loadMoreImages: fetch complete", {
@@ -191,6 +251,26 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 		[],
 	);
 
+	const fetchFullImageDetails = useCallback(
+		async (id: number): Promise<MeldImage> => {
+			const existing = state.images.find((img) => img.id === id);
+			if (existing && !existing.is_minimal) {
+				return existing;
+			}
+
+			try {
+				logger.log("fetchFullImageDetails: fetching full data", { id });
+				const fullImage = await api.fetchImageDetails(id);
+				dispatch({ type: "UPDATE_IMAGE", payload: fullImage });
+				return fullImage;
+			} catch (err) {
+				logger.error("Failed to fetch image details", err);
+				throw err;
+			}
+		},
+		[state.images],
+	);
+
 	useEffect(() => {
 		const loadSettings = async () => {
 			try {
@@ -265,6 +345,7 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 				deleteSelected,
 				restoreSelected,
 				updateSetting,
+				fetchFullImageDetails,
 			}}
 		>
 			{children}

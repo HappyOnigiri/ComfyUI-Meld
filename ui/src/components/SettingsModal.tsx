@@ -20,8 +20,11 @@ export const SettingsModal: React.FC = () => {
 	const [localSettings, setLocalSettings] = useState<Settings>({
 		...state.settings,
 	});
-	const [pageSizeInput, setPageSizeInput] = useState<string>(
-		state.settings["gallery.page_size"].toString(),
+	const [initialLoadCountInput, setInitialLoadCountInput] = useState<string>(
+		state.settings["gallery.initial_load_count"].toString(),
+	);
+	const [maxLoadCountInput, setMaxLoadCountInput] = useState<string>(
+		state.settings["gallery.max_load_count"].toString(),
 	);
 	const [lineageMaxDepthInput, setLineageMaxDepthInput] = useState<string>(
 		state.settings["gallery.lineage_max_depth"].toString(),
@@ -74,13 +77,24 @@ export const SettingsModal: React.FC = () => {
 			],
 		},
 		{
-			key: "gallery.page_size",
-			label: "Page Size",
-			description: "Number of images to display per page (10-10000).",
+			key: "gallery.initial_load_count",
+			label: "Initial Load Count",
+			description:
+				"Number of images to load and display immediately (10-1000).",
 			type: "number",
 			category: "General",
 			min: 10,
-			max: 10000,
+			max: 1000,
+		},
+		{
+			key: "gallery.max_load_count",
+			label: "Maximum Load Count",
+			description:
+				"Maximum number of images to load in the background (10-1000000).",
+			type: "number",
+			category: "General",
+			min: 10,
+			max: 1000000,
 		},
 		{
 			key: "gallery.hide_parent_images",
@@ -494,8 +508,10 @@ export const SettingsModal: React.FC = () => {
 		min?: number,
 		max?: number,
 	) => {
-		if (key === "gallery.page_size") {
-			setPageSizeInput(value);
+		if (key === "gallery.initial_load_count") {
+			setInitialLoadCountInput(value);
+		} else if (key === "gallery.max_load_count") {
+			setMaxLoadCountInput(value);
 		} else if (key === "gallery.lineage_max_depth") {
 			setLineageMaxDepthInput(value);
 		} else if (key === "viewer.thumbnail_window_size") {
@@ -633,30 +649,32 @@ export const SettingsModal: React.FC = () => {
 												type="number"
 												className="meld-number-input"
 												value={
-													config.key === "gallery.page_size"
-														? pageSizeInput
-														: config.key === "gallery.lineage_max_depth"
-															? lineageMaxDepthInput
-															: config.key === "viewer.thumbnail_window_size"
-																? thumbnailWindowSizeInput
-																: config.key ===
-																		"viewer.details.max_positive_prompt_lines"
-																	? maxPositivePromptLinesInput
+													config.key === "gallery.initial_load_count"
+														? initialLoadCountInput
+														: config.key === "gallery.max_load_count"
+															? maxLoadCountInput
+															: config.key === "gallery.lineage_max_depth"
+																? lineageMaxDepthInput
+																: config.key === "viewer.thumbnail_window_size"
+																	? thumbnailWindowSizeInput
 																	: config.key ===
-																			"viewer.details.max_negative_prompt_lines"
-																		? maxNegativePromptLinesInput
+																			"viewer.details.max_positive_prompt_lines"
+																		? maxPositivePromptLinesInput
 																		: config.key ===
-																				"fullscreen.details.max_positive_prompt_lines"
-																			? fullscreenMaxPositivePromptLinesInput
+																				"viewer.details.max_negative_prompt_lines"
+																			? maxNegativePromptLinesInput
 																			: config.key ===
-																					"fullscreen.details.max_negative_prompt_lines"
-																				? fullscreenMaxNegativePromptLinesInput
+																					"fullscreen.details.max_positive_prompt_lines"
+																				? fullscreenMaxPositivePromptLinesInput
 																				: config.key ===
-																						"gallery.trash_retention_days"
-																					? trashRetentionDaysInput
-																					: (localSettings[
-																							config.key
-																						] as unknown as number)
+																						"fullscreen.details.max_negative_prompt_lines"
+																					? fullscreenMaxNegativePromptLinesInput
+																					: config.key ===
+																							"gallery.trash_retention_days"
+																						? trashRetentionDaysInput
+																						: (localSettings[
+																								config.key
+																							] as unknown as number)
 												}
 												min={config.min}
 												max={config.max}
@@ -669,9 +687,17 @@ export const SettingsModal: React.FC = () => {
 													)
 												}
 												onBlur={() => {
-													if (config.key === "gallery.page_size") {
-														setPageSizeInput(
-															localSettings["gallery.page_size"].toString(),
+													if (config.key === "gallery.initial_load_count") {
+														setInitialLoadCountInput(
+															localSettings[
+																"gallery.initial_load_count"
+															].toString(),
+														);
+													} else if (config.key === "gallery.max_load_count") {
+														setMaxLoadCountInput(
+															localSettings[
+																"gallery.max_load_count"
+															].toString(),
 														);
 													} else if (
 														config.key === "gallery.lineage_max_depth"
