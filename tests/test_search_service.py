@@ -13,8 +13,8 @@ sys.modules["comfy.sd"] = MagicMock()
 sys.modules["comfy.utils"] = MagicMock()
 sys.modules["comfy.samplers"] = MagicMock()
 
-from py.image_manager.constants import RESERVED_TAG_KEYWORD  # noqa: E402
-from py.image_manager.search_service import SearchService  # noqa: E402
+from py.image_manager.common.constants import RESERVED_TAG_KEYWORD  # noqa: E402
+from py.image_manager.features.search.service import SearchService  # noqa: E402
 
 
 class TestSearchService(unittest.TestCase):

@@ -1,6 +1,6 @@
 import sqlite3
 
-from ..schemas import TagRecord
+from ...common.schemas import TagRecord
 
 
 def get_all_tags(cursor: sqlite3.Cursor) -> list[TagRecord]:

@@ -24,7 +24,7 @@ from comfy.cli_args import args  # noqa: E402
 args.disable_metadata = False
 
 # Import test target
-import py.image_manager.database  # noqa: E402
+import py.image_manager.common.db.schema as database  # noqa: E402
 import py.image_manager.nodes.meld_save_image as meld_node  # noqa: E402
 
 
@@ -35,13 +35,13 @@ class TestImageManager(unittest.TestCase):
         self.db_path = os.path.join(self.test_dir, "test.db")
 
         # Patch DB_PATH in database module and db.client module
-        self.patcher_db = patch("py.image_manager.db.client.DB_PATH", self.db_path)
+        self.patcher_db = patch("py.image_manager.common.db.client.DB_PATH", self.db_path)
         self.patcher_db.start()
-        self.patcher_trash = patch("py.image_manager.db.client.TRASH_DIR", os.path.join(self.test_dir, "trash"))
+        self.patcher_trash = patch("py.image_manager.common.db.client.TRASH_DIR", os.path.join(self.test_dir, "trash"))
         self.patcher_trash.start()
 
         # Initialize DB
-        py.image_manager.database.init_db()
+        database.init_db()
 
         # Mock folder_paths in nodes module
         self.mock_output_dir = os.path.join(self.test_dir, "output")

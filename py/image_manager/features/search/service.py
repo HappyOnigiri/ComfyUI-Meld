@@ -4,7 +4,7 @@ import time
 from datetime import datetime
 from typing import Any
 
-from .constants import RESERVED_TAG_KEYWORD
+from ...common.constants import RESERVED_TAG_KEYWORD
 
 
 class SearchService:

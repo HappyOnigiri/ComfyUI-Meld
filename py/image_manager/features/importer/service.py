@@ -15,15 +15,15 @@ except ImportError:
 
 import server
 
-from ...load_image_configs.core.metadata_helper import MetadataHelper
-from ..database import (
+from ....load_image_configs.core.metadata_helper import MetadataHelper
+from ...common.db.client import (
     TRASH_DIR,
     get_db_connection,
 )
-from ..repositories.image_repo import calculate_sha256, find_closest_parent
-from ..repositories.model_repo import add_model_relation, get_or_create_model
-from ..repositories.settings_repo import get_all_settings
-from ..schemas import ScanStatus
+from ...common.model_repo import add_model_relation, get_or_create_model
+from ...common.schemas import ScanStatus
+from ..images.repository import calculate_sha256, find_closest_parent
+from ..settings.repository import get_all_settings
 
 # State for scanning
 _scan_state = ScanStatus(is_running=False, should_cancel=False)
@@ -136,7 +136,7 @@ def infer_parent_id(
     - Users can always use the 'Add Source' dialog (which uses a more permissive
       threshold) to link images manually.
     """
-    from .image_service import extract_source_filenames
+    from ..images.service import extract_source_filenames
 
     parent_id = None
     if created_at is None:

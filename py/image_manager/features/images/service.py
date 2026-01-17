@@ -4,8 +4,8 @@ import sqlite3
 
 import folder_paths
 
-from ...load_image_configs.core.metadata_helper import MetadataHelper
-from ..schemas import ParentSuggestion
+from ....load_image_configs.core.metadata_helper import MetadataHelper
+from ...common.schemas import ParentSuggestion
 
 
 def extract_source_filenames(workflow_json: str | dict | None, prompt_json: str | dict | None) -> list[str]:
