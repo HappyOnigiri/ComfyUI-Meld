@@ -584,18 +584,25 @@
 
 .meld-viewer-image {
 	max-width: 100%;
-	max-height: calc(
-		100% -
-		160px
-	); /* Leave space for thumbnails and top actions */
+	max-height: calc(100% - 80px); /* Leave space for top actions */
 	width: auto;
 	height: auto;
 	object-fit: contain;
 	box-shadow: 0 0 20px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.5));
 	flex-shrink: 1;
-	/* Brute force performance */
-	will-change: transform;
+	transition: max-height 0.2s ease-out;
+	will-change: transform, max-height;
 	transform: translateZ(0);
+}
+
+.meld-viewer-content--with-thumbnails .meld-viewer-image {
+	max-height: calc(100% - 160px); /* Space for thumbnails and top actions */
+}
+
+.meld-viewer-content--fullscreen .meld-viewer-image {
+	max-height: 100%;
+	box-shadow: none;
+	transition: none;
 }
 
 .meld-viewer-actions {
@@ -609,7 +616,7 @@
 
 .meld-viewer-action-btn {
 	background: var(--comfy-menu-bg, rgba(0, 0, 0, 0.5));
-	border: none;
+	border: 1px solid transparent;
 	color: white;
 	cursor: pointer;
 	padding: 10px;
@@ -620,17 +627,19 @@
 	justify-content: center;
 	backdrop-filter: blur(4px);
 	outline: none;
+	box-sizing: border-box;
 }
 
 .meld-viewer-action-btn:hover {
 	background: var(--comfy-input-bg-active, rgba(68, 136, 255, 0.7));
 	transform: scale(1.1);
+	border-color: var(--comfy-menu-border, rgba(255, 255, 255, 0.3));
 }
 
 .meld-viewer-action-btn--active {
 	background: var(--comfy-menu-bg, rgba(0, 0, 0, 0.5));
 	color: var(--meld-text-primary, white);
-	border: 1px solid var(--comfy-menu-border, rgba(255, 255, 255, 0.2));
+	border-color: var(--meld-accent-color);
 }
 
 .meld-viewer-action-btn--close:hover {
@@ -811,9 +820,8 @@
 .meld-viewer-thumbnails-container {
 	position: absolute;
 	bottom: 15px;
-	left: 50%;
-	transform: translateX(-50%);
-	width: calc(100% - 140px); /* Leave space for nav buttons on sides */
+	left: 70px; /* Space for nav buttons */
+	right: 70px;
 	z-index: 2010;
 	display: flex;
 	flex-direction: column;

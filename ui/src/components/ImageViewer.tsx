@@ -564,20 +564,19 @@ export const ImageViewer: React.FC = () => {
 		<div
 			ref={overlayRef}
 			className="meld-viewer-overlay"
-			style={{ background: "rgba(0, 0, 0, 0.85)" }} /* color-check-ignore */
 			onClick={() => dispatch({ type: "CLOSE_VIEWER" })}
 			role="button"
 			tabIndex={0}
 		>
 			<div
-				className={`meld-viewer-content ${isFullscreen ? "meld-viewer-content--fullscreen" : ""}`}
+				className={`meld-viewer-content ${isFullscreen ? "meld-viewer-content--fullscreen" : ""} ${showThumbnails ? "meld-viewer-content--with-thumbnails" : ""}`}
 				onClick={(e) => e.stopPropagation()}
 			>
 				{showIcons && (
 					<div className="meld-viewer-actions">
 						{!isFullscreen && (
 							<button
-								className={`meld-viewer-action-btn ${showThumbnails ? "meld-viewer-action-btn--active" : ""}`}
+								className="meld-viewer-action-btn"
 								onClick={() => setShowThumbnailsOverride(!showThumbnails)}
 								type="button"
 								title={showThumbnails ? "Hide Thumbnails" : "Show Thumbnails"}

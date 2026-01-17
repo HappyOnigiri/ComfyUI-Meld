@@ -9254,7 +9254,6 @@ const _m = () => {
       {
         ref: P,
         className: "meld-viewer-overlay",
-        style: { background: "rgba(0, 0, 0, 0.85)" },
         onClick: () => t({ type: "CLOSE_VIEWER" }),
         role: "button",
         tabIndex: 0,
@@ -9262,14 +9261,14 @@ const _m = () => {
           /* @__PURE__ */ a.jsxs(
             "div",
             {
-              className: `meld-viewer-content ${u ? "meld-viewer-content--fullscreen" : ""}`,
+              className: `meld-viewer-content ${u ? "meld-viewer-content--fullscreen" : ""} ${S ? "meld-viewer-content--with-thumbnails" : ""}`,
               onClick: (j) => j.stopPropagation(),
               children: [
                 M && /* @__PURE__ */ a.jsxs("div", { className: "meld-viewer-actions", children: [
                   !u && /* @__PURE__ */ a.jsx(
                     "button",
                     {
-                      className: `meld-viewer-action-btn ${S ? "meld-viewer-action-btn--active" : ""}`,
+                      className: "meld-viewer-action-btn",
                       onClick: () => y(!S),
                       type: "button",
                       title: S ? "Hide Thumbnails" : "Show Thumbnails",
