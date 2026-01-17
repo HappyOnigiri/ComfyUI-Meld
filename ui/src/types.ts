@@ -60,7 +60,7 @@ export interface Settings {
 	"fullscreen.show_icons": boolean;
 	"fullscreen.loop": boolean;
 	"fullscreen.show_details_by_default": boolean;
-	"fullscreen.details.show_filename": boolean;
+	"fullscreen.details.show_filename": "filename" | "filepath" | "none";
 	"fullscreen.details.show_dimensions": boolean;
 	"fullscreen.details.show_created_at": boolean;
 	"fullscreen.details.show_tags": boolean;
@@ -70,7 +70,7 @@ export interface Settings {
 	"fullscreen.details.max_positive_prompt_lines": number;
 	"fullscreen.details.max_negative_prompt_lines": number;
 	"viewer.show_details_by_default": boolean;
-	"viewer.details.show_filename": boolean;
+	"viewer.details.show_filename": "filename" | "filepath" | "none";
 	"viewer.details.show_dimensions": boolean;
 	"viewer.details.show_created_at": boolean;
 	"viewer.details.show_tags": boolean;

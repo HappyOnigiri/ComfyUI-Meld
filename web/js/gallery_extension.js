@@ -5719,7 +5719,7 @@ const yp = async () => {
       "fullscreen.show_icons": !0,
       "fullscreen.loop": !0,
       "fullscreen.show_details_by_default": !0,
-      "fullscreen.details.show_filename": !0,
+      "fullscreen.details.show_filename": "filename",
       "fullscreen.details.show_dimensions": !0,
       "fullscreen.details.show_created_at": !0,
       "fullscreen.details.show_tags": !0,
@@ -5729,7 +5729,7 @@ const yp = async () => {
       "fullscreen.details.max_positive_prompt_lines": 7,
       "fullscreen.details.max_negative_prompt_lines": 7,
       "viewer.show_details_by_default": !0,
-      "viewer.details.show_filename": !0,
+      "viewer.details.show_filename": "filename",
       "viewer.details.show_dimensions": !0,
       "viewer.details.show_created_at": !0,
       "viewer.details.show_tags": !0,
@@ -5751,7 +5751,7 @@ const yp = async () => {
       "gallery.view_mode": "grid_details"
     };
   const t = await e.json();
-  return typeof t["sidebar.show_filename"] == "boolean" && (t["sidebar.show_filename"] = t["sidebar.show_filename"] ? "filename" : "none"), t;
+  return typeof t["sidebar.show_filename"] == "boolean" && (t["sidebar.show_filename"] = t["sidebar.show_filename"] ? "filename" : "none"), typeof t["viewer.details.show_filename"] == "boolean" && (t["viewer.details.show_filename"] = t["viewer.details.show_filename"] ? "filename" : "none"), typeof t["fullscreen.details.show_filename"] == "boolean" && (t["fullscreen.details.show_filename"] = t["fullscreen.details.show_filename"] ? "filename" : "none"), t;
 }, xp = async (e, t) => {
   if (!(await W.fetchApi("/meld/settings", {
     method: "POST",
@@ -6446,7 +6446,7 @@ const fm = (e) => {
     "fullscreen.show_icons": !0,
     "fullscreen.loop": !0,
     "fullscreen.show_details_by_default": !0,
-    "fullscreen.details.show_filename": !0,
+    "fullscreen.details.show_filename": "filename",
     "fullscreen.details.show_dimensions": !0,
     "fullscreen.details.show_created_at": !0,
     "fullscreen.details.show_tags": !0,
@@ -6456,7 +6456,7 @@ const fm = (e) => {
     "fullscreen.details.max_positive_prompt_lines": 7,
     "fullscreen.details.max_negative_prompt_lines": 7,
     "viewer.show_details_by_default": !0,
-    "viewer.details.show_filename": !0,
+    "viewer.details.show_filename": "filename",
     "viewer.details.show_dimensions": !0,
     "viewer.details.show_created_at": !0,
     "viewer.details.show_tags": !0,
@@ -8408,10 +8408,15 @@ const Vc = x.createContext(void 0), vm = ({
     },
     {
       key: "viewer.details.show_filename",
-      label: "Show Filename",
-      description: "Display the filename in the details panel.",
-      type: "boolean",
-      category: "View Details"
+      label: "Show Filename/Path",
+      description: "Choose how to display the filename or path in the details.",
+      type: "select",
+      category: "View Details",
+      options: [
+        { value: "filename", label: "Filename" },
+        { value: "filepath", label: "Filepath" },
+        { value: "none", label: "None" }
+      ]
     },
     {
       key: "viewer.details.show_dimensions",
@@ -8543,10 +8548,15 @@ const Vc = x.createContext(void 0), vm = ({
     },
     {
       key: "fullscreen.details.show_filename",
-      label: "Show Filename",
-      description: "Display the filename in fullscreen details.",
-      type: "boolean",
-      category: "Full Screen Detail"
+      label: "Show Filename/Path",
+      description: "Choose how to display the filename or path in fullscreen details.",
+      type: "select",
+      category: "Full Screen Detail",
+      options: [
+        { value: "filename", label: "Filename" },
+        { value: "filepath", label: "Filepath" },
+        { value: "none", label: "None" }
+      ]
     },
     {
       key: "fullscreen.details.show_dimensions",
@@ -9384,9 +9394,9 @@ const Sm = () => {
                   {
                     className: `meld-viewer-details-overlay ${u ? "meld-viewer-details-overlay--fullscreen" : ""} ${A ? "" : "meld-viewer-details-overlay--no-icons"}`,
                     children: [
-                      (u ? e.settings["fullscreen.details.show_filename"] : e.settings["viewer.details.show_filename"]) && /* @__PURE__ */ a.jsxs("div", { className: "meld-viewer-details-item", children: [
-                        /* @__PURE__ */ a.jsx("div", { className: "meld-viewer-details-label", children: "Filename" }),
-                        /* @__PURE__ */ a.jsx("div", { className: "meld-viewer-details-value", children: P.filename })
+                      (u ? e.settings["fullscreen.details.show_filename"] : e.settings["viewer.details.show_filename"]) !== "none" && /* @__PURE__ */ a.jsxs("div", { className: "meld-viewer-details-item", children: [
+                        /* @__PURE__ */ a.jsx("div", { className: "meld-viewer-details-label", children: (u ? e.settings["fullscreen.details.show_filename"] : e.settings["viewer.details.show_filename"]) === "filepath" ? "Filepath" : "Filename" }),
+                        /* @__PURE__ */ a.jsx("div", { className: "meld-viewer-details-value", children: (u ? e.settings["fullscreen.details.show_filename"] : e.settings["viewer.details.show_filename"]) === "filepath" ? `${P.subfolder ? `${P.subfolder}/` : ""}${P.filename}` : P.filename })
                       ] }),
                       (u ? e.settings["fullscreen.details.show_dimensions"] : e.settings["viewer.details.show_dimensions"]) && P.width && P.height && /* @__PURE__ */ a.jsxs("div", { className: "meld-viewer-details-item", children: [
                         /* @__PURE__ */ a.jsx("div", { className: "meld-viewer-details-label", children: "Dimensions" }),

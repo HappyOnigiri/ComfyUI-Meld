@@ -96,7 +96,7 @@ export const fetchSettings = async (): Promise<Settings> => {
 			"fullscreen.show_icons": true,
 			"fullscreen.loop": true,
 			"fullscreen.show_details_by_default": true,
-			"fullscreen.details.show_filename": true,
+			"fullscreen.details.show_filename": "filename",
 			"fullscreen.details.show_dimensions": true,
 			"fullscreen.details.show_created_at": true,
 			"fullscreen.details.show_tags": true,
@@ -106,7 +106,7 @@ export const fetchSettings = async (): Promise<Settings> => {
 			"fullscreen.details.max_positive_prompt_lines": 7,
 			"fullscreen.details.max_negative_prompt_lines": 7,
 			"viewer.show_details_by_default": true,
-			"viewer.details.show_filename": true,
+			"viewer.details.show_filename": "filename",
 			"viewer.details.show_dimensions": true,
 			"viewer.details.show_created_at": true,
 			"viewer.details.show_tags": true,
@@ -140,6 +140,35 @@ export const fetchSettings = async (): Promise<Settings> => {
 				? "filename"
 				: "none";
 	}
+
+	// Migration: Convert boolean viewer.details.show_filename and fullscreen.details.show_filename to string
+	if (
+		typeof (settings as unknown as Record<string, unknown>)[
+			"viewer.details.show_filename"
+		] === "boolean"
+	) {
+		(settings as unknown as Record<string, unknown>)[
+			"viewer.details.show_filename"
+		] = (settings as unknown as Record<string, unknown>)[
+			"viewer.details.show_filename"
+		]
+			? "filename"
+			: "none";
+	}
+	if (
+		typeof (settings as unknown as Record<string, unknown>)[
+			"fullscreen.details.show_filename"
+		] === "boolean"
+	) {
+		(settings as unknown as Record<string, unknown>)[
+			"fullscreen.details.show_filename"
+		] = (settings as unknown as Record<string, unknown>)[
+			"fullscreen.details.show_filename"
+		]
+			? "filename"
+			: "none";
+	}
+
 	return settings;
 };
 

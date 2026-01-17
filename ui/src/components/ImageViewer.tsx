@@ -696,11 +696,23 @@ export const ImageViewer: React.FC = () => {
 					>
 						{(isFullscreen
 							? state.settings["fullscreen.details.show_filename"]
-							: state.settings["viewer.details.show_filename"]) && (
+							: state.settings["viewer.details.show_filename"]) !== "none" && (
 							<div className="meld-viewer-details-item">
-								<div className="meld-viewer-details-label">Filename</div>
+								<div className="meld-viewer-details-label">
+									{(isFullscreen
+										? state.settings["fullscreen.details.show_filename"]
+										: state.settings["viewer.details.show_filename"]) ===
+									"filepath"
+										? "Filepath"
+										: "Filename"}
+								</div>
 								<div className="meld-viewer-details-value">
-									{image.filename}
+									{(isFullscreen
+										? state.settings["fullscreen.details.show_filename"]
+										: state.settings["viewer.details.show_filename"]) ===
+									"filepath"
+										? `${image.subfolder ? `${image.subfolder}/` : ""}${image.filename}`
+										: image.filename}
 								</div>
 							</div>
 						)}

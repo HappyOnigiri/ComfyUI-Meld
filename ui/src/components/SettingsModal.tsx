@@ -222,10 +222,15 @@ export const SettingsModal: React.FC = () => {
 		},
 		{
 			key: "viewer.details.show_filename",
-			label: "Show Filename",
-			description: "Display the filename in the details panel.",
-			type: "boolean",
+			label: "Show Filename/Path",
+			description: "Choose how to display the filename or path in the details.",
+			type: "select",
 			category: "View Details",
+			options: [
+				{ value: "filename", label: "Filename" },
+				{ value: "filepath", label: "Filepath" },
+				{ value: "none", label: "None" },
+			],
 		},
 		{
 			key: "viewer.details.show_dimensions",
@@ -361,10 +366,16 @@ export const SettingsModal: React.FC = () => {
 		},
 		{
 			key: "fullscreen.details.show_filename",
-			label: "Show Filename",
-			description: "Display the filename in fullscreen details.",
-			type: "boolean",
+			label: "Show Filename/Path",
+			description:
+				"Choose how to display the filename or path in fullscreen details.",
+			type: "select",
 			category: "Full Screen Detail",
+			options: [
+				{ value: "filename", label: "Filename" },
+				{ value: "filepath", label: "Filepath" },
+				{ value: "none", label: "None" },
+			],
 		},
 		{
 			key: "fullscreen.details.show_dimensions",
