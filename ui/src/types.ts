@@ -68,6 +68,7 @@ export interface Settings {
 	"fullscreen.details.show_model_name": boolean;
 	"fullscreen.details.show_positive_prompt": boolean;
 	"fullscreen.details.show_negative_prompt": boolean;
+	"fullscreen.details.show_source": boolean;
 	"fullscreen.details.max_positive_prompt_lines": number;
 	"fullscreen.details.max_negative_prompt_lines": number;
 	"viewer.show_details_by_default": boolean;
@@ -78,6 +79,7 @@ export interface Settings {
 	"viewer.details.show_model_name": boolean;
 	"viewer.details.show_positive_prompt": boolean;
 	"viewer.details.show_negative_prompt": boolean;
+	"viewer.details.show_source": boolean;
 	"viewer.details.max_positive_prompt_lines": number;
 	"viewer.details.max_negative_prompt_lines": number;
 	"gallery.initial_load_count": number;

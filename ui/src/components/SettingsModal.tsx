@@ -293,6 +293,13 @@ export const SettingsModal: React.FC = () => {
 			category: "View Details",
 		},
 		{
+			key: "viewer.details.show_source",
+			label: "Show Source",
+			description: "Display source image information in the details panel.",
+			type: "boolean",
+			category: "View Details",
+		},
+		{
 			key: "viewer.details.max_positive_prompt_lines",
 			label: "Max Positive Prompt Lines",
 			description:
@@ -446,6 +453,13 @@ export const SettingsModal: React.FC = () => {
 			key: "fullscreen.details.show_negative_prompt",
 			label: "Show Negative",
 			description: "Display negative prompt in fullscreen details.",
+			type: "boolean",
+			category: "Full Screen Detail",
+		},
+		{
+			key: "fullscreen.details.show_source",
+			label: "Show Source",
+			description: "Display source image information in fullscreen details.",
 			type: "boolean",
 			category: "Full Screen Detail",
 		},

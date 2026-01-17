@@ -646,6 +646,55 @@ export const ImageViewer: React.FC = () => {
 		return () => clearTimeout(timer);
 	}, [viewerImageId, currentThumbnails]);
 
+	const getParentChain = useCallback(
+		(img: MeldImage): { id: number | null; imgSrc: string | null }[] => {
+			const maxDepth = state.settings["gallery.lineage_max_depth"];
+			if (maxDepth === 0) return [];
+
+			if (img.ancestors && img.ancestors.length > 0) {
+				return img.ancestors.slice(0, maxDepth).map((a) => ({
+					id: a.id,
+					imgSrc: getImageViewUrl(a),
+				}));
+			}
+
+			const pId = img.parent_id;
+			if (!pId || !img.parent_filename) return [];
+
+			const parentInState = images.find((p) => p.id === pId);
+
+			let imgSrc: string | null = null;
+			if (parentInState) {
+				imgSrc = getImageViewUrl(parentInState);
+			} else {
+				imgSrc = getImageViewUrl({
+					filename: img.parent_filename,
+					subfolder: img.parent_subfolder || "",
+					type: img.parent_type,
+				});
+			}
+
+			if (!imgSrc) return [];
+
+			const currentParent = {
+				id: pId || null,
+				imgSrc,
+			};
+
+			if (parentInState && maxDepth > 1) {
+				const rest = getParentChain(parentInState);
+				return [currentParent, ...rest].slice(0, maxDepth);
+			}
+
+			return [currentParent];
+		},
+		[state.settings, images],
+	);
+
+	const parentChain = useMemo(() => {
+		return image ? getParentChain(image) : [];
+	}, [image, getParentChain]);
+
 	if (!image) return null;
 
 	const imgSrc = getImageViewUrl(image);
@@ -831,6 +880,49 @@ export const ImageViewer: React.FC = () => {
 									<div className="meld-viewer-details-label">Model</div>
 									<div className="meld-viewer-details-value">
 										{image.model_name}
+									</div>
+								</div>
+							)}
+
+						{(isFullscreen
+							? state.settings["fullscreen.details.show_source"]
+							: state.settings["viewer.details.show_source"]) &&
+							parentChain.length > 0 && (
+								<div className="meld-viewer-details-item">
+									<div className="meld-viewer-details-label">Source</div>
+									<div className="meld-viewer-details-tags">
+										<div className="meld-lineage-thumbs">
+											{parentChain.map(
+												(p, index) =>
+													p.imgSrc && (
+														<img
+															key={p.id || index}
+															src={p.imgSrc}
+															className="meld-lineage-badge__parent-thumb"
+															style={{ cursor: "pointer" }}
+															loading="lazy"
+															onClick={(e) => {
+																e.stopPropagation();
+																dispatch({
+																	type: "OPEN_VIEWER",
+																	payload: {
+																		id: p.id || image.id,
+																		mode: "lineage",
+																	},
+																});
+															}}
+															title={
+																index === 0
+																	? "Source"
+																	: index === 1
+																		? "Grand-Source"
+																		: `Ancestor (S${index + 1})`
+															}
+															alt="source thumb"
+														/>
+													),
+											)}
+										</div>
 									</div>
 								</div>
 							)}
