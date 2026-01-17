@@ -437,6 +437,120 @@ async def get_scan_status(request: web.Request) -> web.Response:
     return web.json_response(state.to_dict())
 
 
+@server.PromptServer.instance.routes.get("/meld/image/{image_id}/details")
+async def get_image_details(request: web.Request) -> web.Response:
+    try:
+        image_id = request.match_info["image_id"]
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Fetch full image details from DB
+        sql = """
+            SELECT i.id, i.filename, i.subfolder, i.type, i.created_at, i.phash, i.sha256, i.parent_id,
+                   p.filename as parent_filename, p.subfolder as parent_subfolder, p.type as parent_type,
+                   EXISTS(SELECT 1 FROM images c WHERE c.parent_id = i.id AND c.deleted_at IS NULL) as has_children,
+                   i.positive_prompt, i.negative_prompt,
+                   (SELECT GROUP_CONCAT(m.name, ', ') FROM models m
+                    JOIN model_image_relations mir ON m.id = mir.model_id
+                    WHERE mir.image_id = i.id) as model_name,
+                   i.workflow, i.width, i.height, i.deleted_at
+            FROM images i LEFT JOIN images p ON i.parent_id = p.id
+            WHERE i.id = ?
+        """
+        cursor.execute(sql, (image_id,))
+        img = cursor.fetchone()
+
+        if not img:
+            conn.close()
+            return web.json_response({"error": "Image not found"}, status=404)
+
+        # Reuse same mapping logic as list_images for consistency
+        (
+            img_id,
+            filename,
+            subfolder,
+            img_type,
+            created_at,
+            phash,
+            sha256,
+            parent_id,
+            p_filename,
+            p_subfolder,
+            p_type,
+            has_children,
+            db_positive,
+            db_negative,
+            model_name,
+            workflow,
+            width,
+            height,
+            deleted_at,
+        ) = img
+
+        # Fetch tags
+        cursor.execute(
+            "SELECT t.name FROM tags t JOIN tag_image_relations r ON t.id = r.tag_id WHERE r.image_id = ?",
+            (image_id,),
+        )
+        tags = [row[0] for row in cursor.fetchall()]
+
+        # Reconstruct prompts if necessary
+        positive = db_positive
+        if positive is None:
+            cursor.execute(
+                "SELECT pp.name, r.strength FROM positive_prompts pp JOIN positive_prompt_image_relations r ON pp.id = r.positive_prompt_id WHERE r.image_id = ?",
+                (image_id,),
+            )
+            positive = ", ".join([row[0] if row[1] == 1.0 else f"({row[0]}:{row[1]})" for row in cursor.fetchall()])
+
+        negative = db_negative
+        if negative is None:
+            cursor.execute(
+                "SELECT np.name, r.strength FROM negative_prompts np JOIN negative_prompt_image_relations r ON np.id = r.negative_prompt_id WHERE r.image_id = ?",
+                (image_id,),
+            )
+            negative = ", ".join([row[0] if row[1] == 1.0 else f"({row[0]}:{row[1]})" for row in cursor.fetchall()])
+
+        # Ancestors
+        ancestors = []
+        if parent_id and p_filename:
+            ancestors = [{"id": parent_id, "filename": p_filename, "subfolder": p_subfolder, "type": p_type}]
+
+        conn.close()
+
+        item = ImageListItem(
+            id=img_id,
+            filename=filename,
+            subfolder=subfolder,
+            type="trash" if deleted_at is not None else img_type,
+            created_at=created_at,
+            deleted_at=deleted_at,
+            phash=phash,
+            sha256=sha256,
+            parent_id=parent_id,
+            parent_filename=p_filename,
+            parent_subfolder=p_subfolder,
+            parent_type=p_type,
+            has_children=bool(has_children),
+            positive=positive,
+            negative=negative,
+            positive_prompt=db_positive,
+            negative_prompt=db_negative,
+            model_name=model_name,
+            workflow=workflow,
+            width=width,
+            height=height,
+            is_minimal=False,
+            tags=tags,
+            exists=True,  # Details assumes it exists in DB, file check can be added if needed
+            ancestors=ancestors,
+        )
+
+        return web.json_response(item.to_dict())
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
 @server.PromptServer.instance.routes.get("/meld/image/{image_id}/workflow")
 async def get_image_workflow(request: web.Request) -> web.Response:
     try:
@@ -976,6 +1090,7 @@ async def search_suggestions_endpoint(request: web.Request) -> web.Response:
 async def list_images(request: web.Request) -> web.Response:
     try:
         start_time = time.time()
+        is_minimal = request.query.get("minimal", "false").lower() == "true"
         req = SearchImagesRequest(
             offset=int(request.query.get("offset", 0)),
             limit=int(request.query.get("limit", 1000000)),
@@ -1015,7 +1130,7 @@ async def list_images(request: web.Request) -> web.Response:
                    (SELECT GROUP_CONCAT(m.name, ', ') FROM models m
                     JOIN model_image_relations mir ON m.id = mir.model_id
                     WHERE mir.image_id = i.id) as model_name,
-                   i.workflow, i.width, i.height, i.deleted_at
+                   NULL as workflow, i.width, i.height, i.deleted_at
             FROM images i LEFT JOIN images p ON i.parent_id = p.id
             WHERE {deleted_filter}{search_sql} ORDER BY {final_order} LIMIT ? OFFSET ?
         """
@@ -1076,7 +1191,8 @@ async def list_images(request: web.Request) -> web.Response:
                         )
 
             # Bulk fetch prompts ONLY for images that need reconstruction (where db_prompt is NULL)
-            needs_reconstruction_pos = [img[0] for img in images if img[12] is None]
+            # Skip reconstruction if minimal mode is on
+            needs_reconstruction_pos = [img[0] for img in images if img[12] is None] if not is_minimal else []
             if needs_reconstruction_pos:
                 ph = ",".join(["?"] * len(needs_reconstruction_pos))
                 cursor.execute(
@@ -1088,7 +1204,7 @@ async def list_images(request: web.Request) -> web.Response:
                         reconstructed_pos_map[img_id] = []
                     reconstructed_pos_map[img_id].append(name if strength == 1.0 else f"({name}:{strength})")
 
-            needs_reconstruction_neg = [img[0] for img in images if img[13] is None]
+            needs_reconstruction_neg = [img[0] for img in images if img[13] is None] if not is_minimal else []
             if needs_reconstruction_neg:
                 ph = ",".join(["?"] * len(needs_reconstruction_neg))
                 cursor.execute(
@@ -1130,6 +1246,14 @@ async def list_images(request: web.Request) -> web.Response:
             # Use DB columns if available, otherwise use bulk-fetched reconstructed prompts
             positive = db_positive if db_positive is not None else ", ".join(reconstructed_pos_map.get(img_id, []))
             negative = db_negative if db_negative is not None else ", ".join(reconstructed_neg_map.get(img_id, []))
+
+            # Truncate if minimal mode is on
+            if is_minimal:
+                if positive and len(positive) > 200:
+                    positive = positive[:200] + "..."
+                if negative and len(negative) > 200:
+                    negative = negative[:200] + "..."
+
             tags = tags_map.get(img_id, [])
 
             # Check if file exists
@@ -1178,12 +1302,13 @@ async def list_images(request: web.Request) -> web.Response:
                     has_children=bool(has_children),
                     positive=positive,
                     negative=negative,
-                    positive_prompt=db_positive,
-                    negative_prompt=db_negative,
+                    positive_prompt=positive if is_minimal else db_positive,
+                    negative_prompt=negative if is_minimal else db_negative,
                     model_name=model_name,
                     workflow=workflow,
                     width=width,
                     height=height,
+                    is_minimal=is_minimal,
                     tags=tags,
                     exists=exists,
                     ancestors=ancestors,

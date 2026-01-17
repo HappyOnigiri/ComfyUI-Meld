@@ -213,6 +213,7 @@ class ImageListItem(BaseSchema):
     workflow: str | None = None
     width: int = 0
     height: int = 0
+    is_minimal: bool = False
     tags: list[str] = field(default_factory=list)
     exists: bool = False
     ancestors: list[dict[str, Any]] = field(default_factory=list)
