@@ -131,12 +131,12 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 							style={{
 								marginBottom: "16px",
 								padding: "12px",
-								backgroundColor: "var(--comfy-input-bg, rgba(255, 0, 0, 0.1))",
+								backgroundColor: "var(--comfy-input-bg, rgba(0, 0, 0, 0.1))",
 								borderRadius: "8px",
 								display: "flex",
 								alignItems: "center",
 								justifyContent: "space-between",
-								border: "1px solid var(--meld-danger-color, #ff4444)",
+								border: "1px solid var(--meld-border-color, #444)",
 							}}
 						>
 							<div
@@ -155,7 +155,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 							</div>
 							<button
 								type="button"
-								className="meld-btn meld-btn--danger meld-btn--sm"
+								className="meld-btn meld-btn-danger meld-btn--sm"
 								onClick={handleRemove}
 							>
 								Remove Source
