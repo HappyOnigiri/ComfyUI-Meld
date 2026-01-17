@@ -33,6 +33,14 @@ export const SettingsModal: React.FC = () => {
 		useState<string>(state.settings["viewer.thumbnail_window_size"].toString());
 	const [trashRetentionDaysInput, setTrashRetentionDaysInput] =
 		useState<string>(state.settings["gallery.trash_retention_days"].toString());
+	const [suggestPhashThresholdInput, setSuggestPhashThresholdInput] =
+		useState<string>(
+			state.settings["gallery.suggest_phash_threshold"].toString(),
+		);
+	const [relatedPhashThresholdInput, setRelatedPhashThresholdInput] =
+		useState<string>(
+			state.settings["gallery.related_phash_threshold"].toString(),
+		);
 	const [maxPositivePromptLinesInput, setMaxPositivePromptLinesInput] =
 		useState<string>(
 			state.settings["viewer.details.max_positive_prompt_lines"].toString(),
@@ -134,6 +142,26 @@ export const SettingsModal: React.FC = () => {
 			category: "General",
 			min: 0,
 			max: 365,
+		},
+		{
+			key: "gallery.suggest_phash_threshold",
+			label: "Parent Suggestion Threshold",
+			description:
+				"Maximum pHash distance for automatic parent linking (0-64). Default: 12. Recommended: 8-16. Smaller is stricter.",
+			type: "number",
+			category: "General",
+			min: 0,
+			max: 64,
+		},
+		{
+			key: "gallery.related_phash_threshold",
+			label: "Related Images Threshold",
+			description:
+				"Maximum pHash distance for 'Similar Images' view (0-64). Default: 8. Recommended: 4-12. Smaller is stricter.",
+			type: "number",
+			category: "General",
+			min: 0,
+			max: 64,
 		},
 		{
 			key: "sidebar.show_filename",
@@ -532,6 +560,10 @@ export const SettingsModal: React.FC = () => {
 			setThumbnailWindowSizeInput(value);
 		} else if (key === "gallery.trash_retention_days") {
 			setTrashRetentionDaysInput(value);
+		} else if (key === "gallery.suggest_phash_threshold") {
+			setSuggestPhashThresholdInput(value);
+		} else if (key === "gallery.related_phash_threshold") {
+			setRelatedPhashThresholdInput(value);
 		} else if (key === "viewer.details.max_positive_prompt_lines") {
 			setMaxPositivePromptLinesInput(value);
 		} else if (key === "viewer.details.max_negative_prompt_lines") {
@@ -686,9 +718,15 @@ export const SettingsModal: React.FC = () => {
 																					: config.key ===
 																							"gallery.trash_retention_days"
 																						? trashRetentionDaysInput
-																						: (localSettings[
-																								config.key
-																							] as unknown as number)
+																						: config.key ===
+																								"gallery.suggest_phash_threshold"
+																							? suggestPhashThresholdInput
+																							: config.key ===
+																									"gallery.related_phash_threshold"
+																								? relatedPhashThresholdInput
+																								: (localSettings[
+																										config.key
+																									] as unknown as number)
 												}
 												min={config.min}
 												max={config.max}
@@ -735,6 +773,22 @@ export const SettingsModal: React.FC = () => {
 														setTrashRetentionDaysInput(
 															localSettings[
 																"gallery.trash_retention_days"
+															].toString(),
+														);
+													} else if (
+														config.key === "gallery.suggest_phash_threshold"
+													) {
+														setSuggestPhashThresholdInput(
+															localSettings[
+																"gallery.suggest_phash_threshold"
+															].toString(),
+														);
+													} else if (
+														config.key === "gallery.related_phash_threshold"
+													) {
+														setRelatedPhashThresholdInput(
+															localSettings[
+																"gallery.related_phash_threshold"
 															].toString(),
 														);
 													} else if (
