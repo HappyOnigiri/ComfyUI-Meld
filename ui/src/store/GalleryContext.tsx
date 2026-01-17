@@ -6,6 +6,7 @@ import {
 	useContext,
 	useEffect,
 	useReducer,
+	useRef,
 } from "react";
 import * as api from "../api";
 import { logger } from "../logger";
@@ -33,17 +34,45 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
 	const [state, dispatch] = useReducer(galleryReducer, initialState);
 
+	const imagesLengthRef = useRef(state.images.length);
+	useEffect(() => {
+		imagesLengthRef.current = state.images.length;
+	}, [state.images.length]);
+
 	const refreshImages = useCallback(async () => {
 		dispatch({ type: "SET_LOADING", payload: true });
+		const startTime = performance.now();
 		try {
+			const isSearch = state.searchQuery.trim() !== "";
+			const fetchLimit = state.pagination.limit;
+
+			logger.log("refreshImages: starting fetch", {
+				isSearch,
+				fetchLimit,
+				query: state.searchQuery,
+				scope: state.viewScope,
+			});
+
 			const result = await api.fetchImages(
 				0,
-				state.pagination.limit,
+				fetchLimit,
 				state.searchQuery,
 				state.viewScope,
 			);
+			const fetchTime = performance.now() - startTime;
+			logger.log("refreshImages: fetch complete", {
+				count: result.images.length,
+				total: result.total,
+				offset: result.offset,
+				durationMs: fetchTime.toFixed(2),
+			});
 			dispatch({ type: "SET_IMAGES", payload: result });
+			logger.log(
+				"refreshImages: dispatch complete",
+				(performance.now() - startTime).toFixed(2),
+			);
 		} catch (err: unknown) {
+			logger.error("refreshImages: fetch failed", err);
 			dispatch({
 				type: "SET_ERROR",
 				payload: err instanceof Error ? err.message : String(err),
@@ -55,16 +84,34 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 		if (state.isLoading || !state.pagination.hasMore) return;
 
 		dispatch({ type: "SET_LOADING", payload: true });
+		const startTime = performance.now();
 		try {
-			const nextOffset = state.images.length;
+			const nextOffset = imagesLengthRef.current;
+			const isSearch = state.searchQuery.trim() !== "";
+			const fetchLimit = state.pagination.limit;
+
+			logger.log("loadMoreImages: starting fetch", {
+				nextOffset,
+				fetchLimit,
+				isSearch,
+			});
+
 			const result = await api.fetchImages(
 				nextOffset,
-				state.pagination.limit,
+				fetchLimit,
 				state.searchQuery,
 				state.viewScope,
 			);
+			const fetchTime = performance.now() - startTime;
+			logger.log("loadMoreImages: fetch complete", {
+				count: result.images.length,
+				total: result.total,
+				offset: result.offset,
+				durationMs: fetchTime.toFixed(2),
+			});
 			dispatch({ type: "APPEND_IMAGES", payload: result });
 		} catch (err: unknown) {
+			logger.error("loadMoreImages: fetch failed", err);
 			dispatch({
 				type: "SET_ERROR",
 				payload: err instanceof Error ? err.message : String(err),
@@ -74,7 +121,6 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 		state.isLoading,
 		state.pagination.hasMore,
 		state.pagination.limit,
-		state.images.length,
 		state.searchQuery,
 		state.viewScope,
 	]);
@@ -117,15 +163,18 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 		try {
 			dispatch({ type: "SET_LOADING", payload: true });
 			await api.restoreImages(ids);
+			if (state.viewScope === "trash") {
+				dispatch({ type: "REMOVE_IMAGES", payload: ids });
+			}
 			dispatch({ type: "CLEAR_SELECTION" });
-			await refreshImages();
+			dispatch({ type: "SET_LOADING", payload: false });
 		} catch (err: unknown) {
 			dispatch({
 				type: "SET_ERROR",
 				payload: err instanceof Error ? err.message : String(err),
 			});
 		}
-	}, [state.selectedIds, refreshImages]);
+	}, [state.selectedIds, state.viewScope]);
 
 	const updateSetting = useCallback(
 		async (key: string, value: string | number | boolean | null) => {

@@ -4,12 +4,13 @@ import { useCallback, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import * as api from "../api";
 import { useGallery } from "../store/GalleryContext";
+import type { MeldImage } from "../types";
 
 interface DeleteConfirmModalProps {
 	imageIds: number[];
 	hasLineage: boolean;
 	isPermanent?: boolean;
-	onSuccess?: (ids: number[]) => void;
+	onSuccess?: (images: MeldImage[]) => void;
 }
 
 export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
@@ -18,7 +19,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 	isPermanent = false,
 	onSuccess,
 }) => {
-	const { state, dispatch, refreshImages } = useGallery();
+	const { state, dispatch } = useGallery();
 
 	// Track if component is mounted
 	const isMounted = useRef(true);
@@ -68,15 +69,29 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 
 			// Find the next image that is NOT in the idsToDelete set
 			let found = false;
-			for (let i = 1; i < currentList.length; i++) {
-				const idx = (currentIndex + i) % currentList.length;
-				if (!idsToDelete.has(currentList[idx].id)) {
+			// Search forward first (without wrapping)
+			for (let i = currentIndex + 1; i < currentList.length; i++) {
+				if (!idsToDelete.has(currentList[i].id)) {
 					dispatch({
 						type: "OPEN_VIEWER",
-						payload: { id: currentList[idx].id, mode: state.viewerMode },
+						payload: { id: currentList[i].id, mode: state.viewerMode },
 					});
 					found = true;
 					break;
+				}
+			}
+
+			// If not found forward, search backward
+			if (!found) {
+				for (let i = currentIndex - 1; i >= 0; i--) {
+					if (!idsToDelete.has(currentList[i].id)) {
+						dispatch({
+							type: "OPEN_VIEWER",
+							payload: { id: currentList[i].id, mode: state.viewerMode },
+						});
+						found = true;
+						break;
+					}
 				}
 			}
 
@@ -107,17 +122,33 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 		try {
 			dispatch({ type: "SET_LOADING", payload: true });
 
+			const currentList =
+				state.viewerMode === "lineage" && state.lineageImages.length > 0
+					? state.lineageImages
+					: state.images.filter(
+							(img) =>
+								img.exists !== false &&
+								!(
+									state.settings["gallery.hide_parent_images"] &&
+									img.has_children
+								),
+						);
+
 			const idsToDeleteSet = new Set(imageIds);
+			const deletedImages = currentList.filter((img) =>
+				idsToDeleteSet.has(img.id),
+			);
 			navigateViewerIfNeeded(idsToDeleteSet);
 
 			await api.deleteImages(imageIds, isPermanent);
 			if (!isMounted.current) return;
+
 			if (!isPermanent && onSuccess) {
-				onSuccess(imageIds);
+				onSuccess(deletedImages);
 			}
+			dispatch({ type: "REMOVE_IMAGES", payload: imageIds });
 			dispatch({ type: "CLEAR_SELECTION" });
 			dispatch({ type: "CLOSE_MODAL" });
-			await refreshImages();
 		} catch (err: unknown) {
 			dispatch({
 				type: "SET_ERROR",
@@ -131,6 +162,18 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 		try {
 			dispatch({ type: "SET_LOADING", payload: true });
 
+			const currentList =
+				state.viewerMode === "lineage" && state.lineageImages.length > 0
+					? state.lineageImages
+					: state.images.filter(
+							(img) =>
+								img.exists !== false &&
+								!(
+									state.settings["gallery.hide_parent_images"] &&
+									img.has_children
+								),
+						);
+
 			const allIdsToDelete = new Set<number>(imageIds);
 
 			// Fetch lineage for each selected image to find all related images
@@ -142,15 +185,23 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 				}
 			}
 
+			const deletedImages = currentList.filter((img) =>
+				allIdsToDelete.has(img.id),
+			);
 			navigateViewerIfNeeded(allIdsToDelete);
 
 			await api.deleteImages(Array.from(allIdsToDelete), isPermanent);
+			if (!isMounted.current) return;
+
 			if (!isPermanent && onSuccess) {
-				onSuccess(Array.from(allIdsToDelete));
+				onSuccess(deletedImages);
 			}
+			dispatch({
+				type: "REMOVE_IMAGES",
+				payload: Array.from(allIdsToDelete),
+			});
 			dispatch({ type: "CLEAR_SELECTION" });
 			dispatch({ type: "CLOSE_MODAL" });
-			await refreshImages();
 		} catch (err: unknown) {
 			dispatch({
 				type: "SET_ERROR",

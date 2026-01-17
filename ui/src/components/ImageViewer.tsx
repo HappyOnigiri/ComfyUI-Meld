@@ -76,7 +76,7 @@ const ThumbnailItem = memo(
 ThumbnailItem.displayName = "ThumbnailItem";
 
 export const ImageViewer: React.FC = () => {
-	const { state, dispatch, loadMoreImages, refreshImages } = useGallery();
+	const { state, dispatch, loadMoreImages } = useGallery();
 	const { viewerImageId, images, viewerMode, lineageImages } = state;
 	const [isFullscreen, setIsFullscreen] = useState(false);
 	const [showDetails, setShowDetails] = useState(
@@ -89,7 +89,9 @@ export const ImageViewer: React.FC = () => {
 		showThumbnailsOverride ?? state.settings["viewer.show_thumbnails"];
 	const [isLoadingLineage, setIsLoadingLineage] = useState(false);
 	const [isJumping, setIsJumping] = useState(false);
-	const [lastDeletedIds, setLastDeletedIds] = useState<number[] | null>(null);
+	const [lastDeletedImages, setLastDeletedImages] = useState<
+		MeldImage[] | null
+	>(null);
 	const overlayRef = useRef<HTMLDivElement>(null);
 
 	// Track if component is mounted to prevent state updates after unmount
@@ -193,17 +195,32 @@ export const ImageViewer: React.FC = () => {
 			if (currentThumbnails.length > idsToDelete.size) {
 				// Find the next image that is NOT in the idsToDelete set
 				let found = false;
-				for (let i = 1; i < currentThumbnails.length; i++) {
-					const idx = (currentIndex + i) % currentThumbnails.length;
-					if (!idsToDelete.has(currentThumbnails[idx].id)) {
+				// Search forward first (without wrapping)
+				for (let i = currentIndex + 1; i < currentThumbnails.length; i++) {
+					if (!idsToDelete.has(currentThumbnails[i].id)) {
 						dispatch({
 							type: "OPEN_VIEWER",
-							payload: { id: currentThumbnails[idx].id, mode: viewerMode },
+							payload: { id: currentThumbnails[i].id, mode: viewerMode },
 						});
 						found = true;
 						break;
 					}
 				}
+
+				// If not found forward, search backward
+				if (!found) {
+					for (let i = currentIndex - 1; i >= 0; i--) {
+						if (!idsToDelete.has(currentThumbnails[i].id)) {
+							dispatch({
+								type: "OPEN_VIEWER",
+								payload: { id: currentThumbnails[i].id, mode: viewerMode },
+							});
+							found = true;
+							break;
+						}
+					}
+				}
+
 				if (!found) {
 					dispatch({ type: "CLOSE_VIEWER" });
 				}
@@ -212,8 +229,13 @@ export const ImageViewer: React.FC = () => {
 			}
 
 			await api.deleteImages(Array.from(idsToDelete), isPermanent);
-			setLastDeletedIds(isPermanent ? null : Array.from(idsToDelete));
-			await refreshImages();
+			if (!isPermanent) {
+				const deletedImages = currentThumbnails.filter((img) =>
+					idsToDelete.has(img.id),
+				);
+				setLastDeletedImages(deletedImages);
+			}
+			dispatch({ type: "REMOVE_IMAGES", payload: Array.from(idsToDelete) });
 		} catch (err: unknown) {
 			dispatch({
 				type: "SET_ERROR",
@@ -229,7 +251,6 @@ export const ImageViewer: React.FC = () => {
 		currentIndex,
 		viewerMode,
 		dispatch,
-		refreshImages,
 	]);
 
 	const handleTagEdit = useCallback(() => {
@@ -245,14 +266,15 @@ export const ImageViewer: React.FC = () => {
 	}, [image, dispatch]);
 
 	const handleUndoDelete = useCallback(async () => {
-		if (!lastDeletedIds || lastDeletedIds.length === 0) return;
-		const idToOpen = lastDeletedIds[0];
+		if (!lastDeletedImages || lastDeletedImages.length === 0) return;
+		const idsToRestore = lastDeletedImages.map((img) => img.id);
+		const idToOpen = idsToRestore[0];
 
 		try {
-			await api.restoreImages(lastDeletedIds);
+			await api.restoreImages(idsToRestore);
 			if (!isMounted.current) return;
-			setLastDeletedIds(null);
-			await refreshImages();
+			dispatch({ type: "ADD_IMAGES", payload: lastDeletedImages });
+			setLastDeletedImages(null);
 			if (!isMounted.current) return;
 
 			dispatch({
@@ -265,7 +287,7 @@ export const ImageViewer: React.FC = () => {
 				payload: err instanceof Error ? err.message : String(err),
 			});
 		}
-	}, [lastDeletedIds, refreshImages, dispatch, viewerMode]);
+	}, [lastDeletedImages, dispatch, viewerMode]);
 
 	const toggleFullscreen = useCallback(
 		(e?: React.MouseEvent | KeyboardEvent) => {
@@ -872,7 +894,7 @@ export const ImageViewer: React.FC = () => {
 					imageIds={state.activeModal.imageIds}
 					hasLineage={state.activeModal.hasLineage}
 					isPermanent={state.activeModal.isPermanent}
-					onSuccess={setLastDeletedIds}
+					onSuccess={setLastDeletedImages}
 				/>
 			)}
 			{state.activeModal.type === "parent_selection" && (
