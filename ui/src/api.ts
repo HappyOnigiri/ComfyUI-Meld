@@ -140,6 +140,8 @@ export const fetchSettings = async (): Promise<Settings> => {
 			"gallery.trash_retention_days": 30,
 			"gallery.trash.show_missing": false,
 			"gallery.view_mode": "grid_details",
+			"gallery.related_phash_threshold": 8,
+			"gallery.suggest_phash_threshold": 12,
 		};
 	}
 	const settings = (await res.json()) as Settings;
@@ -216,7 +218,7 @@ export const linkParent = async (
 
 export const suggestParents = async (
 	id: number,
-	threshold = 12,
+	threshold?: number,
 ): Promise<
 	{
 		id: number;
@@ -228,8 +230,10 @@ export const suggestParents = async (
 		is_source_match: boolean;
 	}[]
 > => {
+	const thresholdParam =
+		threshold !== undefined ? `&threshold=${threshold}` : "";
 	const res = await api.fetchApi(
-		`/meld/suggest-parents?id=${id}&threshold=${threshold}`,
+		`/meld/suggest-parents?id=${id}${thresholdParam}`,
 	);
 	if (!res.ok) {
 		return [];
@@ -312,7 +316,7 @@ export const registerImage = async (image: {
 
 export const fetchRelatedImages = async (
 	id: number,
-	threshold = 8,
+	threshold?: number,
 ): Promise<
 	{
 		id: number;
@@ -322,9 +326,9 @@ export const fetchRelatedImages = async (
 		distance: number;
 	}[]
 > => {
-	const res = await api.fetchApi(
-		`/meld/related?id=${id}&threshold=${threshold}`,
-	);
+	const thresholdParam =
+		threshold !== undefined ? `&threshold=${threshold}` : "";
+	const res = await api.fetchApi(`/meld/related?id=${id}${thresholdParam}`);
 	if (!res.ok) {
 		return [];
 	}

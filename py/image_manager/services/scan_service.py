@@ -121,6 +121,7 @@ def infer_parent_id(
     strategy: str = "phash_created",
     workflow_json: str | dict | None = None,
     prompt_json: str | dict | None = None,
+    threshold: int | None = None,
 ) -> int | None:
     from .image_service import extract_source_filenames
 
@@ -168,7 +169,9 @@ def infer_parent_id(
 
     # 2. Fallback to pHash match (or if strategy is pHash-based)
     if parent_id is None and phash:
-        parent_id = find_closest_parent(phash, cursor, before_timestamp=created_at, sort_strategy=strategy)
+        parent_id = find_closest_parent(
+            phash, cursor, before_timestamp=created_at, sort_strategy=strategy, threshold=threshold
+        )
 
     return parent_id
 

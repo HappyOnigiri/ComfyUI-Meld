@@ -363,13 +363,25 @@ def calculate_sha256(file_path: str) -> str | None:
 def find_closest_parent(
     phash: str | None,
     cursor: sqlite3.Cursor,
-    threshold: int = 8,
+    threshold: int | None = None,
     exclude_id: int | None = None,
     before_timestamp: float | None = None,
     sort_strategy: str = "phash_only",
 ) -> int | None:
     if not phash:
         return None
+
+    if threshold is None:
+        # Fetch from settings if not provided
+        cursor.execute("SELECT value FROM settings WHERE key = ?", ("gallery.suggest_phash_threshold",))
+        row = cursor.fetchone()
+        if row:
+            try:
+                threshold = json.loads(row[0])
+            except Exception:
+                threshold = 8
+        else:
+            threshold = 8
 
     query = "SELECT id, phash, created_at FROM images WHERE phash IS NOT NULL AND deleted_at IS NULL"
     params: list[int | float] = []

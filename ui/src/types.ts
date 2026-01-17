@@ -99,6 +99,8 @@ export interface Settings {
 	"gallery.trash_retention_days": number;
 	"gallery.trash.show_missing": boolean;
 	"gallery.view_mode": "grid_details" | "grid_only";
+	"gallery.related_phash_threshold": number;
+	"gallery.suggest_phash_threshold": number;
 }
 
 export type ScanStatus = {

@@ -33,14 +33,15 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 	const loadSuggestions = useCallback(async () => {
 		setIsLoading(true);
 		try {
-			const results = await api.suggestParents(imageId);
+			const threshold = state.settings["gallery.suggest_phash_threshold"];
+			const results = await api.suggestParents(imageId, threshold);
 			setSuggestions(results);
 		} catch (err) {
 			console.error("Failed to load suggestions:", err);
 		} finally {
 			setIsLoading(false);
 		}
-	}, [imageId]);
+	}, [imageId, state.settings]);
 
 	useEffect(() => {
 		loadSuggestions();

@@ -75,6 +75,8 @@ export const initialState: GalleryState = {
 		"gallery.trash_retention_days": 30,
 		"gallery.trash.show_missing": false,
 		"gallery.view_mode": "grid_details",
+		"gallery.related_phash_threshold": 8,
+		"gallery.suggest_phash_threshold": 12,
 	},
 	pagination: {
 		total: 0,

@@ -1332,13 +1332,17 @@ async def list_images(request: web.Request) -> web.Response:
 async def get_related_images(request: web.Request) -> web.Response:
     try:
         image_id = request.query.get("id")
-        threshold = int(request.query.get("threshold", 8))
 
         if not image_id:
             return web.json_response({"error": "id is required"}, status=400)
 
         conn = get_db_connection()
         cursor = conn.cursor()
+
+        # Get settings
+        db_settings = get_all_settings(cursor)
+        default_threshold = db_settings.get("gallery.related_phash_threshold", 8)
+        threshold = int(request.query.get("threshold", default_threshold))
 
         # Get the target phash
         cursor.execute("SELECT phash FROM images WHERE id = ?", (image_id,))
@@ -1700,16 +1704,18 @@ async def link_parent(request: web.Request) -> web.Response:
 async def suggest_parents(request: web.Request) -> web.Response:
     try:
         image_id = request.query.get("id")
-        threshold = int(request.query.get("threshold", 12))
-
-        if not image_id:
-            return web.json_response({"error": "id is required"}, status=400)
 
         conn = get_db_connection()
         cursor = conn.cursor()
 
         # Get settings
         db_settings = get_all_settings(cursor)
+        default_threshold = db_settings.get("gallery.suggest_phash_threshold", 12)
+        threshold = int(request.query.get("threshold", default_threshold))
+
+        if not image_id:
+            conn.close()
+            return web.json_response({"error": "id is required"}, status=400)
         strategy = db_settings.get("gallery.matching_strategy", "phash_created")
 
         # Get target image info
