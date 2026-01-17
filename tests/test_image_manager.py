@@ -4,6 +4,7 @@ import sqlite3
 import sys
 import tempfile
 import unittest
+from typing import cast
 from unittest.mock import ANY, MagicMock, patch
 
 import torch
@@ -33,9 +34,11 @@ class TestImageManager(unittest.TestCase):
         self.test_dir = tempfile.mkdtemp()
         self.db_path = os.path.join(self.test_dir, "test.db")
 
-        # Patch DB_PATH in database module
-        self.patcher_db = patch("py.image_manager.database.DB_PATH", self.db_path)
+        # Patch DB_PATH in database module and db.client module
+        self.patcher_db = patch("py.image_manager.db.client.DB_PATH", self.db_path)
         self.patcher_db.start()
+        self.patcher_trash = patch("py.image_manager.db.client.TRASH_DIR", os.path.join(self.test_dir, "trash"))
+        self.patcher_trash.start()
 
         # Initialize DB
         py.image_manager.database.init_db()
@@ -53,12 +56,13 @@ class TestImageManager(unittest.TestCase):
 
     def tearDown(self) -> None:
         self.patcher_db.stop()
+        self.patcher_trash.stop()
         shutil.rmtree(self.test_dir)
 
     def test_save_images_filename_prefix_passed(self) -> None:
         """Verify that filename_prefix is correctly passed to get_save_image_path"""
         images = torch.zeros((1, 64, 64, 3))
-        mock_get_save_path = meld_node.folder_paths.get_save_image_path
+        mock_get_save_path = cast(MagicMock, meld_node.folder_paths.get_save_image_path)
         mock_get_save_path.return_value = (self.mock_output_dir, "Meld", 1, "", "Meld")
 
         self.node.save_images(images=images, filename_prefix="CustomPrefix")
@@ -69,7 +73,7 @@ class TestImageManager(unittest.TestCase):
     def test_save_images_db_registration(self) -> None:
         """Verify that image is registered in DB with correct filename"""
         images = torch.zeros((1, 64, 64, 3))
-        mock_get_save_path = meld_node.folder_paths.get_save_image_path
+        mock_get_save_path = cast(MagicMock, meld_node.folder_paths.get_save_image_path)
         mock_get_save_path.return_value = (self.mock_output_dir, "TestFile", 5, "sub", "Test")
 
         with patch("PIL.Image.Image.save"):
@@ -89,7 +93,7 @@ class TestImageManager(unittest.TestCase):
     def test_filename_prefix_with_batch_num_token(self) -> None:
         """Verify that %batch_num% in the filename returned by get_save_image_path is resolved"""
         images = torch.zeros((2, 64, 64, 3))  # Batch of 2
-        mock_get_save_path = meld_node.folder_paths.get_save_image_path
+        mock_get_save_path = cast(MagicMock, meld_node.folder_paths.get_save_image_path)
         mock_get_save_path.return_value = (self.mock_output_dir, "Batch_%batch_num%", 1, "", "Batch")
 
         with patch("PIL.Image.Image.save"):
@@ -108,7 +112,7 @@ class TestImageManager(unittest.TestCase):
     def test_save_images_format_fix(self) -> None:
         """Verify that the trailing underscore is included in the filename for ComfyUI compatibility"""
         images = torch.zeros((1, 64, 64, 3))
-        mock_get_save_path = meld_node.folder_paths.get_save_image_path
+        mock_get_save_path = cast(MagicMock, meld_node.folder_paths.get_save_image_path)
         mock_get_save_path.return_value = (self.mock_output_dir, "TestFile", 1, "", "Test")
 
         with patch("PIL.Image.Image.save"):
@@ -126,7 +130,7 @@ class TestImageManager(unittest.TestCase):
     def test_filename_prefix_date_resolution(self) -> None:
         """Verify that %date:format% and %date% tokens are correctly resolved"""
         images = torch.zeros((1, 64, 64, 3))
-        mock_get_save_path = meld_node.folder_paths.get_save_image_path
+        mock_get_save_path = cast(MagicMock, meld_node.folder_paths.get_save_image_path)
         mock_get_save_path.return_value = (self.mock_output_dir, "resolved", 1, "", "resolved")
 
         from datetime import datetime
@@ -145,7 +149,7 @@ class TestImageManager(unittest.TestCase):
     def test_save_images_returns_images(self) -> None:
         """Verify that save_images returns the input images tensor"""
         images = torch.zeros((1, 64, 64, 3))
-        mock_get_save_path = meld_node.folder_paths.get_save_image_path
+        mock_get_save_path = cast(MagicMock, meld_node.folder_paths.get_save_image_path)
         mock_get_save_path.return_value = (self.mock_output_dir, "test", 1, "", "test")
 
         with patch("PIL.Image.Image.save"):

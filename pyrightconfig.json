@@ -1,5 +1,17 @@
 {
-    "extraPaths": [
-        "../.."
+    "include": [
+        "py",
+        "tests"
+    ],
+    "exclude": [
+        "**/node_modules",
+        "**/__pycache__"
+    ],
+    "reportMissingImports": "none",
+    "executionEnvironments": [
+        {
+            "root": "tests",
+            "reportFunctionMemberAccess": "none"
+        }
     ]
 }

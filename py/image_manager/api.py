@@ -22,16 +22,12 @@ from ..load_image_configs.core.metadata_helper import MetadataHelper
 from .constants import RESERVED_TAG_KEYWORD
 from .database import (
     TRASH_DIR,
-    add_model_relation,
-    calculate_sha256,
-    delete_tag,
-    get_all_settings,
-    get_all_tags,
     get_db_connection,
-    get_or_create_model,
-    rename_tag,
-    upsert_setting,
 )
+from .repositories.image_repo import calculate_sha256
+from .repositories.model_repo import add_model_relation, get_or_create_model
+from .repositories.settings_repo import get_all_settings, upsert_setting
+from .repositories.tag_repo import delete_tag, get_all_tags, rename_tag
 from .schemas import (
     ApiResponse,
     BulkDeleteRequest,
