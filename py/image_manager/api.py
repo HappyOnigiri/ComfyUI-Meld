@@ -1642,9 +1642,19 @@ async def get_lineage(request: web.Request) -> web.Response:
 
         result = []
         for row in rows:
+            img_id = row[0]
+
+            # Fetch tags
+            cursor.execute(
+                "SELECT t.name FROM tags t JOIN tag_image_relations r ON t.id = r.tag_id WHERE r.image_id = ?",
+                (img_id,),
+            )
+            tag_rows = cursor.fetchall()
+            tags = [t[0] for t in tag_rows]
+
             result.append(
                 LineageItem(
-                    id=row[0],
+                    id=img_id,
                     filename=row[1],
                     subfolder=row[2],
                     type=row[3],
@@ -1662,6 +1672,7 @@ async def get_lineage(request: web.Request) -> web.Response:
                     workflow=row[13],
                     width=row[14],
                     height=row[15],
+                    tags=tags,
                 ).to_dict()
             )
 

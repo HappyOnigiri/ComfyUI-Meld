@@ -246,6 +246,7 @@ class LineageItem(BaseSchema):
     workflow: str | None = None
     width: int | None = None
     height: int | None = None
+    tags: list[str] = field(default_factory=list)
 
 
 @dataclass
