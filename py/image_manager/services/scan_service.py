@@ -208,6 +208,7 @@ def _scan_thread(
     recursive: bool,
     auto_link_parent: bool,
     tags: list[str] | None = None,
+    link_strategy: str = "new_only",
 ) -> None:
     conn = None
     new_count = 0
@@ -253,6 +254,7 @@ def _scan_thread(
 
         # Step 1: Register all images
         newly_registered_ids = []
+        all_target_ids = []
         for full_path in image_files:
             if _scan_state.should_cancel:
                 break
@@ -275,6 +277,7 @@ def _scan_thread(
                 existing = cursor.fetchone()
                 if existing:
                     image_id = existing[0]
+                    all_target_ids.append(image_id)
                     # Even if already exists, add specified tags
                     if tags:
                         add_tags_to_image(image_id, tags)
@@ -341,6 +344,7 @@ def _scan_thread(
                     add_model_relation(cursor, image_id, m_id)
 
                 newly_registered_ids.append(image_id)
+                all_target_ids.append(image_id)
                 new_count += 1
 
                 # Insert Prompts
@@ -393,10 +397,15 @@ def _scan_thread(
         conn.commit()
 
         # Step 2: Parent Linking (Auto)
-        if auto_link_parent and not _scan_state.should_cancel:
-            total_linking = len(newly_registered_ids)
+        effective_link_strategy = link_strategy
+        if not auto_link_parent:
+            effective_link_strategy = "none"
+
+        if effective_link_strategy != "none" and not _scan_state.should_cancel:
+            ids_to_link = newly_registered_ids if effective_link_strategy == "new_only" else all_target_ids
+            total_linking = len(ids_to_link)
             processed_linking = 0
-            for img_id in newly_registered_ids:
+            for img_id in ids_to_link:
                 if _scan_state.should_cancel:
                     break
 
@@ -449,6 +458,7 @@ def start_scan_thread(
     recursive: bool,
     auto_link_parent: bool,
     tags: list[str] | None = None,
+    link_strategy: str = "new_only",
 ) -> None:
     set_scan_running(True)
     thread = threading.Thread(
@@ -460,6 +470,7 @@ def start_scan_thread(
             recursive,
             auto_link_parent,
             tags,
+            link_strategy,
         ),
     )
     thread.start()

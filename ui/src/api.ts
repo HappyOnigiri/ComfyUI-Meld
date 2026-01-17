@@ -406,6 +406,7 @@ export const startScan = async (params: {
 	custom_path?: string;
 	recursive: boolean;
 	auto_link_parent: boolean;
+	link_strategy?: string;
 	tags?: string[];
 }): Promise<void> => {
 	const res = await api.fetchApi("/meld/scan", {

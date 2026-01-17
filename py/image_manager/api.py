@@ -418,6 +418,7 @@ async def start_scan(request: web.Request) -> web.Response:
             req.recursive,
             req.auto_link_parent,
             req.tags,
+            req.link_strategy,
         )
 
         return web.json_response(ApiResponse(success=True, message="started").to_dict())

@@ -120,6 +120,7 @@ class ScanRequest(BaseSchema):
     custom_path: str = ""
     recursive: bool = True
     auto_link_parent: bool = True
+    link_strategy: str = "new_only"  # "none", "new_only", "all"
     tags: list[str] = field(default_factory=list)
 
 
