@@ -89,13 +89,17 @@ export const GalleryPanel: React.FC = () => {
 					dispatch({ type: "CLOSE_MODAL" });
 					e.preventDefault();
 					e.stopPropagation();
+				} else if (state.selectedIds.size > 0) {
+					dispatch({ type: "CLEAR_SELECTION" });
+					e.preventDefault();
+					e.stopPropagation();
 				}
 			}
 		};
 
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [state.activeModal.type, dispatch]);
+	}, [state.activeModal.type, state.selectedIds.size, dispatch]);
 
 	useEffect(() => {
 		const observer = new IntersectionObserver(

@@ -10386,10 +10386,10 @@ You can select favorites when the search query is empty.`
     activeModal: e.activeModal.type
   }), x.useEffect(() => {
     const y = (S) => {
-      S.key === "Escape" && e.activeModal.type !== "none" && (t({ type: "CLOSE_MODAL" }), S.preventDefault(), S.stopPropagation());
+      S.key === "Escape" && (e.activeModal.type !== "none" ? (t({ type: "CLOSE_MODAL" }), S.preventDefault(), S.stopPropagation()) : e.selectedIds.size > 0 && (t({ type: "CLEAR_SELECTION" }), S.preventDefault(), S.stopPropagation()));
     };
     return window.addEventListener("keydown", y), () => window.removeEventListener("keydown", y);
-  }, [e.activeModal.type, t]), x.useEffect(() => {
+  }, [e.activeModal.type, e.selectedIds.size, t]), x.useEffect(() => {
     const y = new IntersectionObserver(
       (E) => {
         E[0].isIntersecting && !e.isLoading && e.pagination.hasMore && (ve.log(
