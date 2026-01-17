@@ -56,7 +56,10 @@ class TestNodeInterfaces(unittest.TestCase):
 
     def test_node_classes_structure(self) -> None:
         """Confirm that node classes have the structure expected by ComfyUI"""
-        for node_class in [MeldImageLoader, MeldImageLoaderBatch]:
+        from typing import Any
+
+        for node_class_raw in [MeldImageLoader, MeldImageLoaderBatch]:
+            node_class: Any = node_class_raw
             with self.subTest(node_class=node_class):
                 self.assertTrue(hasattr(node_class, "INPUT_TYPES"))
                 self.assertTrue(hasattr(node_class, "RETURN_TYPES"))

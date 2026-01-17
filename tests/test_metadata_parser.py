@@ -2,6 +2,7 @@ import json
 import os
 import sys
 import unittest
+from typing import Any
 from unittest.mock import MagicMock
 
 import torch
@@ -104,7 +105,7 @@ class TestMetadataParser(unittest.TestCase):
         with open(self.json_3_path, encoding="utf-8") as f:
             workflow_data = json.load(f)
 
-        logs = []
+        logs: list[str] = []
         positive, negative = MetadataHelper.parse_workflow_json(workflow_data, logs)
         self.assertEqual(positive, "(masterpiece, best quality:1.2), 1girl, solo")
         self.assertEqual(negative, "(worst quality, low quality:1.4), multiple people")
@@ -175,7 +176,7 @@ class TestMetadataParser(unittest.TestCase):
     def test_extract_from_pattern_webp_exif(self) -> None:
         meta = self._parse_exiftool_txt(self.pattern_webp_exif_path)
         exif = {271: meta.get("Make"), 272: meta.get("Model")}
-        info = {}
+        info: dict[str, Any] = {}
         res = MetadataHelper.extract_from_data(info, exif)
         positive, negative, model_name, wf_json, pr_json, a1111, logs = res
 
@@ -186,7 +187,7 @@ class TestMetadataParser(unittest.TestCase):
     def test_extract_from_pattern_webp_desc(self) -> None:
         meta = self._parse_exiftool_txt(self.pattern_webp_desc_path)
         exif = {270: meta.get("ImageDescription"), 271: meta.get("Make")}
-        info = {}
+        info: dict[str, Any] = {}
         res = MetadataHelper.extract_from_data(info, exif)
         positive, negative, model_name, wf_json, pr_json, a1111, logs = res
 
@@ -208,7 +209,7 @@ class TestMetadataParser(unittest.TestCase):
             ],
             "links": [[1, 1, 0, 3, 0, "CONDITIONING"], [2, 2, 0, 3, 1, "CONDITIONING"]],
         }
-        logs = []
+        logs: list[str] = []
         positive, negative = MetadataHelper.parse_workflow_json(workflow_data, logs)
         self.assertIn(f"-> Positive found: {'a' * 50}...", logs)
         self.assertIn(f"-> Negative found: {'b' * 50}...", logs)

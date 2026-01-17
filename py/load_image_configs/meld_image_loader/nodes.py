@@ -22,7 +22,7 @@ class MeldImageLoader:
 
     def load(self, image: str) -> dict:
         image_path = folder_paths.get_annotated_filepath(image)
-        image_loader = nodes.LoadImage()
+        image_loader = nodes.LoadImage()  # type: ignore
         image_output, _ = image_loader.load_image(image)
 
         logs_list = []

@@ -20,13 +20,11 @@ from PIL.PngImagePlugin import PngInfo
 
 from ...load_image_configs.core.metadata_helper import MetadataHelper
 from ..database import (
-    add_model_relation,
-    calculate_sha256,
-    find_closest_parent,
-    get_all_settings,
     get_db_connection,
-    get_or_create_model,
 )
+from ..repositories.image_repo import calculate_sha256, find_closest_parent
+from ..repositories.model_repo import add_model_relation, get_or_create_model
+from ..repositories.settings_repo import get_all_settings
 from ..services import scan_service
 
 
