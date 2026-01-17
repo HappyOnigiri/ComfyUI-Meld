@@ -6,6 +6,11 @@ import { getImageViewUrl } from "../../../utils/url";
 import { useImageActions } from "../../images/hooks/useImageActions";
 import { useImageLineage } from "../../images/hooks/useImageLineage";
 
+/**
+ * NOTE: For image-specific data operations (deletion, tagging, lineage, etc.),
+ * please use the shared logic in `features/images/hooks/useImageActions`.
+ * DO NOT implement duplicate image manipulation logic here.
+ */
 export const useImageCardLogic = (image: MeldImage) => {
 	const { state, dispatch, fetchFullImageDetails } = useGallery();
 	const isSelected = state.selectedIds.has(image.id);

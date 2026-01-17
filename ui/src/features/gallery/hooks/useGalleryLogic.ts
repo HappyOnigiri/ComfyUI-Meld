@@ -4,6 +4,11 @@ import { useGallery } from "../../../store/GalleryContext";
 
 export type SidebarView = "gallery" | "search" | "tags";
 
+/**
+ * NOTE: For image-specific data operations (deletion, tagging, lineage, etc.),
+ * please use the shared logic in `features/images/hooks/useImageActions`.
+ * DO NOT implement duplicate image manipulation logic here.
+ */
 export const useGalleryLogic = () => {
 	const { state, dispatch, refreshImages, loadMoreImages, updateSetting } =
 		useGallery();

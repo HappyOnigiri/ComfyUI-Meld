@@ -8,6 +8,15 @@ import type {
 } from "../../../types";
 import * as imagesApi from "../api/imagesApi";
 
+/**
+ * Shared Image Actions Hook
+ *
+ * This is the CENTRAL PLACE for common image operations used across different features
+ * (Gallery, Viewer, etc.).
+ *
+ * If you need to add a new image-related action (e.g., bulk editing, exporting),
+ * implement it here instead of within individual feature hooks.
+ */
 export const useImageActions = (
 	_state: GalleryState,
 	dispatch: React.Dispatch<GalleryAction>,

@@ -2,6 +2,11 @@ import { useCallback } from "react";
 import type { MeldImage, Settings } from "../../../types";
 import { getImageViewUrl } from "../../../utils/url";
 
+/**
+ * Shared Image Lineage Hook
+ *
+ * Centralizes the logic for calculating and fetching image relationships (parents/ancestors).
+ */
 export const useImageLineage = (images: MeldImage[], settings: Settings) => {
 	const getParentChain = useCallback(
 		(img: MeldImage): { id: number | null; imgSrc: string | null }[] => {
