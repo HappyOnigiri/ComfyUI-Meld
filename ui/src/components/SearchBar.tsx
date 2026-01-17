@@ -14,10 +14,12 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import * as api from "../api";
 import { RESERVED_TAG_KEYWORD } from "../constants";
 import { logger } from "../logger";
 import { useGallery } from "../store/GalleryContext";
+import type { Favorite } from "../types";
 
 interface Suggestion {
 	type: string;
@@ -36,7 +38,17 @@ export const SearchBar: React.FC = () => {
 	const [selectedIndex, setSelectedIndex] = useState(-1);
 	const [isSaving, setIsSaving] = useState(false);
 	const [toastMessage, setToastMessage] = useState<string | null>(null);
+	const [editingFavorite, setEditingFavorite] = useState<Favorite | null>(null);
+	const [editFavoriteName, setEditFavoriteName] = useState("");
+	const [editFavoriteQuery, setEditFavoriteQuery] = useState("");
 	const inputRef = useRef<HTMLInputElement>(null);
+	const editInputRef = useRef<HTMLInputElement>(null);
+
+	useEffect(() => {
+		if (editingFavorite && editInputRef.current) {
+			editInputRef.current.focus();
+		}
+	}, [editingFavorite]);
 
 	// Clear toast after 3 seconds
 	useEffect(() => {
@@ -223,24 +235,36 @@ export const SearchBar: React.FC = () => {
 		}
 	};
 
-	const handleRenameFavorite = async (
-		e: React.MouseEvent,
-		id: number,
-		currentName: string,
-	) => {
+	const handleEditFavorite = (e: React.MouseEvent, fav: Favorite) => {
 		e.stopPropagation();
+		setEditingFavorite(fav);
+		setEditFavoriteName(fav.name);
+		setEditFavoriteQuery(fav.query);
+	};
 
-		const newName = window.prompt(
-			"Enter a new name for this favorite:",
-			currentName,
-		);
-		if (newName === null || newName === currentName) return;
+	const handleSaveEditFavorite = async () => {
+		if (
+			!editingFavorite ||
+			!editFavoriteName.trim() ||
+			!editFavoriteQuery.trim()
+		)
+			return;
 
 		try {
-			await api.updateFavorite(id, newName || currentName);
+			setIsSaving(true);
+			await api.updateFavorite(
+				editingFavorite.id,
+				editFavoriteName,
+				editFavoriteQuery,
+			);
 			await refreshFavorites();
+			setEditingFavorite(null);
+			setToastMessage("Favorite updated.");
 		} catch (err) {
-			logger.error("Failed to rename favorite", err);
+			logger.error("Failed to update favorite", err);
+			setToastMessage("Failed to update favorite.");
+		} finally {
+			setIsSaving(false);
 		}
 	};
 
@@ -825,7 +849,7 @@ export const SearchBar: React.FC = () => {
 										type="button"
 										onClick={(e) => {
 											e.stopPropagation();
-											handleRenameFavorite(e, fav.id, fav.name);
+											handleEditFavorite(e, fav);
 										}}
 										style={{
 											background: "none",
@@ -848,7 +872,7 @@ export const SearchBar: React.FC = () => {
 												"var(--meld-text-secondary)";
 											e.currentTarget.style.backgroundColor = "transparent";
 										}}
-										title="Rename favorite"
+										title="Edit favorite"
 									>
 										<Edit2 size={14} />
 									</button>
@@ -889,6 +913,154 @@ export const SearchBar: React.FC = () => {
 					</div>
 				</div>
 			)}
+			{editingFavorite &&
+				createPortal(
+					<div
+						className="meld-modal-overlay"
+						onClick={() => setEditingFavorite(null)}
+						style={{
+							zIndex: 3000,
+						}}
+					>
+						<div
+							className="meld-modal-content meld-modal-content--small"
+							onClick={(e) => e.stopPropagation()}
+						>
+							<div className="meld-modal-header">
+								<h2
+									style={{ display: "flex", alignItems: "center", gap: "10px" }}
+								>
+									<Star size={20} color="var(--meld-accent-color)" />
+									Edit Favorite
+								</h2>
+								<button
+									type="button"
+									className="meld-modal-close"
+									onClick={() => setEditingFavorite(null)}
+								>
+									<X size={20} />
+								</button>
+							</div>
+
+							<div className="meld-modal-body">
+								<div
+									style={{
+										display: "flex",
+										flexDirection: "column",
+										gap: "16px",
+										padding: "8px 0",
+									}}
+								>
+									<div
+										style={{
+											display: "flex",
+											flexDirection: "column",
+											gap: "6px",
+										}}
+									>
+										<label
+											htmlFor="edit-favorite-name"
+											style={{
+												fontSize: "12px",
+												fontWeight: "bold",
+												color: "var(--meld-text-secondary)",
+											}}
+										>
+											Name
+										</label>
+										<input
+											id="edit-favorite-name"
+											ref={editInputRef}
+											type="text"
+											value={editFavoriteName}
+											onChange={(e) => setEditFavoriteName(e.target.value)}
+											placeholder="Favorite Name"
+											style={{
+												backgroundColor: "var(--comfy-input-bg, #1a1a1a)",
+												border: "1px solid var(--comfy-menu-border, #333)",
+												borderRadius: "4px",
+												color: "var(--meld-text-color)",
+												padding: "8px 12px",
+												fontSize: "14px",
+												outline: "none",
+											}}
+											onKeyDown={(e) => {
+												if (e.key === "Enter") handleSaveEditFavorite();
+												if (e.key === "Escape") setEditingFavorite(null);
+											}}
+										/>
+									</div>
+									<div
+										style={{
+											display: "flex",
+											flexDirection: "column",
+											gap: "6px",
+										}}
+									>
+										<label
+											htmlFor="edit-favorite-query"
+											style={{
+												fontSize: "12px",
+												fontWeight: "bold",
+												color: "var(--meld-text-secondary)",
+											}}
+										>
+											Search Query
+										</label>
+										<textarea
+											id="edit-favorite-query"
+											value={editFavoriteQuery}
+											onChange={(e) => setEditFavoriteQuery(e.target.value)}
+											placeholder="Search Query"
+											rows={3}
+											style={{
+												backgroundColor: "var(--comfy-input-bg, #1a1a1a)",
+												border: "1px solid var(--comfy-menu-border, #333)",
+												borderRadius: "4px",
+												color: "var(--meld-text-color)",
+												padding: "8px 12px",
+												fontSize: "13px",
+												fontFamily: "monospace",
+												outline: "none",
+												resize: "vertical",
+											}}
+											onKeyDown={(e) => {
+												if (e.key === "Enter" && !e.shiftKey) {
+													e.preventDefault();
+													handleSaveEditFavorite();
+												}
+												if (e.key === "Escape") setEditingFavorite(null);
+											}}
+										/>
+									</div>
+								</div>
+							</div>
+
+							<div className="meld-modal-footer">
+								<button
+									type="button"
+									className="meld-btn meld-btn-secondary"
+									onClick={() => setEditingFavorite(null)}
+								>
+									Cancel
+								</button>
+								<button
+									type="button"
+									className="meld-btn meld-btn-primary"
+									onClick={handleSaveEditFavorite}
+									disabled={
+										isSaving ||
+										!editFavoriteName.trim() ||
+										!editFavoriteQuery.trim()
+									}
+								>
+									{isSaving ? "Saving..." : "Save Changes"}
+								</button>
+							</div>
+						</div>
+					</div>,
+					(document.fullscreenElement as HTMLElement) || document.body,
+				)}
 		</div>
 	);
 };

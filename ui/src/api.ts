@@ -470,11 +470,12 @@ export const deleteFavorite = async (id: number): Promise<void> => {
 export const updateFavorite = async (
 	id: number,
 	name: string,
+	query?: string,
 ): Promise<void> => {
 	const res = await api.fetchApi("/meld/favorites/update", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ id, name }),
+		body: JSON.stringify({ id, name, query }),
 	});
 	if (!res.ok) {
 		throw new Error("Failed to update favorite");
