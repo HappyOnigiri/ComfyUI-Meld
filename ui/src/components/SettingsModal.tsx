@@ -12,7 +12,8 @@ type Category =
 	| "View"
 	| "View Details"
 	| "Full Screen"
-	| "Full Screen Detail";
+	| "Full Screen Detail"
+	| "Shortcuts";
 
 export const SettingsModal: React.FC = () => {
 	const { state, dispatch, updateSetting } = useGallery();
@@ -20,6 +21,9 @@ export const SettingsModal: React.FC = () => {
 	const [localSettings, setLocalSettings] = useState<Settings>({
 		...state.settings,
 	});
+	const [shortcutErrors, setShortcutErrors] = useState<Record<string, boolean>>(
+		{},
+	);
 	const [initialLoadCountInput, setInitialLoadCountInput] = useState<string>(
 		state.settings["gallery.initial_load_count"].toString(),
 	);
@@ -66,7 +70,7 @@ export const SettingsModal: React.FC = () => {
 		key: keyof Settings;
 		label: string;
 		description: string;
-		type: "boolean" | "number" | "select";
+		type: "boolean" | "number" | "select" | "text";
 		options?: { value: string; label: string }[];
 		category: Category;
 		min?: number;
@@ -518,13 +522,104 @@ export const SettingsModal: React.FC = () => {
 			type: "boolean",
 			category: "Full Screen Detail",
 		},
+		{
+			key: "viewer.shortcut.1",
+			label: "Shortcut 1 (Key: 1)",
+			description:
+				"Command to execute when pressing '1' in View/Full Screen mode.",
+			type: "text",
+			category: "Shortcuts",
+		},
+		{
+			key: "viewer.shortcut.2",
+			label: "Shortcut 2 (Key: 2)",
+			description:
+				"Command to execute when pressing '2' in View/Full Screen mode.",
+			type: "text",
+			category: "Shortcuts",
+		},
+		{
+			key: "viewer.shortcut.3",
+			label: "Shortcut 3 (Key: 3)",
+			description:
+				"Command to execute when pressing '3' in View/Full Screen mode.",
+			type: "text",
+			category: "Shortcuts",
+		},
+		{
+			key: "viewer.shortcut.4",
+			label: "Shortcut 4 (Key: 4)",
+			description:
+				"Command to execute when pressing '4' in View/Full Screen mode.",
+			type: "text",
+			category: "Shortcuts",
+		},
+		{
+			key: "viewer.shortcut.5",
+			label: "Shortcut 5 (Key: 5)",
+			description:
+				"Command to execute when pressing '5' in View/Full Screen mode.",
+			type: "text",
+			category: "Shortcuts",
+		},
+		{
+			key: "viewer.shortcut.6",
+			label: "Shortcut 6 (Key: 6)",
+			description:
+				"Command to execute when pressing '6' in View/Full Screen mode.",
+			type: "text",
+			category: "Shortcuts",
+		},
+		{
+			key: "viewer.shortcut.7",
+			label: "Shortcut 7 (Key: 7)",
+			description:
+				"Command to execute when pressing '7' in View/Full Screen mode.",
+			type: "text",
+			category: "Shortcuts",
+		},
+		{
+			key: "viewer.shortcut.8",
+			label: "Shortcut 8 (Key: 8)",
+			description:
+				"Command to execute when pressing '8' in View/Full Screen mode.",
+			type: "text",
+			category: "Shortcuts",
+		},
+		{
+			key: "viewer.shortcut.9",
+			label: "Shortcut 9 (Key: 9)",
+			description:
+				"Command to execute when pressing '9' in View/Full Screen mode.",
+			type: "text",
+			category: "Shortcuts",
+		},
+		{
+			key: "viewer.shortcut.0",
+			label: "Shortcut 0 (Key: 0)",
+			description:
+				"Command to execute when pressing '0' in View/Full Screen mode.",
+			type: "text",
+			category: "Shortcuts",
+		},
+		{
+			key: "viewer.shortcut.show_cheat_sheet",
+			label: "Show Cheat Sheet",
+			description: "Display shortcut key guide in View/Full Screen mode.",
+			type: "boolean",
+			category: "Shortcuts",
+		},
 	];
 
 	const handleClose = async () => {
 		// Identify changed settings
+		// Only save keys that don't have validation errors
 		const changedKeys = (
 			Object.keys(localSettings) as (keyof Settings)[]
-		).filter((key) => localSettings[key] !== state.settings[key]);
+		).filter(
+			(key) =>
+				localSettings[key] !== state.settings[key] && !shortcutErrors[key],
+		);
 
 		if (changedKeys.length > 0) {
 			// Save each changed setting
@@ -542,6 +637,18 @@ export const SettingsModal: React.FC = () => {
 			...prev,
 			[key]: !currentValue,
 		}));
+	};
+
+	const validateShortcut = (command: string) => {
+		if (!command.trim()) return true;
+		const parts = command.trim().split(/\s+/);
+		return parts.every((part) => {
+			if (part === "next" || part === "prev") return true;
+			if (part.startsWith("tag:") && part.length > 4) return true;
+			if (part.startsWith("-tag:") && part.length > 5) return true;
+			if (part.startsWith("tag-toggle:") && part.length > 11) return true;
+			return false;
+		});
 	};
 
 	const handleNumberChange = (
@@ -659,10 +766,48 @@ export const SettingsModal: React.FC = () => {
 							>
 								Full Screen Detail
 							</button>
+							<button
+								type="button"
+								className={`meld-tab ${activeTab === "Shortcuts" ? "active" : ""}`}
+								onClick={() => setActiveTab("Shortcuts")}
+							>
+								Shortcuts
+							</button>
 						</div>
 					</div>
 
 					<div className="meld-modal-body">
+						{activeTab === "Shortcuts" && (
+							<div className="meld-settings-help">
+								<p>
+									These shortcuts are available in both View and Full Screen
+									modes.
+								</p>
+								<p>
+									You can combine multiple commands with spaces.
+									<br />
+									Example: <code>tag:favorite next</code> (Add tag and move to
+									next)
+								</p>
+								<div className="meld-settings-help__commands">
+									<strong>Available commands:</strong>
+									<ul>
+										<li>
+											<code>tag:NAME</code> - Add a tag
+										</li>
+										<li>
+											<code>-tag:NAME</code> - Remove a tag
+										</li>
+										<li>
+											<code>tag-toggle:NAME</code> - Toggle a tag
+										</li>
+										<li>
+											<code>next</code> / <code>prev</code> - Navigate images
+										</li>
+									</ul>
+								</div>
+							</div>
+						)}
 						<div className="meld-settings-list">
 							{filteredSettings.map((config) => (
 								<div key={config.key} className="meld-settings-item">
@@ -850,6 +995,30 @@ export const SettingsModal: React.FC = () => {
 												))}
 											</select>
 										)}
+										{config.type === "text" && (
+											<input
+												type="text"
+												className={`meld-text-input ${shortcutErrors[config.key] ? "meld-text-input--error" : ""}`}
+												value={(localSettings[config.key] as string) || ""}
+												onChange={(e) => {
+													setLocalSettings((prev) => ({
+														...prev,
+														[config.key]: e.target.value,
+													}));
+												}}
+												onBlur={() => {
+													if (config.key.startsWith("viewer.shortcut.")) {
+														const isValid = validateShortcut(
+															(localSettings[config.key] as string) || "",
+														);
+														setShortcutErrors((prev) => ({
+															...prev,
+															[config.key]: !isValid,
+														}));
+													}
+												}}
+											/>
+										)}
 									</div>
 								</div>
 							))}
@@ -876,6 +1045,45 @@ export const SettingsModal: React.FC = () => {
 											}}
 										>
 											View Trash
+										</button>
+									</div>
+								</div>
+							</div>
+						)}
+
+						{activeTab === "Shortcuts" && (
+							<div className="meld-settings-extra">
+								<div className="meld-settings-item">
+									<div className="meld-settings-item__info">
+										<div className="meld-settings-item__label">
+											Reset Shortcuts
+										</div>
+										<div className="meld-settings-item__description">
+											Restore all shortcuts to their default values.
+										</div>
+									</div>
+									<div className="meld-settings-item__control">
+										<button
+											type="button"
+											className="meld-button meld-button--secondary"
+											onClick={() => {
+												setLocalSettings((prev) => ({
+													...prev,
+													"viewer.shortcut.1": "tag:keep next",
+													"viewer.shortcut.2": "tag:best next",
+													"viewer.shortcut.3": "tag:fix-needed next",
+													"viewer.shortcut.4": "",
+													"viewer.shortcut.5": "",
+													"viewer.shortcut.6": "",
+													"viewer.shortcut.7": "",
+													"viewer.shortcut.8": "",
+													"viewer.shortcut.9": "",
+													"viewer.shortcut.0": "",
+												}));
+												setShortcutErrors({});
+											}}
+										>
+											Reset to Defaults
 										</button>
 									</div>
 								</div>

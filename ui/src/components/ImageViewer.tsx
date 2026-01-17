@@ -16,7 +16,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import * as api from "../api";
 import { useGallery } from "../store/GalleryContext";
-import type { GalleryAction, MeldImage } from "../types";
+import type { GalleryAction, MeldImage, Settings } from "../types";
 import { getImageViewUrl } from "../utils/url";
 import { DeleteConfirmModal } from "./DeleteConfirmModal";
 import { ImportModal } from "./ImportModal";
@@ -93,6 +93,9 @@ export const ImageViewer: React.FC = () => {
 	const [lastDeletedImages, setLastDeletedImages] = useState<
 		MeldImage[] | null
 	>(null);
+	const [activeShortcutKey, setActiveShortcutKey] = useState<string | null>(
+		null,
+	);
 	const overlayRef = useRef<HTMLDivElement>(null);
 
 	// Track if component is mounted to prevent state updates after unmount
@@ -397,6 +400,70 @@ export const ImageViewer: React.FC = () => {
 		}
 	}, [lastDeletedImages, dispatch, viewerMode]);
 
+	const executeCommand = useCallback(
+		async (command: string) => {
+			if (!command || !image) return;
+
+			const parts = command.split(/\s+/);
+			const addTags: string[] = [];
+			const removeTags: string[] = [];
+			let moveNext = false;
+			let movePrev = false;
+
+			for (const part of parts) {
+				if (part.startsWith("tag:")) {
+					const tag = part.substring(4);
+					if (tag && !image.tags.includes(tag) && !addTags.includes(tag)) {
+						addTags.push(tag);
+					}
+				} else if (part.startsWith("-tag:")) {
+					const tag = part.substring(5);
+					if (tag && image.tags.includes(tag) && !removeTags.includes(tag)) {
+						removeTags.push(tag);
+					}
+				} else if (part.startsWith("tag-toggle:")) {
+					const tag = part.substring(11);
+					if (tag) {
+						if (image.tags.includes(tag)) {
+							if (!removeTags.includes(tag)) removeTags.push(tag);
+						} else {
+							if (!addTags.includes(tag)) addTags.push(tag);
+						}
+					}
+				} else if (part === "next") {
+					moveNext = true;
+				} else if (part === "prev") {
+					movePrev = true;
+				}
+			}
+
+			if (addTags.length > 0 || removeTags.length > 0) {
+				try {
+					await api.bulkUpdateImageTags([image.id], addTags, removeTags);
+					// Update local state
+					const newTags = [...image.tags];
+					for (const t of addTags) {
+						if (!newTags.includes(t)) newTags.push(t);
+					}
+					const finalTags = newTags.filter((t) => !removeTags.includes(t));
+					dispatch({
+						type: "UPDATE_IMAGE",
+						payload: { ...image, tags: finalTags },
+					});
+				} catch (err) {
+					console.error("Failed to update tags via shortcut:", err);
+				}
+			}
+
+			if (moveNext) {
+				handleNext();
+			} else if (movePrev) {
+				handlePrevious();
+			}
+		},
+		[image, dispatch, handleNext, handlePrevious],
+	);
+
 	// Load more images if we are near the end of the current list in gallery mode
 	useEffect(() => {
 		if (
@@ -447,6 +514,8 @@ export const ImageViewer: React.FC = () => {
 			const isEscapeKey = e.key === "Escape";
 			const isUndoKey =
 				(e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z");
+			const isShortcutKey =
+				/^[0-9]$/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey;
 
 			// Always prevent propagation for these keys when viewer is open,
 			// unless we are in an input field and it's not a shortcut we want to catch.
@@ -455,7 +524,8 @@ export const ImageViewer: React.FC = () => {
 				isNavigationKey ||
 				isToggleKey ||
 				isEscapeKey ||
-				isUndoKey
+				isUndoKey ||
+				isShortcutKey
 			) {
 				if (!isTargetInput) {
 					if (isEscapeKey && state.activeModal.type !== "none") {
@@ -514,6 +584,14 @@ export const ImageViewer: React.FC = () => {
 				handleDelete();
 			} else if ((e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z")) {
 				handleUndoDelete();
+			} else if (isShortcutKey && !isTargetInput) {
+				const key = `viewer.shortcut.${e.key}` as keyof Settings;
+				const command = state.settings[key];
+				if (typeof command === "string" && command) {
+					setActiveShortcutKey(e.key);
+					setTimeout(() => setActiveShortcutKey(null), 500);
+					executeCommand(command);
+				}
 			}
 		};
 
@@ -548,6 +626,7 @@ export const ImageViewer: React.FC = () => {
 		handleTagEdit,
 		handleRestore,
 		state.viewScope,
+		executeCommand,
 	]);
 
 	// Fetch full details if needed when image is opened
@@ -1029,6 +1108,30 @@ export const ImageViewer: React.FC = () => {
 							</div>
 						</div>
 					)}
+
+				{state.settings["viewer.shortcut.show_cheat_sheet"] && (
+					<div className="meld-viewer-cheat-sheet">
+						{[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((num) => {
+							const numStr = String(num);
+							const cmd =
+								state.settings[`viewer.shortcut.${numStr}` as keyof Settings];
+							if (typeof cmd === "string" && cmd) {
+								return (
+									<div
+										key={num}
+										className={`meld-viewer-cheat-sheet__item ${activeShortcutKey === numStr ? "meld-viewer-cheat-sheet__item--active" : ""}`}
+									>
+										<span className="meld-viewer-cheat-sheet__key">{num}</span>
+										<span className="meld-viewer-cheat-sheet__cmd">
+											{cmd.replace("tag-toggle:", "+/- ")}
+										</span>
+									</div>
+								);
+							}
+							return null;
+						})}
+					</div>
+				)}
 			</div>
 
 			{/* Render modals inside viewer to ensure visibility in fullscreen */}

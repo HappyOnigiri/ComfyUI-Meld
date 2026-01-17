@@ -101,6 +101,17 @@ export interface Settings {
 	"gallery.view_mode": "grid_details" | "grid_only";
 	"gallery.related_phash_threshold": number;
 	"gallery.suggest_phash_threshold": number;
+	"viewer.shortcut.1": string;
+	"viewer.shortcut.2": string;
+	"viewer.shortcut.3": string;
+	"viewer.shortcut.4": string;
+	"viewer.shortcut.5": string;
+	"viewer.shortcut.6": string;
+	"viewer.shortcut.7": string;
+	"viewer.shortcut.8": string;
+	"viewer.shortcut.9": string;
+	"viewer.shortcut.0": string;
+	"viewer.shortcut.show_cheat_sheet": boolean;
 }
 
 export type ScanStatus = {

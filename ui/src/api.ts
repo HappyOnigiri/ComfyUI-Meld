@@ -142,6 +142,17 @@ export const fetchSettings = async (): Promise<Settings> => {
 			"gallery.view_mode": "grid_details",
 			"gallery.related_phash_threshold": 8,
 			"gallery.suggest_phash_threshold": 12,
+			"viewer.shortcut.1": "tag:keep next",
+			"viewer.shortcut.2": "tag:best next",
+			"viewer.shortcut.3": "tag:fix-needed next",
+			"viewer.shortcut.4": "",
+			"viewer.shortcut.5": "",
+			"viewer.shortcut.6": "",
+			"viewer.shortcut.7": "",
+			"viewer.shortcut.8": "",
+			"viewer.shortcut.9": "",
+			"viewer.shortcut.0": "",
+			"viewer.shortcut.show_cheat_sheet": true,
 		};
 	}
 	const settings = (await res.json()) as Settings;
