@@ -16,6 +16,7 @@ export const fetchSettings = async (): Promise<Settings> => {
 			"sidebar.show_positive_prompt": true,
 			"sidebar.show_negative_prompt": false,
 			"sidebar.show_tags": true,
+			"sidebar.image_fit": "cover",
 			"search.quick_suggestions": true,
 			"search.input_suggest": true,
 			"search.realtime_search": true,

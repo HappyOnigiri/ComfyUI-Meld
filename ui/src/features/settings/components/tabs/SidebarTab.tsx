@@ -165,6 +165,26 @@ export const SidebarTab: React.FC<SidebarTabProps> = ({
 					<span className="meld-switch__slider" />
 				</label>
 			</SettingItem>
+
+			<SettingItem
+				label="Image Fit"
+				description="Choose how non-square images should be displayed in the sidebar."
+			>
+				<select
+					className="meld-select"
+					value={localSettings["sidebar.image_fit"]}
+					onChange={(e) =>
+						setLocalSettings((prev) => ({
+							...prev,
+							"sidebar.image_fit": e.target
+								.value as Settings["sidebar.image_fit"],
+						}))
+					}
+				>
+					<option value="cover">Zoom to Fill (Cover)</option>
+					<option value="contain">Fit to Frame (Contain)</option>
+				</select>
+			</SettingItem>
 		</div>
 	);
 };

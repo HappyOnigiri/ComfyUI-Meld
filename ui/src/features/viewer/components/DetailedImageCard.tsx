@@ -36,6 +36,8 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(
 			fetchFullImageDetails,
 		} = useImageCardLogic(image);
 
+		const imageFit = state.settings["sidebar.image_fit"] || "cover";
+
 		return (
 			<div
 				className={`meld-image-card ${isSelected ? "meld-image-card--selected" : ""}`}
@@ -49,6 +51,7 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(
 					<img
 						src={imgSrc}
 						className="meld-image-card__thumbnail"
+						style={{ objectFit: imageFit }}
 						alt={image.filename}
 						loading="lazy"
 						onMouseDown={handleMouseDown}
