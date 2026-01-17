@@ -3,6 +3,7 @@ import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { bulkUpdateImageTags, fetchTags, updateImageTags } from "../api";
+import { RESERVED_TAG_KEYWORD } from "../constants";
 import { useGallery } from "../store/GalleryContext";
 import type { Tag as TagType } from "../types";
 
@@ -60,6 +61,12 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 
 	const handleAddTag = (tagName: string) => {
 		const trimmed = tagName.trim();
+		if (trimmed.toLowerCase() === RESERVED_TAG_KEYWORD) {
+			alert(
+				`Tag name '${RESERVED_TAG_KEYWORD}' is reserved for search and cannot be used.`,
+			);
+			return;
+		}
 		if (trimmed && !selectedTags.includes(trimmed)) {
 			setSelectedTags([...selectedTags, trimmed]);
 			setSearchQuery("");

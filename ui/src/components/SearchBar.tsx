@@ -12,6 +12,7 @@ import {
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as api from "../api";
+import { RESERVED_TAG_KEYWORD } from "../constants";
 import { logger } from "../logger";
 import { useGallery } from "../store/GalleryContext";
 
@@ -487,11 +488,20 @@ export const SearchBar: React.FC = () => {
 									</span>
 									<span
 										style={{
-											color: "var(--meld-text-color)",
+											color:
+												s.value === RESERVED_TAG_KEYWORD
+													? "var(--meld-accent-color, #3b82f6)"
+													: "var(--meld-text-color)",
 											fontSize: "14px",
+											fontWeight:
+												s.value === RESERVED_TAG_KEYWORD ? "bold" : "normal",
 										}}
 									>
-										{s.value}
+										{s.value === RESERVED_TAG_KEYWORD
+											? s.type === "tag"
+												? `Untagged (${RESERVED_TAG_KEYWORD})`
+												: `No ${s.type} (${RESERVED_TAG_KEYWORD})`
+											: s.value}
 									</span>
 								</div>
 							</div>

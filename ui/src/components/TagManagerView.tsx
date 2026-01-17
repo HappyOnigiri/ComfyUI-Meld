@@ -2,6 +2,7 @@ import { Check, Edit2, Plus, Search, Tag, Trash2, X } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createTag, deleteTag, fetchTags, renameTag } from "../api";
+import { RESERVED_TAG_KEYWORD } from "../constants";
 import type { Tag as TagType } from "../types";
 
 interface TagManagerViewProps {
@@ -51,6 +52,13 @@ export const TagManagerView: React.FC<TagManagerViewProps> = ({
 		const name = newTagName.trim();
 		if (!name || isAdding) return;
 
+		if (name.toLowerCase() === RESERVED_TAG_KEYWORD) {
+			alert(
+				`Tag name '${RESERVED_TAG_KEYWORD}' is reserved for search and cannot be used.`,
+			);
+			return;
+		}
+
 		// Client side duplicate check
 		if (tags.some((t) => t.name.toLowerCase() === name.toLowerCase())) {
 			alert(`Tag "${name}" already exists.`);
@@ -94,6 +102,13 @@ export const TagManagerView: React.FC<TagManagerViewProps> = ({
 		e.preventDefault();
 		const name = editingTagName.trim();
 		if (!name || editingTagId === null || isRenaming) return;
+
+		if (name.toLowerCase() === RESERVED_TAG_KEYWORD) {
+			alert(
+				`Tag name '${RESERVED_TAG_KEYWORD}' is reserved for search and cannot be used.`,
+			);
+			return;
+		}
 
 		const currentTag = tags.find((t) => t.id === editingTagId);
 		if (currentTag && currentTag.name === name) {
