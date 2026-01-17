@@ -34,6 +34,13 @@ export const GalleryPanel: React.FC = () => {
 	type SidebarView = "gallery" | "search" | "tags";
 	const [viewMode, setViewMode] = useState<SidebarView>("gallery");
 	const [lastSearchQuery, setLastSearchQuery] = useState("");
+	const [localLimit, setLocalLimit] = useState(state.pagination.limit);
+
+	// Reset localLimit when search query or view scope changes
+	// biome-ignore lint/correctness/useExhaustiveDependencies: Reset localLimit when search criteria changes
+	useEffect(() => {
+		setLocalLimit(state.pagination.limit);
+	}, [state.searchQuery, state.viewScope, state.pagination.limit]);
 
 	const isSearchActive = state.searchQuery.trim() !== "";
 	const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -52,6 +59,11 @@ export const GalleryPanel: React.FC = () => {
 				);
 			}),
 		[state.images, state.settings, state.viewScope],
+	);
+
+	const visibleImages = useMemo(
+		() => displayedImages.slice(0, localLimit),
+		[displayedImages, localLimit],
 	);
 
 	// If there are no images to display but more exist, automatically load the next page
@@ -78,6 +90,7 @@ export const GalleryPanel: React.FC = () => {
 	logger.log("GalleryPanel: rendering", {
 		imageCount: state.images.length,
 		displayedCount: displayedImages.length,
+		visibleCount: visibleImages.length,
 		isLoading: state.isLoading,
 		activeModal: state.activeModal.type,
 	});
@@ -104,15 +117,47 @@ export const GalleryPanel: React.FC = () => {
 	useEffect(() => {
 		const observer = new IntersectionObserver(
 			(entries) => {
-				if (
-					entries[0].isIntersecting &&
-					!state.isLoading &&
-					state.pagination.hasMore
-				) {
-					logger.log(
-						"GalleryPanel: Load more triggered via IntersectionObserver",
-					);
-					loadMoreImages();
+				if (entries[0].isIntersecting) {
+					if (state.isLoading) {
+						logger.log(
+							"GalleryPanel: Intersection observed but already loading",
+						);
+						return;
+					}
+
+					// If we have more images locally than shown, just increase localLimit
+					if (localLimit < displayedImages.length) {
+						logger.log(
+							"GalleryPanel: Increasing localLimit (local data available)",
+							{
+								oldLimit: localLimit,
+								newLimit: Math.min(
+									localLimit + state.pagination.limit,
+									displayedImages.length,
+								),
+								totalAvailableLocally: displayedImages.length,
+							},
+						);
+						setLocalLimit((prev) => prev + state.pagination.limit);
+					} else if (state.pagination.hasMore) {
+						// Otherwise, if the server says there are more, load them
+						logger.log(
+							"GalleryPanel: Load more triggered via IntersectionObserver (fetching from server)",
+							{
+								offset: state.images.length,
+								hasMore: state.pagination.hasMore,
+							},
+						);
+						loadMoreImages();
+					} else {
+						logger.log(
+							"GalleryPanel: Intersection observed but no more to load",
+							{
+								localCount: displayedImages.length,
+								serverHasMore: state.pagination.hasMore,
+							},
+						);
+					}
 				}
 			},
 			{ threshold: 0, rootMargin: "800px" },
@@ -128,7 +173,15 @@ export const GalleryPanel: React.FC = () => {
 				observer.unobserve(currentRef);
 			}
 		};
-	}, [loadMoreImages, state.isLoading, state.pagination.hasMore]);
+	}, [
+		loadMoreImages,
+		state.isLoading,
+		state.pagination.hasMore,
+		localLimit,
+		displayedImages.length,
+		state.pagination.limit,
+		state.images.length,
+	]);
 
 	// Scroll synchronization with ImageViewer
 	useEffect(() => {
@@ -136,6 +189,16 @@ export const GalleryPanel: React.FC = () => {
 		if (idToScroll !== null) {
 			const isDisplayed = displayedImages.some((img) => img.id === idToScroll);
 			if (isDisplayed) {
+				// If the image is in displayedImages but not in visibleImages, expand localLimit
+				const index = displayedImages.findIndex((img) => img.id === idToScroll);
+				if (index >= localLimit) {
+					setLocalLimit(
+						Math.ceil((index + 1) / state.pagination.limit) *
+							state.pagination.limit,
+					);
+					return; // Wait for next render
+				}
+
 				const element = document.querySelector(
 					`[data-image-id="${idToScroll}"]`,
 				);
@@ -151,7 +214,12 @@ export const GalleryPanel: React.FC = () => {
 		if (state.viewerImageId !== null) {
 			lastScrolledId.current = state.viewerImageId;
 		}
-	}, [state.viewerImageId, displayedImages]);
+	}, [
+		state.viewerImageId,
+		displayedImages,
+		localLimit,
+		state.pagination.limit,
+	]);
 
 	return (
 		<div
@@ -350,14 +418,14 @@ export const GalleryPanel: React.FC = () => {
 				/>
 			) : state.isLoading && displayedImages.length === 0 ? (
 				<div className="meld-gallery__loading">Loading images...</div>
-			) : displayedImages.length === 0 ? (
+			) : visibleImages.length === 0 ? (
 				<div className="meld-gallery__empty">No images found.</div>
 			) : (
 				<>
 					<div
 						className={`meld-gallery__list ${state.settings["gallery.view_mode"] === "grid_only" ? "meld-gallery__list--grid-only" : ""}`}
 					>
-						{displayedImages.map((image) => (
+						{visibleImages.map((image) => (
 							<div key={image.id} data-image-id={image.id}>
 								<LazyRender height={150}>
 									<ImageCard image={image} />
@@ -373,9 +441,11 @@ export const GalleryPanel: React.FC = () => {
 						{state.isLoading && (
 							<div className="meld-gallery__loading">Loading more...</div>
 						)}
-						{!state.pagination.hasMore && displayedImages.length > 0 && (
-							<div className="meld-gallery__end">End of gallery</div>
-						)}
+						{localLimit >= displayedImages.length &&
+							!state.pagination.hasMore &&
+							visibleImages.length > 0 && (
+								<div className="meld-gallery__end">End of gallery</div>
+							)}
 					</div>
 				</>
 			)}
