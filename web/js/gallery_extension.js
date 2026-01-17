@@ -13109,7 +13109,13 @@ const ch = ({
             "div",
             {
               className: `meld-gallery__list ${e.settings["gallery.view_mode"] === "grid_only" ? "meld-gallery__list--grid-only" : ""}`,
-              children: h.map((y) => /* @__PURE__ */ i.jsx("div", { "data-image-id": y.id, children: /* @__PURE__ */ i.jsx(qm, { height: 150, children: /* @__PURE__ */ i.jsx(Jm, { image: y }) }) }, y.id))
+              children: h.map((y) => /* @__PURE__ */ i.jsx("div", { "data-image-id": y.id, children: /* @__PURE__ */ i.jsx(
+                qm,
+                {
+                  height: e.settings["gallery.view_mode"] === "grid_only" ? 100 : 150,
+                  children: /* @__PURE__ */ i.jsx(Jm, { image: y })
+                }
+              ) }, y.id))
             }
           ),
           /* @__PURE__ */ i.jsxs(

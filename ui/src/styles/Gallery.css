@@ -213,6 +213,8 @@
 	width: 100%;
 	aspect-ratio: 1 / 1;
 	min-width: 0;
+	flex: none;
+	height: auto;
 }
 
 .meld-image-card--grid-only .meld-image-card__thumbnail {
@@ -293,6 +295,7 @@
 .meld-image-card__thumbnail {
 	width: 100%;
 	height: 100%;
+	object-fit: cover;
 	border-radius: 4px;
 	display: block;
 }

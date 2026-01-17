@@ -253,7 +253,13 @@ export const GalleryPanel: React.FC = () => {
 					>
 						{visibleImages.map((image) => (
 							<div key={image.id} data-image-id={image.id}>
-								<LazyRender height={150}>
+								<LazyRender
+									height={
+										state.settings["gallery.view_mode"] === "grid_only"
+											? 100
+											: 150
+									}
+								>
 									<ImageCard image={image} />
 								</LazyRender>
 							</div>
