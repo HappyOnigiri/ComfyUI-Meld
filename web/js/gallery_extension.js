@@ -273,7 +273,7 @@ var Uo = { exports: {} }, We = {}, Qo = { exports: {} }, Wo = {};
     var A = N[0], F = N.pop();
     if (F !== A) {
       N[0] = F;
-      e: for (var j = 0, Q = N.length, G = Q >>> 1; j < G; ) {
+      e: for (var j = 0, Q = N.length, H = Q >>> 1; j < H; ) {
         var se = 2 * (j + 1) - 1, He = N[se], ke = se + 1, Et = N[ke];
         if (0 > l(He, F)) ke < Q && 0 > l(Et, He) ? (N[j] = Et, N[ke] = F, j = ke) : (N[j] = He, N[se] = F, j = se);
         else if (ke < Q && 0 > l(Et, F)) N[j] = Et, N[ke] = F, j = ke;
@@ -327,12 +327,12 @@ var Uo = { exports: {} }, We = {}, Qo = { exports: {} }, Wo = {};
         } else r(u);
         _ = n(u);
       }
-      if (_ !== null) var G = !0;
+      if (_ !== null) var H = !0;
       else {
         var se = n(f);
-        se !== null && ee(E, se.startTime - A), G = !1;
+        se !== null && ee(E, se.startTime - A), H = !1;
       }
-      return G;
+      return H;
     } finally {
       _ = null, h = F, w = !1;
     }
@@ -5827,9 +5827,10 @@ const Tp = async () => {
     body: JSON.stringify({ ids: e })
   });
   if (!t.ok) {
-    const n = await t.json();
-    throw new Error(n.error || "Failed to restore images");
+    const r = await t.json();
+    throw new Error(r.error || "Failed to restore images");
   }
+  return (await t.json()).data || { restored_ids: e };
 }, Gc = async (e) => {
   const t = await Y.fetchApi("/meld/register", {
     method: "POST",
@@ -5995,7 +5996,7 @@ var rm = {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const lm = (e) => e.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase().trim(), Z = (e, t) => {
+const lm = (e) => e.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase().trim(), J = (e, t) => {
   const n = v.forwardRef(
     ({
       color: r = "currentColor",
@@ -6031,7 +6032,7 @@ const lm = (e) => e.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase().trim(),
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const im = Z("AlertTriangle", [
+const im = J("AlertTriangle", [
   [
     "path",
     {
@@ -6048,7 +6049,7 @@ const im = Z("AlertTriangle", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const sm = Z("ArrowBigRight", [
+const sm = J("ArrowBigRight", [
   ["path", { d: "M6 9h6V5l7 7-7 7v-4H6V9z", key: "7fvt9c" }]
 ]);
 /**
@@ -6057,7 +6058,7 @@ const sm = Z("ArrowBigRight", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Kc = Z("ArrowDown", [
+const Kc = J("ArrowDown", [
   ["path", { d: "M12 5v14", key: "s699le" }],
   ["path", { d: "m19 12-7 7-7-7", key: "1idqje" }]
 ]);
@@ -6067,7 +6068,7 @@ const Kc = Z("ArrowDown", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Mo = Z("ArrowRight", [
+const Mo = J("ArrowRight", [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ]);
@@ -6077,7 +6078,7 @@ const Mo = Z("ArrowRight", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const am = Z("ArrowUpDown", [
+const am = J("ArrowUpDown", [
   ["path", { d: "m21 16-4 4-4-4", key: "f6ql7i" }],
   ["path", { d: "M17 20V4", key: "1ejh1v" }],
   ["path", { d: "m3 8 4-4 4 4", key: "11wl7u" }],
@@ -6089,7 +6090,7 @@ const am = Z("ArrowUpDown", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Yc = Z("ArrowUp", [
+const Yc = J("ArrowUp", [
   ["path", { d: "m5 12 7-7 7 7", key: "hav0vg" }],
   ["path", { d: "M12 19V5", key: "x0mq9r" }]
 ]);
@@ -6099,7 +6100,7 @@ const Yc = Z("ArrowUp", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const om = Z("Box", [
+const om = J("Box", [
   [
     "path",
     {
@@ -6116,7 +6117,7 @@ const om = Z("Box", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const um = Z("Calendar", [
+const um = J("Calendar", [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
@@ -6128,7 +6129,7 @@ const um = Z("Calendar", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const cm = Z("CheckCircle", [
+const cm = J("CheckCircle", [
   ["path", { d: "M22 11.08V12a10 10 0 1 1-5.93-9.14", key: "g774vq" }],
   ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
 ]);
@@ -6138,14 +6139,14 @@ const cm = Z("CheckCircle", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Xc = Z("Check", [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]]);
+const Xc = J("Check", [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]]);
 /**
  * @license lucide-react v0.344.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Zc = Z("ChevronLeft", [
+const Zc = J("ChevronLeft", [
   ["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]
 ]);
 /**
@@ -6154,7 +6155,7 @@ const Zc = Z("ChevronLeft", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Jc = Z("ChevronRight", [
+const Jc = J("ChevronRight", [
   ["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]
 ]);
 /**
@@ -6163,7 +6164,7 @@ const Jc = Z("ChevronRight", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const dm = Z("Copy", [
+const dm = J("Copy", [
   ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
   ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
 ]);
@@ -6173,7 +6174,7 @@ const dm = Z("Copy", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const fm = Z("Download", [
+const fm = J("Download", [
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
   ["polyline", { points: "7 10 12 15 17 10", key: "2ggqvy" }],
   ["line", { x1: "12", x2: "12", y1: "15", y2: "3", key: "1vk2je" }]
@@ -6184,7 +6185,7 @@ const fm = Z("Download", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const pm = Z("Folder", [
+const pm = J("Folder", [
   [
     "path",
     {
@@ -6199,7 +6200,7 @@ const pm = Z("Folder", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const mm = Z("Info", [
+const mm = J("Info", [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 16v-4", key: "1dtifu" }],
   ["path", { d: "M12 8h.01", key: "e9boi3" }]
@@ -6210,7 +6211,7 @@ const mm = Z("Info", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const qc = Z("LayoutGrid", [
+const qc = J("LayoutGrid", [
   ["rect", { width: "7", height: "7", x: "3", y: "3", rx: "1", key: "1g98yp" }],
   ["rect", { width: "7", height: "7", x: "14", y: "3", rx: "1", key: "6d4xhi" }],
   ["rect", { width: "7", height: "7", x: "14", y: "14", rx: "1", key: "nxv5o0" }],
@@ -6222,7 +6223,7 @@ const qc = Z("LayoutGrid", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const hm = Z("LayoutList", [
+const hm = J("LayoutList", [
   ["rect", { width: "7", height: "7", x: "3", y: "3", rx: "1", key: "1g98yp" }],
   ["rect", { width: "7", height: "7", x: "3", y: "14", rx: "1", key: "1bb6yr" }],
   ["path", { d: "M14 4h7", key: "3xa0d5" }],
@@ -6236,7 +6237,7 @@ const hm = Z("LayoutList", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const gm = Z("Maximize", [
+const gm = J("Maximize", [
   ["path", { d: "M8 3H5a2 2 0 0 0-2 2v3", key: "1dcmit" }],
   ["path", { d: "M21 8V5a2 2 0 0 0-2-2h-3", key: "1e4gt3" }],
   ["path", { d: "M3 16v3a2 2 0 0 0 2 2h3", key: "wsl5sc" }],
@@ -6248,7 +6249,7 @@ const gm = Z("Maximize", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const ym = Z("Minimize", [
+const ym = J("Minimize", [
   ["path", { d: "M8 3v3a2 2 0 0 1-2 2H3", key: "hohbtr" }],
   ["path", { d: "M21 8h-3a2 2 0 0 1-2-2V3", key: "5jw1f3" }],
   ["path", { d: "M3 16h3a2 2 0 0 1 2 2v3", key: "198tvr" }],
@@ -6260,7 +6261,7 @@ const ym = Z("Minimize", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const vm = Z("MoreVertical", [
+const vm = J("MoreVertical", [
   ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
   ["circle", { cx: "12", cy: "5", r: "1", key: "gxeob9" }],
   ["circle", { cx: "12", cy: "19", r: "1", key: "lyex9k" }]
@@ -6271,7 +6272,7 @@ const vm = Z("MoreVertical", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const ed = Z("Pen", [
+const ed = J("Pen", [
   ["path", { d: "M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z", key: "5qss01" }]
 ]);
 /**
@@ -6280,7 +6281,7 @@ const ed = Z("Pen", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const wm = Z("Play", [
+const wm = J("Play", [
   ["polygon", { points: "5 3 19 12 5 21 5 3", key: "191637" }]
 ]);
 /**
@@ -6289,7 +6290,7 @@ const wm = Z("Play", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const xm = Z("PlusCircle", [
+const xm = J("PlusCircle", [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M8 12h8", key: "1wcyev" }],
   ["path", { d: "M12 8v8", key: "napkw2" }]
@@ -6300,7 +6301,7 @@ const xm = Z("PlusCircle", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const ga = Z("Plus", [
+const ga = J("Plus", [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "M12 5v14", key: "s699le" }]
 ]);
@@ -6310,7 +6311,7 @@ const ga = Z("Plus", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const ar = Z("RefreshCw", [
+const ar = J("RefreshCw", [
   ["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }],
   ["path", { d: "M21 3v5h-5", key: "1q7to0" }],
   ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }],
@@ -6322,7 +6323,7 @@ const ar = Z("RefreshCw", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const bn = Z("Search", [
+const bn = J("Search", [
   ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }],
   ["path", { d: "m21 21-4.3-4.3", key: "1qie3q" }]
 ]);
@@ -6332,7 +6333,7 @@ const bn = Z("Search", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const _m = Z("Settings", [
+const _m = J("Settings", [
   [
     "path",
     {
@@ -6348,7 +6349,7 @@ const _m = Z("Settings", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Sm = Z("Square", [
+const Sm = J("Square", [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }]
 ]);
 /**
@@ -6357,7 +6358,7 @@ const Sm = Z("Square", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Lo = Z("Star", [
+const Lo = J("Star", [
   [
     "polygon",
     {
@@ -6372,7 +6373,7 @@ const Lo = Z("Star", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const an = Z("Tag", [
+const an = J("Tag", [
   [
     "path",
     {
@@ -6388,7 +6389,7 @@ const an = Z("Tag", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const zn = Z("Trash2", [
+const zn = J("Trash2", [
   ["path", { d: "M3 6h18", key: "d0wm0j" }],
   ["path", { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6", key: "4alrt4" }],
   ["path", { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2", key: "v07s0e" }],
@@ -6401,7 +6402,7 @@ const zn = Z("Trash2", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const km = Z("Type", [
+const km = J("Type", [
   ["polyline", { points: "4 7 4 4 20 4 20 7", key: "1nosan" }],
   ["line", { x1: "9", x2: "15", y1: "20", y2: "20", key: "swin9y" }],
   ["line", { x1: "12", x2: "12", y1: "4", y2: "20", key: "1tx1rr" }]
@@ -6412,7 +6413,7 @@ const km = Z("Type", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Em = Z("Upload", [
+const Em = J("Upload", [
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
   ["polyline", { points: "17 8 12 3 7 8", key: "t8dd8p" }],
   ["line", { x1: "12", x2: "12", y1: "3", y2: "15", key: "widbto" }]
@@ -6423,7 +6424,7 @@ const Em = Z("Upload", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Le = Z("X", [
+const Le = J("X", [
   ["path", { d: "M18 6 6 18", key: "1bl5f8" }],
   ["path", { d: "m6 6 12 12", key: "d8bk6v" }]
 ]);
@@ -6939,7 +6940,9 @@ const td = v.createContext(void 0), Lm = ({
     if (t.selectedIds.size === 0) return;
     const w = Array.from(t.selectedIds);
     try {
-      n({ type: "SET_LOADING", payload: !0 }), await ws(w), t.viewScope === "trash" && n({ type: "REMOVE_IMAGES", payload: w }), n({ type: "CLEAR_SELECTION" }), n({ type: "SET_LOADING", payload: !1 });
+      n({ type: "SET_LOADING", payload: !0 });
+      const S = (await ws(w)).restored_ids || w;
+      t.viewScope === "trash" && n({ type: "REMOVE_IMAGES", payload: S }), n({ type: "CLEAR_SELECTION" }), n({ type: "SET_LOADING", payload: !1 });
     } catch (y) {
       n({
         type: "SET_ERROR",
@@ -8663,16 +8666,16 @@ const td = v.createContext(void 0), Lm = ({
         await n(Q, i[Q]);
     t({ type: "CLOSE_MODAL" });
   }, ee = (j, Q) => {
-    a((G) => ({
-      ...G,
+    a((H) => ({
+      ...H,
       [j]: !Q
     }));
-  }, N = (j) => j.trim() ? j.trim().split(/\s+/).every((G) => !!(G === "next" || G === "prev" || G === "delete" || G.startsWith("tag:") && G.length > 4 || G.startsWith("-tag:") && G.length > 5 || G.startsWith("tag-toggle:") && G.length > 11)) : !0, A = (j, Q, G, se) => {
+  }, N = (j) => j.trim() ? j.trim().split(/\s+/).every((H) => !!(H === "next" || H === "prev" || H === "delete" || H.startsWith("tag:") && H.length > 4 || H.startsWith("-tag:") && H.length > 5 || H.startsWith("tag-toggle:") && H.length > 11)) : !0, A = (j, Q, H, se) => {
     j === "gallery.initial_load_count" ? x(Q) : j === "gallery.max_load_count" ? h(Q) : j === "gallery.lineage_max_depth" ? y(Q) : j === "viewer.thumbnail_window_size" ? T(Q) : j === "gallery.trash_retention_days" ? d(Q) : j === "gallery.suggest_phash_threshold" ? E(Q) : j === "gallery.related_phash_threshold" ? z(Q) : j === "viewer.details.max_positive_prompt_lines" ? R(Q) : j === "viewer.details.max_negative_prompt_lines" ? $(Q) : j === "fullscreen.details.max_positive_prompt_lines" ? g(Q) : j === "fullscreen.details.max_negative_prompt_lines" && m(Q);
     const He = Number.parseInt(Q, 10);
     if (!Number.isNaN(He)) {
       let ke = He;
-      G !== void 0 && ke < G && (ke = G), se !== void 0 && ke > se && (ke = se), a((Et) => ({
+      H !== void 0 && ke < H && (ke = H), se !== void 0 && ke > se && (ke = se), a((Et) => ({
         ...Et,
         [j]: ke
       }));
@@ -8842,9 +8845,9 @@ const td = v.createContext(void 0), Lm = ({
                         value: j.key === "gallery.initial_load_count" ? f : j.key === "gallery.max_load_count" ? _ : j.key === "gallery.lineage_max_depth" ? w : j.key === "viewer.thumbnail_window_size" ? S : j.key === "viewer.details.max_positive_prompt_lines" ? C : j.key === "viewer.details.max_negative_prompt_lines" ? B : j.key === "fullscreen.details.max_positive_prompt_lines" ? k : j.key === "fullscreen.details.max_negative_prompt_lines" ? P : j.key === "gallery.trash_retention_days" ? c : j.key === "gallery.suggest_phash_threshold" ? p : j.key === "gallery.related_phash_threshold" ? L : i[j.key],
                         min: j.min,
                         max: j.max,
-                        onChange: (G) => A(
+                        onChange: (H) => A(
                           j.key,
-                          G.target.value,
+                          H.target.value,
                           j.min,
                           j.max
                         ),
@@ -8880,11 +8883,11 @@ const td = v.createContext(void 0), Lm = ({
                       {
                         className: "meld-select",
                         value: i[j.key],
-                        onChange: (G) => a((se) => ({
+                        onChange: (H) => a((se) => ({
                           ...se,
-                          [j.key]: G.target.value
+                          [j.key]: H.target.value
                         })),
-                        children: (Q = j.options) == null ? void 0 : Q.map((G) => /* @__PURE__ */ s.jsx("option", { value: G.value, children: G.label }, G.value))
+                        children: (Q = j.options) == null ? void 0 : Q.map((H) => /* @__PURE__ */ s.jsx("option", { value: H.value, children: H.label }, H.value))
                       }
                     ),
                     j.type === "text" && /* @__PURE__ */ s.jsx(
@@ -8893,20 +8896,20 @@ const td = v.createContext(void 0), Lm = ({
                         type: "text",
                         className: `meld-text-input ${o[j.key] ? "meld-text-input--error" : ""}`,
                         value: i[j.key] || "",
-                        onChange: (G) => {
+                        onChange: (H) => {
                           a((se) => ({
                             ...se,
-                            [j.key]: G.target.value
+                            [j.key]: H.target.value
                           }));
                         },
                         onBlur: () => {
                           if (j.key.startsWith("viewer.shortcut.")) {
-                            const G = N(
+                            const H = N(
                               i[j.key] || ""
                             );
                             u((se) => ({
                               ...se,
-                              [j.key]: !G
+                              [j.key]: !H
                             }));
                           }
                         }
@@ -9263,12 +9266,12 @@ const td = v.createContext(void 0), Lm = ({
       };
       if (U.widgets) {
         for (const [j, Q] of Object.entries(ee)) {
-          const G = g[j];
-          if (G != null) {
+          const H = g[j];
+          if (H != null) {
             const se = U.widgets.find(
               (He) => He.name === Q
             );
-            se && (se.value = G);
+            se && (se.value = H);
           }
         }
         const F = U.widgets.find(
@@ -9674,12 +9677,12 @@ const Om = () => {
     (b) => b.exists !== !1 && !(e.settings["gallery.hide_parent_images"] && b.has_children)
   ), [a, o, i, e.settings]), P = v.useMemo(() => l === null ? -1 : g.findIndex((b) => b.id === l), [g, l]), m = v.useMemo(() => (a === "lineage" && o.length > 0 ? o : i).find((b) => b.id === l), [a, o, i, l]), D = v.useMemo(() => {
     if (!y || P === -1) return [];
-    const b = e.settings["viewer.thumbnail_window_size"], H = Math.floor(b / 2);
-    let I = Math.max(0, P - H);
-    const J = Math.min(g.length, I + b);
-    return J === g.length && (I = Math.max(0, J - b)), g.slice(I, J).map((W, X) => ({
+    const b = e.settings["viewer.thumbnail_window_size"], G = Math.floor(b / 2);
+    let I = Math.max(0, P - G);
+    const X = Math.min(g.length, I + b);
+    return X === g.length && (I = Math.max(0, X - b)), g.slice(I, X).map((W, Z) => ({
       img: W,
-      absIndex: I + X
+      absIndex: I + Z
     }));
   }, [
     g,
@@ -9689,8 +9692,8 @@ const Om = () => {
   ]), U = v.useCallback(
     async (b = !1) => {
       if (!m) return;
-      const H = u ? e.settings["fullscreen.delete_mode"] : e.settings["viewer.delete_mode"];
-      if (!b && H === "confirm") {
+      const G = u ? e.settings["fullscreen.delete_mode"] : e.settings["viewer.delete_mode"];
+      if (!b && G === "confirm") {
         t({
           type: "OPEN_MODAL",
           payload: {
@@ -9703,29 +9706,29 @@ const Om = () => {
         return;
       }
       try {
-        const I = e.viewScope === "trash", J = /* @__PURE__ */ new Set([m.id]);
-        if (H === "lineage") {
+        const I = e.viewScope === "trash", X = /* @__PURE__ */ new Set([m.id]);
+        if (G === "lineage") {
           const W = await ys(m.id);
-          for (const X of W)
-            J.add(X.id);
+          for (const Z of W)
+            X.add(Z.id);
         }
         if (!$.current || k.current === null) return;
-        if (g.length > J.size) {
+        if (g.length > X.size) {
           let W = !1;
-          for (let X = P + 1; X < g.length; X++)
-            if (!J.has(g[X].id)) {
+          for (let Z = P + 1; Z < g.length; Z++)
+            if (!X.has(g[Z].id)) {
               t({
                 type: "OPEN_VIEWER",
-                payload: { id: g[X].id, mode: a }
+                payload: { id: g[Z].id, mode: a }
               }), W = !0;
               break;
             }
           if (!W) {
-            for (let X = P - 1; X >= 0; X--)
-              if (!J.has(g[X].id)) {
+            for (let Z = P - 1; Z >= 0; Z--)
+              if (!X.has(g[Z].id)) {
                 t({
                   type: "OPEN_VIEWER",
-                  payload: { id: g[X].id, mode: a }
+                  payload: { id: g[Z].id, mode: a }
                 }), W = !0;
                 break;
               }
@@ -9733,13 +9736,13 @@ const Om = () => {
           W || t({ type: "CLOSE_VIEWER" });
         } else
           t({ type: "CLOSE_VIEWER" });
-        if (await vs(Array.from(J), I), !I) {
+        if (await vs(Array.from(X), I), !I) {
           const W = g.filter(
-            (X) => J.has(X.id)
+            (Z) => X.has(Z.id)
           );
           E(W), z(null);
         }
-        t({ type: "REMOVE_IMAGES", payload: Array.from(J) });
+        t({ type: "REMOVE_IMAGES", payload: Array.from(X) });
       } catch (I) {
         t({
           type: "SET_ERROR",
@@ -9771,21 +9774,21 @@ const Om = () => {
     if (P === 0 && a === "gallery" && e.pagination.hasMore && !c && b) {
       d(!0);
       try {
-        const H = e.pagination.limit, I = e.pagination.total, J = Math.max(0, I - H), W = await ol(
-          J,
-          H,
+        const G = e.pagination.limit, I = e.pagination.total, X = Math.max(0, I - G), W = await ol(
+          X,
+          G,
           e.searchQuery
         );
         if (!$.current || (t({ type: "APPEND_IMAGES", payload: W }), k.current === null)) return;
         if (W.images.length > 0) {
-          const X = W.images[W.images.length - 1];
+          const Z = W.images[W.images.length - 1];
           t({
             type: "OPEN_VIEWER",
-            payload: { id: X.id, mode: "gallery" }
+            payload: { id: Z.id, mode: "gallery" }
           });
         }
-      } catch (H) {
-        console.error("Failed to jump to end:", H);
+      } catch (G) {
+        console.error("Failed to jump to end:", G);
       } finally {
         d(!1);
       }
@@ -9805,8 +9808,8 @@ const Om = () => {
   ]), A = v.useCallback(
     (b) => {
       b && "stopPropagation" in b && b.stopPropagation();
-      const H = B.current;
-      H && (document.fullscreenElement ? document.exitFullscreen() : H.requestFullscreen().catch((I) => {
+      const G = B.current;
+      G && (document.fullscreenElement ? document.exitFullscreen() : G.requestFullscreen().catch((I) => {
         console.error(
           `Error attempting to enable full-screen mode: ${I.message}`
         );
@@ -9819,7 +9822,9 @@ const Om = () => {
     if (m)
       try {
         const b = m.id;
-        g.length > 1 ? F() : t({ type: "CLOSE_VIEWER" }), await ws([b]), t({ type: "REMOVE_IMAGES", payload: [b] });
+        g.length > 1 ? F() : t({ type: "CLOSE_VIEWER" });
+        const I = (await ws([b])).restored_ids || [b];
+        t({ type: "REMOVE_IMAGES", payload: I });
       } catch (b) {
         t({
           type: "SET_ERROR",
@@ -9828,12 +9833,18 @@ const Om = () => {
       }
   }, [m, g.length, F, t]), Q = v.useCallback(async () => {
     if (!p || p.length === 0) return;
-    const b = p.map((I) => I.id), H = b[0];
+    const b = p.map((I) => I.id), G = b[0];
     try {
-      if (await ws(b), !$.current || (t({ type: "ADD_IMAGES", payload: p }), E(null), !$.current)) return;
+      const I = await ws(b);
+      if (!$.current) return;
+      if (t({ type: "ADD_IMAGES", payload: p }), e.viewScope === "trash") {
+        const X = I.restored_ids || b;
+        t({ type: "REMOVE_IMAGES", payload: X });
+      }
+      if (E(null), !$.current) return;
       t({
         type: "OPEN_VIEWER",
-        payload: { id: H, mode: a }
+        payload: { id: G, mode: a }
       });
     } catch (I) {
       t({
@@ -9841,32 +9852,32 @@ const Om = () => {
         payload: I instanceof Error ? I.message : String(I)
       });
     }
-  }, [p, t, a]), G = v.useCallback(async () => {
+  }, [p, t, a, e.viewScope]), H = v.useCallback(async () => {
     if (p && p.length > 0)
       await Q();
     else if (L && L.type === "tags") {
-      const { imageId: b, addTags: H, removeTags: I } = L;
+      const { imageId: b, addTags: G, removeTags: I } = L;
       try {
-        await xs([b], H, I);
-        const J = (a === "lineage" ? o : i).find((W) => W.id === b);
-        if (J) {
-          const W = [...J.tags];
-          for (const ge of H)
+        await xs([b], G, I);
+        const X = (a === "lineage" ? o : i).find((W) => W.id === b);
+        if (X) {
+          const W = [...X.tags];
+          for (const ge of G)
             W.includes(ge) || W.push(ge);
-          const X = W.filter((ge) => !I.includes(ge));
+          const Z = W.filter((ge) => !I.includes(ge));
           t({
             type: "UPDATE_IMAGE",
-            payload: { ...J, tags: X }
+            payload: { ...X, tags: Z }
           }), t({
             type: "OPEN_VIEWER",
             payload: { id: b, mode: a }
           });
         }
         z(null);
-      } catch (J) {
+      } catch (X) {
         t({
           type: "SET_ERROR",
-          payload: J instanceof Error ? J.message : String(J)
+          payload: X instanceof Error ? X.message : String(X)
         });
       }
     }
@@ -9881,33 +9892,33 @@ const Om = () => {
   ]), se = v.useCallback(
     async (b) => {
       if (!b || !m) return;
-      const H = m.id, I = [...m.tags], J = b.split(/\s+/), W = [], X = [];
+      const G = m.id, I = [...m.tags], X = b.split(/\s+/), W = [], Z = [];
       let ge = !1, on = !1, Lr = !1;
-      for (const ye of J)
+      for (const ye of X)
         if (ye.startsWith("tag:")) {
           const de = ye.substring(4);
           de && !I.includes(de) && !W.includes(de) && W.push(de);
         } else if (ye.startsWith("-tag:")) {
           const de = ye.substring(5);
-          de && I.includes(de) && !X.includes(de) && X.push(de);
+          de && I.includes(de) && !Z.includes(de) && Z.push(de);
         } else if (ye.startsWith("tag-toggle:")) {
           const de = ye.substring(11);
-          de && (I.includes(de) ? X.includes(de) || X.push(de) : W.includes(de) || W.push(de));
+          de && (I.includes(de) ? Z.includes(de) || Z.push(de) : W.includes(de) || W.push(de));
         } else ye === "next" ? ge = !0 : ye === "prev" ? on = !0 : ye === "delete" && (Lr = !0);
-      if (W.length > 0 || X.length > 0)
+      if (W.length > 0 || Z.length > 0)
         try {
-          await xs([H], W, X);
+          await xs([G], W, Z);
           const ye = [...I];
           for (const Gt of W)
             ye.includes(Gt) || ye.push(Gt);
-          const de = ye.filter((Gt) => !X.includes(Gt));
+          const de = ye.filter((Gt) => !Z.includes(Gt));
           t({
             type: "UPDATE_IMAGE",
-            payload: { ...m, id: H, tags: de }
+            payload: { ...m, id: G, tags: de }
           }), z({
             type: "tags",
-            imageId: H,
-            addTags: [...X],
+            imageId: G,
+            addTags: [...Z],
             removeTags: [...W]
           }), E(null);
         } catch (ye) {
@@ -9931,9 +9942,9 @@ const Om = () => {
     const b = (I) => {
       var de, Gt, ya;
       if (l === null) return;
-      const J = ((de = document.activeElement) == null ? void 0 : de.tagName) === "INPUT" || ((Gt = document.activeElement) == null ? void 0 : Gt.tagName) === "TEXTAREA" || ((ya = document.activeElement) == null ? void 0 : ya.isContentEditable), W = I.key === "Delete" || I.key === "Backspace", X = I.key === "ArrowRight" || I.key === "ArrowLeft", ge = I.key === "f" || I.key === "F" || I.key === "i" || I.key === "I" || I.key === "t" || I.key === "T" || I.key === "r" || I.key === "R", on = I.key === "Escape", Lr = (I.ctrlKey || I.metaKey) && (I.key === "z" || I.key === "Z" || I.code === "KeyZ"), ye = /^[0-9]$/.test(I.key) && !I.ctrlKey && !I.metaKey && !I.altKey && I.code !== "KeyZ";
-      if (W || X || ge || on || Lr || ye)
-        if (J)
+      const X = ((de = document.activeElement) == null ? void 0 : de.tagName) === "INPUT" || ((Gt = document.activeElement) == null ? void 0 : Gt.tagName) === "TEXTAREA" || ((ya = document.activeElement) == null ? void 0 : ya.isContentEditable), W = I.key === "Delete" || I.key === "Backspace", Z = I.key === "ArrowRight" || I.key === "ArrowLeft", ge = I.key === "f" || I.key === "F" || I.key === "i" || I.key === "I" || I.key === "t" || I.key === "T" || I.key === "r" || I.key === "R", on = I.key === "Escape", Lr = (I.ctrlKey || I.metaKey) && (I.key === "z" || I.key === "Z" || I.code === "KeyZ"), ye = /^[0-9]$/.test(I.key) && !I.ctrlKey && !I.metaKey && !I.altKey && I.code !== "KeyZ";
+      if (W || Z || ge || on || Lr || ye)
+        if (X)
           if (on) {
             if (e.activeModal.type !== "none") {
               I.preventDefault(), I.stopPropagation();
@@ -9968,19 +9979,19 @@ const Om = () => {
       else if (I.key === "Delete")
         U();
       else if ((I.ctrlKey || I.metaKey) && (I.key === "z" || I.key === "Z"))
-        G();
-      else if (ye && !J) {
+        H();
+      else if (ye && !X) {
         const Zl = `viewer.shortcut.${I.key}`, Jl = e.settings[Zl];
         typeof Jl == "string" && Jl && (R(I.key), setTimeout(() => R(null), 500), se(Jl));
       }
     };
     window.addEventListener("keydown", b, { capture: !0 });
-    const H = () => {
+    const G = () => {
       const I = !!document.fullscreenElement;
       f(I), _(I ? e.settings["fullscreen.show_details_by_default"] : e.settings["viewer.show_details_by_default"]);
     };
-    return document.addEventListener("fullscreenchange", H), () => {
-      window.removeEventListener("keydown", b, { capture: !0 }), document.removeEventListener("fullscreenchange", H);
+    return document.addEventListener("fullscreenchange", G), () => {
+      window.removeEventListener("keydown", b, { capture: !0 }), document.removeEventListener("fullscreenchange", G);
     };
   }, [
     l,
@@ -9991,7 +10002,7 @@ const Om = () => {
     e.settings,
     U,
     e.activeModal.type,
-    G,
+    H,
     ee,
     j,
     e.viewScope,
@@ -10012,7 +10023,7 @@ const Om = () => {
     document.fullscreenElement && document.exitFullscreen().catch(() => {
     });
   }, []), v.useEffect(() => {
-    var b, H;
+    var b, G;
     if (l !== null) {
       if (y) {
         const I = document.querySelector(
@@ -10024,7 +10035,7 @@ const Om = () => {
           inline: "center"
         });
       }
-      ((b = document.activeElement) == null ? void 0 : b.tagName) === "CANVAS" && document.activeElement.blur(), (H = B.current) == null || H.focus();
+      ((b = document.activeElement) == null ? void 0 : b.tagName) === "CANVAS" && document.activeElement.blur(), (G = B.current) == null || G.focus();
     }
   }, [l, y]), v.useEffect(() => {
     if (l === null || g.length === 0) return;
@@ -10032,46 +10043,46 @@ const Om = () => {
       (W) => W.id === l
     );
     if (b === -1) return;
-    const H = (W) => Te(W), I = [
+    const G = (W) => Te(W), I = [
       b + 1,
       b + 2,
       b - 1
-    ], J = setTimeout(() => {
+    ], X = setTimeout(() => {
       for (const W of I)
         if (W >= 0 && W < g.length) {
-          const X = g[W], ge = new Image();
-          ge.src = H(X);
+          const Z = g[W], ge = new Image();
+          ge.src = G(Z);
         }
     }, 150);
-    return () => clearTimeout(J);
+    return () => clearTimeout(X);
   }, [l, g]);
   const He = v.useCallback(
     (b) => {
-      const H = e.settings["gallery.lineage_max_depth"];
-      if (H === 0) return [];
+      const G = e.settings["gallery.lineage_max_depth"];
+      if (G === 0) return [];
       if (b.ancestors && b.ancestors.length > 0)
-        return b.ancestors.slice(0, H).map((ge) => ({
+        return b.ancestors.slice(0, G).map((ge) => ({
           id: ge.id,
           imgSrc: Te(ge)
         }));
       const I = b.parent_id;
       if (!I || !b.parent_filename) return [];
-      const J = i.find((ge) => ge.id === I);
+      const X = i.find((ge) => ge.id === I);
       let W = null;
-      if (J ? W = Te(J) : W = Te({
+      if (X ? W = Te(X) : W = Te({
         filename: b.parent_filename,
         subfolder: b.parent_subfolder || "",
         type: b.parent_type
       }), !W) return [];
-      const X = {
+      const Z = {
         id: I || null,
         imgSrc: W
       };
-      if (J && H > 1) {
-        const ge = He(J);
-        return [X, ...ge].slice(0, H);
+      if (X && G > 1) {
+        const ge = He(X);
+        return [Z, ...ge].slice(0, G);
       }
-      return [X];
+      return [Z];
     },
     [e.settings, i]
   ), ke = v.useMemo(() => m ? He(m) : [], [m, He]);
@@ -10221,7 +10232,7 @@ const Om = () => {
                       (u ? e.settings["fullscreen.details.show_source"] : e.settings["viewer.details.show_source"]) && ke.length > 0 && /* @__PURE__ */ s.jsxs("div", { className: "meld-viewer-details-item", children: [
                         /* @__PURE__ */ s.jsx("div", { className: "meld-viewer-details-label", children: "Source" }),
                         /* @__PURE__ */ s.jsx("div", { className: "meld-viewer-details-tags", children: /* @__PURE__ */ s.jsx("div", { className: "meld-lineage-thumbs", children: ke.map(
-                          (b, H) => b.imgSrc && /* @__PURE__ */ s.jsx(
+                          (b, G) => b.imgSrc && /* @__PURE__ */ s.jsx(
                             "img",
                             {
                               src: b.imgSrc,
@@ -10237,10 +10248,10 @@ const Om = () => {
                                   }
                                 });
                               },
-                              title: H === 0 ? "Source" : H === 1 ? "Grand-Source" : `Ancestor (S${H + 1})`,
+                              title: G === 0 ? "Source" : G === 1 ? "Grand-Source" : `Ancestor (S${G + 1})`,
                               alt: "source thumb"
                             },
-                            b.id || H
+                            b.id || G
                           )
                         ) }) })
                       ] }),
@@ -10300,11 +10311,11 @@ const Om = () => {
                   a === "gallery" && e.isLoading && /* @__PURE__ */ s.jsx("div", { className: "meld-viewer-thumbnail meld-viewer-thumbnail--loading", children: /* @__PURE__ */ s.jsx(ar, { className: "animate-spin", size: 20 }) })
                 ] }) }),
                 e.settings["viewer.shortcut.show_cheat_sheet"] && /* @__PURE__ */ s.jsx("div", { className: "meld-viewer-cheat-sheet", children: [1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((b) => {
-                  const H = String(b), I = e.settings[`viewer.shortcut.${H}`];
+                  const G = String(b), I = e.settings[`viewer.shortcut.${G}`];
                   return typeof I == "string" && I ? /* @__PURE__ */ s.jsxs(
                     "div",
                     {
-                      className: `meld-viewer-cheat-sheet__item ${C === H ? "meld-viewer-cheat-sheet__item--active" : ""}`,
+                      className: `meld-viewer-cheat-sheet__item ${C === G ? "meld-viewer-cheat-sheet__item--active" : ""}`,
                       children: [
                         /* @__PURE__ */ s.jsx("span", { className: "meld-viewer-cheat-sheet__key", children: b }),
                         /* @__PURE__ */ s.jsx("span", { className: "meld-viewer-cheat-sheet__cmd", children: I.replace("tag-toggle:", "+/- ") })
@@ -10466,7 +10477,7 @@ const Om = () => {
   const z = (m) => {
     m.key === "Enter" ? L(r) : m.key === "Tab" ? o && _ >= 0 && (C(i[_]), m.preventDefault()) : m.key === "ArrowDown" ? o && (h((D) => Math.min(D + 1, i.length - 1)), m.preventDefault()) : m.key === "ArrowUp" ? o && (h((D) => Math.max(D - 1, -1)), m.preventDefault()) : m.key === "Escape" && u(!1);
   }, C = (m) => {
-    var G;
+    var H;
     const D = r.split(/\s+/), ee = (D.pop() || "").match(/^([-!])/), N = ee ? ee[1] : "", j = [
       "date",
       "after",
@@ -10477,7 +10488,7 @@ const Om = () => {
       ...D,
       `${N}${m.type}:${j}`
     ].join(" ").trim()} `;
-    l(Q), a([]), u(!1), (G = c.current) == null || G.focus();
+    l(Q), a([]), u(!1), (H = c.current) == null || H.focus();
   }, R = () => {
     l(""), L("");
   }, B = async (m, D, U) => {
