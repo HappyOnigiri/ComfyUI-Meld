@@ -1,6 +1,19 @@
-.PHONY: ci test-all lint repomix repomix-image-manager local-check-scripts check-scripts
+.PHONY: ci test-all lint repomix repomix-image-manager local-check-scripts check-scripts loc
 
 ci: local-check-scripts check-only-ascii lint build-ui test-all
+
+loc:
+	@echo "=== Lines of code by file ==="
+	@git ls-files | grep -v "web/js/gallery_extension.js" | xargs wc -l | sort -nr
+	@echo ""
+	@echo "=== Lines of code by extension ==="
+	@git ls-files | grep -v "web/js/gallery_extension.js" | xargs wc -l | grep -v " total$$" | awk '{ \
+		n = split($$2, a, "."); \
+		ext = (n > 1) ? a[n] : "no_ext"; \
+		count[ext] += $$1; \
+	} END { \
+		for (e in count) printf "%10d %s\n", count[e], e; \
+	}' | sort -nr
 
 build-ui:
 	cd ui && npm install && npm run build
