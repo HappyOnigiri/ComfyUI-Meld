@@ -19,6 +19,7 @@ from aiohttp import web
 from PIL import Image
 
 from ..load_image_configs.core.metadata_helper import MetadataHelper
+from .constants import RESERVED_TAG_KEYWORD
 from .database import (
     TRASH_DIR,
     add_model_relation,
@@ -88,7 +89,7 @@ async def update_image_tags(request: web.Request) -> web.Response:
             # 2. Add new tags and create relations
             for tag_name in req.tags:
                 tag_name = tag_name.strip()
-                if not tag_name:
+                if not tag_name or tag_name.lower() == RESERVED_TAG_KEYWORD:
                     continue
 
                 # Get or create tag
@@ -133,7 +134,7 @@ async def bulk_update_image_tags(request: web.Request) -> web.Response:
             # 1. Process tags to add
             for tag_name in req.addTags:
                 tag_name = tag_name.strip()
-                if not tag_name:
+                if not tag_name or tag_name.lower() == RESERVED_TAG_KEYWORD:
                     continue
 
                 # Get or create tag
@@ -582,6 +583,11 @@ async def create_tag(request: web.Request) -> web.Response:
         if not req.name:
             return web.json_response({"error": "name is required"}, status=400)
 
+        if req.name.lower() == RESERVED_TAG_KEYWORD:
+            return web.json_response(
+                {"error": f"Tag name '{RESERVED_TAG_KEYWORD}' is reserved for search and cannot be used."}, status=400
+            )
+
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("INSERT OR IGNORE INTO tags (name) VALUES (?)", (req.name,))
@@ -631,6 +637,11 @@ async def tag_rename_endpoint(request: web.Request) -> web.Response:
 
         if req.id is None or not req.name:
             return web.json_response({"error": "id and name are required"}, status=400)
+
+        if req.name.lower() == RESERVED_TAG_KEYWORD:
+            return web.json_response(
+                {"error": f"Tag name '{RESERVED_TAG_KEYWORD}' is reserved for search and cannot be used."}, status=400
+            )
 
         conn = get_db_connection()
         try:

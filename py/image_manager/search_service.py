@@ -4,6 +4,8 @@ import time
 from datetime import datetime
 from typing import Any
 
+from .constants import RESERVED_TAG_KEYWORD
+
 
 class SearchService:
     PREFIX_MAP = {
@@ -130,6 +132,12 @@ class SearchService:
                 # Targeted search (tags, models, etc.)
                 prefix = cond["prefix"]
                 table, rel_table, rel_id = cls.PREFIX_MAP[prefix]
+
+                # Special case for "none" (untagged, no model, etc.)
+                if cond["value"].lower() == RESERVED_TAG_KEYWORD:
+                    sub_queries.append(f"i.id NOT IN (SELECT image_id FROM {rel_table})")
+                    continue
+
                 if cond["is_partial"]:
                     sub_queries.append(
                         f"i.id IN (SELECT image_id FROM {rel_table} WHERE {rel_id} IN (SELECT id FROM {table} WHERE name LIKE ? COLLATE NOCASE))"
@@ -170,6 +178,10 @@ class SearchService:
         target_prefixes = [prefix_filter] if prefix_filter in cls.PREFIX_MAP else cls.PREFIX_MAP.keys()
 
         for prefix in target_prefixes:
+            # Add "none" suggestion for each prefix if it matches partial_query
+            if not partial_query or RESERVED_TAG_KEYWORD.startswith(partial_query.lower()):
+                results.append({"type": prefix, "value": RESERVED_TAG_KEYWORD, "count": 0})
+
             table, rel_table, rel_id = cls.PREFIX_MAP[prefix]
             # count usage
             sql = f"SELECT name FROM {table} WHERE name LIKE ? COLLATE NOCASE ORDER BY name ASC LIMIT ?"
@@ -251,5 +263,13 @@ class SearchService:
         if date_row:
             dt = datetime.fromtimestamp(date_row[0])
             suggestions.append({"type": "date", "value": dt.strftime("%Y-%m-%d")})
+
+        # 5. Untagged (if any exist)
+        cursor.execute(
+            "SELECT COUNT(*) FROM images WHERE id NOT IN (SELECT image_id FROM tag_image_relations) AND deleted_at IS NULL"
+        )
+        untagged_count = cursor.fetchone()[0]
+        if untagged_count > 0:
+            suggestions.append({"type": "tag", "value": RESERVED_TAG_KEYWORD})
 
         return suggestions
