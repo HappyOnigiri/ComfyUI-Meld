@@ -22,17 +22,44 @@ def find_closest_parent(
     before_timestamp: float | None = None,
     sort_strategy: str = "phash_only",
 ) -> int | None:
+    """
+    Find the most likely parent image based on pHash distance.
+
+    DOCUMENTATION FOR AI DEVELOPERS:
+    There are two distinct types of thresholds used in this system:
+
+    1. Auto-linking Threshold (gallery.auto_link_phash_threshold):
+       - Used during new image registration and full library scans.
+       - PURPOSE: To automatically establish a high-confidence lineage without manual intervention.
+       - POLICY: Only link if there is a VERY high probability of relatedness. If not met,
+         it's better to leave the image without a parent and let the user link it manually.
+       - DEFAULT: 92% (pHash distance <= 5)
+
+    2. Suggestion Threshold (gallery.suggest_phash_threshold):
+       - Used for manual "Add source image" dialogs.
+       - PURPOSE: To show a list of potential candidates that the user might want to link.
+       - POLICY: Be more permissive to help users find relevant ancestors even if significant
+         changes were made (e.g., changing many prompts or models).
+       - DEFAULT: 82% (pHash distance <= 11)
+
+    CRITICAL RULE: NEVER use the permissive Suggestion Threshold for automatic linking tasks.
+    Doing so creates incorrect lineage data that is difficult for users to clean up.
+    """
     if not phash:
         return None
 
     if threshold is None:
-        # Fetch from settings if not provided
+        # FALLBACK: Use Suggestion Threshold if no threshold is provided.
+        # However, callers SHOULD provide the correct threshold based on the task.
         cursor.execute("SELECT value FROM settings WHERE key = ?", ("gallery.suggest_phash_threshold",))
         row = cursor.fetchone()
         if row:
             try:
                 val = json.loads(row[0])
-                threshold = val if isinstance(val, int) else 8
+                if isinstance(val, (int, float)):
+                    threshold = round(64 * (1 - val / 100))
+                else:
+                    threshold = 8
             except Exception:
                 threshold = 8
         else:

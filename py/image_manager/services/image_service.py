@@ -73,6 +73,16 @@ def get_parent_suggestions(
     strategy: str = "phash_created",
     threshold: int = 12,
 ) -> list[ParentSuggestion]:
+    """
+    Get a list of candidate parent images for manual selection.
+
+    DOCUMENTATION FOR AI DEVELOPERS:
+    This function is used for MANUAL linking via the UI dialog.
+    It uses a more permissive threshold (gallery.suggest_phash_threshold)
+    to help users find potential ancestors even if they have diverged significantly.
+
+    DO NOT use this permissive threshold for automatic linking tasks.
+    """
     # 1. Find source filename matches (if strategy includes it)
     source_matches = []
     if strategy == "filename_phash":

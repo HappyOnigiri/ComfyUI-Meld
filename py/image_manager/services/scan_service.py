@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import sqlite3
@@ -121,11 +122,39 @@ def infer_parent_id(
     prompt_json: str | dict | None = None,
     threshold: int | None = None,
 ) -> int | None:
+    """
+    Infer the parent ID for an image.
+    This function is used for AUTOMATIC linking during registration or scan.
+
+    DOCUMENTATION FOR AI DEVELOPERS:
+    This function MUST use a strict threshold (gallery.auto_link_phash_threshold)
+    by default. Automatic linking should only happen when there is high confidence
+    that the images are related.
+
+    - Auto-linking is for high-probability relationships.
+    - If the relationship is ambiguous, DO NOT link automatically.
+    - Users can always use the 'Add Source' dialog (which uses a more permissive
+      threshold) to link images manually.
+    """
     from .image_service import extract_source_filenames
 
     parent_id = None
     if created_at is None:
         created_at = time.time()
+
+    # Determine threshold for pHash matching
+    if threshold is None:
+        # Fetch auto-linking threshold from settings
+        cursor.execute("SELECT value FROM settings WHERE key = ?", ("gallery.auto_link_phash_threshold",))
+        row = cursor.fetchone()
+        if row:
+            try:
+                val = json.loads(row[0])
+                threshold = round(64 * (1 - val / 100))
+            except Exception:
+                threshold = 5  # Default distance for 92%
+        else:
+            threshold = 5
 
     # 1. Try to get source filenames (for filename_phash strategy)
     source_filenames = []
@@ -421,8 +450,9 @@ def _scan_thread(
 
                 parent_id = infer_parent_id(cursor, fname, subf, itype, iphash, icreated, strategy=matching_strategy)
 
-                if parent_id and parent_id != img_id:
-                    cursor.execute("UPDATE images SET parent_id = ? WHERE id = ?", (parent_id, img_id))
+                if link_strategy == "all" or parent_id:
+                    if parent_id != img_id:
+                        cursor.execute("UPDATE images SET parent_id = ? WHERE id = ?", (parent_id, img_id))
 
                 processed_linking += 1
                 if processed_linking % 5 == 0 or processed_linking == total_linking:

@@ -99,8 +99,8 @@ export interface Settings {
 	"gallery.trash_retention_days": number;
 	"gallery.trash.show_missing": boolean;
 	"gallery.view_mode": "grid_details" | "grid_only";
-	"gallery.related_phash_threshold": number;
 	"gallery.suggest_phash_threshold": number;
+	"gallery.auto_link_phash_threshold": number;
 	"viewer.shortcut.1": string;
 	"viewer.shortcut.2": string;
 	"viewer.shortcut.3": string;

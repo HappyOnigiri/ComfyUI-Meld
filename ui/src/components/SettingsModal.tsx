@@ -37,13 +37,13 @@ export const SettingsModal: React.FC = () => {
 		useState<string>(state.settings["viewer.thumbnail_window_size"].toString());
 	const [trashRetentionDaysInput, setTrashRetentionDaysInput] =
 		useState<string>(state.settings["gallery.trash_retention_days"].toString());
+	const [autoLinkPhashThresholdInput, setAutoLinkPhashThresholdInput] =
+		useState<string>(
+			state.settings["gallery.auto_link_phash_threshold"].toString(),
+		);
 	const [suggestPhashThresholdInput, setSuggestPhashThresholdInput] =
 		useState<string>(
 			state.settings["gallery.suggest_phash_threshold"].toString(),
-		);
-	const [relatedPhashThresholdInput, setRelatedPhashThresholdInput] =
-		useState<string>(
-			state.settings["gallery.related_phash_threshold"].toString(),
 		);
 	const [maxPositivePromptLinesInput, setMaxPositivePromptLinesInput] =
 		useState<string>(
@@ -148,24 +148,24 @@ export const SettingsModal: React.FC = () => {
 			max: 365,
 		},
 		{
-			key: "gallery.suggest_phash_threshold",
-			label: "Parent Suggestion Threshold",
+			key: "gallery.auto_link_phash_threshold",
+			label: "Auto Linking Threshold (%)",
 			description:
-				"Maximum pHash distance for automatic parent linking (0-64). Default: 12. Recommended: 8-16. Smaller is stricter.",
+				"Minimum similarity percentage for automatic parent linking during creation or scan (0-100). Default: 92%. Should be strict to avoid false links.",
 			type: "number",
 			category: "General",
 			min: 0,
-			max: 64,
+			max: 100,
 		},
 		{
-			key: "gallery.related_phash_threshold",
-			label: "Related Images Threshold",
+			key: "gallery.suggest_phash_threshold",
+			label: "Parent Suggestion Threshold (%)",
 			description:
-				"Maximum pHash distance for 'Similar Images' view (0-64). Default: 8. Recommended: 4-12. Smaller is stricter.",
+				"Minimum similarity percentage for showing candidates in manual 'Add Source' dialog (0-100). Default: 82%. Permissive enough to find ancestors.",
 			type: "number",
 			category: "General",
 			min: 0,
-			max: 64,
+			max: 100,
 		},
 		{
 			key: "sidebar.show_filename",
@@ -667,10 +667,10 @@ export const SettingsModal: React.FC = () => {
 			setThumbnailWindowSizeInput(value);
 		} else if (key === "gallery.trash_retention_days") {
 			setTrashRetentionDaysInput(value);
+		} else if (key === "gallery.auto_link_phash_threshold") {
+			setAutoLinkPhashThresholdInput(value);
 		} else if (key === "gallery.suggest_phash_threshold") {
 			setSuggestPhashThresholdInput(value);
-		} else if (key === "gallery.related_phash_threshold") {
-			setRelatedPhashThresholdInput(value);
 		} else if (key === "viewer.details.max_positive_prompt_lines") {
 			setMaxPositivePromptLinesInput(value);
 		} else if (key === "viewer.details.max_negative_prompt_lines") {
@@ -868,11 +868,11 @@ export const SettingsModal: React.FC = () => {
 																							"gallery.trash_retention_days"
 																						? trashRetentionDaysInput
 																						: config.key ===
-																								"gallery.suggest_phash_threshold"
-																							? suggestPhashThresholdInput
+																								"gallery.auto_link_phash_threshold"
+																							? autoLinkPhashThresholdInput
 																							: config.key ===
-																									"gallery.related_phash_threshold"
-																								? relatedPhashThresholdInput
+																									"gallery.suggest_phash_threshold"
+																								? suggestPhashThresholdInput
 																								: (localSettings[
 																										config.key
 																									] as unknown as number)
@@ -925,19 +925,19 @@ export const SettingsModal: React.FC = () => {
 															].toString(),
 														);
 													} else if (
+														config.key === "gallery.auto_link_phash_threshold"
+													) {
+														setAutoLinkPhashThresholdInput(
+															localSettings[
+																"gallery.auto_link_phash_threshold"
+															].toString(),
+														);
+													} else if (
 														config.key === "gallery.suggest_phash_threshold"
 													) {
 														setSuggestPhashThresholdInput(
 															localSettings[
 																"gallery.suggest_phash_threshold"
-															].toString(),
-														);
-													} else if (
-														config.key === "gallery.related_phash_threshold"
-													) {
-														setRelatedPhashThresholdInput(
-															localSettings[
-																"gallery.related_phash_threshold"
 															].toString(),
 														);
 													} else if (
