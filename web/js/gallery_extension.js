@@ -5743,7 +5743,9 @@ const yp = async () => {
       "viewer.show_thumbnails": !0,
       "viewer.show_icons": !0,
       "viewer.delete_mode": "confirm",
+      "viewer.small_image_mode": "fit",
       "fullscreen.delete_mode": "confirm",
+      "fullscreen.small_image_mode": "fit",
       "gallery.matching_strategy": "phash_created",
       "gallery.lineage_max_depth": 5,
       "gallery.trash_retention_days": 30,
@@ -6470,7 +6472,9 @@ const fm = (e) => {
     "viewer.show_thumbnails": !0,
     "viewer.show_icons": !0,
     "viewer.delete_mode": "confirm",
+    "viewer.small_image_mode": "fit",
     "fullscreen.delete_mode": "confirm",
+    "fullscreen.small_image_mode": "fit",
     "gallery.matching_strategy": "phash_created",
     "gallery.lineage_max_depth": 5,
     "gallery.trash_retention_days": 30,
@@ -8400,6 +8404,17 @@ const Vc = x.createContext(void 0), vm = ({
       category: "View"
     },
     {
+      key: "viewer.small_image_mode",
+      label: "Small Image Display",
+      description: "Choose how to display images smaller than the viewer area.",
+      type: "select",
+      category: "View",
+      options: [
+        { value: "original", label: "Original Size" },
+        { value: "fit", label: "Fit to Screen" }
+      ]
+    },
+    {
       key: "viewer.show_details_by_default",
       label: "Show by Default",
       description: "Show the image details panel automatically when opening the viewer.",
@@ -8538,6 +8553,17 @@ const Vc = x.createContext(void 0), vm = ({
       description: "Loop to the beginning/end when navigating in fullscreen.",
       type: "boolean",
       category: "Full Screen"
+    },
+    {
+      key: "fullscreen.small_image_mode",
+      label: "Small Image Display",
+      description: "Choose how to display images smaller than the screen in fullscreen.",
+      type: "select",
+      category: "Full Screen",
+      options: [
+        { value: "original", label: "Original Size" },
+        { value: "fit", label: "Fit to Screen" }
+      ]
     },
     {
       key: "fullscreen.show_details_by_default",
@@ -9375,7 +9401,7 @@ const Sm = () => {
                     {
                       src: M,
                       alt: P.filename,
-                      className: `meld-viewer-image ${d ? "meld-viewer-image--loading" : ""}`,
+                      className: `meld-viewer-image meld-viewer-image--${e.settings[u ? "fullscreen.small_image_mode" : "viewer.small_image_mode"] || "fit"} ${d ? "meld-viewer-image--loading" : ""}`,
                       fetchpriority: "high"
                     }
                   )

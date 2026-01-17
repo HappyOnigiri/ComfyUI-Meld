@@ -736,6 +736,8 @@ async def get_settings(request: web.Request) -> web.Response:
             "viewer.details.max_positive_prompt_lines": 7,
             "viewer.details.max_negative_prompt_lines": 7,
             "viewer.show_icons": True,
+            "viewer.small_image_mode": "fit",
+            "fullscreen.small_image_mode": "fit",
             "gallery.matching_strategy": "phash_created",
             "gallery.lineage_max_depth": 5,
             "gallery.trash.show_missing": False,

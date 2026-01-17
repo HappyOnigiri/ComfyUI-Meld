@@ -674,7 +674,7 @@ export const ImageViewer: React.FC = () => {
 					<img
 						src={imgSrc}
 						alt={image.filename}
-						className={`meld-viewer-image ${isJumping ? "meld-viewer-image--loading" : ""}`}
+						className={`meld-viewer-image meld-viewer-image--${state.settings[isFullscreen ? "fullscreen.small_image_mode" : "viewer.small_image_mode"] || "fit"} ${isJumping ? "meld-viewer-image--loading" : ""}`}
 						// @ts-expect-error - fetchpriority is a valid but sometimes untyped attribute
 						fetchpriority="high"
 					/>

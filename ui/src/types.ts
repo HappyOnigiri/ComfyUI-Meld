@@ -84,7 +84,9 @@ export interface Settings {
 	"viewer.show_thumbnails": boolean;
 	"viewer.show_icons": boolean;
 	"viewer.delete_mode": "confirm" | "target_only" | "lineage";
+	"viewer.small_image_mode": "original" | "fit";
 	"fullscreen.delete_mode": "confirm" | "target_only" | "lineage";
+	"fullscreen.small_image_mode": "original" | "fit";
 	"gallery.matching_strategy":
 		| "filename_phash"
 		| "phash_created"

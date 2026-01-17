@@ -595,6 +595,16 @@
 	transform: translateZ(0);
 }
 
+.meld-viewer-image--fit {
+	width: 100%;
+	height: 100%;
+}
+
+.meld-viewer-image--original {
+	width: auto;
+	height: auto;
+}
+
 .meld-viewer-content--with-thumbnails .meld-viewer-image {
 	max-height: calc(100% - 160px); /* Space for thumbnails and top actions */
 }

@@ -213,6 +213,17 @@ export const SettingsModal: React.FC = () => {
 			category: "View",
 		},
 		{
+			key: "viewer.small_image_mode",
+			label: "Small Image Display",
+			description: "Choose how to display images smaller than the viewer area.",
+			type: "select",
+			category: "View",
+			options: [
+				{ value: "original", label: "Original Size" },
+				{ value: "fit", label: "Fit to Screen" },
+			],
+		},
+		{
 			key: "viewer.show_details_by_default",
 			label: "Show by Default",
 			description:
@@ -355,6 +366,18 @@ export const SettingsModal: React.FC = () => {
 			description: "Loop to the beginning/end when navigating in fullscreen.",
 			type: "boolean",
 			category: "Full Screen",
+		},
+		{
+			key: "fullscreen.small_image_mode",
+			label: "Small Image Display",
+			description:
+				"Choose how to display images smaller than the screen in fullscreen.",
+			type: "select",
+			category: "Full Screen",
+			options: [
+				{ value: "original", label: "Original Size" },
+				{ value: "fit", label: "Fit to Screen" },
+			],
 		},
 		{
 			key: "fullscreen.show_details_by_default",
