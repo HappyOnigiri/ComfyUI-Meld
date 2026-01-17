@@ -111,12 +111,26 @@ export const useImageCardLogic = (image: MeldImage) => {
 			e.stopPropagation();
 			dispatch({ type: "TOGGLE_SELECT", payload: image.id });
 		} else {
-			dispatch({ type: "OPEN_VIEWER", payload: image.id });
+			// In list view or grid details, clicking the container area (not the image)
+			// should toggle selection instead of opening the viewer.
+			e.preventDefault();
+			e.stopPropagation();
+			dispatch({ type: "TOGGLE_SELECT", payload: image.id });
 		}
 	};
 
 	const handleMouseDown = (e: React.MouseEvent) => {
-		if (e.shiftKey || e.ctrlKey || e.metaKey || state.selectedIds.size > 0) {
+		// Prevent text selection when clicking the card area (container)
+		// unless it's a specific interactive element that needs it.
+		// Since this is attached to the container and the thumbnail,
+		// we should generally prevent default if we're going to select.
+		if (
+			e.shiftKey ||
+			e.ctrlKey ||
+			e.metaKey ||
+			state.selectedIds.size > 0 ||
+			!(e.target as HTMLElement).closest("img.meld-image-card__thumbnail")
+		) {
 			e.preventDefault();
 		}
 	};
