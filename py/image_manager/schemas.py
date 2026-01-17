@@ -317,12 +317,3 @@ class ScanStatus(BaseSchema):
     new_count: int = 0
     updated_count: int = 0
     total_count: int = 0
-
-
-@dataclass
-class RelatedImageItem(BaseSchema):
-    id: int
-    filename: str
-    subfolder: str
-    type: str
-    distance: int

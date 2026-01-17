@@ -49,7 +49,6 @@ from .schemas import (
     LineageItem,
     LinkParentRequest,
     RegisterImageRequest,
-    RelatedImageItem,
     RenameTagRequest,
     RestoreImagesRequest,
     ScanRequest,
@@ -857,6 +856,8 @@ async def get_settings(request: web.Request) -> web.Response:
             "gallery.lineage_max_depth": 5,
             "gallery.trash.show_missing": False,
             "gallery.view_mode": "grid_details",
+            "gallery.suggest_phash_threshold": 82,
+            "gallery.auto_link_phash_threshold": 92,
         }
 
         # Merge with DB settings
@@ -1329,68 +1330,6 @@ async def list_images(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
-@server.PromptServer.instance.routes.get("/meld/related")
-async def get_related_images(request: web.Request) -> web.Response:
-    try:
-        image_id = request.query.get("id")
-
-        if not image_id:
-            return web.json_response({"error": "id is required"}, status=400)
-
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        # Get settings
-        db_settings = get_all_settings(cursor)
-        default_threshold = db_settings.get("gallery.related_phash_threshold", 8)
-        threshold = int(request.query.get("threshold", default_threshold))
-
-        # Get the target phash
-        cursor.execute("SELECT phash FROM images WHERE id = ?", (image_id,))
-        row = cursor.fetchone()
-        if not row or not row[0]:
-            conn.close()
-            return web.json_response([])  # Return empty if no phash
-
-        target_phash = row[0]
-
-        # Fetch all other images with phash
-        cursor.execute(
-            "SELECT id, filename, subfolder, type, phash FROM images WHERE id != ? AND phash IS NOT NULL AND deleted_at IS NULL",
-            (image_id,),
-        )
-        other_images = cursor.fetchall()
-
-        def hamming_distance(h1: str, h2: str) -> int:
-            try:
-                return bin(int(h1, 16) ^ int(h2, 16)).count("1")
-            except Exception:
-                return 999
-
-        related = []
-        for img_id, filename, subfolder, img_type, phash in other_images:
-            dist = hamming_distance(target_phash, phash)
-            if dist <= threshold:
-                related.append(
-                    RelatedImageItem(
-                        id=img_id,
-                        filename=filename,
-                        subfolder=subfolder,
-                        type=img_type,
-                        distance=dist,
-                    )
-                )
-
-        # Sort by distance
-        related.sort(key=lambda x: x.distance)
-
-        conn.close()
-        return web.json_response([r.to_dict() for r in related[:20]])  # Limit to top 20
-    except Exception:
-        logging.exception("[Meld] Failed to get related images")
-        return web.json_response({"error": "internal error"}, status=500)
-
-
 @server.PromptServer.instance.routes.post("/meld/restore")
 async def restore_images(request: web.Request) -> web.Response:
     try:
@@ -1737,8 +1676,9 @@ async def suggest_parents(request: web.Request) -> web.Response:
 
         # Get settings
         db_settings = get_all_settings(cursor)
-        default_threshold = db_settings.get("gallery.suggest_phash_threshold", 12)
-        threshold = int(request.query.get("threshold", default_threshold))
+        default_threshold = db_settings.get("gallery.suggest_phash_threshold", 82)
+        threshold_pct = float(request.query.get("threshold", default_threshold))
+        threshold = round(64 * (1 - threshold_pct / 100))
 
         if not image_id:
             conn.close()

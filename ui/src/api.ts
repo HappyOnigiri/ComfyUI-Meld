@@ -140,8 +140,8 @@ export const fetchSettings = async (): Promise<Settings> => {
 			"gallery.trash_retention_days": 30,
 			"gallery.trash.show_missing": false,
 			"gallery.view_mode": "grid_details",
-			"gallery.related_phash_threshold": 8,
-			"gallery.suggest_phash_threshold": 12,
+			"gallery.suggest_phash_threshold": 82,
+			"gallery.auto_link_phash_threshold": 92,
 			"viewer.shortcut.1": "tag:keep next",
 			"viewer.shortcut.2": "tag:best next",
 			"viewer.shortcut.3": "tag:fix-needed next",
@@ -325,27 +325,6 @@ export const registerImage = async (image: {
 	});
 	if (!res.ok) {
 		throw new Error("Failed to register image");
-	}
-	return await res.json();
-};
-
-export const fetchRelatedImages = async (
-	id: number,
-	threshold?: number,
-): Promise<
-	{
-		id: number;
-		filename: string;
-		subfolder: string;
-		type: string;
-		distance: number;
-	}[]
-> => {
-	const thresholdParam =
-		threshold !== undefined ? `&threshold=${threshold}` : "";
-	const res = await api.fetchApi(`/meld/related?id=${id}${thresholdParam}`);
-	if (!res.ok) {
-		return [];
 	}
 	return await res.json();
 };
