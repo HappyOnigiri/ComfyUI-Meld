@@ -376,8 +376,9 @@ export const ImageViewer: React.FC = () => {
 				dispatch({ type: "CLOSE_VIEWER" });
 			}
 
-			await api.restoreImages([imageId]);
-			dispatch({ type: "REMOVE_IMAGES", payload: [imageId] });
+			const result = await api.restoreImages([imageId]);
+			const restoredIds = result.restored_ids || [imageId];
+			dispatch({ type: "REMOVE_IMAGES", payload: restoredIds });
 		} catch (err: unknown) {
 			dispatch({
 				type: "SET_ERROR",
@@ -392,9 +393,17 @@ export const ImageViewer: React.FC = () => {
 		const idToOpen = idsToRestore[0];
 
 		try {
-			await api.restoreImages(idsToRestore);
+			const result = await api.restoreImages(idsToRestore);
 			if (!isMounted.current) return;
 			dispatch({ type: "ADD_IMAGES", payload: lastDeletedImages });
+
+			// If more images were restored (e.g. ancestors), we should ideally add them too,
+			// but they might not be in lastDeletedImages. For now, removing them from trash is key.
+			if (state.viewScope === "trash") {
+				const restoredIds = result.restored_ids || idsToRestore;
+				dispatch({ type: "REMOVE_IMAGES", payload: restoredIds });
+			}
+
 			setLastDeletedImages(null);
 			if (!isMounted.current) return;
 
@@ -408,7 +417,7 @@ export const ImageViewer: React.FC = () => {
 				payload: err instanceof Error ? err.message : String(err),
 			});
 		}
-	}, [lastDeletedImages, dispatch, viewerMode]);
+	}, [lastDeletedImages, dispatch, viewerMode, state.viewScope]);
 
 	const handleUndo = useCallback(async () => {
 		if (lastDeletedImages && lastDeletedImages.length > 0) {

@@ -222,9 +222,10 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 		const ids = Array.from(state.selectedIds) as number[];
 		try {
 			dispatch({ type: "SET_LOADING", payload: true });
-			await api.restoreImages(ids);
+			const result = await api.restoreImages(ids);
+			const restoredIds = result.restored_ids || ids;
 			if (state.viewScope === "trash") {
-				dispatch({ type: "REMOVE_IMAGES", payload: ids });
+				dispatch({ type: "REMOVE_IMAGES", payload: restoredIds });
 			}
 			dispatch({ type: "CLEAR_SELECTION" });
 			dispatch({ type: "SET_LOADING", payload: false });

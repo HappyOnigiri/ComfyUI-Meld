@@ -297,7 +297,9 @@ export const deleteImages = async (
 	}
 };
 
-export const restoreImages = async (ids: number[]): Promise<void> => {
+export const restoreImages = async (
+	ids: number[],
+): Promise<{ restored_ids: number[] }> => {
 	const res = await api.fetchApi("/meld/restore", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
@@ -307,6 +309,8 @@ export const restoreImages = async (ids: number[]): Promise<void> => {
 		const errData = await res.json();
 		throw new Error(errData.error || "Failed to restore images");
 	}
+	const result = await res.json();
+	return result.data || { restored_ids: ids };
 };
 
 export const registerImage = async (image: {

@@ -1406,13 +1406,37 @@ async def restore_images(request: web.Request) -> web.Response:
         conn = get_db_connection()
         cursor = conn.cursor()
 
+        # 1. Identify all images to restore, including deleted ancestors
+        all_ids_to_restore = set(req.ids)
         placeholders = ",".join(["?"] * len(req.ids))
+
+        # Recursive query to find all deleted ancestors of the requested images
+        ancestor_query = f"""
+            WITH RECURSIVE lineage AS (
+                SELECT id, parent_id, deleted_at FROM images WHERE id IN ({placeholders})
+                UNION ALL
+                SELECT i.id, i.parent_id, i.deleted_at FROM images i
+                JOIN lineage l ON i.id = l.parent_id
+                WHERE l.deleted_at IS NOT NULL
+            )
+            SELECT id FROM lineage WHERE deleted_at IS NOT NULL
+        """
+        cursor.execute(ancestor_query, req.ids)
+        for (ancestor_id,) in cursor.fetchall():
+            all_ids_to_restore.add(ancestor_id)
+
+        final_ids = list(all_ids_to_restore)
+        placeholders = ",".join(["?"] * len(final_ids))
+
+        # 2. Fetch details for all images to be restored
+        # Sort by created_at ASC to ensure parents are processed before children
         cursor.execute(
-            f"SELECT id, filename, subfolder, type, deleted_at FROM images WHERE id IN ({placeholders})", req.ids
+            f"SELECT id, filename, subfolder, type, deleted_at FROM images WHERE id IN ({placeholders}) ORDER BY created_at ASC",
+            final_ids,
         )
         images = cursor.fetchall()
 
-        restored_count = 0
+        restored_ids = []
         for img_id, trash_filename, subfolder, img_type, deleted_at in images:
             if deleted_at is None:
                 continue
@@ -1433,7 +1457,7 @@ async def restore_images(request: web.Request) -> web.Response:
             if not os.path.exists(trash_full_path):
                 # File missing from trash, but we can still "restore" its DB status
                 cursor.execute("UPDATE images SET deleted_at = NULL WHERE id = ?", (img_id,))
-                restored_count += 1
+                restored_ids.append(img_id)
                 continue
 
             # 2. Reconstruct original filename (remove timestamp prefix)
@@ -1455,14 +1479,16 @@ async def restore_images(request: web.Request) -> web.Response:
                 cursor.execute(
                     "UPDATE images SET deleted_at = NULL, filename = ? WHERE id = ?", (final_filename, img_id)
                 )
-                restored_count += 1
+                restored_ids.append(img_id)
             except Exception as e:
                 logging.error(f"[Meld] Failed to restore file {trash_filename}: {e}")
                 continue
 
         conn.commit()
         conn.close()
-        return web.json_response(ApiResponse(success=True, count=restored_count).to_dict())
+        return web.json_response(
+            ApiResponse(success=True, count=len(restored_ids), data={"restored_ids": restored_ids}).to_dict()
+        )
     except Exception as e:
         logging.exception("[Meld] Restore failed")
         return web.json_response({"error": str(e)}, status=500)
