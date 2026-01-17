@@ -1,10 +1,10 @@
 import {
+	ArrowBigRight,
 	ArrowRight,
 	Check,
 	Copy,
 	MoreVertical,
 	PlusCircle,
-	RefreshCw,
 	Tag,
 	X,
 } from "lucide-react";
@@ -523,7 +523,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 								setIsMenuOpen(false);
 							}}
 						>
-							<RefreshCw size={14} />
+							<ArrowBigRight size={14} />
 							<span>Restore Full Workflow</span>
 						</div>
 						<div
