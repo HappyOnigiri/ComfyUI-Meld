@@ -22,7 +22,7 @@ interface ImageCardProps {
 }
 
 export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
-	const { state, dispatch } = useGallery();
+	const { state, dispatch, fetchFullImageDetails } = useGallery();
 	const isSelected = state.selectedIds.has(image.id);
 	const viewMode = state.settings["gallery.view_mode"] || "grid_details";
 	const isGridOnly = viewMode === "grid_only";
@@ -368,20 +368,22 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 					{state.settings["sidebar.show_model_name"] && (
 						<div
 							className="meld-image-card__meta-item meld-image-card__meta-item--clickable"
-							onClick={(e) => {
+							onClick={async (e) => {
 								e.stopPropagation();
+								const fullImage = await fetchFullImageDetails(image.id);
 								setPopupContent({
 									title: "Model",
-									text: image.model_name || "-",
+									text: fullImage.model_name || "-",
 								});
 							}}
 						>
 							<div
 								className={`meld-image-card__meta-label meld-image-card__meta-label--copyable ${copiedLabel === "Model" ? "meld-image-card__meta-label--copied" : ""}`}
 								title="Click to copy"
-								onClick={(e) => {
+								onClick={async (e) => {
 									e.stopPropagation();
-									handleCopy(image.model_name || "-", "Model");
+									const fullImage = await fetchFullImageDetails(image.id);
+									handleCopy(fullImage.model_name || "-", "Model");
 								}}
 							>
 								{copiedLabel === "Model" ? "Copied!" : "Model"}
@@ -395,21 +397,23 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 					{state.settings["sidebar.show_positive_prompt"] && (
 						<div
 							className="meld-image-card__meta-item meld-image-card__meta-item--clickable"
-							onClick={(e) => {
+							onClick={async (e) => {
 								e.stopPropagation();
+								const fullImage = await fetchFullImageDetails(image.id);
 								setPopupContent({
 									title: "Positive Prompt",
-									text: image.positive_prompt || image.positive || "-",
+									text: fullImage.positive_prompt || fullImage.positive || "-",
 								});
 							}}
 						>
 							<div
 								className={`meld-image-card__meta-label meld-image-card__meta-label--copyable ${copiedLabel === "Positive" ? "meld-image-card__meta-label--copied" : ""}`}
 								title="Click to copy"
-								onClick={(e) => {
+								onClick={async (e) => {
 									e.stopPropagation();
+									const fullImage = await fetchFullImageDetails(image.id);
 									handleCopy(
-										image.positive_prompt || image.positive || "-",
+										fullImage.positive_prompt || fullImage.positive || "-",
 										"Positive",
 									);
 								}}
@@ -425,21 +429,23 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
 					{state.settings["sidebar.show_negative_prompt"] && (
 						<div
 							className="meld-image-card__meta-item meld-image-card__meta-item--clickable"
-							onClick={(e) => {
+							onClick={async (e) => {
 								e.stopPropagation();
+								const fullImage = await fetchFullImageDetails(image.id);
 								setPopupContent({
 									title: "Negative Prompt",
-									text: image.negative_prompt || image.negative || "-",
+									text: fullImage.negative_prompt || fullImage.negative || "-",
 								});
 							}}
 						>
 							<div
 								className={`meld-image-card__meta-label meld-image-card__meta-label--copyable ${copiedLabel === "Negative" ? "meld-image-card__meta-label--copied" : ""}`}
 								title="Click to copy"
-								onClick={(e) => {
+								onClick={async (e) => {
 									e.stopPropagation();
+									const fullImage = await fetchFullImageDetails(image.id);
 									handleCopy(
-										image.negative_prompt || image.negative || "-",
+										fullImage.negative_prompt || fullImage.negative || "-",
 										"Negative",
 									);
 								}}

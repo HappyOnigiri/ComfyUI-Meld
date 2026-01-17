@@ -76,7 +76,8 @@ const ThumbnailItem = memo(
 ThumbnailItem.displayName = "ThumbnailItem";
 
 export const ImageViewer: React.FC = () => {
-	const { state, dispatch, loadMoreImages } = useGallery();
+	const { state, dispatch, loadMoreImages, fetchFullImageDetails } =
+		useGallery();
 	const { viewerImageId, images, viewerMode, lineageImages } = state;
 	const [isFullscreen, setIsFullscreen] = useState(false);
 	const [showDetails, setShowDetails] = useState(
@@ -548,6 +549,15 @@ export const ImageViewer: React.FC = () => {
 		handleRestore,
 		state.viewScope,
 	]);
+
+	// Fetch full details if needed when image is opened
+	useEffect(() => {
+		if (viewerImageId !== null) {
+			fetchFullImageDetails(viewerImageId).catch((err) => {
+				console.error("Failed to fetch full image details for viewer:", err);
+			});
+		}
+	}, [viewerImageId, fetchFullImageDetails]);
 
 	// Fetch lineage if needed
 	useEffect(() => {
