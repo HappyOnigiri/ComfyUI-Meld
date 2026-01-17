@@ -7064,501 +7064,6 @@ const id = v.createContext(void 0), Am = ({
   if (e === void 0)
     throw new Error("useGallery must be used within a GalleryProvider");
   return e;
-}, $m = () => {
-  const { state: e, dispatch: t, refreshImages: n, loadMoreImages: r, updateSetting: l } = Re(), [s, a] = v.useState("gallery"), [o, u] = v.useState(""), [d, h] = v.useState(e.pagination.limit);
-  v.useEffect(() => {
-    h(e.pagination.limit);
-  }, [e.searchQuery, e.viewScope, e.pagination.limit]);
-  const g = e.searchQuery.trim() !== "", m = v.useRef(null), y = v.useRef(null), w = v.useMemo(
-    () => e.images.filter((j) => e.viewScope === "trash" ? j.exists !== !1 || e.settings["gallery.trash.show_missing"] : j.exists !== !1 && !(e.settings["gallery.hide_parent_images"] && j.has_children)),
-    [e.images, e.settings, e.viewScope]
-  ), x = v.useMemo(
-    () => w.slice(0, d),
-    [w, d]
-  );
-  return v.useEffect(() => {
-    !e.isLoading && e.pagination.hasMore && e.images.length > 0 && w.length === 0 && (V.log(
-      "GalleryPanel: Auto-loading more because all loaded images are hidden"
-    ), r());
-  }, [
-    e.isLoading,
-    e.pagination.hasMore,
-    e.images.length,
-    w.length,
-    r
-  ]), v.useEffect(() => {
-    const j = (f) => {
-      f.key === "Escape" && (e.activeModal.type !== "none" ? (t({ type: "CLOSE_MODAL" }), f.preventDefault(), f.stopPropagation()) : e.selectedIds.size > 0 && (t({ type: "CLEAR_SELECTION" }), f.preventDefault(), f.stopPropagation()));
-    };
-    return window.addEventListener("keydown", j), () => window.removeEventListener("keydown", j);
-  }, [e.activeModal.type, e.selectedIds.size, t]), v.useEffect(() => {
-    const j = new IntersectionObserver(
-      (c) => {
-        if (c[0].isIntersecting) {
-          if (e.isLoading) {
-            V.log(
-              "GalleryPanel: Intersection observed but already loading"
-            );
-            return;
-          }
-          d < w.length ? (V.log(
-            "GalleryPanel: Increasing localLimit (local data available)",
-            {
-              oldLimit: d,
-              newLimit: Math.min(
-                d + e.pagination.limit,
-                w.length
-              ),
-              totalAvailableLocally: w.length
-            }
-          ), h((p) => p + e.pagination.limit)) : e.pagination.hasMore ? (V.log(
-            "GalleryPanel: Load more triggered via IntersectionObserver (fetching from server)",
-            {
-              offset: e.images.length,
-              hasMore: e.pagination.hasMore
-            }
-          ), r()) : V.log(
-            "GalleryPanel: Intersection observed but no more to load",
-            {
-              localCount: w.length,
-              serverHasMore: e.pagination.hasMore
-            }
-          );
-        }
-      },
-      { threshold: 0, rootMargin: "800px" }
-    ), f = m.current;
-    return f && j.observe(f), () => {
-      f && j.unobserve(f);
-    };
-  }, [
-    r,
-    e.isLoading,
-    e.pagination.hasMore,
-    d,
-    w.length,
-    e.pagination.limit,
-    e.images.length
-  ]), v.useEffect(() => {
-    const j = e.viewerImageId ?? y.current;
-    if (j !== null && w.some((c) => c.id === j)) {
-      const c = w.findIndex((k) => k.id === j);
-      if (c >= d) {
-        h(
-          Math.ceil((c + 1) / e.pagination.limit) * e.pagination.limit
-        );
-        return;
-      }
-      const p = document.querySelector(
-        `[data-image-id="${j}"]`
-      );
-      p && (p.scrollIntoView({ behavior: "smooth", block: "nearest" }), e.viewerImageId === null && (y.current = null));
-    }
-    e.viewerImageId !== null && (y.current = e.viewerImageId);
-  }, [
-    e.viewerImageId,
-    w,
-    d,
-    e.pagination.limit
-  ]), {
-    state: e,
-    dispatch: t,
-    refreshImages: n,
-    loadMoreImages: r,
-    updateSetting: l,
-    viewMode: s,
-    setViewMode: a,
-    lastSearchQuery: o,
-    setLastSearchQuery: u,
-    localLimit: d,
-    displayedImages: w,
-    visibleImages: x,
-    isSearchActive: g,
-    loadMoreRef: m
-  };
-}, Vm = ({
-  children: e,
-  height: t = 150,
-  rootMargin: n = "400px"
-}) => {
-  const [r, l] = v.useState(!1), s = v.useRef(null);
-  return v.useEffect(() => {
-    const a = new IntersectionObserver(
-      ([u]) => {
-        l(u.isIntersecting);
-      },
-      { rootMargin: n }
-    ), o = s.current;
-    return o && a.observe(o), () => {
-      o && a.unobserve(o);
-    };
-  }, [n]), /* @__PURE__ */ i.jsx(
-    "div",
-    {
-      ref: s,
-      style: {
-        minHeight: r ? "auto" : `${t}px`,
-        width: "100%",
-        containIntrinsicSize: `auto ${t}px`,
-        contentVisibility: "auto"
-      },
-      children: r ? e : null
-    }
-  );
-}, Um = () => {
-  const { state: e, dispatch: t, deleteSelected: n, restoreSelected: r } = Re(), l = e.selectedIds.size;
-  if (l === 0) return null;
-  const s = e.viewScope === "trash", a = () => {
-    const o = e.images.filter(
-      (d) => e.selectedIds.has(d.id)
-    ), u = /* @__PURE__ */ new Set();
-    for (const d of o)
-      if (d.tags)
-        for (const h of d.tags)
-          u.add(h);
-    t({
-      type: "OPEN_MODAL",
-      payload: {
-        type: "tag_edit",
-        imageIds: Array.from(e.selectedIds),
-        tags: Array.from(u)
-      }
-    });
-  };
-  return /* @__PURE__ */ i.jsxs(
-    "div",
-    {
-      className: `meld-bulk-bar ${s ? "meld-bulk-bar--trash" : ""}`,
-      children: [
-        /* @__PURE__ */ i.jsxs("span", { className: "meld-bulk-bar__info", children: [
-          l,
-          " items selected"
-        ] }),
-        s ? /* @__PURE__ */ i.jsxs(i.Fragment, { children: [
-          /* @__PURE__ */ i.jsxs(
-            "button",
-            {
-              type: "button",
-              className: "meld-bulk-bar__button meld-bulk-bar__button--restore",
-              onClick: r,
-              children: [
-                /* @__PURE__ */ i.jsx(
-                  Er,
-                  {
-                    size: 16,
-                    style: { marginRight: "8px", verticalAlign: "middle" }
-                  }
-                ),
-                "Restore"
-              ]
-            }
-          ),
-          /* @__PURE__ */ i.jsxs(
-            "button",
-            {
-              type: "button",
-              className: "meld-bulk-bar__button meld-bulk-bar__button--delete",
-              onClick: n,
-              children: [
-                /* @__PURE__ */ i.jsx(
-                  Fn,
-                  {
-                    size: 16,
-                    style: { marginRight: "8px", verticalAlign: "middle" }
-                  }
-                ),
-                "Delete Permanently"
-              ]
-            }
-          )
-        ] }) : /* @__PURE__ */ i.jsxs(i.Fragment, { children: [
-          /* @__PURE__ */ i.jsxs(
-            "button",
-            {
-              type: "button",
-              className: "meld-bulk-bar__button meld-bulk-bar__button--edit",
-              onClick: a,
-              children: [
-                /* @__PURE__ */ i.jsx(
-                  on,
-                  {
-                    size: 16,
-                    style: { marginRight: "8px", verticalAlign: "middle" }
-                  }
-                ),
-                "Edit Tags"
-              ]
-            }
-          ),
-          /* @__PURE__ */ i.jsxs(
-            "button",
-            {
-              type: "button",
-              className: "meld-bulk-bar__button meld-bulk-bar__button--delete",
-              onClick: n,
-              children: [
-                /* @__PURE__ */ i.jsx(
-                  Fn,
-                  {
-                    size: 16,
-                    style: { marginRight: "8px", verticalAlign: "middle" }
-                  }
-                ),
-                "Move to Trash"
-              ]
-            }
-          )
-        ] }),
-        /* @__PURE__ */ i.jsxs(
-          "button",
-          {
-            type: "button",
-            className: "meld-bulk-bar__button meld-bulk-bar__button--cancel",
-            onClick: () => t({ type: "CLEAR_SELECTION" }),
-            children: [
-              /* @__PURE__ */ i.jsx(Te, { size: 16, style: { marginRight: "8px", verticalAlign: "middle" } }),
-              "Cancel"
-            ]
-          }
-        )
-      ]
-    }
-  );
-}, ad = ({
-  imageIds: e,
-  hasLineage: t,
-  isPermanent: n = !1,
-  onSuccess: r
-}) => {
-  const { state: l, dispatch: s } = Re(), a = v.useRef(!0);
-  v.useEffect(() => () => {
-    a.current = !1;
-  }, []);
-  const o = v.useRef(l.viewerImageId);
-  v.useEffect(() => {
-    o.current = l.viewerImageId;
-  }, [l.viewerImageId]);
-  const u = v.useCallback(() => {
-    s({ type: "CLOSE_MODAL" });
-  }, [s]), d = v.useCallback(
-    (m) => {
-      if (!a.current) return;
-      const y = o.current;
-      if (y === null || !m.has(y))
-        return;
-      const w = l.viewerMode === "lineage" && l.lineageImages.length > 0 ? l.lineageImages : l.images.filter(
-        (f) => f.exists !== !1 && !(l.settings["gallery.hide_parent_images"] && f.has_children)
-      ), x = w.findIndex(
-        (f) => f.id === y
-      );
-      if (x === -1) return;
-      let j = !1;
-      for (let f = x + 1; f < w.length; f++)
-        if (!m.has(w[f].id)) {
-          s({
-            type: "OPEN_VIEWER",
-            payload: { id: w[f].id, mode: l.viewerMode }
-          }), j = !0;
-          break;
-        }
-      if (!j) {
-        for (let f = x - 1; f >= 0; f--)
-          if (!m.has(w[f].id)) {
-            s({
-              type: "OPEN_VIEWER",
-              payload: { id: w[f].id, mode: l.viewerMode }
-            }), j = !0;
-            break;
-          }
-      }
-      j || s({ type: "CLOSE_VIEWER" });
-    },
-    [
-      l.viewerMode,
-      l.lineageImages,
-      l.images,
-      l.settings,
-      s
-    ]
-  );
-  v.useEffect(() => {
-    const m = (y) => {
-      y.key === "Escape" && u();
-    };
-    return window.addEventListener("keydown", m), () => window.removeEventListener("keydown", m);
-  }, [u]);
-  const h = async () => {
-    try {
-      s({ type: "SET_LOADING", payload: !0 });
-      const m = l.viewerMode === "lineage" && l.lineageImages.length > 0 ? l.lineageImages : l.images.filter(
-        (x) => x.exists !== !1 && !(l.settings["gallery.hide_parent_images"] && x.has_children)
-      ), y = new Set(e), w = m.filter(
-        (x) => y.has(x.id)
-      );
-      if (d(y), await wi(e, n), !a.current) return;
-      !n && r && r(w), s({ type: "REMOVE_IMAGES", payload: e }), s({ type: "CLEAR_SELECTION" }), s({ type: "CLOSE_MODAL" });
-    } catch (m) {
-      s({
-        type: "SET_ERROR",
-        payload: m instanceof Error ? m.message : String(m)
-      }), s({ type: "SET_LOADING", payload: !1 });
-    }
-  }, g = async () => {
-    try {
-      s({ type: "SET_LOADING", payload: !0 });
-      const m = l.viewerMode === "lineage" && l.lineageImages.length > 0 ? l.lineageImages : l.images.filter(
-        (x) => x.exists !== !1 && !(l.settings["gallery.hide_parent_images"] && x.has_children)
-      ), y = new Set(e);
-      for (const x of e) {
-        const j = await vi(x);
-        if (!a.current) return;
-        for (const f of j)
-          y.add(f.id);
-      }
-      const w = m.filter(
-        (x) => y.has(x.id)
-      );
-      if (d(y), await wi(Array.from(y), n), !a.current) return;
-      !n && r && r(w), s({
-        type: "REMOVE_IMAGES",
-        payload: Array.from(y)
-      }), s({ type: "CLEAR_SELECTION" }), s({ type: "CLOSE_MODAL" });
-    } catch (m) {
-      s({
-        type: "SET_ERROR",
-        payload: m instanceof Error ? m.message : String(m)
-      }), s({ type: "SET_LOADING", payload: !1 });
-    }
-  };
-  return Fe.createPortal(
-    /* @__PURE__ */ i.jsx("div", { className: "meld-modal-overlay", onClick: u, children: /* @__PURE__ */ i.jsxs(
-      "div",
-      {
-        className: "meld-modal-content meld-modal-content--small",
-        onClick: (m) => m.stopPropagation(),
-        children: [
-          /* @__PURE__ */ i.jsxs("div", { className: "meld-modal-header", children: [
-            /* @__PURE__ */ i.jsxs("h2", { style: { display: "flex", alignItems: "center", gap: "10px" }, children: [
-              /* @__PURE__ */ i.jsx(Fn, { size: 20, color: "var(--meld-danger-color)" }),
-              n ? "Permanent Deletion" : "Move to Trash"
-            ] }),
-            /* @__PURE__ */ i.jsx(
-              "button",
-              {
-                type: "button",
-                className: "meld-modal-close",
-                onClick: u,
-                children: /* @__PURE__ */ i.jsx(Te, { size: 20 })
-              }
-            )
-          ] }),
-          /* @__PURE__ */ i.jsx("div", { className: "meld-modal-body", children: /* @__PURE__ */ i.jsxs(
-            "div",
-            {
-              style: {
-                padding: "10px 0",
-                display: "flex",
-                flexDirection: "column",
-                gap: "15px"
-              },
-              children: [
-                /* @__PURE__ */ i.jsxs("p", { children: [
-                  "Are you sure you want to",
-                  " ",
-                  n ? "permanently delete" : "move to trash",
-                  " ",
-                  /* @__PURE__ */ i.jsx("strong", { children: e.length }),
-                  " selected items?"
-                ] }),
-                /* @__PURE__ */ i.jsxs(
-                  "div",
-                  {
-                    style: {
-                      padding: "12px",
-                      backgroundColor: "var(--comfy-input-bg, rgba(255, 0, 0, 0.1))",
-                      border: `1px solid ${n ? "var(--meld-danger-color)" : "var(--meld-accent-color)"}`,
-                      borderRadius: "4px",
-                      display: "flex",
-                      gap: "10px"
-                    },
-                    children: [
-                      /* @__PURE__ */ i.jsx(
-                        dm,
-                        {
-                          size: 20,
-                          style: {
-                            color: n ? "var(--meld-danger-color)" : "var(--meld-accent-color)",
-                            flexShrink: 0
-                          }
-                        }
-                      ),
-                      /* @__PURE__ */ i.jsx("div", { style: { fontSize: "13px" }, children: n ? /* @__PURE__ */ i.jsxs(i.Fragment, { children: [
-                        /* @__PURE__ */ i.jsx("strong", { children: "WARNING:" }),
-                        " Physical files will be permanently deleted from the trash bin. This operation cannot be undone."
-                      ] }) : /* @__PURE__ */ i.jsxs(i.Fragment, { children: [
-                        /* @__PURE__ */ i.jsx("strong", { children: "INFO:" }),
-                        " Selected items will be moved to the trash bin. You can restore them later from the settings."
-                      ] }) })
-                    ]
-                  }
-                ),
-                t && /* @__PURE__ */ i.jsxs(
-                  "div",
-                  {
-                    style: {
-                      padding: "12px",
-                      backgroundColor: "var(--comfy-input-bg-active, rgba(0, 150, 255, 0.1))",
-                      border: "1px solid var(--meld-accent-color)",
-                      borderRadius: "4px",
-                      fontSize: "13px"
-                    },
-                    children: [
-                      "Selected images include items with a ",
-                      /* @__PURE__ */ i.jsx("strong", { children: "Source" }),
-                      " or descendants. You can choose to delete just the selected items or all related items in their lineage."
-                    ]
-                  }
-                )
-              ]
-            }
-          ) }),
-          /* @__PURE__ */ i.jsxs("div", { className: "meld-modal-footer", children: [
-            /* @__PURE__ */ i.jsx(
-              "button",
-              {
-                type: "button",
-                className: "meld-btn meld-btn-secondary",
-                onClick: u,
-                children: "Cancel"
-              }
-            ),
-            /* @__PURE__ */ i.jsxs("div", { style: { display: "flex", gap: "10px" }, children: [
-              /* @__PURE__ */ i.jsx(
-                "button",
-                {
-                  type: "button",
-                  className: "meld-btn meld-btn-danger",
-                  onClick: h,
-                  children: n ? "Delete Permanently" : "Move to Trash"
-                }
-              ),
-              t && /* @__PURE__ */ i.jsx(
-                "button",
-                {
-                  type: "button",
-                  className: "meld-btn meld-btn-danger",
-                  title: n ? "Permanently delete all images in the lineage" : "Move all images in the lineage to trash",
-                  onClick: g,
-                  children: n ? "Delete All Related" : "Move All Related"
-                }
-              )
-            ] })
-          ] })
-        ]
-      }
-    ) }),
-    document.fullscreenElement || document.body
-  );
 }, Ie = (e) => {
   if (!e.filename) return "";
   if (e.type === "custom")
@@ -7571,7 +7076,7 @@ const id = v.createContext(void 0), Am = ({
   return `/api/view?filename=${encodeURIComponent(
     e.filename
   )}&type=${t}&subfolder=${encodeURIComponent(e.subfolder)}`;
-}, od = () => {
+}, ad = () => {
   const { dispatch: e } = Re(), [t, n] = v.useState(() => {
     const S = localStorage.getItem("meld-import-config"), D = {
       type: "output",
@@ -8011,361 +7516,7 @@ const id = v.createContext(void 0), Am = ({
     ),
     document.fullscreenElement || document.body
   );
-}, ud = ({
-  imageId: e
-}) => {
-  const { state: t, dispatch: n, refreshImages: r } = Re(), [l, s] = v.useState([]), [a, o] = v.useState(!0), [u, d] = v.useState(!1), h = t.images.find((c) => c.id === e), g = v.useCallback(async () => {
-    o(!0);
-    try {
-      const c = t.settings["gallery.suggest_phash_threshold"], p = await Vp(e, c);
-      s(p);
-    } catch (c) {
-      console.error("Failed to load suggestions:", c);
-    } finally {
-      o(!1);
-    }
-  }, [e, t.settings]);
-  v.useEffect(() => {
-    g();
-  }, [g]);
-  const m = async (c) => {
-    if (c == null) {
-      console.error("handleSelect: parentId is undefined or null");
-      return;
-    }
-    if (!(!h || c === h.parent_id) && !(h.parent_id && !confirm("Are you sure you want to change the source image?")))
-      try {
-        await Lo(e, c), await Kc(e), await r(), n({ type: "CLOSE_MODAL" });
-      } catch (p) {
-        console.error("Failed to link parent:", p);
-      }
-  }, y = async () => {
-    if (confirm("Are you sure you want to remove the source image relationship?"))
-      try {
-        await Lo(e, null), await r(), n({ type: "CLOSE_MODAL" });
-      } catch (c) {
-        console.error("Failed to remove source:", c), alert("Failed to remove source image.");
-      }
-  }, w = async (c) => {
-    o(!0);
-    try {
-      const p = await Up(c), { id: k } = await Xc({
-        filename: p.name,
-        subfolder: p.subfolder || "",
-        type: p.type || "input"
-      });
-      if (k === e) {
-        alert(
-          "Uploaded image is identical to the current image. Cannot set as source."
-        );
-        return;
-      }
-      await m(k);
-    } catch (p) {
-      console.error("Failed to upload/register image:", p);
-    } finally {
-      o(!1);
-    }
-  }, x = (c) => {
-    c.preventDefault(), c.stopPropagation(), d(!1);
-    const p = c.dataTransfer.files[0];
-    p != null && p.type.startsWith("image/") && w(p);
-  };
-  if (!h) return null;
-  const j = l.filter((c) => c.is_source_match), f = l.filter((c) => !c.is_source_match);
-  return Fe.createPortal(
-    /* @__PURE__ */ i.jsx(
-      "div",
-      {
-        className: "meld-modal-overlay",
-        onClick: () => n({ type: "CLOSE_MODAL" }),
-        children: /* @__PURE__ */ i.jsxs("div", { className: "meld-modal-content", onClick: (c) => c.stopPropagation(), children: [
-          /* @__PURE__ */ i.jsxs("div", { className: "meld-modal-header", children: [
-            /* @__PURE__ */ i.jsxs("h2", { children: [
-              "Select Source for #",
-              h.id
-            ] }),
-            /* @__PURE__ */ i.jsx(
-              "button",
-              {
-                type: "button",
-                className: "meld-modal-close",
-                onClick: () => n({ type: "CLOSE_MODAL" }),
-                children: /* @__PURE__ */ i.jsx(Te, { size: 20 })
-              }
-            )
-          ] }),
-          /* @__PURE__ */ i.jsxs("div", { className: "meld-modal-body", children: [
-            h.parent_id && /* @__PURE__ */ i.jsxs(
-              "div",
-              {
-                style: {
-                  marginBottom: "16px",
-                  padding: "12px",
-                  backgroundColor: "var(--comfy-input-bg, rgba(0, 0, 0, 0.1))",
-                  borderRadius: "8px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  border: "1px solid var(--meld-border-color, #444)"
-                },
-                children: [
-                  /* @__PURE__ */ i.jsxs(
-                    "div",
-                    {
-                      style: {
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "12px",
-                        minWidth: 0
-                      },
-                      children: [
-                        /* @__PURE__ */ i.jsx(km, { size: 16, color: "var(--meld-accent-color)" }),
-                        /* @__PURE__ */ i.jsxs(
-                          "div",
-                          {
-                            style: {
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: "4px",
-                              minWidth: 0
-                            },
-                            children: [
-                              /* @__PURE__ */ i.jsx(
-                                "span",
-                                {
-                                  style: {
-                                    fontSize: "0.8em",
-                                    color: "var(--meld-text-secondary)",
-                                    textTransform: "uppercase",
-                                    letterSpacing: "0.05em"
-                                  },
-                                  children: "Current Source"
-                                }
-                              ),
-                              /* @__PURE__ */ i.jsxs(
-                                "div",
-                                {
-                                  style: {
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "10px",
-                                    minWidth: 0
-                                  },
-                                  children: [
-                                    h.parent_filename && /* @__PURE__ */ i.jsx(
-                                      "img",
-                                      {
-                                        src: Ie({
-                                          filename: h.parent_filename,
-                                          subfolder: h.parent_subfolder || "",
-                                          type: h.parent_type || "output"
-                                        }),
-                                        alt: "Current Parent",
-                                        style: {
-                                          width: "40px",
-                                          height: "40px",
-                                          objectFit: "cover",
-                                          borderRadius: "4px",
-                                          border: "1px solid var(--meld-border-color)"
-                                        }
-                                      }
-                                    ),
-                                    /* @__PURE__ */ i.jsxs(
-                                      "div",
-                                      {
-                                        style: {
-                                          display: "flex",
-                                          flexDirection: "column",
-                                          minWidth: 0
-                                        },
-                                        children: [
-                                          /* @__PURE__ */ i.jsx(
-                                            "span",
-                                            {
-                                              style: {
-                                                fontWeight: "bold",
-                                                fontSize: "0.95em",
-                                                whiteSpace: "nowrap",
-                                                overflow: "hidden",
-                                                textOverflow: "ellipsis"
-                                              },
-                                              children: h.parent_filename || "Unknown Image"
-                                            }
-                                          ),
-                                          /* @__PURE__ */ i.jsxs(
-                                            "span",
-                                            {
-                                              style: {
-                                                color: "var(--meld-text-secondary)",
-                                                fontSize: "0.85em"
-                                              },
-                                              children: [
-                                                "#",
-                                                h.parent_id
-                                              ]
-                                            }
-                                          )
-                                        ]
-                                      }
-                                    )
-                                  ]
-                                }
-                              )
-                            ]
-                          }
-                        )
-                      ]
-                    }
-                  ),
-                  /* @__PURE__ */ i.jsx(
-                    "button",
-                    {
-                      type: "button",
-                      className: "meld-btn meld-btn-danger meld-btn--sm",
-                      style: {
-                        flexShrink: 0,
-                        width: "32px",
-                        height: "32px",
-                        padding: 0,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        borderRadius: "50%"
-                      },
-                      onClick: y,
-                      title: "Remove Source",
-                      children: /* @__PURE__ */ i.jsx(Sm, { size: 16 })
-                    }
-                  )
-                ]
-              }
-            ),
-            /* @__PURE__ */ i.jsxs(
-              "div",
-              {
-                className: `meld-drop-zone ${u ? "meld-drop-zone--active" : ""}`,
-                onDragEnter: (c) => {
-                  c.preventDefault(), c.stopPropagation(), d(!0);
-                },
-                onDragOver: (c) => {
-                  c.preventDefault(), c.stopPropagation(), c.dataTransfer.dropEffect = "copy", d(!0);
-                },
-                onDragLeave: (c) => {
-                  c.preventDefault(), c.stopPropagation(), d(!1);
-                },
-                onDrop: x,
-                children: [
-                  /* @__PURE__ */ i.jsx(Pm, { size: 32 }),
-                  /* @__PURE__ */ i.jsx("p", { children: "Drop an image file here to set it as source" })
-                ]
-              }
-            ),
-            a ? /* @__PURE__ */ i.jsx("div", { className: "meld-modal-loading", children: "Loading suggestions..." }) : /* @__PURE__ */ i.jsxs("div", { className: "meld-suggestions-container", children: [
-              j.length > 0 && /* @__PURE__ */ i.jsxs("section", { children: [
-                /* @__PURE__ */ i.jsx("h3", { children: "Source Matches (from metadata)" }),
-                /* @__PURE__ */ i.jsx("div", { className: "meld-suggestion-grid", children: j.map((c) => {
-                  const p = c.id === h.parent_id;
-                  return /* @__PURE__ */ i.jsxs(
-                    "div",
-                    {
-                      className: `meld-suggestion-card ${p ? "meld-suggestion-card--current" : ""}`,
-                      onClick: () => !p && m(c.id),
-                      style: {
-                        cursor: p ? "default" : "pointer",
-                        ...p ? {
-                          borderColor: "var(--meld-accent-color)",
-                          boxShadow: "0 0 0 2px var(--meld-accent-color)"
-                        } : {}
-                      },
-                      children: [
-                        /* @__PURE__ */ i.jsx("img", { src: Ie(c), alt: c.filename }),
-                        /* @__PURE__ */ i.jsxs("div", { className: "meld-suggestion-info", children: [
-                          /* @__PURE__ */ i.jsx("span", { className: "meld-suggestion-filename", children: c.filename }),
-                          p && /* @__PURE__ */ i.jsx(
-                            "span",
-                            {
-                              style: {
-                                fontSize: "8px",
-                                color: "var(--meld-accent-color)",
-                                fontWeight: "bold",
-                                marginTop: "2px"
-                              },
-                              children: "CURRENT SOURCE"
-                            }
-                          )
-                        ] })
-                      ]
-                    },
-                    c.id
-                  );
-                }) })
-              ] }),
-              /* @__PURE__ */ i.jsxs("section", { children: [
-                /* @__PURE__ */ i.jsx("h3", { children: "Visual Matches (pHash)" }),
-                f.length > 0 ? /* @__PURE__ */ i.jsx("div", { className: "meld-suggestion-grid", children: f.map((c) => {
-                  const p = c.id === h.parent_id;
-                  return /* @__PURE__ */ i.jsxs(
-                    "div",
-                    {
-                      className: `meld-suggestion-card ${p ? "meld-suggestion-card--current" : ""}`,
-                      onClick: () => !p && m(c.id),
-                      style: {
-                        cursor: p ? "default" : "pointer",
-                        ...p ? {
-                          borderColor: "var(--meld-accent-color)",
-                          boxShadow: "0 0 0 2px var(--meld-accent-color)"
-                        } : {}
-                      },
-                      children: [
-                        /* @__PURE__ */ i.jsx("img", { src: Ie(c), alt: c.filename }),
-                        /* @__PURE__ */ i.jsxs("div", { className: "meld-suggestion-info", children: [
-                          /* @__PURE__ */ i.jsx("span", { className: "meld-suggestion-filename", children: c.filename }),
-                          /* @__PURE__ */ i.jsxs(
-                            "div",
-                            {
-                              style: {
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                marginTop: "2px"
-                              },
-                              children: [
-                                /* @__PURE__ */ i.jsxs("span", { className: "meld-suggestion-distance", children: [
-                                  "Match:",
-                                  " ",
-                                  Math.round((64 - c.distance) / 64 * 100),
-                                  "%"
-                                ] }),
-                                p && /* @__PURE__ */ i.jsx(
-                                  "span",
-                                  {
-                                    style: {
-                                      fontSize: "8px",
-                                      color: "var(--meld-accent-color)",
-                                      fontWeight: "bold"
-                                    },
-                                    children: "CURRENT"
-                                  }
-                                )
-                              ]
-                            }
-                          )
-                        ] })
-                      ]
-                    },
-                    c.id
-                  );
-                }) }) : /* @__PURE__ */ i.jsx("p", { className: "meld-no-suggestions", children: "No visual matches found." })
-              ] })
-            ] })
-          ] })
-        ] })
-      }
-    ),
-    document.fullscreenElement || document.body
-  );
-}, Wm = () => {
+}, $m = () => {
   const { state: e, dispatch: t, updateSetting: n } = Re(), [r, l] = v.useState("General"), [s, a] = v.useState({
     ...e.settings
   }), [o, u] = v.useState(
@@ -8837,7 +7988,7 @@ const id = v.createContext(void 0), Am = ({
     !o && u(),
     d()
   ] });
-}, Qm = ({
+}, Vm = ({
   localSettings: e,
   handleToggle: t,
   handleNumberChange: n,
@@ -9079,7 +8230,7 @@ const id = v.createContext(void 0), Am = ({
       )
     }
   ) })
-] }), Hm = ({
+] }), Um = ({
   localSettings: e,
   handleToggle: t
 }) => /* @__PURE__ */ i.jsxs("div", { className: "meld-settings-list", children: [
@@ -9146,7 +8297,7 @@ const id = v.createContext(void 0), Am = ({
       ] })
     }
   )
-] }), Bm = ({
+] }), Wm = ({
   localSettings: e,
   setLocalSettings: t,
   shortcutErrors: n,
@@ -9276,7 +8427,7 @@ const id = v.createContext(void 0), Am = ({
       }
     ) })
   ] });
-}, Gm = ({
+}, Qm = ({
   localSettings: e,
   setLocalSettings: t,
   handleToggle: n
@@ -9834,7 +8985,7 @@ const id = v.createContext(void 0), Am = ({
     !u && d(),
     h()
   ] });
-}, cd = () => {
+}, od = () => {
   const {
     activeTab: e,
     setActiveTab: t,
@@ -9861,7 +9012,7 @@ const id = v.createContext(void 0), Am = ({
     maxNegativePromptLinesInput: N,
     fullscreenMaxPositivePromptLinesInput: P,
     fullscreenMaxNegativePromptLinesInput: _
-  } = Wm(), E = [
+  } = $m(), E = [
     { id: "General", label: "General" },
     { id: "Sidebar", label: "Sidebar" },
     { id: "Search", label: "Search" },
@@ -9874,7 +9025,7 @@ const id = v.createContext(void 0), Am = ({
     switch (e) {
       case "General":
         return /* @__PURE__ */ i.jsx(
-          Qm,
+          Vm,
           {
             localSettings: n,
             handleToggle: o,
@@ -9892,7 +9043,7 @@ const id = v.createContext(void 0), Am = ({
         );
       case "Sidebar":
         return /* @__PURE__ */ i.jsx(
-          Gm,
+          Qm,
           {
             localSettings: n,
             setLocalSettings: r,
@@ -9901,7 +9052,7 @@ const id = v.createContext(void 0), Am = ({
         );
       case "Search":
         return /* @__PURE__ */ i.jsx(
-          Hm,
+          Um,
           {
             localSettings: n,
             handleToggle: o
@@ -9965,7 +9116,7 @@ const id = v.createContext(void 0), Am = ({
         );
       case "Shortcuts":
         return /* @__PURE__ */ i.jsx(
-          Bm,
+          Wm,
           {
             localSettings: n,
             setLocalSettings: r,
@@ -10017,7 +9168,7 @@ const id = v.createContext(void 0), Am = ({
     ) }),
     document.fullscreenElement || document.body
   );
-}, at = "none", dd = ({
+}, at = "none", ud = ({
   imageIds: e,
   initialTags: t,
   onClose: n
@@ -10191,18 +9342,607 @@ const id = v.createContext(void 0), Am = ({
     ),
     document.fullscreenElement || document.body
   );
-}, Km = () => {
+}, cd = ({
+  imageIds: e,
+  hasLineage: t,
+  isPermanent: n = !1,
+  onSuccess: r
+}) => {
+  const { state: l, dispatch: s } = Re(), a = v.useRef(!0);
+  v.useEffect(() => () => {
+    a.current = !1;
+  }, []);
+  const o = v.useRef(l.viewerImageId);
+  v.useEffect(() => {
+    o.current = l.viewerImageId;
+  }, [l.viewerImageId]);
+  const u = v.useCallback(() => {
+    s({ type: "CLOSE_MODAL" });
+  }, [s]), d = v.useCallback(
+    (m) => {
+      if (!a.current) return;
+      const y = o.current;
+      if (y === null || !m.has(y))
+        return;
+      const w = l.viewerMode === "lineage" && l.lineageImages.length > 0 ? l.lineageImages : l.images.filter(
+        (f) => f.exists !== !1 && !(l.settings["gallery.hide_parent_images"] && f.has_children)
+      ), x = w.findIndex(
+        (f) => f.id === y
+      );
+      if (x === -1) return;
+      let j = !1;
+      for (let f = x + 1; f < w.length; f++)
+        if (!m.has(w[f].id)) {
+          s({
+            type: "OPEN_VIEWER",
+            payload: { id: w[f].id, mode: l.viewerMode }
+          }), j = !0;
+          break;
+        }
+      if (!j) {
+        for (let f = x - 1; f >= 0; f--)
+          if (!m.has(w[f].id)) {
+            s({
+              type: "OPEN_VIEWER",
+              payload: { id: w[f].id, mode: l.viewerMode }
+            }), j = !0;
+            break;
+          }
+      }
+      j || s({ type: "CLOSE_VIEWER" });
+    },
+    [
+      l.viewerMode,
+      l.lineageImages,
+      l.images,
+      l.settings,
+      s
+    ]
+  );
+  v.useEffect(() => {
+    const m = (y) => {
+      y.key === "Escape" && u();
+    };
+    return window.addEventListener("keydown", m), () => window.removeEventListener("keydown", m);
+  }, [u]);
+  const h = async () => {
+    try {
+      s({ type: "SET_LOADING", payload: !0 });
+      const m = l.viewerMode === "lineage" && l.lineageImages.length > 0 ? l.lineageImages : l.images.filter(
+        (x) => x.exists !== !1 && !(l.settings["gallery.hide_parent_images"] && x.has_children)
+      ), y = new Set(e), w = m.filter(
+        (x) => y.has(x.id)
+      );
+      if (d(y), await wi(e, n), !a.current) return;
+      !n && r && r(w), s({ type: "REMOVE_IMAGES", payload: e }), s({ type: "CLEAR_SELECTION" }), s({ type: "CLOSE_MODAL" });
+    } catch (m) {
+      s({
+        type: "SET_ERROR",
+        payload: m instanceof Error ? m.message : String(m)
+      }), s({ type: "SET_LOADING", payload: !1 });
+    }
+  }, g = async () => {
+    try {
+      s({ type: "SET_LOADING", payload: !0 });
+      const m = l.viewerMode === "lineage" && l.lineageImages.length > 0 ? l.lineageImages : l.images.filter(
+        (x) => x.exists !== !1 && !(l.settings["gallery.hide_parent_images"] && x.has_children)
+      ), y = new Set(e);
+      for (const x of e) {
+        const j = await vi(x);
+        if (!a.current) return;
+        for (const f of j)
+          y.add(f.id);
+      }
+      const w = m.filter(
+        (x) => y.has(x.id)
+      );
+      if (d(y), await wi(Array.from(y), n), !a.current) return;
+      !n && r && r(w), s({
+        type: "REMOVE_IMAGES",
+        payload: Array.from(y)
+      }), s({ type: "CLEAR_SELECTION" }), s({ type: "CLOSE_MODAL" });
+    } catch (m) {
+      s({
+        type: "SET_ERROR",
+        payload: m instanceof Error ? m.message : String(m)
+      }), s({ type: "SET_LOADING", payload: !1 });
+    }
+  };
+  return Fe.createPortal(
+    /* @__PURE__ */ i.jsx("div", { className: "meld-modal-overlay", onClick: u, children: /* @__PURE__ */ i.jsxs(
+      "div",
+      {
+        className: "meld-modal-content meld-modal-content--small",
+        onClick: (m) => m.stopPropagation(),
+        children: [
+          /* @__PURE__ */ i.jsxs("div", { className: "meld-modal-header", children: [
+            /* @__PURE__ */ i.jsxs("h2", { style: { display: "flex", alignItems: "center", gap: "10px" }, children: [
+              /* @__PURE__ */ i.jsx(Fn, { size: 20, color: "var(--meld-danger-color)" }),
+              n ? "Permanent Deletion" : "Move to Trash"
+            ] }),
+            /* @__PURE__ */ i.jsx(
+              "button",
+              {
+                type: "button",
+                className: "meld-modal-close",
+                onClick: u,
+                children: /* @__PURE__ */ i.jsx(Te, { size: 20 })
+              }
+            )
+          ] }),
+          /* @__PURE__ */ i.jsx("div", { className: "meld-modal-body", children: /* @__PURE__ */ i.jsxs(
+            "div",
+            {
+              style: {
+                padding: "10px 0",
+                display: "flex",
+                flexDirection: "column",
+                gap: "15px"
+              },
+              children: [
+                /* @__PURE__ */ i.jsxs("p", { children: [
+                  "Are you sure you want to",
+                  " ",
+                  n ? "permanently delete" : "move to trash",
+                  " ",
+                  /* @__PURE__ */ i.jsx("strong", { children: e.length }),
+                  " selected items?"
+                ] }),
+                /* @__PURE__ */ i.jsxs(
+                  "div",
+                  {
+                    style: {
+                      padding: "12px",
+                      backgroundColor: "var(--comfy-input-bg, rgba(255, 0, 0, 0.1))",
+                      border: `1px solid ${n ? "var(--meld-danger-color)" : "var(--meld-accent-color)"}`,
+                      borderRadius: "4px",
+                      display: "flex",
+                      gap: "10px"
+                    },
+                    children: [
+                      /* @__PURE__ */ i.jsx(
+                        dm,
+                        {
+                          size: 20,
+                          style: {
+                            color: n ? "var(--meld-danger-color)" : "var(--meld-accent-color)",
+                            flexShrink: 0
+                          }
+                        }
+                      ),
+                      /* @__PURE__ */ i.jsx("div", { style: { fontSize: "13px" }, children: n ? /* @__PURE__ */ i.jsxs(i.Fragment, { children: [
+                        /* @__PURE__ */ i.jsx("strong", { children: "WARNING:" }),
+                        " Physical files will be permanently deleted from the trash bin. This operation cannot be undone."
+                      ] }) : /* @__PURE__ */ i.jsxs(i.Fragment, { children: [
+                        /* @__PURE__ */ i.jsx("strong", { children: "INFO:" }),
+                        " Selected items will be moved to the trash bin. You can restore them later from the settings."
+                      ] }) })
+                    ]
+                  }
+                ),
+                t && /* @__PURE__ */ i.jsxs(
+                  "div",
+                  {
+                    style: {
+                      padding: "12px",
+                      backgroundColor: "var(--comfy-input-bg-active, rgba(0, 150, 255, 0.1))",
+                      border: "1px solid var(--meld-accent-color)",
+                      borderRadius: "4px",
+                      fontSize: "13px"
+                    },
+                    children: [
+                      "Selected images include items with a ",
+                      /* @__PURE__ */ i.jsx("strong", { children: "Source" }),
+                      " or descendants. You can choose to delete just the selected items or all related items in their lineage."
+                    ]
+                  }
+                )
+              ]
+            }
+          ) }),
+          /* @__PURE__ */ i.jsxs("div", { className: "meld-modal-footer", children: [
+            /* @__PURE__ */ i.jsx(
+              "button",
+              {
+                type: "button",
+                className: "meld-btn meld-btn-secondary",
+                onClick: u,
+                children: "Cancel"
+              }
+            ),
+            /* @__PURE__ */ i.jsxs("div", { style: { display: "flex", gap: "10px" }, children: [
+              /* @__PURE__ */ i.jsx(
+                "button",
+                {
+                  type: "button",
+                  className: "meld-btn meld-btn-danger",
+                  onClick: h,
+                  children: n ? "Delete Permanently" : "Move to Trash"
+                }
+              ),
+              t && /* @__PURE__ */ i.jsx(
+                "button",
+                {
+                  type: "button",
+                  className: "meld-btn meld-btn-danger",
+                  title: n ? "Permanently delete all images in the lineage" : "Move all images in the lineage to trash",
+                  onClick: g,
+                  children: n ? "Delete All Related" : "Move All Related"
+                }
+              )
+            ] })
+          ] })
+        ]
+      }
+    ) }),
+    document.fullscreenElement || document.body
+  );
+}, dd = ({
+  imageId: e
+}) => {
+  const { state: t, dispatch: n, refreshImages: r } = Re(), [l, s] = v.useState([]), [a, o] = v.useState(!0), [u, d] = v.useState(!1), h = t.images.find((c) => c.id === e), g = v.useCallback(async () => {
+    o(!0);
+    try {
+      const c = t.settings["gallery.suggest_phash_threshold"], p = await Vp(e, c);
+      s(p);
+    } catch (c) {
+      console.error("Failed to load suggestions:", c);
+    } finally {
+      o(!1);
+    }
+  }, [e, t.settings]);
+  v.useEffect(() => {
+    g();
+  }, [g]);
+  const m = async (c) => {
+    if (c == null) {
+      console.error("handleSelect: parentId is undefined or null");
+      return;
+    }
+    if (!(!h || c === h.parent_id) && !(h.parent_id && !confirm("Are you sure you want to change the source image?")))
+      try {
+        await Lo(e, c), await Kc(e), await r(), n({ type: "CLOSE_MODAL" });
+      } catch (p) {
+        console.error("Failed to link parent:", p);
+      }
+  }, y = async () => {
+    if (confirm("Are you sure you want to remove the source image relationship?"))
+      try {
+        await Lo(e, null), await r(), n({ type: "CLOSE_MODAL" });
+      } catch (c) {
+        console.error("Failed to remove source:", c), alert("Failed to remove source image.");
+      }
+  }, w = async (c) => {
+    o(!0);
+    try {
+      const p = await Up(c), { id: k } = await Xc({
+        filename: p.name,
+        subfolder: p.subfolder || "",
+        type: p.type || "input"
+      });
+      if (k === e) {
+        alert(
+          "Uploaded image is identical to the current image. Cannot set as source."
+        );
+        return;
+      }
+      await m(k);
+    } catch (p) {
+      console.error("Failed to upload/register image:", p);
+    } finally {
+      o(!1);
+    }
+  }, x = (c) => {
+    c.preventDefault(), c.stopPropagation(), d(!1);
+    const p = c.dataTransfer.files[0];
+    p != null && p.type.startsWith("image/") && w(p);
+  };
+  if (!h) return null;
+  const j = l.filter((c) => c.is_source_match), f = l.filter((c) => !c.is_source_match);
+  return Fe.createPortal(
+    /* @__PURE__ */ i.jsx(
+      "div",
+      {
+        className: "meld-modal-overlay",
+        onClick: () => n({ type: "CLOSE_MODAL" }),
+        children: /* @__PURE__ */ i.jsxs("div", { className: "meld-modal-content", onClick: (c) => c.stopPropagation(), children: [
+          /* @__PURE__ */ i.jsxs("div", { className: "meld-modal-header", children: [
+            /* @__PURE__ */ i.jsxs("h2", { children: [
+              "Select Source for #",
+              h.id
+            ] }),
+            /* @__PURE__ */ i.jsx(
+              "button",
+              {
+                type: "button",
+                className: "meld-modal-close",
+                onClick: () => n({ type: "CLOSE_MODAL" }),
+                children: /* @__PURE__ */ i.jsx(Te, { size: 20 })
+              }
+            )
+          ] }),
+          /* @__PURE__ */ i.jsxs("div", { className: "meld-modal-body", children: [
+            h.parent_id && /* @__PURE__ */ i.jsxs(
+              "div",
+              {
+                style: {
+                  marginBottom: "16px",
+                  padding: "12px",
+                  backgroundColor: "var(--comfy-input-bg, rgba(0, 0, 0, 0.1))",
+                  borderRadius: "8px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  border: "1px solid var(--meld-border-color, #444)"
+                },
+                children: [
+                  /* @__PURE__ */ i.jsxs(
+                    "div",
+                    {
+                      style: {
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "12px",
+                        minWidth: 0
+                      },
+                      children: [
+                        /* @__PURE__ */ i.jsx(km, { size: 16, color: "var(--meld-accent-color)" }),
+                        /* @__PURE__ */ i.jsxs(
+                          "div",
+                          {
+                            style: {
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "4px",
+                              minWidth: 0
+                            },
+                            children: [
+                              /* @__PURE__ */ i.jsx(
+                                "span",
+                                {
+                                  style: {
+                                    fontSize: "0.8em",
+                                    color: "var(--meld-text-secondary)",
+                                    textTransform: "uppercase",
+                                    letterSpacing: "0.05em"
+                                  },
+                                  children: "Current Source"
+                                }
+                              ),
+                              /* @__PURE__ */ i.jsxs(
+                                "div",
+                                {
+                                  style: {
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "10px",
+                                    minWidth: 0
+                                  },
+                                  children: [
+                                    h.parent_filename && /* @__PURE__ */ i.jsx(
+                                      "img",
+                                      {
+                                        src: Ie({
+                                          filename: h.parent_filename,
+                                          subfolder: h.parent_subfolder || "",
+                                          type: h.parent_type || "output"
+                                        }),
+                                        alt: "Current Parent",
+                                        style: {
+                                          width: "40px",
+                                          height: "40px",
+                                          objectFit: "cover",
+                                          borderRadius: "4px",
+                                          border: "1px solid var(--meld-border-color)"
+                                        }
+                                      }
+                                    ),
+                                    /* @__PURE__ */ i.jsxs(
+                                      "div",
+                                      {
+                                        style: {
+                                          display: "flex",
+                                          flexDirection: "column",
+                                          minWidth: 0
+                                        },
+                                        children: [
+                                          /* @__PURE__ */ i.jsx(
+                                            "span",
+                                            {
+                                              style: {
+                                                fontWeight: "bold",
+                                                fontSize: "0.95em",
+                                                whiteSpace: "nowrap",
+                                                overflow: "hidden",
+                                                textOverflow: "ellipsis"
+                                              },
+                                              children: h.parent_filename || "Unknown Image"
+                                            }
+                                          ),
+                                          /* @__PURE__ */ i.jsxs(
+                                            "span",
+                                            {
+                                              style: {
+                                                color: "var(--meld-text-secondary)",
+                                                fontSize: "0.85em"
+                                              },
+                                              children: [
+                                                "#",
+                                                h.parent_id
+                                              ]
+                                            }
+                                          )
+                                        ]
+                                      }
+                                    )
+                                  ]
+                                }
+                              )
+                            ]
+                          }
+                        )
+                      ]
+                    }
+                  ),
+                  /* @__PURE__ */ i.jsx(
+                    "button",
+                    {
+                      type: "button",
+                      className: "meld-btn meld-btn-danger meld-btn--sm",
+                      style: {
+                        flexShrink: 0,
+                        width: "32px",
+                        height: "32px",
+                        padding: 0,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderRadius: "50%"
+                      },
+                      onClick: y,
+                      title: "Remove Source",
+                      children: /* @__PURE__ */ i.jsx(Sm, { size: 16 })
+                    }
+                  )
+                ]
+              }
+            ),
+            /* @__PURE__ */ i.jsxs(
+              "div",
+              {
+                className: `meld-drop-zone ${u ? "meld-drop-zone--active" : ""}`,
+                onDragEnter: (c) => {
+                  c.preventDefault(), c.stopPropagation(), d(!0);
+                },
+                onDragOver: (c) => {
+                  c.preventDefault(), c.stopPropagation(), c.dataTransfer.dropEffect = "copy", d(!0);
+                },
+                onDragLeave: (c) => {
+                  c.preventDefault(), c.stopPropagation(), d(!1);
+                },
+                onDrop: x,
+                children: [
+                  /* @__PURE__ */ i.jsx(Pm, { size: 32 }),
+                  /* @__PURE__ */ i.jsx("p", { children: "Drop an image file here to set it as source" })
+                ]
+              }
+            ),
+            a ? /* @__PURE__ */ i.jsx("div", { className: "meld-modal-loading", children: "Loading suggestions..." }) : /* @__PURE__ */ i.jsxs("div", { className: "meld-suggestions-container", children: [
+              j.length > 0 && /* @__PURE__ */ i.jsxs("section", { children: [
+                /* @__PURE__ */ i.jsx("h3", { children: "Source Matches (from metadata)" }),
+                /* @__PURE__ */ i.jsx("div", { className: "meld-suggestion-grid", children: j.map((c) => {
+                  const p = c.id === h.parent_id;
+                  return /* @__PURE__ */ i.jsxs(
+                    "div",
+                    {
+                      className: `meld-suggestion-card ${p ? "meld-suggestion-card--current" : ""}`,
+                      onClick: () => !p && m(c.id),
+                      style: {
+                        cursor: p ? "default" : "pointer",
+                        ...p ? {
+                          borderColor: "var(--meld-accent-color)",
+                          boxShadow: "0 0 0 2px var(--meld-accent-color)"
+                        } : {}
+                      },
+                      children: [
+                        /* @__PURE__ */ i.jsx("img", { src: Ie(c), alt: c.filename }),
+                        /* @__PURE__ */ i.jsxs("div", { className: "meld-suggestion-info", children: [
+                          /* @__PURE__ */ i.jsx("span", { className: "meld-suggestion-filename", children: c.filename }),
+                          p && /* @__PURE__ */ i.jsx(
+                            "span",
+                            {
+                              style: {
+                                fontSize: "8px",
+                                color: "var(--meld-accent-color)",
+                                fontWeight: "bold",
+                                marginTop: "2px"
+                              },
+                              children: "CURRENT SOURCE"
+                            }
+                          )
+                        ] })
+                      ]
+                    },
+                    c.id
+                  );
+                }) })
+              ] }),
+              /* @__PURE__ */ i.jsxs("section", { children: [
+                /* @__PURE__ */ i.jsx("h3", { children: "Visual Matches (pHash)" }),
+                f.length > 0 ? /* @__PURE__ */ i.jsx("div", { className: "meld-suggestion-grid", children: f.map((c) => {
+                  const p = c.id === h.parent_id;
+                  return /* @__PURE__ */ i.jsxs(
+                    "div",
+                    {
+                      className: `meld-suggestion-card ${p ? "meld-suggestion-card--current" : ""}`,
+                      onClick: () => !p && m(c.id),
+                      style: {
+                        cursor: p ? "default" : "pointer",
+                        ...p ? {
+                          borderColor: "var(--meld-accent-color)",
+                          boxShadow: "0 0 0 2px var(--meld-accent-color)"
+                        } : {}
+                      },
+                      children: [
+                        /* @__PURE__ */ i.jsx("img", { src: Ie(c), alt: c.filename }),
+                        /* @__PURE__ */ i.jsxs("div", { className: "meld-suggestion-info", children: [
+                          /* @__PURE__ */ i.jsx("span", { className: "meld-suggestion-filename", children: c.filename }),
+                          /* @__PURE__ */ i.jsxs(
+                            "div",
+                            {
+                              style: {
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                marginTop: "2px"
+                              },
+                              children: [
+                                /* @__PURE__ */ i.jsxs("span", { className: "meld-suggestion-distance", children: [
+                                  "Match:",
+                                  " ",
+                                  Math.round((64 - c.distance) / 64 * 100),
+                                  "%"
+                                ] }),
+                                p && /* @__PURE__ */ i.jsx(
+                                  "span",
+                                  {
+                                    style: {
+                                      fontSize: "8px",
+                                      color: "var(--meld-accent-color)",
+                                      fontWeight: "bold"
+                                    },
+                                    children: "CURRENT"
+                                  }
+                                )
+                              ]
+                            }
+                          )
+                        ] })
+                      ]
+                    },
+                    c.id
+                  );
+                }) }) : /* @__PURE__ */ i.jsx("p", { className: "meld-no-suggestions", children: "No visual matches found." })
+              ] })
+            ] })
+          ] })
+        ] })
+      }
+    ),
+    document.fullscreenElement || document.body
+  );
+}, Hm = () => {
   const { state: e, dispatch: t } = Re();
   return e.viewerImageId !== null ? null : /* @__PURE__ */ i.jsxs(i.Fragment, { children: [
     e.activeModal.type === "parent_selection" && Fe.createPortal(
-      /* @__PURE__ */ i.jsx(ud, { imageId: e.activeModal.imageId }),
+      /* @__PURE__ */ i.jsx(dd, { imageId: e.activeModal.imageId }),
       document.body
     ),
-    e.activeModal.type === "import" && Fe.createPortal(/* @__PURE__ */ i.jsx(od, {}), document.body),
-    e.activeModal.type === "settings" && Fe.createPortal(/* @__PURE__ */ i.jsx(cd, {}), document.body),
+    e.activeModal.type === "import" && Fe.createPortal(/* @__PURE__ */ i.jsx(ad, {}), document.body),
+    e.activeModal.type === "settings" && Fe.createPortal(/* @__PURE__ */ i.jsx(od, {}), document.body),
     e.activeModal.type === "tag_edit" && Fe.createPortal(
       /* @__PURE__ */ i.jsx(
-        dd,
+        ud,
         {
           imageIds: e.activeModal.imageIds,
           initialTags: e.activeModal.tags,
@@ -10213,7 +9953,7 @@ const id = v.createContext(void 0), Am = ({
     ),
     e.activeModal.type === "delete_confirm" && Fe.createPortal(
       /* @__PURE__ */ i.jsx(
-        ad,
+        cd,
         {
           imageIds: e.activeModal.imageIds,
           hasLineage: e.activeModal.hasLineage,
@@ -10371,7 +10111,7 @@ const id = v.createContext(void 0), Am = ({
     },
     fetchFullImageDetails: r
   };
-}, Ym = ({
+}, Bm = ({
   isMenuOpen: e,
   setIsMenuOpen: t,
   menuRef: n,
@@ -10458,7 +10198,7 @@ const id = v.createContext(void 0), Am = ({
       }
     )
   ] })
-] }), Xm = ({
+] }), Gm = ({
   title: e,
   text: t,
   onClose: n,
@@ -10721,7 +10461,7 @@ const id = v.createContext(void 0), Am = ({
             )
           ] }),
           /* @__PURE__ */ i.jsx(
-            Ym,
+            Bm,
             {
               isMenuOpen: a,
               setIsMenuOpen: o,
@@ -10733,7 +10473,7 @@ const id = v.createContext(void 0), Am = ({
             }
           ),
           l && /* @__PURE__ */ i.jsx(
-            Xm,
+            Gm,
             {
               title: l.title,
               text: l.text,
@@ -10785,10 +10525,1315 @@ const md = ul.memo(
   }
 );
 md.displayName = "SimpleImageCard";
-const Zm = ({ image: e }) => {
+const Km = ({ image: e }) => {
   const { state: t } = Re();
   return (t.settings["gallery.view_mode"] || "grid_details") === "grid_only" ? /* @__PURE__ */ i.jsx(md, { image: e }) : /* @__PURE__ */ i.jsx(pd, { image: e });
-}, Jm = ({
+}, Ym = ({
+  children: e,
+  height: t = 150,
+  rootMargin: n = "400px"
+}) => {
+  const [r, l] = v.useState(!1), s = v.useRef(null);
+  return v.useEffect(() => {
+    const a = new IntersectionObserver(
+      ([u]) => {
+        l(u.isIntersecting);
+      },
+      { rootMargin: n }
+    ), o = s.current;
+    return o && a.observe(o), () => {
+      o && a.unobserve(o);
+    };
+  }, [n]), /* @__PURE__ */ i.jsx(
+    "div",
+    {
+      ref: s,
+      style: {
+        minHeight: r ? "auto" : `${t}px`,
+        width: "100%",
+        containIntrinsicSize: `auto ${t}px`,
+        contentVisibility: "auto"
+      },
+      children: r ? e : null
+    }
+  );
+}, Xm = () => {
+  const { state: e, dispatch: t } = Re(), { scanStatus: n } = e;
+  if (!n.isRunning && !n.isFinished)
+    return null;
+  const r = async () => {
+    try {
+      await Gp(), t({ type: "SET_SCAN_STATUS", payload: { shouldCancel: !0 } });
+    } catch (h) {
+      console.error("Failed to cancel scan:", h);
+    }
+  }, l = () => {
+    t({
+      type: "SET_SCAN_STATUS",
+      payload: { isFinished: !1, isRunning: !1 }
+    });
+  }, s = n.progress.phase === "linking", { current: a, total: o } = n.progress, u = o > 0 ? a / o : 0, d = s ? 50 + Math.round(u * 50) : Math.round(u * 50);
+  return /* @__PURE__ */ i.jsx("div", { className: "meld-import-progress-sidebar", children: n.isRunning ? /* @__PURE__ */ i.jsxs("div", { className: "meld-scan-progress-compact", children: [
+    /* @__PURE__ */ i.jsxs("div", { className: "meld-scan-info", children: [
+      /* @__PURE__ */ i.jsx("div", { className: "meld-scan-status-text-compact", children: n.shouldCancel ? /* @__PURE__ */ i.jsx("span", { className: "meld-status-cancelling", children: "Cancelling..." }) : s ? /* @__PURE__ */ i.jsx("span", { children: "Linking..." }) : /* @__PURE__ */ i.jsx("span", { children: "Scanning..." }) }),
+      /* @__PURE__ */ i.jsxs("div", { className: "meld-progress-stats-compact", children: [
+        n.progress.current,
+        " / ",
+        n.progress.total
+      ] })
+    ] }),
+    /* @__PURE__ */ i.jsx("div", { className: "meld-progress-container-compact", children: /* @__PURE__ */ i.jsx(
+      "div",
+      {
+        className: "meld-progress-bar",
+        style: { width: `${d}%` }
+      }
+    ) }),
+    /* @__PURE__ */ i.jsx(
+      "button",
+      {
+        type: "button",
+        className: "meld-btn-stop-compact",
+        disabled: n.shouldCancel,
+        onClick: r,
+        title: "Stop Scan",
+        children: /* @__PURE__ */ i.jsx(Lm, { size: 12, fill: "currentColor" })
+      }
+    )
+  ] }) : /* @__PURE__ */ i.jsxs("div", { className: "meld-scan-finished-compact", children: [
+    /* @__PURE__ */ i.jsxs("div", { className: "meld-finished-info", children: [
+      /* @__PURE__ */ i.jsx(gm, { size: 14, className: "meld-success-icon" }),
+      /* @__PURE__ */ i.jsxs("span", { className: "meld-finished-text", children: [
+        "Done! ",
+        n.newCount,
+        " new, ",
+        n.updatedCount,
+        " updated"
+      ] })
+    ] }),
+    /* @__PURE__ */ i.jsx(
+      "button",
+      {
+        type: "button",
+        className: "meld-btn-ok-compact",
+        onClick: l,
+        children: "OK"
+      }
+    )
+  ] }) });
+}, Zm = () => {
+  const { state: e, refreshFavorites: t } = Re(), [n, r] = v.useState(!1), [l, s] = v.useState(null), [a, o] = v.useState(null), [u, d] = v.useState(""), [h, g] = v.useState("");
+  v.useEffect(() => {
+    if (l) {
+      const j = setTimeout(() => s(null), 3e3);
+      return () => clearTimeout(j);
+    }
+  }, [l]);
+  const m = v.useCallback(
+    async (j, f, c) => {
+      j.stopPropagation();
+      const p = `Are you sure you want to delete the favorite "${c}"?`;
+      if (window.confirm(p))
+        try {
+          await Mo(f), await t();
+        } catch (k) {
+          V.error("Failed to delete favorite", k);
+        }
+    },
+    [t]
+  ), y = v.useCallback(
+    (j, f) => {
+      j.stopPropagation(), o(f), d(f.name), g(f.query);
+    },
+    []
+  ), w = v.useCallback(async () => {
+    if (!(!a || !u.trim() || !h.trim()))
+      try {
+        r(!0), await Xp(
+          a.id,
+          u,
+          h
+        ), await t(), o(null), s("Favorite updated.");
+      } catch (j) {
+        V.error("Failed to update favorite", j), s("Failed to update favorite.");
+      } finally {
+        r(!1);
+      }
+  }, [a, u, h, t]), x = v.useCallback(async () => {
+    if (!e.searchQuery || n) return;
+    if (e.favorites.some(
+      (f) => f.query === e.searchQuery
+    )) {
+      const f = e.favorites.find((c) => c.query === e.searchQuery);
+      if (f) {
+        r(!0);
+        try {
+          await Mo(f.id), await t(), s("Favorite removed.");
+        } catch (c) {
+          V.error("Failed to delete favorite:", c);
+        } finally {
+          r(!1);
+        }
+      }
+      return;
+    }
+    r(!0);
+    try {
+      await Yp(e.searchQuery, e.searchQuery), await t(), s(
+        `Favorite added!
+You can select favorites when the search query is empty.`
+      );
+    } catch (f) {
+      V.error("Failed to save favorite:", f);
+    } finally {
+      r(!1);
+    }
+  }, [e.searchQuery, e.favorites, n, t]);
+  return {
+    isSaving: n,
+    toastMessage: l,
+    editingFavorite: a,
+    setEditingFavorite: o,
+    editFavoriteName: u,
+    setEditFavoriteName: d,
+    editFavoriteQuery: h,
+    setEditFavoriteQuery: g,
+    handleDeleteFavorite: m,
+    handleEditFavorite: y,
+    handleSaveEditFavorite: w,
+    handleSaveFavorite: x,
+    setToastMessage: s
+  };
+}, Jm = () => {
+  const { state: e, dispatch: t } = Re(), [n, r] = v.useState(e.searchQuery), [l, s] = v.useState([]), [a, o] = v.useState(!1), [u, d] = v.useState([]), [h, g] = v.useState(-1), m = v.useRef(null), y = v.useRef(e.searchQuery), w = n !== y.current;
+  v.useEffect(() => {
+    if (!e.settings["search.quick_suggestions"]) {
+      d([]);
+      return;
+    }
+    !n && !e.searchQuery ? Ap().then((_) => {
+      d(_);
+    }) : d([]);
+  }, [
+    n,
+    e.searchQuery,
+    e.settings["search.quick_suggestions"]
+  ]), v.useEffect(() => {
+    r(e.searchQuery), y.current = e.searchQuery;
+  }, [e.searchQuery]), v.useEffect(() => {
+    var _;
+    (_ = m.current) == null || _.focus();
+  }, []);
+  const x = v.useCallback(
+    (_, E = !0) => {
+      y.current !== _ && (V.log("SearchBar: triggering search", { query: _ }), t({ type: "SET_SEARCH_QUERY", payload: _ }), E && o(!1), y.current = _);
+    },
+    [t]
+  );
+  v.useEffect(() => {
+    const _ = setTimeout(async () => {
+      if (n === y.current)
+        return;
+      if (!e.settings["search.input_suggest"]) {
+        s([]), o(!1);
+        return;
+      }
+      const E = n.split(/\s+/), b = E[E.length - 1];
+      if (b) {
+        const R = b.match(
+          /^[-!]?(tag|pos|neg|model|date|after|before|has_source|has_derivatives|sort):(.*)$/i
+        );
+        if (R) {
+          const S = R[1].toLowerCase(), D = R[2], C = await Op(D, S);
+          s(C), o(C.length > 0), g(-1);
+        } else
+          s([]), o(!1);
+      } else
+        s([]), o(!1);
+    }, 300);
+    return () => clearTimeout(_);
+  }, [n, e.settings["search.input_suggest"]]);
+  const j = v.useCallback(
+    (_) => {
+      var ee;
+      const E = n.split(/\s+/), R = (E.pop() || "").match(/^([-!])/), S = R ? R[1] : "", U = [
+        "date",
+        "after",
+        "before",
+        "has_source",
+        "has_derivatives"
+      ].includes(_.type) ? _.value : `"${_.value}"`, M = `${[
+        ...E,
+        `${S}${_.type}:${U}`
+      ].join(" ").trim()} `;
+      r(M), s([]), o(!1), (ee = m.current) == null || ee.focus();
+    },
+    [n]
+  ), f = (_) => {
+    _.key === "Enter" ? x(n) : _.key === "Tab" ? a && h >= 0 && (j(l[h]), _.preventDefault()) : _.key === "ArrowDown" ? a && (g((E) => Math.min(E + 1, l.length - 1)), _.preventDefault()) : _.key === "ArrowUp" ? a && (g((E) => Math.max(E - 1, -1)), _.preventDefault()) : _.key === "Escape" && o(!1);
+  }, c = v.useCallback(() => {
+    r(""), x("");
+  }, [x]), p = v.useCallback(
+    (_, E) => {
+      const S = [
+        "date",
+        "after",
+        "before",
+        "has_source",
+        "has_derivatives"
+      ].includes(_) ? E : `"${E}"`, D = `${_}:${S}`;
+      r(D), x(D);
+    },
+    [x]
+  ), k = v.useCallback(
+    (_) => {
+      r(_), _ || x("");
+    },
+    [x]
+  ), N = v.useCallback(() => {
+    if (n === y.current) return;
+    const _ = n.split(/\s+/), E = _[_.length - 1];
+    E != null && E.match(
+      /^[-!]?(tag|pos|neg|model|date|after|before|has_source|has_derivatives|sort):/i
+    ) && o(!0);
+  }, [n]), P = v.useCallback(() => {
+    setTimeout(() => o(!1), 200);
+  }, []);
+  return {
+    inputValue: n,
+    setInputValue: r,
+    suggestions: l,
+    showSuggestions: a,
+    setShowSuggestions: o,
+    searchSuggestions: u,
+    selectedIndex: h,
+    setSelectedIndex: g,
+    inputRef: m,
+    isQueryChanged: w,
+    handleSearch: x,
+    handleKeyDown: f,
+    applySuggestion: j,
+    clearSearch: c,
+    applySearchSuggestion: p,
+    handleInputChange: k,
+    handleInputFocus: N,
+    handleInputBlur: P
+  };
+}, qm = ({
+  fav: e,
+  onSelect: t,
+  onEdit: n,
+  onDelete: r
+}) => {
+  const [l, s] = v.useState(!1), [a, o] = v.useState(!1), [u, d] = v.useState(!1);
+  return /* @__PURE__ */ i.jsxs(
+    "div",
+    {
+      style: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        backgroundColor: l ? "var(--comfy-menu-bg, #333)" : "var(--comfy-input-bg, #2a2a2a)",
+        border: "1px solid",
+        borderColor: l ? "var(--meld-accent-color)" : "var(--comfy-menu-border, #333)",
+        borderRadius: "6px",
+        padding: "8px 12px",
+        cursor: "pointer",
+        transition: "all 0.2s",
+        color: "var(--meld-text-color)",
+        fontSize: "13px",
+        gap: "10px"
+      },
+      onClick: () => t(e.query),
+      onMouseEnter: () => s(!0),
+      onMouseLeave: () => s(!1),
+      children: [
+        /* @__PURE__ */ i.jsxs(
+          "div",
+          {
+            style: {
+              display: "flex",
+              flexDirection: "column",
+              minWidth: 0,
+              flex: 1
+            },
+            children: [
+              /* @__PURE__ */ i.jsx(
+                "span",
+                {
+                  style: {
+                    fontWeight: "bold",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap"
+                  },
+                  children: e.name
+                }
+              ),
+              e.name !== e.query && /* @__PURE__ */ i.jsx(
+                "span",
+                {
+                  style: {
+                    fontSize: "10px",
+                    color: "var(--meld-text-secondary)",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    fontFamily: "monospace"
+                  },
+                  children: e.query
+                }
+              )
+            ]
+          }
+        ),
+        /* @__PURE__ */ i.jsxs(
+          "div",
+          {
+            style: {
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              flexShrink: 0
+            },
+            children: [
+              /* @__PURE__ */ i.jsx(
+                "button",
+                {
+                  type: "button",
+                  onClick: (h) => n(h, e),
+                  style: {
+                    background: "none",
+                    border: "none",
+                    color: a ? "var(--meld-accent-color)" : "var(--meld-text-secondary)",
+                    backgroundColor: a ? "var(--comfy-input-bg-active, rgba(68, 136, 255, 0.1))" : "transparent",
+                    padding: "6px",
+                    display: "flex",
+                    alignItems: "center",
+                    cursor: "pointer",
+                    borderRadius: "4px",
+                    transition: "all 0.2s"
+                  },
+                  onMouseEnter: () => o(!0),
+                  onMouseLeave: () => o(!1),
+                  title: "Edit favorite",
+                  children: /* @__PURE__ */ i.jsx(sd, { size: 14 })
+                }
+              ),
+              /* @__PURE__ */ i.jsx(
+                "button",
+                {
+                  type: "button",
+                  onClick: (h) => r(h, e.id, e.name),
+                  style: {
+                    background: "none",
+                    border: "none",
+                    color: u ? "var(--meld-danger-color)" : "var(--meld-text-secondary)",
+                    backgroundColor: u ? "var(--comfy-input-bg-active, rgba(255,0,0,0.1))" : "transparent",
+                    padding: "6px",
+                    display: "flex",
+                    alignItems: "center",
+                    cursor: "pointer",
+                    borderRadius: "4px",
+                    transition: "all 0.2s"
+                  },
+                  onMouseEnter: () => d(!0),
+                  onMouseLeave: () => d(!1),
+                  title: "Delete favorite",
+                  children: /* @__PURE__ */ i.jsx(Fn, { size: 14 })
+                }
+              )
+            ]
+          }
+        )
+      ]
+    }
+  );
+}, Ro = (e) => {
+  switch (e) {
+    case "tag":
+      return /* @__PURE__ */ i.jsx(on, { size: 12 });
+    case "model":
+      return /* @__PURE__ */ i.jsx(mm, { size: 12 });
+    case "pos":
+    case "neg":
+      return /* @__PURE__ */ i.jsx(Mm, { size: 12 });
+    case "date":
+    case "after":
+    case "before":
+      return /* @__PURE__ */ i.jsx(hm, { size: 12 });
+    case "has_source":
+      return /* @__PURE__ */ i.jsx(ed, { size: 12 });
+    case "has_derivatives":
+      return /* @__PURE__ */ i.jsx(qc, { size: 12 });
+    case "sort":
+      return /* @__PURE__ */ i.jsx(pm, { size: 12 });
+    default:
+      return null;
+  }
+}, eh = ({
+  showSuggestions: e,
+  suggestions: t,
+  selectedIndex: n,
+  setSelectedIndex: r,
+  applySuggestion: l,
+  inputValue: s,
+  searchQuery: a,
+  searchSuggestions: o,
+  applySearchSuggestion: u,
+  favorites: d,
+  onSelectFavorite: h,
+  onEditFavorite: g,
+  onDeleteFavorite: m
+}) => {
+  const y = () => !e || t.length === 0 ? null : /* @__PURE__ */ i.jsx(
+    "div",
+    {
+      className: "meld-search-suggestions",
+      style: {
+        position: "absolute",
+        top: "100%",
+        left: 0,
+        right: 0,
+        backgroundColor: "var(--comfy-menu-bg, #222)",
+        border: "1px solid var(--comfy-menu-border, #444)",
+        borderRadius: "0 0 6px 6px",
+        zIndex: 1e3,
+        marginTop: "2px",
+        maxHeight: "400px",
+        overflowY: "auto",
+        boxShadow: "0 8px 16px var(--comfy-menu-shadow, rgba(0,0,0,0.6))"
+      },
+      children: t.map((j, f) => /* @__PURE__ */ i.jsx(
+        "div",
+        {
+          onMouseDown: (c) => {
+            c.preventDefault(), l(j);
+          },
+          onMouseEnter: () => r(f),
+          style: {
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "10px 14px",
+            cursor: "pointer",
+            backgroundColor: f === n ? "var(--comfy-menu-bg, #333)" : "transparent",
+            borderBottom: "1px solid var(--comfy-menu-border, #2a2a2a)"
+          },
+          children: /* @__PURE__ */ i.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "10px" }, children: [
+            /* @__PURE__ */ i.jsx(
+              "span",
+              {
+                style: {
+                  color: "var(--meld-text-secondary)",
+                  display: "flex"
+                },
+                children: Ro(j.type)
+              }
+            ),
+            /* @__PURE__ */ i.jsx(
+              "span",
+              {
+                style: {
+                  color: "var(--comfy-input-text-active, #3b82f6)",
+                  fontSize: "11px",
+                  fontWeight: "bold",
+                  textTransform: "uppercase",
+                  width: "45px"
+                },
+                children: j.type
+              }
+            ),
+            /* @__PURE__ */ i.jsx(
+              "span",
+              {
+                style: {
+                  color: j.value === at ? "var(--meld-accent-color, #3b82f6)" : "var(--meld-text-color)",
+                  fontSize: "14px",
+                  fontWeight: j.value === at ? "bold" : "normal"
+                },
+                children: j.value === at ? j.type === "tag" ? `Untagged (${at})` : `No ${j.type} (${at})` : j.value
+              }
+            )
+          ] })
+        },
+        `${j.type}:${j.value}`
+      ))
+    }
+  ), w = () => s || a || o.length === 0 ? null : /* @__PURE__ */ i.jsx(
+    "div",
+    {
+      className: "meld-search-quick-suggestions",
+      style: {
+        display: "flex",
+        flexWrap: "wrap",
+        gap: "8px",
+        padding: "0 4px"
+      },
+      children: o.map((j) => /* @__PURE__ */ i.jsxs(
+        "button",
+        {
+          type: "button",
+          onClick: () => u(j.type, j.value),
+          style: {
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            backgroundColor: "var(--comfy-input-bg, #2a2a2a)",
+            border: "1px solid var(--comfy-menu-border, #333)",
+            borderRadius: "16px",
+            padding: "4px 12px",
+            cursor: "pointer",
+            transition: "all 0.2s",
+            color: "var(--meld-text-color)",
+            fontSize: "12px"
+          },
+          onMouseEnter: (f) => {
+            f.currentTarget.style.backgroundColor = "var(--comfy-menu-bg, #333)", f.currentTarget.style.borderColor = "var(--comfy-menu-border, #444)", f.currentTarget.style.color = "var(--meld-text-color)";
+          },
+          onMouseLeave: (f) => {
+            f.currentTarget.style.backgroundColor = "var(--comfy-input-bg, #2a2a2a)", f.currentTarget.style.borderColor = "var(--comfy-menu-border, #333)", f.currentTarget.style.color = "var(--meld-text-color)";
+          },
+          children: [
+            /* @__PURE__ */ i.jsx(
+              "span",
+              {
+                style: {
+                  display: "flex",
+                  color: "var(--meld-text-secondary)"
+                },
+                children: Ro(j.type)
+              }
+            ),
+            /* @__PURE__ */ i.jsx(
+              "span",
+              {
+                style: {
+                  color: "var(--comfy-input-text-active, #3b82f6)",
+                  fontWeight: "bold",
+                  textTransform: "uppercase",
+                  fontSize: "10px"
+                },
+                children: j.type
+              }
+            ),
+            /* @__PURE__ */ i.jsx(
+              "span",
+              {
+                style: {
+                  maxWidth: "200px",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap"
+                },
+                children: j.value
+              }
+            )
+          ]
+        },
+        `${j.type}:${j.value}`
+      ))
+    }
+  ), x = () => s || d.length === 0 ? null : /* @__PURE__ */ i.jsxs(
+    "div",
+    {
+      className: "meld-search-favorites",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "8px",
+        padding: "4px",
+        marginTop: "4px",
+        borderTop: "1px solid var(--comfy-menu-border, #333)",
+        paddingTop: "12px"
+      },
+      children: [
+        /* @__PURE__ */ i.jsxs(
+          "div",
+          {
+            style: {
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              color: "var(--meld-text-secondary)",
+              fontSize: "11px",
+              fontWeight: "bold",
+              textTransform: "uppercase",
+              paddingLeft: "4px",
+              marginBottom: "4px"
+            },
+            children: [
+              /* @__PURE__ */ i.jsx(Si, { size: 12, fill: "var(--meld-text-secondary)" }),
+              "Favorites"
+            ]
+          }
+        ),
+        /* @__PURE__ */ i.jsx(
+          "div",
+          {
+            style: {
+              display: "flex",
+              flexDirection: "column",
+              gap: "4px"
+            },
+            children: d.map((j) => /* @__PURE__ */ i.jsx(
+              qm,
+              {
+                fav: j,
+                onSelect: h,
+                onEdit: g,
+                onDelete: m
+              },
+              j.id
+            ))
+          }
+        )
+      ]
+    }
+  );
+  return /* @__PURE__ */ i.jsxs(i.Fragment, { children: [
+    y(),
+    w(),
+    x()
+  ] });
+}, th = () => {
+  const { state: e } = Re(), {
+    inputValue: t,
+    setInputValue: n,
+    suggestions: r,
+    showSuggestions: l,
+    searchSuggestions: s,
+    selectedIndex: a,
+    setSelectedIndex: o,
+    inputRef: u,
+    isQueryChanged: d,
+    handleSearch: h,
+    handleKeyDown: g,
+    applySuggestion: m,
+    clearSearch: y,
+    applySearchSuggestion: w,
+    handleInputChange: x,
+    handleInputFocus: j,
+    handleInputBlur: f
+  } = Jm(), {
+    isSaving: c,
+    toastMessage: p,
+    editingFavorite: k,
+    setEditingFavorite: N,
+    editFavoriteName: P,
+    setEditFavoriteName: _,
+    editFavoriteQuery: E,
+    setEditFavoriteQuery: b,
+    handleDeleteFavorite: R,
+    handleEditFavorite: S,
+    handleSaveEditFavorite: D,
+    handleSaveFavorite: C
+  } = Zm(), U = v.useRef(null);
+  return v.useEffect(() => {
+    k && U.current && U.current.focus();
+  }, [k]), /* @__PURE__ */ i.jsxs(
+    "div",
+    {
+      className: "meld-search-container",
+      style: { display: "flex", flexDirection: "column", gap: "8px", flex: 1 },
+      children: [
+        /* @__PURE__ */ i.jsxs(
+          "div",
+          {
+            className: "meld-search-bar-wrapper",
+            style: { position: "relative", width: "100%" },
+            children: [
+              p && /* @__PURE__ */ i.jsx(
+                "div",
+                {
+                  style: {
+                    position: "absolute",
+                    top: "calc(100% + 8px)",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    backgroundColor: "var(--comfy-menu-bg, #333)",
+                    color: "var(--meld-text-color)",
+                    padding: "8px 16px",
+                    borderRadius: "4px",
+                    fontSize: "12px",
+                    zIndex: 2e3,
+                    whiteSpace: "pre-wrap",
+                    textAlign: "center",
+                    boxShadow: "0 4px 12px var(--comfy-menu-shadow, rgba(0,0,0,0.5))",
+                    pointerEvents: "none",
+                    fontWeight: "bold",
+                    border: "1px solid var(--comfy-menu-border, #444)",
+                    animation: "meld-fade-in-down 0.3s ease-out",
+                    width: "max-content",
+                    maxWidth: "300px"
+                  },
+                  children: p
+                }
+              ),
+              /* @__PURE__ */ i.jsxs(
+                "div",
+                {
+                  className: "meld-search-bar",
+                  style: {
+                    display: "flex",
+                    alignItems: "center",
+                    backgroundColor: "var(--comfy-input-bg, #1a1a1a)",
+                    borderRadius: "6px",
+                    padding: "6px 12px",
+                    border: "1px solid var(--comfy-menu-border, #333)",
+                    transition: "border-color 0.2s",
+                    boxShadow: "inset 0 1px 3px var(--comfy-input-shadow, rgba(0,0,0,0.2))"
+                  },
+                  children: [
+                    /* @__PURE__ */ i.jsxs(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: () => h(t),
+                        style: {
+                          background: d ? "var(--meld-accent-color, #3b82f6)" : "var(--comfy-input-bg-active, rgba(255,255,255,0.03))",
+                          border: d ? "1px solid var(--meld-border-color, rgba(255,255,255,0.2))" : "1px solid transparent",
+                          cursor: "pointer",
+                          padding: "6px 10px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          marginRight: "10px",
+                          flexShrink: 0,
+                          borderRadius: "4px",
+                          transition: "all 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
+                          boxShadow: d ? "0 2px 8px var(--meld-accent-glow, rgba(59, 130, 246, 0.4)), inset 0 1px 0 var(--meld-border-color, rgba(255,255,255,0.2))" : "none"
+                        },
+                        onMouseEnter: (M) => {
+                          M.currentTarget.style.transform = "translateY(-1px)", d ? (M.currentTarget.style.filter = "brightness(1.15)", M.currentTarget.style.boxShadow = "0 4px 12px var(--meld-accent-glow-hover, rgba(59, 130, 246, 0.5)), inset 0 1px 0 var(--meld-border-color, rgba(255,255,255,0.2))") : M.currentTarget.style.backgroundColor = "var(--comfy-input-bg-active, rgba(255,255,255,0.08))";
+                        },
+                        onMouseLeave: (M) => {
+                          M.currentTarget.style.transform = "none", d ? (M.currentTarget.style.filter = "none", M.currentTarget.style.boxShadow = "0 2px 8px var(--meld-accent-glow, rgba(59, 130, 246, 0.4)), inset 0 1px 0 var(--meld-border-color, rgba(255,255,255,0.2))") : M.currentTarget.style.backgroundColor = "var(--comfy-input-bg-active, rgba(255,255,255,0.03))";
+                        },
+                        onMouseDown: (M) => {
+                          M.currentTarget.style.transform = "translateY(1px)", M.currentTarget.style.boxShadow = "none";
+                        },
+                        onMouseUp: (M) => {
+                          M.currentTarget.style.transform = "translateY(-1px)";
+                        },
+                        title: "Search (Enter)",
+                        children: [
+                          /* @__PURE__ */ i.jsx(
+                            zn,
+                            {
+                              size: 16,
+                              color: d ? "var(--meld-text-color, #fff)" : "var(--meld-text-secondary)",
+                              style: {
+                                transition: "color 0.2s",
+                                filter: d ? "drop-shadow(0 1px 2px var(--meld-shadow-color, rgba(0,0,0,0.2)))" : "none"
+                              }
+                            }
+                          ),
+                          d && /* @__PURE__ */ i.jsx(
+                            "span",
+                            {
+                              style: {
+                                color: "var(--meld-text-color, #fff)",
+                                fontSize: "12px",
+                                fontWeight: "bold",
+                                marginLeft: "6px",
+                                textShadow: "0 1px 2px var(--meld-shadow-color, rgba(0,0,0,0.2))"
+                              },
+                              children: "Search"
+                            }
+                          )
+                        ]
+                      }
+                    ),
+                    /* @__PURE__ */ i.jsx(
+                      "input",
+                      {
+                        ref: u,
+                        type: "text",
+                        value: t,
+                        onChange: (M) => x(M.target.value),
+                        onKeyDown: g,
+                        onBlur: f,
+                        onFocus: j,
+                        placeholder: "Search anything: prompts, tags, models, dates, or free keywords...",
+                        style: {
+                          flex: 1,
+                          background: "none",
+                          border: "none",
+                          color: "var(--meld-text-color)",
+                          outline: "none",
+                          fontSize: "14px",
+                          padding: "4px 0"
+                        }
+                      }
+                    ),
+                    e.searchQuery && /* @__PURE__ */ i.jsx(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: C,
+                        disabled: c,
+                        title: e.favorites.some((M) => M.query === e.searchQuery) ? "Remove from Favorites" : "Add to Favorites",
+                        style: {
+                          background: "none",
+                          border: "none",
+                          cursor: "pointer",
+                          padding: "2px",
+                          display: "flex",
+                          alignItems: "center",
+                          flexShrink: 0,
+                          marginRight: "4px"
+                        },
+                        children: /* @__PURE__ */ i.jsx(
+                          Si,
+                          {
+                            size: 16,
+                            color: e.favorites.some((M) => M.query === e.searchQuery) ? "var(--brand-yellow, #ffd700)" : "var(--meld-text-secondary)",
+                            fill: e.favorites.some((M) => M.query === e.searchQuery) ? "var(--brand-yellow, #ffd700)" : "none"
+                          }
+                        )
+                      }
+                    ),
+                    t && /* @__PURE__ */ i.jsx(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: y,
+                        style: {
+                          background: "none",
+                          border: "none",
+                          cursor: "pointer",
+                          padding: "2px",
+                          display: "flex",
+                          alignItems: "center",
+                          flexShrink: 0
+                        },
+                        children: /* @__PURE__ */ i.jsx(Te, { size: 16, color: "var(--meld-text-secondary)" })
+                      }
+                    )
+                  ]
+                }
+              ),
+              /* @__PURE__ */ i.jsx(
+                eh,
+                {
+                  showSuggestions: l,
+                  suggestions: r,
+                  selectedIndex: a,
+                  setSelectedIndex: o,
+                  applySuggestion: m,
+                  inputValue: t,
+                  searchQuery: e.searchQuery,
+                  searchSuggestions: s,
+                  applySearchSuggestion: w,
+                  favorites: e.favorites,
+                  onSelectFavorite: (M) => {
+                    n(M), h(M);
+                  },
+                  onEditFavorite: S,
+                  onDeleteFavorite: R
+                }
+              )
+            ]
+          }
+        ),
+        k && Fe.createPortal(
+          /* @__PURE__ */ i.jsx(
+            "div",
+            {
+              className: "meld-modal-overlay",
+              onClick: () => N(null),
+              style: {
+                zIndex: 3e3
+              },
+              children: /* @__PURE__ */ i.jsxs(
+                "div",
+                {
+                  className: "meld-modal-content meld-modal-content--small",
+                  onClick: (M) => M.stopPropagation(),
+                  children: [
+                    /* @__PURE__ */ i.jsxs("div", { className: "meld-modal-header", children: [
+                      /* @__PURE__ */ i.jsxs(
+                        "h2",
+                        {
+                          style: { display: "flex", alignItems: "center", gap: "10px" },
+                          children: [
+                            /* @__PURE__ */ i.jsx(Si, { size: 20, color: "var(--meld-accent-color)" }),
+                            "Edit Favorite"
+                          ]
+                        }
+                      ),
+                      /* @__PURE__ */ i.jsx(
+                        "button",
+                        {
+                          type: "button",
+                          className: "meld-modal-close",
+                          onClick: () => N(null),
+                          children: /* @__PURE__ */ i.jsx(Te, { size: 20 })
+                        }
+                      )
+                    ] }),
+                    /* @__PURE__ */ i.jsx("div", { className: "meld-modal-body", children: /* @__PURE__ */ i.jsxs(
+                      "div",
+                      {
+                        style: {
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "16px",
+                          padding: "8px 0"
+                        },
+                        children: [
+                          /* @__PURE__ */ i.jsxs(
+                            "div",
+                            {
+                              style: {
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "6px"
+                              },
+                              children: [
+                                /* @__PURE__ */ i.jsx(
+                                  "label",
+                                  {
+                                    htmlFor: "edit-favorite-name",
+                                    style: {
+                                      fontSize: "12px",
+                                      fontWeight: "bold",
+                                      color: "var(--meld-text-secondary)"
+                                    },
+                                    children: "Name"
+                                  }
+                                ),
+                                /* @__PURE__ */ i.jsx(
+                                  "input",
+                                  {
+                                    id: "edit-favorite-name",
+                                    ref: U,
+                                    type: "text",
+                                    value: P,
+                                    onChange: (M) => _(M.target.value),
+                                    placeholder: "Favorite Name",
+                                    style: {
+                                      backgroundColor: "var(--comfy-input-bg, #1a1a1a)",
+                                      border: "1px solid var(--comfy-menu-border, #333)",
+                                      borderRadius: "4px",
+                                      color: "var(--meld-text-color)",
+                                      padding: "8px 12px",
+                                      fontSize: "14px",
+                                      outline: "none"
+                                    },
+                                    onKeyDown: (M) => {
+                                      M.key === "Enter" && D(), M.key === "Escape" && N(null);
+                                    }
+                                  }
+                                )
+                              ]
+                            }
+                          ),
+                          /* @__PURE__ */ i.jsxs(
+                            "div",
+                            {
+                              style: {
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "6px"
+                              },
+                              children: [
+                                /* @__PURE__ */ i.jsx(
+                                  "label",
+                                  {
+                                    htmlFor: "edit-favorite-query",
+                                    style: {
+                                      fontSize: "12px",
+                                      fontWeight: "bold",
+                                      color: "var(--meld-text-secondary)"
+                                    },
+                                    children: "Search Query"
+                                  }
+                                ),
+                                /* @__PURE__ */ i.jsx(
+                                  "textarea",
+                                  {
+                                    id: "edit-favorite-query",
+                                    value: E,
+                                    onChange: (M) => b(M.target.value),
+                                    placeholder: "Search Query",
+                                    rows: 3,
+                                    style: {
+                                      backgroundColor: "var(--comfy-input-bg, #1a1a1a)",
+                                      border: "1px solid var(--comfy-menu-border, #333)",
+                                      borderRadius: "4px",
+                                      color: "var(--meld-text-color)",
+                                      padding: "8px 12px",
+                                      fontSize: "13px",
+                                      fontFamily: "monospace",
+                                      outline: "none",
+                                      resize: "vertical"
+                                    },
+                                    onKeyDown: (M) => {
+                                      M.key === "Enter" && !M.shiftKey && (M.preventDefault(), D()), M.key === "Escape" && N(null);
+                                    }
+                                  }
+                                )
+                              ]
+                            }
+                          )
+                        ]
+                      }
+                    ) }),
+                    /* @__PURE__ */ i.jsxs("div", { className: "meld-modal-footer", children: [
+                      /* @__PURE__ */ i.jsx(
+                        "button",
+                        {
+                          type: "button",
+                          className: "meld-btn meld-btn-secondary",
+                          onClick: () => N(null),
+                          children: "Cancel"
+                        }
+                      ),
+                      /* @__PURE__ */ i.jsx(
+                        "button",
+                        {
+                          type: "button",
+                          className: "meld-btn meld-btn-primary",
+                          onClick: D,
+                          disabled: c || !P.trim() || !E.trim(),
+                          children: c ? "Saving..." : "Save Changes"
+                        }
+                      )
+                    ] })
+                  ]
+                }
+              )
+            }
+          ),
+          document.fullscreenElement || document.body
+        )
+      ]
+    }
+  );
+}, nh = ({
+  onClose: e,
+  onSearch: t
+}) => {
+  const [n, r] = v.useState([]), [l, s] = v.useState(!0), [a, o] = v.useState(""), [u, d] = v.useState(""), [h, g] = v.useState(!1), [m, y] = v.useState(null), [w, x] = v.useState(""), [j, f] = v.useState(!1), c = v.useRef(null), p = v.useCallback(async () => {
+    s(!0);
+    try {
+      const S = await ya();
+      r(S);
+    } catch (S) {
+      console.error("Failed to fetch tags:", S);
+    } finally {
+      s(!1);
+    }
+  }, []);
+  v.useEffect(() => {
+    p();
+  }, [p]), v.useEffect(() => {
+    m !== null && c.current && (c.current.focus(), c.current.select());
+  }, [m]);
+  const k = async (S) => {
+    S.preventDefault();
+    const D = u.trim();
+    if (!(!D || h)) {
+      if (D.toLowerCase() === at) {
+        alert(
+          `Tag name '${at}' is reserved for search and cannot be used.`
+        );
+        return;
+      }
+      if (n.some((C) => C.name.toLowerCase() === D.toLowerCase())) {
+        alert(`Tag "${D}" already exists.`);
+        return;
+      }
+      g(!0);
+      try {
+        await Zp(D), d(""), await p();
+      } catch (C) {
+        console.error("Failed to add tag:", C);
+      } finally {
+        g(!1);
+      }
+    }
+  }, N = async (S, D) => {
+    if (confirm(`Are you sure you want to delete tag "${D}"?`))
+      try {
+        await Jp(S), await p();
+      } catch (C) {
+        console.error("Failed to delete tag:", C);
+      }
+  }, P = (S) => {
+    y(S.id), x(S.name);
+  }, _ = () => {
+    y(null), x("");
+  }, E = async (S) => {
+    S.preventDefault();
+    const D = w.trim();
+    if (!D || m === null || j) return;
+    if (D.toLowerCase() === at) {
+      alert(
+        `Tag name '${at}' is reserved for search and cannot be used.`
+      );
+      return;
+    }
+    const C = n.find((U) => U.id === m);
+    if (C && C.name === D) {
+      _();
+      return;
+    }
+    if (n.some(
+      (U) => U.id !== m && U.name.toLowerCase() === D.toLowerCase()
+    )) {
+      alert(`Tag "${D}" already exists.`);
+      return;
+    }
+    f(!0);
+    try {
+      await qp(m, D), _(), await p();
+    } catch (U) {
+      console.error("Failed to rename tag:", U), alert(U instanceof Error ? U.message : "Failed to rename tag");
+    } finally {
+      f(!1);
+    }
+  }, b = (S) => {
+    t(`tag:${S}`);
+  }, R = v.useMemo(() => n.filter(
+    (S) => S.name.toLowerCase().includes(a.toLowerCase())
+  ), [n, a]);
+  return /* @__PURE__ */ i.jsxs("div", { className: "meld-tag-manager-view", children: [
+    /* @__PURE__ */ i.jsxs("div", { className: "meld-tag-manager-header", children: [
+      /* @__PURE__ */ i.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
+        /* @__PURE__ */ i.jsx(on, { size: 16 }),
+        /* @__PURE__ */ i.jsx("h3", { style: { margin: 0, fontSize: "14px" }, children: "Tag Manager" })
+      ] }),
+      /* @__PURE__ */ i.jsx(
+        "button",
+        {
+          type: "button",
+          className: "meld-tag-manager-close",
+          onClick: e,
+          title: "Close and return to gallery",
+          children: /* @__PURE__ */ i.jsx(Te, { size: 16 })
+        }
+      )
+    ] }),
+    /* @__PURE__ */ i.jsxs("div", { className: "meld-tag-manager-content", children: [
+      /* @__PURE__ */ i.jsxs("form", { className: "meld-tag-add-form", onSubmit: k, children: [
+        /* @__PURE__ */ i.jsx(
+          "input",
+          {
+            type: "text",
+            placeholder: "Add new tag...",
+            value: u,
+            onChange: (S) => d(S.target.value),
+            disabled: h
+          }
+        ),
+        /* @__PURE__ */ i.jsxs(
+          "button",
+          {
+            type: "submit",
+            className: "meld-btn meld-btn-primary",
+            style: { padding: "4px 12px", height: "34px" },
+            disabled: !u.trim() || h,
+            children: [
+              /* @__PURE__ */ i.jsx(va, { size: 14 }),
+              "Add"
+            ]
+          }
+        )
+      ] }),
+      /* @__PURE__ */ i.jsxs("div", { className: "meld-tag-search-container", children: [
+        /* @__PURE__ */ i.jsx(zn, { size: 14, className: "meld-tag-search-icon" }),
+        /* @__PURE__ */ i.jsx(
+          "input",
+          {
+            type: "text",
+            className: "meld-tag-search-input",
+            placeholder: "Filter tags...",
+            value: a,
+            onChange: (S) => o(S.target.value)
+          }
+        )
+      ] }),
+      l ? /* @__PURE__ */ i.jsx("div", { className: "meld-gallery__loading", children: "Loading tags..." }) : /* @__PURE__ */ i.jsx("div", { className: "meld-tag-list", children: R.length === 0 ? /* @__PURE__ */ i.jsx("div", { className: "meld-gallery__empty", children: "No tags found." }) : R.map((S) => /* @__PURE__ */ i.jsx("div", { className: "meld-tag-item", children: m === S.id ? /* @__PURE__ */ i.jsxs(
+        "form",
+        {
+          className: "meld-tag-rename-form",
+          onSubmit: E,
+          children: [
+            /* @__PURE__ */ i.jsx(
+              "input",
+              {
+                type: "text",
+                ref: c,
+                className: "meld-tag-rename-input",
+                value: w,
+                onChange: (D) => x(D.target.value),
+                onKeyDown: (D) => D.key === "Escape" && _()
+              }
+            ),
+            /* @__PURE__ */ i.jsx(
+              "button",
+              {
+                type: "submit",
+                className: "meld-tag-item__btn meld-tag-item__btn--save",
+                title: "Save",
+                disabled: j || !w.trim(),
+                children: /* @__PURE__ */ i.jsx(td, { size: 14 })
+              }
+            ),
+            /* @__PURE__ */ i.jsx(
+              "button",
+              {
+                type: "button",
+                className: "meld-tag-item__btn",
+                title: "Cancel",
+                onClick: _,
+                disabled: j,
+                children: /* @__PURE__ */ i.jsx(Te, { size: 14 })
+              }
+            )
+          ]
+        }
+      ) : /* @__PURE__ */ i.jsxs(i.Fragment, { children: [
+        /* @__PURE__ */ i.jsx("span", { className: "meld-tag-item__name", children: S.name }),
+        /* @__PURE__ */ i.jsxs("div", { className: "meld-tag-item__actions", children: [
+          /* @__PURE__ */ i.jsx(
+            "button",
+            {
+              type: "button",
+              className: "meld-tag-item__btn",
+              title: "Search by this tag",
+              onClick: () => b(S.name),
+              children: /* @__PURE__ */ i.jsx(zn, { size: 14 })
+            }
+          ),
+          /* @__PURE__ */ i.jsx(
+            "button",
+            {
+              type: "button",
+              className: "meld-tag-item__btn",
+              title: "Rename tag",
+              onClick: () => P(S),
+              children: /* @__PURE__ */ i.jsx(sd, { size: 14 })
+            }
+          ),
+          /* @__PURE__ */ i.jsx(
+            "button",
+            {
+              type: "button",
+              className: "meld-tag-item__btn meld-tag-item__btn--delete",
+              title: "Delete tag",
+              onClick: () => N(S.id, S.name),
+              children: /* @__PURE__ */ i.jsx(Fn, { size: 14 })
+            }
+          )
+        ] })
+      ] }) }, S.id)) })
+    ] })
+  ] });
+}, rh = ({
   state: e,
   dispatch: t,
   loadMoreImages: n,
@@ -11238,7 +12283,7 @@ const Zm = ({ image: e }) => {
     windowedThumbnails: Ke,
     parentChain: Ye
   };
-}, qm = ({
+}, lh = ({
   settings: e,
   activeShortcutKey: t
 }) => e["viewer.shortcut.show_cheat_sheet"] ? /* @__PURE__ */ i.jsx("div", { className: "meld-viewer-cheat-sheet", children: [1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((n) => {
@@ -11254,7 +12299,7 @@ const Zm = ({ image: e }) => {
     },
     n
   ) : null;
-}) }) : null, eh = ({
+}) }) : null, sh = ({
   image: e,
   isFullscreen: t,
   settings: n,
@@ -11381,7 +12426,7 @@ const Zm = ({ image: e }) => {
   }
 );
 hd.displayName = "ThumbnailItem";
-const th = ({
+const ih = ({
   windowedThumbnails: e,
   viewerImageId: t,
   currentImage: n,
@@ -11410,7 +12455,7 @@ const th = ({
     o.id
   )),
   a === "gallery" && s && /* @__PURE__ */ i.jsx("div", { className: "meld-viewer-thumbnail meld-viewer-thumbnail--loading", children: /* @__PURE__ */ i.jsx(Er, { className: "animate-spin", size: 20 }) })
-] }) }), nh = () => {
+] }) }), ah = () => {
   const { state: e, dispatch: t, loadMoreImages: n, fetchFullImageDetails: r } = Re(), {
     isFullscreen: l,
     showDetails: s,
@@ -11430,7 +12475,7 @@ const th = ({
     image: p,
     windowedThumbnails: k,
     parentChain: N
-  } = Jm({
+  } = rh({
     state: e,
     dispatch: t,
     loadMoreImages: n,
@@ -11550,7 +12595,7 @@ const th = ({
                   }
                 ),
                 s && /* @__PURE__ */ i.jsx(
-                  eh,
+                  sh,
                   {
                     image: p,
                     isFullscreen: l,
@@ -11561,7 +12606,7 @@ const th = ({
                   }
                 ),
                 !l && o && e.settings["viewer.thumbnail_window_size"] > 1 && /* @__PURE__ */ i.jsx(
-                  th,
+                  ih,
                   {
                     windowedThumbnails: k,
                     viewerImageId: P,
@@ -11573,7 +12618,7 @@ const th = ({
                   }
                 ),
                 /* @__PURE__ */ i.jsx(
-                  qm,
+                  lh,
                   {
                     settings: e.settings,
                     activeShortcutKey: g
@@ -11583,7 +12628,7 @@ const th = ({
             }
           ),
           e.activeModal.type === "delete_confirm" && /* @__PURE__ */ i.jsx(
-            ad,
+            cd,
             {
               imageIds: e.activeModal.imageIds,
               hasLineage: e.activeModal.hasLineage,
@@ -11591,11 +12636,11 @@ const th = ({
               onSuccess: m
             }
           ),
-          e.activeModal.type === "parent_selection" && /* @__PURE__ */ i.jsx(ud, { imageId: e.activeModal.imageId }),
-          e.activeModal.type === "import" && /* @__PURE__ */ i.jsx(od, {}),
-          e.activeModal.type === "settings" && /* @__PURE__ */ i.jsx(cd, {}),
+          e.activeModal.type === "parent_selection" && /* @__PURE__ */ i.jsx(dd, { imageId: e.activeModal.imageId }),
+          e.activeModal.type === "import" && /* @__PURE__ */ i.jsx(ad, {}),
+          e.activeModal.type === "settings" && /* @__PURE__ */ i.jsx(od, {}),
           e.activeModal.type === "tag_edit" && /* @__PURE__ */ i.jsx(
-            dd,
+            ud,
             {
               imageIds: e.activeModal.imageIds,
               initialTags: e.activeModal.tags,
@@ -11607,1282 +12652,237 @@ const th = ({
     ),
     document.body
   );
-}, rh = () => {
-  const { state: e, dispatch: t } = Re(), { scanStatus: n } = e;
-  if (!n.isRunning && !n.isFinished)
-    return null;
-  const r = async () => {
-    try {
-      await Gp(), t({ type: "SET_SCAN_STATUS", payload: { shouldCancel: !0 } });
-    } catch (h) {
-      console.error("Failed to cancel scan:", h);
-    }
-  }, l = () => {
-    t({
-      type: "SET_SCAN_STATUS",
-      payload: { isFinished: !1, isRunning: !1 }
-    });
-  }, s = n.progress.phase === "linking", { current: a, total: o } = n.progress, u = o > 0 ? a / o : 0, d = s ? 50 + Math.round(u * 50) : Math.round(u * 50);
-  return /* @__PURE__ */ i.jsx("div", { className: "meld-import-progress-sidebar", children: n.isRunning ? /* @__PURE__ */ i.jsxs("div", { className: "meld-scan-progress-compact", children: [
-    /* @__PURE__ */ i.jsxs("div", { className: "meld-scan-info", children: [
-      /* @__PURE__ */ i.jsx("div", { className: "meld-scan-status-text-compact", children: n.shouldCancel ? /* @__PURE__ */ i.jsx("span", { className: "meld-status-cancelling", children: "Cancelling..." }) : s ? /* @__PURE__ */ i.jsx("span", { children: "Linking..." }) : /* @__PURE__ */ i.jsx("span", { children: "Scanning..." }) }),
-      /* @__PURE__ */ i.jsxs("div", { className: "meld-progress-stats-compact", children: [
-        n.progress.current,
-        " / ",
-        n.progress.total
-      ] })
-    ] }),
-    /* @__PURE__ */ i.jsx("div", { className: "meld-progress-container-compact", children: /* @__PURE__ */ i.jsx(
-      "div",
-      {
-        className: "meld-progress-bar",
-        style: { width: `${d}%` }
-      }
-    ) }),
-    /* @__PURE__ */ i.jsx(
-      "button",
-      {
-        type: "button",
-        className: "meld-btn-stop-compact",
-        disabled: n.shouldCancel,
-        onClick: r,
-        title: "Stop Scan",
-        children: /* @__PURE__ */ i.jsx(Lm, { size: 12, fill: "currentColor" })
-      }
-    )
-  ] }) : /* @__PURE__ */ i.jsxs("div", { className: "meld-scan-finished-compact", children: [
-    /* @__PURE__ */ i.jsxs("div", { className: "meld-finished-info", children: [
-      /* @__PURE__ */ i.jsx(gm, { size: 14, className: "meld-success-icon" }),
-      /* @__PURE__ */ i.jsxs("span", { className: "meld-finished-text", children: [
-        "Done! ",
-        n.newCount,
-        " new, ",
-        n.updatedCount,
-        " updated"
-      ] })
-    ] }),
-    /* @__PURE__ */ i.jsx(
-      "button",
-      {
-        type: "button",
-        className: "meld-btn-ok-compact",
-        onClick: l,
-        children: "OK"
-      }
-    )
-  ] }) });
-}, lh = () => {
-  const { state: e, refreshFavorites: t } = Re(), [n, r] = v.useState(!1), [l, s] = v.useState(null), [a, o] = v.useState(null), [u, d] = v.useState(""), [h, g] = v.useState("");
+}, oh = () => {
+  const { state: e, dispatch: t, refreshImages: n, loadMoreImages: r, updateSetting: l } = Re(), [s, a] = v.useState("gallery"), [o, u] = v.useState(""), [d, h] = v.useState(e.pagination.limit);
   v.useEffect(() => {
-    if (l) {
-      const j = setTimeout(() => s(null), 3e3);
-      return () => clearTimeout(j);
-    }
-  }, [l]);
-  const m = v.useCallback(
-    async (j, f, c) => {
-      j.stopPropagation();
-      const p = `Are you sure you want to delete the favorite "${c}"?`;
-      if (window.confirm(p))
-        try {
-          await Mo(f), await t();
-        } catch (k) {
-          V.error("Failed to delete favorite", k);
-        }
-    },
-    [t]
-  ), y = v.useCallback(
-    (j, f) => {
-      j.stopPropagation(), o(f), d(f.name), g(f.query);
-    },
-    []
-  ), w = v.useCallback(async () => {
-    if (!(!a || !u.trim() || !h.trim()))
-      try {
-        r(!0), await Xp(
-          a.id,
-          u,
-          h
-        ), await t(), o(null), s("Favorite updated.");
-      } catch (j) {
-        V.error("Failed to update favorite", j), s("Failed to update favorite.");
-      } finally {
-        r(!1);
-      }
-  }, [a, u, h, t]), x = v.useCallback(async () => {
-    if (!e.searchQuery || n) return;
-    if (e.favorites.some(
-      (f) => f.query === e.searchQuery
-    )) {
-      const f = e.favorites.find((c) => c.query === e.searchQuery);
-      if (f) {
-        r(!0);
-        try {
-          await Mo(f.id), await t(), s("Favorite removed.");
-        } catch (c) {
-          V.error("Failed to delete favorite:", c);
-        } finally {
-          r(!1);
-        }
-      }
-      return;
-    }
-    r(!0);
-    try {
-      await Yp(e.searchQuery, e.searchQuery), await t(), s(
-        `Favorite added!
-You can select favorites when the search query is empty.`
-      );
-    } catch (f) {
-      V.error("Failed to save favorite:", f);
-    } finally {
-      r(!1);
-    }
-  }, [e.searchQuery, e.favorites, n, t]);
-  return {
-    isSaving: n,
-    toastMessage: l,
-    editingFavorite: a,
-    setEditingFavorite: o,
-    editFavoriteName: u,
-    setEditFavoriteName: d,
-    editFavoriteQuery: h,
-    setEditFavoriteQuery: g,
-    handleDeleteFavorite: m,
-    handleEditFavorite: y,
-    handleSaveEditFavorite: w,
-    handleSaveFavorite: x,
-    setToastMessage: s
-  };
-}, sh = () => {
-  const { state: e, dispatch: t } = Re(), [n, r] = v.useState(e.searchQuery), [l, s] = v.useState([]), [a, o] = v.useState(!1), [u, d] = v.useState([]), [h, g] = v.useState(-1), m = v.useRef(null), y = v.useRef(e.searchQuery), w = n !== y.current;
-  v.useEffect(() => {
-    if (!e.settings["search.quick_suggestions"]) {
-      d([]);
-      return;
-    }
-    !n && !e.searchQuery ? Ap().then((_) => {
-      d(_);
-    }) : d([]);
-  }, [
-    n,
-    e.searchQuery,
-    e.settings["search.quick_suggestions"]
-  ]), v.useEffect(() => {
-    r(e.searchQuery), y.current = e.searchQuery;
-  }, [e.searchQuery]), v.useEffect(() => {
-    var _;
-    (_ = m.current) == null || _.focus();
-  }, []);
-  const x = v.useCallback(
-    (_, E = !0) => {
-      y.current !== _ && (V.log("SearchBar: triggering search", { query: _ }), t({ type: "SET_SEARCH_QUERY", payload: _ }), E && o(!1), y.current = _);
-    },
-    [t]
+    h(e.pagination.limit);
+  }, [e.searchQuery, e.viewScope, e.pagination.limit]);
+  const g = e.searchQuery.trim() !== "", m = v.useRef(null), y = v.useRef(null), w = v.useMemo(
+    () => e.images.filter((j) => e.viewScope === "trash" ? j.exists !== !1 || e.settings["gallery.trash.show_missing"] : j.exists !== !1 && !(e.settings["gallery.hide_parent_images"] && j.has_children)),
+    [e.images, e.settings, e.viewScope]
+  ), x = v.useMemo(
+    () => w.slice(0, d),
+    [w, d]
   );
-  v.useEffect(() => {
-    const _ = setTimeout(async () => {
-      if (n === y.current)
-        return;
-      if (!e.settings["search.input_suggest"]) {
-        s([]), o(!1);
+  return v.useEffect(() => {
+    !e.isLoading && e.pagination.hasMore && e.images.length > 0 && w.length === 0 && (V.log(
+      "GalleryPanel: Auto-loading more because all loaded images are hidden"
+    ), r());
+  }, [
+    e.isLoading,
+    e.pagination.hasMore,
+    e.images.length,
+    w.length,
+    r
+  ]), v.useEffect(() => {
+    const j = (f) => {
+      f.key === "Escape" && (e.activeModal.type !== "none" ? (t({ type: "CLOSE_MODAL" }), f.preventDefault(), f.stopPropagation()) : e.selectedIds.size > 0 && (t({ type: "CLEAR_SELECTION" }), f.preventDefault(), f.stopPropagation()));
+    };
+    return window.addEventListener("keydown", j), () => window.removeEventListener("keydown", j);
+  }, [e.activeModal.type, e.selectedIds.size, t]), v.useEffect(() => {
+    const j = new IntersectionObserver(
+      (c) => {
+        if (c[0].isIntersecting) {
+          if (e.isLoading) {
+            V.log(
+              "GalleryPanel: Intersection observed but already loading"
+            );
+            return;
+          }
+          d < w.length ? (V.log(
+            "GalleryPanel: Increasing localLimit (local data available)",
+            {
+              oldLimit: d,
+              newLimit: Math.min(
+                d + e.pagination.limit,
+                w.length
+              ),
+              totalAvailableLocally: w.length
+            }
+          ), h((p) => p + e.pagination.limit)) : e.pagination.hasMore ? (V.log(
+            "GalleryPanel: Load more triggered via IntersectionObserver (fetching from server)",
+            {
+              offset: e.images.length,
+              hasMore: e.pagination.hasMore
+            }
+          ), r()) : V.log(
+            "GalleryPanel: Intersection observed but no more to load",
+            {
+              localCount: w.length,
+              serverHasMore: e.pagination.hasMore
+            }
+          );
+        }
+      },
+      { threshold: 0, rootMargin: "800px" }
+    ), f = m.current;
+    return f && j.observe(f), () => {
+      f && j.unobserve(f);
+    };
+  }, [
+    r,
+    e.isLoading,
+    e.pagination.hasMore,
+    d,
+    w.length,
+    e.pagination.limit,
+    e.images.length
+  ]), v.useEffect(() => {
+    const j = e.viewerImageId ?? y.current;
+    if (j !== null && w.some((c) => c.id === j)) {
+      const c = w.findIndex((k) => k.id === j);
+      if (c >= d) {
+        h(
+          Math.ceil((c + 1) / e.pagination.limit) * e.pagination.limit
+        );
         return;
       }
-      const E = n.split(/\s+/), b = E[E.length - 1];
-      if (b) {
-        const R = b.match(
-          /^[-!]?(tag|pos|neg|model|date|after|before|has_source|has_derivatives|sort):(.*)$/i
-        );
-        if (R) {
-          const S = R[1].toLowerCase(), D = R[2], C = await Op(D, S);
-          s(C), o(C.length > 0), g(-1);
-        } else
-          s([]), o(!1);
-      } else
-        s([]), o(!1);
-    }, 300);
-    return () => clearTimeout(_);
-  }, [n, e.settings["search.input_suggest"]]);
-  const j = v.useCallback(
-    (_) => {
-      var ee;
-      const E = n.split(/\s+/), R = (E.pop() || "").match(/^([-!])/), S = R ? R[1] : "", U = [
-        "date",
-        "after",
-        "before",
-        "has_source",
-        "has_derivatives"
-      ].includes(_.type) ? _.value : `"${_.value}"`, M = `${[
-        ...E,
-        `${S}${_.type}:${U}`
-      ].join(" ").trim()} `;
-      r(M), s([]), o(!1), (ee = m.current) == null || ee.focus();
-    },
-    [n]
-  ), f = (_) => {
-    _.key === "Enter" ? x(n) : _.key === "Tab" ? a && h >= 0 && (j(l[h]), _.preventDefault()) : _.key === "ArrowDown" ? a && (g((E) => Math.min(E + 1, l.length - 1)), _.preventDefault()) : _.key === "ArrowUp" ? a && (g((E) => Math.max(E - 1, -1)), _.preventDefault()) : _.key === "Escape" && o(!1);
-  }, c = v.useCallback(() => {
-    r(""), x("");
-  }, [x]), p = v.useCallback(
-    (_, E) => {
-      const S = [
-        "date",
-        "after",
-        "before",
-        "has_source",
-        "has_derivatives"
-      ].includes(_) ? E : `"${E}"`, D = `${_}:${S}`;
-      r(D), x(D);
-    },
-    [x]
-  ), k = v.useCallback(
-    (_) => {
-      r(_), _ || x("");
-    },
-    [x]
-  ), N = v.useCallback(() => {
-    if (n === y.current) return;
-    const _ = n.split(/\s+/), E = _[_.length - 1];
-    E != null && E.match(
-      /^[-!]?(tag|pos|neg|model|date|after|before|has_source|has_derivatives|sort):/i
-    ) && o(!0);
-  }, [n]), P = v.useCallback(() => {
-    setTimeout(() => o(!1), 200);
-  }, []);
-  return {
-    inputValue: n,
-    setInputValue: r,
-    suggestions: l,
-    showSuggestions: a,
-    setShowSuggestions: o,
-    searchSuggestions: u,
-    selectedIndex: h,
-    setSelectedIndex: g,
-    inputRef: m,
-    isQueryChanged: w,
-    handleSearch: x,
-    handleKeyDown: f,
-    applySuggestion: j,
-    clearSearch: c,
-    applySearchSuggestion: p,
-    handleInputChange: k,
-    handleInputFocus: N,
-    handleInputBlur: P
+      const p = document.querySelector(
+        `[data-image-id="${j}"]`
+      );
+      p && (p.scrollIntoView({ behavior: "smooth", block: "nearest" }), e.viewerImageId === null && (y.current = null));
+    }
+    e.viewerImageId !== null && (y.current = e.viewerImageId);
+  }, [
+    e.viewerImageId,
+    w,
+    d,
+    e.pagination.limit
+  ]), {
+    state: e,
+    dispatch: t,
+    refreshImages: n,
+    loadMoreImages: r,
+    updateSetting: l,
+    viewMode: s,
+    setViewMode: a,
+    lastSearchQuery: o,
+    setLastSearchQuery: u,
+    localLimit: d,
+    displayedImages: w,
+    visibleImages: x,
+    isSearchActive: g,
+    loadMoreRef: m
   };
-}, ih = ({
-  fav: e,
-  onSelect: t,
-  onEdit: n,
-  onDelete: r
-}) => {
-  const [l, s] = v.useState(!1), [a, o] = v.useState(!1), [u, d] = v.useState(!1);
+}, uh = () => {
+  const { state: e, dispatch: t, deleteSelected: n, restoreSelected: r } = Re(), l = e.selectedIds.size;
+  if (l === 0) return null;
+  const s = e.viewScope === "trash", a = () => {
+    const o = e.images.filter(
+      (d) => e.selectedIds.has(d.id)
+    ), u = /* @__PURE__ */ new Set();
+    for (const d of o)
+      if (d.tags)
+        for (const h of d.tags)
+          u.add(h);
+    t({
+      type: "OPEN_MODAL",
+      payload: {
+        type: "tag_edit",
+        imageIds: Array.from(e.selectedIds),
+        tags: Array.from(u)
+      }
+    });
+  };
   return /* @__PURE__ */ i.jsxs(
     "div",
     {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        backgroundColor: l ? "var(--comfy-menu-bg, #333)" : "var(--comfy-input-bg, #2a2a2a)",
-        border: "1px solid",
-        borderColor: l ? "var(--meld-accent-color)" : "var(--comfy-menu-border, #333)",
-        borderRadius: "6px",
-        padding: "8px 12px",
-        cursor: "pointer",
-        transition: "all 0.2s",
-        color: "var(--meld-text-color)",
-        fontSize: "13px",
-        gap: "10px"
-      },
-      onClick: () => t(e.query),
-      onMouseEnter: () => s(!0),
-      onMouseLeave: () => s(!1),
+      className: `meld-bulk-bar ${s ? "meld-bulk-bar--trash" : ""}`,
       children: [
-        /* @__PURE__ */ i.jsxs(
-          "div",
-          {
-            style: {
-              display: "flex",
-              flexDirection: "column",
-              minWidth: 0,
-              flex: 1
-            },
-            children: [
-              /* @__PURE__ */ i.jsx(
-                "span",
-                {
-                  style: {
-                    fontWeight: "bold",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap"
-                  },
-                  children: e.name
-                }
-              ),
-              e.name !== e.query && /* @__PURE__ */ i.jsx(
-                "span",
-                {
-                  style: {
-                    fontSize: "10px",
-                    color: "var(--meld-text-secondary)",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    fontFamily: "monospace"
-                  },
-                  children: e.query
-                }
-              )
-            ]
-          }
-        ),
-        /* @__PURE__ */ i.jsxs(
-          "div",
-          {
-            style: {
-              display: "flex",
-              alignItems: "center",
-              gap: "4px",
-              flexShrink: 0
-            },
-            children: [
-              /* @__PURE__ */ i.jsx(
-                "button",
-                {
-                  type: "button",
-                  onClick: (h) => n(h, e),
-                  style: {
-                    background: "none",
-                    border: "none",
-                    color: a ? "var(--meld-accent-color)" : "var(--meld-text-secondary)",
-                    backgroundColor: a ? "var(--comfy-input-bg-active, rgba(68, 136, 255, 0.1))" : "transparent",
-                    padding: "6px",
-                    display: "flex",
-                    alignItems: "center",
-                    cursor: "pointer",
-                    borderRadius: "4px",
-                    transition: "all 0.2s"
-                  },
-                  onMouseEnter: () => o(!0),
-                  onMouseLeave: () => o(!1),
-                  title: "Edit favorite",
-                  children: /* @__PURE__ */ i.jsx(sd, { size: 14 })
-                }
-              ),
-              /* @__PURE__ */ i.jsx(
-                "button",
-                {
-                  type: "button",
-                  onClick: (h) => r(h, e.id, e.name),
-                  style: {
-                    background: "none",
-                    border: "none",
-                    color: u ? "var(--meld-danger-color)" : "var(--meld-text-secondary)",
-                    backgroundColor: u ? "var(--comfy-input-bg-active, rgba(255,0,0,0.1))" : "transparent",
-                    padding: "6px",
-                    display: "flex",
-                    alignItems: "center",
-                    cursor: "pointer",
-                    borderRadius: "4px",
-                    transition: "all 0.2s"
-                  },
-                  onMouseEnter: () => d(!0),
-                  onMouseLeave: () => d(!1),
-                  title: "Delete favorite",
-                  children: /* @__PURE__ */ i.jsx(Fn, { size: 14 })
-                }
-              )
-            ]
-          }
-        )
-      ]
-    }
-  );
-}, Ro = (e) => {
-  switch (e) {
-    case "tag":
-      return /* @__PURE__ */ i.jsx(on, { size: 12 });
-    case "model":
-      return /* @__PURE__ */ i.jsx(mm, { size: 12 });
-    case "pos":
-    case "neg":
-      return /* @__PURE__ */ i.jsx(Mm, { size: 12 });
-    case "date":
-    case "after":
-    case "before":
-      return /* @__PURE__ */ i.jsx(hm, { size: 12 });
-    case "has_source":
-      return /* @__PURE__ */ i.jsx(ed, { size: 12 });
-    case "has_derivatives":
-      return /* @__PURE__ */ i.jsx(qc, { size: 12 });
-    case "sort":
-      return /* @__PURE__ */ i.jsx(pm, { size: 12 });
-    default:
-      return null;
-  }
-}, ah = ({
-  showSuggestions: e,
-  suggestions: t,
-  selectedIndex: n,
-  setSelectedIndex: r,
-  applySuggestion: l,
-  inputValue: s,
-  searchQuery: a,
-  searchSuggestions: o,
-  applySearchSuggestion: u,
-  favorites: d,
-  onSelectFavorite: h,
-  onEditFavorite: g,
-  onDeleteFavorite: m
-}) => {
-  const y = () => !e || t.length === 0 ? null : /* @__PURE__ */ i.jsx(
-    "div",
-    {
-      className: "meld-search-suggestions",
-      style: {
-        position: "absolute",
-        top: "100%",
-        left: 0,
-        right: 0,
-        backgroundColor: "var(--comfy-menu-bg, #222)",
-        border: "1px solid var(--comfy-menu-border, #444)",
-        borderRadius: "0 0 6px 6px",
-        zIndex: 1e3,
-        marginTop: "2px",
-        maxHeight: "400px",
-        overflowY: "auto",
-        boxShadow: "0 8px 16px var(--comfy-menu-shadow, rgba(0,0,0,0.6))"
-      },
-      children: t.map((j, f) => /* @__PURE__ */ i.jsx(
-        "div",
-        {
-          onMouseDown: (c) => {
-            c.preventDefault(), l(j);
-          },
-          onMouseEnter: () => r(f),
-          style: {
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "10px 14px",
-            cursor: "pointer",
-            backgroundColor: f === n ? "var(--comfy-menu-bg, #333)" : "transparent",
-            borderBottom: "1px solid var(--comfy-menu-border, #2a2a2a)"
-          },
-          children: /* @__PURE__ */ i.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "10px" }, children: [
-            /* @__PURE__ */ i.jsx(
-              "span",
-              {
-                style: {
-                  color: "var(--meld-text-secondary)",
-                  display: "flex"
-                },
-                children: Ro(j.type)
-              }
-            ),
-            /* @__PURE__ */ i.jsx(
-              "span",
-              {
-                style: {
-                  color: "var(--comfy-input-text-active, #3b82f6)",
-                  fontSize: "11px",
-                  fontWeight: "bold",
-                  textTransform: "uppercase",
-                  width: "45px"
-                },
-                children: j.type
-              }
-            ),
-            /* @__PURE__ */ i.jsx(
-              "span",
-              {
-                style: {
-                  color: j.value === at ? "var(--meld-accent-color, #3b82f6)" : "var(--meld-text-color)",
-                  fontSize: "14px",
-                  fontWeight: j.value === at ? "bold" : "normal"
-                },
-                children: j.value === at ? j.type === "tag" ? `Untagged (${at})` : `No ${j.type} (${at})` : j.value
-              }
-            )
-          ] })
-        },
-        `${j.type}:${j.value}`
-      ))
-    }
-  ), w = () => s || a || o.length === 0 ? null : /* @__PURE__ */ i.jsx(
-    "div",
-    {
-      className: "meld-search-quick-suggestions",
-      style: {
-        display: "flex",
-        flexWrap: "wrap",
-        gap: "8px",
-        padding: "0 4px"
-      },
-      children: o.map((j) => /* @__PURE__ */ i.jsxs(
-        "button",
-        {
-          type: "button",
-          onClick: () => u(j.type, j.value),
-          style: {
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            backgroundColor: "var(--comfy-input-bg, #2a2a2a)",
-            border: "1px solid var(--comfy-menu-border, #333)",
-            borderRadius: "16px",
-            padding: "4px 12px",
-            cursor: "pointer",
-            transition: "all 0.2s",
-            color: "var(--meld-text-color)",
-            fontSize: "12px"
-          },
-          onMouseEnter: (f) => {
-            f.currentTarget.style.backgroundColor = "var(--comfy-menu-bg, #333)", f.currentTarget.style.borderColor = "var(--comfy-menu-border, #444)", f.currentTarget.style.color = "var(--meld-text-color)";
-          },
-          onMouseLeave: (f) => {
-            f.currentTarget.style.backgroundColor = "var(--comfy-input-bg, #2a2a2a)", f.currentTarget.style.borderColor = "var(--comfy-menu-border, #333)", f.currentTarget.style.color = "var(--meld-text-color)";
-          },
-          children: [
-            /* @__PURE__ */ i.jsx(
-              "span",
-              {
-                style: {
-                  display: "flex",
-                  color: "var(--meld-text-secondary)"
-                },
-                children: Ro(j.type)
-              }
-            ),
-            /* @__PURE__ */ i.jsx(
-              "span",
-              {
-                style: {
-                  color: "var(--comfy-input-text-active, #3b82f6)",
-                  fontWeight: "bold",
-                  textTransform: "uppercase",
-                  fontSize: "10px"
-                },
-                children: j.type
-              }
-            ),
-            /* @__PURE__ */ i.jsx(
-              "span",
-              {
-                style: {
-                  maxWidth: "200px",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap"
-                },
-                children: j.value
-              }
-            )
-          ]
-        },
-        `${j.type}:${j.value}`
-      ))
-    }
-  ), x = () => s || d.length === 0 ? null : /* @__PURE__ */ i.jsxs(
-    "div",
-    {
-      className: "meld-search-favorites",
-      style: {
-        display: "flex",
-        flexDirection: "column",
-        gap: "8px",
-        padding: "4px",
-        marginTop: "4px",
-        borderTop: "1px solid var(--comfy-menu-border, #333)",
-        paddingTop: "12px"
-      },
-      children: [
-        /* @__PURE__ */ i.jsxs(
-          "div",
-          {
-            style: {
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              color: "var(--meld-text-secondary)",
-              fontSize: "11px",
-              fontWeight: "bold",
-              textTransform: "uppercase",
-              paddingLeft: "4px",
-              marginBottom: "4px"
-            },
-            children: [
-              /* @__PURE__ */ i.jsx(Si, { size: 12, fill: "var(--meld-text-secondary)" }),
-              "Favorites"
-            ]
-          }
-        ),
-        /* @__PURE__ */ i.jsx(
-          "div",
-          {
-            style: {
-              display: "flex",
-              flexDirection: "column",
-              gap: "4px"
-            },
-            children: d.map((j) => /* @__PURE__ */ i.jsx(
-              ih,
-              {
-                fav: j,
-                onSelect: h,
-                onEdit: g,
-                onDelete: m
-              },
-              j.id
-            ))
-          }
-        )
-      ]
-    }
-  );
-  return /* @__PURE__ */ i.jsxs(i.Fragment, { children: [
-    y(),
-    w(),
-    x()
-  ] });
-}, oh = () => {
-  const { state: e } = Re(), {
-    inputValue: t,
-    setInputValue: n,
-    suggestions: r,
-    showSuggestions: l,
-    searchSuggestions: s,
-    selectedIndex: a,
-    setSelectedIndex: o,
-    inputRef: u,
-    isQueryChanged: d,
-    handleSearch: h,
-    handleKeyDown: g,
-    applySuggestion: m,
-    clearSearch: y,
-    applySearchSuggestion: w,
-    handleInputChange: x,
-    handleInputFocus: j,
-    handleInputBlur: f
-  } = sh(), {
-    isSaving: c,
-    toastMessage: p,
-    editingFavorite: k,
-    setEditingFavorite: N,
-    editFavoriteName: P,
-    setEditFavoriteName: _,
-    editFavoriteQuery: E,
-    setEditFavoriteQuery: b,
-    handleDeleteFavorite: R,
-    handleEditFavorite: S,
-    handleSaveEditFavorite: D,
-    handleSaveFavorite: C
-  } = lh(), U = v.useRef(null);
-  return v.useEffect(() => {
-    k && U.current && U.current.focus();
-  }, [k]), /* @__PURE__ */ i.jsxs(
-    "div",
-    {
-      className: "meld-search-container",
-      style: { display: "flex", flexDirection: "column", gap: "8px", flex: 1 },
-      children: [
-        /* @__PURE__ */ i.jsxs(
-          "div",
-          {
-            className: "meld-search-bar-wrapper",
-            style: { position: "relative", width: "100%" },
-            children: [
-              p && /* @__PURE__ */ i.jsx(
-                "div",
-                {
-                  style: {
-                    position: "absolute",
-                    top: "calc(100% + 8px)",
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    backgroundColor: "var(--comfy-menu-bg, #333)",
-                    color: "var(--meld-text-color)",
-                    padding: "8px 16px",
-                    borderRadius: "4px",
-                    fontSize: "12px",
-                    zIndex: 2e3,
-                    whiteSpace: "pre-wrap",
-                    textAlign: "center",
-                    boxShadow: "0 4px 12px var(--comfy-menu-shadow, rgba(0,0,0,0.5))",
-                    pointerEvents: "none",
-                    fontWeight: "bold",
-                    border: "1px solid var(--comfy-menu-border, #444)",
-                    animation: "meld-fade-in-down 0.3s ease-out",
-                    width: "max-content",
-                    maxWidth: "300px"
-                  },
-                  children: p
-                }
-              ),
-              /* @__PURE__ */ i.jsxs(
-                "div",
-                {
-                  className: "meld-search-bar",
-                  style: {
-                    display: "flex",
-                    alignItems: "center",
-                    backgroundColor: "var(--comfy-input-bg, #1a1a1a)",
-                    borderRadius: "6px",
-                    padding: "6px 12px",
-                    border: "1px solid var(--comfy-menu-border, #333)",
-                    transition: "border-color 0.2s",
-                    boxShadow: "inset 0 1px 3px var(--comfy-input-shadow, rgba(0,0,0,0.2))"
-                  },
-                  children: [
-                    /* @__PURE__ */ i.jsxs(
-                      "button",
-                      {
-                        type: "button",
-                        onClick: () => h(t),
-                        style: {
-                          background: d ? "var(--meld-accent-color, #3b82f6)" : "var(--comfy-input-bg-active, rgba(255,255,255,0.03))",
-                          border: d ? "1px solid var(--meld-border-color, rgba(255,255,255,0.2))" : "1px solid transparent",
-                          cursor: "pointer",
-                          padding: "6px 10px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          marginRight: "10px",
-                          flexShrink: 0,
-                          borderRadius: "4px",
-                          transition: "all 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
-                          boxShadow: d ? "0 2px 8px var(--meld-accent-glow, rgba(59, 130, 246, 0.4)), inset 0 1px 0 var(--meld-border-color, rgba(255,255,255,0.2))" : "none"
-                        },
-                        onMouseEnter: (M) => {
-                          M.currentTarget.style.transform = "translateY(-1px)", d ? (M.currentTarget.style.filter = "brightness(1.15)", M.currentTarget.style.boxShadow = "0 4px 12px var(--meld-accent-glow-hover, rgba(59, 130, 246, 0.5)), inset 0 1px 0 var(--meld-border-color, rgba(255,255,255,0.2))") : M.currentTarget.style.backgroundColor = "var(--comfy-input-bg-active, rgba(255,255,255,0.08))";
-                        },
-                        onMouseLeave: (M) => {
-                          M.currentTarget.style.transform = "none", d ? (M.currentTarget.style.filter = "none", M.currentTarget.style.boxShadow = "0 2px 8px var(--meld-accent-glow, rgba(59, 130, 246, 0.4)), inset 0 1px 0 var(--meld-border-color, rgba(255,255,255,0.2))") : M.currentTarget.style.backgroundColor = "var(--comfy-input-bg-active, rgba(255,255,255,0.03))";
-                        },
-                        onMouseDown: (M) => {
-                          M.currentTarget.style.transform = "translateY(1px)", M.currentTarget.style.boxShadow = "none";
-                        },
-                        onMouseUp: (M) => {
-                          M.currentTarget.style.transform = "translateY(-1px)";
-                        },
-                        title: "Search (Enter)",
-                        children: [
-                          /* @__PURE__ */ i.jsx(
-                            zn,
-                            {
-                              size: 16,
-                              color: d ? "var(--meld-text-color, #fff)" : "var(--meld-text-secondary)",
-                              style: {
-                                transition: "color 0.2s",
-                                filter: d ? "drop-shadow(0 1px 2px var(--meld-shadow-color, rgba(0,0,0,0.2)))" : "none"
-                              }
-                            }
-                          ),
-                          d && /* @__PURE__ */ i.jsx(
-                            "span",
-                            {
-                              style: {
-                                color: "var(--meld-text-color, #fff)",
-                                fontSize: "12px",
-                                fontWeight: "bold",
-                                marginLeft: "6px",
-                                textShadow: "0 1px 2px var(--meld-shadow-color, rgba(0,0,0,0.2))"
-                              },
-                              children: "Search"
-                            }
-                          )
-                        ]
-                      }
-                    ),
-                    /* @__PURE__ */ i.jsx(
-                      "input",
-                      {
-                        ref: u,
-                        type: "text",
-                        value: t,
-                        onChange: (M) => x(M.target.value),
-                        onKeyDown: g,
-                        onBlur: f,
-                        onFocus: j,
-                        placeholder: "Search anything: prompts, tags, models, dates, or free keywords...",
-                        style: {
-                          flex: 1,
-                          background: "none",
-                          border: "none",
-                          color: "var(--meld-text-color)",
-                          outline: "none",
-                          fontSize: "14px",
-                          padding: "4px 0"
-                        }
-                      }
-                    ),
-                    e.searchQuery && /* @__PURE__ */ i.jsx(
-                      "button",
-                      {
-                        type: "button",
-                        onClick: C,
-                        disabled: c,
-                        title: e.favorites.some((M) => M.query === e.searchQuery) ? "Remove from Favorites" : "Add to Favorites",
-                        style: {
-                          background: "none",
-                          border: "none",
-                          cursor: "pointer",
-                          padding: "2px",
-                          display: "flex",
-                          alignItems: "center",
-                          flexShrink: 0,
-                          marginRight: "4px"
-                        },
-                        children: /* @__PURE__ */ i.jsx(
-                          Si,
-                          {
-                            size: 16,
-                            color: e.favorites.some((M) => M.query === e.searchQuery) ? "var(--brand-yellow, #ffd700)" : "var(--meld-text-secondary)",
-                            fill: e.favorites.some((M) => M.query === e.searchQuery) ? "var(--brand-yellow, #ffd700)" : "none"
-                          }
-                        )
-                      }
-                    ),
-                    t && /* @__PURE__ */ i.jsx(
-                      "button",
-                      {
-                        type: "button",
-                        onClick: y,
-                        style: {
-                          background: "none",
-                          border: "none",
-                          cursor: "pointer",
-                          padding: "2px",
-                          display: "flex",
-                          alignItems: "center",
-                          flexShrink: 0
-                        },
-                        children: /* @__PURE__ */ i.jsx(Te, { size: 16, color: "var(--meld-text-secondary)" })
-                      }
-                    )
-                  ]
-                }
-              ),
-              /* @__PURE__ */ i.jsx(
-                ah,
-                {
-                  showSuggestions: l,
-                  suggestions: r,
-                  selectedIndex: a,
-                  setSelectedIndex: o,
-                  applySuggestion: m,
-                  inputValue: t,
-                  searchQuery: e.searchQuery,
-                  searchSuggestions: s,
-                  applySearchSuggestion: w,
-                  favorites: e.favorites,
-                  onSelectFavorite: (M) => {
-                    n(M), h(M);
-                  },
-                  onEditFavorite: S,
-                  onDeleteFavorite: R
-                }
-              )
-            ]
-          }
-        ),
-        k && Fe.createPortal(
-          /* @__PURE__ */ i.jsx(
-            "div",
+        /* @__PURE__ */ i.jsxs("span", { className: "meld-bulk-bar__info", children: [
+          l,
+          " items selected"
+        ] }),
+        s ? /* @__PURE__ */ i.jsxs(i.Fragment, { children: [
+          /* @__PURE__ */ i.jsxs(
+            "button",
             {
-              className: "meld-modal-overlay",
-              onClick: () => N(null),
-              style: {
-                zIndex: 3e3
-              },
-              children: /* @__PURE__ */ i.jsxs(
-                "div",
-                {
-                  className: "meld-modal-content meld-modal-content--small",
-                  onClick: (M) => M.stopPropagation(),
-                  children: [
-                    /* @__PURE__ */ i.jsxs("div", { className: "meld-modal-header", children: [
-                      /* @__PURE__ */ i.jsxs(
-                        "h2",
-                        {
-                          style: { display: "flex", alignItems: "center", gap: "10px" },
-                          children: [
-                            /* @__PURE__ */ i.jsx(Si, { size: 20, color: "var(--meld-accent-color)" }),
-                            "Edit Favorite"
-                          ]
-                        }
-                      ),
-                      /* @__PURE__ */ i.jsx(
-                        "button",
-                        {
-                          type: "button",
-                          className: "meld-modal-close",
-                          onClick: () => N(null),
-                          children: /* @__PURE__ */ i.jsx(Te, { size: 20 })
-                        }
-                      )
-                    ] }),
-                    /* @__PURE__ */ i.jsx("div", { className: "meld-modal-body", children: /* @__PURE__ */ i.jsxs(
-                      "div",
-                      {
-                        style: {
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "16px",
-                          padding: "8px 0"
-                        },
-                        children: [
-                          /* @__PURE__ */ i.jsxs(
-                            "div",
-                            {
-                              style: {
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: "6px"
-                              },
-                              children: [
-                                /* @__PURE__ */ i.jsx(
-                                  "label",
-                                  {
-                                    htmlFor: "edit-favorite-name",
-                                    style: {
-                                      fontSize: "12px",
-                                      fontWeight: "bold",
-                                      color: "var(--meld-text-secondary)"
-                                    },
-                                    children: "Name"
-                                  }
-                                ),
-                                /* @__PURE__ */ i.jsx(
-                                  "input",
-                                  {
-                                    id: "edit-favorite-name",
-                                    ref: U,
-                                    type: "text",
-                                    value: P,
-                                    onChange: (M) => _(M.target.value),
-                                    placeholder: "Favorite Name",
-                                    style: {
-                                      backgroundColor: "var(--comfy-input-bg, #1a1a1a)",
-                                      border: "1px solid var(--comfy-menu-border, #333)",
-                                      borderRadius: "4px",
-                                      color: "var(--meld-text-color)",
-                                      padding: "8px 12px",
-                                      fontSize: "14px",
-                                      outline: "none"
-                                    },
-                                    onKeyDown: (M) => {
-                                      M.key === "Enter" && D(), M.key === "Escape" && N(null);
-                                    }
-                                  }
-                                )
-                              ]
-                            }
-                          ),
-                          /* @__PURE__ */ i.jsxs(
-                            "div",
-                            {
-                              style: {
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: "6px"
-                              },
-                              children: [
-                                /* @__PURE__ */ i.jsx(
-                                  "label",
-                                  {
-                                    htmlFor: "edit-favorite-query",
-                                    style: {
-                                      fontSize: "12px",
-                                      fontWeight: "bold",
-                                      color: "var(--meld-text-secondary)"
-                                    },
-                                    children: "Search Query"
-                                  }
-                                ),
-                                /* @__PURE__ */ i.jsx(
-                                  "textarea",
-                                  {
-                                    id: "edit-favorite-query",
-                                    value: E,
-                                    onChange: (M) => b(M.target.value),
-                                    placeholder: "Search Query",
-                                    rows: 3,
-                                    style: {
-                                      backgroundColor: "var(--comfy-input-bg, #1a1a1a)",
-                                      border: "1px solid var(--comfy-menu-border, #333)",
-                                      borderRadius: "4px",
-                                      color: "var(--meld-text-color)",
-                                      padding: "8px 12px",
-                                      fontSize: "13px",
-                                      fontFamily: "monospace",
-                                      outline: "none",
-                                      resize: "vertical"
-                                    },
-                                    onKeyDown: (M) => {
-                                      M.key === "Enter" && !M.shiftKey && (M.preventDefault(), D()), M.key === "Escape" && N(null);
-                                    }
-                                  }
-                                )
-                              ]
-                            }
-                          )
-                        ]
-                      }
-                    ) }),
-                    /* @__PURE__ */ i.jsxs("div", { className: "meld-modal-footer", children: [
-                      /* @__PURE__ */ i.jsx(
-                        "button",
-                        {
-                          type: "button",
-                          className: "meld-btn meld-btn-secondary",
-                          onClick: () => N(null),
-                          children: "Cancel"
-                        }
-                      ),
-                      /* @__PURE__ */ i.jsx(
-                        "button",
-                        {
-                          type: "button",
-                          className: "meld-btn meld-btn-primary",
-                          onClick: D,
-                          disabled: c || !P.trim() || !E.trim(),
-                          children: c ? "Saving..." : "Save Changes"
-                        }
-                      )
-                    ] })
-                  ]
-                }
-              )
+              type: "button",
+              className: "meld-bulk-bar__button meld-bulk-bar__button--restore",
+              onClick: r,
+              children: [
+                /* @__PURE__ */ i.jsx(
+                  Er,
+                  {
+                    size: 16,
+                    style: { marginRight: "8px", verticalAlign: "middle" }
+                  }
+                ),
+                "Restore"
+              ]
             }
           ),
-          document.fullscreenElement || document.body
-        )
-      ]
-    }
-  );
-}, uh = ({
-  onClose: e,
-  onSearch: t
-}) => {
-  const [n, r] = v.useState([]), [l, s] = v.useState(!0), [a, o] = v.useState(""), [u, d] = v.useState(""), [h, g] = v.useState(!1), [m, y] = v.useState(null), [w, x] = v.useState(""), [j, f] = v.useState(!1), c = v.useRef(null), p = v.useCallback(async () => {
-    s(!0);
-    try {
-      const S = await ya();
-      r(S);
-    } catch (S) {
-      console.error("Failed to fetch tags:", S);
-    } finally {
-      s(!1);
-    }
-  }, []);
-  v.useEffect(() => {
-    p();
-  }, [p]), v.useEffect(() => {
-    m !== null && c.current && (c.current.focus(), c.current.select());
-  }, [m]);
-  const k = async (S) => {
-    S.preventDefault();
-    const D = u.trim();
-    if (!(!D || h)) {
-      if (D.toLowerCase() === at) {
-        alert(
-          `Tag name '${at}' is reserved for search and cannot be used.`
-        );
-        return;
-      }
-      if (n.some((C) => C.name.toLowerCase() === D.toLowerCase())) {
-        alert(`Tag "${D}" already exists.`);
-        return;
-      }
-      g(!0);
-      try {
-        await Zp(D), d(""), await p();
-      } catch (C) {
-        console.error("Failed to add tag:", C);
-      } finally {
-        g(!1);
-      }
-    }
-  }, N = async (S, D) => {
-    if (confirm(`Are you sure you want to delete tag "${D}"?`))
-      try {
-        await Jp(S), await p();
-      } catch (C) {
-        console.error("Failed to delete tag:", C);
-      }
-  }, P = (S) => {
-    y(S.id), x(S.name);
-  }, _ = () => {
-    y(null), x("");
-  }, E = async (S) => {
-    S.preventDefault();
-    const D = w.trim();
-    if (!D || m === null || j) return;
-    if (D.toLowerCase() === at) {
-      alert(
-        `Tag name '${at}' is reserved for search and cannot be used.`
-      );
-      return;
-    }
-    const C = n.find((U) => U.id === m);
-    if (C && C.name === D) {
-      _();
-      return;
-    }
-    if (n.some(
-      (U) => U.id !== m && U.name.toLowerCase() === D.toLowerCase()
-    )) {
-      alert(`Tag "${D}" already exists.`);
-      return;
-    }
-    f(!0);
-    try {
-      await qp(m, D), _(), await p();
-    } catch (U) {
-      console.error("Failed to rename tag:", U), alert(U instanceof Error ? U.message : "Failed to rename tag");
-    } finally {
-      f(!1);
-    }
-  }, b = (S) => {
-    t(`tag:${S}`);
-  }, R = v.useMemo(() => n.filter(
-    (S) => S.name.toLowerCase().includes(a.toLowerCase())
-  ), [n, a]);
-  return /* @__PURE__ */ i.jsxs("div", { className: "meld-tag-manager-view", children: [
-    /* @__PURE__ */ i.jsxs("div", { className: "meld-tag-manager-header", children: [
-      /* @__PURE__ */ i.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
-        /* @__PURE__ */ i.jsx(on, { size: 16 }),
-        /* @__PURE__ */ i.jsx("h3", { style: { margin: 0, fontSize: "14px" }, children: "Tag Manager" })
-      ] }),
-      /* @__PURE__ */ i.jsx(
-        "button",
-        {
-          type: "button",
-          className: "meld-tag-manager-close",
-          onClick: e,
-          title: "Close and return to gallery",
-          children: /* @__PURE__ */ i.jsx(Te, { size: 16 })
-        }
-      )
-    ] }),
-    /* @__PURE__ */ i.jsxs("div", { className: "meld-tag-manager-content", children: [
-      /* @__PURE__ */ i.jsxs("form", { className: "meld-tag-add-form", onSubmit: k, children: [
-        /* @__PURE__ */ i.jsx(
-          "input",
-          {
-            type: "text",
-            placeholder: "Add new tag...",
-            value: u,
-            onChange: (S) => d(S.target.value),
-            disabled: h
-          }
-        ),
+          /* @__PURE__ */ i.jsxs(
+            "button",
+            {
+              type: "button",
+              className: "meld-bulk-bar__button meld-bulk-bar__button--delete",
+              onClick: n,
+              children: [
+                /* @__PURE__ */ i.jsx(
+                  Fn,
+                  {
+                    size: 16,
+                    style: { marginRight: "8px", verticalAlign: "middle" }
+                  }
+                ),
+                "Delete Permanently"
+              ]
+            }
+          )
+        ] }) : /* @__PURE__ */ i.jsxs(i.Fragment, { children: [
+          /* @__PURE__ */ i.jsxs(
+            "button",
+            {
+              type: "button",
+              className: "meld-bulk-bar__button meld-bulk-bar__button--edit",
+              onClick: a,
+              children: [
+                /* @__PURE__ */ i.jsx(
+                  on,
+                  {
+                    size: 16,
+                    style: { marginRight: "8px", verticalAlign: "middle" }
+                  }
+                ),
+                "Edit Tags"
+              ]
+            }
+          ),
+          /* @__PURE__ */ i.jsxs(
+            "button",
+            {
+              type: "button",
+              className: "meld-bulk-bar__button meld-bulk-bar__button--delete",
+              onClick: n,
+              children: [
+                /* @__PURE__ */ i.jsx(
+                  Fn,
+                  {
+                    size: 16,
+                    style: { marginRight: "8px", verticalAlign: "middle" }
+                  }
+                ),
+                "Move to Trash"
+              ]
+            }
+          )
+        ] }),
         /* @__PURE__ */ i.jsxs(
           "button",
           {
-            type: "submit",
-            className: "meld-btn meld-btn-primary",
-            style: { padding: "4px 12px", height: "34px" },
-            disabled: !u.trim() || h,
+            type: "button",
+            className: "meld-bulk-bar__button meld-bulk-bar__button--cancel",
+            onClick: () => t({ type: "CLEAR_SELECTION" }),
             children: [
-              /* @__PURE__ */ i.jsx(va, { size: 14 }),
-              "Add"
+              /* @__PURE__ */ i.jsx(Te, { size: 16, style: { marginRight: "8px", verticalAlign: "middle" } }),
+              "Cancel"
             ]
           }
         )
-      ] }),
-      /* @__PURE__ */ i.jsxs("div", { className: "meld-tag-search-container", children: [
-        /* @__PURE__ */ i.jsx(zn, { size: 14, className: "meld-tag-search-icon" }),
-        /* @__PURE__ */ i.jsx(
-          "input",
-          {
-            type: "text",
-            className: "meld-tag-search-input",
-            placeholder: "Filter tags...",
-            value: a,
-            onChange: (S) => o(S.target.value)
-          }
-        )
-      ] }),
-      l ? /* @__PURE__ */ i.jsx("div", { className: "meld-gallery__loading", children: "Loading tags..." }) : /* @__PURE__ */ i.jsx("div", { className: "meld-tag-list", children: R.length === 0 ? /* @__PURE__ */ i.jsx("div", { className: "meld-gallery__empty", children: "No tags found." }) : R.map((S) => /* @__PURE__ */ i.jsx("div", { className: "meld-tag-item", children: m === S.id ? /* @__PURE__ */ i.jsxs(
-        "form",
-        {
-          className: "meld-tag-rename-form",
-          onSubmit: E,
-          children: [
-            /* @__PURE__ */ i.jsx(
-              "input",
-              {
-                type: "text",
-                ref: c,
-                className: "meld-tag-rename-input",
-                value: w,
-                onChange: (D) => x(D.target.value),
-                onKeyDown: (D) => D.key === "Escape" && _()
-              }
-            ),
-            /* @__PURE__ */ i.jsx(
-              "button",
-              {
-                type: "submit",
-                className: "meld-tag-item__btn meld-tag-item__btn--save",
-                title: "Save",
-                disabled: j || !w.trim(),
-                children: /* @__PURE__ */ i.jsx(td, { size: 14 })
-              }
-            ),
-            /* @__PURE__ */ i.jsx(
-              "button",
-              {
-                type: "button",
-                className: "meld-tag-item__btn",
-                title: "Cancel",
-                onClick: _,
-                disabled: j,
-                children: /* @__PURE__ */ i.jsx(Te, { size: 14 })
-              }
-            )
-          ]
-        }
-      ) : /* @__PURE__ */ i.jsxs(i.Fragment, { children: [
-        /* @__PURE__ */ i.jsx("span", { className: "meld-tag-item__name", children: S.name }),
-        /* @__PURE__ */ i.jsxs("div", { className: "meld-tag-item__actions", children: [
-          /* @__PURE__ */ i.jsx(
-            "button",
-            {
-              type: "button",
-              className: "meld-tag-item__btn",
-              title: "Search by this tag",
-              onClick: () => b(S.name),
-              children: /* @__PURE__ */ i.jsx(zn, { size: 14 })
-            }
-          ),
-          /* @__PURE__ */ i.jsx(
-            "button",
-            {
-              type: "button",
-              className: "meld-tag-item__btn",
-              title: "Rename tag",
-              onClick: () => P(S),
-              children: /* @__PURE__ */ i.jsx(sd, { size: 14 })
-            }
-          ),
-          /* @__PURE__ */ i.jsx(
-            "button",
-            {
-              type: "button",
-              className: "meld-tag-item__btn meld-tag-item__btn--delete",
-              title: "Delete tag",
-              onClick: () => N(S.id, S.name),
-              children: /* @__PURE__ */ i.jsx(Fn, { size: 14 })
-            }
-          )
-        ] })
-      ] }) }, S.id)) })
-    ] })
-  ] });
+      ]
+    }
+  );
 }, ch = () => {
   const {
     state: e,
@@ -12898,7 +12898,7 @@ You can select favorites when the search query is empty.`
     visibleImages: h,
     isSearchActive: g,
     loadMoreRef: m
-  } = $m();
+  } = oh();
   return V.log("GalleryPanel: rendering", {
     imageCount: e.images.length,
     displayedCount: d.length,
@@ -13061,12 +13061,12 @@ You can select favorites when the search query is empty.`
               }
             )
           ] }),
-          l === "search" && /* @__PURE__ */ i.jsx("div", { className: "meld-gallery__search-wrapper", children: /* @__PURE__ */ i.jsx(oh, {}) })
+          l === "search" && /* @__PURE__ */ i.jsx("div", { className: "meld-gallery__search-wrapper", children: /* @__PURE__ */ i.jsx(th, {}) })
         ] }),
-        /* @__PURE__ */ i.jsx(rh, {}),
+        /* @__PURE__ */ i.jsx(Xm, {}),
         e.error && /* @__PURE__ */ i.jsx("div", { className: "meld-gallery__error", children: e.error }),
         l === "tags" ? /* @__PURE__ */ i.jsx(
-          uh,
+          nh,
           {
             onClose: () => s("gallery"),
             onSearch: (y) => {
@@ -13078,7 +13078,7 @@ You can select favorites when the search query is empty.`
             "div",
             {
               className: `meld-gallery__list ${e.settings["gallery.view_mode"] === "grid_only" ? "meld-gallery__list--grid-only" : ""}`,
-              children: h.map((y) => /* @__PURE__ */ i.jsx("div", { "data-image-id": y.id, children: /* @__PURE__ */ i.jsx(Vm, { height: 150, children: /* @__PURE__ */ i.jsx(Zm, { image: y }) }) }, y.id))
+              children: h.map((y) => /* @__PURE__ */ i.jsx("div", { "data-image-id": y.id, children: /* @__PURE__ */ i.jsx(Ym, { height: 150, children: /* @__PURE__ */ i.jsx(Km, { image: y }) }) }, y.id))
             }
           ),
           /* @__PURE__ */ i.jsxs(
@@ -13094,9 +13094,9 @@ You can select favorites when the search query is empty.`
             }
           )
         ] }),
-        /* @__PURE__ */ i.jsx(Um, {}),
-        e.viewerImageId !== null && /* @__PURE__ */ i.jsx(nh, {}),
-        /* @__PURE__ */ i.jsx(Km, {})
+        /* @__PURE__ */ i.jsx(uh, {}),
+        e.viewerImageId !== null && /* @__PURE__ */ i.jsx(ah, {}),
+        /* @__PURE__ */ i.jsx(Hm, {})
       ]
     }
   );

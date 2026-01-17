@@ -5,7 +5,7 @@ import { api } from "../../../scripts/api.js";
 // @ts-expect-error
 import { app } from "../../../scripts/app.js";
 import * as apiLayer from "./api";
-import { GalleryPanel } from "./components/GalleryPanel";
+import { GalleryPanel } from "./features/gallery/components/GalleryPanel";
 import { logger } from "./logger";
 import { GalleryProvider } from "./store/GalleryContext";
 import type { ComfyApp } from "./types";
