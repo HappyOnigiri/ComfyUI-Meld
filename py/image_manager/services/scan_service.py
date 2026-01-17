@@ -238,6 +238,8 @@ def _scan_thread(
     link_strategy: str = "new_only",
 ) -> None:
     conn = None
+    newly_registered_ids = set()
+    updated_ids = set()
     new_count = 0
     total = 0
     processed = 0
@@ -282,7 +284,6 @@ def _scan_thread(
         total = len(image_files)
 
         # Step 1: Register all images
-        newly_registered_ids = []
         all_target_ids = []
         for full_path in image_files:
             if _scan_state.should_cancel:
@@ -310,7 +311,8 @@ def _scan_thread(
                     # Even if already exists, add specified tags
                     if tags:
                         add_tags_to_image(image_id, tags)
-                        _scan_state.updated_count += 1
+                        updated_ids.add(image_id)
+                        _scan_state.updated_count = len(updated_ids)
 
                     processed += 1
                     server.PromptServer.instance.send_sync(
@@ -372,7 +374,7 @@ def _scan_thread(
                     m_id = get_or_create_model(cursor, model)
                     add_model_relation(cursor, image_id, m_id)
 
-                newly_registered_ids.append(image_id)
+                newly_registered_ids.add(image_id)
                 all_target_ids.append(image_id)
                 new_count += 1
 
@@ -431,7 +433,7 @@ def _scan_thread(
             effective_link_strategy = "none"
 
         if effective_link_strategy != "none" and not _scan_state.should_cancel:
-            ids_to_link = newly_registered_ids if effective_link_strategy == "new_only" else all_target_ids
+            ids_to_link = list(newly_registered_ids) if effective_link_strategy == "new_only" else all_target_ids
             total_linking = len(ids_to_link)
             processed_linking = 0
             for img_id in ids_to_link:
@@ -440,19 +442,23 @@ def _scan_thread(
 
                 # Get phash and metadata for linking
                 cursor.execute(
-                    "SELECT filename, subfolder, type, phash, created_at FROM images WHERE id = ?", (img_id,)
+                    "SELECT filename, subfolder, type, phash, created_at, parent_id FROM images WHERE id = ?", (img_id,)
                 )
                 row = cursor.fetchone()
                 if not row:
                     processed_linking += 1
                     continue
-                fname, subf, itype, iphash, icreated = row
+                fname, subf, itype, iphash, icreated, current_parent_id = row
 
                 parent_id = infer_parent_id(cursor, fname, subf, itype, iphash, icreated, strategy=matching_strategy)
 
                 if link_strategy == "all" or parent_id:
                     if parent_id != img_id:
-                        cursor.execute("UPDATE images SET parent_id = ? WHERE id = ?", (parent_id, img_id))
+                        if parent_id != current_parent_id:
+                            cursor.execute("UPDATE images SET parent_id = ? WHERE id = ?", (parent_id, img_id))
+                            if img_id not in newly_registered_ids:
+                                updated_ids.add(img_id)
+                                _scan_state.updated_count = len(updated_ids)
 
                 processed_linking += 1
                 if processed_linking % 5 == 0 or processed_linking == total_linking:
@@ -475,7 +481,7 @@ def _scan_thread(
             {
                 "status": "completed",
                 "new_count": new_count,
-                "updated_count": _scan_state.updated_count,
+                "updated_count": len(updated_ids),
                 "total_count": processed,
             },
         )
