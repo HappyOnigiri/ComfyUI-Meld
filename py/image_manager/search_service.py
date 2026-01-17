@@ -15,6 +15,7 @@ class SearchService:
         "model": ("models", "model_image_relations", "model_id"),
     }
     DATE_PREFIXES = {"date", "after", "before"}
+    BOOLEAN_PREFIXES = {"has_source", "has_derivatives"}
 
     @staticmethod
     def parse_query(query_str: str | None) -> list[dict[str, Any]]:
@@ -55,7 +56,11 @@ class SearchService:
             if match:
                 prefix, value = match.groups()
                 prefix = prefix.lower()
-                if prefix in SearchService.PREFIX_MAP or prefix in SearchService.DATE_PREFIXES:
+                if (
+                    prefix in SearchService.PREFIX_MAP
+                    or prefix in SearchService.DATE_PREFIXES
+                    or prefix in SearchService.BOOLEAN_PREFIXES
+                ):
                     is_partial = True
                     # If value is quoted, it's exact match
                     if value.startswith('"') and value.endswith('"'):
@@ -159,6 +164,23 @@ class SearchService:
                     # Invalid date format, skip this condition
                     continue
 
+            elif cond["prefix"] in cls.BOOLEAN_PREFIXES:
+                prefix = cond["prefix"]
+                value = cond["value"].lower()
+                # Accept yes/no, true/false, 1/0
+                is_true = value in ("true", "yes", "1")
+                if is_negative:
+                    is_true = not is_true
+
+                if prefix == "has_source":
+                    op = "IS NOT NULL" if is_true else "IS NULL"
+                    sub_queries.append(f"i.parent_id {op}")
+                elif prefix == "has_derivatives":
+                    op = "IN" if is_true else "NOT IN"
+                    sub_queries.append(
+                        f"i.id {op} (SELECT parent_id FROM images WHERE parent_id IS NOT NULL AND deleted_at IS NULL)"
+                    )
+
             else:
                 # Targeted search (tags, models, etc.)
                 prefix = cond["prefix"]
@@ -205,6 +227,12 @@ class SearchService:
         if prefix_filter in cls.DATE_PREFIXES:
             today = datetime.now().strftime("%Y-%m-%d")
             results.append({"type": prefix_filter, "value": today, "count": 0})
+            return results
+
+        # Special handling for boolean prefixes
+        if prefix_filter in cls.BOOLEAN_PREFIXES:
+            results.append({"type": prefix_filter, "value": "yes", "count": 0})
+            results.append({"type": prefix_filter, "value": "no", "count": 0})
             return results
 
         # Determine which prefixes to search

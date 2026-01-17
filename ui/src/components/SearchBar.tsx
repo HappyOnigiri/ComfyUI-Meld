@@ -1,4 +1,6 @@
 import {
+	ArrowDown,
+	ArrowUp,
 	Box,
 	Calendar,
 	Edit2,
@@ -114,7 +116,7 @@ export const SearchBar: React.FC = () => {
 			if (lastWord) {
 				// Only show suggestions when one of the prefixes is used
 				const match = lastWord.match(
-					/^[-!]?(tag|pos|neg|model|date|after|before):(.*)$/i,
+					/^[-!]?(tag|pos|neg|model|date|after|before|has_source|has_derivatives):(.*)$/i,
 				);
 				if (match) {
 					const prefix = match[1].toLowerCase();
@@ -171,8 +173,17 @@ export const SearchBar: React.FC = () => {
 		const negationMatch = lastWord.match(/^([-!])/);
 		const negationPrefix = negationMatch ? negationMatch[1] : "";
 
-		const isDate = ["date", "after", "before"].includes(suggestion.type);
-		const valueWithQuotes = isDate ? suggestion.value : `"${suggestion.value}"`;
+		const noQuoteTypes = [
+			"date",
+			"after",
+			"before",
+			"has_source",
+			"has_derivatives",
+		];
+		const isNoQuote = noQuoteTypes.includes(suggestion.type);
+		const valueWithQuotes = isNoQuote
+			? suggestion.value
+			: `"${suggestion.value}"`;
 		const newQuery = `${[
 			...words,
 			`${negationPrefix}${suggestion.type}:${valueWithQuotes}`,
@@ -231,8 +242,15 @@ export const SearchBar: React.FC = () => {
 	};
 
 	const applySearchSuggestion = (type: string, value: string) => {
-		const isDate = ["date", "after", "before"].includes(type);
-		const valueWithQuotes = isDate ? value : `"${value}"`;
+		const noQuoteTypes = [
+			"date",
+			"after",
+			"before",
+			"has_source",
+			"has_derivatives",
+		];
+		const isNoQuote = noQuoteTypes.includes(type);
+		const valueWithQuotes = isNoQuote ? value : `"${value}"`;
 		const newQuery = `${type}:${valueWithQuotes}`;
 		setInputValue(newQuery);
 		handleSearch(newQuery);
@@ -289,6 +307,10 @@ export const SearchBar: React.FC = () => {
 			case "after":
 			case "before":
 				return <Calendar size={12} />;
+			case "has_source":
+				return <ArrowUp size={12} />;
+			case "has_derivatives":
+				return <ArrowDown size={12} />;
 			default:
 				return null;
 		}
@@ -361,7 +383,9 @@ export const SearchBar: React.FC = () => {
 							const words = inputValue.split(/\s+/);
 							const lastWord = words[words.length - 1];
 							if (
-								lastWord?.match(/^[-!]?(tag|pos|neg|model|date|after|before):/i)
+								lastWord?.match(
+									/^[-!]?(tag|pos|neg|model|date|after|before|has_source|has_derivatives):/i,
+								)
 							) {
 								setShowSuggestions(true);
 							}
