@@ -157,7 +157,7 @@ export const ViewTab: React.FC<ViewTabProps> = ({
 	const renderDetailSettings = () => (
 		<>
 			<SettingItem
-				label="Show by Default"
+				label="Show Details by Default"
 				description="Show the image details panel automatically when opening the viewer."
 			>
 				<label className="meld-switch">
@@ -235,6 +235,25 @@ export const ViewTab: React.FC<ViewTabProps> = ({
 			</SettingItem>
 
 			<SettingItem
+				label="Show Source Info"
+				description="Display source image information in the details panel."
+			>
+				<label className="meld-switch">
+					<input
+						type="checkbox"
+						checked={localSettings["viewer.details.show_source"]}
+						onChange={() =>
+							handleToggle(
+								"viewer.details.show_source",
+								localSettings["viewer.details.show_source"],
+							)
+						}
+					/>
+					<span className="meld-switch__slider" />
+				</label>
+			</SettingItem>
+
+			<SettingItem
 				label="Show Model"
 				description="Display model name in the details panel."
 			>
@@ -273,44 +292,6 @@ export const ViewTab: React.FC<ViewTabProps> = ({
 			</SettingItem>
 
 			<SettingItem
-				label="Show Negative"
-				description="Display negative prompt in the details panel."
-			>
-				<label className="meld-switch">
-					<input
-						type="checkbox"
-						checked={localSettings["viewer.details.show_negative_prompt"]}
-						onChange={() =>
-							handleToggle(
-								"viewer.details.show_negative_prompt",
-								localSettings["viewer.details.show_negative_prompt"],
-							)
-						}
-					/>
-					<span className="meld-switch__slider" />
-				</label>
-			</SettingItem>
-
-			<SettingItem
-				label="Show Source"
-				description="Display source image information in the details panel."
-			>
-				<label className="meld-switch">
-					<input
-						type="checkbox"
-						checked={localSettings["viewer.details.show_source"]}
-						onChange={() =>
-							handleToggle(
-								"viewer.details.show_source",
-								localSettings["viewer.details.show_source"],
-							)
-						}
-					/>
-					<span className="meld-switch__slider" />
-				</label>
-			</SettingItem>
-
-			<SettingItem
 				label="Max Positive Prompt Lines"
 				description="Maximum number of lines to display for the positive prompt."
 			>
@@ -334,6 +315,25 @@ export const ViewTab: React.FC<ViewTabProps> = ({
 						})
 					}
 				/>
+			</SettingItem>
+
+			<SettingItem
+				label="Show Negative"
+				description="Display negative prompt in the details panel."
+			>
+				<label className="meld-switch">
+					<input
+						type="checkbox"
+						checked={localSettings["viewer.details.show_negative_prompt"]}
+						onChange={() =>
+							handleToggle(
+								"viewer.details.show_negative_prompt",
+								localSettings["viewer.details.show_negative_prompt"],
+							)
+						}
+					/>
+					<span className="meld-switch__slider" />
+				</label>
 			</SettingItem>
 
 			<SettingItem

@@ -7736,7 +7736,7 @@ const od = v.createContext(void 0), Dm = ({
     /* @__PURE__ */ i.jsx(
       R,
       {
-        label: "Show Detail by Default",
+        label: "Show Details by Default",
         description: "Show the image details panel automatically when entering fullscreen.",
         children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
           /* @__PURE__ */ i.jsx(
@@ -7822,6 +7822,27 @@ const od = v.createContext(void 0), Dm = ({
     /* @__PURE__ */ i.jsx(
       R,
       {
+        label: "Show Source Info",
+        description: "Display source image information in fullscreen details.",
+        children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
+          /* @__PURE__ */ i.jsx(
+            "input",
+            {
+              type: "checkbox",
+              checked: e["fullscreen.details.show_source"],
+              onChange: () => n(
+                "fullscreen.details.show_source",
+                e["fullscreen.details.show_source"]
+              )
+            }
+          ),
+          /* @__PURE__ */ i.jsx("span", { className: "meld-switch__slider" })
+        ] })
+      }
+    ),
+    /* @__PURE__ */ i.jsx(
+      R,
+      {
         label: "Show Model",
         description: "Display model name in fullscreen details.",
         children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
@@ -7864,48 +7885,6 @@ const od = v.createContext(void 0), Dm = ({
     /* @__PURE__ */ i.jsx(
       R,
       {
-        label: "Show Negative",
-        description: "Display negative prompt in fullscreen details.",
-        children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
-          /* @__PURE__ */ i.jsx(
-            "input",
-            {
-              type: "checkbox",
-              checked: e["fullscreen.details.show_negative_prompt"],
-              onChange: () => n(
-                "fullscreen.details.show_negative_prompt",
-                e["fullscreen.details.show_negative_prompt"]
-              )
-            }
-          ),
-          /* @__PURE__ */ i.jsx("span", { className: "meld-switch__slider" })
-        ] })
-      }
-    ),
-    /* @__PURE__ */ i.jsx(
-      R,
-      {
-        label: "Show Source",
-        description: "Display source image information in fullscreen details.",
-        children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
-          /* @__PURE__ */ i.jsx(
-            "input",
-            {
-              type: "checkbox",
-              checked: e["fullscreen.details.show_source"],
-              onChange: () => n(
-                "fullscreen.details.show_source",
-                e["fullscreen.details.show_source"]
-              )
-            }
-          ),
-          /* @__PURE__ */ i.jsx("span", { className: "meld-switch__slider" })
-        ] })
-      }
-    ),
-    /* @__PURE__ */ i.jsx(
-      R,
-      {
         label: "Max Positive Prompt Lines",
         description: "Maximum number of lines to display for the positive prompt in fullscreen.",
         children: /* @__PURE__ */ i.jsx(
@@ -7927,6 +7906,27 @@ const od = v.createContext(void 0), Dm = ({
             })
           }
         )
+      }
+    ),
+    /* @__PURE__ */ i.jsx(
+      R,
+      {
+        label: "Show Negative",
+        description: "Display negative prompt in fullscreen details.",
+        children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
+          /* @__PURE__ */ i.jsx(
+            "input",
+            {
+              type: "checkbox",
+              checked: e["fullscreen.details.show_negative_prompt"],
+              onChange: () => n(
+                "fullscreen.details.show_negative_prompt",
+                e["fullscreen.details.show_negative_prompt"]
+              )
+            }
+          ),
+          /* @__PURE__ */ i.jsx("span", { className: "meld-switch__slider" })
+        ] })
       }
     ),
     /* @__PURE__ */ i.jsx(
@@ -8517,7 +8517,7 @@ const od = v.createContext(void 0), Dm = ({
   /* @__PURE__ */ i.jsx(
     R,
     {
-      label: "Show Model Name",
+      label: "Show Model",
       description: "Display the model name on the card.",
       children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
         /* @__PURE__ */ i.jsx(
@@ -8538,7 +8538,7 @@ const od = v.createContext(void 0), Dm = ({
   /* @__PURE__ */ i.jsx(
     R,
     {
-      label: "Show Positive Prompt",
+      label: "Show Positive",
       description: "Display the positive prompt on the card.",
       children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
         /* @__PURE__ */ i.jsx(
@@ -8559,7 +8559,7 @@ const od = v.createContext(void 0), Dm = ({
   /* @__PURE__ */ i.jsx(
     R,
     {
-      label: "Show Negative Prompt",
+      label: "Show Negative",
       description: "Display the negative prompt on the card.",
       children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
         /* @__PURE__ */ i.jsx(
@@ -8736,7 +8736,7 @@ const od = v.createContext(void 0), Dm = ({
     /* @__PURE__ */ i.jsx(
       R,
       {
-        label: "Show by Default",
+        label: "Show Details by Default",
         description: "Show the image details panel automatically when opening the viewer.",
         children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
           /* @__PURE__ */ i.jsx(
@@ -8822,6 +8822,27 @@ const od = v.createContext(void 0), Dm = ({
     /* @__PURE__ */ i.jsx(
       R,
       {
+        label: "Show Source Info",
+        description: "Display source image information in the details panel.",
+        children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
+          /* @__PURE__ */ i.jsx(
+            "input",
+            {
+              type: "checkbox",
+              checked: e["viewer.details.show_source"],
+              onChange: () => n(
+                "viewer.details.show_source",
+                e["viewer.details.show_source"]
+              )
+            }
+          ),
+          /* @__PURE__ */ i.jsx("span", { className: "meld-switch__slider" })
+        ] })
+      }
+    ),
+    /* @__PURE__ */ i.jsx(
+      R,
+      {
         label: "Show Model",
         description: "Display model name in the details panel.",
         children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
@@ -8864,48 +8885,6 @@ const od = v.createContext(void 0), Dm = ({
     /* @__PURE__ */ i.jsx(
       R,
       {
-        label: "Show Negative",
-        description: "Display negative prompt in the details panel.",
-        children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
-          /* @__PURE__ */ i.jsx(
-            "input",
-            {
-              type: "checkbox",
-              checked: e["viewer.details.show_negative_prompt"],
-              onChange: () => n(
-                "viewer.details.show_negative_prompt",
-                e["viewer.details.show_negative_prompt"]
-              )
-            }
-          ),
-          /* @__PURE__ */ i.jsx("span", { className: "meld-switch__slider" })
-        ] })
-      }
-    ),
-    /* @__PURE__ */ i.jsx(
-      R,
-      {
-        label: "Show Source",
-        description: "Display source image information in the details panel.",
-        children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
-          /* @__PURE__ */ i.jsx(
-            "input",
-            {
-              type: "checkbox",
-              checked: e["viewer.details.show_source"],
-              onChange: () => n(
-                "viewer.details.show_source",
-                e["viewer.details.show_source"]
-              )
-            }
-          ),
-          /* @__PURE__ */ i.jsx("span", { className: "meld-switch__slider" })
-        ] })
-      }
-    ),
-    /* @__PURE__ */ i.jsx(
-      R,
-      {
         label: "Max Positive Prompt Lines",
         description: "Maximum number of lines to display for the positive prompt.",
         children: /* @__PURE__ */ i.jsx(
@@ -8927,6 +8906,27 @@ const od = v.createContext(void 0), Dm = ({
             })
           }
         )
+      }
+    ),
+    /* @__PURE__ */ i.jsx(
+      R,
+      {
+        label: "Show Negative",
+        description: "Display negative prompt in the details panel.",
+        children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
+          /* @__PURE__ */ i.jsx(
+            "input",
+            {
+              type: "checkbox",
+              checked: e["viewer.details.show_negative_prompt"],
+              onChange: () => n(
+                "viewer.details.show_negative_prompt",
+                e["viewer.details.show_negative_prompt"]
+              )
+            }
+          ),
+          /* @__PURE__ */ i.jsx("span", { className: "meld-switch__slider" })
+        ] })
       }
     ),
     /* @__PURE__ */ i.jsx(

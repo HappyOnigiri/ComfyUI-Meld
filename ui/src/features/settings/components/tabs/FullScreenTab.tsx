@@ -112,7 +112,7 @@ export const FullScreenTab: React.FC<FullScreenTabProps> = ({
 	const renderDetailSettings = () => (
 		<>
 			<SettingItem
-				label="Show Detail by Default"
+				label="Show Details by Default"
 				description="Show the image details panel automatically when entering fullscreen."
 			>
 				<label className="meld-switch">
@@ -190,6 +190,25 @@ export const FullScreenTab: React.FC<FullScreenTabProps> = ({
 			</SettingItem>
 
 			<SettingItem
+				label="Show Source Info"
+				description="Display source image information in fullscreen details."
+			>
+				<label className="meld-switch">
+					<input
+						type="checkbox"
+						checked={localSettings["fullscreen.details.show_source"]}
+						onChange={() =>
+							handleToggle(
+								"fullscreen.details.show_source",
+								localSettings["fullscreen.details.show_source"],
+							)
+						}
+					/>
+					<span className="meld-switch__slider" />
+				</label>
+			</SettingItem>
+
+			<SettingItem
 				label="Show Model"
 				description="Display model name in fullscreen details."
 			>
@@ -228,44 +247,6 @@ export const FullScreenTab: React.FC<FullScreenTabProps> = ({
 			</SettingItem>
 
 			<SettingItem
-				label="Show Negative"
-				description="Display negative prompt in fullscreen details."
-			>
-				<label className="meld-switch">
-					<input
-						type="checkbox"
-						checked={localSettings["fullscreen.details.show_negative_prompt"]}
-						onChange={() =>
-							handleToggle(
-								"fullscreen.details.show_negative_prompt",
-								localSettings["fullscreen.details.show_negative_prompt"],
-							)
-						}
-					/>
-					<span className="meld-switch__slider" />
-				</label>
-			</SettingItem>
-
-			<SettingItem
-				label="Show Source"
-				description="Display source image information in fullscreen details."
-			>
-				<label className="meld-switch">
-					<input
-						type="checkbox"
-						checked={localSettings["fullscreen.details.show_source"]}
-						onChange={() =>
-							handleToggle(
-								"fullscreen.details.show_source",
-								localSettings["fullscreen.details.show_source"],
-							)
-						}
-					/>
-					<span className="meld-switch__slider" />
-				</label>
-			</SettingItem>
-
-			<SettingItem
 				label="Max Positive Prompt Lines"
 				description="Maximum number of lines to display for the positive prompt in fullscreen."
 			>
@@ -289,6 +270,25 @@ export const FullScreenTab: React.FC<FullScreenTabProps> = ({
 						})
 					}
 				/>
+			</SettingItem>
+
+			<SettingItem
+				label="Show Negative"
+				description="Display negative prompt in fullscreen details."
+			>
+				<label className="meld-switch">
+					<input
+						type="checkbox"
+						checked={localSettings["fullscreen.details.show_negative_prompt"]}
+						onChange={() =>
+							handleToggle(
+								"fullscreen.details.show_negative_prompt",
+								localSettings["fullscreen.details.show_negative_prompt"],
+							)
+						}
+					/>
+					<span className="meld-switch__slider" />
+				</label>
 			</SettingItem>
 
 			<SettingItem

@@ -127,7 +127,7 @@ export const SidebarTab: React.FC<SidebarTabProps> = ({
 			</SettingItem>
 
 			<SettingItem
-				label="Show Model Name"
+				label="Show Model"
 				description="Display the model name on the card."
 			>
 				<label className="meld-switch">
@@ -146,7 +146,7 @@ export const SidebarTab: React.FC<SidebarTabProps> = ({
 			</SettingItem>
 
 			<SettingItem
-				label="Show Positive Prompt"
+				label="Show Positive"
 				description="Display the positive prompt on the card."
 			>
 				<label className="meld-switch">
@@ -165,7 +165,7 @@ export const SidebarTab: React.FC<SidebarTabProps> = ({
 			</SettingItem>
 
 			<SettingItem
-				label="Show Negative Prompt"
+				label="Show Negative"
 				description="Display the negative prompt on the card."
 			>
 				<label className="meld-switch">
