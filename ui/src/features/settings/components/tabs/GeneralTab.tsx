@@ -107,7 +107,7 @@ export const GeneralTab: React.FC<GeneralTabProps> = ({
 				</SettingItem>
 
 				<SettingItem
-					label="Hide Source Images"
+					label="Hide Parent Images"
 					description="Hide images that have been used as a basis for other images (sources)."
 				>
 					<label className="meld-switch">

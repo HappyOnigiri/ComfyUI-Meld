@@ -8066,7 +8066,7 @@ const od = v.createContext(void 0), Dm = ({
     /* @__PURE__ */ i.jsx(
       R,
       {
-        label: "Hide Source Images",
+        label: "Hide Parent Images",
         description: "Hide images that have been used as a basis for other images (sources).",
         children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
           /* @__PURE__ */ i.jsx(
@@ -8227,7 +8227,7 @@ const od = v.createContext(void 0), Dm = ({
   /* @__PURE__ */ i.jsx(
     R,
     {
-      label: "Quick Suggestions",
+      label: "Show Quick Suggestions",
       description: "Show suggested keywords when the search field is empty.",
       children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
         /* @__PURE__ */ i.jsx(
@@ -8248,7 +8248,7 @@ const od = v.createContext(void 0), Dm = ({
   /* @__PURE__ */ i.jsx(
     R,
     {
-      label: "Input Suggest",
+      label: "Show Input Suggestions",
       description: "Show suggestions when typing search prefixes (e.g. pos:).",
       children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
         /* @__PURE__ */ i.jsx(

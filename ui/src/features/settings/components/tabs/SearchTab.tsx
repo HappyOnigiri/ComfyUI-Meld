@@ -14,7 +14,7 @@ export const SearchTab: React.FC<SearchTabProps> = ({
 	return (
 		<div className="meld-settings-list">
 			<SettingItem
-				label="Quick Suggestions"
+				label="Show Quick Suggestions"
 				description="Show suggested keywords when the search field is empty."
 			>
 				<label className="meld-switch">
@@ -33,7 +33,7 @@ export const SearchTab: React.FC<SearchTabProps> = ({
 			</SettingItem>
 
 			<SettingItem
-				label="Input Suggest"
+				label="Show Input Suggestions"
 				description="Show suggestions when typing search prefixes (e.g. pos:)."
 			>
 				<label className="meld-switch">
