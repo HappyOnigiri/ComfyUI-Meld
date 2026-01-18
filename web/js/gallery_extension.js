@@ -6398,8 +6398,6 @@ const vm = (e) => {
   selectedIds: /* @__PURE__ */ new Set(),
   isLoading: !1,
   error: null,
-  lastUpdated: Date.now(),
-  viewMode: "list",
   viewScope: "default",
   viewerImageId: null,
   viewerMode: "gallery",
@@ -6638,11 +6636,6 @@ function Pm(e, t) {
         selectedIds: /* @__PURE__ */ new Set(),
         lastSelectedId: null
       };
-    case "SET_VIEW_MODE":
-      return {
-        ...e,
-        viewMode: t.payload
-      };
     case "SET_VIEW_SCOPE":
       return {
         ...e,
@@ -6661,10 +6654,7 @@ function Pm(e, t) {
         }
       };
     case "REFRESH":
-      return {
-        ...e,
-        lastUpdated: Date.now()
-      };
+      return e;
     case "OPEN_VIEWER": {
       const l = t.payload, s = typeof l == "number" ? l : l.id, a = typeof l == "number" ? "gallery" : l.mode, o = e.viewerMode === "lineage" && a === "lineage" && e.lineageImages.some((u) => u.id === s);
       return {
@@ -7987,10 +7977,7 @@ const od = v.createContext(void 0), Dm = ({
       }
     )
   ] });
-  return /* @__PURE__ */ i.jsxs("div", { className: "meld-settings-list", children: [
-    !o && u(),
-    c()
-  ] });
+  return /* @__PURE__ */ i.jsx("div", { className: "meld-settings-list", children: o ? c() : u() });
 }, Bm = ({
   localSettings: e,
   handleToggle: t,
@@ -8990,10 +8977,7 @@ const od = v.createContext(void 0), Dm = ({
       }
     )
   ] });
-  return /* @__PURE__ */ i.jsxs("div", { className: "meld-settings-list", children: [
-    !u && c(),
-    h()
-  ] });
+  return /* @__PURE__ */ i.jsx("div", { className: "meld-settings-list", children: u ? h() : c() });
 }, cd = () => {
   const {
     activeTab: e,
