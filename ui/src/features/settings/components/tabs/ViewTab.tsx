@@ -108,27 +108,6 @@ export const ViewTab: React.FC<ViewTabProps> = ({
 			</SettingItem>
 
 			<SettingItem
-				label="Delete Mode"
-				description="Choose how images are deleted in view mode."
-			>
-				<select
-					className="meld-select"
-					value={localSettings["viewer.delete_mode"]}
-					onChange={(e) =>
-						setLocalSettings((prev) => ({
-							...prev,
-							"viewer.delete_mode": e.target
-								.value as Settings["viewer.delete_mode"],
-						}))
-					}
-				>
-					<option value="confirm">Confirmed</option>
-					<option value="target_only">Unconfirmed (Target Only)</option>
-					<option value="lineage">Unconfirmed (Include Lineage)</option>
-				</select>
-			</SettingItem>
-
-			<SettingItem
 				label="Thumbnail Window Size"
 				description="Number of thumbnails to keep in the viewer (1-10000)."
 			>
@@ -150,6 +129,27 @@ export const ViewTab: React.FC<ViewTabProps> = ({
 						handleNumberBlur({ key: "viewer.thumbnail_window_size" })
 					}
 				/>
+			</SettingItem>
+
+			<SettingItem
+				label="Delete Mode"
+				description="Choose how images are deleted in view mode."
+			>
+				<select
+					className="meld-select"
+					value={localSettings["viewer.delete_mode"]}
+					onChange={(e) =>
+						setLocalSettings((prev) => ({
+							...prev,
+							"viewer.delete_mode": e.target
+								.value as Settings["viewer.delete_mode"],
+						}))
+					}
+				>
+					<option value="confirm">Confirmed</option>
+					<option value="target_only">Unconfirmed (Target Only)</option>
+					<option value="lineage">Unconfirmed (Include Lineage)</option>
+				</select>
 			</SettingItem>
 		</>
 	);
