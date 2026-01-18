@@ -8688,29 +8688,6 @@ const od = v.createContext(void 0), Dm = ({
     /* @__PURE__ */ i.jsx(
       R,
       {
-        label: "Delete Mode",
-        description: "Choose how images are deleted in view mode.",
-        children: /* @__PURE__ */ i.jsxs(
-          "select",
-          {
-            className: "meld-select",
-            value: e["viewer.delete_mode"],
-            onChange: (g) => t((m) => ({
-              ...m,
-              "viewer.delete_mode": g.target.value
-            })),
-            children: [
-              /* @__PURE__ */ i.jsx("option", { value: "confirm", children: "Confirmed" }),
-              /* @__PURE__ */ i.jsx("option", { value: "target_only", children: "Unconfirmed (Target Only)" }),
-              /* @__PURE__ */ i.jsx("option", { value: "lineage", children: "Unconfirmed (Include Lineage)" })
-            ]
-          }
-        )
-      }
-    ),
-    /* @__PURE__ */ i.jsx(
-      R,
-      {
         label: "Thumbnail Window Size",
         description: "Number of thumbnails to keep in the viewer (1-10000).",
         children: /* @__PURE__ */ i.jsx(
@@ -8728,6 +8705,29 @@ const od = v.createContext(void 0), Dm = ({
               1e4
             ),
             onBlur: () => l({ key: "viewer.thumbnail_window_size" })
+          }
+        )
+      }
+    ),
+    /* @__PURE__ */ i.jsx(
+      R,
+      {
+        label: "Delete Mode",
+        description: "Choose how images are deleted in view mode.",
+        children: /* @__PURE__ */ i.jsxs(
+          "select",
+          {
+            className: "meld-select",
+            value: e["viewer.delete_mode"],
+            onChange: (g) => t((m) => ({
+              ...m,
+              "viewer.delete_mode": g.target.value
+            })),
+            children: [
+              /* @__PURE__ */ i.jsx("option", { value: "confirm", children: "Confirmed" }),
+              /* @__PURE__ */ i.jsx("option", { value: "target_only", children: "Unconfirmed (Target Only)" }),
+              /* @__PURE__ */ i.jsx("option", { value: "lineage", children: "Unconfirmed (Include Lineage)" })
+            ]
           }
         )
       }
