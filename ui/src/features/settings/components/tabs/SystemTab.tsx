@@ -2,9 +2,8 @@ import type React from "react";
 import type { Settings } from "../../../../types";
 import { SettingItem } from "../SettingItem";
 
-interface GeneralTabProps {
+interface SystemTabProps {
 	localSettings: Settings;
-	handleToggle: (key: keyof Settings, currentValue: boolean) => void;
 	handleNumberChange: (
 		key: keyof Settings,
 		value: string,
@@ -15,23 +14,18 @@ interface GeneralTabProps {
 	setLocalSettings: React.Dispatch<React.SetStateAction<Settings>>;
 	handleViewTrash: () => void;
 	// Input states
-	initialLoadCountInput: string;
-	maxLoadCountInput: string;
 	lineageMaxDepthInput: string;
 	trashRetentionDaysInput: string;
 	autoLinkPhashThresholdInput: string;
 	suggestPhashThresholdInput: string;
 }
 
-export const GeneralTab: React.FC<GeneralTabProps> = ({
+export const SystemTab: React.FC<SystemTabProps> = ({
 	localSettings,
-	handleToggle,
 	handleNumberChange,
 	handleNumberBlur,
 	setLocalSettings,
 	handleViewTrash,
-	initialLoadCountInput,
-	maxLoadCountInput,
 	lineageMaxDepthInput,
 	trashRetentionDaysInput,
 	autoLinkPhashThresholdInput,
@@ -40,91 +34,6 @@ export const GeneralTab: React.FC<GeneralTabProps> = ({
 	return (
 		<>
 			<div className="meld-settings-list">
-				<SettingItem
-					label="Gallery View Mode"
-					description="Choose between standard view with details or grid only view."
-				>
-					<select
-						className="meld-select"
-						value={localSettings["gallery.view_mode"]}
-						onChange={(e) =>
-							setLocalSettings((prev) => ({
-								...prev,
-								"gallery.view_mode": e.target
-									.value as Settings["gallery.view_mode"],
-							}))
-						}
-					>
-						<option value="grid_details">Details View</option>
-						<option value="grid_only">Grid Only View</option>
-					</select>
-				</SettingItem>
-
-				<SettingItem
-					label="Initial Load Count"
-					description="Number of images to load and display immediately (10-1000)."
-				>
-					<input
-						type="number"
-						className="meld-number-input"
-						value={initialLoadCountInput}
-						min={10}
-						max={1000}
-						onChange={(e) =>
-							handleNumberChange(
-								"gallery.initial_load_count",
-								e.target.value,
-								10,
-								1000,
-							)
-						}
-						onBlur={() =>
-							handleNumberBlur({ key: "gallery.initial_load_count" })
-						}
-					/>
-				</SettingItem>
-
-				<SettingItem
-					label="Maximum Load Count"
-					description="Maximum number of images to load in the background (10-1000000)."
-				>
-					<input
-						type="number"
-						className="meld-number-input"
-						value={maxLoadCountInput}
-						min={10}
-						max={1000000}
-						onChange={(e) =>
-							handleNumberChange(
-								"gallery.max_load_count",
-								e.target.value,
-								10,
-								1000000,
-							)
-						}
-						onBlur={() => handleNumberBlur({ key: "gallery.max_load_count" })}
-					/>
-				</SettingItem>
-
-				<SettingItem
-					label="Hide Parent Images"
-					description="Hide images that have been used as a basis for other images (sources)."
-				>
-					<label className="meld-switch">
-						<input
-							type="checkbox"
-							checked={localSettings["gallery.hide_parent_images"]}
-							onChange={() =>
-								handleToggle(
-									"gallery.hide_parent_images",
-									localSettings["gallery.hide_parent_images"],
-								)
-							}
-						/>
-						<span className="meld-switch__slider" />
-					</label>
-				</SettingItem>
-
 				<SettingItem
 					label="Source Matching Strategy"
 					description="Algorithm used to identify the source image."

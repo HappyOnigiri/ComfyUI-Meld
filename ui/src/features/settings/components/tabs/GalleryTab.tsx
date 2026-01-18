@@ -2,7 +2,7 @@ import type React from "react";
 import type { Settings } from "../../../../types";
 import { SettingItem } from "../SettingItem";
 
-interface SidebarTabProps {
+interface GalleryTabProps {
 	localSettings: Settings;
 	setLocalSettings: React.Dispatch<React.SetStateAction<Settings>>;
 	handleToggle: (key: keyof Settings, currentValue: boolean) => void;
@@ -14,18 +14,85 @@ interface SidebarTabProps {
 	) => void;
 	handleNumberBlur: (config: { key: keyof Settings }) => void;
 	thumbnailSizeInput: string;
+	initialLoadCountInput: string;
+	maxLoadCountInput: string;
 }
 
-export const SidebarTab: React.FC<SidebarTabProps> = ({
+export const GalleryTab: React.FC<GalleryTabProps> = ({
 	localSettings,
 	setLocalSettings,
 	handleToggle,
 	handleNumberChange,
 	handleNumberBlur,
 	thumbnailSizeInput,
+	initialLoadCountInput,
+	maxLoadCountInput,
 }) => {
 	return (
 		<div className="meld-settings-list">
+			<SettingItem
+				label="Initial Load Count"
+				description="Number of images to load and display immediately (10-1000)."
+			>
+				<input
+					type="number"
+					className="meld-number-input"
+					value={initialLoadCountInput}
+					min={10}
+					max={1000}
+					onChange={(e) =>
+						handleNumberChange(
+							"gallery.initial_load_count",
+							e.target.value,
+							10,
+							1000,
+						)
+					}
+					onBlur={() => handleNumberBlur({ key: "gallery.initial_load_count" })}
+				/>
+			</SettingItem>
+
+			<SettingItem
+				label="Maximum Load Count"
+				description="Maximum number of images to load in the background (10-1000000)."
+			>
+				<input
+					type="number"
+					className="meld-number-input"
+					value={maxLoadCountInput}
+					min={10}
+					max={1000000}
+					onChange={(e) =>
+						handleNumberChange(
+							"gallery.max_load_count",
+							e.target.value,
+							10,
+							1000000,
+						)
+					}
+					onBlur={() => handleNumberBlur({ key: "gallery.max_load_count" })}
+				/>
+			</SettingItem>
+
+			<SettingItem
+				label="Hide Parent Images"
+				description="Hide images that have been used as a basis for other images (sources)."
+			>
+				<label className="meld-switch">
+					<input
+						type="checkbox"
+						checked={localSettings["gallery.hide_parent_images"]}
+						onChange={() =>
+							handleToggle(
+								"gallery.hide_parent_images",
+								localSettings["gallery.hide_parent_images"],
+							)
+						}
+					/>
+					<span className="meld-switch__slider" />
+				</label>
+			</SettingItem>
+
 			<SettingItem
 				label="Thumbnail Size"
 				description="Size of the image thumbnails in the sidebar (50-500px)."

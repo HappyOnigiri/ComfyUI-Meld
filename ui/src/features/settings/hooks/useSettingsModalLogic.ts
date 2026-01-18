@@ -3,8 +3,8 @@ import { useGallery } from "../../../store/GalleryContext";
 import type { Settings } from "../../../types";
 
 export type Category =
-	| "General"
-	| "Sidebar"
+	| "System"
+	| "Gallery"
 	| "Search"
 	| "View"
 	| "View Details"
@@ -14,7 +14,7 @@ export type Category =
 
 export const useSettingsModalLogic = () => {
 	const { state, dispatch, updateSetting } = useGallery();
-	const [activeTab, setActiveTab] = useState<Category>("General");
+	const [activeTab, setActiveTab] = useState<Category>("Gallery");
 	const [localSettings, setLocalSettings] = useState<Settings>({
 		...state.settings,
 	});

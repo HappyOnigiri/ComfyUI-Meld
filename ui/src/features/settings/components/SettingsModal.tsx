@@ -3,10 +3,10 @@ import type React from "react";
 import { createPortal } from "react-dom";
 import { useSettingsModalLogic } from "../hooks/useSettingsModalLogic";
 import { FullScreenTab } from "./tabs/FullScreenTab";
-import { GeneralTab } from "./tabs/GeneralTab";
+import { GalleryTab } from "./tabs/GalleryTab";
 import { SearchTab } from "./tabs/SearchTab";
 import { ShortcutsTab } from "./tabs/ShortcutsTab";
-import { SidebarTab } from "./tabs/SidebarTab";
+import { SystemTab } from "./tabs/SystemTab";
 import { ViewTab } from "./tabs/ViewTab";
 
 export const SettingsModal: React.FC = () => {
@@ -40,44 +40,43 @@ export const SettingsModal: React.FC = () => {
 	} = useSettingsModalLogic();
 
 	const tabs: { id: typeof activeTab; label: string }[] = [
-		{ id: "General", label: "General" },
-		{ id: "Sidebar", label: "Sidebar" },
+		{ id: "Gallery", label: "Gallery" },
 		{ id: "Search", label: "Search" },
 		{ id: "View", label: "View" },
 		{ id: "View Details", label: "View Details" },
 		{ id: "Full Screen", label: "Full Screen" },
 		{ id: "Full Screen Detail", label: "Full Screen Detail" },
 		{ id: "Shortcuts", label: "Shortcuts" },
+		{ id: "System", label: "System" },
 	];
 
 	const renderActiveTab = () => {
 		switch (activeTab) {
-			case "General":
+			case "System":
 				return (
-					<GeneralTab
+					<SystemTab
 						localSettings={localSettings}
-						handleToggle={handleToggle}
 						handleNumberChange={handleNumberChange}
 						handleNumberBlur={handleNumberBlur}
 						setLocalSettings={setLocalSettings}
 						handleViewTrash={handleViewTrash}
-						initialLoadCountInput={initialLoadCountInput}
-						maxLoadCountInput={maxLoadCountInput}
 						lineageMaxDepthInput={lineageMaxDepthInput}
 						trashRetentionDaysInput={trashRetentionDaysInput}
 						autoLinkPhashThresholdInput={autoLinkPhashThresholdInput}
 						suggestPhashThresholdInput={suggestPhashThresholdInput}
 					/>
 				);
-			case "Sidebar":
+			case "Gallery":
 				return (
-					<SidebarTab
+					<GalleryTab
 						localSettings={localSettings}
 						setLocalSettings={setLocalSettings}
 						handleToggle={handleToggle}
 						handleNumberChange={handleNumberChange}
 						handleNumberBlur={handleNumberBlur}
 						thumbnailSizeInput={thumbnailSizeInput}
+						initialLoadCountInput={initialLoadCountInput}
+						maxLoadCountInput={maxLoadCountInput}
 					/>
 				);
 			case "Search":

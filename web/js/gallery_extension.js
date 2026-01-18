@@ -57,13 +57,13 @@ function Ho(e, t, n) {
   if (e && e.defaultProps) for (r in o = e.defaultProps, o) l[r] === void 0 && (l[r] = o[r]);
   return { $$typeof: Nr, type: e, key: s, ref: a, props: l, _owner: Ci.current };
 }
-function bd(e, t) {
+function Pd(e, t) {
   return { $$typeof: Nr, type: e.type, key: t, ref: e.ref, props: e.props, _owner: e._owner };
 }
 function Ni(e) {
   return typeof e == "object" && e !== null && e.$$typeof === Nr;
 }
-function Pd(e) {
+function bd(e) {
   var t = { "=": "=0", ":": "=2" };
   return "$" + e.replace(/[=:]/g, function(n) {
     return t[n];
@@ -71,7 +71,7 @@ function Pd(e) {
 }
 var ja = /\/+/g;
 function ns(e, t) {
-  return typeof e == "object" && e !== null && e.key != null ? Pd("" + e.key) : t.toString(36);
+  return typeof e == "object" && e !== null && e.key != null ? bd("" + e.key) : t.toString(36);
 }
 function Jr(e, t, n, r, l) {
   var s = typeof e;
@@ -92,7 +92,7 @@ function Jr(e, t, n, r, l) {
   }
   if (a) return a = e, l = l(a), e = r === "" ? "." + ns(a, 0) : r, ka(l) ? (n = "", e != null && (n = e.replace(ja, "$&/") + "/"), Jr(l, t, n, "", function(c) {
     return c;
-  })) : l != null && (Ni(l) && (l = bd(l, n + (!l.key || a && a.key === l.key ? "" : ("" + l.key).replace(ja, "$&/") + "/") + e)), t.push(l)), 1;
+  })) : l != null && (Ni(l) && (l = Pd(l, n + (!l.key || a && a.key === l.key ? "" : ("" + l.key).replace(ja, "$&/") + "/") + e)), t.push(l)), 1;
   if (a = 0, r = r === "" ? "." : r + ":", ka(e)) for (var o = 0; o < e.length; o++) {
     s = e[o];
     var u = r + ns(s, o);
@@ -341,7 +341,7 @@ var Ko = { exports: {} }, Be = {}, Yo = { exports: {} }, Xo = {};
   function S() {
     return !(e.unstable_now() - D < M);
   }
-  function b() {
+  function P() {
     if (_ !== null) {
       var C = e.unstable_now();
       D = C;
@@ -355,15 +355,15 @@ var Ko = { exports: {} }, Be = {}, Yo = { exports: {} }, Xo = {};
   }
   var W;
   if (typeof d == "function") W = function() {
-    d(b);
+    d(P);
   };
   else if (typeof MessageChannel < "u") {
     var Y = new MessageChannel(), F = Y.port2;
-    Y.port1.onmessage = b, W = function() {
+    Y.port1.onmessage = P, W = function() {
       F.postMessage(null);
     };
   } else W = function() {
-    k(b, 0);
+    k(P, 0);
   };
   function Q(C) {
     _ = C, L || (L = !0, W());
@@ -506,37 +506,37 @@ function Ud(e, t, n, r) {
   }
   return !1;
 }
-function be(e, t, n, r, l, s, a) {
+function Pe(e, t, n, r, l, s, a) {
   this.acceptsBooleans = t === 2 || t === 3 || t === 4, this.attributeName = r, this.attributeNamespace = l, this.mustUseProperty = n, this.propertyName = e, this.type = t, this.sanitizeURL = s, this.removeEmptyString = a;
 }
 var ke = {};
 "children dangerouslySetInnerHTML defaultValue defaultChecked innerHTML suppressContentEditableWarning suppressHydrationWarning style".split(" ").forEach(function(e) {
-  ke[e] = new be(e, 0, !1, e, null, !1, !1);
+  ke[e] = new Pe(e, 0, !1, e, null, !1, !1);
 });
 [["acceptCharset", "accept-charset"], ["className", "class"], ["htmlFor", "for"], ["httpEquiv", "http-equiv"]].forEach(function(e) {
   var t = e[0];
-  ke[t] = new be(t, 1, !1, e[1], null, !1, !1);
+  ke[t] = new Pe(t, 1, !1, e[1], null, !1, !1);
 });
 ["contentEditable", "draggable", "spellCheck", "value"].forEach(function(e) {
-  ke[e] = new be(e, 2, !1, e.toLowerCase(), null, !1, !1);
+  ke[e] = new Pe(e, 2, !1, e.toLowerCase(), null, !1, !1);
 });
 ["autoReverse", "externalResourcesRequired", "focusable", "preserveAlpha"].forEach(function(e) {
-  ke[e] = new be(e, 2, !1, e, null, !1, !1);
+  ke[e] = new Pe(e, 2, !1, e, null, !1, !1);
 });
 "allowFullScreen async autoFocus autoPlay controls default defer disabled disablePictureInPicture disableRemotePlayback formNoValidate hidden loop noModule noValidate open playsInline readOnly required reversed scoped seamless itemScope".split(" ").forEach(function(e) {
-  ke[e] = new be(e, 3, !1, e.toLowerCase(), null, !1, !1);
+  ke[e] = new Pe(e, 3, !1, e.toLowerCase(), null, !1, !1);
 });
 ["checked", "multiple", "muted", "selected"].forEach(function(e) {
-  ke[e] = new be(e, 3, !0, e, null, !1, !1);
+  ke[e] = new Pe(e, 3, !0, e, null, !1, !1);
 });
 ["capture", "download"].forEach(function(e) {
-  ke[e] = new be(e, 4, !1, e, null, !1, !1);
+  ke[e] = new Pe(e, 4, !1, e, null, !1, !1);
 });
 ["cols", "rows", "size", "span"].forEach(function(e) {
-  ke[e] = new be(e, 6, !1, e, null, !1, !1);
+  ke[e] = new Pe(e, 6, !1, e, null, !1, !1);
 });
 ["rowSpan", "start"].forEach(function(e) {
-  ke[e] = new be(e, 5, !1, e.toLowerCase(), null, !1, !1);
+  ke[e] = new Pe(e, 5, !1, e.toLowerCase(), null, !1, !1);
 });
 var Ii = /[\-:]([a-z])/g;
 function Ti(e) {
@@ -547,28 +547,28 @@ function Ti(e) {
     Ii,
     Ti
   );
-  ke[t] = new be(t, 1, !1, e, null, !1, !1);
+  ke[t] = new Pe(t, 1, !1, e, null, !1, !1);
 });
 "xlink:actuate xlink:arcrole xlink:role xlink:show xlink:title xlink:type".split(" ").forEach(function(e) {
   var t = e.replace(Ii, Ti);
-  ke[t] = new be(t, 1, !1, e, "http://www.w3.org/1999/xlink", !1, !1);
+  ke[t] = new Pe(t, 1, !1, e, "http://www.w3.org/1999/xlink", !1, !1);
 });
 ["xml:base", "xml:lang", "xml:space"].forEach(function(e) {
   var t = e.replace(Ii, Ti);
-  ke[t] = new be(t, 1, !1, e, "http://www.w3.org/XML/1998/namespace", !1, !1);
+  ke[t] = new Pe(t, 1, !1, e, "http://www.w3.org/XML/1998/namespace", !1, !1);
 });
 ["tabIndex", "crossOrigin"].forEach(function(e) {
-  ke[e] = new be(e, 1, !1, e.toLowerCase(), null, !1, !1);
+  ke[e] = new Pe(e, 1, !1, e.toLowerCase(), null, !1, !1);
 });
-ke.xlinkHref = new be("xlinkHref", 1, !1, "xlink:href", "http://www.w3.org/1999/xlink", !0, !1);
+ke.xlinkHref = new Pe("xlinkHref", 1, !1, "xlink:href", "http://www.w3.org/1999/xlink", !0, !1);
 ["src", "href", "action", "formAction"].forEach(function(e) {
-  ke[e] = new be(e, 1, !1, e.toLowerCase(), null, !0, !0);
+  ke[e] = new Pe(e, 1, !1, e.toLowerCase(), null, !0, !0);
 });
 function Li(e, t, n, r) {
   var l = ke.hasOwnProperty(t) ? ke[t] : null;
   (l !== null ? l.type !== 0 : r || !(2 < t.length) || t[0] !== "o" && t[0] !== "O" || t[1] !== "n" && t[1] !== "N") && (Ud(t, n, l, r) && (n = null), r || l === null ? Od(t) && (n === null ? e.removeAttribute(t) : e.setAttribute(t, "" + n)) : l.mustUseProperty ? e[l.propertyName] = n === null ? l.type === 3 ? !1 : "" : n : (t = l.attributeName, r = l.attributeNamespace, n === null ? e.removeAttribute(t) : (l = l.type, n = l === 3 || l === 4 && n === !0 ? "" : "" + n, r ? e.setAttributeNS(r, t, n) : e.setAttribute(t, n))));
 }
-var Et = Ad.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED, zr = Symbol.for("react.element"), fn = Symbol.for("react.portal"), pn = Symbol.for("react.fragment"), Mi = Symbol.for("react.strict_mode"), Ts = Symbol.for("react.profiler"), Jo = Symbol.for("react.provider"), qo = Symbol.for("react.context"), bi = Symbol.for("react.forward_ref"), Ls = Symbol.for("react.suspense"), Ms = Symbol.for("react.suspense_list"), Pi = Symbol.for("react.memo"), Nt = Symbol.for("react.lazy"), eu = Symbol.for("react.offscreen"), Na = Symbol.iterator;
+var Et = Ad.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED, zr = Symbol.for("react.element"), fn = Symbol.for("react.portal"), pn = Symbol.for("react.fragment"), Mi = Symbol.for("react.strict_mode"), Ts = Symbol.for("react.profiler"), Jo = Symbol.for("react.provider"), qo = Symbol.for("react.context"), Pi = Symbol.for("react.forward_ref"), Ls = Symbol.for("react.suspense"), Ms = Symbol.for("react.suspense_list"), bi = Symbol.for("react.memo"), Nt = Symbol.for("react.lazy"), eu = Symbol.for("react.offscreen"), Na = Symbol.iterator;
 function Vn(e) {
   return e === null || typeof e != "object" ? null : (e = Na && e[Na] || e["@@iterator"], typeof e == "function" ? e : null);
 }
@@ -661,7 +661,7 @@ function Vd(e) {
       return "";
   }
 }
-function bs(e) {
+function Ps(e) {
   if (e == null) return null;
   if (typeof e == "function") return e.displayName || e.name || null;
   if (typeof e == "string") return e;
@@ -684,15 +684,15 @@ function bs(e) {
       return (e.displayName || "Context") + ".Consumer";
     case Jo:
       return (e._context.displayName || "Context") + ".Provider";
-    case bi:
+    case Pi:
       var t = e.render;
       return e = e.displayName, e || (e = t.displayName || t.name || "", e = e !== "" ? "ForwardRef(" + e + ")" : "ForwardRef"), e;
-    case Pi:
-      return t = e.displayName || null, t !== null ? t : bs(e.type) || "Memo";
+    case bi:
+      return t = e.displayName || null, t !== null ? t : Ps(e.type) || "Memo";
     case Nt:
       t = e._payload, e = e._init;
       try {
-        return bs(e(t));
+        return Ps(e(t));
       } catch {
       }
   }
@@ -722,7 +722,7 @@ function Wd(e) {
     case 6:
       return "Text";
     case 16:
-      return bs(t);
+      return Ps(t);
     case 8:
       return t === Mi ? "StrictMode" : "Mode";
     case 22:
@@ -800,7 +800,7 @@ function fl(e) {
     return e.body;
   }
 }
-function Ps(e, t) {
+function bs(e, t) {
   var n = t.checked;
   return de({}, t, { defaultChecked: void 0, defaultValue: void 0, value: void 0, checked: n ?? e._wrapperState.initialChecked });
 }
@@ -1004,7 +1004,7 @@ function Di(e) {
   return e = e.target || e.srcElement || window, e.correspondingUseElement && (e = e.correspondingUseElement), e.nodeType === 3 ? e.parentNode : e;
 }
 var Us = null, En = null, Cn = null;
-function ba(e) {
+function Pa(e) {
   if (e = Lr(e)) {
     if (typeof Us != "function") throw Error(I(280));
     var t = e.stateNode;
@@ -1017,7 +1017,7 @@ function uu(e) {
 function cu() {
   if (En) {
     var e = En, t = Cn;
-    if (Cn = En = null, ba(e), t) for (e = 0; e < t.length; e++) ba(t[e]);
+    if (Cn = En = null, Pa(e), t) for (e = 0; e < t.length; e++) Pa(t[e]);
   }
 }
 function du(e, t) {
@@ -1112,7 +1112,7 @@ function mu(e) {
   }
   return null;
 }
-function Pa(e) {
+function ba(e) {
   if (on(e) !== e) throw Error(I(188));
 }
 function Zd(e) {
@@ -1134,8 +1134,8 @@ function Zd(e) {
     }
     if (l.child === s.child) {
       for (s = l.child; s; ) {
-        if (s === n) return Pa(l), e;
-        if (s === r) return Pa(l), t;
+        if (s === n) return ba(l), e;
+        if (s === r) return ba(l), t;
         s = s.sibling;
       }
       throw Error(I(188));
@@ -1340,12 +1340,12 @@ var ne = 0;
 function _u(e) {
   return e &= -e, 1 < e ? 4 < e ? e & 268435455 ? 16 : 536870912 : 4 : 1;
 }
-var Su, Ai, ku, ju, Eu, Bs = !1, $r = [], Pt = null, Dt = null, zt = null, fr = /* @__PURE__ */ new Map(), pr = /* @__PURE__ */ new Map(), Tt = [], cf = "mousedown mouseup touchcancel touchend touchstart auxclick dblclick pointercancel pointerdown pointerup dragend dragstart drop compositionend compositionstart keydown keypress keyup input textInput copy cut paste click change contextmenu reset submit".split(" ");
+var Su, Ai, ku, ju, Eu, Bs = !1, $r = [], bt = null, Dt = null, zt = null, fr = /* @__PURE__ */ new Map(), pr = /* @__PURE__ */ new Map(), Tt = [], cf = "mousedown mouseup touchcancel touchend touchstart auxclick dblclick pointercancel pointerdown pointerup dragend dragstart drop compositionend compositionstart keydown keypress keyup input textInput copy cut paste click change contextmenu reset submit".split(" ");
 function za(e, t) {
   switch (e) {
     case "focusin":
     case "focusout":
-      Pt = null;
+      bt = null;
       break;
     case "dragenter":
     case "dragleave":
@@ -1370,7 +1370,7 @@ function Qn(e, t, n, r, l, s) {
 function df(e, t, n, r, l) {
   switch (t) {
     case "focusin":
-      return Pt = Qn(Pt, e, t, n, r, l), !0;
+      return bt = Qn(bt, e, t, n, r, l), !0;
     case "dragenter":
       return Dt = Qn(Dt, e, t, n, r, l), !0;
     case "mouseover":
@@ -1420,7 +1420,7 @@ function Ra(e, t, n) {
   el(e) && n.delete(t);
 }
 function ff() {
-  Bs = !1, Pt !== null && el(Pt) && (Pt = null), Dt !== null && el(Dt) && (Dt = null), zt !== null && el(zt) && (zt = null), fr.forEach(Ra), pr.forEach(Ra);
+  Bs = !1, bt !== null && el(bt) && (bt = null), Dt !== null && el(Dt) && (Dt = null), zt !== null && el(zt) && (zt = null), fr.forEach(Ra), pr.forEach(Ra);
 }
 function Bn(e, t) {
   e.blockedOn === t && (e.blockedOn = null, Bs || (Bs = !0, Qe.unstable_scheduleCallback(Qe.unstable_NormalPriority, ff)));
@@ -1436,7 +1436,7 @@ function mr(e) {
       r.blockedOn === e && (r.blockedOn = null);
     }
   }
-  for (Pt !== null && Bn(Pt, e), Dt !== null && Bn(Dt, e), zt !== null && Bn(zt, e), fr.forEach(t), pr.forEach(t), n = 0; n < Tt.length; n++) r = Tt[n], r.blockedOn === e && (r.blockedOn = null);
+  for (bt !== null && Bn(bt, e), Dt !== null && Bn(Dt, e), zt !== null && Bn(zt, e), fr.forEach(t), pr.forEach(t), n = 0; n < Tt.length; n++) r = Tt[n], r.blockedOn === e && (r.blockedOn = null);
   for (; 0 < Tt.length && (n = Tt[0], n.blockedOn === null); ) Cu(n), n.blockedOn === null && Tt.shift();
 }
 var Nn = Et.ReactCurrentBatchConfig, yl = !0;
@@ -1692,7 +1692,7 @@ var If = de({}, Tr, { key: function(e) {
   return e.type === "keydown" || e.type === "keyup" ? e.keyCode : 0;
 }, which: function(e) {
   return e.type === "keypress" ? nl(e) : e.type === "keydown" || e.type === "keyup" ? e.keyCode : 0;
-} }), Tf = He(If), Lf = de({}, Fl, { pointerId: 0, width: 0, height: 0, pressure: 0, tangentialPressure: 0, tiltX: 0, tiltY: 0, twist: 0, pointerType: 0, isPrimary: 0 }), $a = He(Lf), Mf = de({}, Tr, { touches: 0, targetTouches: 0, changedTouches: 0, altKey: 0, metaKey: 0, ctrlKey: 0, shiftKey: 0, getModifierState: Ui }), bf = He(Mf), Pf = de({}, $n, { propertyName: 0, elapsedTime: 0, pseudoElement: 0 }), Df = He(Pf), zf = de({}, Fl, {
+} }), Tf = He(If), Lf = de({}, Fl, { pointerId: 0, width: 0, height: 0, pressure: 0, tangentialPressure: 0, tiltX: 0, tiltY: 0, twist: 0, pointerType: 0, isPrimary: 0 }), $a = He(Lf), Mf = de({}, Tr, { touches: 0, targetTouches: 0, changedTouches: 0, altKey: 0, metaKey: 0, ctrlKey: 0, shiftKey: 0, getModifierState: Ui }), Pf = He(Mf), bf = de({}, $n, { propertyName: 0, elapsedTime: 0, pseudoElement: 0 }), Df = He(bf), zf = de({}, Fl, {
   deltaX: function(e) {
     return "deltaX" in e ? e.deltaX : "wheelDeltaX" in e ? -e.wheelDeltaX : 0;
   },
@@ -1756,7 +1756,7 @@ function Wa(e) {
   var t = e && e.nodeName && e.nodeName.toLowerCase();
   return t === "input" ? !!Uf[e.type] : t === "textarea";
 }
-function bu(e, t, n, r) {
+function Pu(e, t, n, r) {
   uu(r), t = wl(t, "onChange"), 0 < t.length && (n = new $i("onChange", "change", null, n, r), e.push({ event: n, listeners: t }));
 }
 var rr = null, hr = null;
@@ -1770,7 +1770,7 @@ function Ol(e) {
 function Wf(e, t) {
   if (e === "change") return t;
 }
-var Pu = !1;
+var bu = !1;
 if (_t) {
   var ds;
   if (_t) {
@@ -1781,7 +1781,7 @@ if (_t) {
     }
     ds = fs;
   } else ds = !1;
-  Pu = ds && (!document.documentMode || 9 < document.documentMode);
+  bu = ds && (!document.documentMode || 9 < document.documentMode);
 }
 function Ba() {
   rr && (rr.detachEvent("onpropertychange", Du), hr = rr = null);
@@ -1789,7 +1789,7 @@ function Ba() {
 function Du(e) {
   if (e.propertyName === "value" && Ol(hr)) {
     var t = [];
-    bu(t, hr, e, Di(e)), pu(Vf, t);
+    Pu(t, hr, e, Di(e)), pu(Vf, t);
   }
 }
 function Qf(e, t, n) {
@@ -2058,7 +2058,7 @@ function ys(e, t, n, r, l) {
           case "touchend":
           case "touchmove":
           case "touchstart":
-            y = bf;
+            y = Pf;
             break;
           case Fu:
           case Ou:
@@ -2121,14 +2121,14 @@ function ys(e, t, n, r, l) {
       }
       e: {
         if (m = c ? yn(c) : window, y = m.nodeName && m.nodeName.toLowerCase(), y === "select" || y === "input" && m.type === "file") var N = Wf;
-        else if (Wa(m)) if (Pu) N = Gf;
+        else if (Wa(m)) if (bu) N = Gf;
         else {
           N = Bf;
           var L = Qf;
         }
         else (y = m.nodeName) && y.toLowerCase() === "input" && (m.type === "checkbox" || m.type === "radio") && (N = Hf);
         if (N && (N = N(e, c))) {
-          bu(g, N, n, h);
+          Pu(g, N, n, h);
           break e;
         }
         L && L(e, m, c), e === "focusout" && (L = m._wrapperState) && L.controlled && m.type === "number" && zs(m, "number", m.value);
@@ -2458,7 +2458,7 @@ function Br(e) {
 function Yu() {
   for (var e = Ue; e; ) e = Rt(e.nextSibling);
 }
-function bn() {
+function Pn() {
   Ue = Ve = null, oe = !1;
 }
 function Hi(e) {
@@ -2627,8 +2627,8 @@ function Xu(e) {
       return oe && Kt(f, E), N;
     }
     for (_ = r(f, _); !D.done; E++, D = p.next()) D = y(_, f, E, D.value, j), D !== null && (e && D.alternate !== null && _.delete(D.key === null ? E : D.key), d = s(D, d, E), L === null ? N = D : L.sibling = D, L = D);
-    return e && _.forEach(function(b) {
-      return t(f, b);
+    return e && _.forEach(function(P) {
+      return t(f, P);
     }), oe && Kt(f, E), N;
   }
   function k(f, d, p, j) {
@@ -2682,7 +2682,7 @@ function Xu(e) {
   }
   return k;
 }
-var Pn = Xu(!0), Zu = Xu(!1), El = Qt(null), Cl = null, _n = null, Gi = null;
+var bn = Xu(!0), Zu = Xu(!1), El = Qt(null), Cl = null, _n = null, Gi = null;
 function Ki() {
   Gi = _n = Cl = null;
 }
@@ -3303,7 +3303,7 @@ function _c(e, t, n) {
   n = xt(-1, n), n.tag = 3, n.payload = { element: null };
   var r = t.value;
   return n.callback = function() {
-    bl || (bl = !0, gi = r), ii(e, t);
+    Pl || (Pl = !0, gi = r), ii(e, t);
   }, n;
 }
 function Sc(e, t, n) {
@@ -3346,7 +3346,7 @@ function ho(e, t, n, r, l) {
 }
 var yp = Et.ReactCurrentOwner, Re = !1;
 function Te(e, t, n, r) {
-  t.child = e === null ? Zu(t, null, n, r) : Pn(t, e.child, n, r);
+  t.child = e === null ? Zu(t, null, n, r) : bn(t, e.child, n, r);
 }
 function go(e, t, n, r, l) {
   n = n.render;
@@ -3420,14 +3420,14 @@ function oi(e, t, n, r, l, s) {
   if (!r && !a) return l && no(t, n, !1), jt(e, t, s);
   r = t.stateNode, yp.current = t;
   var o = a && typeof n.getDerivedStateFromError != "function" ? null : r.render();
-  return t.flags |= 1, e !== null && a ? (t.child = Pn(t, e.child, null, s), t.child = Pn(t, null, o, s)) : Te(e, t, o, s), t.memoizedState = r.state, l && no(t, n, !0), t.child;
+  return t.flags |= 1, e !== null && a ? (t.child = bn(t, e.child, null, s), t.child = bn(t, null, o, s)) : Te(e, t, o, s), t.memoizedState = r.state, l && no(t, n, !0), t.child;
 }
 function Cc(e) {
   var t = e.stateNode;
   t.pendingContext ? to(e, t.pendingContext, t.pendingContext !== t.context) : t.context && to(e, t.context, !1), Ji(e, t.containerInfo);
 }
 function wo(e, t, n, r, l) {
-  return bn(), Hi(l), t.flags |= 256, Te(e, t, n, r), t.child;
+  return Pn(), Hi(l), t.flags |= 256, Te(e, t, n, r), t.child;
 }
 var ui = { dehydrated: null, treeContext: null, retryLane: 0 };
 function ci(e) {
@@ -3449,11 +3449,11 @@ function ia(e, t) {
   return t = Gl({ mode: "visible", children: t }, e.mode, 0, null), t.return = e, e.child = t;
 }
 function Gr(e, t, n, r) {
-  return r !== null && Hi(r), Pn(t, e.child, null, n), e = ia(t, t.pendingProps.children), e.flags |= 2, t.memoizedState = null, e;
+  return r !== null && Hi(r), bn(t, e.child, null, n), e = ia(t, t.pendingProps.children), e.flags |= 2, t.memoizedState = null, e;
 }
 function vp(e, t, n, r, l, s, a) {
   if (n)
-    return t.flags & 256 ? (t.flags &= -257, r = js(Error(I(422))), Gr(e, t, a, r)) : t.memoizedState !== null ? (t.child = e.child, t.flags |= 128, null) : (s = r.fallback, l = t.mode, r = Gl({ mode: "visible", children: r.children }, l, 0, null), s = en(s, l, a, null), s.flags |= 2, r.return = t, s.return = t, r.sibling = s, t.child = r, t.mode & 1 && Pn(t, e.child, null, a), t.child.memoizedState = ci(a), t.memoizedState = ui, s);
+    return t.flags & 256 ? (t.flags &= -257, r = js(Error(I(422))), Gr(e, t, a, r)) : t.memoizedState !== null ? (t.child = e.child, t.flags |= 128, null) : (s = r.fallback, l = t.mode, r = Gl({ mode: "visible", children: r.children }, l, 0, null), s = en(s, l, a, null), s.flags |= 2, r.return = t, s.return = t, r.sibling = s, t.child = r, t.mode & 1 && bn(t, e.child, null, a), t.child.memoizedState = ci(a), t.memoizedState = ui, s);
   if (!(t.mode & 1)) return Gr(e, t, a, null);
   if (l.data === "$!") {
     if (r = l.nextSibling && l.nextSibling.dataset, r) var o = r.dgst;
@@ -3571,7 +3571,7 @@ function jt(e, t, n) {
 function wp(e, t, n) {
   switch (t.tag) {
     case 3:
-      Cc(t), bn();
+      Cc(t), Pn();
       break;
     case 5:
       ec(t);
@@ -3629,7 +3629,7 @@ Lc = function(e, t, n, r) {
     var s = null;
     switch (n) {
       case "input":
-        l = Ps(e, l), r = Ps(e, r), s = [];
+        l = bs(e, l), r = bs(e, r), s = [];
         break;
       case "select":
         l = de({}, l, { value: void 0 }), r = de({}, r, { value: void 0 }), s = [];
@@ -3806,7 +3806,7 @@ function xp(e, t, n) {
                 ie("toggle", e), l = r;
                 break;
               case "input":
-                Ia(e, r), l = Ps(e, r), ie("invalid", e);
+                Ia(e, r), l = bs(e, r), ie("invalid", e);
                 break;
               case "option":
                 l = r;
@@ -3883,13 +3883,13 @@ function xp(e, t, n) {
       return Ee(t), null;
     case 13:
       if (ae(ue), r = t.memoizedState, e === null || e.memoizedState !== null && e.memoizedState.dehydrated !== null) {
-        if (oe && Ue !== null && t.mode & 1 && !(t.flags & 128)) Yu(), bn(), t.flags |= 98560, s = !1;
+        if (oe && Ue !== null && t.mode & 1 && !(t.flags & 128)) Yu(), Pn(), t.flags |= 98560, s = !1;
         else if (s = Br(t), r !== null && r.dehydrated !== null) {
           if (e === null) {
             if (!s) throw Error(I(318));
             if (s = t.memoizedState, s = s !== null ? s.dehydrated : null, !s) throw Error(I(317));
             s[ft] = t;
-          } else bn(), !(t.flags & 128) && (t.memoizedState = null), t.flags |= 4;
+          } else Pn(), !(t.flags & 128) && (t.memoizedState = null), t.flags |= 4;
           Ee(t), s = !1;
         } else st !== null && (wi(st), st = null), s = !0;
         if (!s) return t.flags & 65536 ? t : null;
@@ -3942,7 +3942,7 @@ function _p(e, t) {
     case 13:
       if (ae(ue), e = t.memoizedState, e !== null && e.dehydrated !== null) {
         if (t.alternate === null) throw Error(I(340));
-        bn();
+        Pn();
       }
       return e = t.flags, e & 65536 ? (t.flags = e & -65537 | 128, t) : null;
     case 19:
@@ -3960,7 +3960,7 @@ function _p(e, t) {
       return null;
   }
 }
-var Kr = !1, Ce = !1, Sp = typeof WeakSet == "function" ? WeakSet : Set, P = null;
+var Kr = !1, Ce = !1, Sp = typeof WeakSet == "function" ? WeakSet : Set, b = null;
 function Sn(e, t) {
   var n = e.ref;
   if (n !== null) if (typeof n == "function") try {
@@ -4010,9 +4010,9 @@ function kp(e, t) {
     }
     n = n || { start: 0, end: 0 };
   } else n = null;
-  for (Xs = { focusedElem: e, selectionRange: n }, yl = !1, P = t; P !== null; ) if (t = P, e = t.child, (t.subtreeFlags & 1028) !== 0 && e !== null) e.return = t, P = e;
-  else for (; P !== null; ) {
-    t = P;
+  for (Xs = { focusedElem: e, selectionRange: n }, yl = !1, b = t; b !== null; ) if (t = b, e = t.child, (t.subtreeFlags & 1028) !== 0 && e !== null) e.return = t, b = e;
+  else for (; b !== null; ) {
+    t = b;
     try {
       var w = t.alternate;
       if (t.flags & 1024) switch (t.tag) {
@@ -4042,10 +4042,10 @@ function kp(e, t) {
       fe(t, t.return, j);
     }
     if (e = t.sibling, e !== null) {
-      e.return = t.return, P = e;
+      e.return = t.return, b = e;
       break;
     }
-    P = t.return;
+    b = t.return;
   }
   return w = _o, _o = !1, w;
 }
@@ -4088,17 +4088,17 @@ function pi(e) {
     typeof t == "function" ? t(e) : t.current = e;
   }
 }
-function bc(e) {
-  var t = e.alternate;
-  t !== null && (e.alternate = null, bc(t)), e.child = null, e.deletions = null, e.sibling = null, e.tag === 5 && (t = e.stateNode, t !== null && (delete t[ft], delete t[wr], delete t[qs], delete t[sp], delete t[ip])), e.stateNode = null, e.return = null, e.dependencies = null, e.memoizedProps = null, e.memoizedState = null, e.pendingProps = null, e.stateNode = null, e.updateQueue = null;
-}
 function Pc(e) {
+  var t = e.alternate;
+  t !== null && (e.alternate = null, Pc(t)), e.child = null, e.deletions = null, e.sibling = null, e.tag === 5 && (t = e.stateNode, t !== null && (delete t[ft], delete t[wr], delete t[qs], delete t[sp], delete t[ip])), e.stateNode = null, e.return = null, e.dependencies = null, e.memoizedProps = null, e.memoizedState = null, e.pendingProps = null, e.stateNode = null, e.updateQueue = null;
+}
+function bc(e) {
   return e.tag === 5 || e.tag === 3 || e.tag === 4;
 }
 function So(e) {
   e: for (; ; ) {
     for (; e.sibling === null; ) {
-      if (e.return === null || Pc(e.return)) return null;
+      if (e.return === null || bc(e.return)) return null;
       e = e.return;
     }
     for (e.sibling.return = e.return, e = e.sibling; e.tag !== 5 && e.tag !== 6 && e.tag !== 18; ) {
@@ -4177,7 +4177,7 @@ function ko(e) {
     e.updateQueue = null;
     var n = e.stateNode;
     n === null && (n = e.stateNode = new Sp()), t.forEach(function(r) {
-      var l = bp.bind(null, e, r);
+      var l = Pp.bind(null, e, r);
       n.has(r) || (n.add(r), r.then(l, l));
     });
   }
@@ -4303,9 +4303,9 @@ function zc(e, t) {
       break;
     case 22:
       if (h = n !== null && n.memoizedState !== null, e.mode & 1 ? (Ce = (c = Ce) || h, tt(t, e), Ce = c) : tt(t, e), ct(e), r & 8192) {
-        if (c = e.memoizedState !== null, (e.stateNode.isHidden = c) && !h && e.mode & 1) for (P = e, h = e.child; h !== null; ) {
-          for (g = P = h; P !== null; ) {
-            switch (m = P, y = m.child, m.tag) {
+        if (c = e.memoizedState !== null, (e.stateNode.isHidden = c) && !h && e.mode & 1) for (b = e, h = e.child; h !== null; ) {
+          for (g = b = h; b !== null; ) {
+            switch (m = b, y = m.child, m.tag) {
               case 0:
               case 11:
               case 14:
@@ -4333,7 +4333,7 @@ function zc(e, t) {
                   continue;
                 }
             }
-            y !== null ? (y.return = m, P = y) : Eo(g);
+            y !== null ? (y.return = m, b = y) : Eo(g);
           }
           h = h.sibling;
         }
@@ -4384,7 +4384,7 @@ function ct(e) {
     try {
       e: {
         for (var n = e.return; n !== null; ) {
-          if (Pc(n)) {
+          if (bc(n)) {
             var r = n;
             break e;
           }
@@ -4415,28 +4415,28 @@ function ct(e) {
   t & 4096 && (e.flags &= -4097);
 }
 function jp(e, t, n) {
-  P = e, Rc(e);
+  b = e, Rc(e);
 }
 function Rc(e, t, n) {
-  for (var r = (e.mode & 1) !== 0; P !== null; ) {
-    var l = P, s = l.child;
+  for (var r = (e.mode & 1) !== 0; b !== null; ) {
+    var l = b, s = l.child;
     if (l.tag === 22 && r) {
       var a = l.memoizedState !== null || Kr;
       if (!a) {
         var o = l.alternate, u = o !== null && o.memoizedState !== null || Ce;
         o = Kr;
         var c = Ce;
-        if (Kr = a, (Ce = u) && !c) for (P = l; P !== null; ) a = P, u = a.child, a.tag === 22 && a.memoizedState !== null ? Co(l) : u !== null ? (u.return = a, P = u) : Co(l);
-        for (; s !== null; ) P = s, Rc(s), s = s.sibling;
-        P = l, Kr = o, Ce = c;
+        if (Kr = a, (Ce = u) && !c) for (b = l; b !== null; ) a = b, u = a.child, a.tag === 22 && a.memoizedState !== null ? Co(l) : u !== null ? (u.return = a, b = u) : Co(l);
+        for (; s !== null; ) b = s, Rc(s), s = s.sibling;
+        b = l, Kr = o, Ce = c;
       }
       jo(e);
-    } else l.subtreeFlags & 8772 && s !== null ? (s.return = l, P = s) : jo(e);
+    } else l.subtreeFlags & 8772 && s !== null ? (s.return = l, b = s) : jo(e);
   }
 }
 function jo(e) {
-  for (; P !== null; ) {
-    var t = P;
+  for (; b !== null; ) {
+    var t = b;
     if (t.flags & 8772) {
       var n = t.alternate;
       try {
@@ -4520,34 +4520,34 @@ function jo(e) {
       }
     }
     if (t === e) {
-      P = null;
+      b = null;
       break;
     }
     if (n = t.sibling, n !== null) {
-      n.return = t.return, P = n;
+      n.return = t.return, b = n;
       break;
     }
-    P = t.return;
+    b = t.return;
   }
 }
 function Eo(e) {
-  for (; P !== null; ) {
-    var t = P;
+  for (; b !== null; ) {
+    var t = b;
     if (t === e) {
-      P = null;
+      b = null;
       break;
     }
     var n = t.sibling;
     if (n !== null) {
-      n.return = t.return, P = n;
+      n.return = t.return, b = n;
       break;
     }
-    P = t.return;
+    b = t.return;
   }
 }
 function Co(e) {
-  for (; P !== null; ) {
-    var t = P;
+  for (; b !== null; ) {
+    var t = b;
     try {
       switch (t.tag) {
         case 0:
@@ -4589,18 +4589,18 @@ function Co(e) {
       fe(t, t.return, u);
     }
     if (t === e) {
-      P = null;
+      b = null;
       break;
     }
     var o = t.sibling;
     if (o !== null) {
-      o.return = t.return, P = o;
+      o.return = t.return, b = o;
       break;
     }
-    P = t.return;
+    b = t.return;
   }
 }
-var Ep = Math.ceil, Ml = Et.ReactCurrentDispatcher, aa = Et.ReactCurrentOwner, Xe = Et.ReactCurrentBatchConfig, Z = 0, xe = null, he = null, Se = 0, $e = 0, kn = Qt(0), ye = 0, Er = null, ln = 0, Hl = 0, oa = 0, ar = null, De = null, ua = 0, Rn = 1 / 0, gt = null, bl = !1, gi = null, Ft = null, Yr = !1, bt = null, Pl = 0, or = 0, yi = null, al = -1, ol = 0;
+var Ep = Math.ceil, Ml = Et.ReactCurrentDispatcher, aa = Et.ReactCurrentOwner, Xe = Et.ReactCurrentBatchConfig, Z = 0, xe = null, he = null, Se = 0, $e = 0, kn = Qt(0), ye = 0, Er = null, ln = 0, Hl = 0, oa = 0, ar = null, De = null, ua = 0, Rn = 1 / 0, gt = null, Pl = !1, gi = null, Ft = null, Yr = !1, Pt = null, bl = 0, or = 0, yi = null, al = -1, ol = 0;
 function Le() {
   return Z & 6 ? me() : al !== -1 ? al : al = me();
 }
@@ -4774,7 +4774,7 @@ function ca(e, t) {
   }
 }
 function sn(e) {
-  bt !== null && bt.tag === 0 && !(Z & 6) && Tn();
+  Pt !== null && Pt.tag === 0 && !(Z & 6) && Tn();
   var t = Z;
   Z |= 1;
   var n = Xe.transition, r = ne;
@@ -4980,7 +4980,7 @@ function Yt(e, t, n) {
 function Tp(e, t, n, r) {
   do
     Tn();
-  while (bt !== null);
+  while (Pt !== null);
   if (Z & 6) throw Error(I(327));
   n = e.finishedWork;
   var l = e.finishedLanes;
@@ -4997,27 +4997,27 @@ function Tp(e, t, n, r) {
     var o = Z;
     Z |= 4, aa.current = null, kp(e, n), zc(n, e), Yf(Xs), yl = !!Ys, Xs = Ys = null, e.current = n, jp(n), qd(), Z = o, ne = a, Xe.transition = s;
   } else e.current = n;
-  if (Yr && (Yr = !1, bt = e, Pl = l), s = e.pendingLanes, s === 0 && (Ft = null), nf(n.stateNode), Oe(e, me()), t !== null) for (r = e.onRecoverableError, n = 0; n < t.length; n++) l = t[n], r(l.value, { componentStack: l.stack, digest: l.digest });
-  if (bl) throw bl = !1, e = gi, gi = null, e;
-  return Pl & 1 && e.tag !== 0 && Tn(), s = e.pendingLanes, s & 1 ? e === yi ? or++ : (or = 0, yi = e) : or = 0, Bt(), null;
+  if (Yr && (Yr = !1, Pt = e, bl = l), s = e.pendingLanes, s === 0 && (Ft = null), nf(n.stateNode), Oe(e, me()), t !== null) for (r = e.onRecoverableError, n = 0; n < t.length; n++) l = t[n], r(l.value, { componentStack: l.stack, digest: l.digest });
+  if (Pl) throw Pl = !1, e = gi, gi = null, e;
+  return bl & 1 && e.tag !== 0 && Tn(), s = e.pendingLanes, s & 1 ? e === yi ? or++ : (or = 0, yi = e) : or = 0, Bt(), null;
 }
 function Tn() {
-  if (bt !== null) {
-    var e = _u(Pl), t = Xe.transition, n = ne;
+  if (Pt !== null) {
+    var e = _u(bl), t = Xe.transition, n = ne;
     try {
-      if (Xe.transition = null, ne = 16 > e ? 16 : e, bt === null) var r = !1;
+      if (Xe.transition = null, ne = 16 > e ? 16 : e, Pt === null) var r = !1;
       else {
-        if (e = bt, bt = null, Pl = 0, Z & 6) throw Error(I(331));
+        if (e = Pt, Pt = null, bl = 0, Z & 6) throw Error(I(331));
         var l = Z;
-        for (Z |= 4, P = e.current; P !== null; ) {
-          var s = P, a = s.child;
-          if (P.flags & 16) {
+        for (Z |= 4, b = e.current; b !== null; ) {
+          var s = b, a = s.child;
+          if (b.flags & 16) {
             var o = s.deletions;
             if (o !== null) {
               for (var u = 0; u < o.length; u++) {
                 var c = o[u];
-                for (P = c; P !== null; ) {
-                  var h = P;
+                for (b = c; b !== null; ) {
+                  var h = b;
                   switch (h.tag) {
                     case 0:
                     case 11:
@@ -5025,19 +5025,19 @@ function Tn() {
                       ir(8, h, s);
                   }
                   var g = h.child;
-                  if (g !== null) g.return = h, P = g;
-                  else for (; P !== null; ) {
-                    h = P;
+                  if (g !== null) g.return = h, b = g;
+                  else for (; b !== null; ) {
+                    h = b;
                     var m = h.sibling, y = h.return;
-                    if (bc(h), h === c) {
-                      P = null;
+                    if (Pc(h), h === c) {
+                      b = null;
                       break;
                     }
                     if (m !== null) {
-                      m.return = y, P = m;
+                      m.return = y, b = m;
                       break;
                     }
-                    P = y;
+                    b = y;
                   }
                 }
               }
@@ -5052,12 +5052,12 @@ function Tn() {
                   } while (x !== null);
                 }
               }
-              P = s;
+              b = s;
             }
           }
-          if (s.subtreeFlags & 2064 && a !== null) a.return = s, P = a;
-          else e: for (; P !== null; ) {
-            if (s = P, s.flags & 2048) switch (s.tag) {
+          if (s.subtreeFlags & 2064 && a !== null) a.return = s, b = a;
+          else e: for (; b !== null; ) {
+            if (s = b, s.flags & 2048) switch (s.tag) {
               case 0:
               case 11:
               case 15:
@@ -5065,19 +5065,19 @@ function Tn() {
             }
             var f = s.sibling;
             if (f !== null) {
-              f.return = s.return, P = f;
+              f.return = s.return, b = f;
               break e;
             }
-            P = s.return;
+            b = s.return;
           }
         }
         var d = e.current;
-        for (P = d; P !== null; ) {
-          a = P;
+        for (b = d; b !== null; ) {
+          a = b;
           var p = a.child;
-          if (a.subtreeFlags & 2064 && p !== null) p.return = a, P = p;
-          else e: for (a = d; P !== null; ) {
-            if (o = P, o.flags & 2048) try {
+          if (a.subtreeFlags & 2064 && p !== null) p.return = a, b = p;
+          else e: for (a = d; b !== null; ) {
+            if (o = b, o.flags & 2048) try {
               switch (o.tag) {
                 case 0:
                 case 11:
@@ -5088,15 +5088,15 @@ function Tn() {
               fe(o, o.return, N);
             }
             if (o === a) {
-              P = null;
+              b = null;
               break e;
             }
             var j = o.sibling;
             if (j !== null) {
-              j.return = o.return, P = j;
+              j.return = o.return, b = j;
               break e;
             }
-            P = o.return;
+            b = o.return;
           }
         }
         if (Z = l, Bt(), pt && typeof pt.onPostCommitFiberRoot == "function") try {
@@ -5144,7 +5144,7 @@ function Mp(e) {
   var t = e.memoizedState, n = 0;
   t !== null && (n = t.retryLane), Vc(e, n);
 }
-function bp(e, t) {
+function Pp(e, t) {
   var n = 0;
   switch (e.tag) {
     case 13:
@@ -5216,7 +5216,7 @@ Wc = function(e, t, n) {
           break e;
         } else for (Ue = Rt(t.stateNode.containerInfo.firstChild), Ve = t, oe = !0, st = null, n = Zu(t, null, r, n), t.child = n; n; ) n.flags = n.flags & -3 | 4096, n = n.sibling;
         else {
-          if (bn(), r === l) {
+          if (Pn(), r === l) {
             t = jt(e, t, n);
             break e;
           }
@@ -5232,7 +5232,7 @@ Wc = function(e, t, n) {
     case 13:
       return Nc(e, t, n);
     case 4:
-      return Ji(t, t.stateNode.containerInfo), r = t.pendingProps, e === null ? t.child = Pn(t, null, r, n) : Te(e, t, r, n), t.child;
+      return Ji(t, t.stateNode.containerInfo), r = t.pendingProps, e === null ? t.child = bn(t, null, r, n) : Te(e, t, r, n), t.child;
     case 11:
       return r = t.type, l = t.pendingProps, l = t.elementType === r ? l : rt(r, l), go(e, t, r, l, n);
     case 7:
@@ -5312,11 +5312,11 @@ Wc = function(e, t, n) {
 function Qc(e, t) {
   return yu(e, t);
 }
-function Pp(e, t, n, r) {
+function bp(e, t, n, r) {
   this.tag = e, this.key = n, this.sibling = this.child = this.return = this.stateNode = this.type = this.elementType = null, this.index = 0, this.ref = null, this.pendingProps = t, this.dependencies = this.memoizedState = this.updateQueue = this.memoizedProps = null, this.mode = r, this.subtreeFlags = this.flags = 0, this.deletions = null, this.childLanes = this.lanes = 0, this.alternate = null;
 }
 function Ye(e, t, n, r) {
-  return new Pp(e, t, n, r);
+  return new bp(e, t, n, r);
 }
 function pa(e) {
   return e = e.prototype, !(!e || !e.isReactComponent);
@@ -5324,8 +5324,8 @@ function pa(e) {
 function Dp(e) {
   if (typeof e == "function") return pa(e) ? 1 : 0;
   if (e != null) {
-    if (e = e.$$typeof, e === bi) return 11;
-    if (e === Pi) return 14;
+    if (e = e.$$typeof, e === Pi) return 11;
+    if (e === bi) return 14;
   }
   return 2;
 }
@@ -5359,10 +5359,10 @@ function ul(e, t, n, r, l, s) {
         case qo:
           a = 9;
           break e;
-        case bi:
+        case Pi:
           a = 11;
           break e;
-        case Pi:
+        case bi:
           a = 14;
           break e;
         case Nt:
@@ -5797,7 +5797,7 @@ const Jc = G("ArrowDown", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const bo = G("ArrowRight", [
+const Po = G("ArrowRight", [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ]);
@@ -6245,7 +6245,7 @@ const vm = (e) => {
   if (!t.ok)
     throw new Error("Failed to register image");
   return (await t.json()).data;
-}, Po = async (e, t) => {
+}, bo = async (e, t) => {
   if (!(await K.fetchApi("/meld/link-parent", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -6393,7 +6393,7 @@ const vm = (e) => {
     body: JSON.stringify({ key: e, value: t })
   })).ok)
     throw new Error("Failed to save setting");
-}, bm = {
+}, Pm = {
   images: [],
   selectedIds: /* @__PURE__ */ new Set(),
   isLoading: !1,
@@ -6489,7 +6489,7 @@ const vm = (e) => {
   searchQuery: "",
   favorites: []
 };
-function Pm(e, t) {
+function bm(e, t) {
   var n, r;
   switch (t.type) {
     case "SET_FAVORITES":
@@ -6749,7 +6749,7 @@ function Pm(e, t) {
 const od = v.createContext(void 0), Dm = ({
   children: e
 }) => {
-  const [t, n] = v.useReducer(Pm, bm), r = v.useRef(t.images.length), l = v.useRef(0);
+  const [t, n] = v.useReducer(bm, Pm), r = v.useRef(t.images.length), l = v.useRef(0);
   v.useEffect(() => {
     r.current = t.images.length;
   }, [t.images.length]);
@@ -6978,7 +6978,7 @@ const od = v.createContext(void 0), Dm = ({
       children: e
     }
   );
-}, Pe = () => {
+}, be = () => {
   const e = v.useContext(od);
   if (e === void 0)
     throw new Error("useGallery must be used within a GalleryProvider");
@@ -7067,8 +7067,8 @@ const od = v.createContext(void 0), Dm = ({
   })).ok)
     throw new Error("Failed to cancel scan");
 }, ud = () => {
-  const { dispatch: e } = Pe(), [t, n] = v.useState(() => {
-    const S = localStorage.getItem("meld-import-config"), b = {
+  const { dispatch: e } = be(), [t, n] = v.useState(() => {
+    const S = localStorage.getItem("meld-import-config"), P = {
       type: "output",
       subfolder: "",
       custom_path: "",
@@ -7080,24 +7080,24 @@ const od = v.createContext(void 0), Dm = ({
     if (S)
       try {
         const W = JSON.parse(S);
-        return { ...b, ...W, tags: [] };
+        return { ...P, ...W, tags: [] };
       } catch {
-        return b;
+        return P;
       }
-    return b;
+    return P;
   });
   v.useEffect(() => {
-    const { tags: S, ...b } = t;
-    localStorage.setItem("meld-import-config", JSON.stringify(b));
+    const { tags: S, ...P } = t;
+    localStorage.setItem("meld-import-config", JSON.stringify(P));
   }, [t]);
   const [r, l] = v.useState([]), [s, a] = v.useState([]), [o, u] = v.useState(0), [c, h] = v.useState(!1), [g, m] = v.useState([]), [y, w] = v.useState(""), [x, k] = v.useState(!1), [f, d] = v.useState(null);
   v.useEffect(() => {
     (async () => {
       try {
-        const b = await ym();
-        n((W) => W.custom_path ? W : { ...W, custom_path: b });
-      } catch (b) {
-        O.error("Failed to fetch home directory:", b);
+        const P = await ym();
+        n((W) => W.custom_path ? W : { ...W, custom_path: P });
+      } catch (P) {
+        O.error("Failed to fetch home directory:", P);
       }
     })();
   }, []), v.useEffect(() => {
@@ -7184,18 +7184,18 @@ const od = v.createContext(void 0), Dm = ({
   v.useEffect(() => {
     p();
   }, [p]), v.useEffect(() => {
-    const S = (b) => {
-      b.key === "Escape" && (b.preventDefault(), b.stopImmediatePropagation(), f ? d(null) : e({ type: "CLOSE_MODAL" }));
+    const S = (P) => {
+      P.key === "Escape" && (P.preventDefault(), P.stopImmediatePropagation(), f ? d(null) : e({ type: "CLOSE_MODAL" }));
     };
     return window.addEventListener("keydown", S, { capture: !0 }), () => window.removeEventListener("keydown", S, { capture: !0 });
   }, [f, e]);
   const j = v.useMemo(() => g.filter(
     (S) => S.name.toLowerCase().includes(y.toLowerCase()) && !t.tags.includes(S.name)
   ), [g, y, t.tags]), N = (S) => {
-    const b = S.trim();
-    b && !t.tags.includes(b) && (n({ ...t, tags: [...t.tags, b] }), w(""));
+    const P = S.trim();
+    P && !t.tags.includes(P) && (n({ ...t, tags: [...t.tags, P] }), w(""));
   }, L = (S) => {
-    n({ ...t, tags: t.tags.filter((b) => b !== S) });
+    n({ ...t, tags: t.tags.filter((P) => P !== S) });
   }, _ = (S) => {
     S.key === "Enter" && y.trim() && (S.preventDefault(), N(y.trim()));
   }, E = async () => {
@@ -7215,18 +7215,18 @@ const od = v.createContext(void 0), Dm = ({
     }
   }, M = (S) => {
     if (t.type === "custom") {
-      const b = t.custom_path.includes("\\") ? "\\" : "/", W = t.custom_path.endsWith(b) ? `${t.custom_path}${S}` : `${t.custom_path}${b}${S}`;
+      const P = t.custom_path.includes("\\") ? "\\" : "/", W = t.custom_path.endsWith(P) ? `${t.custom_path}${S}` : `${t.custom_path}${P}${S}`;
       n({ ...t, custom_path: W });
     } else {
-      const b = t.subfolder ? `${t.subfolder}/${S}` : S;
-      n({ ...t, subfolder: b });
+      const P = t.subfolder ? `${t.subfolder}/${S}` : S;
+      n({ ...t, subfolder: P });
     }
   }, D = () => {
     if (t.type === "custom") {
-      const S = t.custom_path.includes("\\") ? "\\" : "/", b = t.custom_path.split(S);
-      if (b.length > 1) {
-        b.pop();
-        let W = b.join(S);
+      const S = t.custom_path.includes("\\") ? "\\" : "/", P = t.custom_path.split(S);
+      if (P.length > 1) {
+        P.pop();
+        let W = P.join(S);
         W === "" && S === "/" && (W = "/"), n({ ...t, custom_path: W });
       }
     } else {
@@ -7507,7 +7507,7 @@ const od = v.createContext(void 0), Dm = ({
     document.fullscreenElement || document.body
   );
 }, Qm = () => {
-  const { state: e, dispatch: t, updateSetting: n } = Pe(), [r, l] = v.useState("General"), [s, a] = v.useState({
+  const { state: e, dispatch: t, updateSetting: n } = be(), [r, l] = v.useState("Gallery"), [s, a] = v.useState({
     ...e.settings
   }), [o, u] = v.useState(
     {}
@@ -7527,7 +7527,7 @@ const od = v.createContext(void 0), Dm = ({
     e.settings["viewer.details.max_negative_prompt_lines"].toString()
   ), [
     S,
-    b
+    P
   ] = v.useState(
     e.settings["fullscreen.details.max_positive_prompt_lines"].toString()
   ), [
@@ -7561,10 +7561,10 @@ const od = v.createContext(void 0), Dm = ({
       }));
     },
     handleNumberChange: (U, q, re, qe) => {
-      U === "gallery.initial_load_count" ? h(q) : U === "gallery.max_load_count" ? m(q) : U === "gallery.lineage_max_depth" ? w(q) : U === "viewer.thumbnail_window_size" ? k(q) : U === "gallery.trash_retention_days" ? d(q) : U === "gallery.auto_link_phash_threshold" ? j(q) : U === "gallery.suggest_phash_threshold" ? L(q) : U === "viewer.details.max_positive_prompt_lines" ? E(q) : U === "viewer.details.max_negative_prompt_lines" ? D(q) : U === "fullscreen.details.max_positive_prompt_lines" ? b(q) : U === "fullscreen.details.max_negative_prompt_lines" ? Y(q) : U === "sidebar.thumbnail_size" && Q(q);
-      const br = Number.parseInt(q, 10);
-      if (!Number.isNaN(br)) {
-        let Ht = br;
+      U === "gallery.initial_load_count" ? h(q) : U === "gallery.max_load_count" ? m(q) : U === "gallery.lineage_max_depth" ? w(q) : U === "viewer.thumbnail_window_size" ? k(q) : U === "gallery.trash_retention_days" ? d(q) : U === "gallery.auto_link_phash_threshold" ? j(q) : U === "gallery.suggest_phash_threshold" ? L(q) : U === "viewer.details.max_positive_prompt_lines" ? E(q) : U === "viewer.details.max_negative_prompt_lines" ? D(q) : U === "fullscreen.details.max_positive_prompt_lines" ? P(q) : U === "fullscreen.details.max_negative_prompt_lines" ? Y(q) : U === "sidebar.thumbnail_size" && Q(q);
+      const Pr = Number.parseInt(q, 10);
+      if (!Number.isNaN(Pr)) {
+        let Ht = Pr;
         re !== void 0 && Ht < re && (Ht = re), qe !== void 0 && Ht > qe && (Ht = qe), a((V) => ({
           ...V,
           [U]: Ht
@@ -7588,7 +7588,7 @@ const od = v.createContext(void 0), Dm = ({
         s["viewer.details.max_positive_prompt_lines"].toString()
       ) : U.key === "viewer.details.max_negative_prompt_lines" ? D(
         s["viewer.details.max_negative_prompt_lines"].toString()
-      ) : U.key === "fullscreen.details.max_positive_prompt_lines" ? b(
+      ) : U.key === "fullscreen.details.max_positive_prompt_lines" ? P(
         s["fullscreen.details.max_positive_prompt_lines"].toString()
       ) : U.key === "fullscreen.details.max_negative_prompt_lines" ? Y(
         s["fullscreen.details.max_negative_prompt_lines"].toString()
@@ -7980,246 +7980,270 @@ const od = v.createContext(void 0), Dm = ({
   return /* @__PURE__ */ i.jsx("div", { className: "meld-settings-list", children: o ? c() : u() });
 }, Bm = ({
   localSettings: e,
-  handleToggle: t,
-  handleNumberChange: n,
-  handleNumberBlur: r,
-  setLocalSettings: l,
-  handleViewTrash: s,
+  setLocalSettings: t,
+  handleToggle: n,
+  handleNumberChange: r,
+  handleNumberBlur: l,
+  thumbnailSizeInput: s,
   initialLoadCountInput: a,
-  maxLoadCountInput: o,
-  lineageMaxDepthInput: u,
-  trashRetentionDaysInput: c,
-  autoLinkPhashThresholdInput: h,
-  suggestPhashThresholdInput: g
-}) => /* @__PURE__ */ i.jsxs(i.Fragment, { children: [
-  /* @__PURE__ */ i.jsxs("div", { className: "meld-settings-list", children: [
-    /* @__PURE__ */ i.jsx(
-      R,
-      {
-        label: "Gallery View Mode",
-        description: "Choose between standard view with details or grid only view.",
-        children: /* @__PURE__ */ i.jsxs(
-          "select",
-          {
-            className: "meld-select",
-            value: e["gallery.view_mode"],
-            onChange: (m) => l((y) => ({
-              ...y,
-              "gallery.view_mode": m.target.value
-            })),
-            children: [
-              /* @__PURE__ */ i.jsx("option", { value: "grid_details", children: "Details View" }),
-              /* @__PURE__ */ i.jsx("option", { value: "grid_only", children: "Grid Only View" })
-            ]
-          }
-        )
-      }
-    ),
-    /* @__PURE__ */ i.jsx(
-      R,
-      {
-        label: "Initial Load Count",
-        description: "Number of images to load and display immediately (10-1000).",
-        children: /* @__PURE__ */ i.jsx(
-          "input",
-          {
-            type: "number",
-            className: "meld-number-input",
-            value: a,
-            min: 10,
-            max: 1e3,
-            onChange: (m) => n(
-              "gallery.initial_load_count",
-              m.target.value,
-              10,
-              1e3
-            ),
-            onBlur: () => r({ key: "gallery.initial_load_count" })
-          }
-        )
-      }
-    ),
-    /* @__PURE__ */ i.jsx(
-      R,
-      {
-        label: "Maximum Load Count",
-        description: "Maximum number of images to load in the background (10-1000000).",
-        children: /* @__PURE__ */ i.jsx(
-          "input",
-          {
-            type: "number",
-            className: "meld-number-input",
-            value: o,
-            min: 10,
-            max: 1e6,
-            onChange: (m) => n(
-              "gallery.max_load_count",
-              m.target.value,
-              10,
-              1e6
-            ),
-            onBlur: () => r({ key: "gallery.max_load_count" })
-          }
-        )
-      }
-    ),
-    /* @__PURE__ */ i.jsx(
-      R,
-      {
-        label: "Hide Parent Images",
-        description: "Hide images that have been used as a basis for other images (sources).",
-        children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
-          /* @__PURE__ */ i.jsx(
-            "input",
-            {
-              type: "checkbox",
-              checked: e["gallery.hide_parent_images"],
-              onChange: () => t(
-                "gallery.hide_parent_images",
-                e["gallery.hide_parent_images"]
-              )
-            }
-          ),
-          /* @__PURE__ */ i.jsx("span", { className: "meld-switch__slider" })
-        ] })
-      }
-    ),
-    /* @__PURE__ */ i.jsx(
-      R,
-      {
-        label: "Source Matching Strategy",
-        description: "Algorithm used to identify the source image.",
-        children: /* @__PURE__ */ i.jsxs(
-          "select",
-          {
-            className: "meld-select",
-            value: e["gallery.matching_strategy"],
-            onChange: (m) => l((y) => ({
-              ...y,
-              "gallery.matching_strategy": m.target.value
-            })),
-            children: [
-              /* @__PURE__ */ i.jsx("option", { value: "phash_created", children: "pHash & Created Time" }),
-              /* @__PURE__ */ i.jsx("option", { value: "filename_phash", children: "Filename -> pHash" }),
-              /* @__PURE__ */ i.jsx("option", { value: "phash_only", children: "pHash Only" })
-            ]
-          }
-        )
-      }
-    ),
-    /* @__PURE__ */ i.jsx(
-      R,
-      {
-        label: "Max Lineage Depth",
-        description: "Maximum number of ancestor levels to fetch and display (1-10).",
-        children: /* @__PURE__ */ i.jsx(
-          "input",
-          {
-            type: "number",
-            className: "meld-number-input",
-            value: u,
-            min: 1,
-            max: 10,
-            onChange: (m) => n(
-              "gallery.lineage_max_depth",
-              m.target.value,
-              1,
-              10
-            ),
-            onBlur: () => r({ key: "gallery.lineage_max_depth" })
-          }
-        )
-      }
-    ),
-    /* @__PURE__ */ i.jsx(
-      R,
-      {
-        label: "Trash Retention Period (Days)",
-        description: "How many days to keep deleted items in trash (0-365).",
-        children: /* @__PURE__ */ i.jsx(
-          "input",
-          {
-            type: "number",
-            className: "meld-number-input",
-            value: c,
-            min: 0,
-            max: 365,
-            onChange: (m) => n(
-              "gallery.trash_retention_days",
-              m.target.value,
-              0,
-              365
-            ),
-            onBlur: () => r({ key: "gallery.trash_retention_days" })
-          }
-        )
-      }
-    ),
-    /* @__PURE__ */ i.jsx(
-      R,
-      {
-        label: "Auto Linking Threshold (%)",
-        description: "Minimum similarity percentage for automatic parent linking during creation or scan (0-100). Default: 92%. Should be strict to avoid false links.",
-        children: /* @__PURE__ */ i.jsx(
-          "input",
-          {
-            type: "number",
-            className: "meld-number-input",
-            value: h,
-            min: 0,
-            max: 100,
-            onChange: (m) => n(
-              "gallery.auto_link_phash_threshold",
-              m.target.value,
-              0,
-              100
-            ),
-            onBlur: () => r({ key: "gallery.auto_link_phash_threshold" })
-          }
-        )
-      }
-    ),
-    /* @__PURE__ */ i.jsx(
-      R,
-      {
-        label: "Parent Suggestion Threshold (%)",
-        description: "Minimum similarity percentage for showing candidates in manual 'Add Source' dialog (0-100). Default: 82%. Permissive enough to find ancestors.",
-        children: /* @__PURE__ */ i.jsx(
-          "input",
-          {
-            type: "number",
-            className: "meld-number-input",
-            value: g,
-            min: 0,
-            max: 100,
-            onChange: (m) => n(
-              "gallery.suggest_phash_threshold",
-              m.target.value,
-              0,
-              100
-            ),
-            onBlur: () => r({ key: "gallery.suggest_phash_threshold" })
-          }
-        )
-      }
-    )
-  ] }),
-  /* @__PURE__ */ i.jsx("div", { className: "meld-settings-extra", children: /* @__PURE__ */ i.jsx(
+  maxLoadCountInput: o
+}) => /* @__PURE__ */ i.jsxs("div", { className: "meld-settings-list", children: [
+  /* @__PURE__ */ i.jsx(
     R,
     {
-      label: "Trash Management",
-      description: "View and manage items currently in the trash bin.",
+      label: "Initial Load Count",
+      description: "Number of images to load and display immediately (10-1000).",
       children: /* @__PURE__ */ i.jsx(
-        "button",
+        "input",
         {
-          type: "button",
-          className: "meld-button meld-button--secondary",
-          onClick: s,
-          children: "View Trash"
+          type: "number",
+          className: "meld-number-input",
+          value: a,
+          min: 10,
+          max: 1e3,
+          onChange: (u) => r(
+            "gallery.initial_load_count",
+            u.target.value,
+            10,
+            1e3
+          ),
+          onBlur: () => l({ key: "gallery.initial_load_count" })
         }
       )
     }
-  ) })
+  ),
+  /* @__PURE__ */ i.jsx(
+    R,
+    {
+      label: "Maximum Load Count",
+      description: "Maximum number of images to load in the background (10-1000000).",
+      children: /* @__PURE__ */ i.jsx(
+        "input",
+        {
+          type: "number",
+          className: "meld-number-input",
+          value: o,
+          min: 10,
+          max: 1e6,
+          onChange: (u) => r(
+            "gallery.max_load_count",
+            u.target.value,
+            10,
+            1e6
+          ),
+          onBlur: () => l({ key: "gallery.max_load_count" })
+        }
+      )
+    }
+  ),
+  /* @__PURE__ */ i.jsx(
+    R,
+    {
+      label: "Hide Parent Images",
+      description: "Hide images that have been used as a basis for other images (sources).",
+      children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
+        /* @__PURE__ */ i.jsx(
+          "input",
+          {
+            type: "checkbox",
+            checked: e["gallery.hide_parent_images"],
+            onChange: () => n(
+              "gallery.hide_parent_images",
+              e["gallery.hide_parent_images"]
+            )
+          }
+        ),
+        /* @__PURE__ */ i.jsx("span", { className: "meld-switch__slider" })
+      ] })
+    }
+  ),
+  /* @__PURE__ */ i.jsx(
+    R,
+    {
+      label: "Thumbnail Size",
+      description: "Size of the image thumbnails in the sidebar (50-500px).",
+      children: /* @__PURE__ */ i.jsx(
+        "input",
+        {
+          type: "number",
+          className: "meld-number-input",
+          value: s,
+          min: 50,
+          max: 500,
+          onChange: (u) => r(
+            "sidebar.thumbnail_size",
+            u.target.value,
+            50,
+            500
+          ),
+          onBlur: () => l({ key: "sidebar.thumbnail_size" })
+        }
+      )
+    }
+  ),
+  /* @__PURE__ */ i.jsx(
+    R,
+    {
+      label: "Show Filename/Path",
+      description: "Choose how to display the filename or path on the card.",
+      children: /* @__PURE__ */ i.jsxs(
+        "select",
+        {
+          className: "meld-select",
+          value: e["sidebar.show_filename"],
+          onChange: (u) => t((c) => ({
+            ...c,
+            "sidebar.show_filename": u.target.value
+          })),
+          children: [
+            /* @__PURE__ */ i.jsx("option", { value: "filename", children: "Filename" }),
+            /* @__PURE__ */ i.jsx("option", { value: "filepath", children: "Filepath" }),
+            /* @__PURE__ */ i.jsx("option", { value: "none", children: "None" })
+          ]
+        }
+      )
+    }
+  ),
+  /* @__PURE__ */ i.jsx(
+    R,
+    {
+      label: "Show Dimensions",
+      description: "Display the image dimensions (width x height) on the card.",
+      children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
+        /* @__PURE__ */ i.jsx(
+          "input",
+          {
+            type: "checkbox",
+            checked: e["sidebar.show_dimensions"],
+            onChange: () => n(
+              "sidebar.show_dimensions",
+              e["sidebar.show_dimensions"]
+            )
+          }
+        ),
+        /* @__PURE__ */ i.jsx("span", { className: "meld-switch__slider" })
+      ] })
+    }
+  ),
+  /* @__PURE__ */ i.jsx(
+    R,
+    {
+      label: "Show Created At",
+      description: "Display the image creation date and time on the card.",
+      children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
+        /* @__PURE__ */ i.jsx(
+          "input",
+          {
+            type: "checkbox",
+            checked: e["sidebar.show_created_at"],
+            onChange: () => n(
+              "sidebar.show_created_at",
+              e["sidebar.show_created_at"]
+            )
+          }
+        ),
+        /* @__PURE__ */ i.jsx("span", { className: "meld-switch__slider" })
+      ] })
+    }
+  ),
+  /* @__PURE__ */ i.jsx(
+    R,
+    {
+      label: "Show Source Info",
+      description: "Display source image information and lineage link on image cards.",
+      children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
+        /* @__PURE__ */ i.jsx(
+          "input",
+          {
+            type: "checkbox",
+            checked: e["gallery.show_parent_image"],
+            onChange: () => n(
+              "gallery.show_parent_image",
+              e["gallery.show_parent_image"]
+            )
+          }
+        ),
+        /* @__PURE__ */ i.jsx("span", { className: "meld-switch__slider" })
+      ] })
+    }
+  ),
+  /* @__PURE__ */ i.jsx(
+    R,
+    {
+      label: "Show Model",
+      description: "Display the model name on the card.",
+      children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
+        /* @__PURE__ */ i.jsx(
+          "input",
+          {
+            type: "checkbox",
+            checked: e["sidebar.show_model_name"],
+            onChange: () => n(
+              "sidebar.show_model_name",
+              e["sidebar.show_model_name"]
+            )
+          }
+        ),
+        /* @__PURE__ */ i.jsx("span", { className: "meld-switch__slider" })
+      ] })
+    }
+  ),
+  /* @__PURE__ */ i.jsx(
+    R,
+    {
+      label: "Show Positive",
+      description: "Display the positive prompt on the card.",
+      children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
+        /* @__PURE__ */ i.jsx(
+          "input",
+          {
+            type: "checkbox",
+            checked: e["sidebar.show_positive_prompt"],
+            onChange: () => n(
+              "sidebar.show_positive_prompt",
+              e["sidebar.show_positive_prompt"]
+            )
+          }
+        ),
+        /* @__PURE__ */ i.jsx("span", { className: "meld-switch__slider" })
+      ] })
+    }
+  ),
+  /* @__PURE__ */ i.jsx(
+    R,
+    {
+      label: "Show Negative",
+      description: "Display the negative prompt on the card.",
+      children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
+        /* @__PURE__ */ i.jsx(
+          "input",
+          {
+            type: "checkbox",
+            checked: e["sidebar.show_negative_prompt"],
+            onChange: () => n(
+              "sidebar.show_negative_prompt",
+              e["sidebar.show_negative_prompt"]
+            )
+          }
+        ),
+        /* @__PURE__ */ i.jsx("span", { className: "meld-switch__slider" })
+      ] })
+    }
+  ),
+  /* @__PURE__ */ i.jsx(R, { label: "Show Tags", description: "Display tags on the card.", children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
+    /* @__PURE__ */ i.jsx(
+      "input",
+      {
+        type: "checkbox",
+        checked: e["sidebar.show_tags"],
+        onChange: () => n(
+          "sidebar.show_tags",
+          e["sidebar.show_tags"]
+        )
+      }
+    ),
+    /* @__PURE__ */ i.jsx("span", { className: "meld-switch__slider" })
+  ] }) })
 ] }), Hm = ({
   localSettings: e,
   handleToggle: t
@@ -8398,199 +8422,152 @@ const od = v.createContext(void 0), Dm = ({
   ] });
 }, Km = ({
   localSettings: e,
-  setLocalSettings: t,
-  handleToggle: n,
-  handleNumberChange: r,
-  handleNumberBlur: l,
-  thumbnailSizeInput: s
-}) => /* @__PURE__ */ i.jsxs("div", { className: "meld-settings-list", children: [
-  /* @__PURE__ */ i.jsx(
-    R,
-    {
-      label: "Thumbnail Size",
-      description: "Size of the image thumbnails in the sidebar (50-500px).",
-      children: /* @__PURE__ */ i.jsx(
-        "input",
-        {
-          type: "number",
-          className: "meld-number-input",
-          value: s,
-          min: 50,
-          max: 500,
-          onChange: (a) => r(
-            "sidebar.thumbnail_size",
-            a.target.value,
-            50,
-            500
-          ),
-          onBlur: () => l({ key: "sidebar.thumbnail_size" })
-        }
-      )
-    }
-  ),
-  /* @__PURE__ */ i.jsx(
-    R,
-    {
-      label: "Show Filename/Path",
-      description: "Choose how to display the filename or path on the card.",
-      children: /* @__PURE__ */ i.jsxs(
-        "select",
-        {
-          className: "meld-select",
-          value: e["sidebar.show_filename"],
-          onChange: (a) => t((o) => ({
-            ...o,
-            "sidebar.show_filename": a.target.value
-          })),
-          children: [
-            /* @__PURE__ */ i.jsx("option", { value: "filename", children: "Filename" }),
-            /* @__PURE__ */ i.jsx("option", { value: "filepath", children: "Filepath" }),
-            /* @__PURE__ */ i.jsx("option", { value: "none", children: "None" })
-          ]
-        }
-      )
-    }
-  ),
-  /* @__PURE__ */ i.jsx(
-    R,
-    {
-      label: "Show Dimensions",
-      description: "Display the image dimensions (width x height) on the card.",
-      children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
-        /* @__PURE__ */ i.jsx(
-          "input",
-          {
-            type: "checkbox",
-            checked: e["sidebar.show_dimensions"],
-            onChange: () => n(
-              "sidebar.show_dimensions",
-              e["sidebar.show_dimensions"]
-            )
-          }
-        ),
-        /* @__PURE__ */ i.jsx("span", { className: "meld-switch__slider" })
-      ] })
-    }
-  ),
-  /* @__PURE__ */ i.jsx(
-    R,
-    {
-      label: "Show Created At",
-      description: "Display the image creation date and time on the card.",
-      children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
-        /* @__PURE__ */ i.jsx(
-          "input",
-          {
-            type: "checkbox",
-            checked: e["sidebar.show_created_at"],
-            onChange: () => n(
-              "sidebar.show_created_at",
-              e["sidebar.show_created_at"]
-            )
-          }
-        ),
-        /* @__PURE__ */ i.jsx("span", { className: "meld-switch__slider" })
-      ] })
-    }
-  ),
-  /* @__PURE__ */ i.jsx(
-    R,
-    {
-      label: "Show Source Info",
-      description: "Display source image information and lineage link on image cards.",
-      children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
-        /* @__PURE__ */ i.jsx(
-          "input",
-          {
-            type: "checkbox",
-            checked: e["gallery.show_parent_image"],
-            onChange: () => n(
-              "gallery.show_parent_image",
-              e["gallery.show_parent_image"]
-            )
-          }
-        ),
-        /* @__PURE__ */ i.jsx("span", { className: "meld-switch__slider" })
-      ] })
-    }
-  ),
-  /* @__PURE__ */ i.jsx(
-    R,
-    {
-      label: "Show Model",
-      description: "Display the model name on the card.",
-      children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
-        /* @__PURE__ */ i.jsx(
-          "input",
-          {
-            type: "checkbox",
-            checked: e["sidebar.show_model_name"],
-            onChange: () => n(
-              "sidebar.show_model_name",
-              e["sidebar.show_model_name"]
-            )
-          }
-        ),
-        /* @__PURE__ */ i.jsx("span", { className: "meld-switch__slider" })
-      ] })
-    }
-  ),
-  /* @__PURE__ */ i.jsx(
-    R,
-    {
-      label: "Show Positive",
-      description: "Display the positive prompt on the card.",
-      children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
-        /* @__PURE__ */ i.jsx(
-          "input",
-          {
-            type: "checkbox",
-            checked: e["sidebar.show_positive_prompt"],
-            onChange: () => n(
-              "sidebar.show_positive_prompt",
-              e["sidebar.show_positive_prompt"]
-            )
-          }
-        ),
-        /* @__PURE__ */ i.jsx("span", { className: "meld-switch__slider" })
-      ] })
-    }
-  ),
-  /* @__PURE__ */ i.jsx(
-    R,
-    {
-      label: "Show Negative",
-      description: "Display the negative prompt on the card.",
-      children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
-        /* @__PURE__ */ i.jsx(
-          "input",
-          {
-            type: "checkbox",
-            checked: e["sidebar.show_negative_prompt"],
-            onChange: () => n(
-              "sidebar.show_negative_prompt",
-              e["sidebar.show_negative_prompt"]
-            )
-          }
-        ),
-        /* @__PURE__ */ i.jsx("span", { className: "meld-switch__slider" })
-      ] })
-    }
-  ),
-  /* @__PURE__ */ i.jsx(R, { label: "Show Tags", description: "Display tags on the card.", children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
+  handleNumberChange: t,
+  handleNumberBlur: n,
+  setLocalSettings: r,
+  handleViewTrash: l,
+  lineageMaxDepthInput: s,
+  trashRetentionDaysInput: a,
+  autoLinkPhashThresholdInput: o,
+  suggestPhashThresholdInput: u
+}) => /* @__PURE__ */ i.jsxs(i.Fragment, { children: [
+  /* @__PURE__ */ i.jsxs("div", { className: "meld-settings-list", children: [
     /* @__PURE__ */ i.jsx(
-      "input",
+      R,
       {
-        type: "checkbox",
-        checked: e["sidebar.show_tags"],
-        onChange: () => n(
-          "sidebar.show_tags",
-          e["sidebar.show_tags"]
+        label: "Source Matching Strategy",
+        description: "Algorithm used to identify the source image.",
+        children: /* @__PURE__ */ i.jsxs(
+          "select",
+          {
+            className: "meld-select",
+            value: e["gallery.matching_strategy"],
+            onChange: (c) => r((h) => ({
+              ...h,
+              "gallery.matching_strategy": c.target.value
+            })),
+            children: [
+              /* @__PURE__ */ i.jsx("option", { value: "phash_created", children: "pHash & Created Time" }),
+              /* @__PURE__ */ i.jsx("option", { value: "filename_phash", children: "Filename -> pHash" }),
+              /* @__PURE__ */ i.jsx("option", { value: "phash_only", children: "pHash Only" })
+            ]
+          }
         )
       }
     ),
-    /* @__PURE__ */ i.jsx("span", { className: "meld-switch__slider" })
-  ] }) })
+    /* @__PURE__ */ i.jsx(
+      R,
+      {
+        label: "Max Lineage Depth",
+        description: "Maximum number of ancestor levels to fetch and display (1-10).",
+        children: /* @__PURE__ */ i.jsx(
+          "input",
+          {
+            type: "number",
+            className: "meld-number-input",
+            value: s,
+            min: 1,
+            max: 10,
+            onChange: (c) => t(
+              "gallery.lineage_max_depth",
+              c.target.value,
+              1,
+              10
+            ),
+            onBlur: () => n({ key: "gallery.lineage_max_depth" })
+          }
+        )
+      }
+    ),
+    /* @__PURE__ */ i.jsx(
+      R,
+      {
+        label: "Trash Retention Period (Days)",
+        description: "How many days to keep deleted items in trash (0-365).",
+        children: /* @__PURE__ */ i.jsx(
+          "input",
+          {
+            type: "number",
+            className: "meld-number-input",
+            value: a,
+            min: 0,
+            max: 365,
+            onChange: (c) => t(
+              "gallery.trash_retention_days",
+              c.target.value,
+              0,
+              365
+            ),
+            onBlur: () => n({ key: "gallery.trash_retention_days" })
+          }
+        )
+      }
+    ),
+    /* @__PURE__ */ i.jsx(
+      R,
+      {
+        label: "Auto Linking Threshold (%)",
+        description: "Minimum similarity percentage for automatic parent linking during creation or scan (0-100). Default: 92%. Should be strict to avoid false links.",
+        children: /* @__PURE__ */ i.jsx(
+          "input",
+          {
+            type: "number",
+            className: "meld-number-input",
+            value: o,
+            min: 0,
+            max: 100,
+            onChange: (c) => t(
+              "gallery.auto_link_phash_threshold",
+              c.target.value,
+              0,
+              100
+            ),
+            onBlur: () => n({ key: "gallery.auto_link_phash_threshold" })
+          }
+        )
+      }
+    ),
+    /* @__PURE__ */ i.jsx(
+      R,
+      {
+        label: "Parent Suggestion Threshold (%)",
+        description: "Minimum similarity percentage for showing candidates in manual 'Add Source' dialog (0-100). Default: 82%. Permissive enough to find ancestors.",
+        children: /* @__PURE__ */ i.jsx(
+          "input",
+          {
+            type: "number",
+            className: "meld-number-input",
+            value: u,
+            min: 0,
+            max: 100,
+            onChange: (c) => t(
+              "gallery.suggest_phash_threshold",
+              c.target.value,
+              0,
+              100
+            ),
+            onBlur: () => n({ key: "gallery.suggest_phash_threshold" })
+          }
+        )
+      }
+    )
+  ] }),
+  /* @__PURE__ */ i.jsx("div", { className: "meld-settings-extra", children: /* @__PURE__ */ i.jsx(
+    R,
+    {
+      label: "Trash Management",
+      description: "View and manage items currently in the trash bin.",
+      children: /* @__PURE__ */ i.jsx(
+        "button",
+        {
+          type: "button",
+          className: "meld-button meld-button--secondary",
+          onClick: l,
+          children: "View Trash"
+        }
+      )
+    }
+  ) })
 ] }), Ro = ({
   localSettings: e,
   setLocalSettings: t,
@@ -9007,44 +8984,43 @@ const od = v.createContext(void 0), Dm = ({
     fullscreenMaxNegativePromptLinesInput: _,
     thumbnailSizeInput: E
   } = Qm(), M = [
-    { id: "General", label: "General" },
-    { id: "Sidebar", label: "Sidebar" },
+    { id: "Gallery", label: "Gallery" },
     { id: "Search", label: "Search" },
     { id: "View", label: "View" },
     { id: "View Details", label: "View Details" },
     { id: "Full Screen", label: "Full Screen" },
     { id: "Full Screen Detail", label: "Full Screen Detail" },
-    { id: "Shortcuts", label: "Shortcuts" }
+    { id: "Shortcuts", label: "Shortcuts" },
+    { id: "System", label: "System" }
   ], D = () => {
     switch (e) {
-      case "General":
+      case "System":
         return /* @__PURE__ */ i.jsx(
-          Bm,
+          Km,
           {
             localSettings: n,
-            handleToggle: o,
             handleNumberChange: u,
             handleNumberBlur: c,
             setLocalSettings: r,
             handleViewTrash: g,
-            initialLoadCountInput: y,
-            maxLoadCountInput: w,
             lineageMaxDepthInput: x,
             trashRetentionDaysInput: f,
             autoLinkPhashThresholdInput: d,
             suggestPhashThresholdInput: p
           }
         );
-      case "Sidebar":
+      case "Gallery":
         return /* @__PURE__ */ i.jsx(
-          Km,
+          Bm,
           {
             localSettings: n,
             setLocalSettings: r,
             handleToggle: o,
             handleNumberChange: u,
             handleNumberBlur: c,
-            thumbnailSizeInput: E
+            thumbnailSizeInput: E,
+            initialLoadCountInput: y,
+            maxLoadCountInput: w
           }
         );
       case "Search":
@@ -9170,7 +9146,7 @@ const od = v.createContext(void 0), Dm = ({
   initialTags: t,
   onClose: n
 }) => {
-  const { dispatch: r, refreshImages: l } = Pe(), [s, a] = v.useState([]), [o, u] = v.useState(t), [c, h] = v.useState(""), [g, m] = v.useState(!0), [y, w] = v.useState(!1), x = v.useRef(null), k = e.length > 1, f = v.useCallback(async () => {
+  const { dispatch: r, refreshImages: l } = be(), [s, a] = v.useState([]), [o, u] = v.useState(t), [c, h] = v.useState(""), [g, m] = v.useState(!0), [y, w] = v.useState(!1), x = v.useRef(null), k = e.length > 1, f = v.useCallback(async () => {
     m(!0);
     try {
       const _ = await xa();
@@ -9345,7 +9321,7 @@ const od = v.createContext(void 0), Dm = ({
   isPermanent: n = !1,
   onSuccess: r
 }) => {
-  const { state: l, dispatch: s } = Pe(), a = v.useRef(!0);
+  const { state: l, dispatch: s } = be(), a = v.useRef(!0);
   v.useEffect(() => () => {
     a.current = !1;
   }, []);
@@ -9577,7 +9553,7 @@ const od = v.createContext(void 0), Dm = ({
 }, pd = ({
   imageId: e
 }) => {
-  const { state: t, dispatch: n, refreshImages: r } = Pe(), [l, s] = v.useState([]), [a, o] = v.useState(!0), [u, c] = v.useState(!1), h = t.images.find((d) => d.id === e), g = v.useCallback(async () => {
+  const { state: t, dispatch: n, refreshImages: r } = be(), [l, s] = v.useState([]), [a, o] = v.useState(!0), [u, c] = v.useState(!1), h = t.images.find((d) => d.id === e), g = v.useCallback(async () => {
     o(!0);
     try {
       const d = t.settings["gallery.suggest_phash_threshold"], p = await Sm(e, d);
@@ -9598,14 +9574,14 @@ const od = v.createContext(void 0), Dm = ({
     }
     if (!(!h || d === h.parent_id) && !(h.parent_id && !confirm("Are you sure you want to change the source image?")))
       try {
-        await Po(e, d), await sd(e), await r(), n({ type: "CLOSE_MODAL" });
+        await bo(e, d), await sd(e), await r(), n({ type: "CLOSE_MODAL" });
       } catch (p) {
         console.error("Failed to link parent:", p);
       }
   }, y = async () => {
     if (confirm("Are you sure you want to remove the source image relationship?"))
       try {
-        await Po(e, null), await r(), n({ type: "CLOSE_MODAL" });
+        await bo(e, null), await r(), n({ type: "CLOSE_MODAL" });
       } catch (d) {
         console.error("Failed to remove source:", d), alert("Failed to remove source image.");
       }
@@ -9929,7 +9905,7 @@ const od = v.createContext(void 0), Dm = ({
     document.fullscreenElement || document.body
   );
 }, Ym = () => {
-  const { state: e, dispatch: t } = Pe();
+  const { state: e, dispatch: t } = be();
   return e.viewerImageId !== null ? null : /* @__PURE__ */ i.jsxs(i.Fragment, { children: [
     e.activeModal.type === "parent_selection" && ze.createPortal(
       /* @__PURE__ */ i.jsx(pd, { imageId: e.activeModal.imageId }),
@@ -10090,7 +10066,7 @@ const od = v.createContext(void 0), Dm = ({
   );
   return { getParentChain: n };
 }, gd = (e) => {
-  const { state: t, dispatch: n, fetchFullImageDetails: r } = Pe(), l = t.selectedIds.has(e.id), s = t.settings["gallery.view_mode"] || "grid_details", {
+  const { state: t, dispatch: n, fetchFullImageDetails: r } = be(), l = t.selectedIds.has(e.id), s = t.settings["gallery.view_mode"] || "grid_details", {
     handleRestoreWorkflow: a,
     handleAddUnifiedLoader: o,
     handleEditSource: u,
@@ -10185,7 +10161,7 @@ const od = v.createContext(void 0), Dm = ({
         o.stopPropagation(), r();
       },
       title: "Add Unified Loader",
-      children: /* @__PURE__ */ i.jsx(bo, { size: 16 })
+      children: /* @__PURE__ */ i.jsx(Po, { size: 16 })
     }
   ),
   e && /* @__PURE__ */ i.jsxs("div", { className: "meld-image-card__menu", children: [
@@ -10197,7 +10173,7 @@ const od = v.createContext(void 0), Dm = ({
           o.stopPropagation(), r(), t(!1);
         },
         children: [
-          /* @__PURE__ */ i.jsx(bo, { size: 14 }),
+          /* @__PURE__ */ i.jsx(Po, { size: 14 }),
           /* @__PURE__ */ i.jsx("span", { children: "Add Unified Loader" })
         ]
       }
@@ -10574,7 +10550,7 @@ const vd = dl.memo(
 );
 vd.displayName = "SimpleImageCard";
 const Jm = ({ image: e }) => {
-  const { state: t } = Pe();
+  const { state: t } = be();
   return (t.settings["gallery.view_mode"] || "grid_details") === "grid_only" ? /* @__PURE__ */ i.jsx(vd, { image: e }) : /* @__PURE__ */ i.jsx(yd, { image: e });
 }, qm = ({
   children: e,
@@ -10608,7 +10584,7 @@ const Jm = ({ image: e }) => {
     }
   );
 }, eh = () => {
-  const { state: e, dispatch: t } = Pe(), { scanStatus: n } = e;
+  const { state: e, dispatch: t } = be(), { scanStatus: n } = e;
   if (!n.isRunning && !n.isFinished)
     return null;
   const r = async () => {
@@ -10672,7 +10648,7 @@ const Jm = ({ image: e }) => {
     )
   ] }) });
 }, th = () => {
-  const { state: e, refreshFavorites: t } = Pe(), [n, r] = v.useState(!1), [l, s] = v.useState(null), [a, o] = v.useState(null), [u, c] = v.useState(""), [h, g] = v.useState("");
+  const { state: e, refreshFavorites: t } = be(), [n, r] = v.useState(!1), [l, s] = v.useState(null), [a, o] = v.useState(null), [u, c] = v.useState(""), [h, g] = v.useState("");
   v.useEffect(() => {
     if (l) {
       const k = setTimeout(() => s(null), 3e3);
@@ -10755,7 +10731,7 @@ You can select favorites when the search query is empty.`
     setToastMessage: s
   };
 }, nh = () => {
-  const { state: e, dispatch: t } = Pe(), [n, r] = v.useState(e.searchQuery), [l, s] = v.useState([]), [a, o] = v.useState(!1), [u, c] = v.useState([]), [h, g] = v.useState(-1), m = v.useRef(null), y = v.useRef(e.searchQuery), w = n !== y.current;
+  const { state: e, dispatch: t } = be(), [n, r] = v.useState(e.searchQuery), [l, s] = v.useState([]), [a, o] = v.useState(!1), [u, c] = v.useState([]), [h, g] = v.useState(-1), m = v.useRef(null), y = v.useRef(e.searchQuery), w = n !== y.current;
   v.useEffect(() => {
     if (!e.settings["search.quick_suggestions"]) {
       c([]);
@@ -10794,7 +10770,7 @@ You can select favorites when the search query is empty.`
           /^[-!]?(tag|pos|neg|model|date|after|before|has_source|has_derivatives|sort):(.*)$/i
         );
         if (D) {
-          const S = D[1].toLowerCase(), b = D[2], W = await Cm(b, S);
+          const S = D[1].toLowerCase(), P = D[2], W = await Cm(P, S);
           s(W), o(W.length > 0), g(-1);
         } else
           s([]), o(!1);
@@ -10831,8 +10807,8 @@ You can select favorites when the search query is empty.`
         "before",
         "has_source",
         "has_derivatives"
-      ].includes(_) ? E : `"${E}"`, b = `${_}:${S}`;
-      r(b), x(b);
+      ].includes(_) ? E : `"${E}"`, P = `${_}:${S}`;
+      r(P), x(P);
     },
     [x]
   ), j = v.useCallback(
@@ -11247,7 +11223,7 @@ You can select favorites when the search query is empty.`
     x()
   ] });
 }, sh = () => {
-  const { state: e } = Pe(), {
+  const { state: e } = be(), {
     inputValue: t,
     setInputValue: n,
     suggestions: r,
@@ -11276,7 +11252,7 @@ You can select favorites when the search query is empty.`
     setEditFavoriteQuery: M,
     handleDeleteFavorite: D,
     handleEditFavorite: S,
-    handleSaveEditFavorite: b,
+    handleSaveEditFavorite: P,
     handleSaveFavorite: W
   } = th(), Y = v.useRef(null);
   return v.useEffect(() => {
@@ -11573,7 +11549,7 @@ You can select favorites when the search query is empty.`
                                       outline: "none"
                                     },
                                     onKeyDown: (F) => {
-                                      F.key === "Enter" && b(), F.key === "Escape" && N(null);
+                                      F.key === "Enter" && P(), F.key === "Escape" && N(null);
                                     }
                                   }
                                 )
@@ -11621,7 +11597,7 @@ You can select favorites when the search query is empty.`
                                       resize: "vertical"
                                     },
                                     onKeyDown: (F) => {
-                                      F.key === "Enter" && !F.shiftKey && (F.preventDefault(), b()), F.key === "Escape" && N(null);
+                                      F.key === "Enter" && !F.shiftKey && (F.preventDefault(), P()), F.key === "Escape" && N(null);
                                     }
                                   }
                                 )
@@ -11646,7 +11622,7 @@ You can select favorites when the search query is empty.`
                         {
                           type: "button",
                           className: "meld-btn meld-btn-primary",
-                          onClick: b,
+                          onClick: P,
                           disabled: d || !L.trim() || !E.trim(),
                           children: d ? "Saving..." : "Save Changes"
                         }
@@ -11684,29 +11660,29 @@ You can select favorites when the search query is empty.`
   }, [m]);
   const j = async (S) => {
     S.preventDefault();
-    const b = u.trim();
-    if (!(!b || h)) {
-      if (b.toLowerCase() === it) {
+    const P = u.trim();
+    if (!(!P || h)) {
+      if (P.toLowerCase() === it) {
         alert(
           `Tag name '${it}' is reserved for search and cannot be used.`
         );
         return;
       }
-      if (n.some((W) => W.name.toLowerCase() === b.toLowerCase())) {
-        alert(`Tag "${b}" already exists.`);
+      if (n.some((W) => W.name.toLowerCase() === P.toLowerCase())) {
+        alert(`Tag "${P}" already exists.`);
         return;
       }
       g(!0);
       try {
-        await zm(b), c(""), await p();
+        await zm(P), c(""), await p();
       } catch (W) {
         console.error("Failed to add tag:", W);
       } finally {
         g(!1);
       }
     }
-  }, N = async (S, b) => {
-    if (confirm(`Are you sure you want to delete tag "${b}"?`))
+  }, N = async (S, P) => {
+    if (confirm(`Are you sure you want to delete tag "${P}"?`))
       try {
         await Rm(S), await p();
       } catch (W) {
@@ -11718,28 +11694,28 @@ You can select favorites when the search query is empty.`
     y(null), x("");
   }, E = async (S) => {
     S.preventDefault();
-    const b = w.trim();
-    if (!b || m === null || k) return;
-    if (b.toLowerCase() === it) {
+    const P = w.trim();
+    if (!P || m === null || k) return;
+    if (P.toLowerCase() === it) {
       alert(
         `Tag name '${it}' is reserved for search and cannot be used.`
       );
       return;
     }
     const W = n.find((Y) => Y.id === m);
-    if (W && W.name === b) {
+    if (W && W.name === P) {
       _();
       return;
     }
     if (n.some(
-      (Y) => Y.id !== m && Y.name.toLowerCase() === b.toLowerCase()
+      (Y) => Y.id !== m && Y.name.toLowerCase() === P.toLowerCase()
     )) {
-      alert(`Tag "${b}" already exists.`);
+      alert(`Tag "${P}" already exists.`);
       return;
     }
     f(!0);
     try {
-      await Am(m, b), _(), await p();
+      await Am(m, P), _(), await p();
     } catch (Y) {
       console.error("Failed to rename tag:", Y), alert(Y instanceof Error ? Y.message : "Failed to rename tag");
     } finally {
@@ -11819,8 +11795,8 @@ You can select favorites when the search query is empty.`
                 ref: d,
                 className: "meld-tag-rename-input",
                 value: w,
-                onChange: (b) => x(b.target.value),
-                onKeyDown: (b) => b.key === "Escape" && _()
+                onChange: (P) => x(P.target.value),
+                onKeyDown: (P) => P.key === "Escape" && _()
               }
             ),
             /* @__PURE__ */ i.jsx(
@@ -11891,7 +11867,7 @@ You can select favorites when the search query is empty.`
 }) => {
   const { viewerImageId: l, images: s, viewerMode: a, lineageImages: o, settings: u } = e, { handleEditTags: c, handleRestore: h } = md(e, t), { getParentChain: g } = hd(s, u), [m, y] = v.useState(!1), [w, x] = v.useState(
     u["viewer.show_details_by_default"]
-  ), [k, f] = v.useState(null), d = k ?? u["viewer.show_thumbnails"], [p, j] = v.useState(!1), [N, L] = v.useState(!1), [_, E] = v.useState(null), [M, D] = v.useState(null), [S, b] = v.useState(
+  ), [k, f] = v.useState(null), d = k ?? u["viewer.show_thumbnails"], [p, j] = v.useState(!1), [N, L] = v.useState(!1), [_, E] = v.useState(null), [M, D] = v.useState(null), [S, P] = v.useState(
     null
   ), W = v.useRef(null), Y = v.useRef(!0);
   v.useEffect(() => (Y.current = !0, () => {
@@ -12087,7 +12063,7 @@ You can select favorites when the search query is empty.`
     async (V) => {
       if (!V || !C) return;
       const te = C.id, T = [...C.tags], ee = V.split(/\s+/), B = [], J = [];
-      let et = !1, cn = !1, Pr = !1;
+      let et = !1, cn = !1, br = !1;
       for (const ve of ee)
         if (ve.startsWith("tag:")) {
           const pe = ve.substring(4);
@@ -12098,7 +12074,7 @@ You can select favorites when the search query is empty.`
         } else if (ve.startsWith("tag-toggle:")) {
           const pe = ve.substring(11);
           pe && (T.includes(pe) ? J.includes(pe) || J.push(pe) : B.includes(pe) || B.push(pe));
-        } else ve === "next" ? et = !0 : ve === "prev" ? cn = !0 : ve === "delete" && (Pr = !0);
+        } else ve === "next" ? et = !0 : ve === "prev" ? cn = !0 : ve === "delete" && (br = !0);
       if (B.length > 0 || J.length > 0)
         try {
           await ki(
@@ -12122,7 +12098,7 @@ You can select favorites when the search query is empty.`
         } catch (ve) {
           console.error("Failed to update tags via shortcut:", ve);
         }
-      Pr ? z(!0) : et ? X() : cn && se();
+      br ? z(!0) : et ? X() : cn && se();
     },
     [C, t, X, se, z]
   );
@@ -12132,8 +12108,8 @@ You can select favorites when the search query is empty.`
       if (l === null) return;
       const ee = ((pe = document.activeElement) == null ? void 0 : pe.tagName) === "INPUT" || ((Gt = document.activeElement) == null ? void 0 : Gt.tagName) === "TEXTAREA" || ((_a = document.activeElement) == null ? void 0 : _a.isContentEditable), B = T.key === "Delete" || T.key === "Backspace", J = T.key === "ArrowRight" || T.key === "ArrowLeft", et = ["f", "F", "i", "I", "t", "T", "r", "R"].includes(
         T.key
-      ), cn = T.key === "Escape", Pr = (T.ctrlKey || T.metaKey) && (T.key === "z" || T.key === "Z" || T.code === "KeyZ"), ve = /^[0-9]$/.test(T.key) && !T.ctrlKey && !T.metaKey && !T.altKey && T.code !== "KeyZ";
-      if (B || J || et || cn || Pr || ve)
+      ), cn = T.key === "Escape", br = (T.ctrlKey || T.metaKey) && (T.key === "z" || T.key === "Z" || T.code === "KeyZ"), ve = /^[0-9]$/.test(T.key) && !T.ctrlKey && !T.metaKey && !T.altKey && T.code !== "KeyZ";
+      if (B || J || et || cn || br || ve)
         if (ee)
           if (cn) {
             if (e.activeModal.type !== "none") {
@@ -12172,8 +12148,8 @@ You can select favorites when the search query is empty.`
         re();
       else if (ve && !ee) {
         const es = `viewer.shortcut.${T.key}`, ts = u[es];
-        typeof ts == "string" && ts && (b(T.key), setTimeout(() => {
-          Y.current && b(null);
+        typeof ts == "string" && ts && (P(T.key), setTimeout(() => {
+          Y.current && P(null);
         }, 500), qe(ts));
       }
     };
@@ -12222,7 +12198,7 @@ You can select favorites when the search query is empty.`
     n,
     A
   ]);
-  const br = v.useMemo(() => {
+  const Pr = v.useMemo(() => {
     if (!d || A === -1) return [];
     const V = u["viewer.thumbnail_window_size"], te = Math.floor(V / 2);
     let T = Math.max(0, A - te);
@@ -12287,7 +12263,7 @@ You can select favorites when the search query is empty.`
     currentIndex: A,
     currentThumbnails: Q,
     image: C,
-    windowedThumbnails: br,
+    windowedThumbnails: Pr,
     parentChain: Ht
   };
 }, oh = ({
@@ -12463,7 +12439,7 @@ const ch = ({
   )),
   a === "gallery" && s && /* @__PURE__ */ i.jsx("div", { className: "meld-viewer-thumbnail meld-viewer-thumbnail--loading", children: /* @__PURE__ */ i.jsx(Cr, { className: "animate-spin", size: 20 }) })
 ] }) }), dh = () => {
-  const { state: e, dispatch: t, loadMoreImages: n, fetchFullImageDetails: r } = Pe(), {
+  const { state: e, dispatch: t, loadMoreImages: n, fetchFullImageDetails: r } = be(), {
     isFullscreen: l,
     showDetails: s,
     setShowDetails: a,
@@ -12660,7 +12636,7 @@ const ch = ({
     document.body
   );
 }, fh = () => {
-  const { state: e, dispatch: t, refreshImages: n, loadMoreImages: r, updateSetting: l } = Pe(), [s, a] = v.useState("gallery"), [o, u] = v.useState(""), [c, h] = v.useState(e.pagination.limit);
+  const { state: e, dispatch: t, refreshImages: n, loadMoreImages: r, updateSetting: l } = be(), [s, a] = v.useState("gallery"), [o, u] = v.useState(""), [c, h] = v.useState(e.pagination.limit);
   v.useEffect(() => {
     h(e.pagination.limit);
   }, [e.searchQuery, e.viewScope, e.pagination.limit]);
@@ -12772,7 +12748,7 @@ const ch = ({
     loadMoreRef: m
   };
 }, ph = () => {
-  const { state: e, dispatch: t, deleteSelected: n, restoreSelected: r } = Pe(), l = e.selectedIds.size;
+  const { state: e, dispatch: t, deleteSelected: n, restoreSelected: r } = be(), l = e.selectedIds.size;
   if (l === 0) return null;
   const s = e.viewScope === "trash", a = () => {
     const o = e.images.filter(
