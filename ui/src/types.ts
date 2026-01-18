@@ -141,15 +141,11 @@ export type ActiveModal =
 			isPermanent?: boolean;
 	  };
 
-export type GalleryViewMode = "grid" | "list";
-
 export interface GalleryState {
 	images: MeldImage[];
 	selectedIds: Set<number>;
 	isLoading: boolean;
 	error: string | null;
-	lastUpdated: number;
-	viewMode: GalleryViewMode;
 	viewScope: "default" | "trash";
 	viewerImageId: number | null;
 	viewerMode: "gallery" | "lineage";
@@ -194,9 +190,7 @@ export type GalleryAction =
 	| { type: "SELECT_RANGE"; payload: number }
 	| { type: "SELECT_ALL" }
 	| { type: "CLEAR_SELECTION" }
-	| { type: "SET_VIEW_MODE"; payload: GalleryViewMode }
 	| { type: "SET_VIEW_SCOPE"; payload: "default" | "trash" }
-	| { type: "REFRESH" }
 	| {
 			type: "OPEN_VIEWER";
 			payload: number | { id: number; mode: "gallery" | "lineage" };
@@ -212,7 +206,8 @@ export type GalleryAction =
 	| { type: "SET_FAVORITES"; payload: Favorite[] }
 	| { type: "REMOVE_IMAGES"; payload: number[] }
 	| { type: "ADD_IMAGES"; payload: MeldImage[] }
-	| { type: "UPDATE_IMAGE"; payload: MeldImage };
+	| { type: "UPDATE_IMAGE"; payload: MeldImage }
+	| { type: "REFRESH" };
 
 export interface ComfyApp {
 	registerExtension(extension: ComfyExtension): void;

@@ -5,8 +5,6 @@ export const initialState: GalleryState = {
 	selectedIds: new Set<number>(),
 	isLoading: false,
 	error: null,
-	lastUpdated: Date.now(),
-	viewMode: "list",
 	viewScope: "default",
 	viewerImageId: null,
 	viewerMode: "gallery",
@@ -288,11 +286,6 @@ export function galleryReducer(
 				selectedIds: new Set<number>(),
 				lastSelectedId: null,
 			};
-		case "SET_VIEW_MODE":
-			return {
-				...state,
-				viewMode: action.payload,
-			};
 		case "SET_VIEW_SCOPE":
 			return {
 				...state,
@@ -308,10 +301,7 @@ export function galleryReducer(
 				},
 			};
 		case "REFRESH":
-			return {
-				...state,
-				lastUpdated: Date.now(),
-			};
+			return state;
 		case "OPEN_VIEWER": {
 			const payload = action.payload;
 			const newId = typeof payload === "number" ? payload : payload.id;
