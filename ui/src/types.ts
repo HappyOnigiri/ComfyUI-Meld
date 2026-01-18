@@ -46,7 +46,7 @@ export interface Tag {
 export interface Settings {
 	dev_mode: boolean;
 	"gallery.show_parent_image": boolean;
-	"gallery.hide_parent_images": boolean;
+	"gallery.show_parent_images": boolean;
 	"sidebar.show_filename": "filename" | "filepath" | "none";
 	"sidebar.show_dimensions": boolean;
 	"sidebar.show_created_at": boolean;

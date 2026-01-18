@@ -20,7 +20,7 @@ async def get_settings(request: web.Request) -> web.Response:
         settings = {
             "dev_mode": os.environ.get("MELD_DEV") == "true",
             "gallery.show_parent_image": True,
-            "gallery.hide_parent_images": True,
+            "gallery.show_parent_images": False,
             "gallery.trash_retention_days": 30,
             "sidebar.show_filename": "filename",
             "sidebar.show_dimensions": True,

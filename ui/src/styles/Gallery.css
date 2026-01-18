@@ -1843,6 +1843,17 @@
 	line-height: 1.4;
 }
 
+.meld-settings-group-title {
+	font-size: 13px;
+	font-weight: bold;
+	color: var(--meld-accent-color);
+	margin: 15px 0 8px 0;
+	padding-bottom: 4px;
+	border-bottom: 1px solid var(--meld-border-subtle);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
 /* Toggle Switch */
 .meld-switch {
 	position: relative;

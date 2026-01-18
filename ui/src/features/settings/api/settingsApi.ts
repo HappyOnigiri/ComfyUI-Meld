@@ -8,7 +8,7 @@ export const fetchSettings = async (): Promise<Settings> => {
 		return {
 			dev_mode: false,
 			"gallery.show_parent_image": true,
-			"gallery.hide_parent_images": true,
+			"gallery.show_parent_images": false,
 			"sidebar.show_filename": "filename",
 			"sidebar.show_dimensions": true,
 			"sidebar.show_created_at": false,

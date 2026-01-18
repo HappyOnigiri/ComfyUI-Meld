@@ -3,14 +3,11 @@ import { useGallery } from "../../../store/GalleryContext";
 import type { Settings } from "../../../types";
 
 export type Category =
-	| "System"
 	| "Gallery"
-	| "Search"
 	| "View"
-	| "View Details"
 	| "Full Screen"
-	| "Full Screen Detail"
-	| "Shortcuts";
+	| "Shortcuts"
+	| "System";
 
 export const useSettingsModalLogic = () => {
 	const { state, dispatch, updateSetting } = useGallery();

@@ -32,8 +32,9 @@ export const SystemTab: React.FC<SystemTabProps> = ({
 	suggestPhashThresholdInput,
 }) => {
 	return (
-		<>
-			<div className="meld-settings-list">
+		<div className="meld-settings-list">
+			<div className="meld-settings-group">
+				<div className="meld-settings-group-title">Image Matching</div>
 				<SettingItem
 					label="Source Matching Strategy"
 					description="Algorithm used to identify the source image."
@@ -53,54 +54,6 @@ export const SystemTab: React.FC<SystemTabProps> = ({
 						<option value="filename_phash">Filename -&gt; pHash</option>
 						<option value="phash_only">pHash Only</option>
 					</select>
-				</SettingItem>
-
-				<SettingItem
-					label="Max Lineage Depth"
-					description="Maximum number of ancestor levels to fetch and display (1-10)."
-				>
-					<input
-						type="number"
-						className="meld-number-input"
-						value={lineageMaxDepthInput}
-						min={1}
-						max={10}
-						onChange={(e) =>
-							handleNumberChange(
-								"gallery.lineage_max_depth",
-								e.target.value,
-								1,
-								10,
-							)
-						}
-						onBlur={() =>
-							handleNumberBlur({ key: "gallery.lineage_max_depth" })
-						}
-					/>
-				</SettingItem>
-
-				<SettingItem
-					label="Trash Retention Period (Days)"
-					description="How many days to keep deleted items in trash (0-365)."
-				>
-					<input
-						type="number"
-						className="meld-number-input"
-						value={trashRetentionDaysInput}
-						min={0}
-						max={365}
-						onChange={(e) =>
-							handleNumberChange(
-								"gallery.trash_retention_days",
-								e.target.value,
-								0,
-								365,
-							)
-						}
-						onBlur={() =>
-							handleNumberBlur({ key: "gallery.trash_retention_days" })
-						}
-					/>
 				</SettingItem>
 
 				<SettingItem
@@ -128,7 +81,7 @@ export const SystemTab: React.FC<SystemTabProps> = ({
 				</SettingItem>
 
 				<SettingItem
-					label="Parent Suggestion Threshold (%)"
+					label="Source Suggestion Threshold (%)"
 					description="Minimum similarity percentage for showing candidates in manual 'Add Source' dialog (0-100). Default: 82%. Permissive enough to find ancestors."
 				>
 					<input
@@ -152,7 +105,59 @@ export const SystemTab: React.FC<SystemTabProps> = ({
 				</SettingItem>
 			</div>
 
-			<div className="meld-settings-extra">
+			<div className="meld-settings-group">
+				<div className="meld-settings-group-title">Lineage</div>
+				<SettingItem
+					label="Max Lineage Depth"
+					description="Maximum number of ancestor levels to fetch and display (1-10)."
+				>
+					<input
+						type="number"
+						className="meld-number-input"
+						value={lineageMaxDepthInput}
+						min={1}
+						max={10}
+						onChange={(e) =>
+							handleNumberChange(
+								"gallery.lineage_max_depth",
+								e.target.value,
+								1,
+								10,
+							)
+						}
+						onBlur={() =>
+							handleNumberBlur({ key: "gallery.lineage_max_depth" })
+						}
+					/>
+				</SettingItem>
+			</div>
+
+			<div className="meld-settings-group">
+				<div className="meld-settings-group-title">Trash</div>
+				<SettingItem
+					label="Trash Retention Period (Days)"
+					description="How many days to keep deleted items in trash (0-365)."
+				>
+					<input
+						type="number"
+						className="meld-number-input"
+						value={trashRetentionDaysInput}
+						min={0}
+						max={365}
+						onChange={(e) =>
+							handleNumberChange(
+								"gallery.trash_retention_days",
+								e.target.value,
+								0,
+								365,
+							)
+						}
+						onBlur={() =>
+							handleNumberBlur({ key: "gallery.trash_retention_days" })
+						}
+					/>
+				</SettingItem>
+
 				<SettingItem
 					label="Trash Management"
 					description="View and manage items currently in the trash bin."
@@ -166,6 +171,6 @@ export const SystemTab: React.FC<SystemTabProps> = ({
 					</button>
 				</SettingItem>
 			</div>
-		</>
+		</div>
 	);
 };

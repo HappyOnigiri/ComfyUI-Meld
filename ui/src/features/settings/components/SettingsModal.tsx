@@ -4,7 +4,6 @@ import { createPortal } from "react-dom";
 import { useSettingsModalLogic } from "../hooks/useSettingsModalLogic";
 import { FullScreenTab } from "./tabs/FullScreenTab";
 import { GalleryTab } from "./tabs/GalleryTab";
-import { SearchTab } from "./tabs/SearchTab";
 import { ShortcutsTab } from "./tabs/ShortcutsTab";
 import { SystemTab } from "./tabs/SystemTab";
 import { ViewTab } from "./tabs/ViewTab";
@@ -41,11 +40,8 @@ export const SettingsModal: React.FC = () => {
 
 	const tabs: { id: typeof activeTab; label: string }[] = [
 		{ id: "Gallery", label: "Gallery" },
-		{ id: "Search", label: "Search" },
 		{ id: "View", label: "View" },
-		{ id: "View Details", label: "View Details" },
 		{ id: "Full Screen", label: "Full Screen" },
-		{ id: "Full Screen Detail", label: "Full Screen Detail" },
 		{ id: "Shortcuts", label: "Shortcuts" },
 		{ id: "System", label: "System" },
 	];
@@ -79,13 +75,6 @@ export const SettingsModal: React.FC = () => {
 						maxLoadCountInput={maxLoadCountInput}
 					/>
 				);
-			case "Search":
-				return (
-					<SearchTab
-						localSettings={localSettings}
-						handleToggle={handleToggle}
-					/>
-				);
 			case "View":
 				return (
 					<ViewTab
@@ -99,20 +88,6 @@ export const SettingsModal: React.FC = () => {
 						maxNegativePromptLinesInput={maxNegativePromptLinesInput}
 					/>
 				);
-			case "View Details":
-				return (
-					<ViewTab
-						localSettings={localSettings}
-						setLocalSettings={setLocalSettings}
-						handleToggle={handleToggle}
-						handleNumberChange={handleNumberChange}
-						handleNumberBlur={handleNumberBlur}
-						thumbnailWindowSizeInput={thumbnailWindowSizeInput}
-						maxPositivePromptLinesInput={maxPositivePromptLinesInput}
-						maxNegativePromptLinesInput={maxNegativePromptLinesInput}
-						showDetailsOnly={true}
-					/>
-				);
 			case "Full Screen":
 				return (
 					<FullScreenTab
@@ -123,19 +98,6 @@ export const SettingsModal: React.FC = () => {
 						handleNumberBlur={handleNumberBlur}
 						maxPositivePromptLinesInput={fullscreenMaxPositivePromptLinesInput}
 						maxNegativePromptLinesInput={fullscreenMaxNegativePromptLinesInput}
-					/>
-				);
-			case "Full Screen Detail":
-				return (
-					<FullScreenTab
-						localSettings={localSettings}
-						setLocalSettings={setLocalSettings}
-						handleToggle={handleToggle}
-						handleNumberChange={handleNumberChange}
-						handleNumberBlur={handleNumberBlur}
-						maxPositivePromptLinesInput={fullscreenMaxPositivePromptLinesInput}
-						maxNegativePromptLinesInput={fullscreenMaxNegativePromptLinesInput}
-						showDetailsOnly={true}
 					/>
 				);
 			case "Shortcuts":
