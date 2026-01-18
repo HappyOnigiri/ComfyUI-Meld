@@ -340,8 +340,7 @@ export const FullScreenTab: React.FC<FullScreenTabProps> = ({
 
 	return (
 		<div className="meld-settings-list">
-			{!showDetailsOnly && renderViewSettings()}
-			{renderDetailSettings()}
+			{showDetailsOnly ? renderDetailSettings() : renderViewSettings()}
 		</div>
 	);
 };

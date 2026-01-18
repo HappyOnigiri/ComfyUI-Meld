@@ -385,8 +385,7 @@ export const ViewTab: React.FC<ViewTabProps> = ({
 
 	return (
 		<div className="meld-settings-list">
-			{!showDetailsOnly && renderViewSettings()}
-			{renderDetailSettings()}
+			{showDetailsOnly ? renderDetailSettings() : renderViewSettings()}
 		</div>
 	);
 };
