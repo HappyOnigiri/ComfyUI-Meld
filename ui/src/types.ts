@@ -57,7 +57,6 @@ export interface Settings {
 	"sidebar.thumbnail_size": number;
 	"search.quick_suggestions": boolean;
 	"search.input_suggest": boolean;
-	"search.realtime_search": boolean;
 	"viewer.loop": boolean;
 	"fullscreen.show_icons": boolean;
 	"fullscreen.loop": boolean;

@@ -50,25 +50,6 @@ export const SearchTab: React.FC<SearchTabProps> = ({
 					<span className="meld-switch__slider" />
 				</label>
 			</SettingItem>
-
-			<SettingItem
-				label="Real-time Search"
-				description="Perform search automatically while typing without pressing Enter."
-			>
-				<label className="meld-switch">
-					<input
-						type="checkbox"
-						checked={localSettings["search.realtime_search"]}
-						onChange={() =>
-							handleToggle(
-								"search.realtime_search",
-								localSettings["search.realtime_search"],
-							)
-						}
-					/>
-					<span className="meld-switch__slider" />
-				</label>
-			</SettingItem>
 		</div>
 	);
 };

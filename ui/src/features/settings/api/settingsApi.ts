@@ -19,7 +19,6 @@ export const fetchSettings = async (): Promise<Settings> => {
 			"sidebar.thumbnail_size": 100,
 			"search.quick_suggestions": true,
 			"search.input_suggest": true,
-			"search.realtime_search": true,
 			"viewer.loop": true,
 			"fullscreen.show_icons": true,
 			"fullscreen.loop": true,
