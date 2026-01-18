@@ -205,7 +205,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 													subfolder: image.parent_subfolder || "",
 													type: image.parent_type || "output",
 												})}
-												alt="Current Parent"
+												alt="Current Source"
 												style={{
 													width: "40px",
 													height: "40px",

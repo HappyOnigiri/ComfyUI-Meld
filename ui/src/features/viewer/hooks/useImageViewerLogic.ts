@@ -79,7 +79,7 @@ export const useImageViewerLogic = ({
 			: images.filter(
 					(img) =>
 						img.exists !== false &&
-						!(settings["gallery.hide_parent_images"] && img.has_children),
+						(settings["gallery.show_parent_images"] || !img.has_children),
 				);
 
 	const currentIndex =

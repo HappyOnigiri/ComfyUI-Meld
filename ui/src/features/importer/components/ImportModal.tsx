@@ -389,7 +389,7 @@ export const ImportModal: React.FC = () => {
 							</div>
 
 							<div className="meld-form-group">
-								<label htmlFor="link-strategy">Parent Linking</label>
+								<label htmlFor="link-strategy">Source Linking</label>
 								<select
 									id="link-strategy"
 									value={config.link_strategy}

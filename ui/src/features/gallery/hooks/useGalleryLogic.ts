@@ -37,7 +37,7 @@ export const useGalleryLogic = () => {
 				}
 				return (
 					img.exists !== false &&
-					!(state.settings["gallery.hide_parent_images"] && img.has_children)
+					(state.settings["gallery.show_parent_images"] || !img.has_children)
 				);
 			}),
 		[state.images, state.settings, state.viewScope],

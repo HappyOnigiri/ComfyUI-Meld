@@ -23,7 +23,7 @@ export const initialState: GalleryState = {
 	settings: {
 		dev_mode: false,
 		"gallery.show_parent_image": true,
-		"gallery.hide_parent_images": true,
+		"gallery.show_parent_images": false,
 		"sidebar.show_filename": "filename",
 		"sidebar.show_dimensions": true,
 		"sidebar.show_created_at": false,
@@ -337,10 +337,8 @@ export function galleryReducer(
 					: state.images.filter(
 							(img) =>
 								img.exists !== false &&
-								!(
-									state.settings["gallery.hide_parent_images"] &&
-									img.has_children
-								),
+								(state.settings["gallery.show_parent_images"] ||
+									!img.has_children),
 						);
 
 			if (state.viewerImageId === null || currentList.length === 0)
@@ -382,10 +380,8 @@ export function galleryReducer(
 					: state.images.filter(
 							(img) =>
 								img.exists !== false &&
-								!(
-									state.settings["gallery.hide_parent_images"] &&
-									img.has_children
-								),
+								(state.settings["gallery.show_parent_images"] ||
+									!img.has_children),
 						);
 
 			if (state.viewerImageId === null || currentList.length === 0)

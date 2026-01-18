@@ -56,10 +56,8 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 					: state.images.filter(
 							(img) =>
 								img.exists !== false &&
-								!(
-									state.settings["gallery.hide_parent_images"] &&
-									img.has_children
-								),
+								(state.settings["gallery.show_parent_images"] ||
+									!img.has_children),
 						);
 
 			const currentIndex = currentList.findIndex(
@@ -128,10 +126,8 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 					: state.images.filter(
 							(img) =>
 								img.exists !== false &&
-								!(
-									state.settings["gallery.hide_parent_images"] &&
-									img.has_children
-								),
+								(state.settings["gallery.show_parent_images"] ||
+									!img.has_children),
 						);
 
 			const idsToDeleteSet = new Set(imageIds);
@@ -168,10 +164,8 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 					: state.images.filter(
 							(img) =>
 								img.exists !== false &&
-								!(
-									state.settings["gallery.hide_parent_images"] &&
-									img.has_children
-								),
+								(state.settings["gallery.show_parent_images"] ||
+									!img.has_children),
 						);
 
 			const allIdsToDelete = new Set<number>(imageIds);
@@ -292,8 +286,8 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 								}}
 							>
 								Selected images include items with a <strong>Source</strong> or
-								descendants. You can choose to delete just the selected items or
-								all related items in their lineage.
+								derivatives. You can choose to delete just the selected items or
+								all related items (lineage).
 							</div>
 						)}
 					</div>

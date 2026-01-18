@@ -43,6 +43,7 @@ const ThumbnailItem = memo(
 					{(isParent || isChild) && (
 						<div
 							className={`meld-viewer-thumbnail-relation-icon ${isParent ? "meld-viewer-thumbnail-relation-icon--parent" : "meld-viewer-thumbnail-relation-icon--child"}`}
+							title={isParent ? "Source Image" : "Derivative Image"}
 						>
 							{isParent ? <ArrowUp size={12} /> : <ArrowDown size={12} />}
 						</div>
