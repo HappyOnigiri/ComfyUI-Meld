@@ -3,7 +3,7 @@
 This document serves as a comprehensive guide for AI agents and developers to understand the structure, purpose, and logic of the ComfyUI-Meld project. It must be kept up-to-date with any structural changes.
 
 ## 1. Project Purpose
-**ComfyUI-Meld** is a sophisticated Custom Node and Web Extension for ComfyUI. Its primary goal is to provide a robust **Image Management System (Meld Nexus/Gallery)** directly within the ComfyUI interface. It enables users to:
+**ComfyUI-Meld** is a sophisticated Custom Node and Web Extension for ComfyUI. Its primary goal is to provide a robust **Image Management System (Meld Image Manager/Gallery)** directly within the ComfyUI interface. It enables users to:
 - Automatically catalog generated images with full metadata (prompts, models, workflow).
 - Search, tag, and organize images using a database-backed system.
 - View image lineage (parent-child relationships based on img2img).
