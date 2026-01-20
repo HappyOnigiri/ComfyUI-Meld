@@ -11,6 +11,7 @@ interface SystemTabProps {
 		max?: number,
 	) => void;
 	handleNumberBlur: (config: { key: keyof Settings }) => void;
+	handleToggle: (key: keyof Settings, currentValue: boolean) => void;
 	setLocalSettings: React.Dispatch<React.SetStateAction<Settings>>;
 	handleViewTrash: () => void;
 	// Input states
@@ -24,6 +25,7 @@ export const SystemTab: React.FC<SystemTabProps> = ({
 	localSettings,
 	handleNumberChange,
 	handleNumberBlur,
+	handleToggle,
 	setLocalSettings,
 	handleViewTrash,
 	lineageMaxDepthInput,
@@ -102,6 +104,25 @@ export const SystemTab: React.FC<SystemTabProps> = ({
 							handleNumberBlur({ key: "gallery.suggest_phash_threshold" })
 						}
 					/>
+				</SettingItem>
+
+				<SettingItem
+					label="Inherit Tags from Source"
+					description="Automatically copy tags from the source image when a new image is registered or saved."
+				>
+					<label className="meld-switch">
+						<input
+							type="checkbox"
+							checked={localSettings["gallery.inherit_tags"]}
+							onChange={() =>
+								handleToggle(
+									"gallery.inherit_tags",
+									localSettings["gallery.inherit_tags"],
+								)
+							}
+						/>
+						<span className="meld-switch__slider" />
+					</label>
 				</SettingItem>
 			</div>
 

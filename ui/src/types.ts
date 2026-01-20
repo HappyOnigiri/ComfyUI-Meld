@@ -101,6 +101,7 @@ export interface Settings {
 	"gallery.view_mode": "grid_details" | "grid_only";
 	"gallery.suggest_phash_threshold": number;
 	"gallery.auto_link_phash_threshold": number;
+	"gallery.inherit_tags": boolean;
 	"viewer.shortcut.1": string;
 	"viewer.shortcut.2": string;
 	"viewer.shortcut.3": string;

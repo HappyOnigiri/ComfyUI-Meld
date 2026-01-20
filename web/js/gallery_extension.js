@@ -6372,6 +6372,7 @@ const gm = (e) => {
       "gallery.view_mode": "grid_details",
       "gallery.suggest_phash_threshold": 82,
       "gallery.auto_link_phash_threshold": 92,
+      "gallery.inherit_tags": !0,
       "viewer.shortcut.1": "tag:keep next",
       "viewer.shortcut.2": "tag:best next",
       "viewer.shortcut.3": "tag:fix-needed next",
@@ -6468,6 +6469,7 @@ const gm = (e) => {
     "gallery.view_mode": "grid_details",
     "gallery.suggest_phash_threshold": 82,
     "gallery.auto_link_phash_threshold": 92,
+    "gallery.inherit_tags": !0,
     "viewer.shortcut.1": "tag:keep next",
     "viewer.shortcut.2": "tag:best next",
     "viewer.shortcut.3": "tag:fix-needed next",
@@ -8433,12 +8435,13 @@ const id = y.createContext(void 0), bm = ({
   localSettings: e,
   handleNumberChange: t,
   handleNumberBlur: n,
-  setLocalSettings: r,
-  handleViewTrash: l,
-  lineageMaxDepthInput: s,
-  trashRetentionDaysInput: a,
-  autoLinkPhashThresholdInput: o,
-  suggestPhashThresholdInput: u
+  handleToggle: r,
+  setLocalSettings: l,
+  handleViewTrash: s,
+  lineageMaxDepthInput: a,
+  trashRetentionDaysInput: o,
+  autoLinkPhashThresholdInput: u,
+  suggestPhashThresholdInput: c
 }) => /* @__PURE__ */ i.jsxs("div", { className: "meld-settings-list", children: [
   /* @__PURE__ */ i.jsxs("div", { className: "meld-settings-group", children: [
     /* @__PURE__ */ i.jsx("div", { className: "meld-settings-group-title", children: "Image Matching" }),
@@ -8452,9 +8455,9 @@ const id = y.createContext(void 0), bm = ({
           {
             className: "meld-select",
             value: e["gallery.matching_strategy"],
-            onChange: (c) => r((h) => ({
-              ...h,
-              "gallery.matching_strategy": c.target.value
+            onChange: (h) => l((x) => ({
+              ...x,
+              "gallery.matching_strategy": h.target.value
             })),
             children: [
               /* @__PURE__ */ i.jsx("option", { value: "phash_created", children: "pHash & Created Time" }),
@@ -8475,12 +8478,12 @@ const id = y.createContext(void 0), bm = ({
           {
             type: "number",
             className: "meld-number-input",
-            value: o,
+            value: u,
             min: 0,
             max: 100,
-            onChange: (c) => t(
+            onChange: (h) => t(
               "gallery.auto_link_phash_threshold",
-              c.target.value,
+              h.target.value,
               0,
               100
             ),
@@ -8499,18 +8502,39 @@ const id = y.createContext(void 0), bm = ({
           {
             type: "number",
             className: "meld-number-input",
-            value: u,
+            value: c,
             min: 0,
             max: 100,
-            onChange: (c) => t(
+            onChange: (h) => t(
               "gallery.suggest_phash_threshold",
-              c.target.value,
+              h.target.value,
               0,
               100
             ),
             onBlur: () => n({ key: "gallery.suggest_phash_threshold" })
           }
         )
+      }
+    ),
+    /* @__PURE__ */ i.jsx(
+      R,
+      {
+        label: "Inherit Tags from Source",
+        description: "Automatically copy tags from the source image when a new image is registered or saved.",
+        children: /* @__PURE__ */ i.jsxs("label", { className: "meld-switch", children: [
+          /* @__PURE__ */ i.jsx(
+            "input",
+            {
+              type: "checkbox",
+              checked: e["gallery.inherit_tags"],
+              onChange: () => r(
+                "gallery.inherit_tags",
+                e["gallery.inherit_tags"]
+              )
+            }
+          ),
+          /* @__PURE__ */ i.jsx("span", { className: "meld-switch__slider" })
+        ] })
       }
     )
   ] }),
@@ -8526,12 +8550,12 @@ const id = y.createContext(void 0), bm = ({
           {
             type: "number",
             className: "meld-number-input",
-            value: s,
+            value: a,
             min: 1,
             max: 10,
-            onChange: (c) => t(
+            onChange: (h) => t(
               "gallery.lineage_max_depth",
-              c.target.value,
+              h.target.value,
               1,
               10
             ),
@@ -8553,12 +8577,12 @@ const id = y.createContext(void 0), bm = ({
           {
             type: "number",
             className: "meld-number-input",
-            value: a,
+            value: o,
             min: 0,
             max: 365,
-            onChange: (c) => t(
+            onChange: (h) => t(
               "gallery.trash_retention_days",
-              c.target.value,
+              h.target.value,
               0,
               365
             ),
@@ -8577,7 +8601,7 @@ const id = y.createContext(void 0), bm = ({
           {
             type: "button",
             className: "meld-button meld-button--secondary",
-            onClick: l,
+            onClick: s,
             children: "View Trash"
           }
         )
@@ -9015,6 +9039,7 @@ const id = y.createContext(void 0), bm = ({
             localSettings: n,
             handleNumberChange: u,
             handleNumberBlur: c,
+            handleToggle: o,
             setLocalSettings: r,
             handleViewTrash: x,
             lineageMaxDepthInput: w,

@@ -75,6 +75,7 @@ export const initialState: GalleryState = {
 		"gallery.view_mode": "grid_details",
 		"gallery.suggest_phash_threshold": 82,
 		"gallery.auto_link_phash_threshold": 92,
+		"gallery.inherit_tags": true,
 		"viewer.shortcut.1": "tag:keep next",
 		"viewer.shortcut.2": "tag:best next",
 		"viewer.shortcut.3": "tag:fix-needed next",

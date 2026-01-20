@@ -54,6 +54,7 @@ export const SettingsModal: React.FC = () => {
 						localSettings={localSettings}
 						handleNumberChange={handleNumberChange}
 						handleNumberBlur={handleNumberBlur}
+						handleToggle={handleToggle}
 						setLocalSettings={setLocalSettings}
 						handleViewTrash={handleViewTrash}
 						lineageMaxDepthInput={lineageMaxDepthInput}
