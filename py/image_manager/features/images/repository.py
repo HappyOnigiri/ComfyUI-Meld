@@ -113,3 +113,16 @@ def find_closest_parent(
         candidates.sort(key=lambda x: (x["dist"], -x["created_at"]))
 
     return candidates[0]["id"]
+
+
+def inherit_tags(cursor: sqlite3.Cursor, child_id: int, parent_id: int) -> None:
+    """Copy tags from parent image to child image."""
+    if not parent_id:
+        return
+    cursor.execute(
+        """
+        INSERT OR IGNORE INTO tag_image_relations (image_id, tag_id)
+        SELECT ?, tag_id FROM tag_image_relations WHERE image_id = ?
+    """,
+        (child_id, parent_id),
+    )

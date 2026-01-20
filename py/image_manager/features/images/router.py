@@ -34,7 +34,7 @@ from ...common.schemas import (
 from ...features.settings.repository import get_all_settings
 from ..importer.service import infer_parent_id
 from ..search.service import SearchService
-from .repository import calculate_sha256
+from .repository import calculate_sha256, inherit_tags
 from .service import get_parent_suggestions, get_unique_filename
 
 routes = web.RouteTableDef()
@@ -1091,6 +1091,10 @@ async def register_image_endpoint(request: web.Request) -> web.Response:
             ),
         )
         image_id = cursor.lastrowid
+
+        # Inherit tags if enabled and parent exists
+        if image_id is not None and parent_id and db_settings.get("gallery.inherit_tags", True):
+            inherit_tags(cursor, image_id, parent_id)
 
         if model:
             m_id = get_or_create_model(cursor, model)

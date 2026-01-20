@@ -22,7 +22,7 @@ from ...common.db.client import (
 )
 from ...common.model_repo import add_model_relation, get_or_create_model
 from ...common.schemas import ScanStatus
-from ..images.repository import calculate_sha256, find_closest_parent
+from ..images.repository import calculate_sha256, find_closest_parent, inherit_tags
 from ..settings.repository import get_all_settings
 
 # State for scanning
@@ -284,7 +284,7 @@ def _scan_thread(
         total = len(image_files)
 
         # Step 1: Register all images
-        all_target_ids = []
+        all_target_ids: list[int] = []
         for full_path in image_files:
             if _scan_state.should_cancel:
                 break
@@ -374,8 +374,9 @@ def _scan_thread(
                     m_id = get_or_create_model(cursor, model)
                     add_model_relation(cursor, image_id, m_id)
 
-                newly_registered_ids.add(image_id)
-                all_target_ids.append(image_id)
+                if image_id is not None:
+                    newly_registered_ids.add(image_id)
+                    all_target_ids.append(image_id)
                 new_count += 1
 
                 # Insert Prompts
@@ -452,10 +453,13 @@ def _scan_thread(
 
                 parent_id = infer_parent_id(cursor, fname, subf, itype, iphash, icreated, strategy=matching_strategy)
 
-                if link_strategy == "all" or parent_id:
+                if (link_strategy == "all" or parent_id) and img_id is not None:
                     if parent_id != img_id:
                         if parent_id != current_parent_id:
                             cursor.execute("UPDATE images SET parent_id = ? WHERE id = ?", (parent_id, img_id))
+                            # Inherit tags if enabled and parent exists
+                            if parent_id is not None and db_settings.get("gallery.inherit_tags", True):
+                                inherit_tags(cursor, img_id, parent_id)
                             if img_id not in newly_registered_ids:
                                 updated_ids.add(img_id)
                                 _scan_state.updated_count = len(updated_ids)

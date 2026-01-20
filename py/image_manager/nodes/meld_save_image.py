@@ -23,7 +23,7 @@ from ..common.db.client import (
     get_db_connection,
 )
 from ..common.model_repo import add_model_relation, get_or_create_model
-from ..features.images.repository import calculate_sha256, find_closest_parent
+from ..features.images.repository import calculate_sha256, find_closest_parent, inherit_tags
 from ..features.importer import service as scan_service
 from ..features.settings.repository import get_all_settings
 
@@ -240,6 +240,10 @@ class MeldSaveImage:
             )
             image_id = cursor.lastrowid
 
+            # Inherit tags if enabled
+            if image_id is not None and parent_id and db_settings.get("gallery.inherit_tags", True):
+                inherit_tags(cursor, image_id, parent_id)
+
             # Insert Model Relation
             if resolved_model:
                 m_id = get_or_create_model(cursor, resolved_model)
@@ -279,7 +283,9 @@ class MeldSaveImage:
                 cursor.execute("INSERT OR IGNORE INTO tags (name) VALUES (?)", (tag,))
                 cursor.execute("SELECT id FROM tags WHERE name = ?", (tag,))
                 tag_id = cursor.fetchone()[0]
-                cursor.execute("INSERT INTO tag_image_relations (image_id, tag_id) VALUES (?, ?)", (image_id, tag_id))
+                cursor.execute(
+                    "INSERT OR IGNORE INTO tag_image_relations (image_id, tag_id) VALUES (?, ?)", (image_id, tag_id)
+                )
 
             results.append({"filename": file, "subfolder": subfolder, "type": self.type})
             counter += 1

@@ -41,6 +41,7 @@ async def get_settings(request: web.Request) -> web.Response:
             "gallery.view_mode": "grid_details",
             "gallery.suggest_phash_threshold": 82,
             "gallery.auto_link_phash_threshold": 92,
+            "gallery.inherit_tags": True,
         }
 
         settings.update(db_settings)
