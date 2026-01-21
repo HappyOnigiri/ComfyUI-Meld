@@ -1,4 +1,3 @@
-import os
 from typing import Any
 
 import folder_paths
@@ -10,9 +9,41 @@ from ..core.metadata_helper import MetadataHelper
 class MeldImageLoader:
     @classmethod
     def INPUT_TYPES(cls) -> dict:
+        import os
+
+        files = []
+
+        def get_files_recursive(base_dir: str) -> list[str]:
+            all_files = []
+            if not os.path.exists(base_dir):
+                return []
+            for root, _, filenames in os.walk(base_dir):
+                for f in filenames:
+                    rel_path = os.path.relpath(os.path.join(root, f), base_dir)
+                    # Use forward slashes for ComfyUI compatibility
+                    all_files.append(rel_path.replace("\\", "/"))
+            return all_files
+
+        # Get input files
         input_dir = folder_paths.get_input_directory()
-        files = [f for f in os.listdir(input_dir) if os.path.isfile(os.path.join(input_dir, f))]
+        files += get_files_recursive(input_dir)
+
+        # Get output files
+        output_dir = folder_paths.get_output_directory()
+        files += [f"{f} [output]" for f in get_files_recursive(output_dir)]
+
+        # Get temp files
+        temp_dir = folder_paths.get_temp_directory()
+        files += [f"{f} [temp]" for f in get_files_recursive(temp_dir)]
+
+        if not files:
+            files = ["None"]
+
         return {"required": {"image": (sorted(files), {"image_upload": True})}}
+
+    @classmethod
+    def VALIDATE_INPUTS(cls, image: str) -> bool | str:
+        return True
 
     RETURN_TYPES = ("IMAGE", "MODEL", "CLIP", "VAE", "STRING", "STRING", "STRING", "BASE_SETTINGS")
     RETURN_NAMES = ("IMAGE", "MODEL", "CLIP", "VAE", "positive", "negative", "summary", "base_settings")
