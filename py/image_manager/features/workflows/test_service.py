@@ -2,8 +2,8 @@ import unittest
 from typing import Any
 
 
-# テスト対象の関数を模したもの（service.pyからインポートできない環境を想定し、ロジックの担保を優先）
-# 実際には service.py のロジックと同期させておく必要があります。
+# Mocking the function to be tested (assuming an environment where it cannot be imported from service.py, prioritizing logic verification)
+# In reality, it needs to be synchronized with the logic in service.py.
 def count_meld_image_loader(data: Any) -> int:  # noqa: ANN401
     loader_count = 0
     if isinstance(data, dict):
@@ -22,13 +22,13 @@ def count_meld_image_loader(data: Any) -> int:  # noqa: ANN401
 
 class TestWorkflowService(unittest.TestCase):
     def test_ui_format_workflow(self) -> None:
-        """UI形式のワークフローでMeldImageLoaderが正しくカウントされること"""
+        """Verify that MeldImageLoader is correctly counted in UI format workflows"""
         workflow_ui = {"nodes": [{"id": 1, "type": "MeldImageLoader"}, {"id": 2, "type": "KSampler"}]}
         count = count_meld_image_loader(workflow_ui)
         self.assertEqual(count, 1)
 
     def test_api_format_workflow(self) -> None:
-        """API形式のワークフローでMeldImageLoaderが正しくカウントされること"""
+        """Verify that MeldImageLoader is correctly counted in API format workflows"""
         workflow_api = {
             "1": {"class_type": "MeldImageLoader"},
             "2": {"class_type": "KSampler"},
@@ -37,7 +37,7 @@ class TestWorkflowService(unittest.TestCase):
         self.assertEqual(count, 1)
 
     def test_multiple_loaders(self) -> None:
-        """複数のMeldImageLoaderがある場合に正しくカウントされること"""
+        """Verify that multiple MeldImageLoader instances are correctly counted"""
         workflow_ui = {
             "nodes": [
                 {"id": 1, "type": "MeldImageLoader"},
@@ -48,7 +48,7 @@ class TestWorkflowService(unittest.TestCase):
         self.assertEqual(count, 2)
 
     def test_no_loaders(self) -> None:
-        """MeldImageLoaderがない場合に0が返ること"""
+        """Verify that 0 is returned when no MeldImageLoader is present"""
         workflow_ui = {"nodes": [{"id": 1, "type": "KSampler"}]}
         count = count_meld_image_loader(workflow_ui)
         self.assertEqual(count, 0)

@@ -4,6 +4,13 @@ import { api } from "/scripts/api.js";
 import type { MeldImage } from "../../../types";
 import { fetchWorkflowRaw } from "../api/workflowsApi";
 
+interface ComfyNode {
+	id: string | number;
+	type?: string;
+	class_type?: string;
+	widgets?: { name: string; value: unknown }[];
+}
+
 export const useWorkflowExecution = () => {
 	const executeWorkflow = useCallback(
 		async (workflowName: string, image: MeldImage) => {
@@ -17,20 +24,17 @@ export const useWorkflowExecution = () => {
 			if (workflow.nodes && Array.isArray(workflow.nodes)) {
 				// UI Format (saved from ComfyUI web interface)
 				isUIFormat = true;
-				// biome-ignore lint/suspicious/noExplicitAny: ComfyUI workflow format
-				const node = (workflow.nodes as any[]).find(
-					// biome-ignore lint/suspicious/noExplicitAny: ComfyUI node format
-					(n: any) => n.type === "MeldImageLoader",
+				const node = (workflow.nodes as ComfyNode[]).find(
+					(n) => n.type === "MeldImageLoader",
 				);
 				if (node) {
 					loaderNodeId = String(node.id);
 				}
 			} else {
 				// API Format: { "node_id": { "inputs": { ... }, "class_type": "..." } }
-				// biome-ignore lint/suspicious/noExplicitAny: ComfyUI workflow format
-				for (const nodeId in workflow as Record<string, any>) {
-					// biome-ignore lint/suspicious/noExplicitAny: ComfyUI workflow format
-					if ((workflow as any)[nodeId].class_type === "MeldImageLoader") {
+				for (const nodeId in workflow) {
+					const node = workflow[nodeId] as ComfyNode;
+					if (node.class_type === "MeldImageLoader") {
 						loaderNodeId = nodeId;
 						break;
 					}
@@ -91,20 +95,13 @@ export const useWorkflowExecution = () => {
 				await new Promise((r) => setTimeout(r, 200));
 
 				// 3. Update the node in the NOW ACTIVE graph
-				// biome-ignore lint/suspicious/noExplicitAny: ComfyUI graph format
-				const activeNodes = comfyApp.graph._nodes as any[];
+				const activeNodes = comfyApp.graph._nodes as ComfyNode[];
 				const node = activeNodes.find(
-					// biome-ignore lint/suspicious/noExplicitAny: ComfyUI node format
-					(n: any) =>
-						String(n.id) === loaderNodeId || n.type === "MeldImageLoader",
+					(n) => String(n.id) === loaderNodeId || n.type === "MeldImageLoader",
 				);
 
 				if (node) {
-					// biome-ignore lint/suspicious/noExplicitAny: ComfyUI widget format
-					const widget = (node.widgets as any[])?.find(
-						// biome-ignore lint/suspicious/noExplicitAny: ComfyUI widget format
-						(w: any) => w.name === "image",
-					);
+					const widget = node.widgets?.find((w) => w.name === "image");
 					if (widget) {
 						widget.value = imagePath;
 					}

@@ -16,8 +16,9 @@ export const fetchWorkflows = async (): Promise<WorkflowInfo[]> => {
 	return await res.json();
 };
 
-// biome-ignore lint/suspicious/noExplicitAny: ComfyUI workflow format is complex and dynamic
-export const fetchWorkflowRaw = async (name: string): Promise<any> => {
+export const fetchWorkflowRaw = async (
+	name: string,
+): Promise<Record<string, unknown>> => {
 	const res = await api.fetchApi(
 		`/meld/workflow/raw?name=${encodeURIComponent(name)}`,
 	);
