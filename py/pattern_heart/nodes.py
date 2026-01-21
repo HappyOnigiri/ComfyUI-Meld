@@ -112,7 +112,9 @@ class MeldPatternHeart:
                     blur_radius = max(1, size // 8)
                     mask_blurred = mask_pil.filter(ImageFilter.GaussianBlur(radius=blur_radius))
                     mask_blurred_np = np.array(mask_blurred).astype(np.float32)
-                    grad_y, grad_x = np.gradient(mask_blurred_np)
+                    grad_res = np.gradient(mask_blurred_np)
+                    grad_y = grad_res[0]
+                    grad_x = grad_res[1]
 
             # Create list of placement points (x, y, angle)
             draw_points = []
