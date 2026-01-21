@@ -54,17 +54,51 @@ export const useWorkflowExecution = () => {
 			}
 
 			if (isUIFormat) {
-				// For UI format, we load it into the workspace.
 				// @ts-expect-error
 				const comfyApp = window.app;
-				await comfyApp.loadGraphData(workflow);
 
-				// Update the node in the loaded graph
+				// 1. Try to find and switch to an existing tab first
+				const baseName = workflowName.replace(/\.json$/i, "");
+				let tabFound = false;
+
+				// Search in the new Vue UI tabs
+				const tabs = document.querySelectorAll(".workflow-tab");
+				for (const tab of Array.from(tabs)) {
+					const label = tab.querySelector(".workflow-label");
+					const labelText =
+						label?.textContent?.trim() || tab.textContent?.trim() || "";
+
+					// Match exact name, name with .json, or name with status dot (e.g. "resample-image \u2022")
+					if (
+						labelText === baseName ||
+						labelText === workflowName ||
+						labelText.startsWith(`${baseName} `) ||
+						labelText.startsWith(`${baseName}\u2022`)
+					) {
+						(tab as HTMLElement).click();
+						tabFound = true;
+						break;
+					}
+				}
+
+				// 2. If not found, load it as a new tab with the correct name
+				if (!tabFound) {
+					// Arguments: (data, clean, restore_view, workflow_name)
+					await comfyApp.loadGraphData(workflow, true, true, workflowName);
+				}
+
+				// Give the UI a moment to sync the active graph
+				await new Promise((r) => setTimeout(r, 200));
+
+				// 3. Update the node in the NOW ACTIVE graph
 				// biome-ignore lint/suspicious/noExplicitAny: ComfyUI graph format
-				const node = (comfyApp.graph._nodes as any[]).find(
+				const activeNodes = comfyApp.graph._nodes as any[];
+				const node = activeNodes.find(
 					// biome-ignore lint/suspicious/noExplicitAny: ComfyUI node format
-					(n: any) => String(n.id) === loaderNodeId,
+					(n: any) =>
+						String(n.id) === loaderNodeId || n.type === "MeldImageLoader",
 				);
+
 				if (node) {
 					// biome-ignore lint/suspicious/noExplicitAny: ComfyUI widget format
 					const widget = (node.widgets as any[])?.find(
@@ -77,8 +111,16 @@ export const useWorkflowExecution = () => {
 					comfyApp.graph.setDirtyCanvas(true, true);
 				}
 
-				await comfyApp.queuePrompt(0);
-				return;
+				// 4. Run the workflow
+				try {
+					await comfyApp.queuePrompt(0);
+					return;
+				} catch (e) {
+					console.error("Failed to queue workflow:", e);
+					throw new Error(
+						"Failed to queue workflow. Check the console for details.",
+					);
+				}
 			}
 
 			// API Format background execution
