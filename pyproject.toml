@@ -25,6 +25,15 @@ dependencies = [
     "imagehash",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "mypy",
+    "types-Pillow",
+    "types-requests",
+    "types-setuptools",
+]
+
 [project.urls]
 Repository = "https://github.com/NodeMeld/ComfyUI-Meld"
 "Bug Tracker" = "https://github.com/NodeMeld/ComfyUI-Meld/issues"
