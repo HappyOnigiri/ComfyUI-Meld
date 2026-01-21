@@ -3,12 +3,15 @@ import { createPortal } from "react-dom";
 import { ImportModal } from "../../features/importer/components/ImportModal";
 import { SettingsModal } from "../../features/settings/components/SettingsModal";
 import { TagEditModal } from "../../features/tags/components/TagEditModal";
+import { WorkflowSelectionModal } from "../../features/workflows/components/WorkflowSelectionModal";
+import { useWorkflowExecution } from "../../features/workflows/hooks/useWorkflowExecution";
 import { useGallery } from "../../store/GalleryContext";
 import { DeleteConfirmModal } from "./DeleteConfirmModal";
 import { ParentSelectionModal } from "./ParentSelectionModal";
 
 export const GalleryModals: React.FC = () => {
 	const { state, dispatch } = useGallery();
+	const { executeWorkflow } = useWorkflowExecution();
 
 	// Only render modals here if viewer is NOT open.
 	// If viewer is open, it handles its own modals to support fullscreen.
@@ -16,6 +19,17 @@ export const GalleryModals: React.FC = () => {
 
 	return (
 		<>
+			{state.activeModal.type === "workflow_selection" && (
+				<WorkflowSelectionModal
+					image={state.activeModal.image}
+					onExecute={(workflowName) => {
+						if (state.activeModal.type === "workflow_selection") {
+							return executeWorkflow(workflowName, state.activeModal.image);
+						}
+						return Promise.resolve();
+					}}
+				/>
+			)}
 			{state.activeModal.type === "parent_selection" &&
 				createPortal(
 					<ParentSelectionModal imageId={state.activeModal.imageId} />,

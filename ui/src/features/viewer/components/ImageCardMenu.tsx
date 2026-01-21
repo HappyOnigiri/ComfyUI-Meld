@@ -2,6 +2,7 @@ import {
 	ArrowBigRight,
 	ArrowRight,
 	MoreVertical,
+	Play,
 	PlusCircle,
 	Tag,
 } from "lucide-react";
@@ -13,6 +14,7 @@ interface ImageCardMenuProps {
 	menuRef: React.RefObject<HTMLDivElement>;
 	onAddUnifiedLoader: () => void;
 	onRestoreWorkflow: () => void;
+	onRunWithWorkflow: () => void;
 	onEditSource: () => void;
 	onEditTags: () => void;
 }
@@ -23,6 +25,7 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 	menuRef,
 	onAddUnifiedLoader,
 	onRestoreWorkflow,
+	onRunWithWorkflow,
 	onEditSource,
 	onEditTags,
 }) => {
@@ -73,6 +76,17 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 					>
 						<ArrowBigRight size={14} />
 						<span>Restore Full Workflow</span>
+					</div>
+					<div
+						className="meld-image-card__menu-item"
+						onClick={(e) => {
+							e.stopPropagation();
+							onRunWithWorkflow();
+							setIsMenuOpen(false);
+						}}
+					>
+						<Play size={14} />
+						<span>Run with Workflow</span>
 					</div>
 					<div
 						className="meld-image-card__menu-item"

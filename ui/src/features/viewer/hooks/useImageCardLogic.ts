@@ -21,6 +21,7 @@ export const useImageCardLogic = (image: MeldImage) => {
 		handleAddUnifiedLoader,
 		handleEditSource,
 		handleEditTags,
+		handleRunWithWorkflow,
 	} = useImageActions(state, dispatch);
 
 	const { getParentChain } = useImageLineage(state.images, state.settings);
@@ -158,6 +159,10 @@ export const useImageCardLogic = (image: MeldImage) => {
 		handleEditTags(image);
 	};
 
+	const handleRunWithWorkflowAction = () => {
+		handleRunWithWorkflow(image);
+	};
+
 	return {
 		state,
 		dispatch,
@@ -182,6 +187,7 @@ export const useImageCardLogic = (image: MeldImage) => {
 		handleAddUnifiedLoader: handleAddUnifiedLoaderAction,
 		handleEditSource: handleEditSourceAction,
 		handleEditTags: handleEditTagsAction,
+		handleRunWithWorkflow: handleRunWithWorkflowAction,
 		fetchFullImageDetails,
 	};
 };

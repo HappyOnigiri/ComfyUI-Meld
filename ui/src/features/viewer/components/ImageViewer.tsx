@@ -18,6 +18,8 @@ import { getImageViewUrl } from "../../../utils/url";
 import { ImportModal } from "../../importer/components/ImportModal";
 import { SettingsModal } from "../../settings/components/SettingsModal";
 import { TagEditModal } from "../../tags/components/TagEditModal";
+import { WorkflowSelectionModal } from "../../workflows/components/WorkflowSelectionModal";
+import { useWorkflowExecution } from "../../workflows/hooks/useWorkflowExecution";
 import { useImageViewerLogic } from "../hooks/useImageViewerLogic";
 import { ViewerCheatSheet } from "./ViewerCheatSheet";
 import { ViewerInfoPanel } from "./ViewerInfoPanel";
@@ -52,6 +54,8 @@ export const ImageViewer: React.FC = () => {
 		loadMoreImages,
 		fetchFullImageDetails,
 	});
+
+	const { executeWorkflow } = useWorkflowExecution();
 
 	if (!image) return null;
 
@@ -203,6 +207,17 @@ export const ImageViewer: React.FC = () => {
 			</div>
 
 			{/* Render modals inside viewer to ensure visibility in fullscreen */}
+			{state.activeModal.type === "workflow_selection" && (
+				<WorkflowSelectionModal
+					image={state.activeModal.image}
+					onExecute={(workflowName) => {
+						if (state.activeModal.type === "workflow_selection") {
+							return executeWorkflow(workflowName, state.activeModal.image);
+						}
+						return Promise.resolve();
+					}}
+				/>
+			)}
 			{state.activeModal.type === "delete_confirm" && (
 				<DeleteConfirmModal
 					imageIds={state.activeModal.imageIds}

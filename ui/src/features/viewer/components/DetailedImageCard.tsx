@@ -33,12 +33,13 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(
 			handleAddUnifiedLoader,
 			handleEditSource,
 			handleEditTags,
+			handleRunWithWorkflow,
 			fetchFullImageDetails,
 		} = useImageCardLogic(image);
 
 		return (
 			<div
-				className={`meld-image-card ${isSelected ? "meld-image-card--selected" : ""}`}
+				className={`meld-image-card ${isSelected ? "meld-image-card--selected" : ""} ${isMenuOpen ? "meld-image-card--menu-open" : ""}`}
 				onClick={handleContainerClick}
 				onMouseDown={handleMouseDown}
 				onKeyDown={handleKeyDown}
@@ -269,6 +270,7 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(
 					menuRef={menuRef}
 					onAddUnifiedLoader={handleAddUnifiedLoader}
 					onRestoreWorkflow={handleRestoreWorkflow}
+					onRunWithWorkflow={handleRunWithWorkflow}
 					onEditSource={handleEditSource}
 					onEditTags={handleEditTags}
 				/>

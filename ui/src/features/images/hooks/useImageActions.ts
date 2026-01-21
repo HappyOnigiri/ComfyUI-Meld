@@ -132,6 +132,16 @@ export const useImageActions = (
 		[dispatch],
 	);
 
+	const handleRunWithWorkflow = useCallback(
+		(image: MeldImage) => {
+			dispatch({
+				type: "OPEN_MODAL",
+				payload: { type: "workflow_selection", image },
+			});
+		},
+		[dispatch],
+	);
+
 	const handleRestore = useCallback(
 		async (image: MeldImage, onSuccess?: () => void) => {
 			try {
@@ -155,6 +165,7 @@ export const useImageActions = (
 		handleAddUnifiedLoader,
 		handleEditTags,
 		handleEditSource,
+		handleRunWithWorkflow,
 		handleRestore,
 	};
 };

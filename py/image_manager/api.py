@@ -11,6 +11,7 @@ from .features.importer.service import perform_cleanup
 from .features.search.router import routes as search_routes
 from .features.settings.router import routes as setting_routes
 from .features.tags.router import routes as tag_routes
+from .features.workflows.router import routes as workflow_routes
 
 # Register all routes to ComfyUI
 utility_routes = web.RouteTableDef()
@@ -40,6 +41,7 @@ async def test_endpoint(request: web.Request) -> web.Response:
 
 if server.PromptServer.instance is not None:
     _register_routes(tag_routes)
+    _register_routes(workflow_routes)
     _register_routes(import_routes)
     _register_routes(search_routes)
     _register_routes(image_routes)
