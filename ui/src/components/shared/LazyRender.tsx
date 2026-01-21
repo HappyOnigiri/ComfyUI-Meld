@@ -47,7 +47,6 @@ export const LazyRender: React.FC<LazyRenderProps> = ({
 			className={className}
 			style={{
 				minHeight: `${height}px`,
-				overflow: "hidden",
 				...style,
 			}}
 		>

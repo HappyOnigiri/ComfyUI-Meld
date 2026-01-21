@@ -214,6 +214,11 @@
 	border-color: var(--meld-accent-color);
 }
 
+.meld-image-card--menu-open {
+	z-index: 2000;
+	position: relative;
+}
+
 .meld-image-card--grid-only {
 	flex-direction: column;
 	padding: 4px;
@@ -286,7 +291,7 @@
 	border-radius: 4px;
 	box-shadow: 0 4px 12px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.5));
 	min-width: 180px;
-	z-index: 100;
+	z-index: 5000;
 	overflow: hidden;
 }
 
@@ -2578,4 +2583,54 @@
 	font-size: 11px;
 	text-shadow: none;
 	font-family: monospace;
+}
+
+/* Workflow Selection Modal */
+.meld-workflow-list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	max-height: 400px;
+	overflow-y: auto;
+	padding-right: 4px;
+}
+
+.meld-workflow-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 12px;
+	background: var(--comfy-input-bg, rgba(255, 255, 255, 0.05));
+	border: 1px solid var(--comfy-menu-secondary-border, rgba(255, 255, 255, 0.1));
+	border-radius: 6px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.meld-workflow-item:hover:not(.meld-workflow-item--invalid) {
+	background: var(--comfy-input-bg-active, rgba(255, 255, 255, 0.1));
+	border-color: var(--meld-accent-color);
+	transform: translateY(-1px);
+}
+
+.meld-workflow-item--invalid {
+	cursor: not-allowed;
+	filter: grayscale(1) opacity(0.5);
+}
+
+.meld-workflow-item__info {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	flex: 1;
+}
+
+.meld-workflow-item__name {
+	font-weight: 500;
+	color: var(--meld-text-color);
+}
+
+.meld-workflow-item__reason {
+	font-size: 11px;
+	color: var(--meld-danger-color);
 }
