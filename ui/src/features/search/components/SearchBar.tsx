@@ -44,12 +44,26 @@ export const SearchBar: React.FC = () => {
 	} = useFavoritesLogic();
 
 	const editInputRef = useRef<HTMLInputElement>(null);
+	const overlayMouseDownRef = useRef(false);
 
 	useEffect(() => {
 		if (editingFavorite && editInputRef.current) {
 			editInputRef.current.focus();
 		}
 	}, [editingFavorite]);
+
+	const handleOverlayMouseDown = (e: React.MouseEvent) => {
+		if (e.target === e.currentTarget) {
+			overlayMouseDownRef.current = true;
+		}
+	};
+
+	const handleOverlayMouseUp = (e: React.MouseEvent) => {
+		if (e.target === e.currentTarget && overlayMouseDownRef.current) {
+			setEditingFavorite(null);
+		}
+		overlayMouseDownRef.current = false;
+	};
 
 	return (
 		<div
@@ -282,7 +296,8 @@ export const SearchBar: React.FC = () => {
 				createPortal(
 					<div
 						className="meld-modal-overlay"
-						onClick={() => setEditingFavorite(null)}
+						onMouseDown={handleOverlayMouseDown}
+						onMouseUp={handleOverlayMouseUp}
 						style={{
 							zIndex: 3000,
 						}}

@@ -1,6 +1,6 @@
 import { Link, Link2Off, Upload, X } from "lucide-react";
 import type React from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import * as imagesApi from "../../features/images/api/imagesApi";
 import * as importerApi from "../../features/importer/api/importerApi";
@@ -28,6 +28,21 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 	const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isDragging, setIsDragging] = useState(false);
+
+	const overlayMouseDownRef = useRef(false);
+
+	const handleOverlayMouseDown = (e: React.MouseEvent) => {
+		if (e.target === e.currentTarget) {
+			overlayMouseDownRef.current = true;
+		}
+	};
+
+	const handleOverlayMouseUp = (e: React.MouseEvent) => {
+		if (e.target === e.currentTarget && overlayMouseDownRef.current) {
+			dispatch({ type: "CLOSE_MODAL" });
+		}
+		overlayMouseDownRef.current = false;
+	};
 
 	const image = state.images.find((img) => img.id === imageId);
 
@@ -135,7 +150,8 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 	return createPortal(
 		<div
 			className="meld-modal-overlay"
-			onClick={() => dispatch({ type: "CLOSE_MODAL" })}
+			onMouseDown={handleOverlayMouseDown}
+			onMouseUp={handleOverlayMouseUp}
 		>
 			<div className="meld-modal-content" onClick={(e) => e.stopPropagation()}>
 				<div className="meld-modal-header">

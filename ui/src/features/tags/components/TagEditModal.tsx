@@ -29,6 +29,21 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 
 	const isBulk = imageIds.length > 1;
 
+	const overlayMouseDownRef = useRef(false);
+
+	const handleOverlayMouseDown = (e: React.MouseEvent) => {
+		if (e.target === e.currentTarget) {
+			overlayMouseDownRef.current = true;
+		}
+	};
+
+	const handleOverlayMouseUp = (e: React.MouseEvent) => {
+		if (e.target === e.currentTarget && overlayMouseDownRef.current) {
+			onClose();
+		}
+		overlayMouseDownRef.current = false;
+	};
+
 	const loadTags = useCallback(async () => {
 		setIsLoading(true);
 		try {
@@ -140,10 +155,8 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 	return createPortal(
 		<div
 			className="meld-modal-overlay"
-			onClick={(e) => {
-				e.stopPropagation();
-				onClose();
-			}}
+			onMouseDown={handleOverlayMouseDown}
+			onMouseUp={handleOverlayMouseUp}
 		>
 			<div className="meld-modal-content" onClick={(e) => e.stopPropagation()}>
 				<div className="meld-modal-header">

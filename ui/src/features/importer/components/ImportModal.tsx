@@ -8,7 +8,7 @@ import {
 	X,
 } from "lucide-react";
 import type React from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import * as api from "../../../api";
 import { logger } from "../../../logger";
@@ -78,6 +78,21 @@ export const ImportModal: React.FC = () => {
 		subfolder: string;
 		type: string;
 	} | null>(null);
+
+	const overlayMouseDownRef = useRef(false);
+
+	const handleOverlayMouseDown = (e: React.MouseEvent) => {
+		if (e.target === e.currentTarget) {
+			overlayMouseDownRef.current = true;
+		}
+	};
+
+	const handleOverlayMouseUp = (e: React.MouseEvent) => {
+		if (e.target === e.currentTarget && overlayMouseDownRef.current) {
+			dispatch({ type: "CLOSE_MODAL" });
+		}
+		overlayMouseDownRef.current = false;
+	};
 
 	useEffect(() => {
 		const initHomeDir = async () => {
@@ -323,7 +338,8 @@ export const ImportModal: React.FC = () => {
 	return createPortal(
 		<div
 			className="meld-modal-overlay"
-			onClick={() => dispatch({ type: "CLOSE_MODAL" })}
+			onMouseDown={handleOverlayMouseDown}
+			onMouseUp={handleOverlayMouseUp}
 		>
 			<div
 				className="meld-modal-content meld-modal-content--large"

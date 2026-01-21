@@ -1,6 +1,6 @@
 import { AlertCircle, FileJson, Play, X } from "lucide-react";
 import type React from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useGallery } from "../../../store/GalleryContext";
 import type { MeldImage } from "../../../types";
@@ -51,6 +51,24 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 		dispatch({ type: "CLOSE_MODAL" });
 	}, [dispatch]);
 
+	const overlayMouseDownRef = useRef(false);
+
+	const handleOverlayMouseDown = useCallback((e: React.MouseEvent) => {
+		if (e.target === e.currentTarget) {
+			overlayMouseDownRef.current = true;
+		}
+	}, []);
+
+	const handleOverlayMouseUp = useCallback(
+		(e: React.MouseEvent) => {
+			if (e.target === e.currentTarget && overlayMouseDownRef.current) {
+				handleClose();
+			}
+			overlayMouseDownRef.current = false;
+		},
+		[handleClose],
+	);
+
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (e.key === "Escape") {
@@ -74,7 +92,11 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 	};
 
 	return createPortal(
-		<div className="meld-modal-overlay" onClick={handleClose}>
+		<div
+			className="meld-modal-overlay"
+			onMouseDown={handleOverlayMouseDown}
+			onMouseUp={handleOverlayMouseUp}
+		>
 			<div
 				className="meld-modal-content meld-modal-content--medium"
 				onClick={(e) => e.stopPropagation()}

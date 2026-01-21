@@ -39,6 +39,24 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 		dispatch({ type: "CLOSE_MODAL" });
 	}, [dispatch]);
 
+	const overlayMouseDownRef = useRef(false);
+
+	const handleOverlayMouseDown = useCallback((e: React.MouseEvent) => {
+		if (e.target === e.currentTarget) {
+			overlayMouseDownRef.current = true;
+		}
+	}, []);
+
+	const handleOverlayMouseUp = useCallback(
+		(e: React.MouseEvent) => {
+			if (e.target === e.currentTarget && overlayMouseDownRef.current) {
+				handleClose();
+			}
+			overlayMouseDownRef.current = false;
+		},
+		[handleClose],
+	);
+
 	const navigateViewerIfNeeded = useCallback(
 		(idsToDelete: Set<number>) => {
 			if (!isMounted.current) return;
@@ -206,7 +224,11 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 	};
 
 	return createPortal(
-		<div className="meld-modal-overlay" onClick={handleClose}>
+		<div
+			className="meld-modal-overlay"
+			onMouseDown={handleOverlayMouseDown}
+			onMouseUp={handleOverlayMouseUp}
+		>
 			<div
 				className="meld-modal-content meld-modal-content--small"
 				onClick={(e) => e.stopPropagation()}

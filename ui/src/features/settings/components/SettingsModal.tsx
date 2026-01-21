@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import type React from "react";
+import { useRef } from "react";
 import { createPortal } from "react-dom";
 import { useSettingsModalLogic } from "../hooks/useSettingsModalLogic";
 import { FullScreenTab } from "./tabs/FullScreenTab";
@@ -37,6 +38,21 @@ export const SettingsModal: React.FC = () => {
 		fullscreenMaxNegativePromptLinesInput,
 		thumbnailSizeInput,
 	} = useSettingsModalLogic();
+
+	const overlayMouseDownRef = useRef(false);
+
+	const handleOverlayMouseDown = (e: React.MouseEvent) => {
+		if (e.target === e.currentTarget) {
+			overlayMouseDownRef.current = true;
+		}
+	};
+
+	const handleOverlayMouseUp = (e: React.MouseEvent) => {
+		if (e.target === e.currentTarget && overlayMouseDownRef.current) {
+			handleClose();
+		}
+		overlayMouseDownRef.current = false;
+	};
 
 	const tabs: { id: typeof activeTab; label: string }[] = [
 		{ id: "Gallery", label: "Gallery" },
@@ -119,7 +135,11 @@ export const SettingsModal: React.FC = () => {
 	};
 
 	return createPortal(
-		<div className="meld-modal-overlay" onClick={handleClose}>
+		<div
+			className="meld-modal-overlay"
+			onMouseDown={handleOverlayMouseDown}
+			onMouseUp={handleOverlayMouseUp}
+		>
 			<div
 				className="meld-modal-content meld-settings-modal"
 				onClick={(e) => e.stopPropagation()}
