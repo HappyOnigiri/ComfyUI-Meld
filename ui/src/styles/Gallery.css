@@ -560,6 +560,16 @@
 	background-color: var(--comfy-input-bg-active, rgba(255, 255, 255, 0.1));
 }
 
+.meld-bulk-bar__button--edit {
+	background: var(--comfy-input-bg, #444);
+	color: var(--meld-text-color);
+}
+
+.meld-bulk-bar__button--workflow {
+	background: var(--meld-accent-color);
+	color: white;
+}
+
 .meld-bulk-bar__button--delete {
 	background: var(--meld-danger-color);
 	color: white;

@@ -133,10 +133,11 @@ export const useImageActions = (
 	);
 
 	const handleRunWithWorkflow = useCallback(
-		(image: MeldImage) => {
+		(images: MeldImage | MeldImage[]) => {
+			const imageArray = Array.isArray(images) ? images : [images];
 			dispatch({
 				type: "OPEN_MODAL",
-				payload: { type: "workflow_selection", image },
+				payload: { type: "workflow_selection", images: imageArray },
 			});
 		},
 		[dispatch],

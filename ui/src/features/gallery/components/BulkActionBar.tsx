@@ -1,9 +1,11 @@
-import { RefreshCw, Tag, Trash2, X } from "lucide-react";
+import { FileJson, RefreshCw, Tag, Trash2, X } from "lucide-react";
 import type React from "react";
 import { useGallery } from "../../../store/GalleryContext";
+import { useImageActions } from "../../images/hooks/useImageActions";
 
 export const BulkActionBar: React.FC = () => {
 	const { state, dispatch, deleteSelected, restoreSelected } = useGallery();
+	const { handleRunWithWorkflow } = useImageActions(state, dispatch);
 	const count = state.selectedIds.size;
 
 	if (count === 0) return null;
@@ -31,6 +33,13 @@ export const BulkActionBar: React.FC = () => {
 				tags: Array.from(allTags),
 			},
 		});
+	};
+
+	const handleBulkRunWithWorkflow = () => {
+		const selectedImages = state.images.filter((img) =>
+			state.selectedIds.has(img.id),
+		);
+		handleRunWithWorkflow(selectedImages);
 	};
 
 	return (
@@ -76,6 +85,18 @@ export const BulkActionBar: React.FC = () => {
 							style={{ marginRight: "8px", verticalAlign: "middle" }}
 						/>
 						Edit Tags
+					</button>
+
+					<button
+						type="button"
+						className="meld-bulk-bar__button meld-bulk-bar__button--workflow"
+						onClick={handleBulkRunWithWorkflow}
+					>
+						<FileJson
+							size={16}
+							style={{ marginRight: "8px", verticalAlign: "middle" }}
+						/>
+						Run Workflow
 					</button>
 
 					<button

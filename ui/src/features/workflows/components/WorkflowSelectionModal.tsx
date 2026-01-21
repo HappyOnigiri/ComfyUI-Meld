@@ -7,12 +7,12 @@ import type { MeldImage } from "../../../types";
 import { fetchWorkflows, type WorkflowInfo } from "../api/workflowsApi";
 
 interface WorkflowSelectionModalProps {
-	image: MeldImage;
+	images: MeldImage[];
 	onExecute: (workflowName: string) => Promise<void>;
 }
 
 export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
-	image,
+	images,
 	onExecute,
 }) => {
 	const { dispatch } = useGallery();
@@ -123,8 +123,13 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 									color: "var(--meld-text-secondary)",
 								}}
 							>
-								Select a workflow to process <strong>{image.filename}</strong>.
-								Only workflows with exactly one{" "}
+								Select a workflow to process{" "}
+								<strong>
+									{images.length > 1
+										? `${images.length} images`
+										: images[0]?.filename}
+								</strong>
+								. Only workflows with exactly one{" "}
 								<strong>Meld Image Loader</strong> node are supported.
 							</div>
 							{sortedWorkflows.map((wf) => (

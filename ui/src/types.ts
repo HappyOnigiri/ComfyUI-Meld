@@ -135,7 +135,7 @@ export type ActiveModal =
 	| { type: "tag_edit"; imageIds: number[]; tags: string[] }
 	| { type: "import" }
 	| { type: "settings" }
-	| { type: "workflow_selection"; image: MeldImage }
+	| { type: "workflow_selection"; images: MeldImage[] }
 	| {
 			type: "delete_confirm";
 			imageIds: number[];

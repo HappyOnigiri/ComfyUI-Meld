@@ -21,12 +21,13 @@ export const GalleryModals: React.FC = () => {
 		<>
 			{state.activeModal.type === "workflow_selection" && (
 				<WorkflowSelectionModal
-					image={state.activeModal.image}
-					onExecute={(workflowName) => {
+					images={state.activeModal.images}
+					onExecute={async (workflowName) => {
 						if (state.activeModal.type === "workflow_selection") {
-							return executeWorkflow(workflowName, state.activeModal.image);
+							for (const img of state.activeModal.images) {
+								await executeWorkflow(workflowName, img);
+							}
 						}
-						return Promise.resolve();
 					}}
 				/>
 			)}
