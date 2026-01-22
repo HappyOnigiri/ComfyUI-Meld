@@ -1,6 +1,12 @@
-.PHONY: ci test-all lint repomix repomix-image-manager local-check-scripts check-scripts loc
+.PHONY: ci test-all lint lint-py lint-ui lint-misc lint-scripts build-ui watch-ui local-check-scripts check-scripts check-ts-rules check-only-ascii repomix loc
 
-ci: local-check-scripts check-only-ascii lint build-ui test-all
+# CI: Parallel execution of all checks and tests
+# Automatically uses -j 4 to speed up the process.
+ci:
+	@echo "Starting CI with parallel execution..."
+	@$(MAKE) --no-print-directory -j 4 ci-parallel
+
+ci-parallel: lint-py lint-ui lint-misc lint-scripts test-all build-ui
 
 loc:
 	@echo "=== Lines of code by file ==="
@@ -15,11 +21,17 @@ loc:
 		for (e in count) printf "%10d %s\n", count[e], e; \
 	}' | sort -nr
 
-build-ui:
-	cd ui && npm install && npm run build
+# UI node_modules management
+ui/node_modules/.install-stamp: ui/package.json ui/package-lock.json
+	@echo "Installing UI dependencies..."
+	cd ui && npm install
+	@touch $@
 
-watch-ui:
-	cd ui && npm install && npm run dev
+build-ui: ui/node_modules/.install-stamp
+	cd ui && npm run build
+
+watch-ui: ui/node_modules/.install-stamp
+	cd ui && npm run dev
 
 local-check-scripts:
 	@if [ -d "local_check_scripts" ]; then \
@@ -34,13 +46,24 @@ local-check-scripts:
 test-all:
 	python -m unittest discover tests
 
-lint: check-only-ascii check-ts-rules check-scripts
+# Linting tasks organized by type
+lint: lint-py lint-ui lint-misc lint-scripts
+
+lint-py:
+	@echo "Running Python linting (ruff, mypy, pyright)..."
 	python -m ruff format .
 	python -m ruff check . --fix
 	python -m mypy py tests
 	npx pyright
+
+lint-ui: ui/node_modules/.install-stamp
+	@echo "Running UI linting (tsc, biome)..."
 	cd ui && npx tsc --noEmit
 	cd ui && npx @biomejs/biome check --write src --error-on-warnings
+
+lint-misc: check-only-ascii check-ts-rules
+
+lint-scripts: check-scripts local-check-scripts
 
 check-scripts:
 	@if [ -d "check_scripts" ]; then \
