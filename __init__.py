@@ -26,7 +26,7 @@ NODE_CLASS_MAPPINGS = {
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "MeldAutoExposure": "Meld Auto Exposure",
-    "MeldPixelate": "Meld Pixelate",
+    "MeldPixelate": "Meld Instant Pixelate",
     "MeldImageLoader": "Meld Image Loader",
     "MeldImageLoaderBatch": "Meld Image Loader (Batch)",
     "MeldSettingsUnpacker": "Meld Settings Unpacker",
