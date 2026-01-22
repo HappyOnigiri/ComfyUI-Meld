@@ -1,6 +1,6 @@
 import { AlertTriangle, Trash2, X } from "lucide-react";
 import type React from "react";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import * as imagesApi from "../../features/images/api/imagesApi";
 import { useGallery } from "../../store/GalleryContext";
@@ -28,6 +28,34 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 			isMounted.current = false;
 		};
 	}, []);
+
+	const isShowingDerivativesSearch = useMemo(
+		() =>
+			state.searchQuery.toLowerCase().includes("has_derivatives:yes") ||
+			state.searchQuery.toLowerCase().includes("has_derivatives:true") ||
+			state.searchQuery.toLowerCase().includes("has_derivatives:1"),
+		[state.searchQuery],
+	);
+
+	const currentList = useMemo(
+		() =>
+			state.viewerMode === "lineage" && state.lineageImages.length > 0
+				? state.lineageImages
+				: state.images.filter(
+						(img) =>
+							img.exists !== false &&
+							(state.settings["gallery.show_parent_images"] ||
+								!img.has_children ||
+								isShowingDerivativesSearch),
+					),
+		[
+			state.viewerMode,
+			state.lineageImages,
+			state.images,
+			state.settings,
+			isShowingDerivativesSearch,
+		],
+	);
 
 	// Track current viewer state to prevent re-opening if closed during async operations
 	const viewerImageIdRef = useRef(state.viewerImageId);
@@ -68,18 +96,8 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 				return;
 			}
 
-			const currentList =
-				state.viewerMode === "lineage" && state.lineageImages.length > 0
-					? state.lineageImages
-					: state.images.filter(
-							(img) =>
-								img.exists !== false &&
-								(state.settings["gallery.show_parent_images"] ||
-									!img.has_children),
-						);
-
 			const currentIndex = currentList.findIndex(
-				(img) => img.id === currentViewerImageId,
+				(img: MeldImage) => img.id === currentViewerImageId,
 			);
 			if (currentIndex === -1) return;
 
@@ -115,13 +133,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 				dispatch({ type: "CLOSE_VIEWER" });
 			}
 		},
-		[
-			state.viewerMode,
-			state.lineageImages,
-			state.images,
-			state.settings,
-			dispatch,
-		],
+		[state.viewerMode, currentList, dispatch],
 	);
 
 	useEffect(() => {
@@ -138,18 +150,8 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 		try {
 			dispatch({ type: "SET_LOADING", payload: true });
 
-			const currentList =
-				state.viewerMode === "lineage" && state.lineageImages.length > 0
-					? state.lineageImages
-					: state.images.filter(
-							(img) =>
-								img.exists !== false &&
-								(state.settings["gallery.show_parent_images"] ||
-									!img.has_children),
-						);
-
 			const idsToDeleteSet = new Set(imageIds);
-			const deletedImages = currentList.filter((img) =>
+			const deletedImages = currentList.filter((img: MeldImage) =>
 				idsToDeleteSet.has(img.id),
 			);
 			navigateViewerIfNeeded(idsToDeleteSet);
@@ -176,16 +178,6 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 		try {
 			dispatch({ type: "SET_LOADING", payload: true });
 
-			const currentList =
-				state.viewerMode === "lineage" && state.lineageImages.length > 0
-					? state.lineageImages
-					: state.images.filter(
-							(img) =>
-								img.exists !== false &&
-								(state.settings["gallery.show_parent_images"] ||
-									!img.has_children),
-						);
-
 			const allIdsToDelete = new Set<number>(imageIds);
 
 			// Fetch lineage for each selected image to find all related images
@@ -197,7 +189,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 				}
 			}
 
-			const deletedImages = currentList.filter((img) =>
+			const deletedImages = currentList.filter((img: MeldImage) =>
 				allIdsToDelete.has(img.id),
 			);
 			navigateViewerIfNeeded(allIdsToDelete);
