@@ -205,7 +205,13 @@ export const useSearchLogic = () => {
 	}, [handleSearch]);
 
 	const applySearchSuggestion = useCallback(
-		(type: string, value: string) => {
+		(type: string, value: string, onlyPrefix = false) => {
+			if (onlyPrefix) {
+				const newQuery = `${type}:`;
+				setInputValue(newQuery);
+				inputRef.current?.focus();
+				return;
+			}
 			const noQuoteTypes = searchConfig?.no_quote_prefixes || [];
 			const isNoQuote = noQuoteTypes.includes(type);
 			const valueWithQuotes = isNoQuote ? value : `"${value}"`;

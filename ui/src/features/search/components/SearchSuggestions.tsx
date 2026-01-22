@@ -26,7 +26,11 @@ export interface SearchSuggestionsProps {
 	allKeywords: { type: string; value: string }[];
 	showAllKeywords: boolean;
 	toggleShowAllKeywords: () => void;
-	applySearchSuggestion: (type: string, value: string) => void;
+	applySearchSuggestion: (
+		type: string,
+		value: string,
+		onlyPrefix?: boolean,
+	) => void;
 	favorites: Favorite[];
 	onSelectFavorite: (query: string) => void;
 	onEditFavorite: (e: React.MouseEvent, fav: Favorite) => void;
@@ -87,7 +91,9 @@ export const SearchSuggestions = ({
 		<button
 			key={`${keyPrefix}-${s.type}:${s.value}:${idx}`}
 			type="button"
-			onClick={() => applySearchSuggestion(s.type, s.value)}
+			onClick={() =>
+				applySearchSuggestion(s.type, s.value, keyPrefix === "all")
+			}
 			style={{
 				display: "flex",
 				alignItems: "center",
@@ -131,16 +137,18 @@ export const SearchSuggestions = ({
 			>
 				{s.type}
 			</span>
-			<span
-				style={{
-					maxWidth: "200px",
-					overflow: "hidden",
-					textOverflow: "ellipsis",
-					whiteSpace: "nowrap",
-				}}
-			>
-				{s.value}
-			</span>
+			{keyPrefix !== "all" && (
+				<span
+					style={{
+						maxWidth: "200px",
+						overflow: "hidden",
+						textOverflow: "ellipsis",
+						whiteSpace: "nowrap",
+					}}
+				>
+					{s.value}
+				</span>
+			)}
 		</button>
 	);
 
@@ -313,7 +321,10 @@ export const SearchSuggestions = ({
 								overflowY: "auto",
 							}}
 						>
-							{allKeywords.map((s, idx) => renderKeywordButton(s, idx, "all"))}
+							{Array.from(new Set(allKeywords.map((s) => s.type))).map(
+								(type, idx) =>
+									renderKeywordButton({ type, value: "" }, idx, "all"),
+							)}
 						</div>
 					)}
 				</div>
