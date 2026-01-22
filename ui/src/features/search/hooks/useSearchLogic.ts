@@ -17,6 +17,30 @@ export interface SearchConfig {
 	no_quote_prefixes: string[];
 }
 
+const getSearchTokens = (input: string) => {
+	const tokens: string[] = [];
+	let current = "";
+	let inQuotes = false;
+	for (let i = 0; i < input.length; i++) {
+		const char = input[i];
+		if (char === '"') {
+			inQuotes = !inQuotes;
+			current += char;
+		} else if (char === " " && !inQuotes) {
+			tokens.push(current);
+			current = "";
+			// Skip extra spaces
+			while (i + 1 < input.length && input[i + 1] === " ") {
+				i++;
+			}
+		} else {
+			current += char;
+		}
+	}
+	tokens.push(current);
+	return tokens;
+};
+
 export const useSearchLogic = () => {
 	const { state, dispatch, updateSetting } = useGallery();
 	const [inputValue, setInputValue] = useState(state.searchQuery);
@@ -116,14 +140,21 @@ export const useSearchLogic = () => {
 				return;
 			}
 
-			const words = inputValue.split(/\s+/);
+			const words = getSearchTokens(inputValue);
 			const lastWord = words[words.length - 1];
 
 			if (lastWord) {
 				const match = lastWord.match(searchPrefixRegex);
 				if (match) {
 					const prefix = match[1].toLowerCase();
-					const subQuery = match[2];
+					let subQuery = match[2];
+
+					if (subQuery.startsWith('"')) {
+						subQuery = subQuery.substring(1);
+					}
+					if (subQuery.endsWith('"')) {
+						subQuery = subQuery.substring(0, subQuery.length - 1);
+					}
 
 					const results = await searchApi.fetchSuggestions(subQuery, prefix);
 					setSuggestions(results);
@@ -144,7 +175,7 @@ export const useSearchLogic = () => {
 
 	const applySuggestion = useCallback(
 		(suggestion: Suggestion) => {
-			const words = inputValue.split(/\s+/);
+			const words = getSearchTokens(inputValue);
 			const lastWord = words.pop() || ""; // Remove the last partial word
 			const negationMatch = lastWord.match(/^([-!])/);
 			const negationPrefix = negationMatch ? negationMatch[1] : "";
@@ -227,7 +258,7 @@ export const useSearchLogic = () => {
 	const handleInputFocus = useCallback(() => {
 		if (inputValue === lastSearchedValueRef.current || !searchPrefixRegex)
 			return;
-		const words = inputValue.split(/\s+/);
+		const words = getSearchTokens(inputValue);
 		const lastWord = words[words.length - 1];
 		if (lastWord?.match(searchPrefixRegex)) {
 			setShowSuggestions(true);
