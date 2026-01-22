@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![ComfyUI](https://img.shields.io/badge/ComfyUI-Registry-green)](https://registry.comfy.org/)
 
-[Japanese README](README_ja.md)
+[Japanese README](README.ja.md)
 
 **Meld your workflow. Eliminate the spaghetti.**
 
