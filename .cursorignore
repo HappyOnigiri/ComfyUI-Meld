@@ -9,7 +9,6 @@ env/
 .coverage
 htmlcov/
 *.log
-data/
 .vscode/
 .idea/
 .DS_Store
