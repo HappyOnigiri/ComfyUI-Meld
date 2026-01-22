@@ -391,7 +391,14 @@ export const SearchSuggestions = ({
 	};
 
 	return (
-		<div style={{ position: "relative" }}>
+		<div
+			style={{ position: "relative" }}
+			onMouseDown={(e) => {
+				// Prevent the input from losing focus when clicking on any part of the suggestions
+				// (including scrollbars and empty spaces).
+				e.preventDefault();
+			}}
+		>
 			{renderSearchSuggestions()}
 			{renderQuickSuggestions()}
 			{renderFavorites()}
