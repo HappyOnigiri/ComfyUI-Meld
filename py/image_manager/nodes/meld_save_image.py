@@ -44,7 +44,7 @@ class MeldSaveImage:
                 "filename_prefix": (
                     "STRING",
                     {
-                        "default": "Meld",
+                        "default": "%date:yyyy-MM-dd-HH-mm-ss%",
                         "tooltip": (
                             "The prefix for the file to save. This may include formatting "
                             "information such as %date:yyyy-MM-dd%, %date:yyyy_MM_dd_HHmmss%, "
@@ -72,7 +72,7 @@ class MeldSaveImage:
     def save_images(
         self,
         images: torch.Tensor,
-        filename_prefix: str = "Meld",
+        filename_prefix: str = "%date:yyyy-MM-dd-HH-mm-ss%",
         origin_image: torch.Tensor | None = None,
         positive: str | None = None,
         negative: str | None = None,
@@ -81,7 +81,7 @@ class MeldSaveImage:
         extra_pnginfo: dict | None = None,
     ) -> dict:
         if filename_prefix is None:
-            filename_prefix = "Meld"
+            filename_prefix = "%date:yyyy-MM-dd-HH-mm-ss%"
 
         filename_prefix += self.prefix_append
 
