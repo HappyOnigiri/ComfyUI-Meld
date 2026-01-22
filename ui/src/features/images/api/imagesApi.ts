@@ -1,5 +1,6 @@
 // @ts-expect-error
 import { api } from "/scripts/api.js";
+import { handleResponse } from "../../../api";
 import type { MeldImage } from "../../../types";
 
 export const fetchImages = async (
@@ -17,18 +18,12 @@ export const fetchImages = async (
 	const res = await api.fetchApi(
 		`/meld/list?offset=${offset}&limit=${limit}&query=${encodeURIComponent(query)}&view=${view}${minimal ? "&minimal=true" : ""}`,
 	);
-	if (!res.ok) {
-		throw new Error(`Failed to fetch images: ${res.statusText}`);
-	}
-	return await res.json();
+	return handleResponse(res);
 };
 
 export const fetchImageDetails = async (id: number): Promise<MeldImage> => {
 	const res = await api.fetchApi(`/meld/image/${id}/details`);
-	if (!res.ok) {
-		throw new Error(`Failed to fetch image details: ${res.statusText}`);
-	}
-	return await res.json();
+	return handleResponse(res);
 };
 
 export const deleteImages = async (
@@ -43,10 +38,7 @@ export const deleteImages = async (
 			permanent,
 		}),
 	});
-	if (!res.ok) {
-		const errData = await res.json();
-		throw new Error(errData.error || "Failed to delete images");
-	}
+	await handleResponse(res);
 };
 
 export const restoreImages = async (
@@ -57,12 +49,7 @@ export const restoreImages = async (
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ ids }),
 	});
-	if (!res.ok) {
-		const errData = await res.json();
-		throw new Error(errData.error || "Failed to restore images");
-	}
-	const result = await res.json();
-	return result.data || { restored_ids: ids };
+	return handleResponse(res);
 };
 
 export const registerImage = async (image: {
@@ -75,11 +62,7 @@ export const registerImage = async (image: {
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify(image),
 	});
-	if (!res.ok) {
-		throw new Error("Failed to register image");
-	}
-	const result = await res.json();
-	return result.data;
+	return handleResponse(res);
 };
 
 export const linkParent = async (
@@ -91,9 +74,7 @@ export const linkParent = async (
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ childId, parentId }),
 	});
-	if (!res.ok) {
-		throw new Error("Failed to link parent");
-	}
+	await handleResponse(res);
 };
 
 export const suggestParents = async (
@@ -115,18 +96,20 @@ export const suggestParents = async (
 	const res = await api.fetchApi(
 		`/meld/suggest-parents?id=${id}${thresholdParam}`,
 	);
-	if (!res.ok) {
+	try {
+		return await handleResponse(res);
+	} catch (_e) {
 		return [];
 	}
-	return await res.json();
 };
 
 export const fetchLineage = async (id: number): Promise<MeldImage[]> => {
 	const res = await api.fetchApi(`/meld/lineage?id=${id}`);
-	if (!res.ok) {
+	try {
+		return await handleResponse(res);
+	} catch (_e) {
 		return [];
 	}
-	return await res.json();
 };
 
 export const updateImageTags = async (
@@ -138,9 +121,7 @@ export const updateImageTags = async (
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ imageId, tags }),
 	});
-	if (!res.ok) {
-		throw new Error("Failed to update image tags");
-	}
+	await handleResponse(res);
 };
 
 export const bulkUpdateImageTags = async (
@@ -153,19 +134,14 @@ export const bulkUpdateImageTags = async (
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ imageIds, addTags, removeTags }),
 	});
-	if (!res.ok) {
-		throw new Error("Failed to bulk update image tags");
-	}
+	await handleResponse(res);
 };
 
 export const fetchImageWorkflow = async (
 	imageId: number,
 ): Promise<{ workflow: unknown }> => {
 	const res = await api.fetchApi(`/meld/image/${imageId}/workflow`);
-	if (!res.ok) {
-		throw new Error("Failed to fetch workflow");
-	}
-	return await res.json();
+	return handleResponse(res);
 };
 
 export const fetchSnapshotData = async (
@@ -181,8 +157,5 @@ export const fetchSnapshotData = async (
 	scheduler: string;
 }> => {
 	const res = await api.fetchApi(`/meld/image/${imageId}/snapshot_data`);
-	if (!res.ok) {
-		throw new Error("Failed to fetch snapshot data");
-	}
-	return await res.json();
+	return handleResponse(res);
 };

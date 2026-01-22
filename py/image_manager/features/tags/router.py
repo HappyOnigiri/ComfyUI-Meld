@@ -23,10 +23,10 @@ async def update_image_tags(request: web.Request) -> web.Response:
         try:
             req = UpdateImageTagsRequest.from_dict(data)
         except (TypeError, ValueError) as e:
-            return web.json_response({"error": f"Invalid schema: {e}"}, status=400)
+            return web.json_response(ApiResponse(success=False, error=f"Invalid schema: {e}").to_dict(), status=400)
 
         if req.imageId is None:
-            return web.json_response({"error": "imageId is required"}, status=400)
+            return web.json_response(ApiResponse(success=False, error="imageId is required").to_dict(), status=400)
 
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -63,7 +63,7 @@ async def update_image_tags(request: web.Request) -> web.Response:
             conn.close()
 
     except Exception as e:
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
 @routes.post("/meld/bulk-image-tags")
@@ -73,10 +73,10 @@ async def bulk_update_image_tags(request: web.Request) -> web.Response:
         try:
             req = BulkUpdateImageTagsRequest.from_dict(data)
         except (TypeError, ValueError) as e:
-            return web.json_response({"error": f"Invalid schema: {e}"}, status=400)
+            return web.json_response(ApiResponse(success=False, error=f"Invalid schema: {e}").to_dict(), status=400)
 
         if not req.imageIds:
-            return web.json_response({"error": "imageIds is required"}, status=400)
+            return web.json_response(ApiResponse(success=False, error="imageIds is required").to_dict(), status=400)
 
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -129,7 +129,7 @@ async def bulk_update_image_tags(request: web.Request) -> web.Response:
             conn.close()
 
     except Exception as e:
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
 @routes.get("/meld/tags")
@@ -139,9 +139,9 @@ async def list_tags(request: web.Request) -> web.Response:
         cursor = conn.cursor()
         tags = get_all_tags(cursor)
         conn.close()
-        return web.json_response([tag.to_dict() for tag in tags])
+        return web.json_response(ApiResponse(success=True, data=[tag.to_dict() for tag in tags]).to_dict())
     except Exception as e:
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
 @routes.post("/meld/tags")
@@ -151,14 +151,18 @@ async def create_tag(request: web.Request) -> web.Response:
         try:
             req = CreateTagRequest.from_dict(data)
         except (TypeError, ValueError) as e:
-            return web.json_response({"error": f"Invalid schema: {e}"}, status=400)
+            return web.json_response(ApiResponse(success=False, error=f"Invalid schema: {e}").to_dict(), status=400)
 
         if not req.name:
-            return web.json_response({"error": "name is required"}, status=400)
+            return web.json_response(ApiResponse(success=False, error="name is required").to_dict(), status=400)
 
         if req.name.lower() == RESERVED_TAG_KEYWORD:
             return web.json_response(
-                {"error": f"Tag name '{RESERVED_TAG_KEYWORD}' is reserved for search and cannot be used."}, status=400
+                ApiResponse(
+                    success=False,
+                    error=f"Tag name '{RESERVED_TAG_KEYWORD}' is reserved for search and cannot be used.",
+                ).to_dict(),
+                status=400,
             )
 
         conn = get_db_connection()
@@ -170,10 +174,12 @@ async def create_tag(request: web.Request) -> web.Response:
         conn.close()
 
         if row:
-            return web.json_response(TagRecord(id=row[0], name=row[1]).to_dict())
-        return web.json_response({"error": "Failed to create tag"}, status=500)
+            return web.json_response(
+                ApiResponse(success=True, data=TagRecord(id=row[0], name=row[1]).to_dict()).to_dict()
+            )
+        return web.json_response(ApiResponse(success=False, error="Failed to create tag").to_dict(), status=500)
     except Exception as e:
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
 @routes.delete("/meld/tags")
@@ -181,12 +187,12 @@ async def remove_tag(request: web.Request) -> web.Response:
     try:
         tag_id_str = request.query.get("id")
         if not tag_id_str:
-            return web.json_response({"error": "id is required"}, status=400)
+            return web.json_response(ApiResponse(success=False, error="id is required").to_dict(), status=400)
 
         try:
             req = DeleteTagRequest(id=int(tag_id_str))
         except ValueError:
-            return web.json_response({"error": "id must be an integer"}, status=400)
+            return web.json_response(ApiResponse(success=False, error="id must be an integer").to_dict(), status=400)
 
         conn = get_db_connection()
         success = delete_tag(conn, req.id)
@@ -194,9 +200,9 @@ async def remove_tag(request: web.Request) -> web.Response:
 
         if success:
             return web.json_response(ApiResponse(success=True).to_dict())
-        return web.json_response({"error": "Tag not found"}, status=404)
+        return web.json_response(ApiResponse(success=False, error="Tag not found").to_dict(), status=404)
     except Exception as e:
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
 @routes.post("/meld/tags/rename")
@@ -206,14 +212,18 @@ async def tag_rename_endpoint(request: web.Request) -> web.Response:
         try:
             req = RenameTagRequest.from_dict(data)
         except (TypeError, ValueError) as e:
-            return web.json_response({"error": f"Invalid schema: {e}"}, status=400)
+            return web.json_response(ApiResponse(success=False, error=f"Invalid schema: {e}").to_dict(), status=400)
 
         if req.id is None or not req.name:
-            return web.json_response({"error": "id and name are required"}, status=400)
+            return web.json_response(ApiResponse(success=False, error="id and name are required").to_dict(), status=400)
 
         if req.name.lower() == RESERVED_TAG_KEYWORD:
             return web.json_response(
-                {"error": f"Tag name '{RESERVED_TAG_KEYWORD}' is reserved for search and cannot be used."}, status=400
+                ApiResponse(
+                    success=False,
+                    error=f"Tag name '{RESERVED_TAG_KEYWORD}' is reserved for search and cannot be used.",
+                ).to_dict(),
+                status=400,
             )
 
         conn = get_db_connection()
@@ -221,8 +231,11 @@ async def tag_rename_endpoint(request: web.Request) -> web.Response:
             success = rename_tag(conn, req.id, req.name)
             if success:
                 return web.json_response(ApiResponse(success=True).to_dict())
-            return web.json_response({"error": "Failed to rename tag (maybe name already exists?)"}, status=400)
+            return web.json_response(
+                ApiResponse(success=False, error="Failed to rename tag (maybe name already exists?)").to_dict(),
+                status=400,
+            )
         finally:
             conn.close()
     except Exception as e:
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)

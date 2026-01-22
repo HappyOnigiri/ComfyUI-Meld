@@ -1,5 +1,6 @@
 // @ts-expect-error
 import { api } from "/scripts/api.js";
+import { handleResponse } from "../../../api";
 
 export const uploadImage = async (
 	file: File,
@@ -37,10 +38,12 @@ export const fetchFolders = async (
 		`/meld/folders?type=${type}&path=${encodeURIComponent(path)}&fast=${fast}`,
 		{ signal },
 	);
-	if (!res.ok) {
+	try {
+		return await handleResponse(res);
+	} catch (e) {
+		console.error("Failed to fetch folders", e);
 		return { folders: [], images: [], image_count: 0 };
 	}
-	return await res.json();
 };
 
 export const fetchFolderMetadata = async (
@@ -62,10 +65,12 @@ export const fetchFolderMetadata = async (
 		`/meld/folder-metadata?type=${type}&path=${encodeURIComponent(path)}&folders=${encodeURIComponent(folders.join(","))}`,
 		{ signal },
 	);
-	if (!res.ok) {
+	try {
+		return await handleResponse(res);
+	} catch (e) {
+		console.error("Failed to fetch folder metadata", e);
 		return {};
 	}
-	return await res.json();
 };
 
 export const fetchPathImageCount = async (
@@ -77,11 +82,12 @@ export const fetchPathImageCount = async (
 		`/meld/path-image-count?type=${type}&path=${encodeURIComponent(path)}`,
 		{ signal },
 	);
-	if (!res.ok) {
+	try {
+		const result = await handleResponse<{ count: number }>(res);
+		return result.count;
+	} catch (_e) {
 		return 0;
 	}
-	const data = await res.json();
-	return data.count;
 };
 
 export const startScan = async (params: {
@@ -98,19 +104,14 @@ export const startScan = async (params: {
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify(params),
 	});
-	if (!res.ok) {
-		const data = await res.json();
-		throw new Error(data.error || "Failed to start scan");
-	}
+	await handleResponse(res);
 };
 
 export const cancelScan = async (): Promise<void> => {
 	const res = await api.fetchApi("/meld/scan/cancel", {
 		method: "POST",
 	});
-	if (!res.ok) {
-		throw new Error("Failed to cancel scan");
-	}
+	await handleResponse(res);
 };
 
 export const fetchScanStatus = async (): Promise<{
@@ -118,8 +119,9 @@ export const fetchScanStatus = async (): Promise<{
 	should_cancel: boolean;
 }> => {
 	const res = await api.fetchApi("/meld/scan/status");
-	if (!res.ok) {
+	try {
+		return await handleResponse(res);
+	} catch (_e) {
 		return { is_running: false, should_cancel: false };
 	}
-	return await res.json();
 };

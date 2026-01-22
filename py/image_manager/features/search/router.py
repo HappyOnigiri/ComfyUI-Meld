@@ -26,9 +26,9 @@ async def suggest_endpoint(request: web.Request) -> web.Response:
         suggestions = SearchService.get_suggestions(cursor, query, prefix_filter=prefix)
         conn.close()
 
-        return web.json_response(suggestions)
+        return web.json_response(ApiResponse(success=True, data=suggestions).to_dict())
     except Exception as e:
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
 @routes.get("/meld/search-suggestions")
@@ -39,18 +39,18 @@ async def search_suggestions_endpoint(request: web.Request) -> web.Response:
         suggestions = SearchService.get_random_search_suggestions(cursor)
         conn.close()
 
-        return web.json_response(suggestions)
+        return web.json_response(ApiResponse(success=True, data=suggestions).to_dict())
     except Exception as e:
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
 @routes.get("/meld/search-keywords")
 async def search_keywords_endpoint(request: web.Request) -> web.Response:
     try:
         keywords = SearchService.get_all_available_keywords()
-        return web.json_response(keywords)
+        return web.json_response(ApiResponse(success=True, data=keywords).to_dict())
     except Exception as e:
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
 @routes.get("/meld/favorites")
@@ -64,9 +64,9 @@ async def list_favorites(request: web.Request) -> web.Response:
 
         favorites = [FavoriteRecord(id=row[0], name=row[1], query=row[2], created_at=row[3]).to_dict() for row in rows]
 
-        return web.json_response(favorites)
+        return web.json_response(ApiResponse(success=True, data=favorites).to_dict())
     except Exception as e:
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
 @routes.post("/meld/favorites")
@@ -76,10 +76,10 @@ async def save_favorite(request: web.Request) -> web.Response:
         try:
             req = CreateFavoriteRequest.from_dict(data)
         except (TypeError, ValueError) as e:
-            return web.json_response({"error": f"Invalid schema: {e}"}, status=400)
+            return web.json_response(ApiResponse(success=False, error=f"Invalid schema: {e}").to_dict(), status=400)
 
         if not req.query:
-            return web.json_response({"error": "query is required"}, status=400)
+            return web.json_response(ApiResponse(success=False, error="query is required").to_dict(), status=400)
 
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -91,7 +91,7 @@ async def save_favorite(request: web.Request) -> web.Response:
 
         return web.json_response(ApiResponse(success=True).to_dict())
     except Exception as e:
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
 @routes.post("/meld/favorites/update")
@@ -101,10 +101,10 @@ async def update_favorite(request: web.Request) -> web.Response:
         try:
             req = UpdateFavoriteRequest.from_dict(data)
         except (TypeError, ValueError) as e:
-            return web.json_response({"error": f"Invalid schema: {e}"}, status=400)
+            return web.json_response(ApiResponse(success=False, error=f"Invalid schema: {e}").to_dict(), status=400)
 
         if req.id is None or req.name is None:
-            return web.json_response({"error": "id and name are required"}, status=400)
+            return web.json_response(ApiResponse(success=False, error="id and name are required").to_dict(), status=400)
 
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -117,7 +117,7 @@ async def update_favorite(request: web.Request) -> web.Response:
 
         return web.json_response(ApiResponse(success=True).to_dict())
     except Exception as e:
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
 @routes.post("/meld/favorites/delete")
@@ -127,10 +127,10 @@ async def delete_favorite(request: web.Request) -> web.Response:
         try:
             req = DeleteFavoriteRequest.from_dict(data)
         except (TypeError, ValueError) as e:
-            return web.json_response({"error": f"Invalid schema: {e}"}, status=400)
+            return web.json_response(ApiResponse(success=False, error=f"Invalid schema: {e}").to_dict(), status=400)
 
         if req.id is None:
-            return web.json_response({"error": "id is required"}, status=400)
+            return web.json_response(ApiResponse(success=False, error="id is required").to_dict(), status=400)
 
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -140,4 +140,4 @@ async def delete_favorite(request: web.Request) -> web.Response:
 
         return web.json_response(ApiResponse(success=True).to_dict())
     except Exception as e:
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)

@@ -1,5 +1,6 @@
 // @ts-expect-error
 import { api } from "/scripts/api.js";
+import { handleResponse } from "../../../api";
 
 export interface WorkflowInfo {
 	name: string;
@@ -10,10 +11,7 @@ export interface WorkflowInfo {
 
 export const fetchWorkflows = async (): Promise<WorkflowInfo[]> => {
 	const res = await api.fetchApi("/meld/workflows");
-	if (!res.ok) {
-		throw new Error(`Failed to fetch workflows: ${res.statusText}`);
-	}
-	return await res.json();
+	return handleResponse(res);
 };
 
 export const fetchWorkflowRaw = async (
@@ -22,8 +20,5 @@ export const fetchWorkflowRaw = async (
 	const res = await api.fetchApi(
 		`/meld/workflow/raw?name=${encodeURIComponent(name)}`,
 	);
-	if (!res.ok) {
-		throw new Error(`Failed to fetch workflow raw: ${res.statusText}`);
-	}
-	return await res.json();
+	return handleResponse(res);
 };

@@ -148,9 +148,9 @@ async def get_image_details(request: web.Request) -> web.Response:
             ancestors=ancestors,
         )
 
-        return web.json_response(item.to_dict())
+        return web.json_response(ApiResponse(success=True, data=item.to_dict()).to_dict())
     except Exception as e:
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
 @routes.get("/meld/image/{image_id}/workflow")
@@ -167,13 +167,15 @@ async def get_image_workflow(request: web.Request) -> web.Response:
         if row and row[0]:
             try:
                 workflow_data = json.loads(row[0])
-                return web.json_response({"workflow": workflow_data})
+                return web.json_response(ApiResponse(success=True, data={"workflow": workflow_data}).to_dict())
             except Exception as e:
-                return web.json_response({"error": f"Failed to parse workflow: {str(e)}"}, status=500)
+                return web.json_response(
+                    ApiResponse(success=False, error=f"Failed to parse workflow: {str(e)}").to_dict(), status=500
+                )
 
-        return web.json_response({"error": "Workflow not found"}, status=404)
+        return web.json_response(ApiResponse(success=False, error="Workflow not found").to_dict(), status=404)
     except Exception as e:
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
 @routes.get("/meld/image/{image_id}/snapshot_data")
@@ -198,7 +200,7 @@ async def get_image_snapshot_data(request: web.Request) -> web.Response:
         conn.close()
 
         if not row:
-            return web.json_response({"error": "Image not found"}, status=404)
+            return web.json_response(ApiResponse(success=False, error="Image not found").to_dict(), status=404)
 
         filename, subfolder, img_type, db_pos, db_neg, workflow_json, model_name, db_width, db_height = row
 
@@ -264,10 +266,10 @@ async def get_image_snapshot_data(request: web.Request) -> web.Response:
                         if k in k_params and k_params[k] is not None:
                             setattr(data, k, k_params[k])
 
-        return web.json_response(data.to_dict())
+        return web.json_response(ApiResponse(success=True, data=data.to_dict()).to_dict())
     except Exception as e:
         logging.exception(f"[Meld] Failed to get snapshot data: {e}")
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
 @routes.get("/meld/list")
@@ -490,10 +492,16 @@ async def list_images(request: web.Request) -> web.Response:
             f"[Meld] list_images: found {len(result_list)}/{total_count} images (limit={req.limit}, offset={req.offset}) in {time.time() - start_time:.3f}s"
         )
 
-        return web.json_response(response.to_dict())
+        return web.json_response(
+            ApiResponse(
+                success=True,
+                data=response.to_dict(),
+                count=total_count,  # Keep it in data
+            ).to_dict()
+        )
     except Exception as e:
         logging.exception("[Meld] Failed to list images")
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
 @routes.post("/meld/restore")
@@ -503,10 +511,10 @@ async def restore_images(request: web.Request) -> web.Response:
         try:
             req = RestoreImagesRequest.from_dict(data)
         except (TypeError, ValueError) as e:
-            return web.json_response({"error": f"Invalid schema: {e}"}, status=400)
+            return web.json_response(ApiResponse(success=False, error=f"Invalid schema: {e}").to_dict(), status=400)
 
         if not req.ids:
-            return web.json_response({"error": "ids are required"}, status=400)
+            return web.json_response(ApiResponse(success=False, error="ids are required").to_dict(), status=400)
 
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -585,7 +593,7 @@ async def restore_images(request: web.Request) -> web.Response:
         )
     except Exception as e:
         logging.exception("[Meld] Restore failed")
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
 @routes.post("/meld/bulk-delete")
@@ -595,10 +603,10 @@ async def bulk_delete_images(request: web.Request) -> web.Response:
         try:
             req = BulkDeleteRequest.from_dict(data)
         except (TypeError, ValueError) as e:
-            return web.json_response({"error": f"Invalid schema: {e}"}, status=400)
+            return web.json_response(ApiResponse(success=False, error=f"Invalid schema: {e}").to_dict(), status=400)
 
         if not req.ids:
-            return web.json_response({"error": "ids are required"}, status=400)
+            return web.json_response(ApiResponse(success=False, error="ids are required").to_dict(), status=400)
 
         permanent = req.permanent or req.delete_files
 
@@ -672,7 +680,7 @@ async def bulk_delete_images(request: web.Request) -> web.Response:
         return web.json_response(ApiResponse(success=True, count=deleted_count).to_dict())
     except Exception as e:
         logging.exception("[Meld] Bulk delete failed")
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
 @routes.post("/meld/delete")
@@ -682,10 +690,12 @@ async def delete_image_endpoint(request: web.Request) -> web.Response:
         try:
             req = DeleteImageRequest.from_dict(data)
         except (TypeError, ValueError) as e:
-            return web.json_response({"error": f"Invalid schema: {e}"}, status=400)
+            return web.json_response(ApiResponse(success=False, error=f"Invalid schema: {e}").to_dict(), status=400)
 
         if not req.id and not req.filename:
-            return web.json_response({"error": "id or filename is required"}, status=400)
+            return web.json_response(
+                ApiResponse(success=False, error="id or filename is required").to_dict(), status=400
+            )
 
         if req.id:
             ids = [req.id]
@@ -697,7 +707,7 @@ async def delete_image_endpoint(request: web.Request) -> web.Response:
             conn.close()
 
         if not ids:
-            return web.json_response({"error": "Image not found"}, status=404)
+            return web.json_response(ApiResponse(success=False, error="Image not found").to_dict(), status=404)
 
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -762,7 +772,7 @@ async def delete_image_endpoint(request: web.Request) -> web.Response:
         conn.close()
         return web.json_response(ApiResponse(success=True).to_dict())
     except Exception as e:
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
 @routes.post("/meld/link-parent")
@@ -772,13 +782,15 @@ async def link_parent_endpoint(request: web.Request) -> web.Response:
         try:
             req = LinkParentRequest.from_dict(data)
         except (TypeError, ValueError) as e:
-            return web.json_response({"error": f"Invalid schema: {e}"}, status=400)
+            return web.json_response(ApiResponse(success=False, error=f"Invalid schema: {e}").to_dict(), status=400)
 
         if req.childId is None:
-            return web.json_response({"error": "childId is required"}, status=400)
+            return web.json_response(ApiResponse(success=False, error="childId is required").to_dict(), status=400)
 
         if req.childId == req.parentId:
-            return web.json_response({"error": "Cannot set an image as its own parent"}, status=400)
+            return web.json_response(
+                ApiResponse(success=False, error="Cannot set an image as its own parent").to_dict(), status=400
+            )
 
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -794,14 +806,17 @@ async def link_parent_endpoint(request: web.Request) -> web.Response:
                 parent_created = parent_row[0]
                 if parent_created >= child_created:
                     conn.close()
-                    return web.json_response({"error": "Parent image must be older than the child image"}, status=400)
+                    return web.json_response(
+                        ApiResponse(success=False, error="Parent image must be older than the child image").to_dict(),
+                        status=400,
+                    )
 
         cursor.execute("UPDATE images SET parent_id = ? WHERE id = ?", (req.parentId, req.childId))
         conn.commit()
         conn.close()
         return web.json_response(ApiResponse(success=True).to_dict())
     except Exception as e:
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
 @routes.get("/meld/suggest-parents")
@@ -819,7 +834,7 @@ async def suggest_parents_endpoint(request: web.Request) -> web.Response:
 
         if not image_id:
             conn.close()
-            return web.json_response({"error": "id is required"}, status=400)
+            return web.json_response(ApiResponse(success=False, error="id is required").to_dict(), status=400)
         strategy = db_settings.get("gallery.matching_strategy", "phash_created")
 
         cursor.execute(
@@ -829,7 +844,7 @@ async def suggest_parents_endpoint(request: web.Request) -> web.Response:
         row = cursor.fetchone()
         if not row:
             conn.close()
-            return web.json_response([])
+            return web.json_response(ApiResponse(success=True, data=[]).to_dict())
 
         target_phash, target_created_at, filename, subfolder, img_type = row
 
@@ -846,10 +861,10 @@ async def suggest_parents_endpoint(request: web.Request) -> web.Response:
         )
 
         conn.close()
-        return web.json_response([s.to_dict() for s in suggestions[:20]])
+        return web.json_response(ApiResponse(success=True, data=[s.to_dict() for s in suggestions[:20]]).to_dict())
     except Exception as e:
         logging.exception("[Meld] Failed to suggest parents")
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
 @routes.get("/meld/lineage")
@@ -857,7 +872,7 @@ async def get_lineage_endpoint(request: web.Request) -> web.Response:
     try:
         image_id = request.query.get("id")
         if not image_id:
-            return web.json_response({"error": "id is required"}, status=400)
+            return web.json_response(ApiResponse(success=False, error="id is required").to_dict(), status=400)
 
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -925,10 +940,10 @@ async def get_lineage_endpoint(request: web.Request) -> web.Response:
             )
 
         conn.close()
-        return web.json_response(result)
+        return web.json_response(ApiResponse(success=True, data=result).to_dict())
     except Exception as e:
         logging.exception("[Meld] Failed to get lineage")
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
 @routes.get("/meld/view-trash")
@@ -978,18 +993,20 @@ async def register_image_endpoint(request: web.Request) -> web.Response:
         if request.has_body and request.content_type == "application/json":
             data = await request.json()
         else:
-            return web.json_response({"error": "Content-Type must be application/json"}, status=400)
+            return web.json_response(
+                ApiResponse(success=False, error="Content-Type must be application/json").to_dict(), status=400
+            )
 
         try:
             req = RegisterImageRequest.from_dict(data)
         except (TypeError, ValueError) as e:
-            return web.json_response({"error": f"Invalid schema: {e}"}, status=400)
+            return web.json_response(ApiResponse(success=False, error=f"Invalid schema: {e}").to_dict(), status=400)
 
         if not req.filename:
-            return web.json_response({"error": "filename is required"}, status=400)
+            return web.json_response(ApiResponse(success=False, error="filename is required").to_dict(), status=400)
 
         if os.path.basename(req.filename) != req.filename:
-            return web.json_response({"error": "invalid filename"}, status=400)
+            return web.json_response(ApiResponse(success=False, error="invalid filename").to_dict(), status=400)
 
         if req.type == "output":
             base_dir = folder_paths.get_output_directory()
@@ -1000,7 +1017,9 @@ async def register_image_endpoint(request: web.Request) -> web.Response:
         elif req.type == "custom":
             base_dir = ""
         else:
-            return web.json_response({"error": f"invalid type: {req.type}"}, status=400)
+            return web.json_response(
+                ApiResponse(success=False, error=f"invalid type: {req.type}").to_dict(), status=400
+            )
 
         if req.type == "custom":
             full_path = os.path.abspath(os.path.join(req.subfolder, req.filename))
@@ -1008,10 +1027,12 @@ async def register_image_endpoint(request: web.Request) -> web.Response:
             full_path = os.path.abspath(os.path.join(base_dir, req.subfolder, req.filename))
             base_abs = os.path.abspath(base_dir)
             if os.path.commonpath([base_abs, full_path]) != base_abs:
-                return web.json_response({"error": "invalid path"}, status=400)
+                return web.json_response(ApiResponse(success=False, error="invalid path").to_dict(), status=400)
 
         if not os.path.exists(full_path):
-            return web.json_response({"error": f"File not found: {full_path}"}, status=404)
+            return web.json_response(
+                ApiResponse(success=False, error=f"File not found: {full_path}").to_dict(), status=404
+            )
 
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -1139,6 +1160,6 @@ async def register_image_endpoint(request: web.Request) -> web.Response:
         server.PromptServer.instance.send_sync("meld-image-saved", {"count": 1})
 
         return web.json_response(ApiResponse(success=True, data={"id": image_id}).to_dict())
-    except Exception:
+    except Exception as e:
         logging.exception("[Meld] Failed to register image")
-        return web.json_response({"error": "internal error"}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)

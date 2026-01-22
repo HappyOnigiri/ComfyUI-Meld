@@ -46,9 +46,9 @@ async def get_settings(request: web.Request) -> web.Response:
 
         settings.update(db_settings)
 
-        return web.json_response(settings)
+        return web.json_response(ApiResponse(success=True, data=settings).to_dict())
     except Exception as e:
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
 @routes.post("/meld/settings")
@@ -58,10 +58,10 @@ async def save_settings(request: web.Request) -> web.Response:
         try:
             req = UpdateSettingsRequest.from_dict(data)
         except (TypeError, ValueError) as e:
-            return web.json_response({"error": f"Invalid schema: {e}"}, status=400)
+            return web.json_response(ApiResponse(success=False, error=f"Invalid schema: {e}").to_dict(), status=400)
 
         if req.key is None:
-            return web.json_response({"error": "key is required"}, status=400)
+            return web.json_response(ApiResponse(success=False, error="key is required").to_dict(), status=400)
 
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -71,4 +71,4 @@ async def save_settings(request: web.Request) -> web.Response:
 
         return web.json_response(ApiResponse(success=True).to_dict())
     except Exception as e:
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)

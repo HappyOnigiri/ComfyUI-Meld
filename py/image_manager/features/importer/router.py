@@ -30,9 +30,9 @@ routes = web.RouteTableDef()
 async def cleanup_endpoint(request: web.Request) -> web.Response:
     try:
         count = perform_cleanup()
-        return web.json_response({"success": True, "count": count})
+        return web.json_response(ApiResponse(success=True, count=count).to_dict())
     except Exception as e:
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
 @routes.get("/meld/folders")
@@ -53,10 +53,12 @@ async def list_folders(request: web.Request) -> web.Response:
         target_path = os.path.abspath(os.path.join(base_dir, path))
 
         if not os.path.exists(target_path):
-            return web.json_response({"folders": [], "images": [], "image_count": 0})
+            return web.json_response(
+                ApiResponse(success=True, data={"folders": [], "images": [], "image_count": 0}).to_dict()
+            )
 
         if not os.path.isdir(target_path):
-            return web.json_response({"error": "Not a directory"}, status=400)
+            return web.json_response(ApiResponse(success=False, error="Not a directory").to_dict(), status=400)
 
         folders: list[FolderItem] = []
         images: list[ImageItem] = []
@@ -124,7 +126,7 @@ async def list_folders(request: web.Request) -> web.Response:
                 total_recursive_count = len(images)
 
         except PermissionError:
-            return web.json_response({"error": "Permission denied"}, status=403)
+            return web.json_response(ApiResponse(success=False, error="Permission denied").to_dict(), status=403)
 
         folders.sort(key=lambda x: x.name.lower())
         images.sort(key=lambda x: x.filename.lower())
@@ -134,9 +136,9 @@ async def list_folders(request: web.Request) -> web.Response:
             images=images,
             image_count=total_recursive_count,
         )
-        return web.json_response(response.to_dict())
+        return web.json_response(ApiResponse(success=True, data=response.to_dict()).to_dict())
     except Exception as e:
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
 @routes.get("/meld/folder-metadata")
@@ -185,9 +187,9 @@ async def get_folder_metadata_endpoint(request: web.Request) -> web.Response:
                         )
                 results[name] = FolderMetadata(count=sub_count, preview=preview).to_dict()
 
-        return web.json_response(results)
+        return web.json_response(ApiResponse(success=True, data=results).to_dict())
     except Exception as e:
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
 @routes.get("/meld/path-image-count")
@@ -211,20 +213,20 @@ async def get_path_image_count(request: web.Request) -> web.Response:
             return web.json_response(ApiResponse(success=True, count=count).to_dict())
         return web.json_response(ApiResponse(success=True, count=0).to_dict())
     except Exception as e:
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
 @routes.post("/meld/scan")
 async def start_scan(request: web.Request) -> web.Response:
     if get_scan_state().is_running:
-        return web.json_response({"error": "Scan already running"}, status=400)
+        return web.json_response(ApiResponse(success=False, error="Scan already running").to_dict(), status=400)
 
     try:
         data = await request.json()
         try:
             req = ScanRequest.from_dict(data)
         except (TypeError, ValueError) as e:
-            return web.json_response({"error": f"Invalid schema: {e}"}, status=400)
+            return web.json_response(ApiResponse(success=False, error=f"Invalid schema: {e}").to_dict(), status=400)
 
         base_dir = ""
 
@@ -236,14 +238,18 @@ async def start_scan(request: web.Request) -> web.Response:
             target_base = os.path.join(base_dir, req.subfolder)
         elif req.type == "custom":
             if not req.custom_path:
-                return web.json_response({"error": "Custom path is required"}, status=400)
+                return web.json_response(
+                    ApiResponse(success=False, error="Custom path is required").to_dict(), status=400
+                )
             target_base = req.custom_path
         else:
-            return web.json_response({"error": "Invalid type"}, status=400)
+            return web.json_response(ApiResponse(success=False, error="Invalid type").to_dict(), status=400)
 
         target_base = os.path.abspath(target_base)
         if not os.path.exists(target_base):
-            return web.json_response({"error": f"Path does not exist: {target_base}"}, status=404)
+            return web.json_response(
+                ApiResponse(success=False, error=f"Path does not exist: {target_base}").to_dict(), status=404
+            )
 
         # In custom mode, base_dir for relative path calculation should be the target itself
         calc_base = target_base if req.type == "custom" else base_dir
@@ -260,16 +266,16 @@ async def start_scan(request: web.Request) -> web.Response:
 
         return web.json_response(ApiResponse(success=True, message="started").to_dict())
     except Exception as e:
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
 @routes.post("/meld/scan/cancel")
 async def cancel_scan_endpoint(request: web.Request) -> web.Response:
     cancel_scan()
-    return web.json_response({"status": "cancelling"})
+    return web.json_response(ApiResponse(success=True, message="cancelling").to_dict())
 
 
 @routes.get("/meld/scan/status")
 async def get_scan_status(request: web.Request) -> web.Response:
     state = get_scan_state()
-    return web.json_response(state.to_dict())
+    return web.json_response(ApiResponse(success=True, data=state.to_dict()).to_dict())

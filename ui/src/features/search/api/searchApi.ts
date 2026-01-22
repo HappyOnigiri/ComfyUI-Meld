@@ -1,5 +1,6 @@
 // @ts-expect-error
 import { api } from "/scripts/api.js";
+import { handleResponse } from "../../../api";
 import type { Favorite } from "../../../types";
 
 export const fetchSuggestions = async (
@@ -14,10 +15,7 @@ export const fetchSuggestions = async (
 > => {
 	const url = `/meld/suggest?query=${encodeURIComponent(query)}${type ? `&type=${type}` : ""}`;
 	const res = await api.fetchApi(url);
-	if (!res.ok) {
-		return [];
-	}
-	return await res.json();
+	return handleResponse(res);
 };
 
 export const fetchSearchSuggestions = async (): Promise<
@@ -27,10 +25,7 @@ export const fetchSearchSuggestions = async (): Promise<
 	}[]
 > => {
 	const res = await api.fetchApi("/meld/search-suggestions");
-	if (!res.ok) {
-		return [];
-	}
-	return await res.json();
+	return handleResponse(res);
 };
 
 export const fetchSearchKeywords = async (): Promise<
@@ -40,18 +35,12 @@ export const fetchSearchKeywords = async (): Promise<
 	}[]
 > => {
 	const res = await api.fetchApi("/meld/search-keywords");
-	if (!res.ok) {
-		return [];
-	}
-	return await res.json();
+	return handleResponse(res);
 };
 
 export const fetchFavorites = async (): Promise<Favorite[]> => {
 	const res = await api.fetchApi("/meld/favorites");
-	if (!res.ok) {
-		return [];
-	}
-	return await res.json();
+	return handleResponse(res);
 };
 
 export const saveFavorite = async (
@@ -63,9 +52,7 @@ export const saveFavorite = async (
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ name, query }),
 	});
-	if (!res.ok) {
-		throw new Error("Failed to save favorite");
-	}
+	await handleResponse(res);
 };
 
 export const deleteFavorite = async (id: number): Promise<void> => {
@@ -74,9 +61,7 @@ export const deleteFavorite = async (id: number): Promise<void> => {
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ id }),
 	});
-	if (!res.ok) {
-		throw new Error("Failed to delete favorite");
-	}
+	await handleResponse(res);
 };
 
 export const updateFavorite = async (
@@ -89,7 +74,5 @@ export const updateFavorite = async (
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ id, name, query }),
 	});
-	if (!res.ok) {
-		throw new Error("Failed to update favorite");
-	}
+	await handleResponse(res);
 };

@@ -5,6 +5,7 @@ import threading
 import server
 from aiohttp import web
 
+from .common.schemas import ApiResponse
 from .features.images.router import routes as image_routes
 from .features.importer.router import routes as import_routes
 from .features.importer.service import perform_cleanup
@@ -29,14 +30,14 @@ def _register_routes(source_routes: web.RouteTableDef) -> None:
 async def get_home_dir(request: web.Request) -> web.Response:
     try:
         home_dir = os.path.expanduser("~")
-        return web.json_response({"home": home_dir})
+        return web.json_response(ApiResponse(success=True, data={"home": home_dir}).to_dict())
     except Exception as e:
-        return web.json_response({"error": str(e)}, status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
 @utility_routes.get("/meld/test")
 async def test_endpoint(request: web.Request) -> web.Response:
-    return web.json_response({"status": "ok", "message": "Meld is running"})
+    return web.json_response(ApiResponse(success=True, message="Meld is running", data={"status": "ok"}).to_dict())
 
 
 if server.PromptServer.instance is not None:
