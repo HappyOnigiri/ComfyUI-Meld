@@ -96,7 +96,7 @@ repomix-ui:
 
 repomix-image-manager:
 	@mkdir -p tmp/repomix
-	npx --yes repomix --include "ui/**,py/image_manager/**,.cursor/rules/**,*.md,*.toml,requirements.txt,Makefile,__init__.py" --ignore "$(REPOMIX_IGNORE),tests/**" --output tmp/repomix/repomix-image-manager.xml
+	npx --yes repomix --include "ui/**,py/image_manager/**,py/meld_save_image/**,.cursor/rules/**,*.md,*.toml,requirements.txt,Makefile,__init__.py" --ignore "$(REPOMIX_IGNORE),tests/**" --output tmp/repomix/repomix-image-manager.xml
 
 repomix-nodes:
 	@mkdir -p tmp/repomix

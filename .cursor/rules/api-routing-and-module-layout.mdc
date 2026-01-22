@@ -49,7 +49,7 @@ Reason:
 ## 4) Use Explicit Import Paths
 
 - In entry points like `__init__.py`, use **explicit import paths**.
-  - ✅ `from .py.image_manager.nodes import MeldSaveImage`
+  - ✅ `from .py.meld_save_image.nodes import MeldSaveImage`
   - ❌ `from .py.image_manager import MeldSaveImage` (Dangerous due to potential name conflicts)
 
 ## 5) Automatic Image Registration (Independent of Save Image)
