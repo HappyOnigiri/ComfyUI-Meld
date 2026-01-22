@@ -333,6 +333,11 @@ export function galleryReducer(
 				? state.settings["fullscreen.loop"]
 				: state.settings["viewer.loop"];
 
+			const isShowingDerivativesSearch =
+				state.searchQuery.toLowerCase().includes("has_derivatives:yes") ||
+				state.searchQuery.toLowerCase().includes("has_derivatives:true") ||
+				state.searchQuery.toLowerCase().includes("has_derivatives:1");
+
 			const currentList =
 				state.viewerMode === "lineage" && state.lineageImages.length > 0
 					? state.lineageImages
@@ -340,7 +345,8 @@ export function galleryReducer(
 							(img) =>
 								img.exists !== false &&
 								(state.settings["gallery.show_parent_images"] ||
-									!img.has_children),
+									!img.has_children ||
+									isShowingDerivativesSearch),
 						);
 
 			if (state.viewerImageId === null || currentList.length === 0)
@@ -376,6 +382,11 @@ export function galleryReducer(
 				? state.settings["fullscreen.loop"]
 				: state.settings["viewer.loop"];
 
+			const isShowingDerivativesSearch =
+				state.searchQuery.toLowerCase().includes("has_derivatives:yes") ||
+				state.searchQuery.toLowerCase().includes("has_derivatives:true") ||
+				state.searchQuery.toLowerCase().includes("has_derivatives:1");
+
 			const currentList =
 				state.viewerMode === "lineage" && state.lineageImages.length > 0
 					? state.lineageImages
@@ -383,7 +394,8 @@ export function galleryReducer(
 							(img) =>
 								img.exists !== false &&
 								(state.settings["gallery.show_parent_images"] ||
-									!img.has_children),
+									!img.has_children ||
+									isShowingDerivativesSearch),
 						);
 
 			if (state.viewerImageId === null || currentList.length === 0)

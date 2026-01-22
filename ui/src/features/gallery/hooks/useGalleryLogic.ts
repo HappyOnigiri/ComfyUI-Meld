@@ -27,21 +27,26 @@ export const useGalleryLogic = () => {
 	const loadMoreRef = useRef<HTMLDivElement>(null);
 	const lastScrolledId = useRef<number | null>(null);
 
-	const displayedImages = useMemo(
-		() =>
-			state.images.filter((img) => {
-				if (state.viewScope === "trash") {
-					return (
-						img.exists !== false || state.settings["gallery.trash.show_missing"]
-					);
-				}
+	const displayedImages = useMemo(() => {
+		const isShowingDerivativesSearch =
+			state.searchQuery.toLowerCase().includes("has_derivatives:yes") ||
+			state.searchQuery.toLowerCase().includes("has_derivatives:true") ||
+			state.searchQuery.toLowerCase().includes("has_derivatives:1");
+
+		return state.images.filter((img) => {
+			if (state.viewScope === "trash") {
 				return (
-					img.exists !== false &&
-					(state.settings["gallery.show_parent_images"] || !img.has_children)
+					img.exists !== false || state.settings["gallery.trash.show_missing"]
 				);
-			}),
-		[state.images, state.settings, state.viewScope],
-	);
+			}
+			return (
+				img.exists !== false &&
+				(state.settings["gallery.show_parent_images"] ||
+					!img.has_children ||
+					isShowingDerivativesSearch)
+			);
+		});
+	}, [state.images, state.settings, state.viewScope, state.searchQuery]);
 
 	const visibleImages = useMemo(
 		() => displayedImages.slice(0, localLimit),

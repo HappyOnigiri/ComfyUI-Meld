@@ -73,14 +73,22 @@ export const useImageViewerLogic = ({
 		viewerImageIdRef.current = viewerImageId;
 	}, [viewerImageId]);
 
-	const currentThumbnails =
-		viewerMode === "lineage"
+	const currentThumbnails = useMemo(() => {
+		const isShowingDerivativesSearch =
+			state.searchQuery.toLowerCase().includes("has_derivatives:yes") ||
+			state.searchQuery.toLowerCase().includes("has_derivatives:true") ||
+			state.searchQuery.toLowerCase().includes("has_derivatives:1");
+
+		return viewerMode === "lineage"
 			? lineageImages
 			: images.filter(
 					(img) =>
 						img.exists !== false &&
-						(settings["gallery.show_parent_images"] || !img.has_children),
+						(settings["gallery.show_parent_images"] ||
+							!img.has_children ||
+							isShowingDerivativesSearch),
 				);
+	}, [viewerMode, lineageImages, images, settings, state.searchQuery]);
 
 	const currentIndex =
 		viewerImageId === null
