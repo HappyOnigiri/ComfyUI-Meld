@@ -161,6 +161,24 @@ export const useSearchLogic = () => {
 					setShowSuggestions(results.length > 0);
 					setSelectedIndex(-1);
 				} else {
+					// Check if it's a partial prefix (e.g., "p" -> "pos:")
+					const cleanWord = lastWord.replace(/^([-!])/, "").toLowerCase();
+					if (cleanWord && searchConfig) {
+						const prefixMatches = searchConfig.all_prefixes
+							.filter((p) => p.startsWith(cleanWord))
+							.map((p) => ({
+								type: p,
+								value: "",
+								count: 0,
+							}));
+
+						if (prefixMatches.length > 0) {
+							setSuggestions(prefixMatches);
+							setShowSuggestions(true);
+							setSelectedIndex(-1);
+							return;
+						}
+					}
 					setSuggestions([]);
 					setShowSuggestions(false);
 				}
@@ -171,7 +189,12 @@ export const useSearchLogic = () => {
 		}, 300);
 
 		return () => clearTimeout(timer);
-	}, [inputValue, state.settings["search.input_suggest"], searchPrefixRegex]);
+	}, [
+		inputValue,
+		state.settings["search.input_suggest"],
+		searchPrefixRegex,
+		searchConfig,
+	]);
 
 	const applySuggestion = useCallback(
 		(suggestion: Suggestion) => {
@@ -182,18 +205,28 @@ export const useSearchLogic = () => {
 
 			const noQuoteTypes = searchConfig?.no_quote_prefixes || [];
 			const isNoQuote = noQuoteTypes.includes(suggestion.type);
-			const valueWithQuotes = isNoQuote
-				? suggestion.value
-				: `"${suggestion.value}"`;
-			const newQuery = `${[
-				...words,
-				`${negationPrefix}${suggestion.type}:${valueWithQuotes}`,
-			]
-				.join(" ")
-				.trim()} `;
-			setInputValue(newQuery);
-			setSuggestions([]);
-			setShowSuggestions(false);
+
+			// If value is empty, it means we're suggesting the prefix itself
+			if (suggestion.value === "") {
+				const newQuery = `${[...words, `${negationPrefix}${suggestion.type}:`]
+					.join(" ")
+					.trim()}`;
+				setInputValue(newQuery);
+				// Don't clear suggestions yet, because now we might want to see suggestions for this prefix
+			} else {
+				const valueWithQuotes = isNoQuote
+					? suggestion.value
+					: `"${suggestion.value}"`;
+				const newQuery = `${[
+					...words,
+					`${negationPrefix}${suggestion.type}:${valueWithQuotes}`,
+				]
+					.join(" ")
+					.trim()} `;
+				setInputValue(newQuery);
+				setSuggestions([]);
+				setShowSuggestions(false);
+			}
 			inputRef.current?.focus();
 		},
 		[inputValue, searchConfig],
@@ -260,10 +293,18 @@ export const useSearchLogic = () => {
 			return;
 		const words = getSearchTokens(inputValue);
 		const lastWord = words[words.length - 1];
-		if (lastWord?.match(searchPrefixRegex)) {
+		if (!lastWord) return;
+
+		const isFullPrefix = !!lastWord.match(searchPrefixRegex);
+		const cleanWord = lastWord.replace(/^([-!])/, "").toLowerCase();
+		const isPartialPrefix =
+			cleanWord &&
+			searchConfig?.all_prefixes.some((p) => p.startsWith(cleanWord));
+
+		if (isFullPrefix || isPartialPrefix) {
 			setShowSuggestions(true);
 		}
-	}, [inputValue, searchPrefixRegex]);
+	}, [inputValue, searchPrefixRegex, searchConfig]);
 
 	const handleInputBlur = useCallback(() => {
 		setTimeout(() => setShowSuggestions(false), 200);
