@@ -1,13 +1,13 @@
 import os
 
 from .py.auto_exposure.nodes import MeldAutoExposure
-from .py.image_manager.nodes import MeldSaveImage
 from .py.load_image_configs import (
     MeldImageLoader,
     MeldImageLoaderBatch,
     MeldSettingsUnpacker,
     MeldUnifiedLoader,
 )
+from .py.meld_save_image.nodes import MeldSaveImage
 from .py.pattern_heart.nodes import MeldPatternHeart
 from .py.pixelate.nodes import MeldPixelate
 from .py.prompt_constructor.nodes import MeldPromptConstructor

@@ -18,14 +18,14 @@ from comfy.cli_args import args
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 
-from ...load_image_configs.core.metadata_helper import MetadataHelper
-from ..common.db.client import (
+from ..image_manager.common.db.client import (
     get_db_connection,
 )
-from ..common.model_repo import add_model_relation, get_or_create_model
-from ..features.images.repository import calculate_sha256, find_closest_parent, inherit_tags
-from ..features.importer import service as scan_service
-from ..features.settings.repository import get_all_settings
+from ..image_manager.common.model_repo import add_model_relation, get_or_create_model
+from ..image_manager.features.images.repository import calculate_sha256, find_closest_parent, inherit_tags
+from ..image_manager.features.importer import service as scan_service
+from ..image_manager.features.settings.repository import get_all_settings
+from ..load_image_configs.core.metadata_helper import MetadataHelper
 
 
 # --- Custom Node Definition ---

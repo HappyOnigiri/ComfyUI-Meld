@@ -25,7 +25,7 @@ args.disable_metadata = False
 
 # Import test target
 import py.image_manager.common.db.schema as database  # noqa: E402
-import py.image_manager.nodes.meld_save_image as meld_node  # noqa: E402
+import py.meld_save_image.nodes as meld_node  # noqa: E402
 
 
 class TestImageManager(unittest.TestCase):
