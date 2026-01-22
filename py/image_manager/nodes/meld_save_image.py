@@ -53,6 +53,8 @@ class MeldSaveImage:
                         ),
                     },
                 ),
+                "extension": (["png", "webp"], {"default": "png"}),
+                "quality": ("INT", {"default": 90, "min": 1, "max": 100, "step": 1}),
             },
             "optional": {
                 "origin_image": ("IMAGE",),
@@ -73,6 +75,8 @@ class MeldSaveImage:
         self,
         images: torch.Tensor,
         filename_prefix: str = "%date:yyyy-MM-dd-HH-mm-ss%",
+        extension: str = "png",
+        quality: int = 90,
         origin_image: torch.Tensor | None = None,
         positive: str | None = None,
         negative: str | None = None,
@@ -190,20 +194,36 @@ class MeldSaveImage:
             i = 255.0 * image.cpu().numpy()
             img = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
 
-            # Save metadata to PNG
+            # Save metadata
             metadata = None
+            exif = None
             if not args.disable_metadata:
-                metadata = PngInfo()
-                if prompt is not None:
-                    metadata.add_text("prompt", json.dumps(prompt))
-                if extra_pnginfo is not None:
-                    for x in extra_pnginfo:
-                        metadata.add_text(x, json.dumps(extra_pnginfo[x]))
+                if extension == "png":
+                    metadata = PngInfo()
+                    if prompt is not None:
+                        metadata.add_text("prompt", json.dumps(prompt))
+                    if extra_pnginfo is not None:
+                        for x in extra_pnginfo:
+                            metadata.add_text(x, json.dumps(extra_pnginfo[x]))
+                elif extension == "webp":
+                    exif = img.getexif()
+                    if prompt is not None:
+                        # ImageDescription (270) / Make (271)
+                        # Reference: pattern_webp_desc.metadata
+                        # ImageDescription: Workflow: {json}
+                        # Make: Prompt: {json}
+                        exif[271] = f"Prompt: {json.dumps(prompt)}"
+                    if extra_pnginfo is not None and "workflow" in extra_pnginfo:
+                        exif[270] = f"Workflow: {json.dumps(extra_pnginfo['workflow'])}"
 
             filename_with_batch_num = filename.replace("%batch_num%", str(batch_number))
-            file = f"{filename_with_batch_num}_{counter:05}_.png"
+            file = f"{filename_with_batch_num}_{counter:05}_.{extension}"
             full_path = os.path.join(full_output_folder, file)
-            img.save(full_path, pnginfo=metadata, compress_level=self.compress_level)
+
+            if extension == "png":
+                img.save(full_path, pnginfo=metadata, compress_level=self.compress_level)
+            else:
+                img.save(full_path, quality=quality, exif=exif)
 
             timestamp = time.time()
             sha256 = calculate_sha256(full_path)
