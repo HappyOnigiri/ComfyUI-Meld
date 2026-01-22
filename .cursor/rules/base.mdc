@@ -1,0 +1,21 @@
+---
+alwaysApply: true
+---
+
+# Basic Rules
+
+- **Mandatory CI Execution**: After modifying the code, you must run `make ci` and ensure that all linting, tests, and static analysis complete successfully.
+
+# Implementation Rules
+
+## 1. Source Code and Comments (Strictly English)
+- All source code, variable names, function names, and comments MUST be written in English.
+- Do not use non-ASCII or multi-byte characters in any code files.
+- If the user provides a prompt in another language, you must translate the logic into English for the code implementation.
+- **Document Requirements**: When implementing specific logic based on implementation requirements or special conditions, include these requirements as comments within the code. This helps prevent future AI agents or developers from accidentally violating these constraints during refactoring or updates.
+
+## 2. Documentation and Localization
+- Non-English languages are permitted ONLY for documentation files.
+- Localized documentation must be identified by one of the following conventions:
+  - **Filename convention**: `*.{lang}.md` (e.g., `README.ja.md`)
+  - **Directory convention**: Path includes `{lang}` as a directory (e.g., `docs/ja/nodes.md`)
