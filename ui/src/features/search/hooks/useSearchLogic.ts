@@ -67,25 +67,17 @@ export const useSearchLogic = () => {
 
 	const isQueryChanged = inputValue !== lastSearchedValueRef.current;
 
-	// Fetch quick search suggestions on mount or when search is cleared
+	// Fetch quick search suggestions on mount
 	useEffect(() => {
 		if (!state.settings["search.quick_suggestions"]) {
 			setSearchSuggestions([]);
 			return;
 		}
 
-		if (!inputValue && !state.searchQuery) {
-			searchApi.fetchSearchSuggestions().then((results) => {
-				setSearchSuggestions(results);
-			});
-		} else {
-			setSearchSuggestions([]);
-		}
-	}, [
-		inputValue,
-		state.searchQuery,
-		state.settings["search.quick_suggestions"],
-	]);
+		searchApi.fetchSearchSuggestions().then((results) => {
+			setSearchSuggestions(results);
+		});
+	}, [state.settings["search.quick_suggestions"]]);
 
 	// Synchronize inputValue with state.searchQuery if changed externally
 	useEffect(() => {

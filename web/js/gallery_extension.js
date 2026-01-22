@@ -11113,14 +11113,10 @@ You can select favorites when the search query is empty.`
       g([]);
       return;
     }
-    !r && !e.searchQuery ? Tm().then((b) => {
+    Tm().then((b) => {
       g(b);
-    }) : g([]);
-  }, [
-    r,
-    e.searchQuery,
-    e.settings["search.quick_suggestions"]
-  ]), m.useEffect(() => {
+    });
+  }, [e.settings["search.quick_suggestions"]]), m.useEffect(() => {
     l(e.searchQuery), f.current = e.searchQuery;
   }, [e.searchQuery]), m.useEffect(() => {
     var b;
@@ -11453,7 +11449,7 @@ You can select favorites when the search query is empty.`
       className: "meld-search-suggestions",
       style: {
         position: "absolute",
-        top: "100%",
+        top: 0,
         left: 0,
         right: 0,
         backgroundColor: "var(--comfy-menu-bg, #222)",
@@ -11525,7 +11521,7 @@ You can select favorites when the search query is empty.`
         `${y.type}:${y.value}`
       ))
     }
-  ), d = () => s || a || o.length === 0 ? null : /* @__PURE__ */ i.jsxs(
+  ), d = () => o.length === 0 || s && s === a ? null : /* @__PURE__ */ i.jsxs(
     "div",
     {
       className: "meld-search-quick-suggestions",
@@ -11626,7 +11622,7 @@ You can select favorites when the search query is empty.`
         )
       ]
     }
-  ), f = () => s || v.length === 0 ? null : /* @__PURE__ */ i.jsxs(
+  ), f = () => v.length === 0 || s && s === a ? null : /* @__PURE__ */ i.jsxs(
     "div",
     {
       className: "meld-search-favorites",
@@ -11683,7 +11679,7 @@ You can select favorites when the search query is empty.`
       ]
     }
   );
-  return /* @__PURE__ */ i.jsxs(i.Fragment, { children: [
+  return /* @__PURE__ */ i.jsxs("div", { style: { position: "relative" }, children: [
     p(),
     d(),
     f()

@@ -160,7 +160,7 @@ export const SearchSuggestions = ({
 				className="meld-search-suggestions"
 				style={{
 					position: "absolute",
-					top: "100%",
+					top: 0,
 					left: 0,
 					right: 0,
 					backgroundColor: "var(--comfy-menu-bg, #222)",
@@ -240,7 +240,10 @@ export const SearchSuggestions = ({
 	};
 
 	const renderQuickSuggestions = () => {
-		if (inputValue || searchQuery || searchSuggestions.length === 0)
+		if (
+			searchSuggestions.length === 0 ||
+			(inputValue && inputValue === searchQuery)
+		)
 			return null;
 
 		return (
@@ -334,7 +337,8 @@ export const SearchSuggestions = ({
 	};
 
 	const renderFavorites = () => {
-		if (inputValue || favorites.length === 0) return null;
+		if (favorites.length === 0 || (inputValue && inputValue === searchQuery))
+			return null;
 
 		return (
 			<div
@@ -387,10 +391,10 @@ export const SearchSuggestions = ({
 	};
 
 	return (
-		<>
+		<div style={{ position: "relative" }}>
 			{renderSearchSuggestions()}
 			{renderQuickSuggestions()}
 			{renderFavorites()}
-		</>
+		</div>
 	);
 };
