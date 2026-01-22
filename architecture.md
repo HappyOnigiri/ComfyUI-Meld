@@ -78,12 +78,28 @@ This document serves as a comprehensive guide for AI agents and developers to un
   - Use `api.fetchApi` for all network requests. **DO NOT** use native `fetch` directly for backend communication (to handle ComfyUI auth/routing).
   - **Strict Typing**: No `any`. Define interfaces in `src/types.ts`.
 
-### Naming & Style
-- **Python**: Snake case (`my_variable`). Class names PascalCase (`MyNode`).
-- **TypeScript**: Camel case (`myVariable`). Component files PascalCase (`MyComponent.tsx`).
-- **API Routes**:
-  - Definition: `@server.PromptServer.instance.routes.post("/meld/resource")` (NO `/api` prefix).
-  - Usage: `api.fetchApi("/meld/resource")`.
+### API Protocols
+- **Routes**: `@server.PromptServer.instance.routes.post("/meld/resource")` (NO `/api` prefix).
+- **Response Format**: ALL `/meld/...` API responses MUST use the `ApiResponse` wrapper:
+  - `success: boolean`: Mandatory success flag.
+  - `data: Any | None`: Payload (if successful).
+  - `error: str | None`: Error message (if `success` is False).
+  - `count: int | None`: Total item count for list responses.
+- **Naming**: Use `snake_case` for both Python and JSON keys to remain consistent with DB schema.
+
+### Search Query Syntax
+Meld supports a rich query syntax in the search bar:
+- **Free Text**: Partial match across positive prompts, tags, and model names.
+- **Prefixes**:
+  - `tag:name`: Exact or partial tag match.
+  - `model:name`: Match by model name.
+  - `pos:text`, `neg:text`: Match positive/negative prompts.
+  - `date:YYYY-MM-DD`, `after:YYYY-MM-DD`, `before:YYYY-MM-DD`: Filter by date.
+  - `has_source:yes/no`: Filter images that have/don't have a parent.
+  - `has_derivatives:yes/no`: Filter images that have/don't have children.
+  - `sort:created_at_desc/asc`: Change sort order.
+- **Negation**: Prefix with `-` or `!` (e.g., `-tag:boy`).
+- **Exact Match**: Wrap value in double quotes (e.g., `tag:"best"`).
 
 ### Modification Protocol
 - When adding a new API endpoint:
