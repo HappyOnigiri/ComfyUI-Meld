@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { logger } from "../../../logger";
 import { useGallery } from "../../../store/GalleryContext";
 import * as searchApi from "../api/searchApi";
@@ -7,6 +7,14 @@ export interface Suggestion {
 	type: string;
 	value: string;
 	count: number;
+}
+
+export interface SearchConfig {
+	all_prefixes: string[];
+	boolean_prefixes: string[];
+	date_prefixes: string[];
+	sort_prefix: string;
+	no_quote_prefixes: string[];
 }
 
 export const useSearchLogic = () => {
@@ -22,8 +30,22 @@ export const useSearchLogic = () => {
 	>([]);
 	const [showAllKeywords, setShowAllKeywords] = useState(false);
 	const [selectedIndex, setSelectedIndex] = useState<number>(-1);
+	const [searchConfig, setSearchConfig] = useState<SearchConfig | null>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const lastSearchedValueRef = useRef(state.searchQuery);
+
+	// Fetch search config on mount
+	useEffect(() => {
+		searchApi.fetchSearchConfig().then((config) => {
+			setSearchConfig(config);
+		});
+	}, []);
+
+	const searchPrefixRegex = useMemo(() => {
+		if (!searchConfig) return null;
+		const prefixes = searchConfig.all_prefixes.join("|");
+		return new RegExp(`^[-!]?(${prefixes}):(.*)$`, "i");
+	}, [searchConfig]);
 
 	const fetchKeywords = useCallback(async () => {
 		if (allKeywords.length > 0) return;
@@ -91,7 +113,7 @@ export const useSearchLogic = () => {
 				return;
 			}
 
-			if (!state.settings["search.input_suggest"]) {
+			if (!state.settings["search.input_suggest"] || !searchPrefixRegex) {
 				setSuggestions([]);
 				setShowSuggestions(false);
 				return;
@@ -101,9 +123,7 @@ export const useSearchLogic = () => {
 			const lastWord = words[words.length - 1];
 
 			if (lastWord) {
-				const match = lastWord.match(
-					/^[-!]?(tag|pos|neg|model|date|after|before|has_source|has_derivatives|sort):(.*)$/i,
-				);
+				const match = lastWord.match(searchPrefixRegex);
 				if (match) {
 					const prefix = match[1].toLowerCase();
 					const subQuery = match[2];
@@ -123,7 +143,7 @@ export const useSearchLogic = () => {
 		}, 300);
 
 		return () => clearTimeout(timer);
-	}, [inputValue, state.settings["search.input_suggest"]]);
+	}, [inputValue, state.settings["search.input_suggest"], searchPrefixRegex]);
 
 	const applySuggestion = useCallback(
 		(suggestion: Suggestion) => {
@@ -132,13 +152,7 @@ export const useSearchLogic = () => {
 			const negationMatch = lastWord.match(/^([-!])/);
 			const negationPrefix = negationMatch ? negationMatch[1] : "";
 
-			const noQuoteTypes = [
-				"date",
-				"after",
-				"before",
-				"has_source",
-				"has_derivatives",
-			];
+			const noQuoteTypes = searchConfig?.no_quote_prefixes || [];
 			const isNoQuote = noQuoteTypes.includes(suggestion.type);
 			const valueWithQuotes = isNoQuote
 				? suggestion.value
@@ -154,7 +168,7 @@ export const useSearchLogic = () => {
 			setShowSuggestions(false);
 			inputRef.current?.focus();
 		},
-		[inputValue],
+		[inputValue, searchConfig],
 	);
 
 	const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -187,20 +201,14 @@ export const useSearchLogic = () => {
 
 	const applySearchSuggestion = useCallback(
 		(type: string, value: string) => {
-			const noQuoteTypes = [
-				"date",
-				"after",
-				"before",
-				"has_source",
-				"has_derivatives",
-			];
+			const noQuoteTypes = searchConfig?.no_quote_prefixes || [];
 			const isNoQuote = noQuoteTypes.includes(type);
 			const valueWithQuotes = isNoQuote ? value : `"${value}"`;
 			const newQuery = `${type}:${valueWithQuotes}`;
 			setInputValue(newQuery);
 			handleSearch(newQuery);
 		},
-		[handleSearch],
+		[handleSearch, searchConfig],
 	);
 
 	const handleInputChange = useCallback(
@@ -214,17 +222,14 @@ export const useSearchLogic = () => {
 	);
 
 	const handleInputFocus = useCallback(() => {
-		if (inputValue === lastSearchedValueRef.current) return;
+		if (inputValue === lastSearchedValueRef.current || !searchPrefixRegex)
+			return;
 		const words = inputValue.split(/\s+/);
 		const lastWord = words[words.length - 1];
-		if (
-			lastWord?.match(
-				/^[-!]?(tag|pos|neg|model|date|after|before|has_source|has_derivatives|sort):/i,
-			)
-		) {
+		if (lastWord?.match(searchPrefixRegex)) {
 			setShowSuggestions(true);
 		}
-	}, [inputValue]);
+	}, [inputValue, searchPrefixRegex]);
 
 	const handleInputBlur = useCallback(() => {
 		setTimeout(() => setShowSuggestions(false), 200);

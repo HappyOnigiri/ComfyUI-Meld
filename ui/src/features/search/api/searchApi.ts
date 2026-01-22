@@ -38,6 +38,17 @@ export const fetchSearchKeywords = async (): Promise<
 	return handleResponse(res);
 };
 
+export const fetchSearchConfig = async (): Promise<{
+	all_prefixes: string[];
+	boolean_prefixes: string[];
+	date_prefixes: string[];
+	sort_prefix: string;
+	no_quote_prefixes: string[];
+}> => {
+	const res = await api.fetchApi("/meld/search-config");
+	return handleResponse(res);
+};
+
 export const fetchFavorites = async (): Promise<Favorite[]> => {
 	const res = await api.fetchApi("/meld/favorites");
 	return handleResponse(res);
