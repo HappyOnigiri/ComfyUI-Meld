@@ -88,7 +88,7 @@ This document serves as a comprehensive guide for AI agents and developers to un
 - **Naming**: Use `snake_case` for both Python and JSON keys to remain consistent with DB schema.
 
 ### Search Query Syntax
-Meld supports a rich query syntax in the search bar:
+Meld supports a rich query syntax in the search bar. The available prefixes are managed in `py/image_manager/common/constants.py` and fetched dynamically by the frontend:
 - **Free Text**: Partial match across positive prompts, tags, and model names.
 - **Prefixes**:
   - `tag:name`: Exact or partial tag match.
