@@ -67,7 +67,7 @@ check-ts-rules:
 
 check-only-ascii:
 	@echo "Checking for non-ASCII characters..."
-	@if git ls-files | grep -vE "(\.ja\.md$$|web/js/gallery_extension\.js$$)" | xargs grep -nP "[^\x00-\x7f]"; then \
+	@if git ls-files | grep -vE "(\.ja\.md$$|^docs/ja/|^\.cursor/rules/|web/js/gallery_extension\.js$$)" | xargs grep -nP "[^\x00-\x7f]"; then \
 		echo "Error: Non-ASCII characters found!"; \
 		exit 1; \
 	else \
