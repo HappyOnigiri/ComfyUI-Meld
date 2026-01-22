@@ -84,7 +84,7 @@ export const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
 					border: "1px solid var(--comfy-menu-border, #444)",
 					borderRadius: "0 0 6px 6px",
 					zIndex: 1000,
-					marginTop: "2px",
+					marginTop: "8px",
 					maxHeight: "400px",
 					overflowY: "auto",
 					boxShadow: "0 8px 16px var(--comfy-menu-shadow, rgba(0,0,0,0.6))",
@@ -167,6 +167,7 @@ export const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
 					flexWrap: "wrap",
 					gap: "8px",
 					padding: "0 4px",
+					marginTop: "8px",
 				}}
 			>
 				{searchSuggestions.map((s) => (
@@ -247,7 +248,7 @@ export const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
 					flexDirection: "column",
 					gap: "8px",
 					padding: "4px",
-					marginTop: "4px",
+					marginTop: "8px",
 					borderTop: "1px solid var(--comfy-menu-border, #333)",
 					paddingTop: "12px",
 				}}
