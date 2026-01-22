@@ -53,6 +53,15 @@ async def search_keywords_endpoint(request: web.Request) -> web.Response:
         return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
+@routes.get("/meld/search-config")
+async def search_config_endpoint(request: web.Request) -> web.Response:
+    try:
+        config = SearchService.get_search_config()
+        return web.json_response(ApiResponse(success=True, data=config).to_dict())
+    except Exception as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+
+
 @routes.get("/meld/favorites")
 async def list_favorites(request: web.Request) -> web.Response:
     try:

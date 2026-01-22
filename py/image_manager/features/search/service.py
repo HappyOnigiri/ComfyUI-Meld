@@ -4,19 +4,21 @@ import time
 from datetime import datetime
 from typing import Any
 
-from ...common.constants import RESERVED_TAG_KEYWORD
+from ...common.constants import (
+    ALL_SEARCH_PREFIXES,
+    RESERVED_TAG_KEYWORD,
+    SEARCH_BOOLEAN_PREFIXES,
+    SEARCH_DATE_PREFIXES,
+    SEARCH_PREFIX_MAP,
+    SEARCH_PREFIX_SORT,
+)
 
 
 class SearchService:
-    PREFIX_MAP = {
-        "tag": ("tags", "tag_image_relations", "tag_id"),
-        "pos": ("positive_prompts", "positive_prompt_image_relations", "positive_prompt_id"),
-        "neg": ("negative_prompts", "negative_prompt_image_relations", "negative_prompt_id"),
-        "model": ("models", "model_image_relations", "model_id"),
-    }
-    DATE_PREFIXES = {"date", "after", "before"}
-    BOOLEAN_PREFIXES = {"has_source", "has_derivatives"}
-    SORT_PREFIX = "sort"
+    PREFIX_MAP = SEARCH_PREFIX_MAP
+    DATE_PREFIXES = SEARCH_DATE_PREFIXES
+    BOOLEAN_PREFIXES = SEARCH_BOOLEAN_PREFIXES
+    SORT_PREFIX = SEARCH_PREFIX_SORT
 
     @staticmethod
     def parse_query(query_str: str | None) -> list[dict[str, Any]]:
@@ -365,3 +367,16 @@ class SearchService:
             keywords.append({"type": prefix, "value": "keyword"})
 
         return keywords
+
+    @classmethod
+    def get_search_config(cls) -> dict[str, Any]:
+        """
+        Returns the search configuration for the frontend.
+        """
+        return {
+            "all_prefixes": ALL_SEARCH_PREFIXES,
+            "boolean_prefixes": list(cls.BOOLEAN_PREFIXES),
+            "date_prefixes": list(cls.DATE_PREFIXES),
+            "sort_prefix": cls.SORT_PREFIX,
+            "no_quote_prefixes": list(cls.DATE_PREFIXES) + list(cls.BOOLEAN_PREFIXES),
+        }
