@@ -331,11 +331,37 @@ class SearchService:
         if model:
             suggestions.append({"type": "model", "value": model})
 
-        # 4. Date (pick a random date that exists)
-        cursor.execute("SELECT created_at FROM images WHERE deleted_at IS NULL ORDER BY RANDOM() LIMIT 1")
+        # 4. Date (pick the latest image date)
+        cursor.execute("SELECT created_at FROM images WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT 1")
         date_row = cursor.fetchone()
         if date_row:
             dt = datetime.fromtimestamp(date_row[0])
             suggestions.append({"type": "date", "value": dt.strftime("%Y-%m-%d")})
 
         return suggestions
+
+    @classmethod
+    def get_all_available_keywords(cls) -> list[dict[str, Any]]:
+        """
+        Returns all predefined search keywords for boolean filters, date filters, and sort options.
+        """
+        keywords = []
+
+        # Boolean filters
+        for prefix in cls.BOOLEAN_PREFIXES:
+            keywords.append({"type": prefix, "value": "yes"})
+            keywords.append({"type": prefix, "value": "no"})
+
+        # Date filters (placeholders/examples)
+        for prefix in cls.DATE_PREFIXES:
+            keywords.append({"type": prefix, "value": "YYYY-MM-DD"})
+
+        # Sort options
+        keywords.append({"type": cls.SORT_PREFIX, "value": "created_at_asc"})
+        keywords.append({"type": cls.SORT_PREFIX, "value": "created_at_desc"})
+
+        # Common prefix placeholders
+        for prefix in cls.PREFIX_MAP.keys():
+            keywords.append({"type": prefix, "value": "keyword"})
+
+        return keywords

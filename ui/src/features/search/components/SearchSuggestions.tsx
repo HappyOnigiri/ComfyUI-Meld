@@ -14,20 +14,27 @@ import type { Favorite } from "../../../types";
 import type { Suggestion } from "../hooks/useSearchLogic";
 import { FavoriteItem } from "./FavoriteItem";
 
-interface SearchSuggestionsProps {
+export interface SearchSuggestionsProps {
 	showSuggestions: boolean;
 	suggestions: Suggestion[];
 	selectedIndex: number;
-	setSelectedIndex: (index: number) => void;
+	setSelectedIndex: (index: number | ((prev: number) => number)) => void;
 	applySuggestion: (s: Suggestion) => void;
 	inputValue: string;
 	searchQuery: string;
 	searchSuggestions: { type: string; value: string }[];
+	allKeywords: { type: string; value: string }[];
+	showAllKeywords: boolean;
+	toggleShowAllKeywords: () => void;
 	applySearchSuggestion: (type: string, value: string) => void;
 	favorites: Favorite[];
 	onSelectFavorite: (query: string) => void;
 	onEditFavorite: (e: React.MouseEvent, fav: Favorite) => void;
-	onDeleteFavorite: (e: React.MouseEvent, id: number, name: string) => void;
+	onDeleteFavorite: (
+		e: React.MouseEvent,
+		id: number,
+		name: string,
+	) => void | Promise<void>;
 }
 
 const getIcon = (type: string) => {
@@ -54,7 +61,7 @@ const getIcon = (type: string) => {
 	}
 };
 
-export const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
+export const SearchSuggestions = ({
 	showSuggestions,
 	suggestions,
 	selectedIndex,
@@ -63,12 +70,15 @@ export const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
 	inputValue,
 	searchQuery,
 	searchSuggestions,
+	allKeywords,
+	showAllKeywords,
+	toggleShowAllKeywords,
 	applySearchSuggestion,
 	favorites,
 	onSelectFavorite,
 	onEditFavorite,
 	onDeleteFavorite,
-}) => {
+}: SearchSuggestionsProps) => {
 	const renderSearchSuggestions = () => {
 		if (!showSuggestions || suggestions.length === 0) return null;
 
@@ -159,80 +169,137 @@ export const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
 		if (inputValue || searchQuery || searchSuggestions.length === 0)
 			return null;
 
+		const displayKeywords = showAllKeywords ? allKeywords : searchSuggestions;
+
 		return (
 			<div
 				className="meld-search-quick-suggestions"
 				style={{
 					display: "flex",
-					flexWrap: "wrap",
+					flexDirection: "column",
 					gap: "8px",
-					padding: "0 4px",
 					marginTop: "8px",
 				}}
 			>
-				{searchSuggestions.map((s) => (
-					<button
-						key={`${s.type}:${s.value}`}
-						type="button"
-						onClick={() => applySearchSuggestion(s.type, s.value)}
-						style={{
-							display: "flex",
-							alignItems: "center",
-							gap: "6px",
-							backgroundColor: "var(--comfy-input-bg, #2a2a2a)",
-							border: "1px solid var(--comfy-menu-border, #333)",
-							borderRadius: "16px",
-							padding: "4px 12px",
-							cursor: "pointer",
-							transition: "all 0.2s",
-							color: "var(--meld-text-color)",
-							fontSize: "12px",
-						}}
-						onMouseEnter={(e) => {
-							e.currentTarget.style.backgroundColor =
-								"var(--comfy-menu-bg, #333)";
-							e.currentTarget.style.borderColor =
-								"var(--comfy-menu-border, #444)";
-							e.currentTarget.style.color = "var(--meld-text-color)";
-						}}
-						onMouseLeave={(e) => {
-							e.currentTarget.style.backgroundColor =
-								"var(--comfy-input-bg, #2a2a2a)";
-							e.currentTarget.style.borderColor =
-								"var(--comfy-menu-border, #333)";
-							e.currentTarget.style.color = "var(--meld-text-color)";
-						}}
-					>
-						<span
+				<div
+					style={{
+						display: "flex",
+						flexWrap: "wrap",
+						gap: "8px",
+						padding: "0 4px",
+						maxHeight: showAllKeywords ? "200px" : "none",
+						overflowY: showAllKeywords ? "auto" : "visible",
+					}}
+				>
+					{displayKeywords.map((s, idx) => (
+						<button
+							key={`${s.type}:${s.value}:${idx}`}
+							type="button"
+							onClick={() => applySearchSuggestion(s.type, s.value)}
 							style={{
 								display: "flex",
+								alignItems: "center",
+								gap: "6px",
+								backgroundColor: "var(--comfy-input-bg, #2a2a2a)",
+								border: "1px solid var(--comfy-menu-border, #333)",
+								borderRadius: "16px",
+								padding: "4px 12px",
+								cursor: "pointer",
+								transition: "all 0.2s",
+								color: "var(--meld-text-color)",
+								fontSize: "12px",
+							}}
+							onMouseEnter={(e) => {
+								e.currentTarget.style.backgroundColor =
+									"var(--comfy-menu-bg, #333)";
+								e.currentTarget.style.borderColor =
+									"var(--comfy-menu-border, #444)";
+								e.currentTarget.style.color = "var(--meld-text-color)";
+							}}
+							onMouseLeave={(e) => {
+								e.currentTarget.style.backgroundColor =
+									"var(--comfy-input-bg, #2a2a2a)";
+								e.currentTarget.style.borderColor =
+									"var(--comfy-input-bg, #333)";
+								e.currentTarget.style.color = "var(--meld-text-color)";
+							}}
+						>
+							<span
+								style={{
+									display: "flex",
+									color: "var(--meld-text-secondary)",
+								}}
+							>
+								{getIcon(s.type)}
+							</span>
+							<span
+								style={{
+									color: "var(--comfy-input-text-active, #3b82f6)",
+									fontWeight: "bold",
+									textTransform: "uppercase",
+									fontSize: "10px",
+								}}
+							>
+								{s.type}
+							</span>
+							<span
+								style={{
+									maxWidth: "200px",
+									overflow: "hidden",
+									textOverflow: "ellipsis",
+									whiteSpace: "nowrap",
+								}}
+							>
+								{s.value}
+							</span>
+						</button>
+					))}
+					{!showAllKeywords && (
+						<button
+							type="button"
+							onClick={toggleShowAllKeywords}
+							style={{
+								backgroundColor: "transparent",
+								border: "1px dashed var(--comfy-menu-border, #444)",
+								borderRadius: "16px",
+								padding: "4px 12px",
+								cursor: "pointer",
 								color: "var(--meld-text-secondary)",
+								fontSize: "12px",
+								transition: "all 0.2s",
+							}}
+							onMouseEnter={(e) => {
+								e.currentTarget.style.borderColor =
+									"var(--meld-accent-color, #3b82f6)";
+								e.currentTarget.style.color = "var(--meld-text-color)";
+							}}
+							onMouseLeave={(e) => {
+								e.currentTarget.style.borderColor =
+									"var(--comfy-menu-border, #444)";
+								e.currentTarget.style.color = "var(--meld-text-secondary)";
 							}}
 						>
-							{getIcon(s.type)}
-						</span>
-						<span
-							style={{
-								color: "var(--comfy-input-text-active, #3b82f6)",
-								fontWeight: "bold",
-								textTransform: "uppercase",
-								fontSize: "10px",
-							}}
-						>
-							{s.type}
-						</span>
-						<span
-							style={{
-								maxWidth: "200px",
-								overflow: "hidden",
-								textOverflow: "ellipsis",
-								whiteSpace: "nowrap",
-							}}
-						>
-							{s.value}
-						</span>
+							More...
+						</button>
+					)}
+				</div>
+				{showAllKeywords && (
+					<button
+						type="button"
+						onClick={toggleShowAllKeywords}
+						style={{
+							alignSelf: "flex-start",
+							backgroundColor: "transparent",
+							border: "none",
+							color: "var(--meld-accent-color, #3b82f6)",
+							fontSize: "11px",
+							padding: "2px 8px",
+							cursor: "pointer",
+						}}
+					>
+						Show Less
 					</button>
-				))}
+				)}
 			</div>
 		);
 	};

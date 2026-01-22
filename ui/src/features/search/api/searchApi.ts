@@ -33,6 +33,19 @@ export const fetchSearchSuggestions = async (): Promise<
 	return await res.json();
 };
 
+export const fetchSearchKeywords = async (): Promise<
+	{
+		type: string;
+		value: string;
+	}[]
+> => {
+	const res = await api.fetchApi("/meld/search-keywords");
+	if (!res.ok) {
+		return [];
+	}
+	return await res.json();
+};
+
 export const fetchFavorites = async (): Promise<Favorite[]> => {
 	const res = await api.fetchApi("/meld/favorites");
 	if (!res.ok) {

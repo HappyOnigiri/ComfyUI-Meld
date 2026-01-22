@@ -44,6 +44,15 @@ async def search_suggestions_endpoint(request: web.Request) -> web.Response:
         return web.json_response({"error": str(e)}, status=500)
 
 
+@routes.get("/meld/search-keywords")
+async def search_keywords_endpoint(request: web.Request) -> web.Response:
+    try:
+        keywords = SearchService.get_all_available_keywords()
+        return web.json_response(keywords)
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
 @routes.get("/meld/favorites")
 async def list_favorites(request: web.Request) -> web.Response:
     try:

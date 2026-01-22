@@ -39,6 +39,7 @@ lint: check-only-ascii check-ts-rules check-scripts
 	python -m ruff check . --fix
 	python -m mypy py tests
 	npx pyright
+	cd ui && npx tsc --noEmit
 	cd ui && npx @biomejs/biome check --write src --error-on-warnings
 
 check-scripts:

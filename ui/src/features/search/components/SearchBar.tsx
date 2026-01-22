@@ -15,6 +15,9 @@ export const SearchBar: React.FC = () => {
 		suggestions,
 		showSuggestions,
 		searchSuggestions,
+		allKeywords,
+		showAllKeywords,
+		toggleShowAllKeywords,
 		selectedIndex,
 		setSelectedIndex,
 		inputRef,
@@ -281,6 +284,9 @@ export const SearchBar: React.FC = () => {
 					inputValue={inputValue}
 					searchQuery={state.searchQuery}
 					searchSuggestions={searchSuggestions}
+					allKeywords={allKeywords}
+					showAllKeywords={showAllKeywords}
+					toggleShowAllKeywords={toggleShowAllKeywords}
 					applySearchSuggestion={applySearchSuggestion}
 					favorites={state.favorites}
 					onSelectFavorite={(query) => {

@@ -17,9 +17,26 @@ export const useSearchLogic = () => {
 	const [searchSuggestions, setSearchSuggestions] = useState<
 		{ type: string; value: string }[]
 	>([]);
-	const [selectedIndex, setSelectedIndex] = useState(-1);
+	const [allKeywords, setAllKeywords] = useState<
+		{ type: string; value: string }[]
+	>([]);
+	const [showAllKeywords, setShowAllKeywords] = useState(false);
+	const [selectedIndex, setSelectedIndex] = useState<number>(-1);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const lastSearchedValueRef = useRef(state.searchQuery);
+
+	const fetchKeywords = useCallback(async () => {
+		if (allKeywords.length > 0) return;
+		const results = await searchApi.fetchSearchKeywords();
+		setAllKeywords(results);
+	}, [allKeywords.length]);
+
+	const toggleShowAllKeywords = useCallback(() => {
+		if (!showAllKeywords) {
+			fetchKeywords();
+		}
+		setShowAllKeywords((prev) => !prev);
+	}, [showAllKeywords, fetchKeywords]);
 
 	const isQueryChanged = inputValue !== lastSearchedValueRef.current;
 
@@ -220,6 +237,10 @@ export const useSearchLogic = () => {
 		showSuggestions,
 		setShowSuggestions,
 		searchSuggestions,
+		allKeywords,
+		showAllKeywords,
+		setShowAllKeywords,
+		toggleShowAllKeywords,
 		selectedIndex,
 		setSelectedIndex,
 		inputRef,
