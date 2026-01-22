@@ -206,13 +206,14 @@ export const SearchSuggestions = ({
 							<span
 								style={{
 									color: "var(--comfy-input-text-active, #3b82f6)",
-									fontSize: "11px",
+									fontSize: "10px",
 									fontWeight: "bold",
 									textTransform: "uppercase",
-									width: "45px",
+									width: s.type.length > 8 ? "auto" : "60px",
+									flexShrink: 0,
 								}}
 							>
-								{s.type}
+								{s.type}:
 							</span>
 							<span
 								style={{

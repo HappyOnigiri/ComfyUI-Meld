@@ -11492,17 +11492,21 @@ You can select favorites when the search query is empty.`
                 children: Oo(y.type)
               }
             ),
-            /* @__PURE__ */ i.jsx(
+            /* @__PURE__ */ i.jsxs(
               "span",
               {
                 style: {
                   color: "var(--comfy-input-text-active, #3b82f6)",
-                  fontSize: "11px",
+                  fontSize: "10px",
                   fontWeight: "bold",
                   textTransform: "uppercase",
-                  width: "45px"
+                  width: y.type.length > 8 ? "auto" : "60px",
+                  flexShrink: 0
                 },
-                children: y.type
+                children: [
+                  y.type,
+                  ":"
+                ]
               }
             ),
             /* @__PURE__ */ i.jsx(
