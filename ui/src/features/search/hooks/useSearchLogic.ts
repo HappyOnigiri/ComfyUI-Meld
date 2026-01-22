@@ -18,7 +18,7 @@ export interface SearchConfig {
 }
 
 export const useSearchLogic = () => {
-	const { state, dispatch } = useGallery();
+	const { state, dispatch, updateSetting } = useGallery();
 	const [inputValue, setInputValue] = useState(state.searchQuery);
 	const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
 	const [showSuggestions, setShowSuggestions] = useState(false);
@@ -28,24 +28,11 @@ export const useSearchLogic = () => {
 	const [allKeywords, setAllKeywords] = useState<
 		{ type: string; value: string }[]
 	>([]);
-	const [showAllKeywords, setShowAllKeywords] = useState(false);
+	const showAllKeywords = state.settings["search.show_all_keywords"];
 	const [selectedIndex, setSelectedIndex] = useState<number>(-1);
 	const [searchConfig, setSearchConfig] = useState<SearchConfig | null>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const lastSearchedValueRef = useRef(state.searchQuery);
-
-	// Fetch search config on mount
-	useEffect(() => {
-		searchApi.fetchSearchConfig().then((config) => {
-			setSearchConfig(config);
-		});
-	}, []);
-
-	const searchPrefixRegex = useMemo(() => {
-		if (!searchConfig) return null;
-		const prefixes = searchConfig.all_prefixes.join("|");
-		return new RegExp(`^[-!]?(${prefixes}):(.*)$`, "i");
-	}, [searchConfig]);
 
 	const fetchKeywords = useCallback(async () => {
 		if (allKeywords.length > 0) return;
@@ -53,12 +40,30 @@ export const useSearchLogic = () => {
 		setAllKeywords(results);
 	}, [allKeywords.length]);
 
-	const toggleShowAllKeywords = useCallback(() => {
-		if (!showAllKeywords) {
+	// Fetch search config on mount
+	useEffect(() => {
+		searchApi.fetchSearchConfig().then((config) => {
+			setSearchConfig(config);
+		});
+		// Fetch keywords if showAllKeywords is true
+		if (showAllKeywords) {
 			fetchKeywords();
 		}
-		setShowAllKeywords((prev) => !prev);
-	}, [showAllKeywords, fetchKeywords]);
+	}, [fetchKeywords, showAllKeywords]);
+
+	const searchPrefixRegex = useMemo(() => {
+		if (!searchConfig) return null;
+		const prefixes = searchConfig.all_prefixes.join("|");
+		return new RegExp(`^[-!]?(${prefixes}):(.*)$`, "i");
+	}, [searchConfig]);
+
+	const toggleShowAllKeywords = useCallback(() => {
+		const newValue = !showAllKeywords;
+		if (newValue) {
+			fetchKeywords();
+		}
+		updateSetting("search.show_all_keywords", newValue);
+	}, [showAllKeywords, fetchKeywords, updateSetting]);
 
 	const isQueryChanged = inputValue !== lastSearchedValueRef.current;
 
@@ -244,7 +249,6 @@ export const useSearchLogic = () => {
 		searchSuggestions,
 		allKeywords,
 		showAllKeywords,
-		setShowAllKeywords,
 		toggleShowAllKeywords,
 		selectedIndex,
 		setSelectedIndex,

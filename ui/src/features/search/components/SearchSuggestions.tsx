@@ -255,82 +255,54 @@ export const SearchSuggestions = ({
 					{searchSuggestions.map((s, idx) =>
 						renderKeywordButton(s, idx, "quick"),
 					)}
-					{!showAllKeywords && (
-						<button
-							type="button"
-							onClick={toggleShowAllKeywords}
-							style={{
-								backgroundColor: "transparent",
-								border: "1px dashed var(--comfy-menu-border, #444)",
-								borderRadius: "16px",
-								padding: "4px 12px",
-								cursor: "pointer",
-								color: "var(--meld-text-secondary)",
-								fontSize: "12px",
-								transition: "all 0.2s",
-							}}
-							onMouseEnter={(e) => {
-								e.currentTarget.style.borderColor =
-									"var(--meld-accent-color, #3b82f6)";
-								e.currentTarget.style.color = "var(--meld-text-color)";
-							}}
-							onMouseLeave={(e) => {
-								e.currentTarget.style.borderColor =
-									"var(--comfy-menu-border, #444)";
-								e.currentTarget.style.color = "var(--meld-text-secondary)";
-							}}
-						>
-							More...
-						</button>
-					)}
 				</div>
 
-				{showAllKeywords && (
+				<div
+					style={{
+						display: "flex",
+						flexDirection: "column",
+						gap: "8px",
+						borderTop: "1px solid var(--comfy-menu-border, #333)",
+						paddingTop: "12px",
+						marginTop: "4px",
+					}}
+				>
 					<div
 						style={{
 							display: "flex",
-							flexDirection: "column",
-							gap: "8px",
-							borderTop: "1px solid var(--comfy-menu-border, #333)",
-							paddingTop: "12px",
-							marginTop: "4px",
+							alignItems: "center",
+							justifyContent: "space-between",
+							padding: "0 4px",
 						}}
 					>
 						<div
 							style={{
 								display: "flex",
 								alignItems: "center",
-								justifyContent: "space-between",
-								padding: "0 4px",
+								gap: "6px",
+								color: "var(--meld-text-secondary)",
+								fontSize: "11px",
+								fontWeight: "bold",
+								textTransform: "uppercase",
 							}}
 						>
-							<div
-								style={{
-									display: "flex",
-									alignItems: "center",
-									gap: "6px",
-									color: "var(--meld-text-secondary)",
-									fontSize: "11px",
-									fontWeight: "bold",
-									textTransform: "uppercase",
-								}}
-							>
-								All Keywords
-							</div>
-							<button
-								type="button"
-								onClick={toggleShowAllKeywords}
-								style={{
-									backgroundColor: "transparent",
-									border: "none",
-									color: "var(--meld-accent-color, #3b82f6)",
-									fontSize: "11px",
-									cursor: "pointer",
-								}}
-							>
-								Show Less
-							</button>
+							All Keywords
 						</div>
+						<button
+							type="button"
+							onClick={toggleShowAllKeywords}
+							style={{
+								backgroundColor: "transparent",
+								border: "none",
+								color: "var(--meld-accent-color, #3b82f6)",
+								fontSize: "11px",
+								cursor: "pointer",
+							}}
+						>
+							{showAllKeywords ? "Show Less" : "Show More"}
+						</button>
+					</div>
+					{showAllKeywords && (
 						<div
 							style={{
 								display: "flex",
@@ -343,8 +315,8 @@ export const SearchSuggestions = ({
 						>
 							{allKeywords.map((s, idx) => renderKeywordButton(s, idx, "all"))}
 						</div>
-					</div>
-				)}
+					)}
+				</div>
 			</div>
 		);
 	};

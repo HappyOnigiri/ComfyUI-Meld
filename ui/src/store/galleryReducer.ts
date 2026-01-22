@@ -87,6 +87,7 @@ export const initialState: GalleryState = {
 		"viewer.shortcut.9": "",
 		"viewer.shortcut.0": "",
 		"viewer.shortcut.show_cheat_sheet": true,
+		"search.show_all_keywords": true,
 	},
 	pagination: {
 		total: 0,

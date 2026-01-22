@@ -113,6 +113,7 @@ export interface Settings {
 	"viewer.shortcut.9": string;
 	"viewer.shortcut.0": string;
 	"viewer.shortcut.show_cheat_sheet": boolean;
+	"search.show_all_keywords": boolean;
 }
 
 export type ScanStatus = {

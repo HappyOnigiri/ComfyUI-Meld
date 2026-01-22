@@ -70,6 +70,7 @@ const DEFAULT_SETTINGS: Settings = {
 	"viewer.shortcut.9": "",
 	"viewer.shortcut.0": "",
 	"viewer.shortcut.show_cheat_sheet": true,
+	"search.show_all_keywords": true,
 };
 
 export const fetchSettings = async (): Promise<Settings> => {
