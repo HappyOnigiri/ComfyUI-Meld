@@ -74,36 +74,8 @@ check-only-ascii:
 		echo "All files are ASCII (English) only."; \
 	fi
 
-REPOMIX_IGNORE := **/__pycache__/**,**/node_modules/**,**/.git/**,tmp/**,web/js/gallery_extension.js,**/package-lock.json,**/.mypy_cache/**,**/.pytest_cache/**,**/.ruff_cache/**,**/.venv/**,env/**,**/.cursor/history/**,**/.DS_Store
+repomix:
+	python scripts/generate_repomix.py
 
-repomix: repomix-full repomix-src repomix-tests repomix-nodes repomix-ui repomix-image-manager
-
-repomix-full:
-	@mkdir -p tmp/repomix
-	npx --yes repomix --ignore "$(REPOMIX_IGNORE)" --output tmp/repomix/repomix-full.xml
-
-repomix-src:
-	@mkdir -p tmp/repomix
-	npx --yes repomix --ignore "$(REPOMIX_IGNORE),tests/**" --output tmp/repomix/repomix-src.xml
-
-repomix-tests:
-	@mkdir -p tmp/repomix
-	npx --yes repomix --include "tests/**,pyproject.toml" --ignore "$(REPOMIX_IGNORE)" --output tmp/repomix/repomix-tests.xml
-
-repomix-ui:
-	@mkdir -p tmp/repomix
-	npx --yes repomix --include "ui/**,*.md,*.toml,requirements.txt,Makefile,__init__.py" --ignore "$(REPOMIX_IGNORE)" --output tmp/repomix/repomix-ui.xml
-
-repomix-image-manager:
-	@mkdir -p tmp/repomix
-	npx --yes repomix --include "ui/**,py/image_manager/**,py/meld_save_image/**,.cursor/rules/**,*.md,*.toml,requirements.txt,Makefile,__init__.py" --ignore "$(REPOMIX_IGNORE),tests/**" --output tmp/repomix/repomix-image-manager.xml
-
-repomix-nodes:
-	@mkdir -p tmp/repomix
-	@for dir in py/*/; do \
-		node_name=$$(basename "$$dir"); \
-		if [ -d "$$dir" ] && [ "$$node_name" != "__pycache__" ]; then \
-			echo "Generating repomix for node: $$node_name"; \
-			npx --yes repomix --include "py/$$node_name/**,pyproject.toml" --ignore "$(REPOMIX_IGNORE)" --output "tmp/repomix/repomix-node-$$node_name.xml"; \
-		fi \
-	done
+repomix-%:
+	python scripts/generate_repomix.py repomix-$*
