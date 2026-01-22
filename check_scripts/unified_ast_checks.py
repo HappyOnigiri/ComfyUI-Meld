@@ -7,6 +7,7 @@ import sys
 sys.path.append(os.path.dirname(__file__))
 
 from common.abstract_check import ASTChecker
+from common.api_response_checker import ApiResponseChecker
 from common.api_usage_check import ApiUsageChecker
 from common.dependency_check import DependencyChecker
 
@@ -15,6 +16,7 @@ def run_ast_checks() -> None:
     checkers_classes: list[type[ASTChecker]] = [
         DependencyChecker,
         ApiUsageChecker,
+        ApiResponseChecker,
     ]
 
     # Collect all files that need to be checked and which checkers apply to them

@@ -65,7 +65,7 @@ async def get_image_details(request: web.Request) -> web.Response:
 
         if not img:
             conn.close()
-            return web.json_response({"error": "Image not found"}, status=404)
+            return web.json_response(ApiResponse(success=False, error="Image not found").to_dict(), status=404)
 
         (
             img_id,
