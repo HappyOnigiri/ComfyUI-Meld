@@ -25,7 +25,7 @@ class MeldPixelate:
     RETURN_TYPES = ("IMAGE",)
     RETURN_NAMES = ("image",)
     FUNCTION = "apply_mosaic"
-    CATEGORY = "Meld/Image"
+    CATEGORY = "Meld/Sandbox"
 
     def apply_mosaic(self, image: torch.Tensor, mosaic_scale: int) -> tuple[torch.Tensor]:
         # image shape is [Batch, Height, Width, Channels]
