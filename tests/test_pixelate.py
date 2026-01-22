@@ -24,31 +24,31 @@ class TestPixelate(unittest.TestCase):
         inputs = MeldPixelate.INPUT_TYPES()
         self.assertIn("required", inputs)
         self.assertIn("image", inputs["required"])
-        self.assertIn("mosaic_scale", inputs["required"])
+        self.assertIn("pixel_size", inputs["required"])
 
         self.assertEqual(MeldPixelate.RETURN_TYPES, ("IMAGE",))
-        self.assertEqual(MeldPixelate.FUNCTION, "apply_mosaic")
+        self.assertEqual(MeldPixelate.FUNCTION, "pixelate")
 
-    def test_apply_mosaic_basic(self) -> None:
-        """Confirm that basic mosaic processing works correctly and maintains the original size"""
+    def test_pixelate_basic(self) -> None:
+        """Confirm that basic pixelation works correctly and maintains the original size"""
         # [Batch, Height, Width, Channels]
         dummy_image = torch.zeros((1, 64, 64, 3))
         # Create a single white point in the center
         dummy_image[0, 32, 32, :] = 1.0
 
-        mosaic_scale = 8
-        (result,) = self.node.apply_mosaic(dummy_image, mosaic_scale)
+        pixel_size = 8
+        (result,) = self.node.pixelate(dummy_image, pixel_size)
 
         # Confirm that the output size is the same as the input size
         self.assertEqual(result.shape, dummy_image.shape)
         self.assertIsInstance(result, torch.Tensor)
 
-        # Confirm that the white point at 32,32 has expanded to an 8x8 block due to mosaic processing
+        # Confirm that the white point at 32,32 has expanded to an 8x8 block due to pixelation
         # 32//8 = 4, so check the block range
-        block_start_h = (32 // mosaic_scale) * mosaic_scale
-        block_end_h = block_start_h + mosaic_scale
-        block_start_w = (32 // mosaic_scale) * mosaic_scale
-        block_end_w = block_start_w + mosaic_scale
+        block_start_h = (32 // pixel_size) * pixel_size
+        block_end_h = block_start_h + pixel_size
+        block_start_w = (32 // pixel_size) * pixel_size
+        block_end_w = block_start_w + pixel_size
 
         # Confirm that values inside the block are greater than 0 (white point is dispersed)
         # Due to 'area' interpolation, a value of 1/64 (for scale=8) should spread within the block
@@ -57,32 +57,32 @@ class TestPixelate(unittest.TestCase):
         self.assertTrue(torch.all(result[0, 0:block_start_h, :, :] == 0))
         self.assertTrue(torch.all(result[0, block_end_h:, :, :] == 0))
 
-    def test_apply_mosaic_batch(self) -> None:
+    def test_pixelate_batch(self) -> None:
         """Confirm that batch processing is handled correctly"""
         batch_size = 2
         dummy_images = torch.rand((batch_size, 32, 32, 3))
-        mosaic_scale = 4
+        pixel_size = 4
 
-        (result,) = self.node.apply_mosaic(dummy_images, mosaic_scale)
+        (result,) = self.node.pixelate(dummy_images, pixel_size)
 
         self.assertEqual(result.shape, (batch_size, 32, 32, 3))
 
-    def test_apply_mosaic_min_scale(self) -> None:
-        """Confirm that there is no substantial change when mosaic_scale=1 (due to nearest-exact properties)"""
+    def test_pixelate_min_scale(self) -> None:
+        """Confirm that there is no substantial change when pixel_size=1 (due to nearest-exact properties)"""
         dummy_image = torch.rand((1, 16, 16, 3))
-        mosaic_scale = 1
+        pixel_size = 1
 
-        (result,) = self.node.apply_mosaic(dummy_image, mosaic_scale)
+        (result,) = self.node.pixelate(dummy_image, pixel_size)
 
         # Should be identical if scale=1
         self.assertTrue(torch.allclose(dummy_image, result))
 
-    def test_apply_mosaic_large_scale(self) -> None:
-        """Confirm that it results in 1x1 without error even if mosaic_scale is larger than the image size"""
+    def test_pixelate_large_scale(self) -> None:
+        """Confirm that it results in 1x1 without error even if pixel_size is larger than the image size"""
         dummy_image = torch.rand((1, 8, 8, 3))
-        mosaic_scale = 16  # Larger than image size
+        pixel_size = 16  # Larger than image size
 
-        (result,) = self.node.apply_mosaic(dummy_image, mosaic_scale)
+        (result,) = self.node.pixelate(dummy_image, pixel_size)
 
         self.assertEqual(result.shape, (1, 8, 8, 3))
         # All pixels should have the same value (average)

@@ -8,7 +8,7 @@ class MeldPixelate:
         return {
             "required": {
                 "image": ("IMAGE",),
-                "mosaic_scale": (
+                "pixel_size": (
                     "INT",
                     {
                         "default": 16,
@@ -16,7 +16,7 @@ class MeldPixelate:
                         "max": 256,
                         "step": 1,
                         "display": "number",
-                        "tooltip": "The size of the pixel blocks. Higher values = larger blocks.",
+                        "tooltip": "The size of the pixel blocks (in pixels). Higher values create larger blocks.",
                     },
                 ),
             }
@@ -24,17 +24,17 @@ class MeldPixelate:
 
     RETURN_TYPES = ("IMAGE",)
     RETURN_NAMES = ("image",)
-    FUNCTION = "apply_mosaic"
+    FUNCTION = "pixelate"
     CATEGORY = "Meld/Sandbox"
 
-    def apply_mosaic(self, image: torch.Tensor, mosaic_scale: int) -> tuple[torch.Tensor]:
+    def pixelate(self, image: torch.Tensor, pixel_size: int) -> tuple[torch.Tensor]:
         # image shape is [Batch, Height, Width, Channels]
         B, H, W, C = image.shape
 
         # 1. Calculate the target downscaled dimensions
         # Corresponds to IntMath (//) in JSON
-        target_h = H // mosaic_scale
-        target_w = W // mosaic_scale
+        target_h = H // pixel_size
+        target_w = W // pixel_size
 
         # Prevent dimension becoming 0
         target_h = max(1, target_h)
