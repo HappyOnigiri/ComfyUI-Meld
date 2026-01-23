@@ -42,28 +42,45 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+		const style = getComputedStyle(document.documentElement);
+		const fillColor =
+			style.getPropertyValue("--comfy-input-bg-active") ||
+			style.getPropertyValue("--comfy-input-bg") ||
+			style.getPropertyValue("--bg-color");
+
 		if (isDragging) {
-			ctx.strokeStyle = "white";
-			ctx.lineWidth = 2;
-			ctx.setLineDash([5, 5]);
 			const x = Math.min(startPos.x, currentPos.x);
 			const y = Math.min(startPos.y, currentPos.y);
 			const w = Math.abs(startPos.x - currentPos.x);
 			const h = Math.abs(startPos.y - currentPos.y);
+
+			// Add semi-transparent fill while dragging
+			if (fillColor) {
+				ctx.save();
+				ctx.globalAlpha = 0.3;
+				ctx.fillStyle = fillColor;
+				ctx.fillRect(x, y, w, h);
+				ctx.restore();
+			}
+
+			ctx.strokeStyle = "white";
+			ctx.lineWidth = 2;
+			ctx.setLineDash([5, 5]);
 			ctx.strokeRect(x, y, w, h);
 		} else if (selection) {
+			// Add semi-transparent fill for final selection
+			if (fillColor) {
+				ctx.save();
+				ctx.globalAlpha = 0.5;
+				ctx.fillStyle = fillColor;
+				ctx.fillRect(selection.x, selection.y, selection.w, selection.h);
+				ctx.restore();
+			}
+
 			ctx.strokeStyle = "white";
 			ctx.lineWidth = 2;
 			ctx.setLineDash([]);
 			ctx.strokeRect(selection.x, selection.y, selection.w, selection.h);
-			const style = getComputedStyle(document.documentElement);
-			const fillColor =
-				style.getPropertyValue("--comfy-input-bg-active") ||
-				style.getPropertyValue("--comfy-input-bg");
-			if (fillColor) {
-				ctx.fillStyle = fillColor;
-				ctx.fillRect(selection.x, selection.y, selection.w, selection.h);
-			}
 		}
 	}, [isDragging, startPos, currentPos, selection]);
 

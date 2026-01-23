@@ -6,6 +6,7 @@ import type {
 	GalleryState,
 	MeldImage,
 } from "../../../types";
+import { fetchWorkflows } from "../../workflows/api/workflowsApi";
 import * as imagesApi from "../api/imagesApi";
 
 /**
@@ -144,30 +145,31 @@ export const useImageActions = (
 	);
 
 	const handleRunWithMask = useCallback(
-		(image: MeldImage, mode: "apply" | "run" = "run") => {
+		async (image: MeldImage, mode: "apply" | "run" = "run") => {
 			console.log("[Meld] handleRunWithMask called", image, mode);
-			// Check if the current workflow has the required nodes
-			// @ts-expect-error
-			const comfyApp = window.app;
-			const nodes = comfyApp?.graph?._nodes || [];
-			console.log(
-				"[Meld] Current graph nodes:",
-				nodes.map((n: { id: number; type: string }) => ({
-					id: n.id,
-					type: n.type,
-				})),
-			);
-
-			const hasMaskNode = nodes.some(
-				(n: { type: string }) => n.type === "LoadImageMask",
-			);
-			const hasLoaderNode = nodes.some(
-				(n: { type: string }) => n.type === "MeldImageLoader",
-			);
-
-			console.log("[Meld] Nodes found:", { hasMaskNode, hasLoaderNode });
 
 			if (mode === "apply") {
+				// Check if the current workflow has the required nodes
+				// @ts-expect-error
+				const comfyApp = window.app;
+				const nodes = comfyApp?.graph?._nodes || [];
+				console.log(
+					"[Meld] Current graph nodes:",
+					nodes.map((n: { id: number; type: string }) => ({
+						id: n.id,
+						type: n.type,
+					})),
+				);
+
+				const hasMaskNode = nodes.some(
+					(n: { type: string }) => n.type === "LoadImageMask",
+				);
+				const hasLoaderNode = nodes.some(
+					(n: { type: string }) => n.type === "MeldImageLoader",
+				);
+
+				console.log("[Meld] Nodes found:", { hasMaskNode, hasLoaderNode });
+
 				if (!hasMaskNode || !hasLoaderNode) {
 					const missing = [];
 					if (!hasLoaderNode) missing.push("'Meld Image Loader'");
@@ -182,18 +184,28 @@ export const useImageActions = (
 					});
 					return;
 				}
-			} else if (!hasMaskNode) {
-				// For "run" mode, we at least need the mask node to draw the mask,
-				// though the actual workflow will be selected later.
-				dispatch({
-					type: "OPEN_MODAL",
-					payload: {
-						type: "error",
-						message:
-							"No 'Load Image (as Mask)' node found in the current workflow. Please add one to use the Mask Tool.",
-					},
-				});
-				return;
+			} else {
+				// For "run" mode, check if there's any workflow that supports masks
+				try {
+					const workflows = await fetchWorkflows();
+					const hasCompatibleWorkflow = workflows.some(
+						(wf) => wf.valid && wf.mask_count === 1,
+					);
+					if (!hasCompatibleWorkflow) {
+						dispatch({
+							type: "OPEN_MODAL",
+							payload: {
+								type: "error",
+								message:
+									"No workflows found with exactly one 'Load Image (as Mask)' node. Please save a compatible workflow first.",
+							},
+						});
+						return;
+					}
+				} catch (err) {
+					console.error("[Meld] Error checking workflows:", err);
+					// Fallback: let them open the editor, they'll see errors later if no workflows exist
+				}
 			}
 
 			dispatch({
