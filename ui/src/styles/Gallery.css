@@ -2646,30 +2646,42 @@
 }
 
 /* Mask Editor Styles */
-.meld-mask-overlay-wrapper {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	z-index: 2050;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background: var(--comfy-menu-bg, rgba(0, 0, 0, 0.4));
+.meld-mask-editor-modal {
+	width: 90vw;
+	max-width: 1200px;
+	height: 90vh;
+	max-height: 90vh;
 }
 
-.meld-mask-overlay {
+.meld-mask-editor-modal .meld-modal-body {
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.meld-mask-editor-canvas-container {
 	position: relative;
 	width: 100%;
-	height: 100%;
+	flex: 1;
+	min-height: 0;
 	cursor: crosshair;
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	background: var(--base-background);
+	border-radius: 4px;
+	overflow: hidden;
 }
 
-.meld-mask-canvas {
+.meld-mask-editor-image {
+	max-width: 100%;
+	max-height: 100%;
+	object-fit: contain;
+	user-select: none;
+	pointer-events: none;
+}
+
+.meld-mask-editor-canvas {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -2688,7 +2700,6 @@
 	border-radius: 8px;
 	box-shadow: 0 4px 15px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.5));
 	z-index: 2060;
-	transform: translate(5px, 5px);
 }
 
 .meld-mask-toolbar-btn {
@@ -2733,37 +2744,9 @@
 	color: var(--meld-danger-color);
 }
 
-.meld-mask-hint {
-	position: absolute;
-	top: 10px;
-	left: 50%;
-	transform: translateX(-50%);
-	background: var(--comfy-menu-bg, rgba(0, 0, 0, 0.7));
-	color: white;
-	padding: 8px 16px;
-	border-radius: 20px;
-	font-size: 14px;
-	pointer-events: none;
-	display: flex;
-	align-items: center;
-	gap: 15px;
-	backdrop-filter: blur(4px);
-}
-
-.meld-mask-close {
-	background: none;
-	border: none;
-	color: white;
-	cursor: pointer;
-	pointer-events: auto;
-	padding: 2px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
+.meld-mask-editor-hint {
+	margin-top: 10px;
+	text-align: center;
 	color: var(--meld-text-secondary);
-	transition: opacity 0.2s;
-}
-
-.meld-mask-close:hover {
-	color: var(--meld-danger-color);
+	font-size: 12px;
 }

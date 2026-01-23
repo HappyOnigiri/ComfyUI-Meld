@@ -318,6 +318,17 @@ export function galleryReducer(
 				}
 			}
 
+			if (initialMaskMode) {
+				return {
+					...state,
+					activeModal: {
+						type: "mask_editor",
+						imageId: newId,
+						mode: initialMaskMode,
+					},
+				};
+			}
+
 			const isSameLineage =
 				state.viewerMode === "lineage" &&
 				newMode === "lineage" &&

@@ -197,8 +197,8 @@ export const useImageActions = (
 			}
 
 			dispatch({
-				type: "OPEN_VIEWER",
-				payload: { id: image.id, mode: "gallery", initialMaskMode: mode },
+				type: "OPEN_MODAL",
+				payload: { type: "mask_editor", imageId: image.id, mode },
 			});
 		},
 		[dispatch],

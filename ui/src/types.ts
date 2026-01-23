@@ -143,7 +143,8 @@ export type ActiveModal =
 			imageIds: number[];
 			hasLineage: boolean;
 			isPermanent?: boolean;
-	  };
+	  }
+	| { type: "mask_editor"; imageId: number; mode: "apply" | "run" };
 
 export interface GalleryState {
 	images: MeldImage[];

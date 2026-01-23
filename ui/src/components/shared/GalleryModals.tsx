@@ -1,6 +1,7 @@
 import type React from "react";
 import { createPortal } from "react-dom";
 import { ImportModal } from "../../features/importer/components/ImportModal";
+import { MaskEditorModal } from "../../features/mask-editor/components/MaskEditorModal";
 import { SettingsModal } from "../../features/settings/components/SettingsModal";
 import { TagEditModal } from "../../features/tags/components/TagEditModal";
 import { WorkflowSelectionModal } from "../../features/workflows/components/WorkflowSelectionModal";
@@ -68,6 +69,16 @@ export const GalleryModals: React.FC = () => {
 						imageIds={state.activeModal.imageIds}
 						hasLineage={state.activeModal.hasLineage}
 						isPermanent={state.activeModal.isPermanent}
+					/>,
+					document.body,
+				)}
+
+			{state.activeModal.type === "mask_editor" &&
+				createPortal(
+					<MaskEditorModal
+						imageId={state.activeModal.imageId}
+						mode={state.activeModal.mode}
+						onClose={() => dispatch({ type: "CLOSE_MODAL" })}
 					/>,
 					document.body,
 				)}
