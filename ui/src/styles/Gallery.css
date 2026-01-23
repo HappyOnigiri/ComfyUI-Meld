@@ -2691,6 +2691,43 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	overflow: hidden;
 }
 
+.meld-mask-editor-tool-selector {
+	display: flex;
+	justify-content: center;
+	gap: 8px;
+	margin-bottom: 12px;
+	padding: 4px;
+	background: var(--comfy-menu-bg, rgba(0, 0, 0, 0.2));
+	border-radius: 8px;
+	width: fit-content;
+	align-self: center;
+}
+
+.meld-mask-tool-btn {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 12px;
+	border-radius: 6px;
+	border: 1px solid transparent;
+	background: transparent;
+	color: var(--meld-text-secondary);
+	cursor: pointer;
+	font-size: 13px;
+	transition: all 0.2s;
+}
+
+.meld-mask-tool-btn:hover {
+	color: var(--meld-text-color);
+	background: var(--comfy-input-bg, rgba(255, 255, 255, 0.05));
+}
+
+.meld-mask-tool-btn.active {
+	color: var(--meld-accent-color);
+	background: var(--comfy-input-bg-active, rgba(68, 136, 255, 0.15));
+	border-color: var(--meld-accent-color);
+}
+
 .meld-mask-editor-canvas-container {
 	position: relative;
 	width: 100%;

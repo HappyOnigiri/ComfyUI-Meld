@@ -12,6 +12,46 @@ export function createMaskBitmap(width: number, height: number): MaskBitmap {
 }
 
 /**
+ * Stamps a shape onto the mask bitmap using Canvas API.
+ * This allows for complex shapes like ellipses and polygons (lasso).
+ */
+export function stampShape(
+	mask: MaskBitmap,
+	drawCallback: (ctx: CanvasRenderingContext2D) => void,
+	value = 255,
+): MaskBitmap {
+	const { width, height } = mask;
+
+	// 1. Create a temporary canvas
+	const canvas = document.createElement("canvas");
+	canvas.width = width;
+	canvas.height = height;
+	const ctx = canvas.getContext("2d", { willReadFrequently: true });
+	if (!ctx) return mask;
+
+	// 2. Draw existing mask
+	const currentImageData = maskToImageData(mask, [255, 255, 255], 255);
+	ctx.putImageData(currentImageData, 0, 0);
+
+	// 3. Draw new shape
+	ctx.fillStyle = value > 0 ? "white" : "black";
+	ctx.beginPath();
+	drawCallback(ctx);
+	ctx.fill();
+
+	// 4. Read back pixels
+	const newImageData = ctx.getImageData(0, 0, width, height);
+	const newData = new Uint8ClampedArray(width * height);
+
+	for (let i = 0; i < width * height; i++) {
+		// Use Red channel (255 if white) to determine mask value
+		newData[i] = newImageData.data[i * 4] > 128 ? 255 : 0;
+	}
+
+	return { ...mask, data: newData };
+}
+
+/**
  * Stamps a rectangle onto the mask bitmap.
  */
 export function stampRect(

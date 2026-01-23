@@ -1,4 +1,13 @@
-import { Check, Loader2, Play, Undo2, X } from "lucide-react";
+import {
+	Check,
+	Circle,
+	Lasso,
+	Loader2,
+	Play,
+	Square,
+	Undo2,
+	X,
+} from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 // @ts-expect-error: ComfyUI scripts are not available in build time
@@ -6,12 +15,18 @@ import { api } from "/scripts/api.js";
 import { useGallery } from "../../../store/GalleryContext";
 import { getImageViewUrl } from "../../../utils/url";
 import { useMaskInjection } from "../hooks/useMaskInjection";
-import type { MaskBitmap, MaskMode, MaskSelection } from "../types";
+import type {
+	MaskBitmap,
+	MaskMode,
+	MaskSelection,
+	MaskTool,
+	Point,
+} from "../types";
 import {
 	createMaskBitmap,
 	isMaskEmpty,
 	maskToImageData,
-	stampRect,
+	stampShape,
 } from "../utils/maskUtils";
 
 interface MaskEditorModalProps {
@@ -35,8 +50,10 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 	const maskOffscreenCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
 	const [isDragging, setIsDragging] = useState(false);
+	const [activeTool, setActiveTool] = useState<MaskTool>("rect");
 	const [startPos, setStartPos] = useState({ x: 0, y: 0 });
 	const [currentPos, setCurrentPos] = useState({ x: 0, y: 0 });
+	const [lassoPath, setLassoPath] = useState<Point[]>([]);
 	const [_selection, setSelection] = useState<MaskSelection | null>(null);
 	const [isUploading, setIsUploading] = useState(false);
 
@@ -115,19 +132,34 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 			const w = Math.abs(startPos.x - currentPos.x);
 			const h = Math.abs(startPos.y - currentPos.y);
 
-			// Add semi-transparent fill while dragging
 			ctx.save();
 			ctx.globalAlpha = 0.3;
 			ctx.fillStyle = fillColor;
-			ctx.fillRect(x, y, w, h);
-			ctx.restore();
-
 			ctx.strokeStyle = "white";
 			ctx.lineWidth = 2;
 			ctx.setLineDash([5, 5]);
-			ctx.strokeRect(x, y, w, h);
+
+			ctx.beginPath();
+			if (activeTool === "rect") {
+				ctx.rect(x, y, w, h);
+			} else if (activeTool === "ellipse") {
+				const centerX = x + w / 2;
+				const centerY = y + h / 2;
+				ctx.ellipse(centerX, centerY, w / 2, h / 2, 0, 0, 2 * Math.PI);
+			} else if (activeTool === "lasso" && lassoPath.length > 1) {
+				ctx.moveTo(lassoPath[0].x, lassoPath[0].y);
+				for (let i = 1; i < lassoPath.length; i++) {
+					ctx.lineTo(lassoPath[i].x, lassoPath[i].y);
+				}
+				ctx.closePath();
+			}
+
+			ctx.fill();
+			ctx.globalAlpha = 1.0;
+			ctx.stroke();
+			ctx.restore();
 		}
-	}, [isDragging, startPos, currentPos, getImageBounds]);
+	}, [isDragging, startPos, currentPos, activeTool, lassoPath, getImageBounds]);
 
 	// Mask state with history for Undo
 	const [maskHistory, setMaskHistory] = useState<MaskBitmap[]>([]);
@@ -236,6 +268,11 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 		);
 		setStartPos({ x, y });
 		setCurrentPos({ x, y });
+		if (activeTool === "lasso") {
+			setLassoPath([{ x, y }]);
+		} else {
+			setLassoPath([]);
+		}
 		setSelection(null);
 	};
 
@@ -258,6 +295,9 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 				Math.min(e.clientY - rect.top, bounds.top + bounds.height),
 			);
 			setCurrentPos({ x, y });
+			if (activeTool === "lasso") {
+				setLassoPath((prev) => [...prev, { x, y }]);
+			}
 		};
 
 		const handleWindowMouseUp = (e: MouseEvent) => {
@@ -278,7 +318,11 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 				const finalW = Math.abs(startPos.x - x);
 				const finalH = Math.abs(startPos.y - y);
 
-				if (finalW > 5 && finalH > 5) {
+				const isLasso = activeTool === "lasso";
+				const hasEnoughMovement =
+					finalW > 5 || finalH > 5 || (isLasso && lassoPath.length > 2);
+
+				if (hasEnoughMovement) {
 					// Convert overlay coords to natural coords
 					const naturalWidth = imageRef.current.naturalWidth;
 					const naturalHeight = imageRef.current.naturalHeight;
@@ -286,24 +330,53 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 					const scaleX = naturalWidth / bounds.width;
 					const scaleY = naturalHeight / bounds.height;
 
-					const relX = (finalX - bounds.left) * scaleX;
-					const relY = (finalY - bounds.top) * scaleY;
-					const relW = finalW * scaleX;
-					const relH = finalH * scaleY;
+					const updatedMask = stampShape(currentMask, (ctx) => {
+						if (activeTool === "rect") {
+							const relX = (finalX - bounds.left) * scaleX;
+							const relY = (finalY - bounds.top) * scaleY;
+							const relW = finalW * scaleX;
+							const relH = finalH * scaleY;
+							ctx.rect(relX, relY, relW, relH);
+						} else if (activeTool === "ellipse") {
+							const relX = (finalX - bounds.left) * scaleX;
+							const relY = (finalY - bounds.top) * scaleY;
+							const relW = finalW * scaleX;
+							const relH = finalH * scaleY;
+							const centerX = relX + relW / 2;
+							const centerY = relY + relH / 2;
+							ctx.ellipse(
+								centerX,
+								centerY,
+								relW / 2,
+								relH / 2,
+								0,
+								0,
+								2 * Math.PI,
+							);
+						} else if (activeTool === "lasso") {
+							if (lassoPath.length > 2) {
+								const startPoint = lassoPath[0];
+								ctx.moveTo(
+									(startPoint.x - bounds.left) * scaleX,
+									(startPoint.y - bounds.top) * scaleY,
+								);
+								for (let i = 1; i < lassoPath.length; i++) {
+									ctx.lineTo(
+										(lassoPath[i].x - bounds.left) * scaleX,
+										(lassoPath[i].y - bounds.top) * scaleY,
+									);
+								}
+								ctx.closePath();
+							}
+						}
+					});
 
-					const updatedMask = stampRect(
-						currentMask,
-						relX,
-						relY,
-						relW,
-						relH,
-						255,
-					);
 					setMaskHistory((prev) => [...prev, updatedMask]);
 				}
 			}
 			lastDragEndTimeRef.current = Date.now();
 			setIsDragging(false);
+			setLassoPath([]);
 		};
 
 		window.addEventListener("mousemove", handleWindowMouseMove);
@@ -313,7 +386,15 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 			window.removeEventListener("mousemove", handleWindowMouseMove);
 			window.removeEventListener("mouseup", handleWindowMouseUp);
 		};
-	}, [isDragging, startPos.x, startPos.y, getImageBounds, currentMask]);
+	}, [
+		isDragging,
+		startPos.x,
+		startPos.y,
+		getImageBounds,
+		currentMask,
+		activeTool,
+		lassoPath,
+	]);
 
 	const handleUndo = useCallback(() => {
 		if (maskHistory.length > 1) {
@@ -445,6 +526,41 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 				</div>
 
 				<div className="meld-modal-body">
+					<div className="meld-mask-editor-tool-selector">
+						<button
+							className={`meld-mask-tool-btn ${
+								activeTool === "rect" ? "active" : ""
+							}`}
+							onClick={() => setActiveTool("rect")}
+							type="button"
+							title="Rectangle Tool"
+						>
+							<Square size={18} />
+							<span>Rect</span>
+						</button>
+						<button
+							className={`meld-mask-tool-btn ${
+								activeTool === "ellipse" ? "active" : ""
+							}`}
+							onClick={() => setActiveTool("ellipse")}
+							type="button"
+							title="Ellipse Tool"
+						>
+							<Circle size={18} />
+							<span>Ellipse</span>
+						</button>
+						<button
+							className={`meld-mask-tool-btn ${
+								activeTool === "lasso" ? "active" : ""
+							}`}
+							onClick={() => setActiveTool("lasso")}
+							type="button"
+							title="Lasso Tool"
+						>
+							<Lasso size={18} />
+							<span>Lasso</span>
+						</button>
+					</div>
 					<div
 						ref={overlayRef}
 						className="meld-mask-editor-canvas-container"
@@ -466,8 +582,8 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 					</div>
 					<div className="meld-mask-editor-footer">
 						<div className="meld-mask-editor-hint">
-							Drag to select mask area (Multiple areas supported. Cmd/Ctrl+Z to
-							undo)
+							Select a tool and drag on the image to create mask areas
+							(Cmd/Ctrl+Z to undo)
 						</div>
 						<div className="meld-mask-editor-actions">
 							{mode === "apply" ? (

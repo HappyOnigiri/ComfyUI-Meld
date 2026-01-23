@@ -2,6 +2,13 @@ import type { MeldImage } from "../../types";
 
 export type MaskMode = "apply" | "run";
 
+export type MaskTool = "rect" | "ellipse" | "lasso";
+
+export interface Point {
+	x: number;
+	y: number;
+}
+
 export interface MaskSelection {
 	x: number;
 	y: number;
