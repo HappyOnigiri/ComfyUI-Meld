@@ -12,11 +12,32 @@ import { GalleryProvider } from "./store/GalleryContext";
 import type { ComfyApp } from "./types";
 import "./meld_unified_loader_ui";
 
-const style = document.createElement("link");
-style.rel = "stylesheet";
-style.type = "text/css";
-style.href = "/extensions/ComfyUI-Meld/js/style.css";
-document.head.appendChild(style);
+// Load the bundled stylesheet from the same directory as this module.
+//
+// IMPORTANT:
+// Do not hardcode `/extensions/<name>/...` because the actual extension mount path
+// depends on the custom_nodes folder name (and can differ between WebUI and Desktop builds).
+const existingStyle = document.getElementById(
+	"meld-gallery-style",
+) as HTMLLinkElement | null;
+
+if (!existingStyle) {
+	const style = document.createElement("link");
+	style.id = "meld-gallery-style";
+	style.rel = "stylesheet";
+	style.type = "text/css";
+	try {
+		// Vite warns that the file may not exist at build time; it is resolved at runtime.
+		style.href = new URL(
+			/* @vite-ignore */ "./style.css",
+			import.meta.url,
+		).toString();
+	} catch {
+		// Fallback (legacy). Keep for safety if `import.meta.url` is unavailable for some reason.
+		style.href = "/extensions/ComfyUI-Meld/js/style.css";
+	}
+	document.head.appendChild(style);
+}
 
 let galleryRoot: Root | null = null;
 let galleryContainer: HTMLDivElement | null = null;
@@ -133,7 +154,12 @@ app.registerExtension({
 		try {
 			app.extensionManager.registerSidebarTab({
 				id: "meld-gallery",
-				icon: "meld-icon",
+				// NOTE: Use both the legacy mask-based icon and a PrimeIcons fallback.
+				// - Web browsers typically render mask-image/data-URL icons correctly (legacy look).
+				// - Some desktop WebViews (notably macOS desktop builds) may fail to render them reliably,
+				//   so we keep PrimeIcons as a fallback.
+				// The CSS decides which one is visible via @supports().
+				icon: "meld-icon pi pi-images",
 				title: "Meld",
 				tooltip: "Meld Image Manager",
 				type: "custom",
