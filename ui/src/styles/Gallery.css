@@ -2721,18 +2721,6 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	pointer-events: none;
 }
 
-.meld-mask-toolbar {
-	position: absolute;
-	display: flex;
-	gap: 5px;
-	background: var(--comfy-menu-bg, #222);
-	border: 1px solid var(--meld-border-color);
-	padding: 5px;
-	border-radius: 8px;
-	box-shadow: 0 4px 15px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.5));
-	z-index: 2060;
-}
-
 .meld-mask-toolbar-btn {
 	display: flex;
 	align-items: center;
@@ -2775,9 +2763,22 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	color: var(--meld-danger-color);
 }
 
+.meld-mask-editor-footer {
+	margin-top: 15px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 20px;
+	padding-top: 15px;
+	border-top: 1px solid var(--meld-border-subtle);
+}
+
+.meld-mask-editor-actions {
+	display: flex;
+	gap: 10px;
+}
+
 .meld-mask-editor-hint {
-	margin-top: 10px;
-	text-align: center;
 	color: var(--meld-text-secondary);
-	font-size: 12px;
+	font-size: 13px;
 }

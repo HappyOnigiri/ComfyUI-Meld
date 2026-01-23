@@ -27,7 +27,6 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 	const [startPos, setStartPos] = useState({ x: 0, y: 0 });
 	const [currentPos, setCurrentPos] = useState({ x: 0, y: 0 });
 	const [selection, setSelection] = useState<MaskSelection | null>(null);
-	const [showToolbar, setShowToolbar] = useState(false);
 	const [isUploading, setIsUploading] = useState(false);
 
 	const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -103,7 +102,6 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 	}, [draw]);
 
 	const handleMouseDown = (e: React.MouseEvent) => {
-		if (showToolbar) return;
 		setIsDragging(true);
 		const rect = overlayRef.current?.getBoundingClientRect();
 		if (!rect) return;
@@ -134,7 +132,6 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 
 		if (w > 5 && h > 5) {
 			setSelection({ x, y, w, h });
-			setShowToolbar(true);
 		}
 	};
 
@@ -280,64 +277,53 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 							className="meld-mask-editor-image"
 						/>
 						<canvas ref={canvasRef} className="meld-mask-editor-canvas" />
-
-						{showToolbar && selection && (
-							<div
-								className="meld-mask-toolbar"
-								style={{
-									left: selection.x + selection.w,
-									top: selection.y + selection.h,
-									position: "absolute",
-									zIndex: 1000,
-								}}
-								onClick={(e) => e.stopPropagation()}
-								onMouseDown={(e) => e.stopPropagation()}
-								role="presentation"
-							>
-								{mode === "apply" ? (
-									<button
-										className="meld-mask-toolbar-btn meld-mask-toolbar-btn--inject"
-										onClick={handleInject}
-										disabled={isUploading}
-										type="button"
-									>
-										{isUploading ? (
-											<Loader2 size={16} className="animate-spin" />
-										) : (
-											<Check size={16} />
-										)}
-										<span>Send</span>
-									</button>
-								) : (
-									<button
-										className="meld-mask-toolbar-btn meld-mask-toolbar-btn--run"
-										onClick={handleQueue}
-										disabled={isUploading}
-										type="button"
-									>
-										{isUploading ? (
-											<Loader2 size={16} className="animate-spin" />
-										) : (
-											<Play size={16} />
-										)}
-										<span>Queue</span>
-									</button>
-								)}
+					</div>
+					<div className="meld-mask-editor-footer">
+						<div className="meld-mask-editor-hint">
+							Drag to select mask area
+						</div>
+						<div className="meld-mask-editor-actions">
+							{mode === "apply" ? (
 								<button
-									className="meld-mask-toolbar-btn meld-mask-toolbar-btn--cancel"
-									onClick={() => {
-										setShowToolbar(false);
-										setSelection(null);
-									}}
-									disabled={isUploading}
+									className="meld-mask-toolbar-btn meld-mask-toolbar-btn--inject"
+									onClick={handleInject}
+									disabled={!selection || isUploading}
 									type="button"
 								>
-									<X size={16} />
+									{isUploading ? (
+										<Loader2 size={16} className="animate-spin" />
+									) : (
+										<Check size={16} />
+									)}
+									<span>Send</span>
 								</button>
-							</div>
-						)}
+							) : (
+								<button
+									className="meld-mask-toolbar-btn meld-mask-toolbar-btn--run"
+									onClick={handleQueue}
+									disabled={!selection || isUploading}
+									type="button"
+								>
+									{isUploading ? (
+										<Loader2 size={16} className="animate-spin" />
+									) : (
+										<Play size={16} />
+									)}
+									<span>Queue</span>
+								</button>
+							)}
+							<button
+								className="meld-mask-toolbar-btn meld-mask-toolbar-btn--cancel"
+								onClick={() => setSelection(null)}
+								disabled={!selection || isUploading}
+								type="button"
+								title="Clear selection"
+							>
+								<X size={16} />
+								<span>Clear</span>
+							</button>
+						</div>
 					</div>
-					<div className="meld-mask-editor-hint">Drag to select mask area</div>
 				</div>
 			</div>
 		</div>
