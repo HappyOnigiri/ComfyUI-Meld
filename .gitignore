@@ -72,7 +72,6 @@ package-lock.json
 !ui/package.json
 !ui/package-lock.json
 *.bak
-web/js/style.css
 
 # Keep directories
 !.gitkeep
