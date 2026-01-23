@@ -2755,6 +2755,11 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	color: var(--meld-accent-color);
 }
 
+.meld-mask-toolbar-btn--undo {
+	background: var(--comfy-input-bg);
+	color: var(--meld-text-color);
+}
+
 .meld-mask-toolbar-btn--cancel {
 	padding: 6px;
 	color: var(--meld-text-secondary);

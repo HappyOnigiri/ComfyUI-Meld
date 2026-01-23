@@ -1,12 +1,18 @@
-import { Check, Loader2, Play, X } from "lucide-react";
+import { Check, Loader2, Play, Undo2, X } from "lucide-react";
 import type React from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 // @ts-expect-error: ComfyUI scripts are not available in build time
 import { api } from "/scripts/api.js";
 import { useGallery } from "../../../store/GalleryContext";
 import { getImageViewUrl } from "../../../utils/url";
 import { useMaskInjection } from "../hooks/useMaskInjection";
-import type { MaskMode, MaskSelection } from "../types";
+import type { MaskBitmap, MaskMode, MaskSelection } from "../types";
+import {
+	createMaskBitmap,
+	isMaskEmpty,
+	maskToImageData,
+	stampRect,
+} from "../utils/maskUtils";
 
 interface MaskEditorModalProps {
 	imageId: number;
@@ -23,38 +29,16 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 	const image = state.images.find((img) => img.id === imageId);
 	const { injectMaskToGraph } = useMaskInjection();
 
-	const [isDragging, setIsDragging] = useState(false);
-	const [startPos, setStartPos] = useState({ x: 0, y: 0 });
-	const [currentPos, setCurrentPos] = useState({ x: 0, y: 0 });
-	const [selection, setSelection] = useState<MaskSelection | null>(null);
-	const [isUploading, setIsUploading] = useState(false);
-
-	const overlayMouseDownRef = useRef(false);
-	const lastDragEndTimeRef = useRef(0);
-
-	// Implementation Requirements: Prevent the modal from closing when a drag operation
-	// (mask selection) ends outside the modal content. We only close if the mousedown
-	// and mouseup both occurred directly on the overlay background.
-	const handleOverlayMouseDown = (e: React.MouseEvent) => {
-		if (e.target === e.currentTarget) {
-			overlayMouseDownRef.current = true;
-		}
-	};
-
-	const handleOverlayMouseUp = (e: React.MouseEvent) => {
-		if (
-			e.target === e.currentTarget &&
-			overlayMouseDownRef.current &&
-			!isDragging
-		) {
-			onClose();
-		}
-		overlayMouseDownRef.current = false;
-	};
-
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const overlayRef = useRef<HTMLDivElement>(null);
 	const imageRef = useRef<HTMLImageElement>(null);
+	const maskOffscreenCanvasRef = useRef<HTMLCanvasElement | null>(null);
+
+	const [isDragging, setIsDragging] = useState(false);
+	const [startPos, setStartPos] = useState({ x: 0, y: 0 });
+	const [currentPos, setCurrentPos] = useState({ x: 0, y: 0 });
+	const [_selection, setSelection] = useState<MaskSelection | null>(null);
+	const [isUploading, setIsUploading] = useState(false);
 
 	const getImageBounds = useCallback(() => {
 		const img = imageRef.current;
@@ -106,8 +90,25 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 		const fillColor =
 			style.getPropertyValue("--comfy-input-bg-active") ||
 			style.getPropertyValue("--comfy-input-bg") ||
-			style.getPropertyValue("--bg-color");
+			style.getPropertyValue("--bg-color") ||
+			"var(--comfy-input-bg)";
 
+		// 1. Draw existing mask from offscreen canvas
+		const bounds = getImageBounds();
+		if (maskOffscreenCanvasRef.current && bounds) {
+			ctx.save();
+			ctx.globalAlpha = 0.5; // Semi-transparent for confirmed mask
+			ctx.drawImage(
+				maskOffscreenCanvasRef.current,
+				bounds.left,
+				bounds.top,
+				bounds.width,
+				bounds.height,
+			);
+			ctx.restore();
+		}
+
+		// 2. Draw current dragging selection
 		if (isDragging) {
 			const x = Math.min(startPos.x, currentPos.x);
 			const y = Math.min(startPos.y, currentPos.y);
@@ -115,34 +116,82 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 			const h = Math.abs(startPos.y - currentPos.y);
 
 			// Add semi-transparent fill while dragging
-			if (fillColor) {
-				ctx.save();
-				ctx.globalAlpha = 0.3;
-				ctx.fillStyle = fillColor;
-				ctx.fillRect(x, y, w, h);
-				ctx.restore();
-			}
+			ctx.save();
+			ctx.globalAlpha = 0.3;
+			ctx.fillStyle = fillColor;
+			ctx.fillRect(x, y, w, h);
+			ctx.restore();
 
 			ctx.strokeStyle = "white";
 			ctx.lineWidth = 2;
 			ctx.setLineDash([5, 5]);
 			ctx.strokeRect(x, y, w, h);
-		} else if (selection) {
-			// Add semi-transparent fill for final selection
-			if (fillColor) {
-				ctx.save();
-				ctx.globalAlpha = 0.5;
-				ctx.fillStyle = fillColor;
-				ctx.fillRect(selection.x, selection.y, selection.w, selection.h);
-				ctx.restore();
-			}
-
-			ctx.strokeStyle = "white";
-			ctx.lineWidth = 2;
-			ctx.setLineDash([]);
-			ctx.strokeRect(selection.x, selection.y, selection.w, selection.h);
 		}
-	}, [isDragging, startPos, currentPos, selection]);
+	}, [isDragging, startPos, currentPos, getImageBounds]);
+
+	// Mask state with history for Undo
+	const [maskHistory, setMaskHistory] = useState<MaskBitmap[]>([]);
+	const currentMask = useMemo(() => {
+		if (maskHistory.length > 0) return maskHistory[maskHistory.length - 1];
+		if (imageRef.current) {
+			return createMaskBitmap(
+				imageRef.current.naturalWidth,
+				imageRef.current.naturalHeight,
+			);
+		}
+		return null;
+	}, [maskHistory]);
+
+	// Initialize mask history when image is loaded
+	useEffect(() => {
+		if (imageRef.current?.naturalWidth && maskHistory.length === 0) {
+			setMaskHistory([
+				createMaskBitmap(
+					imageRef.current.naturalWidth,
+					imageRef.current.naturalHeight,
+				),
+			]);
+		}
+	}, [maskHistory.length]);
+
+	const overlayMouseDownRef = useRef(false);
+	const lastDragEndTimeRef = useRef(0);
+
+	const handleOverlayMouseDown = (e: React.MouseEvent) => {
+		if (e.target === e.currentTarget) {
+			overlayMouseDownRef.current = true;
+		}
+	};
+
+	const handleOverlayMouseUp = (e: React.MouseEvent) => {
+		if (
+			e.target === e.currentTarget &&
+			overlayMouseDownRef.current &&
+			!isDragging
+		) {
+			onClose();
+		}
+		overlayMouseDownRef.current = false;
+	};
+
+	// Update offscreen canvas when current mask changes
+	useEffect(() => {
+		if (!currentMask) return;
+
+		if (!maskOffscreenCanvasRef.current) {
+			maskOffscreenCanvasRef.current = document.createElement("canvas");
+		}
+		const offCanvas = maskOffscreenCanvasRef.current;
+		offCanvas.width = currentMask.width;
+		offCanvas.height = currentMask.height;
+
+		const ctx = offCanvas.getContext("2d");
+		if (!ctx) return;
+
+		const imageData = maskToImageData(currentMask, [255, 255, 255], 255);
+		ctx.putImageData(imageData, 0, 0);
+		draw();
+	}, [currentMask, draw]);
 
 	useEffect(() => {
 		const updateSize = () => {
@@ -214,7 +263,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 		const handleWindowMouseUp = (e: MouseEvent) => {
 			const bounds = getImageBounds();
 			const rect = overlayRef.current?.getBoundingClientRect();
-			if (bounds && rect) {
+			if (bounds && rect && currentMask && imageRef.current) {
 				const x = Math.max(
 					bounds.left,
 					Math.min(e.clientX - rect.left, bounds.left + bounds.width),
@@ -230,7 +279,27 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 				const finalH = Math.abs(startPos.y - y);
 
 				if (finalW > 5 && finalH > 5) {
-					setSelection({ x: finalX, y: finalY, w: finalW, h: finalH });
+					// Convert overlay coords to natural coords
+					const naturalWidth = imageRef.current.naturalWidth;
+					const naturalHeight = imageRef.current.naturalHeight;
+
+					const scaleX = naturalWidth / bounds.width;
+					const scaleY = naturalHeight / bounds.height;
+
+					const relX = (finalX - bounds.left) * scaleX;
+					const relY = (finalY - bounds.top) * scaleY;
+					const relW = finalW * scaleX;
+					const relH = finalH * scaleY;
+
+					const updatedMask = stampRect(
+						currentMask,
+						relX,
+						relY,
+						relW,
+						relH,
+						255,
+					);
+					setMaskHistory((prev) => [...prev, updatedMask]);
 				}
 			}
 			lastDragEndTimeRef.current = Date.now();
@@ -244,60 +313,53 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 			window.removeEventListener("mousemove", handleWindowMouseMove);
 			window.removeEventListener("mouseup", handleWindowMouseUp);
 		};
-	}, [isDragging, startPos.x, startPos.y, getImageBounds]);
+	}, [isDragging, startPos.x, startPos.y, getImageBounds, currentMask]);
+
+	const handleUndo = useCallback(() => {
+		if (maskHistory.length > 1) {
+			setMaskHistory((prev) => prev.slice(0, -1));
+		}
+	}, [maskHistory.length]);
+
+	// Keyboard shortcuts
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			// Cmd+Z (Mac) or Ctrl+Z (Windows/Linux)
+			if ((e.metaKey || e.ctrlKey) && e.key === "z") {
+				e.preventDefault();
+				handleUndo();
+			}
+		};
+
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, [handleUndo]);
+
+	const handleClear = () => {
+		if (imageRef.current) {
+			const emptyMask = createMaskBitmap(
+				imageRef.current.naturalWidth,
+				imageRef.current.naturalHeight,
+			);
+			setMaskHistory((prev) => [...prev, emptyMask]);
+		}
+	};
 
 	const uploadMask = async (): Promise<string | null> => {
-		if (!selection || !imageRef.current || !overlayRef.current) return null;
+		if (!currentMask || !imageRef.current) return null;
 
 		setIsUploading(true);
 		try {
-			const img = imageRef.current;
-			const naturalWidth = img.naturalWidth;
-			const naturalHeight = img.naturalHeight;
-
+			const { width, height } = currentMask;
 			const maskCanvas = document.createElement("canvas");
-			maskCanvas.width = naturalWidth;
-			maskCanvas.height = naturalHeight;
+			maskCanvas.width = width;
+			maskCanvas.height = height;
 			const ctx = maskCanvas.getContext("2d");
 			if (!ctx) return null;
 
-			ctx.fillStyle = "black";
-			ctx.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
-
-			const rect = overlayRef.current.getBoundingClientRect();
-			const imgRect = img.getBoundingClientRect();
-
-			const imageRatio = naturalWidth / naturalHeight;
-			const containerRatio = imgRect.width / imgRect.height;
-
-			let displayedWidth: number;
-			let displayedHeight: number;
-			let offsetX = 0;
-			let offsetY = 0;
-
-			if (imageRatio > containerRatio) {
-				displayedWidth = imgRect.width;
-				displayedHeight = imgRect.width / imageRatio;
-				offsetY = (imgRect.height - displayedHeight) / 2;
-			} else {
-				displayedHeight = imgRect.height;
-				displayedWidth = imgRect.height * imageRatio;
-				offsetX = (imgRect.width - displayedWidth) / 2;
-			}
-
-			const scaleX = naturalWidth / displayedWidth;
-			const scaleY = naturalHeight / displayedHeight;
-
-			const relX = selection.x - (imgRect.left - rect.left) - offsetX;
-			const relY = selection.y - (imgRect.top - rect.top) - offsetY;
-
-			const maskX = relX * scaleX;
-			const maskY = relY * scaleY;
-			const maskW = selection.w * scaleX;
-			const maskH = selection.h * scaleY;
-
-			ctx.fillStyle = "white";
-			ctx.fillRect(maskX, maskY, maskW, maskH);
+			// Draw the mask onto the canvas
+			const imageData = maskToImageData(currentMask, [255, 255, 255], 255);
+			ctx.putImageData(imageData, 0, 0);
 
 			const blob = await new Promise<Blob | null>((resolve) =>
 				maskCanvas.toBlob(resolve, "image/png"),
@@ -357,6 +419,11 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 		}
 	};
 
+	const hasMask = useMemo(
+		() => currentMask && !isMaskEmpty(currentMask),
+		[currentMask],
+	);
+
 	if (!image) return null;
 
 	return (
@@ -399,14 +466,15 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 					</div>
 					<div className="meld-mask-editor-footer">
 						<div className="meld-mask-editor-hint">
-							Drag to select mask area
+							Drag to select mask area (Multiple areas supported. Cmd/Ctrl+Z to
+							undo)
 						</div>
 						<div className="meld-mask-editor-actions">
 							{mode === "apply" ? (
 								<button
 									className="meld-mask-toolbar-btn meld-mask-toolbar-btn--inject"
 									onClick={handleInject}
-									disabled={!selection || isUploading}
+									disabled={!hasMask || isUploading}
 									type="button"
 								>
 									{isUploading ? (
@@ -420,7 +488,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 								<button
 									className="meld-mask-toolbar-btn meld-mask-toolbar-btn--run"
 									onClick={handleQueue}
-									disabled={!selection || isUploading}
+									disabled={!hasMask || isUploading}
 									type="button"
 								>
 									{isUploading ? (
@@ -432,11 +500,21 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 								</button>
 							)}
 							<button
-								className="meld-mask-toolbar-btn meld-mask-toolbar-btn--cancel"
-								onClick={() => setSelection(null)}
-								disabled={!selection || isUploading}
+								className="meld-mask-toolbar-btn meld-mask-toolbar-btn--undo"
+								onClick={handleUndo}
+								disabled={maskHistory.length <= 1 || isUploading}
 								type="button"
-								title="Clear selection"
+								title="Undo last area"
+							>
+								<Undo2 size={16} />
+								<span>Undo</span>
+							</button>
+							<button
+								className="meld-mask-toolbar-btn meld-mask-toolbar-btn--cancel"
+								onClick={handleClear}
+								disabled={!hasMask || isUploading}
+								type="button"
+								title="Clear all areas"
 							>
 								<X size={16} />
 								<span>Clear</span>
