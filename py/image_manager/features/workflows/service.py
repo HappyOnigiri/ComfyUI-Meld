@@ -32,19 +32,26 @@ def list_workflows() -> list[dict[str, Any]]:
                 with open(file_path, encoding="utf-8") as f:
                     data = json.load(f)
 
-                # Count MeldImageLoader nodes
+                # Count nodes
                 loader_count = 0
+                mask_count = 0
                 if isinstance(data, dict):
                     if "nodes" in data and isinstance(data["nodes"], list):
                         # UI Format
                         for node in data["nodes"]:
-                            if isinstance(node, dict) and node.get("type") == "MeldImageLoader":
-                                loader_count += 1
+                            if isinstance(node, dict):
+                                if node.get("type") == "MeldImageLoader":
+                                    loader_count += 1
+                                elif node.get("type") == "LoadImageMask":
+                                    mask_count += 1
                     else:
                         # API Format check
                         for _node_id, node in data.items():
-                            if isinstance(node, dict) and node.get("class_type") == "MeldImageLoader":
-                                loader_count += 1
+                            if isinstance(node, dict):
+                                if node.get("class_type") == "MeldImageLoader":
+                                    loader_count += 1
+                                elif node.get("class_type") == "LoadImageMask":
+                                    mask_count += 1
 
                 valid = loader_count == 1
                 reason = ""
@@ -53,7 +60,15 @@ def list_workflows() -> list[dict[str, Any]]:
                 elif loader_count > 1:
                     reason = f"Multiple 'Meld Image Loader' nodes found ({loader_count})."
 
-                workflows.append({"name": filename, "valid": valid, "loader_count": loader_count, "reason": reason})
+                workflows.append(
+                    {
+                        "name": filename,
+                        "valid": valid,
+                        "loader_count": loader_count,
+                        "mask_count": mask_count,
+                        "reason": reason,
+                    }
+                )
             except Exception as e:
                 logging.error(f"[Meld] Failed to read workflow {filename}: {e}")
                 workflows.append(

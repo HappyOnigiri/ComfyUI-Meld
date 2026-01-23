@@ -6,6 +6,7 @@ export interface WorkflowInfo {
 	name: string;
 	valid: boolean;
 	loader_count: number;
+	mask_count: number;
 	reason: string;
 }
 

@@ -9,11 +9,13 @@ import { fetchWorkflows, type WorkflowInfo } from "../api/workflowsApi";
 interface WorkflowSelectionModalProps {
 	images: MeldImage[];
 	onExecute: (workflowName: string) => Promise<void>;
+	isMaskMode?: boolean;
 }
 
 export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 	images,
 	onExecute,
+	isMaskMode,
 }) => {
 	const { dispatch } = useGallery();
 	const [workflows, setWorkflows] = useState<WorkflowInfo[]>([]);
@@ -22,13 +24,30 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 	const [executing, setExecuting] = useState(false);
 
 	const sortedWorkflows = useMemo(() => {
-		return [...workflows].sort((a, b) => {
-			if (a.valid !== b.valid) {
-				return a.valid ? -1 : 1;
-			}
-			return a.name.localeCompare(b.name);
-		});
-	}, [workflows]);
+		return workflows
+			.map((wf) => {
+				let valid = wf.valid;
+				let reason = wf.reason;
+
+				if (isMaskMode) {
+					if (wf.mask_count === 0) {
+						valid = false;
+						reason = "No 'Load Image (as Mask)' node found.";
+					} else if (wf.mask_count > 1) {
+						valid = false;
+						reason = `Multiple 'Load Image (as Mask)' nodes found (${wf.mask_count}).`;
+					}
+				}
+
+				return { ...wf, valid, reason };
+			})
+			.sort((a, b) => {
+				if (a.valid !== b.valid) {
+					return a.valid ? -1 : 1;
+				}
+				return a.name.localeCompare(b.name);
+			});
+	}, [workflows, isMaskMode]);
 
 	const loadWorkflows = useCallback(async () => {
 		try {
@@ -104,7 +123,7 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 				<div className="meld-modal-header">
 					<h2 style={{ display: "flex", alignItems: "center", gap: "10px" }}>
 						<FileJson size={20} color="var(--meld-accent-color)" />
-						Run with Workflow
+						Queue via Workflow
 					</h2>
 					<button
 						type="button"
@@ -151,8 +170,15 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 										? `${images.length} images`
 										: images[0]?.filename}
 								</strong>
-								. Only workflows with exactly one{" "}
-								<strong>Meld Image Loader</strong> node are supported.
+								. Workflows must have exactly one{" "}
+								<strong>Meld Image Loader</strong> node
+								{isMaskMode && (
+									<>
+										{" "}
+										and one <strong>Load Image (as Mask)</strong> node
+									</>
+								)}
+								.
 							</div>
 							{sortedWorkflows.map((wf) => (
 								<div
@@ -180,7 +206,7 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 											}}
 										>
 											<Play size={14} />
-											{executing ? "Queuing..." : "Run"}
+											{executing ? "Queuing..." : "Queue"}
 										</button>
 									)}
 								</div>

@@ -13,22 +13,36 @@ interface ComfyNode {
 
 export const useWorkflowExecution = () => {
 	const executeWorkflow = useCallback(
-		async (workflowName: string, image: MeldImage) => {
+		async (workflowName: string, image: MeldImage, maskFilename?: string) => {
+			console.log("[Meld] executeWorkflow called:", {
+				workflowName,
+				imageId: image.id,
+				maskFilename,
+			});
 			// 1. Fetch the raw workflow JSON
 			const workflow = await fetchWorkflowRaw(workflowName);
+			console.log("[Meld] Workflow fetched:", workflowName);
 
-			// 2. Find the MeldImageLoader node
+			// 2. Find the MeldImageLoader and LoadImageMask nodes
 			let loaderNodeId: string | null = null;
+			let maskNodeId: string | null = null;
 			let isUIFormat = false;
 
 			if (workflow.nodes && Array.isArray(workflow.nodes)) {
 				// UI Format (saved from ComfyUI web interface)
 				isUIFormat = true;
-				const node = (workflow.nodes as ComfyNode[]).find(
+				const loaderNode = (workflow.nodes as ComfyNode[]).find(
 					(n) => n.type === "MeldImageLoader",
 				);
-				if (node) {
-					loaderNodeId = String(node.id);
+				if (loaderNode) {
+					loaderNodeId = String(loaderNode.id);
+				}
+
+				const maskNode = (workflow.nodes as ComfyNode[]).find(
+					(n) => n.type === "LoadImageMask",
+				);
+				if (maskNode) {
+					maskNodeId = String(maskNode.id);
 				}
 			} else {
 				// API Format: { "node_id": { "inputs": { ... }, "class_type": "..." } }
@@ -36,14 +50,30 @@ export const useWorkflowExecution = () => {
 					const node = workflow[nodeId] as ComfyNode;
 					if (node.class_type === "MeldImageLoader") {
 						loaderNodeId = nodeId;
-						break;
+					} else if (node.class_type === "LoadImageMask") {
+						maskNodeId = nodeId;
 					}
 				}
 			}
 
+			console.log("[Meld] Node IDs found:", {
+				loaderNodeId,
+				maskNodeId,
+				isUIFormat,
+			});
+
 			if (!loaderNodeId) {
 				throw new Error(
 					"Meld Image Loader node not found in the selected workflow.",
+				);
+			}
+
+			if (maskFilename && !maskNodeId) {
+				console.warn(
+					"[Meld] Mask filename provided but no mask node found in workflow JSON",
+				);
+				throw new Error(
+					"Load Image (as Mask) node not found in the selected workflow, but a mask was provided.",
 				);
 			}
 
@@ -96,17 +126,56 @@ export const useWorkflowExecution = () => {
 
 				// 3. Update the node in the NOW ACTIVE graph
 				const activeNodes = comfyApp.graph._nodes as ComfyNode[];
-				const node = activeNodes.find(
+				console.log("[Meld] Active graph nodes count:", activeNodes.length);
+
+				const loaderNode = activeNodes.find(
 					(n) => String(n.id) === loaderNodeId || n.type === "MeldImageLoader",
 				);
 
-				if (node) {
-					const widget = node.widgets?.find((w) => w.name === "image");
+				if (loaderNode) {
+					const widget = loaderNode.widgets?.find((w) => w.name === "image");
+					console.log("[Meld] Updating loader node widget:", {
+						nodeId: loaderNode.id,
+						imagePath,
+					});
 					if (widget) {
 						widget.value = imagePath;
 					}
-					comfyApp.graph.setDirtyCanvas(true, true);
+				} else {
+					console.warn(
+						"[Meld] MeldImageLoader not found in active graph after loading",
+					);
 				}
+
+				if (maskFilename) {
+					const maskNode = activeNodes.find(
+						(n) => String(n.id) === maskNodeId || n.type === "LoadImageMask",
+					);
+					console.log("[Meld] Updating mask node widget:", {
+						nodeId: maskNode?.id,
+						maskFilename,
+					});
+					if (maskNode) {
+						const imageWidget = maskNode.widgets?.find(
+							(w) => w.name === "image",
+						);
+						if (imageWidget) {
+							imageWidget.value = `${maskFilename} [temp]`;
+						}
+						const channelWidget = maskNode.widgets?.find(
+							(w) => w.name === "channel",
+						);
+						if (channelWidget) {
+							channelWidget.value = "red";
+						}
+					} else {
+						console.warn(
+							"[Meld] LoadImageMask not found in active graph after loading",
+						);
+					}
+				}
+
+				comfyApp.graph.setDirtyCanvas(true, true);
 
 				// 4. Run the workflow
 				try {
@@ -123,6 +192,10 @@ export const useWorkflowExecution = () => {
 			// API Format background execution
 			const prompt = JSON.parse(JSON.stringify(workflow));
 			prompt[loaderNodeId].inputs.image = imagePath;
+			if (maskFilename && maskNodeId) {
+				prompt[maskNodeId].inputs.image = `${maskFilename} [temp]`;
+				prompt[maskNodeId].inputs.channel = "red";
+			}
 
 			// 4. Send to /prompt
 			const res = await api.fetchApi("/prompt", {
