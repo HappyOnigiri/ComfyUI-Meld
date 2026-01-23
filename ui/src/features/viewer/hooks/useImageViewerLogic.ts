@@ -44,6 +44,16 @@ export const useImageViewerLogic = ({
 		showThumbnailsOverride ?? settings["viewer.show_thumbnails"];
 	const [isLoadingLineage, setIsLoadingLineage] = useState(false);
 	const [isJumping, setIsJumping] = useState(false);
+	const [maskMode, setMaskMode] = useState<"apply" | "run" | null>(
+		state.viewerInitialMaskMode || null,
+	);
+
+	// Sync maskMode when state.viewerInitialMaskMode changes (e.g. when opening viewer via Queue Workflow (Mask))
+	useEffect(() => {
+		if (state.viewerInitialMaskMode) {
+			setMaskMode(state.viewerInitialMaskMode);
+		}
+	}, [state.viewerInitialMaskMode]);
 	const [lastDeletedImages, setLastDeletedImages] = useState<
 		MeldImage[] | null
 	>(null);
@@ -741,6 +751,8 @@ export const useImageViewerLogic = ({
 		setShowThumbnailsOverride,
 		isLoadingLineage,
 		isJumping,
+		maskMode,
+		setMaskMode,
 		activeShortcutKey,
 		lastDeletedImages,
 		setLastDeletedImages,

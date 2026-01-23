@@ -22,6 +22,7 @@ export const useImageCardLogic = (image: MeldImage) => {
 		handleEditSource,
 		handleEditTags,
 		handleRunWithWorkflow,
+		handleRunWithMask,
 	} = useImageActions(state, dispatch);
 
 	const { getParentChain } = useImageLineage(state.images, state.settings);
@@ -163,6 +164,15 @@ export const useImageCardLogic = (image: MeldImage) => {
 		handleRunWithWorkflow(image);
 	};
 
+	const handleRunWithMaskAction = (mode: "apply" | "run" = "run") => {
+		console.log(
+			"[Meld] handleRunWithMaskAction called for image:",
+			image.id,
+			mode,
+		);
+		handleRunWithMask(image, mode);
+	};
+
 	return {
 		state,
 		dispatch,
@@ -188,6 +198,7 @@ export const useImageCardLogic = (image: MeldImage) => {
 		handleEditSource: handleEditSourceAction,
 		handleEditTags: handleEditTagsAction,
 		handleRunWithWorkflow: handleRunWithWorkflowAction,
+		handleRunWithMask: handleRunWithMaskAction,
 		fetchFullImageDetails,
 	};
 };
