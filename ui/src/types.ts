@@ -136,7 +136,8 @@ export type ActiveModal =
 	| { type: "tag_edit"; imageIds: number[]; tags: string[] }
 	| { type: "import" }
 	| { type: "settings" }
-	| { type: "workflow_selection"; images: MeldImage[] }
+	| { type: "error"; message: string }
+	| { type: "workflow_selection"; images: MeldImage[]; maskFilename?: string }
 	| {
 			type: "delete_confirm";
 			imageIds: number[];
@@ -152,6 +153,7 @@ export interface GalleryState {
 	viewScope: "default" | "trash";
 	viewerImageId: number | null;
 	viewerMode: "gallery" | "lineage";
+	viewerInitialMaskMode: "apply" | "run" | false;
 	lineageImages: MeldImage[];
 	activeModal: ActiveModal;
 	lastSelectedId: number | null;
@@ -196,7 +198,13 @@ export type GalleryAction =
 	| { type: "SET_VIEW_SCOPE"; payload: "default" | "trash" }
 	| {
 			type: "OPEN_VIEWER";
-			payload: number | { id: number; mode: "gallery" | "lineage" };
+			payload:
+				| number
+				| {
+						id: number;
+						mode: "gallery" | "lineage";
+						initialMaskMode?: "apply" | "run" | boolean;
+				  };
 	  }
 	| { type: "CLOSE_VIEWER" }
 	| { type: "NEXT_IMAGE"; payload?: { isFullscreen: boolean } }

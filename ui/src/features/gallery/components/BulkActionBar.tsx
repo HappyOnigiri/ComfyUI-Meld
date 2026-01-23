@@ -96,7 +96,7 @@ export const BulkActionBar: React.FC = () => {
 							size={16}
 							style={{ marginRight: "8px", verticalAlign: "middle" }}
 						/>
-						Run Workflow
+						Queue Workflow
 					</button>
 
 					<button

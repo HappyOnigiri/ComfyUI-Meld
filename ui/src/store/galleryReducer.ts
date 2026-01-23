@@ -8,6 +8,7 @@ export const initialState: GalleryState = {
 	viewScope: "default",
 	viewerImageId: null,
 	viewerMode: "gallery",
+	viewerInitialMaskMode: false,
 	lineageImages: [],
 	activeModal: { type: "none" },
 	lastSelectedId: null,
@@ -308,6 +309,14 @@ export function galleryReducer(
 			const payload = action.payload;
 			const newId = typeof payload === "number" ? payload : payload.id;
 			const newMode = typeof payload === "number" ? "gallery" : payload.mode;
+			let initialMaskMode: "apply" | "run" | false = false;
+			if (typeof payload !== "number" && payload.initialMaskMode) {
+				if (typeof payload.initialMaskMode === "string") {
+					initialMaskMode = payload.initialMaskMode as "apply" | "run";
+				} else {
+					initialMaskMode = "run"; // Default to run if true is passed for backward compatibility
+				}
+			}
 
 			const isSameLineage =
 				state.viewerMode === "lineage" &&
@@ -318,6 +327,7 @@ export function galleryReducer(
 				...state,
 				viewerImageId: newId,
 				viewerMode: newMode,
+				viewerInitialMaskMode: initialMaskMode,
 				lineageImages: isSameLineage ? state.lineageImages : [],
 			};
 		}
@@ -325,6 +335,7 @@ export function galleryReducer(
 			return {
 				...state,
 				viewerImageId: null,
+				viewerInitialMaskMode: false,
 				lineageImages: [],
 			};
 		case "NEXT_IMAGE": {

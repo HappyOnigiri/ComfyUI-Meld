@@ -7,6 +7,7 @@ import { WorkflowSelectionModal } from "../../features/workflows/components/Work
 import { useWorkflowExecution } from "../../features/workflows/hooks/useWorkflowExecution";
 import { useGallery } from "../../store/GalleryContext";
 import { DeleteConfirmModal } from "./DeleteConfirmModal";
+import { ErrorModal } from "./ErrorModal";
 import { ParentSelectionModal } from "./ParentSelectionModal";
 
 export const GalleryModals: React.FC = () => {
@@ -22,10 +23,12 @@ export const GalleryModals: React.FC = () => {
 			{state.activeModal.type === "workflow_selection" && (
 				<WorkflowSelectionModal
 					images={state.activeModal.images}
+					isMaskMode={!!state.activeModal.maskFilename}
 					onExecute={async (workflowName) => {
 						if (state.activeModal.type === "workflow_selection") {
+							const maskFilename = state.activeModal.maskFilename;
 							for (const img of state.activeModal.images) {
-								await executeWorkflow(workflowName, img);
+								await executeWorkflow(workflowName, img, maskFilename);
 							}
 						}
 					}}
@@ -50,6 +53,12 @@ export const GalleryModals: React.FC = () => {
 						initialTags={state.activeModal.tags}
 						onClose={() => dispatch({ type: "CLOSE_MODAL" })}
 					/>,
+					document.body,
+				)}
+
+			{state.activeModal.type === "error" &&
+				createPortal(
+					<ErrorModal message={state.activeModal.message} />,
 					document.body,
 				)}
 

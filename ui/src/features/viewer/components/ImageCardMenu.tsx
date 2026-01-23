@@ -4,6 +4,7 @@ import {
 	MoreVertical,
 	Play,
 	PlusCircle,
+	Square,
 	Tag,
 } from "lucide-react";
 import type React from "react";
@@ -15,6 +16,7 @@ interface ImageCardMenuProps {
 	onAddUnifiedLoader: () => void;
 	onRestoreWorkflow: () => void;
 	onRunWithWorkflow: () => void;
+	onRunWithMask: (mode: "apply" | "run") => void;
 	onEditSource: () => void;
 	onEditTags: () => void;
 }
@@ -26,6 +28,7 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 	onAddUnifiedLoader,
 	onRestoreWorkflow,
 	onRunWithWorkflow,
+	onRunWithMask,
 	onEditSource,
 	onEditTags,
 }) => {
@@ -57,10 +60,12 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 				<div className="meld-image-card__menu">
 					<div
 						className="meld-image-card__menu-item"
+						onMouseDown={(e) => e.stopPropagation()}
 						onClick={(e) => {
+							e.preventDefault();
 							e.stopPropagation();
-							onAddUnifiedLoader();
 							setIsMenuOpen(false);
+							setTimeout(() => onAddUnifiedLoader(), 0);
 						}}
 					>
 						<ArrowRight size={14} />
@@ -68,10 +73,12 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 					</div>
 					<div
 						className="meld-image-card__menu-item"
+						onMouseDown={(e) => e.stopPropagation()}
 						onClick={(e) => {
+							e.preventDefault();
 							e.stopPropagation();
-							onRestoreWorkflow();
 							setIsMenuOpen(false);
+							setTimeout(() => onRestoreWorkflow(), 0);
 						}}
 					>
 						<ArrowBigRight size={14} />
@@ -79,21 +86,51 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 					</div>
 					<div
 						className="meld-image-card__menu-item"
+						onMouseDown={(e) => e.stopPropagation()}
 						onClick={(e) => {
+							e.preventDefault();
 							e.stopPropagation();
-							onRunWithWorkflow();
 							setIsMenuOpen(false);
+							setTimeout(() => onRunWithWorkflow(), 0);
 						}}
 					>
 						<Play size={14} />
-						<span>Run with Workflow</span>
+						<span>Queue Workflow</span>
 					</div>
 					<div
 						className="meld-image-card__menu-item"
+						onMouseDown={(e) => e.stopPropagation()}
 						onClick={(e) => {
+							e.preventDefault();
 							e.stopPropagation();
-							onEditSource();
 							setIsMenuOpen(false);
+							setTimeout(() => onRunWithMask("apply"), 0);
+						}}
+					>
+						<Square size={14} />
+						<span>Send to Workflow (Mask)</span>
+					</div>
+					<div
+						className="meld-image-card__menu-item"
+						onMouseDown={(e) => e.stopPropagation()}
+						onClick={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
+							setIsMenuOpen(false);
+							setTimeout(() => onRunWithMask("run"), 0);
+						}}
+					>
+						<Square size={14} />
+						<span>Queue Workflow (Mask)</span>
+					</div>
+					<div
+						className="meld-image-card__menu-item"
+						onMouseDown={(e) => e.stopPropagation()}
+						onClick={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
+							setIsMenuOpen(false);
+							setTimeout(() => onEditSource(), 0);
 						}}
 					>
 						<PlusCircle size={14} />
@@ -101,10 +138,12 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 					</div>
 					<div
 						className="meld-image-card__menu-item"
+						onMouseDown={(e) => e.stopPropagation()}
 						onClick={(e) => {
+							e.preventDefault();
 							e.stopPropagation();
-							onEditTags();
 							setIsMenuOpen(false);
+							setTimeout(() => onEditTags(), 0);
 						}}
 					>
 						<Tag size={14} />
