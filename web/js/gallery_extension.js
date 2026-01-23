@@ -11167,7 +11167,9 @@ const _d = ({
       D.shiftKey ? (D.preventDefault(), D.stopPropagation(), n({ type: "SELECT_RANGE", payload: e.id })) : D.ctrlKey || D.metaKey || t.selectedIds.size > 0 ? (D.preventDefault(), D.stopPropagation(), n({ type: "TOGGLE_SELECT", payload: e.id })) : (D.preventDefault(), D.stopPropagation(), n({ type: "TOGGLE_SELECT", payload: e.id }));
     },
     handleMouseDown: (D) => {
-      (D.shiftKey || D.ctrlKey || D.metaKey || t.selectedIds.size > 0 || !D.target.closest("img.meld-image-card__thumbnail")) && D.preventDefault();
+      (D.shiftKey || D.ctrlKey || D.metaKey || t.selectedIds.size > 0 || !D.target.closest(
+        "img.meld-image-card__thumbnail, img.meld-lineage-badge__parent-thumb"
+      )) && D.preventDefault();
     },
     handleKeyDown: (D) => {
       (D.key === "Enter" || D.key === " ") && (D.preventDefault(), n({ type: "TOGGLE_SELECT", payload: e.id }));

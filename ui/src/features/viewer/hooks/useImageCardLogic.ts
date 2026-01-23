@@ -131,7 +131,9 @@ export const useImageCardLogic = (image: MeldImage) => {
 			e.ctrlKey ||
 			e.metaKey ||
 			state.selectedIds.size > 0 ||
-			!(e.target as HTMLElement).closest("img.meld-image-card__thumbnail")
+			!(e.target as HTMLElement).closest(
+				"img.meld-image-card__thumbnail, img.meld-lineage-badge__parent-thumb",
+			)
 		) {
 			e.preventDefault();
 		}
