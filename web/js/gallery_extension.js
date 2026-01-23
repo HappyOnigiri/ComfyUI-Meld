@@ -10297,7 +10297,9 @@ const _d = ({
       a({
         type: "SET_ERROR",
         payload: d instanceof Error ? d.message : String(d)
-      }), a({ type: "SET_LOADING", payload: !1 });
+      });
+    } finally {
+      a({ type: "SET_LOADING", payload: !1 });
     }
   }, S = async () => {
     try {
@@ -10321,7 +10323,9 @@ const _d = ({
       a({
         type: "SET_ERROR",
         payload: d instanceof Error ? d.message : String(d)
-      }), a({ type: "SET_LOADING", payload: !1 });
+      });
+    } finally {
+      a({ type: "SET_LOADING", payload: !1 });
     }
   };
   return be.createPortal(
