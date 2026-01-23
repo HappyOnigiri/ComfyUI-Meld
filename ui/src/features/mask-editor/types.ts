@@ -9,6 +9,12 @@ export interface MaskSelection {
 	h: number;
 }
 
+export interface MaskBitmap {
+	data: Uint8ClampedArray;
+	width: number;
+	height: number;
+}
+
 export interface MaskEditorProps {
 	image: MeldImage;
 	mode: MaskMode;
