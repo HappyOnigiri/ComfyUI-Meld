@@ -29,9 +29,70 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 	const [selection, setSelection] = useState<MaskSelection | null>(null);
 	const [isUploading, setIsUploading] = useState(false);
 
+	const overlayMouseDownRef = useRef(false);
+	const lastDragEndTimeRef = useRef(0);
+
+	// Implementation Requirements: Prevent the modal from closing when a drag operation
+	// (mask selection) ends outside the modal content. We only close if the mousedown
+	// and mouseup both occurred directly on the overlay background.
+	const handleOverlayMouseDown = (e: React.MouseEvent) => {
+		if (e.target === e.currentTarget) {
+			overlayMouseDownRef.current = true;
+		}
+	};
+
+	const handleOverlayMouseUp = (e: React.MouseEvent) => {
+		if (
+			e.target === e.currentTarget &&
+			overlayMouseDownRef.current &&
+			!isDragging
+		) {
+			onClose();
+		}
+		overlayMouseDownRef.current = false;
+	};
+
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const overlayRef = useRef<HTMLDivElement>(null);
 	const imageRef = useRef<HTMLImageElement>(null);
+
+	const getImageBounds = useCallback(() => {
+		const img = imageRef.current;
+		const container = overlayRef.current;
+		if (!img || !container) return null;
+
+		const rect = container.getBoundingClientRect();
+		const imgRect = img.getBoundingClientRect();
+
+		const naturalWidth = img.naturalWidth;
+		const naturalHeight = img.naturalHeight;
+		if (!naturalWidth || !naturalHeight) return null;
+
+		const imageRatio = naturalWidth / naturalHeight;
+		const containerRatio = imgRect.width / imgRect.height;
+
+		let displayedWidth: number;
+		let displayedHeight: number;
+		let offsetX = 0;
+		let offsetY = 0;
+
+		if (imageRatio > containerRatio) {
+			displayedWidth = imgRect.width;
+			displayedHeight = imgRect.width / imageRatio;
+			offsetY = (imgRect.height - displayedHeight) / 2;
+		} else {
+			displayedHeight = imgRect.height;
+			displayedWidth = imgRect.height * imageRatio;
+			offsetX = (imgRect.width - displayedWidth) / 2;
+		}
+
+		return {
+			left: imgRect.left - rect.left + offsetX,
+			top: imgRect.top - rect.top + offsetY,
+			width: displayedWidth,
+			height: displayedHeight,
+		};
+	}, []);
 
 	const draw = useCallback(() => {
 		const canvas = canvasRef.current;
@@ -102,38 +163,88 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 	}, [draw]);
 
 	const handleMouseDown = (e: React.MouseEvent) => {
-		setIsDragging(true);
+		if (
+			e.button !== 0 ||
+			isDragging ||
+			isUploading ||
+			Date.now() - lastDragEndTimeRef.current < 100
+		)
+			return;
+		e.preventDefault();
+		const bounds = getImageBounds();
 		const rect = overlayRef.current?.getBoundingClientRect();
-		if (!rect) return;
-		const x = e.clientX - rect.left;
-		const y = e.clientY - rect.top;
+		if (!bounds || !rect) return;
+
+		setIsDragging(true);
+		// Clamp coordinates to image bounds
+		const x = Math.max(
+			bounds.left,
+			Math.min(e.clientX - rect.left, bounds.left + bounds.width),
+		);
+		const y = Math.max(
+			bounds.top,
+			Math.min(e.clientY - rect.top, bounds.top + bounds.height),
+		);
 		setStartPos({ x, y });
 		setCurrentPos({ x, y });
 		setSelection(null);
 	};
 
-	const handleMouseMove = (e: React.MouseEvent) => {
+	useEffect(() => {
 		if (!isDragging) return;
-		const rect = overlayRef.current?.getBoundingClientRect();
-		if (!rect) return;
-		const x = e.clientX - rect.left;
-		const y = e.clientY - rect.top;
-		setCurrentPos({ x, y });
-	};
 
-	const handleMouseUp = () => {
-		if (!isDragging) return;
-		setIsDragging(false);
+		const handleWindowMouseMove = (e: MouseEvent) => {
+			const bounds = getImageBounds();
+			const rect = overlayRef.current?.getBoundingClientRect();
+			if (!bounds || !rect) return;
 
-		const x = Math.min(startPos.x, currentPos.x);
-		const y = Math.min(startPos.y, currentPos.y);
-		const w = Math.abs(startPos.x - currentPos.x);
-		const h = Math.abs(startPos.y - currentPos.y);
+			// Implementation Requirements: Clamp coordinates to the image bounds
+			// to ensure selection stays within the actual image area.
+			const x = Math.max(
+				bounds.left,
+				Math.min(e.clientX - rect.left, bounds.left + bounds.width),
+			);
+			const y = Math.max(
+				bounds.top,
+				Math.min(e.clientY - rect.top, bounds.top + bounds.height),
+			);
+			setCurrentPos({ x, y });
+		};
 
-		if (w > 5 && h > 5) {
-			setSelection({ x, y, w, h });
-		}
-	};
+		const handleWindowMouseUp = (e: MouseEvent) => {
+			const bounds = getImageBounds();
+			const rect = overlayRef.current?.getBoundingClientRect();
+			if (bounds && rect) {
+				const x = Math.max(
+					bounds.left,
+					Math.min(e.clientX - rect.left, bounds.left + bounds.width),
+				);
+				const y = Math.max(
+					bounds.top,
+					Math.min(e.clientY - rect.top, bounds.top + bounds.height),
+				);
+
+				const finalX = Math.min(startPos.x, x);
+				const finalY = Math.min(startPos.y, y);
+				const finalW = Math.abs(startPos.x - x);
+				const finalH = Math.abs(startPos.y - y);
+
+				if (finalW > 5 && finalH > 5) {
+					setSelection({ x: finalX, y: finalY, w: finalW, h: finalH });
+				}
+			}
+			lastDragEndTimeRef.current = Date.now();
+			setIsDragging(false);
+		};
+
+		window.addEventListener("mousemove", handleWindowMouseMove);
+		window.addEventListener("mouseup", handleWindowMouseUp);
+
+		return () => {
+			window.removeEventListener("mousemove", handleWindowMouseMove);
+			window.removeEventListener("mouseup", handleWindowMouseUp);
+		};
+	}, [isDragging, startPos.x, startPos.y, getImageBounds]);
 
 	const uploadMask = async (): Promise<string | null> => {
 		if (!selection || !imageRef.current || !overlayRef.current) return null;
@@ -249,7 +360,12 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 	if (!image) return null;
 
 	return (
-		<div className="meld-modal-overlay" onClick={onClose} role="presentation">
+		<div
+			className="meld-modal-overlay"
+			onMouseDown={handleOverlayMouseDown}
+			onMouseUp={handleOverlayMouseUp}
+			role="presentation"
+		>
 			<div
 				className="meld-modal-content meld-mask-editor-modal"
 				onClick={(e) => e.stopPropagation()}
@@ -266,8 +382,6 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 						ref={overlayRef}
 						className="meld-mask-editor-canvas-container"
 						onMouseDown={handleMouseDown}
-						onMouseMove={handleMouseMove}
-						onMouseUp={handleMouseUp}
 						role="presentation"
 					>
 						<img
@@ -275,8 +389,13 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 							src={getImageViewUrl(image)}
 							alt="To be masked"
 							className="meld-mask-editor-image"
+							onDragStart={(e) => e.preventDefault()}
 						/>
-						<canvas ref={canvasRef} className="meld-mask-editor-canvas" />
+						<canvas
+							ref={canvasRef}
+							className="meld-mask-editor-canvas"
+							onDragStart={(e) => e.preventDefault()}
+						/>
 					</div>
 					<div className="meld-mask-editor-footer">
 						<div className="meld-mask-editor-hint">
