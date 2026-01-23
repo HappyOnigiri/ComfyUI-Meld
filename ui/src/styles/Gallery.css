@@ -2676,6 +2676,11 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	color: var(--meld-danger-color);
 }
 
+.meld-workflow-item__supports {
+	font-size: 11px;
+	color: var(--meld-text-secondary);
+}
+
 /* Mask Editor Styles */
 .meld-mask-editor-modal {
 	width: 90vw;

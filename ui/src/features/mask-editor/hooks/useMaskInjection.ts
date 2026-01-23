@@ -25,7 +25,10 @@ export const useMaskInjection = () => {
 			}
 
 			const loaderNodes = comfyApp.graph._nodes.filter(
-				(n: { type: string }) => n.type === "MeldImageLoader",
+				(n: { type: string }) =>
+					n.type === "MeldImageLoader" ||
+					n.type === "LoadImage" ||
+					n.type === "Load Image",
 			);
 			if (loaderNodes.length > 0) {
 				const loaderNode = loaderNodes[0];
@@ -38,7 +41,7 @@ export const useMaskInjection = () => {
 						loaderImageWidget.callback(imagePath);
 					}
 					console.log(
-						"[Meld-Debug] injectMaskToGraph: Updated MeldImageLoader",
+						"[Meld-Debug] injectMaskToGraph: Updated Loader node",
 						loaderNode.id,
 						"with",
 						imagePath,

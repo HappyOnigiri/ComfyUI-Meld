@@ -34,37 +34,46 @@ def list_workflows() -> list[dict[str, Any]]:
 
                 # Count nodes
                 loader_count = 0
+                load_image_count = 0
                 mask_count = 0
+
+                def process_node(node: dict) -> None:
+                    nonlocal loader_count, load_image_count, mask_count
+                    # Check both type and class_type for robustness
+                    node_type = node.get("type") or node.get("class_type")
+                    if node_type == "MeldImageLoader":
+                        loader_count += 1
+                    elif node_type in ["LoadImage", "Load Image"]:
+                        load_image_count += 1
+                    elif node_type in ["LoadImageMask", "Load Image (as Mask)"]:
+                        mask_count += 1
+
                 if isinstance(data, dict):
                     if "nodes" in data and isinstance(data["nodes"], list):
                         # UI Format
                         for node in data["nodes"]:
                             if isinstance(node, dict):
-                                if node.get("type") == "MeldImageLoader":
-                                    loader_count += 1
-                                elif node.get("type") == "LoadImageMask":
-                                    mask_count += 1
+                                process_node(node)
                     else:
-                        # API Format check
+                        # API Format check or other formats
                         for _node_id, node in data.items():
                             if isinstance(node, dict):
-                                if node.get("class_type") == "MeldImageLoader":
-                                    loader_count += 1
-                                elif node.get("class_type") == "LoadImageMask":
-                                    mask_count += 1
+                                process_node(node)
 
-                valid = loader_count == 1
+                total_loaders = loader_count + load_image_count
+                valid = total_loaders == 1
                 reason = ""
-                if loader_count == 0:
-                    reason = "No 'Meld Image Loader' node found."
-                elif loader_count > 1:
-                    reason = f"Multiple 'Meld Image Loader' nodes found ({loader_count})."
+                if total_loaders == 0:
+                    reason = "No 'Meld Image Loader' or 'Load Image' node found."
+                elif total_loaders > 1:
+                    reason = f"Multiple image loader nodes found ({total_loaders})."
 
                 workflows.append(
                     {
                         "name": filename,
                         "valid": valid,
                         "loader_count": loader_count,
+                        "load_image_count": load_image_count,
                         "mask_count": mask_count,
                         "reason": reason,
                     }

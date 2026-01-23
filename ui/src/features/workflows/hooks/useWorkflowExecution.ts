@@ -8,7 +8,11 @@ interface ComfyNode {
 	id: string | number;
 	type?: string;
 	class_type?: string;
-	widgets?: { name: string; value: unknown }[];
+	widgets?: {
+		name: string;
+		value: unknown;
+		callback?: (value: unknown) => void;
+	}[];
 }
 
 export const useWorkflowExecution = () => {
@@ -23,7 +27,7 @@ export const useWorkflowExecution = () => {
 			const workflow = await fetchWorkflowRaw(workflowName);
 			console.log("[Meld] Workflow fetched:", workflowName);
 
-			// 2. Find the MeldImageLoader and LoadImageMask nodes
+			// 2. Find the MeldImageLoader, LoadImage, and LoadImageMask nodes
 			let loaderNodeId: string | null = null;
 			let maskNodeId: string | null = null;
 			let isUIFormat = false;
@@ -32,7 +36,10 @@ export const useWorkflowExecution = () => {
 				// UI Format (saved from ComfyUI web interface)
 				isUIFormat = true;
 				const loaderNode = (workflow.nodes as ComfyNode[]).find(
-					(n) => n.type === "MeldImageLoader",
+					(n) =>
+						n.type === "MeldImageLoader" ||
+						n.type === "LoadImage" ||
+						n.type === "Load Image",
 				);
 				if (loaderNode) {
 					loaderNodeId = String(loaderNode.id);
@@ -48,7 +55,11 @@ export const useWorkflowExecution = () => {
 				// API Format: { "node_id": { "inputs": { ... }, "class_type": "..." } }
 				for (const nodeId in workflow) {
 					const node = workflow[nodeId] as ComfyNode;
-					if (node.class_type === "MeldImageLoader") {
+					if (
+						node.class_type === "MeldImageLoader" ||
+						node.class_type === "LoadImage" ||
+						node.class_type === "Load Image"
+					) {
 						loaderNodeId = nodeId;
 					} else if (node.class_type === "LoadImageMask") {
 						maskNodeId = nodeId;
@@ -64,7 +75,7 @@ export const useWorkflowExecution = () => {
 
 			if (!loaderNodeId) {
 				throw new Error(
-					"Meld Image Loader node not found in the selected workflow.",
+					"Meld Image Loader or Load Image node not found in the selected workflow.",
 				);
 			}
 
@@ -129,21 +140,30 @@ export const useWorkflowExecution = () => {
 				console.log("[Meld] Active graph nodes count:", activeNodes.length);
 
 				const loaderNode = activeNodes.find(
-					(n) => String(n.id) === loaderNodeId || n.type === "MeldImageLoader",
+					(n) =>
+						String(n.id) === loaderNodeId ||
+						n.type === "MeldImageLoader" ||
+						n.type === "LoadImage" ||
+						n.type === "Load Image",
 				);
 
 				if (loaderNode) {
 					const widget = loaderNode.widgets?.find((w) => w.name === "image");
 					console.log("[Meld] Updating loader node widget:", {
 						nodeId: loaderNode.id,
+						type: loaderNode.type,
 						imagePath,
 					});
 					if (widget) {
 						widget.value = imagePath;
+						// Call callback if exists (like in standard ComfyUI widgets)
+						if (typeof widget.callback === "function") {
+							widget.callback(imagePath);
+						}
 					}
 				} else {
 					console.warn(
-						"[Meld] MeldImageLoader not found in active graph after loading",
+						"[Meld] Loader node (MeldImageLoader/LoadImage) not found in active graph after loading",
 					);
 				}
 

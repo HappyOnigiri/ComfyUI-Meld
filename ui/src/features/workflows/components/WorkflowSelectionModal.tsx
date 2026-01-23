@@ -171,7 +171,8 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 										: images[0]?.filename}
 								</strong>
 								. Workflows must have exactly one{" "}
-								<strong>Meld Image Loader</strong> node
+								<strong>Meld Image Loader</strong> or{" "}
+								<strong>Load Image</strong> node
 								{isMaskMode && (
 									<>
 										{" "}
@@ -192,6 +193,12 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 										{!wf.valid && (
 											<div className="meld-workflow-item__reason">
 												{wf.reason}
+											</div>
+										)}
+										{wf.valid && (
+											<div className="meld-workflow-item__supports">
+												Supports:{" "}
+												{wf.loader_count > 0 ? "Meld Loader" : "Load Image"}
 											</div>
 										)}
 									</div>

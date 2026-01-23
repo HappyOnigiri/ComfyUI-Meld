@@ -165,7 +165,10 @@ export const useImageActions = (
 					(n: { type: string }) => n.type === "LoadImageMask",
 				);
 				const hasLoaderNode = nodes.some(
-					(n: { type: string }) => n.type === "MeldImageLoader",
+					(n: { type: string }) =>
+						n.type === "MeldImageLoader" ||
+						n.type === "LoadImage" ||
+						n.type === "Load Image",
 				);
 
 				console.log("[Meld] Nodes found:", { hasMaskNode, hasLoaderNode });
