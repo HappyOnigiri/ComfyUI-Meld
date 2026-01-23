@@ -1,5 +1,40 @@
 .PHONY: ci test-all lint lint-py lint-ui lint-misc lint-scripts build-ui watch-ui local-check-scripts check-scripts check-ts-rules check-only-ascii repomix loc
 
+# -----------------------------------------------------------------------------
+# Cross-platform development notes (Windows / macOS / Linux)
+#
+# This repository runs most Python tasks from a local virtual environment (venv).
+# IMPORTANT: Do not rely on shell-specific "activate" scripts from Make targets.
+# Instead, we call the venv Python executable directly, which works on both
+# Unix-like systems and Windows.
+#
+# Quick setup (macOS/Linux):
+#   python3.10 -m venv venv
+#   ./venv/bin/python -m pip install -U pip
+#   ./venv/bin/python -m pip install -r requirements.txt
+#
+# Quick setup (Windows PowerShell):
+#   py -3.10 -m venv venv
+#   .\venv\Scripts\python.exe -m pip install -U pip
+#   .\venv\Scripts\python.exe -m pip install -r requirements.txt
+# -----------------------------------------------------------------------------
+
+ifeq ($(OS),Windows_NT)
+VENV_PY := venv/Scripts/python.exe
+else
+VENV_PY := venv/bin/python
+endif
+
+# Prefer the local venv if present; otherwise fall back to system Python.
+# You can always override explicitly, e.g.:
+#   make ci PYTHON=python
+#   make ci PYTHON=venv/bin/python
+ifneq ("$(wildcard $(VENV_PY))","")
+PYTHON ?= $(VENV_PY)
+else
+PYTHON ?= python
+endif
+
 # CI: Parallel execution of all checks and tests
 # Automatically uses -j 4 to speed up the process.
 ci:
@@ -9,22 +44,12 @@ ci:
 ci-parallel: lint-py lint-ui lint-misc lint-scripts test-all build-ui
 
 loc:
-	@echo "=== Lines of code by file ==="
-	@git ls-files | grep -v "web/js/gallery_extension.js" | xargs wc -l | sort -nr
-	@echo ""
-	@echo "=== Lines of code by extension ==="
-	@git ls-files | grep -v "web/js/gallery_extension.js" | xargs wc -l | grep -v " total$$" | awk '{ \
-		n = split($$2, a, "."); \
-		ext = (n > 1) ? a[n] : "no_ext"; \
-		count[ext] += $$1; \
-	} END { \
-		for (e in count) printf "%10d %s\n", count[e], e; \
-	}' | sort -nr
+	@$(PYTHON) scripts/loc.py
 
 # UI node_modules management
 ui/node_modules/.install-stamp: ui/package.json ui/package-lock.json
 	@echo "Installing UI dependencies..."
-	cd ui && npm install
+	cd ui && npm ci
 	@touch $@
 
 build-ui: ui/node_modules/.install-stamp
@@ -38,22 +63,22 @@ local-check-scripts:
 		for script in local_check_scripts/*.py; do \
 			if [ -f "$$script" ]; then \
 				echo "Running local check: $$script"; \
-				python "$$script" || exit 1; \
+				$(PYTHON) "$$script" || exit 1; \
 			fi; \
 		done; \
 	fi
 
 test-all:
-	python -m unittest discover tests
+	$(PYTHON) -m unittest discover tests
 
 # Linting tasks organized by type
 lint: lint-py lint-ui lint-misc lint-scripts
 
 lint-py:
 	@echo "Running Python linting (ruff, mypy, pyright)..."
-	python -m ruff format .
-	python -m ruff check . --fix
-	python -m mypy py tests
+	$(PYTHON) -m ruff format .
+	$(PYTHON) -m ruff check . --fix
+	$(PYTHON) -m mypy py tests
 	npx pyright
 
 lint-ui: ui/node_modules/.install-stamp
@@ -70,35 +95,19 @@ check-scripts:
 		for script in check_scripts/*.py; do \
 			if [ -f "$$script" ]; then \
 				echo "Running check script: $$script"; \
-				python "$$script" || exit 1; \
+				$(PYTHON) "$$script" || exit 1; \
 			fi; \
 		done; \
 	fi
 
 check-ts-rules:
-	@echo "Checking for @ts-ignore..."
-	@if git ls-files "ui/src/*.ts" "ui/src/*.tsx" | xargs grep -n "@ts-ignore"; then \
-		echo "Error: @ts-ignore found! Use @ts-expect-error instead if necessary."; \
-		exit 1; \
-	fi
-	@echo "Checking for explicit any..."
-	@if git ls-files "ui/src/*.ts" "ui/src/*.tsx" | xargs grep -nE "(:|as)\s+any"; then \
-		echo "Error: explicit any found! Please use more specific types."; \
-		exit 1; \
-	fi
-	@echo "TypeScript rules check passed."
+	@$(PYTHON) scripts/check_ts_rules.py
 
 check-only-ascii:
-	@echo "Checking for non-ASCII characters..."
-	@if git ls-files | grep -vE "(\.ja\.md$$|^docs/ja/|^\.cursor/rules/|web/js/gallery_extension\.js$$)" | xargs grep -nP "[^\x00-\x7f]"; then \
-		echo "Error: Non-ASCII characters found!"; \
-		exit 1; \
-	else \
-		echo "All files are ASCII (English) only."; \
-	fi
+	@$(PYTHON) scripts/check_only_ascii.py
 
 repomix:
-	python scripts/generate_repomix.py
+	$(PYTHON) scripts/generate_repomix.py
 
 repomix-%:
-	python scripts/generate_repomix.py repomix-$*
+	$(PYTHON) scripts/generate_repomix.py repomix-$*
