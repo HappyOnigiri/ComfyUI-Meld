@@ -170,6 +170,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 				type: "SET_ERROR",
 				payload: err instanceof Error ? err.message : String(err),
 			});
+		} finally {
 			dispatch({ type: "SET_LOADING", payload: false });
 		}
 	};
@@ -211,6 +212,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 				type: "SET_ERROR",
 				payload: err instanceof Error ? err.message : String(err),
 			});
+		} finally {
 			dispatch({ type: "SET_LOADING", payload: false });
 		}
 	};
