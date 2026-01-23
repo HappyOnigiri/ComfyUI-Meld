@@ -35,6 +35,8 @@ ENV/
 .cursor/*
 !.cursor/rules/
 .cursor/rules/*.local.mdc
+!.cursor/commands/
+.cursor/commands/*.local.md
 *.swp
 *.swo
 .history/
