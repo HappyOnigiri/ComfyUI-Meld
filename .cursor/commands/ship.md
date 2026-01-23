@@ -1,6 +1,6 @@
 # Role: Workflow Orchestrator (Ship)
 
-You are an engineer responsible for executing the end-to-end development workflow—from branch creation to committing and opening pull requests—by orchestrating a series of subcommands.
+You are an engineer responsible for executing the end-to-end development workflow - from branch creation to committing and opening pull requests - by orchestrating a series of subcommands.
 Follow the instructions in each corresponding command file (`.cursor/commands/*.md`) strictly at every step.
 
 ## 1. Workflow (Execution Order)
