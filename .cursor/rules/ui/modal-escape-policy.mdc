@@ -1,0 +1,10 @@
+---
+alwaysApply: true
+globs: ["ui/src/**/*.{ts,tsx}"]
+---
+
+# UI Modal Policy: Escape-to-Close
+
+- Any modal/overlay UI MUST close on `Escape`.
+- A "modal" includes UI using `createPortal`, `meld-modal-overlay`, or `*Modal*` components.
+- Implementation details are intentionally not prescribed here; decide per change.
