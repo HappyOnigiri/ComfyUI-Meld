@@ -1,8 +1,8 @@
 import { AlertCircle, X } from "lucide-react";
 import type React from "react";
 import { useCallback } from "react";
-import { useGallery } from "../../store/GalleryContext";
 import { useEscapeToClose } from "../../hooks/useEscapeToClose";
+import { useGallery } from "../../store/GalleryContext";
 
 interface ErrorModalProps {
 	message: string;
@@ -18,10 +18,7 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({ message }) => {
 	useEscapeToClose({ onEscape: handleClose });
 
 	return (
-		<div
-			className="meld-modal-overlay"
-			onClick={handleClose}
-		>
+		<div className="meld-modal-overlay" onClick={handleClose}>
 			<div className="meld-modal-content" onClick={(e) => e.stopPropagation()}>
 				<div className="meld-modal-header">
 					<div style={{ display: "flex", alignItems: "center", gap: "8px" }}>

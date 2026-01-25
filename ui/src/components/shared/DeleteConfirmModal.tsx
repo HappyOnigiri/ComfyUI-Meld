@@ -2,8 +2,8 @@ import { AlertTriangle, Trash2, X } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
-import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 import * as imagesApi from "../../features/images/api/imagesApi";
+import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 import { useGallery } from "../../store/GalleryContext";
 import type { MeldImage } from "../../types";
 

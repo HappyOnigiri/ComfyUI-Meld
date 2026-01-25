@@ -2,8 +2,8 @@ import { AlertCircle, FileJson, Play, X } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useGallery } from "../../../store/GalleryContext";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
+import { useGallery } from "../../../store/GalleryContext";
 import type { MeldImage } from "../../../types";
 import { fetchWorkflows, type WorkflowInfo } from "../api/workflowsApi";
 

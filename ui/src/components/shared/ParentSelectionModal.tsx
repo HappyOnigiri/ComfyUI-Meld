@@ -2,9 +2,9 @@ import { Link, Link2Off, Upload, X } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 import * as imagesApi from "../../features/images/api/imagesApi";
 import * as importerApi from "../../features/importer/api/importerApi";
+import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 import { useGallery } from "../../store/GalleryContext";
 import { getImageViewUrl } from "../../utils/url";
 
