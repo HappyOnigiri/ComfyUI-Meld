@@ -2,7 +2,7 @@ import { X } from "lucide-react";
 import type React from "react";
 import { useRef } from "react";
 import { createPortal } from "react-dom";
-import { useEscapeToClose } from "../hooks/useEscapeToClose";
+import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { useSettingsModalLogic } from "../hooks/useSettingsModalLogic";
 import { FullScreenTab } from "./tabs/FullScreenTab";
 import { GalleryTab } from "./tabs/GalleryTab";

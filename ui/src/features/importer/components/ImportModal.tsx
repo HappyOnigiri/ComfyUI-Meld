@@ -10,8 +10,8 @@ import {
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import * as api from "../../../api";
+import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { logger } from "../../../logger";
 import { useGallery } from "../../../store/GalleryContext";
 import type { Tag as TagType } from "../../../types";
@@ -241,6 +241,16 @@ export const ImportModal: React.FC = () => {
 	useEffect(() => {
 		loadTags();
 	}, [loadTags]);
+
+	useEscapeToClose({
+		onEscape: useCallback(() => {
+			if (previewImage) {
+				setPreviewImage(null);
+			} else {
+				dispatch({ type: "CLOSE_MODAL" });
+			}
+		}, [previewImage, dispatch]),
+	});
 
 	const filteredTags = useMemo(() => {
 		return allTags.filter(
