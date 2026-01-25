@@ -34,9 +34,7 @@ ENV/
 .idea/
 .cursor/*
 !.cursor/rules/
-.cursor/rules/*.local.mdc
 !.cursor/commands/
-.cursor/commands/*.local.md
 *.swp
 *.swo
 .history/
@@ -57,6 +55,7 @@ htmlcov/
 
 # Local configuration / Logs
 *.log
+*.local.*
 local_*.json
 local_check_scripts/
 *.code-workspace
