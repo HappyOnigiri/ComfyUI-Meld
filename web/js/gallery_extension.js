@@ -7298,7 +7298,8 @@ const wd = h.createContext(void 0), th = ({
     N();
   }, [N]), h.useEffect(() => {
     const j = (K) => {
-      K.key === "Escape" && (K.preventDefault(), K.stopImmediatePropagation(), d ? f(null) : e({ type: "CLOSE_MODAL" }));
+      K.key === "Escape" && (K.preventDefault(), K.stopPropagation(), K.stopImmediatePropagation(), d ? f(null) : (e({ type: "CLOSE_MODAL" }), document.fullscreenElement && document.exitFullscreen().catch(() => {
+      })));
     };
     return window.addEventListener("keydown", j, { capture: !0 }), () => window.removeEventListener("keydown", j, { capture: !0 });
   }, [d, e]);
@@ -7878,10 +7879,11 @@ const _d = ({
   }, [L.length]);
   h.useEffect(() => {
     const z = (A) => {
-      (A.metaKey || A.ctrlKey) && A.key === "z" && (A.preventDefault(), O());
+      (A.metaKey || A.ctrlKey) && A.key === "z" ? (A.preventDefault(), O()) : A.key === "Escape" && (A.preventDefault(), A.stopPropagation(), A.stopImmediatePropagation(), n(), document.fullscreenElement && document.exitFullscreen().catch(() => {
+      }));
     };
-    return window.addEventListener("keydown", z), () => window.removeEventListener("keydown", z);
-  }, [O]);
+    return window.addEventListener("keydown", z, { capture: !0 }), () => window.removeEventListener("keydown", z, { capture: !0 });
+  }, [O, n]);
   const D = () => {
     if (c.current) {
       const z = Rs(
@@ -9911,10 +9913,22 @@ const _d = ({
     ),
     document.fullscreenElement || document.body
   );
+}, xh = ({
+  onEscape: e,
+  enabled: t = !0,
+  capture: n = !0
+}) => {
+  h.useEffect(() => {
+    if (!t) return;
+    const r = (l) => {
+      l.key === "Escape" && (l.preventDefault(), l.stopPropagation(), l.stopImmediatePropagation(), e());
+    };
+    return window.addEventListener("keydown", r, { capture: n }), () => window.removeEventListener("keydown", r, { capture: n });
+  }, [e, t, n]);
 }, jd = async () => {
   const e = await te.fetchApi("/meld/workflows");
   return se(e);
-}, xh = async (e) => {
+}, _h = async (e) => {
   const t = await te.fetchApi(
     `/meld/workflow/raw?name=${encodeURIComponent(e)}`
   );
@@ -9944,21 +9958,16 @@ const _d = ({
   }, [v]);
   const y = h.useCallback(() => {
     r({ type: "CLOSE_MODAL" });
-  }, [r]), k = h.useRef(!1), S = h.useCallback((g) => {
+  }, [r]);
+  xh({ onEscape: y });
+  const k = h.useRef(!1), S = h.useCallback((g) => {
     g.target === g.currentTarget && (k.current = !0);
   }, []), d = h.useCallback(
     (g) => {
       g.target === g.currentTarget && k.current && y(), k.current = !1;
     },
     [y]
-  );
-  h.useEffect(() => {
-    const g = (x) => {
-      x.key === "Escape" && y();
-    };
-    return window.addEventListener("keydown", g), () => window.removeEventListener("keydown", g);
-  }, [y]);
-  const f = async (g) => {
+  ), f = async (g) => {
     if (!p)
       try {
         _(!0), await t(g), y();
@@ -10101,7 +10110,7 @@ const _d = ({
       imageId: n.id,
       maskFilename: r
     });
-    const l = await xh(t);
+    const l = await _h(t);
     console.log("[Meld] Workflow fetched:", t);
     let a = null, i = null, o = !1;
     if (l.nodes && Array.isArray(l.nodes)) {
@@ -10281,9 +10290,10 @@ const _d = ({
   );
   h.useEffect(() => {
     const d = (f) => {
-      f.key === "Escape" && p();
+      f.key === "Escape" && (f.preventDefault(), f.stopPropagation(), f.stopImmediatePropagation(), p(), document.fullscreenElement && document.exitFullscreen().catch(() => {
+      }));
     };
-    return window.addEventListener("keydown", d), () => window.removeEventListener("keydown", d);
+    return window.addEventListener("keydown", d, { capture: !0 }), () => window.removeEventListener("keydown", d, { capture: !0 });
   }, [p]);
   const k = async () => {
     try {
@@ -10866,7 +10876,7 @@ const _d = ({
     ),
     document.fullscreenElement || document.body
   );
-}, _h = () => {
+}, kh = () => {
   const { state: e, dispatch: t } = Ce(), { executeWorkflow: n } = Cd();
   return e.viewerImageId !== null ? null : /* @__PURE__ */ s.jsxs(s.Fragment, { children: [
     e.activeModal.type === "workflow_selection" && /* @__PURE__ */ s.jsx(
@@ -11192,7 +11202,7 @@ const _d = ({
     handleRunWithMask: (D = "run") => _(e, D),
     fetchFullImageDetails: r
   };
-}, kh = ({
+}, Sh = ({
   isMenuOpen: e,
   setIsMenuOpen: t,
   menuRef: n,
@@ -11327,7 +11337,7 @@ const _d = ({
       }
     )
   ] })
-] }), Sh = ({
+] }), jh = ({
   title: e,
   text: t,
   onClose: n,
@@ -11594,7 +11604,7 @@ const _d = ({
             )
           ] }),
           /* @__PURE__ */ s.jsx(
-            kh,
+            Sh,
             {
               isMenuOpen: i,
               setIsMenuOpen: o,
@@ -11608,7 +11618,7 @@ const _d = ({
             }
           ),
           l && /* @__PURE__ */ s.jsx(
-            Sh,
+            jh,
             {
               title: l.title,
               text: l.text,
@@ -11662,10 +11672,10 @@ const Pd = wl.memo(
   }
 );
 Pd.displayName = "SimpleImageCard";
-const jh = ({ image: e }) => {
+const Eh = ({ image: e }) => {
   const { state: t } = Ce();
   return (t.settings["gallery.view_mode"] || "grid_details") === "grid_only" ? /* @__PURE__ */ s.jsx(Pd, { image: e }) : /* @__PURE__ */ s.jsx(Td, { image: e });
-}, Eh = ({
+}, Ch = ({
   children: e,
   height: t = 150,
   rootMargin: n = "400px",
@@ -11695,7 +11705,7 @@ const jh = ({ image: e }) => {
       children: a ? e : null
     }
   );
-}, Ch = () => {
+}, Nh = () => {
   const { state: e, dispatch: t } = Ce(), { scanStatus: n } = e;
   if (!n.isRunning && !n.isFinished)
     return null;
@@ -11759,7 +11769,7 @@ const jh = ({ image: e }) => {
       }
     )
   ] }) });
-}, Nh = () => {
+}, Mh = () => {
   const { state: e, refreshFavorites: t } = Ce(), [n, r] = h.useState(!1), [l, a] = h.useState(null), [i, o] = h.useState(null), [u, c] = h.useState(""), [p, _] = h.useState("");
   h.useEffect(() => {
     if (l) {
@@ -11856,7 +11866,7 @@ You can select favorites when the search query is empty.`
       n += a;
   }
   return t.push(n), t;
-}, Mh = () => {
+}, Ih = () => {
   const { state: e, dispatch: t, updateSetting: n } = Ce(), [r, l] = h.useState(e.searchQuery), [a, i] = h.useState([]), [o, u] = h.useState(!1), [c, p] = h.useState([]), [_, w] = h.useState([]), v = e.settings["search.show_all_keywords"], [y, k] = h.useState(-1), [S, d] = h.useState(null), f = h.useRef(null), m = h.useRef(e.searchQuery), g = h.useCallback(async () => {
     if (_.length > 0) return;
     const T = await Bm();
@@ -12008,7 +12018,7 @@ You can select favorites when the search query is empty.`
     handleInputFocus: j,
     handleInputBlur: K
   };
-}, Ih = ({
+}, bh = ({
   fav: e,
   onSelect: t,
   onEdit: n,
@@ -12160,7 +12170,7 @@ You can select favorites when the search query is empty.`
     default:
       return null;
   }
-}, bh = ({
+}, Lh = ({
   showSuggestions: e,
   suggestions: t,
   selectedIndex: n,
@@ -12462,7 +12472,7 @@ You can select favorites when the search query is empty.`
               gap: "4px"
             },
             children: w.map((g) => /* @__PURE__ */ s.jsx(
-              Ih,
+              bh,
               {
                 fav: g,
                 onSelect: v,
@@ -12490,7 +12500,7 @@ You can select favorites when the search query is empty.`
       ]
     }
   );
-}, Lh = () => {
+}, Th = () => {
   const { state: e } = Ce(), {
     inputValue: t,
     setInputValue: n,
@@ -12512,7 +12522,7 @@ You can select favorites when the search query is empty.`
     handleInputChange: f,
     handleInputFocus: m,
     handleInputBlur: g
-  } = Mh(), {
+  } = Ih(), {
     isSaving: x,
     toastMessage: N,
     editingFavorite: E,
@@ -12525,7 +12535,7 @@ You can select favorites when the search query is empty.`
     handleEditFavorite: j,
     handleSaveEditFavorite: K,
     handleSaveFavorite: T
-  } = Nh(), Y = h.useRef(null), I = h.useRef(!1);
+  } = Mh(), Y = h.useRef(null), I = h.useRef(!1);
   h.useEffect(() => {
     E && Y.current && Y.current.focus();
   }, [E]);
@@ -12718,7 +12728,7 @@ You can select favorites when the search query is empty.`
                 }
               ),
               /* @__PURE__ */ s.jsx(
-                bh,
+                Lh,
                 {
                   showSuggestions: l,
                   suggestions: r,
@@ -12919,7 +12929,7 @@ You can select favorites when the search query is empty.`
       ]
     }
   );
-}, Th = ({
+}, Ph = ({
   onClose: e,
   onSearch: t
 }) => {
@@ -13140,7 +13150,7 @@ You can select favorites when the search query is empty.`
       ] }) }, L.id)) })
     ] })
   ] });
-}, Ph = ({
+}, Dh = ({
   state: e,
   dispatch: t,
   loadMoreImages: n,
@@ -13550,7 +13560,7 @@ You can select favorites when the search query is empty.`
     windowedThumbnails: G,
     parentChain: ie
   };
-}, Dh = ({
+}, Rh = ({
   settings: e,
   activeShortcutKey: t
 }) => e["viewer.shortcut.show_cheat_sheet"] ? /* @__PURE__ */ s.jsx("div", { className: "meld-viewer-cheat-sheet", children: [1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((n) => {
@@ -13566,7 +13576,7 @@ You can select favorites when the search query is empty.`
     },
     n
   ) : null;
-}) }) : null, Rh = ({
+}) }) : null, zh = ({
   image: e,
   isFullscreen: t,
   settings: n,
@@ -13694,7 +13704,7 @@ You can select favorites when the search query is empty.`
   }
 );
 Dd.displayName = "ThumbnailItem";
-const zh = ({
+const Ah = ({
   windowedThumbnails: e,
   viewerImageId: t,
   currentImage: n,
@@ -13724,7 +13734,7 @@ const zh = ({
   )),
   i === "gallery" && a && /* @__PURE__ */ s.jsx("div", { className: "meld-viewer-thumbnail meld-viewer-thumbnail--loading", children: /* @__PURE__ */ s.jsx(Dr, { className: "animate-spin", size: 20 }) })
 ] }) });
-function Ah() {
+function Oh() {
   const { state: e, dispatch: t, loadMoreImages: n, fetchFullImageDetails: r } = Ce(), {
     isFullscreen: l,
     showDetails: a,
@@ -13744,7 +13754,7 @@ function Ah() {
     image: m,
     windowedThumbnails: g,
     parentChain: x
-  } = Ph({
+  } = Dh({
     state: e,
     dispatch: t,
     loadMoreImages: n,
@@ -13865,7 +13875,7 @@ function Ah() {
                   }
                 ),
                 a && /* @__PURE__ */ s.jsx(
-                  Rh,
+                  zh,
                   {
                     image: m,
                     isFullscreen: l,
@@ -13876,7 +13886,7 @@ function Ah() {
                   }
                 ),
                 !l && o && e.settings["viewer.thumbnail_window_size"] > 1 && /* @__PURE__ */ s.jsx(
-                  zh,
+                  Ah,
                   {
                     windowedThumbnails: g,
                     viewerImageId: b,
@@ -13888,7 +13898,7 @@ function Ah() {
                   }
                 ),
                 /* @__PURE__ */ s.jsx(
-                  Dh,
+                  Rh,
                   {
                     settings: e.settings,
                     activeShortcutKey: _
@@ -13947,7 +13957,7 @@ function Ah() {
     document.body
   );
 }
-const Oh = () => {
+const Fh = () => {
   const { state: e, dispatch: t, refreshImages: n, loadMoreImages: r, updateSetting: l } = Ce(), [a, i] = h.useState("gallery"), [o, u] = h.useState(""), [c, p] = h.useState(e.pagination.limit);
   h.useEffect(() => {
     p(e.pagination.limit);
@@ -14059,7 +14069,7 @@ const Oh = () => {
     isSearchActive: _,
     loadMoreRef: w
   };
-}, Fh = () => {
+}, $h = () => {
   const { state: e, dispatch: t, deleteSelected: n, restoreSelected: r } = Ce(), { handleRunWithWorkflow: l } = Ti(e, t), a = e.selectedIds.size;
   if (a === 0) return null;
   const i = e.viewScope === "trash", o = () => {
@@ -14201,7 +14211,7 @@ const Oh = () => {
       ]
     }
   );
-}, $h = () => {
+}, Wh = () => {
   const {
     state: e,
     dispatch: t,
@@ -14216,7 +14226,7 @@ const Oh = () => {
     visibleImages: p,
     isSearchActive: _,
     loadMoreRef: w
-  } = Oh();
+  } = Fh();
   return B.log("GalleryPanel: rendering", {
     imageCount: e.images.length,
     displayedCount: c.length,
@@ -14379,12 +14389,12 @@ const Oh = () => {
               }
             )
           ] }),
-          l === "search" && /* @__PURE__ */ s.jsx("div", { className: "meld-gallery__search-wrapper", children: /* @__PURE__ */ s.jsx(Lh, {}) })
+          l === "search" && /* @__PURE__ */ s.jsx("div", { className: "meld-gallery__search-wrapper", children: /* @__PURE__ */ s.jsx(Th, {}) })
         ] }),
-        /* @__PURE__ */ s.jsx(Ch, {}),
+        /* @__PURE__ */ s.jsx(Nh, {}),
         e.error && /* @__PURE__ */ s.jsx("div", { className: "meld-gallery__error", children: e.error }),
         l === "tags" ? /* @__PURE__ */ s.jsx(
-          Th,
+          Ph,
           {
             onClose: () => a("gallery"),
             onSearch: (v) => {
@@ -14414,7 +14424,7 @@ const Oh = () => {
                       display: k ? "inline-block" : "block"
                     },
                     children: /* @__PURE__ */ s.jsx(
-                      Eh,
+                      Ch,
                       {
                         height: k ? y + 10 : Math.max(y, 150),
                         style: {
@@ -14422,7 +14432,7 @@ const Oh = () => {
                           minWidth: typeof S == "number" ? `${S}px` : S,
                           display: k ? "inline-block" : "block"
                         },
-                        children: /* @__PURE__ */ s.jsx(jh, { image: v })
+                        children: /* @__PURE__ */ s.jsx(Eh, { image: v })
                       }
                     )
                   },
@@ -14444,9 +14454,9 @@ const Oh = () => {
             }
           )
         ] }),
-        /* @__PURE__ */ s.jsx(Fh, {}),
-        e.viewerImageId !== null && /* @__PURE__ */ s.jsx(Ah, {}),
-        /* @__PURE__ */ s.jsx(_h, {})
+        /* @__PURE__ */ s.jsx($h, {}),
+        e.viewerImageId !== null && /* @__PURE__ */ s.jsx(Oh, {}),
+        /* @__PURE__ */ s.jsx(kh, {})
       ]
     }
   );
@@ -14466,10 +14476,10 @@ Ko.registerExtension({
     t(), setTimeout(t, 1), setTimeout(t, 100);
   }
 });
-const Wh = document.getElementById(
+const Uh = document.getElementById(
   "meld-gallery-style"
 );
-if (!Wh) {
+if (!Uh) {
   const e = document.createElement("link");
   e.id = "meld-gallery-style", e.rel = "stylesheet", e.type = "text/css";
   try {
@@ -14577,7 +14587,7 @@ Ko.registerExtension({
               wl.createElement(
                 th,
                 null,
-                wl.createElement($h)
+                wl.createElement(Wh)
               )
             ));
           }
