@@ -3,6 +3,7 @@ import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useGallery } from "../../../store/GalleryContext";
+import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import type { MeldImage } from "../../../types";
 import { fetchWorkflows, type WorkflowInfo } from "../api/workflowsApi";
 
@@ -70,6 +71,8 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 		dispatch({ type: "CLOSE_MODAL" });
 	}, [dispatch]);
 
+	useEscapeToClose({ onEscape: handleClose });
+
 	const overlayMouseDownRef = useRef(false);
 
 	const handleOverlayMouseDown = useCallback((e: React.MouseEvent) => {
@@ -87,16 +90,6 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 		},
 		[handleClose],
 	);
-
-	useEffect(() => {
-		const handleKeyDown = (e: KeyboardEvent) => {
-			if (e.key === "Escape") {
-				handleClose();
-			}
-		};
-		window.addEventListener("keydown", handleKeyDown);
-		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [handleClose]);
 
 	const handleRun = async (workflowName: string) => {
 		if (executing) return;

@@ -2,6 +2,7 @@ import { Search, Star, X } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { useGallery } from "../../../store/GalleryContext";
 import { useFavoritesLogic } from "../hooks/useFavoritesLogic";
 import { useSearchLogic } from "../hooks/useSearchLogic";
@@ -45,6 +46,11 @@ export const SearchBar: React.FC = () => {
 		handleSaveEditFavorite,
 		handleSaveFavorite,
 	} = useFavoritesLogic();
+
+	useEscapeToClose({
+		onEscape: () => setEditingFavorite(null),
+		enabled: !!editingFavorite,
+	});
 
 	const editInputRef = useRef<HTMLInputElement>(null);
 	const overlayMouseDownRef = useRef(false);

@@ -10,6 +10,7 @@ import {
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import * as api from "../../../api";
 import { logger } from "../../../logger";
 import { useGallery } from "../../../store/GalleryContext";
@@ -240,23 +241,6 @@ export const ImportModal: React.FC = () => {
 	useEffect(() => {
 		loadTags();
 	}, [loadTags]);
-
-	useEffect(() => {
-		const handleKeyDown = (e: KeyboardEvent) => {
-			if (e.key === "Escape") {
-				e.preventDefault();
-				e.stopImmediatePropagation();
-				if (previewImage) {
-					setPreviewImage(null);
-				} else {
-					dispatch({ type: "CLOSE_MODAL" });
-				}
-			}
-		};
-		window.addEventListener("keydown", handleKeyDown, { capture: true });
-		return () =>
-			window.removeEventListener("keydown", handleKeyDown, { capture: true });
-	}, [previewImage, dispatch]);
 
 	const filteredTags = useMemo(() => {
 		return allTags.filter(

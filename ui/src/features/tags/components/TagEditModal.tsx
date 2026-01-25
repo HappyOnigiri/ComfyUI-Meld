@@ -2,6 +2,7 @@ import { Plus, Search, Tag, X } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { RESERVED_TAG_KEYWORD } from "../../../constants";
 import { useGallery } from "../../../store/GalleryContext";
 import type { Tag as TagType } from "../../../types";
@@ -65,26 +66,9 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 		if (inputRef.current) {
 			inputRef.current.focus();
 		}
+	}, []);
 
-		// Handle Escape key globally for this modal
-		const handleGlobalKeyDown = (e: KeyboardEvent) => {
-			if (e.key === "Escape") {
-				e.preventDefault();
-				e.stopPropagation();
-				e.stopImmediatePropagation();
-				onClose();
-				if (document.fullscreenElement) {
-					document.exitFullscreen().catch(() => {});
-				}
-			}
-		};
-
-		window.addEventListener("keydown", handleGlobalKeyDown, { capture: true });
-		return () =>
-			window.removeEventListener("keydown", handleGlobalKeyDown, {
-				capture: true,
-			});
-	}, [onClose]);
+	useEscapeToClose({ onEscape: onClose });
 
 	const filteredTags = useMemo(() => {
 		return allTags.filter(
@@ -142,13 +126,6 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 			e.preventDefault();
 			e.stopPropagation();
 			handleAddTag(searchQuery.trim());
-		} else if (e.key === "Escape") {
-			e.preventDefault();
-			e.stopPropagation();
-			onClose();
-			if (document.fullscreenElement) {
-				document.exitFullscreen().catch(() => {});
-			}
 		}
 	};
 

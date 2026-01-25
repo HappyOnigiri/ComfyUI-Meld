@@ -12,6 +12,7 @@ import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 // @ts-expect-error: ComfyUI scripts are not available in build time
 import { api } from "/scripts/api.js";
+import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { useGallery } from "../../../store/GalleryContext";
 import { getImageViewUrl } from "../../../utils/url";
 import { useMaskInjection } from "../hooks/useMaskInjection";
@@ -43,6 +44,8 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 	const { state, dispatch } = useGallery();
 	const image = state.images.find((img) => img.id === imageId);
 	const { injectMaskToGraph } = useMaskInjection();
+
+	useEscapeToClose({ onEscape: onClose });
 
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const overlayRef = useRef<HTMLDivElement>(null);
@@ -409,12 +412,21 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 			if ((e.metaKey || e.ctrlKey) && e.key === "z") {
 				e.preventDefault();
 				handleUndo();
+			} else if (e.key === "Escape") {
+				e.preventDefault();
+				e.stopPropagation();
+				e.stopImmediatePropagation();
+				onClose();
+				if (document.fullscreenElement) {
+					document.exitFullscreen().catch(() => {});
+				}
 			}
 		};
 
-		window.addEventListener("keydown", handleKeyDown);
-		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [handleUndo]);
+		window.addEventListener("keydown", handleKeyDown, { capture: true });
+		return () =>
+			window.removeEventListener("keydown", handleKeyDown, { capture: true });
+	}, [handleUndo, onClose]);
 
 	const handleClear = () => {
 		if (imageRef.current) {

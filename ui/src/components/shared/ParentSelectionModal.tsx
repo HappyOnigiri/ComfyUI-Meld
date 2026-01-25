@@ -2,6 +2,7 @@ import { Link, Link2Off, Upload, X } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 import * as imagesApi from "../../features/images/api/imagesApi";
 import * as importerApi from "../../features/importer/api/importerApi";
 import { useGallery } from "../../store/GalleryContext";
@@ -29,6 +30,12 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 	const [isLoading, setIsLoading] = useState(true);
 	const [isDragging, setIsDragging] = useState(false);
 
+	const handleClose = useCallback(() => {
+		dispatch({ type: "CLOSE_MODAL" });
+	}, [dispatch]);
+
+	useEscapeToClose({ onEscape: handleClose });
+
 	const overlayMouseDownRef = useRef(false);
 
 	const handleOverlayMouseDown = (e: React.MouseEvent) => {
@@ -39,7 +46,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 
 	const handleOverlayMouseUp = (e: React.MouseEvent) => {
 		if (e.target === e.currentTarget && overlayMouseDownRef.current) {
-			dispatch({ type: "CLOSE_MODAL" });
+			handleClose();
 		}
 		overlayMouseDownRef.current = false;
 	};
@@ -84,7 +91,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 			// Re-fetch child image details to ensure UI has latest parent info
 			await imagesApi.fetchImageDetails(imageId);
 			await refreshImages();
-			dispatch({ type: "CLOSE_MODAL" });
+			handleClose();
 		} catch (err) {
 			console.error("Failed to link parent:", err);
 		}
@@ -99,7 +106,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 		try {
 			await imagesApi.linkParent(imageId, null);
 			await refreshImages();
-			dispatch({ type: "CLOSE_MODAL" });
+			handleClose();
 		} catch (err) {
 			console.error("Failed to remove source:", err);
 			alert("Failed to remove source image.");
@@ -159,7 +166,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 					<button
 						type="button"
 						className="meld-modal-close"
-						onClick={() => dispatch({ type: "CLOSE_MODAL" })}
+						onClick={handleClose}
 					>
 						<X size={20} />
 					</button>

@@ -2,6 +2,7 @@ import { X } from "lucide-react";
 import type React from "react";
 import { useRef } from "react";
 import { createPortal } from "react-dom";
+import { useEscapeToClose } from "../hooks/useEscapeToClose";
 import { useSettingsModalLogic } from "../hooks/useSettingsModalLogic";
 import { FullScreenTab } from "./tabs/FullScreenTab";
 import { GalleryTab } from "./tabs/GalleryTab";
@@ -38,6 +39,8 @@ export const SettingsModal: React.FC = () => {
 		fullscreenMaxNegativePromptLinesInput,
 		thumbnailSizeInput,
 	} = useSettingsModalLogic();
+
+	useEscapeToClose({ onEscape: handleClose });
 
 	const overlayMouseDownRef = useRef(false);
 

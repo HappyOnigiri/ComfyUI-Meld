@@ -1,6 +1,8 @@
 import { AlertCircle, X } from "lucide-react";
 import type React from "react";
+import { useCallback } from "react";
 import { useGallery } from "../../store/GalleryContext";
+import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 
 interface ErrorModalProps {
 	message: string;
@@ -9,10 +11,16 @@ interface ErrorModalProps {
 export const ErrorModal: React.FC<ErrorModalProps> = ({ message }) => {
 	const { dispatch } = useGallery();
 
+	const handleClose = useCallback(() => {
+		dispatch({ type: "CLOSE_MODAL" });
+	}, [dispatch]);
+
+	useEscapeToClose({ onEscape: handleClose });
+
 	return (
 		<div
 			className="meld-modal-overlay"
-			onClick={() => dispatch({ type: "CLOSE_MODAL" })}
+			onClick={handleClose}
 		>
 			<div className="meld-modal-content" onClick={(e) => e.stopPropagation()}>
 				<div className="meld-modal-header">
@@ -22,7 +30,7 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({ message }) => {
 					</div>
 					<button
 						className="meld-modal-close"
-						onClick={() => dispatch({ type: "CLOSE_MODAL" })}
+						onClick={handleClose}
 						type="button"
 					>
 						<X size={20} />
@@ -38,7 +46,7 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({ message }) => {
 				<div className="meld-modal-footer">
 					<button
 						className="meld-btn meld-btn-primary"
-						onClick={() => dispatch({ type: "CLOSE_MODAL" })}
+						onClick={handleClose}
 						type="button"
 					>
 						OK

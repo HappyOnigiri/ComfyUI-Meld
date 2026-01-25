@@ -2,6 +2,7 @@ import { AlertTriangle, Trash2, X } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
+import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 import * as imagesApi from "../../features/images/api/imagesApi";
 import { useGallery } from "../../store/GalleryContext";
 import type { MeldImage } from "../../types";
@@ -66,6 +67,8 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 	const handleClose = useCallback(() => {
 		dispatch({ type: "CLOSE_MODAL" });
 	}, [dispatch]);
+
+	useEscapeToClose({ onEscape: handleClose });
 
 	const overlayMouseDownRef = useRef(false);
 
@@ -135,16 +138,6 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 		},
 		[state.viewerMode, currentList, dispatch],
 	);
-
-	useEffect(() => {
-		const handleKeyDown = (e: KeyboardEvent) => {
-			if (e.key === "Escape") {
-				handleClose();
-			}
-		};
-		window.addEventListener("keydown", handleKeyDown);
-		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [handleClose]);
 
 	const handleDeleteSelected = async () => {
 		try {
