@@ -237,6 +237,21 @@ export const useImageActions = (
 		[dispatch],
 	);
 
+	const handleDelete = useCallback(
+		(image: MeldImage) => {
+			dispatch({
+				type: "OPEN_MODAL",
+				payload: {
+					type: "delete_confirm",
+					imageIds: [image.id],
+					hasLineage: !!(image.parent_id || image.has_children),
+					isPermanent: _state.viewScope === "trash",
+				},
+			});
+		},
+		[_state.viewScope, dispatch],
+	);
+
 	return {
 		handleRestoreWorkflow,
 		handleAddUnifiedLoader,
@@ -245,5 +260,6 @@ export const useImageActions = (
 		handleRunWithWorkflow,
 		handleRunWithMask,
 		handleRestore,
+		handleDelete,
 	};
 };

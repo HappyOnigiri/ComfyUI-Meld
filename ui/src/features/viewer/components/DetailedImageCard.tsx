@@ -33,6 +33,8 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(
 			handleAddUnifiedLoader,
 			handleEditSource,
 			handleEditTags,
+			handleRestore,
+			handleDelete,
 			handleRunWithWorkflow,
 			handleRunWithMask,
 			fetchFullImageDetails,
@@ -275,6 +277,12 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(
 					onRunWithMask={(mode) => handleRunWithMask(mode)}
 					onEditSource={handleEditSource}
 					onEditTags={handleEditTags}
+					onRestore={handleRestore}
+					showRestore={state.viewScope === "trash"}
+					onDelete={handleDelete}
+					deleteLabel={
+						state.viewScope === "trash" ? "Delete Permanently" : "Move to Trash"
+					}
 				/>
 
 				{popupContent && (
