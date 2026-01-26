@@ -1,4 +1,5 @@
 import React from "react";
+import { ImageCardMenu } from "../../features/viewer/components/ImageCardMenu";
 import { useImageCardLogic } from "../../features/viewer/hooks/useImageCardLogic";
 import type { MeldImage } from "../../types";
 
@@ -16,11 +17,28 @@ export const SimpleImageCard: React.FC<SimpleImageCardProps> = React.memo(
 			handleKeyDown,
 			handleClick,
 			handleSelectToggle,
+			isMenuOpen,
+			setIsMenuOpen,
+			menuRef,
+			state,
+			handleAddUnifiedLoader,
+			handleRestoreWorkflow,
+			handleSendToWorkflow,
+			handleRunWithWorkflow,
+			handleRunWithMask,
+			handleEditSource,
+			handleEditTags,
+			handleEditNotes,
+			handleDelete,
+			handleRestore,
 		} = useImageCardLogic(image);
+
+		const showRestore = state.viewScope === "trash";
+		const deleteLabel = showRestore ? "Delete Permanently" : "Move to Trash";
 
 		return (
 			<div
-				className={`meld-image-card meld-image-card--grid-only ${isSelected ? "meld-image-card--selected" : ""}`}
+				className={`meld-image-card meld-image-card--grid-only ${isSelected ? "meld-image-card--selected" : ""} ${isMenuOpen ? "meld-image-card--menu-open" : ""}`}
 				onClick={handleContainerClick}
 				onMouseDown={handleMouseDown}
 				onKeyDown={handleKeyDown}
@@ -66,6 +84,26 @@ export const SimpleImageCard: React.FC<SimpleImageCardProps> = React.memo(
 						}}
 					/>
 				</div>
+				<ImageCardMenu
+					isMenuOpen={isMenuOpen}
+					setIsMenuOpen={setIsMenuOpen}
+					menuRef={menuRef}
+					settings={state.settings}
+					onAddUnifiedLoader={handleAddUnifiedLoader}
+					onRestoreWorkflow={handleRestoreWorkflow}
+					onSendToWorkflow={handleSendToWorkflow}
+					onRunWithWorkflow={handleRunWithWorkflow}
+					onRunWithMask={handleRunWithMask}
+					onEditSource={handleEditSource}
+					onEditTags={handleEditTags}
+					onEditNotes={handleEditNotes}
+					onDelete={handleDelete}
+					onRestore={handleRestore}
+					showRestore={showRestore}
+					deleteLabel={deleteLabel}
+					showQuickShortcuts={false}
+					variant="thumbnail_overlay_top_right"
+				/>
 			</div>
 		);
 	},

@@ -23,7 +23,7 @@
 	background: var(--meld-bg-color);
 	color: var(--meld-text-color);
 	padding: 0;
-	padding-bottom: 70px;
+	padding-bottom: 200px;
 	scrollbar-gutter: stable;
 	overflow-y: auto;
 	height: 100%;
@@ -268,6 +268,16 @@
 	position: relative;
 }
 
+.meld-image-card__menu-container--thumbnail-overlay {
+	position: absolute;
+	top: 2px;
+	right: 2px;
+	z-index: 11;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
 .meld-image-card__menu-btn {
 	background: var(--meld-card-content-bg);
 	border: 1px solid var(--comfy-menu-border, rgba(255, 255, 255, 0.1));
@@ -284,6 +294,11 @@
 	transition: all 0.2s;
 	padding: 0;
 	outline: none;
+}
+
+.meld-image-card--grid-only .meld-image-card__menu-btn {
+	width: 20px;
+	height: 20px;
 }
 
 .meld-image-card__menu-btn:hover {

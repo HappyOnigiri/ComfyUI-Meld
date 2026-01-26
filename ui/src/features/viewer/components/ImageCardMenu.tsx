@@ -32,6 +32,8 @@ interface ImageCardMenuProps {
 	onRestore?: () => void;
 	showRestore?: boolean;
 	deleteLabel: string;
+	showQuickShortcuts?: boolean;
+	variant?: "default" | "thumbnail_overlay_top_right";
 }
 
 export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
@@ -51,6 +53,8 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 	onRestore,
 	showRestore,
 	deleteLabel,
+	showQuickShortcuts = true,
+	variant = "default",
 }) => {
 	const getActionHandler = (actionId: string) => {
 		switch (actionId) {
@@ -87,8 +91,16 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 		settings["gallery.quick_shortcut.3"],
 	].filter((id) => id && id !== "");
 
+	const containerClasses = [
+		"meld-image-card__menu-container",
+		variant === "thumbnail_overlay_top_right" &&
+			"meld-image-card__menu-container--thumbnail-overlay",
+	]
+		.filter(Boolean)
+		.join(" ");
+
 	return (
-		<div className="meld-image-card__menu-container" ref={menuRef}>
+		<div className={containerClasses} ref={menuRef}>
 			<button
 				type="button"
 				className="meld-image-card__menu-btn"
@@ -100,31 +112,32 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 			>
 				<MoreVertical size={16} />
 			</button>
-			{quickShortcuts.map((actionId, index) => {
-				const action = QUICK_SHORTCUT_ACTIONS.find((a) => a.id === actionId);
-				if (!action || !action.icon) return null;
-				const Icon = action.icon;
-				const handler = getActionHandler(actionId);
-				if (!handler) return null;
+			{showQuickShortcuts &&
+				quickShortcuts.map((actionId, index) => {
+					const action = QUICK_SHORTCUT_ACTIONS.find((a) => a.id === actionId);
+					if (!action || !action.icon) return null;
+					const Icon = action.icon;
+					const handler = getActionHandler(actionId);
+					if (!handler) return null;
 
-				// Special case for restore_image: only show if in trash (showRestore is true)
-				if (actionId === "restore_image" && !showRestore) return null;
+					// Special case for restore_image: only show if in trash (showRestore is true)
+					if (actionId === "restore_image" && !showRestore) return null;
 
-				return (
-					<button
-						key={`${actionId}-${index}`}
-						type="button"
-						className="meld-image-card__menu-btn"
-						onClick={(e) => {
-							e.stopPropagation();
-							handler();
-						}}
-						title={action.label}
-					>
-						<Icon size={16} />
-					</button>
-				);
-			})}
+					return (
+						<button
+							key={`${actionId}-${index}`}
+							type="button"
+							className="meld-image-card__menu-btn"
+							onClick={(e) => {
+								e.stopPropagation();
+								handler();
+							}}
+							title={action.label}
+						>
+							<Icon size={16} />
+						</button>
+					);
+				})}
 			{isMenuOpen && (
 				<div className="meld-image-card__menu">
 					{[
