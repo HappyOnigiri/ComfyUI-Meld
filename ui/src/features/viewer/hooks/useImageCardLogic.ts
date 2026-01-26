@@ -201,6 +201,16 @@ export const useImageCardLogic = (image: MeldImage) => {
 		handleRunWithWorkflow(image);
 	};
 
+	const handleSelectToggle = (e: React.MouseEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
+		if (e.shiftKey) {
+			dispatch({ type: "SELECT_RANGE", payload: image.id });
+		} else {
+			dispatch({ type: "TOGGLE_SELECT", payload: image.id });
+		}
+	};
+
 	return {
 		state,
 		dispatch,
@@ -218,6 +228,7 @@ export const useImageCardLogic = (image: MeldImage) => {
 		imgSrc,
 		handleCopy,
 		handleClick,
+		handleSelectToggle,
 		handleContainerClick,
 		handleMouseDown,
 		handleKeyDown,

@@ -344,6 +344,41 @@
 	display: flex;
 	justify-content: center;
 	align-items: flex-start;
+	position: relative;
+}
+
+.meld-image-card__select-checkbox {
+	position: absolute;
+	top: 4px;
+	left: 4px;
+	width: 16px;
+	height: 16px;
+	background: white;
+	border: 1px solid var(--meld-border-color);
+	border-radius: 3px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	z-index: 10;
+	padding: 0;
+	color: var(--meld-accent-color);
+	transition: all 0.2s;
+}
+
+.meld-image-card__select-checkbox:hover {
+	border-color: var(--meld-accent-color);
+}
+
+.meld-image-card__select-checkbox--checked {
+	border-color: var(--meld-accent-color);
+}
+
+.meld-image-card--grid-only .meld-image-card__select-checkbox {
+	top: 2px;
+	left: 2px;
+	width: 14px;
+	height: 14px;
 }
 
 .meld-image-card__thumbnail {

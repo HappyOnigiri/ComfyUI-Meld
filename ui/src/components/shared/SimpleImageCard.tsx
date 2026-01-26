@@ -15,6 +15,7 @@ export const SimpleImageCard: React.FC<SimpleImageCardProps> = React.memo(
 			handleMouseDown,
 			handleKeyDown,
 			handleClick,
+			handleSelectToggle,
 		} = useImageCardLogic(image);
 
 		return (
@@ -27,6 +28,30 @@ export const SimpleImageCard: React.FC<SimpleImageCardProps> = React.memo(
 				tabIndex={0}
 			>
 				<div className="meld-image-card__thumbnail-wrapper">
+					<button
+						type="button"
+						className={`meld-image-card__select-checkbox ${isSelected ? "meld-image-card__select-checkbox--checked" : ""}`}
+						onClick={handleSelectToggle}
+						aria-label="Toggle selection"
+						role="checkbox"
+						aria-checked={isSelected}
+					>
+						{isSelected && (
+							<svg
+								viewBox="0 0 24 24"
+								width="10"
+								height="10"
+								stroke="currentColor"
+								strokeWidth="4"
+								fill="none"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+							>
+								<title>Selected</title>
+								<polyline points="20 6 9 17 4 12" />
+							</svg>
+						)}
+					</button>
 					<img
 						src={imgSrc}
 						className="meld-image-card__thumbnail"
