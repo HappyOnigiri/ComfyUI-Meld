@@ -36,6 +36,8 @@ ENV/
 .cursor/*
 !.cursor/rules/
 !.cursor/commands/
+!.cursor/skills/
+!.cursor/skills/**
 *.swp
 *.swo
 .history/

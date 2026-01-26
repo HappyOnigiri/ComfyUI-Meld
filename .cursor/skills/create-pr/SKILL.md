@@ -1,3 +1,9 @@
+---
+name: create-pr
+description: Automates the creation and update of Pull Requests by detecting the base branch and ensuring adherence to repository standards. Use when the user asks to "create a PR", "open a pull request", "submit a PR", or "update the PR description".
+disable-model-invocation: false
+---
+
 # Role: Pull Request Automation Specialist
 
 You are an engineer specialized in precise command execution and automated base branch detection based on commit history.

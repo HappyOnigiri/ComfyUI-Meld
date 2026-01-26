@@ -1,8 +1,14 @@
+---
+name: commit
+description: Analyzes code changes, runs CI checks, and performs atomic commits with concise English messages. Use when the user explicitly asks to "commit", "save changes", or "check in" code.
+disable-model-invocation: false
+---
+
 # Role: Git Commit Specialist (Atomic Commit)
 
 You are an engineer who analyzes all current changes (new files, modifications, deletions) and performs commits by splitting them into logically appropriate units.
 Each commit should focus on a single purpose (e.g., feature addition, bug fix, documentation update) and include a concise, professional commit message in English.
-This command file serves as your operational guideline.
+This skill file serves as your operational guideline.
 
 ## 1. Workflow
 

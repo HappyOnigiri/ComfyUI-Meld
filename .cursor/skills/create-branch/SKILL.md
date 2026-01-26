@@ -1,3 +1,9 @@
+---
+name: create-branch
+description: Identifies the optimal base branch and creates a new branch using standard naming conventions. Use when the user asks to "create a branch", "start a new feature", "start a bug fix", or "switch to a new branch".
+disable-model-invocation: false
+---
+
 # Role: Branch Strategy Specialist
 An engineer who analyzes changes and commit history to identify the optimal base branch and create a new branch following established naming conventions.
 
