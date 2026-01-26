@@ -23,6 +23,7 @@ import { TagEditModal } from "../../tags/components/TagEditModal";
 import { WorkflowSelectionModal } from "../../workflows/components/WorkflowSelectionModal";
 import { useWorkflowExecution } from "../../workflows/hooks/useWorkflowExecution";
 import { useImageViewerLogic } from "../hooks/useImageViewerLogic";
+import { NoteEditModal } from "./NoteEditModal";
 import { ViewerCheatSheet } from "./ViewerCheatSheet";
 import { ViewerInfoPanel } from "./ViewerInfoPanel";
 import { ViewerThumbnailStrip } from "./ViewerThumbnailStrip";
@@ -45,8 +46,8 @@ export function ImageViewer() {
 		handleNext,
 		handlePrevious,
 		handleTagEdit,
+		handleEditNotes,
 		handleRestore,
-		handleUpdateUserNotes,
 		toggleFullscreen,
 		image,
 		windowedThumbnails,
@@ -189,7 +190,7 @@ export function ImageViewer() {
 						showIcons={showIcons}
 						parentChain={parentChain}
 						dispatch={dispatch}
-						onUpdateNotes={handleUpdateUserNotes}
+						onEditNotes={handleEditNotes}
 					/>
 				)}
 
@@ -256,6 +257,13 @@ export function ImageViewer() {
 				<MaskEditorModal
 					imageId={state.activeModal.imageId}
 					mode={state.activeModal.mode}
+					onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+				/>
+			)}
+			{state.activeModal.type === "note_edit" && (
+				<NoteEditModal
+					imageId={state.activeModal.imageId}
+					initialNotes={state.activeModal.notes}
 					onClose={() => dispatch({ type: "CLOSE_MODAL" })}
 				/>
 			)}

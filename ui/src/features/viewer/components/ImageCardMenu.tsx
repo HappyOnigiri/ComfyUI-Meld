@@ -3,6 +3,7 @@ import type React from "react";
 import type { Settings } from "../../../types";
 import {
 	AddUnifiedLoaderIcon,
+	EditNotesIcon,
 	EditSourceImageIcon,
 	EditTagsIcon,
 	QueueWorkflowIcon,
@@ -26,6 +27,7 @@ interface ImageCardMenuProps {
 	onRunWithMask: (mode: "apply" | "run") => void;
 	onEditSource: () => void;
 	onEditTags: () => void;
+	onEditNotes: () => void;
 	onDelete: () => void;
 	onRestore?: () => void;
 	showRestore?: boolean;
@@ -44,6 +46,7 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 	onRunWithMask,
 	onEditSource,
 	onEditTags,
+	onEditNotes,
 	onDelete,
 	onRestore,
 	showRestore,
@@ -67,6 +70,8 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 				return onEditSource;
 			case "edit_tags":
 				return onEditTags;
+			case "edit_notes":
+				return onEditNotes;
 			case "restore_image":
 				return onRestore;
 			case "delete_or_trash":
@@ -164,6 +169,12 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 							label: "Edit Tags",
 							icon: EditTagsIcon,
 							handler: onEditTags,
+						},
+						{
+							id: "edit_notes",
+							label: "Edit Notes",
+							icon: EditNotesIcon,
+							handler: onEditNotes,
 						},
 						{
 							id: "edit_source_image",

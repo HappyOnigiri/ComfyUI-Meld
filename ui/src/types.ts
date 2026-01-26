@@ -151,7 +151,8 @@ export type ActiveModal =
 			hasLineage: boolean;
 			isPermanent?: boolean;
 	  }
-	| { type: "mask_editor"; imageId: number; mode: "apply" | "run" };
+	| { type: "mask_editor"; imageId: number; mode: "apply" | "run" }
+	| { type: "note_edit"; imageId: number; notes: string };
 
 export interface GalleryState {
 	images: MeldImage[];

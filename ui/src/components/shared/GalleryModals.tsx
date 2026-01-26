@@ -4,6 +4,7 @@ import { ImportModal } from "../../features/importer/components/ImportModal";
 import { MaskEditorModal } from "../../features/mask-editor/components/MaskEditorModal";
 import { SettingsModal } from "../../features/settings/components/SettingsModal";
 import { TagEditModal } from "../../features/tags/components/TagEditModal";
+import { NoteEditModal } from "../../features/viewer/components/NoteEditModal";
 import { WorkflowSelectionModal } from "../../features/workflows/components/WorkflowSelectionModal";
 import { useWorkflowExecution } from "../../features/workflows/hooks/useWorkflowExecution";
 import { useGallery } from "../../store/GalleryContext";
@@ -78,6 +79,16 @@ export const GalleryModals: React.FC = () => {
 					<MaskEditorModal
 						imageId={state.activeModal.imageId}
 						mode={state.activeModal.mode}
+						onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+					/>,
+					document.body,
+				)}
+
+			{state.activeModal.type === "note_edit" &&
+				createPortal(
+					<NoteEditModal
+						imageId={state.activeModal.imageId}
+						initialNotes={state.activeModal.notes}
 						onClose={() => dispatch({ type: "CLOSE_MODAL" })}
 					/>,
 					document.body,

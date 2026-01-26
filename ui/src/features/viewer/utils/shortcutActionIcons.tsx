@@ -164,6 +164,19 @@ export function EditTagsIcon(
 	);
 }
 
+export function EditNotesIcon(
+	props: ShortcutActionIconProps,
+): React.JSX.Element {
+	return (
+		<IconBase {...props}>
+			<path d="M15.5 4.5h-8a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-9l-3-4z" />
+			<path d="M15.5 4.5v4h4" />
+			<path d="M9 11h6" />
+			<path d="M9 15h6" />
+		</IconBase>
+	);
+}
+
 export function RestoreImageIcon(
 	props: ShortcutActionIconProps,
 ): React.JSX.Element {

@@ -26,6 +26,7 @@ export const useImageCardLogic = (image: MeldImage) => {
 		handleRunWithMask,
 		handleRestore,
 		handleDelete,
+		handleEditNotes,
 		handleUpdateUserNotes,
 	} = useImageActions(state, dispatch);
 
@@ -180,6 +181,10 @@ export const useImageCardLogic = (image: MeldImage) => {
 		handleEditTags(image);
 	};
 
+	const handleEditNotesAction = () => {
+		handleEditNotes(image);
+	};
+
 	const handleSendToWorkflowAction = () => {
 		handleSendToWorkflow(image);
 	};
@@ -220,6 +225,7 @@ export const useImageCardLogic = (image: MeldImage) => {
 		handleAddUnifiedLoader: handleAddUnifiedLoaderAction,
 		handleEditSource: handleEditSourceAction,
 		handleEditTags: handleEditTagsAction,
+		handleEditNotes: handleEditNotesAction,
 		handleSendToWorkflow: handleSendToWorkflowAction,
 		handleRestore: handleRestoreAction,
 		handleDelete: handleDeleteAction,

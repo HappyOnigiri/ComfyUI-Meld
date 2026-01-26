@@ -30,8 +30,12 @@ export const useImageViewerLogic = ({
 }: UseImageViewerLogicProps) => {
 	const { viewerImageId, images, viewerMode, lineageImages, settings } = state;
 
-	const { handleEditTags, handleRestore, handleUpdateUserNotes } =
-		useImageActions(state, dispatch);
+	const {
+		handleEditTags,
+		handleEditNotes,
+		handleRestore,
+		handleUpdateUserNotes,
+	} = useImageActions(state, dispatch);
 	const { getParentChain } = useImageLineage(images, settings);
 
 	const [isFullscreen, setIsFullscreen] = useState(false);
@@ -471,9 +475,9 @@ export const useImageViewerLogic = ({
 				target.isContentEditable;
 
 			if (isTargetInput && e.key !== "Escape") {
-				// We must return early to avoid triggering shortcuts,
-				// but we SHOULD NOT call stopPropagation or stopImmediatePropagation
-				// here because that would prevent the event from reaching the actual input/textarea target.
+				if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+					e.preventDefault();
+				}
 				return;
 			}
 
@@ -759,6 +763,7 @@ export const useImageViewerLogic = ({
 		handlePrevious,
 		handleDelete,
 		handleUpdateUserNotes,
+		handleEditNotes: () => image && handleEditNotes(image),
 		handleTagEdit: handleTagEditAction,
 		handleRestore: handleRestoreAction,
 		handleUndo,

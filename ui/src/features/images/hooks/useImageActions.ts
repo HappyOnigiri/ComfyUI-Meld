@@ -124,6 +124,20 @@ export const useImageActions = (
 		[dispatch],
 	);
 
+	const handleEditNotes = useCallback(
+		(image: MeldImage) => {
+			dispatch({
+				type: "OPEN_MODAL",
+				payload: {
+					type: "note_edit",
+					imageId: image.id,
+					notes: image.user_notes || "",
+				},
+			});
+		},
+		[dispatch],
+	);
+
 	const handleEditSource = useCallback(
 		(image: MeldImage) => {
 			dispatch({
@@ -300,6 +314,7 @@ export const useImageActions = (
 		handleRunWithMask,
 		handleRestore,
 		handleDelete,
+		handleEditNotes,
 		handleUpdateUserNotes,
 	};
 };

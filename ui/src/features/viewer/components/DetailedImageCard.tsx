@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import type { MeldImage } from "../../../types";
 import { useImageCardLogic } from "../hooks/useImageCardLogic";
 import { ImageCardMenu } from "./ImageCardMenu";
@@ -33,39 +33,22 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(
 			handleAddUnifiedLoader,
 			handleEditSource,
 			handleEditTags,
+			handleEditNotes,
 			handleSendToWorkflow,
 			handleRestore,
 			handleDelete,
 			handleRunWithWorkflow,
 			handleRunWithMask,
-			handleUpdateUserNotes,
 			fetchFullImageDetails,
 		} = useImageCardLogic(image);
 
-		const [isEditingNotes, setIsEditingNotes] = useState(false);
-		const [notes, setNotes] = useState(image.user_notes || "");
 		const [saveStatus, setSaveStatus] = useState<"idle" | "saving">("idle");
-		const textareaRef = useRef<HTMLTextAreaElement>(null);
 
 		useEffect(() => {
-			setNotes(image.user_notes || "");
-		}, [image.user_notes]);
-
-		// Focus textarea when entering edit mode
-		useEffect(() => {
-			if (isEditingNotes && textareaRef.current) {
-				textareaRef.current.focus();
-			}
-		}, [isEditingNotes]);
-
-		const handleNotesSave = async () => {
-			if (notes !== (image.user_notes || "")) {
-				setSaveStatus("saving");
-				await handleUpdateUserNotes(notes);
+			if (image.user_notes && saveStatus === "saving") {
 				setSaveStatus("idle");
 			}
-			setIsEditingNotes(false);
-		};
+		}, [image.user_notes, saveStatus]);
 
 		return (
 			<div
@@ -305,36 +288,16 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(
 							</div>
 							<div
 								className="meld-image-card__meta-content"
-								onClick={(e) => e.stopPropagation()}
-								onMouseDown={(e) => e.stopPropagation()}
+								onClick={(e) => {
+									e.stopPropagation();
+									handleEditNotes();
+								}}
 							>
-								{isEditingNotes ? (
-									<textarea
-										ref={textareaRef}
-										className="meld-image-card__notes-textarea"
-										value={notes}
-										onChange={(e) => setNotes(e.target.value)}
-										onBlur={handleNotesSave}
-										onKeyDown={(e) => {
-											e.stopPropagation();
-											if (e.key === "Escape") {
-												setIsEditingNotes(false);
-												setNotes(image.user_notes || "");
-											}
-										}}
-									/>
-								) : (
-									<div
-										className="meld-image-card__notes-preview"
-										onClick={() => setIsEditingNotes(true)}
-									>
-										{image.user_notes || (
-											<span className="meld-notes-placeholder">
-												Add notes...
-											</span>
-										)}
-									</div>
-								)}
+								<div className="meld-image-card__notes-preview">
+									{image.user_notes || (
+										<span className="meld-notes-placeholder">Add notes...</span>
+									)}
+								</div>
 							</div>
 						</div>
 					)}
@@ -352,6 +315,7 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(
 					onRunWithMask={(mode) => handleRunWithMask(mode)}
 					onEditSource={handleEditSource}
 					onEditTags={handleEditTags}
+					onEditNotes={handleEditNotes}
 					onRestore={handleRestore}
 					showRestore={state.viewScope === "trash"}
 					onDelete={handleDelete}

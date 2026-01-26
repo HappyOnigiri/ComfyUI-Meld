@@ -2,6 +2,7 @@ import { Trash2 } from "lucide-react";
 import type React from "react";
 import {
 	AddUnifiedLoaderIcon,
+	EditNotesIcon,
 	EditSourceImageIcon,
 	EditTagsIcon,
 	QueueWorkflowIcon,
@@ -47,6 +48,7 @@ export const QUICK_SHORTCUT_ACTIONS: ShortcutAction[] = [
 		icon: RestoreFullWorkflowIcon,
 	},
 	{ id: "edit_tags", label: "Edit Tags", icon: EditTagsIcon },
+	{ id: "edit_notes", label: "Edit Notes", icon: EditNotesIcon },
 	{
 		id: "edit_source_image",
 		label: "Edit Source Image",
