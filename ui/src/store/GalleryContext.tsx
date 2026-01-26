@@ -39,6 +39,7 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 
 	const imagesLengthRef = useRef(state.images.length);
 	const backgroundFetchIdRef = useRef<number>(0);
+	const detailsInFlightRef = useRef<Map<number, Promise<MeldImage>>>(new Map());
 
 	useEffect(() => {
 		imagesLengthRef.current = state.images.length;
@@ -256,22 +257,40 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 
 	const fetchFullImageDetails = useCallback(
 		async (id: number): Promise<MeldImage> => {
+			// 1. Check current images for non-minimal version
 			const existing = state.images.find((img) => img.id === id);
 			if (existing && !existing.is_minimal) {
 				return existing;
 			}
 
-			try {
-				logger.log("fetchFullImageDetails: fetching full data", { id });
-				const fullImage = await imagesApi.fetchImageDetails(id);
-				dispatch({ type: "UPDATE_IMAGE", payload: fullImage });
-				return fullImage;
-			} catch (err) {
-				logger.error("Failed to fetch image details", err);
-				throw err;
+			// 2. Check lineage images for non-minimal version
+			const existingLineage = state.lineageImages.find((img) => img.id === id);
+			if (existingLineage && !existingLineage.is_minimal) {
+				return existingLineage;
 			}
+
+			// 3. Check for in-flight promise
+			const inFlight = detailsInFlightRef.current.get(id);
+			if (inFlight) {
+				return inFlight;
+			}
+
+			// 4. Fetch from API
+			const fetchPromise = (async () => {
+				try {
+					logger.log("fetchFullImageDetails: fetching full data", { id });
+					const fullImage = await imagesApi.fetchImageDetails(id);
+					dispatch({ type: "UPDATE_IMAGE", payload: fullImage });
+					return fullImage;
+				} finally {
+					detailsInFlightRef.current.delete(id);
+				}
+			})();
+
+			detailsInFlightRef.current.set(id, fetchPromise);
+			return fetchPromise;
 		},
-		[state.images],
+		[state.images, state.lineageImages],
 	);
 
 	useEffect(() => {

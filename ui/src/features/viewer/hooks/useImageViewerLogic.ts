@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { logger } from "../../../logger";
 import type {
 	GalleryAction,
 	GalleryState,
@@ -9,6 +10,34 @@ import { getImageViewUrl } from "../../../utils/url";
 import * as imagesApi from "../../images/api/imagesApi";
 import { useImageActions } from "../../images/hooks/useImageActions";
 import { useImageLineage } from "../../images/hooks/useImageLineage";
+
+function getAdjacentIds(params: {
+	ids: number[];
+	index: number;
+	loopEnabled: boolean;
+	hasMore: boolean;
+}): { prevId: number | null; nextId: number | null } {
+	const { ids, index, loopEnabled, hasMore } = params;
+	if (ids.length === 0 || index < 0 || index >= ids.length) {
+		return { prevId: null, nextId: null };
+	}
+
+	const atStart = index === 0;
+	const atEnd = index === ids.length - 1;
+
+	const nextId = atEnd
+		? hasMore || !loopEnabled
+			? null
+			: ids[0]
+		: ids[index + 1];
+	const prevId = atStart
+		? hasMore || !loopEnabled
+			? null
+			: ids[ids.length - 1]
+		: ids[index - 1];
+
+	return { prevId, nextId };
+}
 
 interface UseImageViewerLogicProps {
 	state: GalleryState;
@@ -720,6 +749,57 @@ export const useImageViewerLogic = ({
 			overlayRef.current?.focus();
 		}
 	}, [viewerImageId, showThumbnails]);
+
+	// Prefetch adjacent image details
+	useEffect(() => {
+		if (viewerImageId === null || currentThumbnails.length === 0) return;
+
+		const ids = currentThumbnails.map((img) => img.id);
+		const index = ids.indexOf(viewerImageId);
+		if (index === -1) return;
+
+		const loopEnabled = isFullscreen
+			? settings["fullscreen.loop"]
+			: settings["viewer.loop"];
+
+		const { prevId, nextId } = getAdjacentIds({
+			ids,
+			index,
+			loopEnabled,
+			hasMore: state.pagination.hasMore && viewerMode === "gallery",
+		});
+
+		const timer = setTimeout(() => {
+			const toFetch = [prevId, nextId].filter(
+				(id): id is number => id !== null && id !== viewerImageId,
+			);
+
+			if (toFetch.length === 0) return;
+
+			Promise.allSettled(toFetch.map((id) => fetchFullImageDetails(id))).then(
+				(results) => {
+					for (const res of results) {
+						if (res.status === "rejected") {
+							logger.warn(
+								"Prefetching adjacent image details failed",
+								res.reason,
+							);
+						}
+					}
+				},
+			);
+		}, 50);
+
+		return () => clearTimeout(timer);
+	}, [
+		viewerImageId,
+		currentThumbnails,
+		isFullscreen,
+		settings,
+		state.pagination.hasMore,
+		viewerMode,
+		fetchFullImageDetails,
+	]);
 
 	// Preload next and previous images
 	useEffect(() => {
