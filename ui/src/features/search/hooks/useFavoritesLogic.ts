@@ -64,7 +64,6 @@ export const useFavoritesLogic = () => {
 			);
 			await refreshFavorites();
 			setEditingFavorite(null);
-			setToastMessage("Favorite updated.");
 		} catch (err) {
 			logger.error("Failed to update favorite", err);
 			setToastMessage("Failed to update favorite.");
@@ -86,7 +85,6 @@ export const useFavoritesLogic = () => {
 				try {
 					await searchApi.deleteFavorite(fav.id);
 					await refreshFavorites();
-					setToastMessage("Favorite removed.");
 				} catch (err) {
 					logger.error("Failed to delete favorite:", err);
 				} finally {
@@ -100,9 +98,6 @@ export const useFavoritesLogic = () => {
 		try {
 			await searchApi.saveFavorite(state.searchQuery, state.searchQuery);
 			await refreshFavorites();
-			setToastMessage(
-				"Favorite added!\nYou can select favorites when the search query is empty.",
-			);
 		} catch (err) {
 			logger.error("Failed to save favorite:", err);
 		} finally {

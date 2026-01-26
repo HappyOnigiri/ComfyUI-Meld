@@ -5,16 +5,19 @@ import {
 	RefreshCw,
 	Search,
 	Settings,
+	Star,
 	Tag,
 	Trash2,
 	X,
 } from "lucide-react";
 import type React from "react";
+import { useCallback, useRef, useState } from "react";
 import { GalleryModals } from "../../../components/shared/GalleryModals";
 import { ImageCard } from "../../../components/shared/ImageCard";
 import { LazyRender } from "../../../components/shared/LazyRender";
 import { logger } from "../../../logger";
 import { ImportProgress } from "../../importer/components/ImportProgress";
+import { FavoritesContextMenu } from "../../search/components/FavoritesContextMenu";
 import { SearchBar } from "../../search/components/SearchBar";
 import { TagManagerView } from "../../tags/components/TagManagerView";
 import { ImageViewer } from "../../viewer/components/ImageViewer";
@@ -38,6 +41,30 @@ export const GalleryPanel: React.FC = () => {
 		isSearchActive,
 		loadMoreRef,
 	} = useGalleryLogic();
+
+	const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
+	const [favoritesAnchorRect, setFavoritesAnchorRect] =
+		useState<DOMRect | null>(null);
+	const favoritesButtonRef = useRef<HTMLButtonElement>(null);
+
+	const handleOpenFavorites = useCallback(() => {
+		if (favoritesButtonRef.current) {
+			setFavoritesAnchorRect(
+				favoritesButtonRef.current.getBoundingClientRect(),
+			);
+			setIsFavoritesOpen(true);
+		}
+	}, []);
+
+	const handleSelectFavorite = useCallback(
+		(query: string) => {
+			dispatch({ type: "SET_SEARCH_QUERY", payload: query });
+			setLastSearchQuery(query);
+			setViewMode("search");
+			setIsFavoritesOpen(false);
+		},
+		[dispatch, setLastSearchQuery, setViewMode],
+	);
 
 	logger.log("GalleryPanel: rendering", {
 		imageCount: state.images.length,
@@ -82,6 +109,31 @@ export const GalleryPanel: React.FC = () => {
 					</div>
 				) : (
 					<div className="meld-gallery__actions">
+						{state.favorites.length > 0 && (
+							<button
+								ref={favoritesButtonRef}
+								type="button"
+								onClick={handleOpenFavorites}
+								style={{
+									background: "none",
+									border: "none",
+									color: isFavoritesOpen
+										? "var(--brand-yellow, #ffd700)"
+										: "var(--meld-text-secondary)",
+									cursor: "pointer",
+									display: "flex",
+									alignItems: "center",
+								}}
+								title="Favorites"
+							>
+								<Star
+									size={14}
+									fill={
+										isFavoritesOpen ? "var(--brand-yellow, #ffd700)" : "none"
+									}
+								/>
+							</button>
+						)}
 						<button
 							type="button"
 							onClick={() => {
@@ -325,6 +377,14 @@ export const GalleryPanel: React.FC = () => {
 			{state.viewerImageId !== null && <ImageViewer />}
 
 			<GalleryModals />
+
+			{isFavoritesOpen && (
+				<FavoritesContextMenu
+					anchorRect={favoritesAnchorRect}
+					onClose={() => setIsFavoritesOpen(false)}
+					onSelect={handleSelectFavorite}
+				/>
+			)}
 		</div>
 	);
 };
