@@ -6,10 +6,9 @@ import {
 	Maximize,
 	Minimize,
 	RefreshCw,
-	Tag,
 	X,
 } from "lucide-react";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { DeleteConfirmModal } from "../../../components/shared/DeleteConfirmModal";
 import { ErrorModal } from "../../../components/shared/ErrorModal";
@@ -23,6 +22,7 @@ import { TagEditModal } from "../../tags/components/TagEditModal";
 import { WorkflowSelectionModal } from "../../workflows/components/WorkflowSelectionModal";
 import { useWorkflowExecution } from "../../workflows/hooks/useWorkflowExecution";
 import { useImageViewerLogic } from "../hooks/useImageViewerLogic";
+import { ImageCardMenu } from "./ImageCardMenu";
 import { NoteEditModal } from "./NoteEditModal";
 import { ViewerCheatSheet } from "./ViewerCheatSheet";
 import { ViewerInfoPanel } from "./ViewerInfoPanel";
@@ -40,6 +40,8 @@ export function ImageViewer() {
 		setShowThumbnailsOverride,
 		isLoadingLineage,
 		isJumping,
+		isMenuOpen,
+		setIsMenuOpen,
 		activeShortcutKey,
 		setLastDeletedImages,
 		overlayRef,
@@ -48,6 +50,13 @@ export function ImageViewer() {
 		handleTagEdit,
 		handleEditNotes,
 		handleRestore,
+		handleRestoreWorkflow,
+		handleAddUnifiedLoader,
+		handleSendToWorkflow,
+		handleRunWithWorkflow,
+		handleRunWithMask,
+		handleEditSource,
+		handleDelete,
 		toggleFullscreen,
 		image,
 		windowedThumbnails,
@@ -60,13 +69,18 @@ export function ImageViewer() {
 	});
 
 	const imageRef = useRef<HTMLImageElement>(null);
+	const menuRef = useRef<HTMLDivElement>(null);
 
 	const { executeWorkflow } = useWorkflowExecution();
+
+	const deleteLabel = useMemo(() => {
+		const isTrash = state.viewScope === "trash";
+		return isTrash ? "Delete Permanently" : "Move to Trash";
+	}, [state.viewScope]);
 
 	if (!image) return null;
 
 	const { viewerImageId, viewerMode } = state;
-	const imgSrc = getImageViewUrl(image);
 
 	const showIcons = isFullscreen
 		? state.settings["fullscreen.show_icons"]
@@ -112,14 +126,6 @@ export function ImageViewer() {
 						)}
 						<button
 							className="meld-viewer-action-btn"
-							onClick={handleTagEdit}
-							type="button"
-							title="Edit Tags (T)"
-						>
-							<Tag size={20} />
-						</button>
-						<button
-							className="meld-viewer-action-btn"
 							onClick={() => setShowDetails(!showDetails)}
 							type="button"
 							title={showDetails ? "Hide Details (I)" : "Show Details (I)"}
@@ -134,6 +140,25 @@ export function ImageViewer() {
 						>
 							{isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
 						</button>
+						<ImageCardMenu
+							isMenuOpen={isMenuOpen}
+							setIsMenuOpen={setIsMenuOpen}
+							menuRef={menuRef}
+							settings={state.settings}
+							onAddUnifiedLoader={handleAddUnifiedLoader}
+							onRestoreWorkflow={handleRestoreWorkflow}
+							onSendToWorkflow={handleSendToWorkflow}
+							onRunWithWorkflow={handleRunWithWorkflow}
+							onRunWithMask={handleRunWithMask}
+							onEditSource={handleEditSource}
+							onEditTags={handleTagEdit}
+							onEditNotes={handleEditNotes}
+							onDelete={handleDelete}
+							deleteLabel={deleteLabel}
+							showQuickShortcuts={false}
+							iconSize={20}
+							buttonClassName="meld-viewer-action-btn"
+						/>
 						<button
 							className="meld-viewer-action-btn meld-viewer-action-btn--close"
 							onClick={() => dispatch({ type: "CLOSE_VIEWER" })}
@@ -164,7 +189,7 @@ export function ImageViewer() {
 					)}
 					<img
 						ref={imageRef}
-						src={imgSrc}
+						src={getImageViewUrl(image)}
 						alt={image.filename}
 						className={`meld-viewer-image meld-viewer-image--${state.settings[isFullscreen ? "fullscreen.small_image_mode" : "viewer.small_image_mode"] || "fit"} ${isJumping ? "meld-viewer-image--loading" : ""}`}
 						// @ts-expect-error - fetchpriority is a valid but sometimes untyped attribute

@@ -35,10 +35,17 @@ export const useImageViewerLogic = ({
 		handleEditNotes,
 		handleRestore,
 		handleUpdateUserNotes,
+		handleRestoreWorkflow,
+		handleAddUnifiedLoader,
+		handleSendToWorkflow,
+		handleRunWithWorkflow,
+		handleRunWithMask,
+		handleEditSource,
 	} = useImageActions(state, dispatch);
 	const { getParentChain } = useImageLineage(images, settings);
 
 	const [isFullscreen, setIsFullscreen] = useState(false);
+	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [showDetails, setShowDetails] = useState(
 		settings["viewer.show_details_by_default"],
 	);
@@ -755,6 +762,8 @@ export const useImageViewerLogic = ({
 		setShowThumbnailsOverride,
 		isLoadingLineage,
 		isJumping,
+		isMenuOpen,
+		setIsMenuOpen,
 		activeShortcutKey,
 		lastDeletedImages,
 		setLastDeletedImages,
@@ -767,6 +776,25 @@ export const useImageViewerLogic = ({
 		handleTagEdit: handleTagEditAction,
 		handleRestore: handleRestoreAction,
 		handleUndo,
+		handleRestoreWorkflow: async () => {
+			if (!image) return;
+			const success = await handleRestoreWorkflow(image);
+			if (success) dispatch({ type: "CLOSE_VIEWER" });
+		},
+		handleAddUnifiedLoader: async () => {
+			if (!image) return;
+			const success = await handleAddUnifiedLoader(image);
+			if (success) dispatch({ type: "CLOSE_VIEWER" });
+		},
+		handleSendToWorkflow: () => {
+			if (!image) return;
+			const success = handleSendToWorkflow(image);
+			if (success) dispatch({ type: "CLOSE_VIEWER" });
+		},
+		handleRunWithWorkflow: () => image && handleRunWithWorkflow(image),
+		handleRunWithMask: (mode: "apply" | "run") =>
+			image && handleRunWithMask(image, mode),
+		handleEditSource: () => image && handleEditSource(image),
 		toggleFullscreen,
 		currentIndex,
 		currentThumbnails,

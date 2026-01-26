@@ -34,6 +34,8 @@ interface ImageCardMenuProps {
 	deleteLabel: string;
 	showQuickShortcuts?: boolean;
 	variant?: "default" | "thumbnail_overlay_top_right";
+	iconSize?: number;
+	buttonClassName?: string;
 }
 
 export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
@@ -55,6 +57,8 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 	deleteLabel,
 	showQuickShortcuts = true,
 	variant = "default",
+	iconSize = 16,
+	buttonClassName = "",
 }) => {
 	const getActionHandler = (actionId: string) => {
 		switch (actionId) {
@@ -103,14 +107,14 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 		<div className={containerClasses} ref={menuRef}>
 			<button
 				type="button"
-				className="meld-image-card__menu-btn"
+				className={`meld-image-card__menu-btn ${buttonClassName}`}
 				onClick={(e) => {
 					e.stopPropagation();
 					setIsMenuOpen(!isMenuOpen);
 				}}
 				title="Menu"
 			>
-				<MoreVertical size={16} />
+				<MoreVertical size={iconSize} />
 			</button>
 			{showQuickShortcuts &&
 				quickShortcuts.map((actionId, index) => {
@@ -127,14 +131,14 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 						<button
 							key={`${actionId}-${index}`}
 							type="button"
-							className="meld-image-card__menu-btn"
+							className={`meld-image-card__menu-btn ${buttonClassName}`}
 							onClick={(e) => {
 								e.stopPropagation();
 								handler();
 							}}
 							title={action.label}
 						>
-							<Icon size={16} />
+							<Icon size={iconSize} />
 						</button>
 					);
 				})}
