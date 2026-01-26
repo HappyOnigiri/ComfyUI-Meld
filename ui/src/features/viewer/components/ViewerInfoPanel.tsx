@@ -30,6 +30,13 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 		setSaveStatus("idle");
 	}, [image.user_notes]);
 
+	const showNotesSetting = isFullscreen
+		? settings["fullscreen.details.show_user_notes"]
+		: settings["viewer.details.show_user_notes"];
+	const shouldShowNotes =
+		showNotesSetting === "always" ||
+		(showNotesSetting === "if_present" && image.user_notes);
+
 	// Debounce save
 	useEffect(() => {
 		if (notes === (image.user_notes || "")) return;
@@ -224,9 +231,7 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 					</div>
 				)}
 
-			{(isFullscreen
-				? settings["fullscreen.details.show_user_notes"]
-				: settings["viewer.details.show_user_notes"]) && (
+			{shouldShowNotes && (
 				<div className="meld-viewer-details-item meld-viewer-details-item--notes">
 					<div className="meld-viewer-details-label">
 						Notes

@@ -339,19 +339,21 @@ export const ViewTab: React.FC<ViewTabProps> = ({
 					label="Show User Notes"
 					description="Display user notes in the details panel."
 				>
-					<label className="meld-switch">
-						<input
-							type="checkbox"
-							checked={localSettings["viewer.details.show_user_notes"]}
-							onChange={() =>
-								handleToggle(
-									"viewer.details.show_user_notes",
-									localSettings["viewer.details.show_user_notes"],
-								)
-							}
-						/>
-						<span className="meld-switch__slider" />
-					</label>
+					<select
+						className="meld-select"
+						value={localSettings["viewer.details.show_user_notes"]}
+						onChange={(e) =>
+							setLocalSettings((prev) => ({
+								...prev,
+								"viewer.details.show_user_notes": e.target
+									.value as Settings["viewer.details.show_user_notes"],
+							}))
+						}
+					>
+						<option value="always">Always show</option>
+						<option value="if_present">Show only when present</option>
+						<option value="hidden">Always hide</option>
+					</select>
 				</SettingItem>
 
 				<SettingItem

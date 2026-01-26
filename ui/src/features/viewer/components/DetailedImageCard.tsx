@@ -293,7 +293,9 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(
 						</div>
 					)}
 
-					{state.settings["sidebar.show_user_notes"] && (
+					{(state.settings["sidebar.show_user_notes"] === "always" ||
+						(state.settings["sidebar.show_user_notes"] === "if_present" &&
+							image.user_notes)) && (
 						<div className="meld-image-card__meta-item meld-image-card__meta-item--notes">
 							<div className="meld-image-card__meta-label">
 								Notes

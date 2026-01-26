@@ -297,19 +297,21 @@ export const FullScreenTab: React.FC<FullScreenTabProps> = ({
 					label="Show User Notes"
 					description="Display user notes in fullscreen details."
 				>
-					<label className="meld-switch">
-						<input
-							type="checkbox"
-							checked={localSettings["fullscreen.details.show_user_notes"]}
-							onChange={() =>
-								handleToggle(
-									"fullscreen.details.show_user_notes",
-									localSettings["fullscreen.details.show_user_notes"],
-								)
-							}
-						/>
-						<span className="meld-switch__slider" />
-					</label>
+					<select
+						className="meld-select"
+						value={localSettings["fullscreen.details.show_user_notes"]}
+						onChange={(e) =>
+							setLocalSettings((prev) => ({
+								...prev,
+								"fullscreen.details.show_user_notes": e.target
+									.value as Settings["fullscreen.details.show_user_notes"],
+							}))
+						}
+					>
+						<option value="always">Always show</option>
+						<option value="if_present">Show only when present</option>
+						<option value="hidden">Always hide</option>
+					</select>
 				</SettingItem>
 
 				<SettingItem
