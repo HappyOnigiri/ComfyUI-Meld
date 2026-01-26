@@ -493,6 +493,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 			const success = injectMaskToGraph(image, filename);
 			if (success) {
 				onClose();
+				dispatch({ type: "CLOSE_VIEWER" });
 			}
 		}
 	};
