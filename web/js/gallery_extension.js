@@ -8957,7 +8957,7 @@ const Dd = [
     /* @__PURE__ */ s.jsx(
       H,
       {
-        label: "Show Notes",
+        label: "Show User Notes",
         description: "Display user notes on the card.",
         children: /* @__PURE__ */ s.jsxs(
           "select",
