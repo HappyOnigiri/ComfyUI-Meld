@@ -14,18 +14,10 @@ def check_file(filepath: str) -> list:
         with open(filepath, encoding="utf-8") as f:
             content = f.read()
 
-            # Check for ignore comment for the whole file
-            if "css-check-ignore-file" in content:
-                return []
-
             # Find all blocks
             for match in CSS_BLOCK_REGEX.finditer(content):
                 selector = match.group(1).strip()
                 block_content = match.group(2)
-
-                # Skip if the block itself has an ignore comment
-                if "css-check-ignore" in block_content or "css-check-ignore" in selector:
-                    continue
 
                 # Remove comments (/* ... */)
                 clean_content = re.sub(r"/\*.*?\*/", "", block_content, flags=re.DOTALL)
