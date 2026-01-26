@@ -480,10 +480,6 @@
 	transition: all 0.2s ease;
 }
 
-.meld-image-card__meta-item--notes {
-	/* Use default center alignment to match other items */
-}
-
 .meld-image-card__meta-item--notes .meld-image-card__meta-content {
 	white-space: normal;
 	min-height: 1.5em;
