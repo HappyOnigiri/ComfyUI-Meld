@@ -28,6 +28,7 @@ async def get_settings(request: web.Request) -> web.Response:
             "sidebar.show_model_name": True,
             "sidebar.show_positive_prompt": True,
             "sidebar.show_negative_prompt": False,
+            "sidebar.show_user_notes": True,
             "sidebar.show_tags": True,
             "sidebar.thumbnail_size": 100,
             "viewer.details.max_positive_prompt_lines": 7,

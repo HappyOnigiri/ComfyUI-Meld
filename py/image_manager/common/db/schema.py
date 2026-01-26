@@ -23,13 +23,26 @@ def init_db() -> None:
             negative_prompt TEXT,
             workflow TEXT,
             type TEXT DEFAULT 'output',
-            deleted_at REAL
+            deleted_at REAL,
+            user_notes TEXT DEFAULT ''
         )
     """)
 
     # Add phash column if not exists
     try:
         cursor.execute("ALTER TABLE images ADD COLUMN phash TEXT")
+    except sqlite3.OperationalError:
+        pass
+
+    # Add user_notes column if not exists
+    try:
+        cursor.execute("ALTER TABLE images ADD COLUMN user_notes TEXT DEFAULT ''")
+    except sqlite3.OperationalError:
+        pass
+
+    # Backfill NULL to empty string for existing rows
+    try:
+        cursor.execute("UPDATE images SET user_notes = '' WHERE user_notes IS NULL")
     except sqlite3.OperationalError:
         pass
 

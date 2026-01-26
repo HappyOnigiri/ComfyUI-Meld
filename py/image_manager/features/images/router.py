@@ -30,6 +30,7 @@ from ...common.schemas import (
     RegisterImageRequest,
     RestoreImagesRequest,
     SearchImagesRequest,
+    UpdateImageNotesRequest,
 )
 from ...features.settings.repository import get_all_settings
 from ..importer.service import infer_parent_id
@@ -56,7 +57,7 @@ async def get_image_details(request: web.Request) -> web.Response:
                    (SELECT GROUP_CONCAT(m.name, ', ') FROM models m
                     JOIN model_image_relations mir ON m.id = mir.model_id
                     WHERE mir.image_id = i.id) as model_name,
-                   i.workflow, i.width, i.height, i.deleted_at
+                   i.workflow, i.width, i.height, i.deleted_at, i.user_notes
             FROM images i LEFT JOIN images p ON i.parent_id = p.id
             WHERE i.id = ?
         """
@@ -87,6 +88,7 @@ async def get_image_details(request: web.Request) -> web.Response:
             width,
             height,
             deleted_at,
+            user_notes,
         ) = img
 
         # Fetch tags
@@ -144,6 +146,7 @@ async def get_image_details(request: web.Request) -> web.Response:
             height=height,
             is_minimal=False,
             tags=tags,
+            user_notes=user_notes,
             exists=True,
             ancestors=ancestors,
         )
@@ -311,7 +314,7 @@ async def list_images(request: web.Request) -> web.Response:
                    (SELECT GROUP_CONCAT(m.name, ', ') FROM models m
                     JOIN model_image_relations mir ON m.id = mir.model_id
                     WHERE mir.image_id = i.id) as model_name,
-                   NULL as workflow, i.width, i.height, i.deleted_at
+                   NULL as workflow, i.width, i.height, i.deleted_at, i.user_notes
             FROM images i LEFT JOIN images p ON i.parent_id = p.id
             WHERE {deleted_filter}{search_sql} ORDER BY {final_order} LIMIT ? OFFSET ?
         """
@@ -410,6 +413,7 @@ async def list_images(request: web.Request) -> web.Response:
                 width,
                 height,
                 deleted_at,
+                user_notes,
             ) = img
 
             effective_type = "trash" if deleted_at is not None else img_type
@@ -421,6 +425,8 @@ async def list_images(request: web.Request) -> web.Response:
                     positive = positive[:200] + "..."
                 if negative and len(negative) > 200:
                     negative = negative[:200] + "..."
+                if user_notes and len(user_notes) > 200:
+                    user_notes = user_notes[:200] + "..."
 
             tags = tags_map.get(img_id, [])
 
@@ -476,6 +482,7 @@ async def list_images(request: web.Request) -> web.Response:
                     height=height,
                     is_minimal=is_minimal,
                     tags=tags,
+                    user_notes=user_notes,
                     exists=exists,
                     ancestors=ancestors,
                 )
@@ -680,6 +687,111 @@ async def bulk_delete_images(request: web.Request) -> web.Response:
         return web.json_response(ApiResponse(success=True, count=deleted_count).to_dict())
     except Exception as e:
         logging.exception("[Meld] Bulk delete failed")
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+
+
+@routes.post("/meld/image-notes")
+async def update_image_notes(request: web.Request) -> web.Response:
+    try:
+        data = await request.json()
+        try:
+            req = UpdateImageNotesRequest.from_dict(data)
+        except (TypeError, ValueError) as e:
+            return web.json_response(ApiResponse(success=False, error=f"Invalid schema: {e}").to_dict(), status=400)
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Check if image exists
+        cursor.execute("SELECT id FROM images WHERE id = ?", (req.imageId,))
+        if not cursor.fetchone():
+            conn.close()
+            return web.json_response(ApiResponse(success=False, error="Image not found").to_dict(), status=404)
+
+        # Update notes (trash images are also allowed)
+        cursor.execute("UPDATE images SET user_notes = ? WHERE id = ?", (req.userNotes, req.imageId))
+        conn.commit()
+
+        # Fetch updated image details to return
+        # Using a simplified version of get_image_details logic
+        sql = """
+            SELECT i.id, i.filename, i.subfolder, i.type, i.created_at, i.phash, i.sha256, i.parent_id,
+                   p.filename as parent_filename, p.subfolder as parent_subfolder, p.type as parent_type,
+                   EXISTS(SELECT 1 FROM images c WHERE c.parent_id = i.id AND c.deleted_at IS NULL) as has_children,
+                   i.positive_prompt, i.negative_prompt,
+                   (SELECT GROUP_CONCAT(m.name, ', ') FROM models m
+                    JOIN model_image_relations mir ON m.id = mir.model_id
+                    WHERE mir.image_id = i.id) as model_name,
+                   i.workflow, i.width, i.height, i.deleted_at, i.user_notes
+            FROM images i LEFT JOIN images p ON i.parent_id = p.id
+            WHERE i.id = ?
+        """
+        cursor.execute(sql, (req.imageId,))
+        img = cursor.fetchone()
+
+        # Reconstruct prompts and tags (same as get_image_details)
+        cursor.execute(
+            "SELECT t.name FROM tags t JOIN tag_image_relations r ON t.id = r.tag_id WHERE r.image_id = ?",
+            (req.imageId,),
+        )
+        tags = [row[0] for row in cursor.fetchall()]
+
+        (
+            img_id,
+            filename,
+            subfolder,
+            img_type,
+            created_at,
+            phash,
+            sha256,
+            parent_id,
+            p_filename,
+            p_subfolder,
+            p_type,
+            has_children,
+            db_positive,
+            db_negative,
+            model_name,
+            workflow,
+            width,
+            height,
+            deleted_at,
+            user_notes,
+        ) = img
+
+        item = ImageListItem(
+            id=img_id,
+            filename=filename,
+            subfolder=subfolder,
+            type="trash" if deleted_at is not None else img_type,
+            created_at=created_at,
+            deleted_at=deleted_at,
+            phash=phash,
+            sha256=sha256,
+            parent_id=parent_id,
+            parent_filename=p_filename,
+            parent_subfolder=p_subfolder,
+            parent_type=p_type,
+            has_children=bool(has_children),
+            positive=db_positive or "",
+            negative=db_negative or "",
+            positive_prompt=db_positive,
+            negative_prompt=db_negative,
+            model_name=model_name,
+            workflow=workflow,
+            width=width,
+            height=height,
+            is_minimal=False,
+            tags=tags,
+            user_notes=user_notes,
+            exists=True,
+            ancestors=[],  # Simplified
+        )
+
+        conn.close()
+        return web.json_response(ApiResponse(success=True, data=item.to_dict()).to_dict())
+    except Exception as e:
+        logging.exception("[Meld] Failed to update image notes")
         return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
@@ -895,7 +1007,7 @@ async def get_lineage_endpoint(request: web.Request) -> web.Response:
                (SELECT GROUP_CONCAT(m.name, ', ') FROM models m
                 JOIN model_image_relations mir ON m.id = mir.model_id
                 WHERE mir.image_id = i.id) as model_name,
-               i.workflow, i.width, i.height
+               i.workflow, i.width, i.height, i.user_notes
         FROM images i LEFT JOIN images p ON i.parent_id = p.id
         WHERE (i.id IN (SELECT id FROM ancestors) OR i.id IN (SELECT id FROM descendants)) AND i.deleted_at IS NULL
         ORDER BY i.created_at
@@ -935,6 +1047,7 @@ async def get_lineage_endpoint(request: web.Request) -> web.Response:
                     workflow=row[13],
                     width=row[14],
                     height=row[15],
+                    user_notes=row[16],
                     tags=tags,
                 ).to_dict()
             )

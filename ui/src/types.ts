@@ -23,6 +23,7 @@ export interface MeldImage {
 	exists?: boolean;
 	deleted_at?: number | null;
 	has_children?: boolean;
+	user_notes?: string | null;
 	ancestors?: {
 		id: number;
 		filename: string;
@@ -53,6 +54,7 @@ export interface Settings {
 	"sidebar.show_model_name": boolean;
 	"sidebar.show_positive_prompt": boolean;
 	"sidebar.show_negative_prompt": boolean;
+	"sidebar.show_user_notes": boolean;
 	"sidebar.show_tags": boolean;
 	"sidebar.thumbnail_size": number;
 	"search.quick_suggestions": boolean;
@@ -68,6 +70,7 @@ export interface Settings {
 	"fullscreen.details.show_model_name": boolean;
 	"fullscreen.details.show_positive_prompt": boolean;
 	"fullscreen.details.show_negative_prompt": boolean;
+	"fullscreen.details.show_user_notes": boolean;
 	"fullscreen.details.show_source": boolean;
 	"fullscreen.details.max_positive_prompt_lines": number;
 	"fullscreen.details.max_negative_prompt_lines": number;
@@ -79,6 +82,7 @@ export interface Settings {
 	"viewer.details.show_model_name": boolean;
 	"viewer.details.show_positive_prompt": boolean;
 	"viewer.details.show_negative_prompt": boolean;
+	"viewer.details.show_user_notes": boolean;
 	"viewer.details.show_source": boolean;
 	"viewer.details.max_positive_prompt_lines": number;
 	"viewer.details.max_negative_prompt_lines": number;

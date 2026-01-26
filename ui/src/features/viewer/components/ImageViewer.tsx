@@ -46,6 +46,7 @@ export function ImageViewer() {
 		handlePrevious,
 		handleTagEdit,
 		handleRestore,
+		handleUpdateUserNotes,
 		toggleFullscreen,
 		image,
 		windowedThumbnails,
@@ -188,6 +189,7 @@ export function ImageViewer() {
 						showIcons={showIcons}
 						parentChain={parentChain}
 						dispatch={dispatch}
+						onUpdateNotes={handleUpdateUserNotes}
 					/>
 				)}
 

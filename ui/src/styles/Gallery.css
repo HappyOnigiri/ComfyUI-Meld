@@ -430,6 +430,68 @@
 	transition: all 0.2s ease;
 }
 
+.meld-image-card__meta-item--notes {
+	/* Use default center alignment to match other items */
+}
+
+.meld-image-card__meta-item--notes .meld-image-card__meta-content {
+	white-space: normal;
+	min-height: 1.5em;
+	cursor: text;
+}
+
+.meld-image-card__notes-preview {
+	word-break: break-word;
+	line-height: 1.4;
+}
+
+.meld-notes-placeholder {
+	color: var(--meld-text-secondary);
+	font-style: italic;
+}
+
+.meld-image-card__notes-textarea {
+	width: 100%;
+	min-height: 60px;
+	background: var(--comfy-input-bg);
+	color: var(--meld-text-color);
+	border: 1px solid var(--meld-accent-color);
+	border-radius: 3px;
+	padding: 4px;
+	font-size: 10px;
+	font-family: inherit;
+	resize: vertical;
+	outline: none;
+}
+
+.meld-notes-edit-btn {
+	background: none;
+	border: none;
+	color: var(--meld-accent-color);
+	font-size: 9px;
+	padding: 0 4px;
+	cursor: pointer;
+	transition: opacity 0.2s;
+}
+
+.meld-notes-edit-btn:hover {
+	opacity: 1;
+	text-decoration: underline;
+}
+
+.meld-notes-status {
+	font-size: 9px;
+	color: var(--meld-text-secondary);
+	margin-left: 8px;
+	font-weight: normal;
+	text-transform: none;
+	font-style: italic;
+}
+
+.meld-notes-status--saved {
+	color: var(--meld-success-color);
+}
+
 .meld-image-card__tags {
 	display: flex;
 	flex-wrap: nowrap;
@@ -921,6 +983,31 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	font-size: 11px;
 	text-shadow: none;
 	border: 1px solid rgba(255, 255, 255, 0.1); /* color-check-ignore */
+}
+
+.meld-viewer-details-item--notes {
+	margin-top: 8px;
+}
+
+.meld-viewer-notes-textarea {
+	width: 100%;
+	min-height: 80px;
+	background: rgba(0, 0, 0, 0.3); /* color-check-ignore */
+	color: var(--meld-text-color);
+	border: 1px solid rgba(255, 255, 255, 0.1); /* color-check-ignore */
+	border-radius: 6px;
+	padding: 8px;
+	font-size: 12px;
+	line-height: 1.4;
+	font-family: inherit;
+	resize: vertical;
+	outline: none;
+	transition: border-color 0.2s;
+}
+
+.meld-viewer-notes-textarea:focus {
+	border-color: var(--meld-accent-color);
+	background: rgba(0, 0, 0, 0.4); /* color-check-ignore */
 }
 
 /* Viewer Thumbnails */

@@ -209,6 +209,25 @@ export const GalleryTab: React.FC<GalleryTabProps> = ({
 					</label>
 				</SettingItem>
 
+				<SettingItem
+					label="Show Notes"
+					description="Display user notes on the card."
+				>
+					<label className="meld-switch">
+						<input
+							type="checkbox"
+							checked={localSettings["sidebar.show_user_notes"]}
+							onChange={() =>
+								handleToggle(
+									"sidebar.show_user_notes",
+									localSettings["sidebar.show_user_notes"],
+								)
+							}
+						/>
+						<span className="meld-switch__slider" />
+					</label>
+				</SettingItem>
+
 				<SettingItem label="Show Tags" description="Display tags on the card.">
 					<label className="meld-switch">
 						<input

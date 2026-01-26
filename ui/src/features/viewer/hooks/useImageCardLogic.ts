@@ -26,6 +26,7 @@ export const useImageCardLogic = (image: MeldImage) => {
 		handleRunWithMask,
 		handleRestore,
 		handleDelete,
+		handleUpdateUserNotes,
 	} = useImageActions(state, dispatch);
 
 	const { getParentChain } = useImageLineage(state.images, state.settings);
@@ -135,14 +136,28 @@ export const useImageCardLogic = (image: MeldImage) => {
 			e.metaKey ||
 			state.selectedIds.size > 0 ||
 			!(e.target as HTMLElement).closest(
-				"img.meld-image-card__thumbnail, img.meld-lineage-badge__parent-thumb",
+				"img.meld-image-card__thumbnail, img.meld-lineage-badge__parent-thumb, textarea, input, button",
 			)
 		) {
-			e.preventDefault();
+			// Only prevent default if we are not clicking on a thumbnail, lineage badge, button, or input element
+			if (
+				!(e.target as HTMLElement).closest(
+					"textarea, input, button, .meld-image-card__meta-content",
+				)
+			) {
+				e.preventDefault();
+			}
 		}
 	};
 
 	const handleKeyDown = (e: React.KeyboardEvent) => {
+		const isTargetInput =
+			document.activeElement?.tagName === "INPUT" ||
+			document.activeElement?.tagName === "TEXTAREA" ||
+			(document.activeElement as HTMLElement)?.isContentEditable;
+
+		if (isTargetInput) return;
+
 		if (e.key === "Enter" || e.key === " ") {
 			e.preventDefault();
 			dispatch({ type: "TOGGLE_SELECT", payload: image.id });
@@ -211,6 +226,8 @@ export const useImageCardLogic = (image: MeldImage) => {
 		handleRunWithWorkflow: handleRunWithWorkflowAction,
 		handleRunWithMask: (mode: "apply" | "run" = "run") =>
 			handleRunWithMask(image, mode),
+		handleUpdateUserNotes: (notes: string) =>
+			handleUpdateUserNotes(image.id, notes),
 		fetchFullImageDetails,
 	};
 };

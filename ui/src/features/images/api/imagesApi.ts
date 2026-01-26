@@ -124,6 +124,18 @@ export const updateImageTags = async (
 	await handleResponse(res);
 };
 
+export const updateImageNotes = async (
+	imageId: number,
+	userNotes: string,
+): Promise<MeldImage> => {
+	const res = await api.fetchApi("/meld/image-notes", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ imageId, userNotes }),
+	});
+	return handleResponse(res);
+};
+
 export const bulkUpdateImageTags = async (
 	imageIds: number[],
 	addTags: string[],

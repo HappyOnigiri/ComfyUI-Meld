@@ -41,6 +41,7 @@ class ImageRecord(BaseSchema):
     negative_prompt: str | None = None
     workflow: str | None = None
     deleted_at: float | None = None
+    user_notes: str | None = None
 
 
 @dataclass
@@ -88,6 +89,12 @@ class ApiResponse(BaseSchema):
 class UpdateImageTagsRequest(BaseSchema):
     imageId: int  # noqa: N815
     tags: list[str]
+
+
+@dataclass
+class UpdateImageNotesRequest(BaseSchema):
+    imageId: int  # noqa: N815
+    userNotes: str  # noqa: N815
 
 
 @dataclass
@@ -216,6 +223,7 @@ class ImageListItem(BaseSchema):
     height: int = 0
     is_minimal: bool = False
     tags: list[str] = field(default_factory=list)
+    user_notes: str | None = None
     exists: bool = False
     ancestors: list[dict[str, Any]] = field(default_factory=list)
 
@@ -248,6 +256,7 @@ class LineageItem(BaseSchema):
     workflow: str | None = None
     width: int | None = None
     height: int | None = None
+    user_notes: str | None = None
     tags: list[str] = field(default_factory=list)
 
 

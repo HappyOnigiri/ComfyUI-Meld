@@ -63,7 +63,7 @@ This document serves as a comprehensive guide for AI agents and developers to un
    - Results returned as JSON and rendered by `GalleryPanel`.
 
 ### Critical Files
-- **Database Schema**: `py/image_manager/common/db/schema.py` (Defines tables: `images`, `tags`, `favorites`, etc.).
+- **Database Schema**: `py/image_manager/common/db/schema.py` (Defines tables: `images` (with `user_notes`), `tags`, `favorites`, etc.).
 - **Metadata Extraction**: `py/load_image_configs/core/metadata_helper.py` (Parses PNG info, Exif, and ComfyUI workflows).
 - **Search Logic**: `py/image_manager/features/search/service.py` (Parses search queries and builds SQL).
 
@@ -89,9 +89,10 @@ This document serves as a comprehensive guide for AI agents and developers to un
 
 ### Search Query Syntax
 Meld supports a rich query syntax in the search bar. The available prefixes are managed in `py/image_manager/common/constants.py` and fetched dynamically by the frontend:
-- **Free Text**: Partial match across positive prompts, tags, and model names.
+- **Free Text**: Partial match across positive prompts, tags, model names, and user notes.
 - **Prefixes**:
   - `tag:name`: Exact or partial tag match.
+  - `note:text`: Match user notes.
   - `model:name`: Match by model name.
   - `pos:text`, `neg:text`: Match positive/negative prompts.
   - `date:YYYY-MM-DD`, `after:YYYY-MM-DD`, `before:YYYY-MM-DD`: Filter by date.

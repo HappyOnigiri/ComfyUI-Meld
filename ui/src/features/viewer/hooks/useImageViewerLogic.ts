@@ -30,7 +30,8 @@ export const useImageViewerLogic = ({
 }: UseImageViewerLogicProps) => {
 	const { viewerImageId, images, viewerMode, lineageImages, settings } = state;
 
-	const { handleEditTags, handleRestore } = useImageActions(state, dispatch);
+	const { handleEditTags, handleRestore, handleUpdateUserNotes } =
+		useImageActions(state, dispatch);
 	const { getParentChain } = useImageLineage(images, settings);
 
 	const [isFullscreen, setIsFullscreen] = useState(false);
@@ -463,12 +464,20 @@ export const useImageViewerLogic = ({
 
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
-			if (viewerImageId === null) return;
-
+			const target = e.target as HTMLElement;
 			const isTargetInput =
-				document.activeElement?.tagName === "INPUT" ||
-				document.activeElement?.tagName === "TEXTAREA" ||
-				(document.activeElement as HTMLElement)?.isContentEditable;
+				target.tagName === "INPUT" ||
+				target.tagName === "TEXTAREA" ||
+				target.isContentEditable;
+
+			if (isTargetInput && e.key !== "Escape") {
+				// We must return early to avoid triggering shortcuts,
+				// but we SHOULD NOT call stopPropagation or stopImmediatePropagation
+				// here because that would prevent the event from reaching the actual input/textarea target.
+				return;
+			}
+
+			if (viewerImageId === null) return;
 
 			const isDeleteKey = e.key === "Delete" || e.key === "Backspace";
 			const isNavigationKey = e.key === "ArrowRight" || e.key === "ArrowLeft";
@@ -749,6 +758,7 @@ export const useImageViewerLogic = ({
 		handleNext,
 		handlePrevious,
 		handleDelete,
+		handleUpdateUserNotes,
 		handleTagEdit: handleTagEditAction,
 		handleRestore: handleRestoreAction,
 		handleUndo,

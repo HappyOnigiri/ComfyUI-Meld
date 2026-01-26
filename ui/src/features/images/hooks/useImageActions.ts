@@ -272,6 +272,24 @@ export const useImageActions = (
 		[_state.viewScope, dispatch],
 	);
 
+	const handleUpdateUserNotes = useCallback(
+		async (imageId: number, userNotes: string) => {
+			try {
+				const updatedImage = await imagesApi.updateImageNotes(
+					imageId,
+					userNotes,
+				);
+				dispatch({ type: "UPDATE_IMAGE", payload: updatedImage });
+			} catch (err: unknown) {
+				dispatch({
+					type: "SET_ERROR",
+					payload: err instanceof Error ? err.message : String(err),
+				});
+			}
+		},
+		[dispatch],
+	);
+
 	return {
 		handleRestoreWorkflow,
 		handleAddUnifiedLoader,
@@ -282,5 +300,6 @@ export const useImageActions = (
 		handleRunWithMask,
 		handleRestore,
 		handleDelete,
+		handleUpdateUserNotes,
 	};
 };

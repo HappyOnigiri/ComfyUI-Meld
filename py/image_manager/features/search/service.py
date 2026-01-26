@@ -10,6 +10,7 @@ from ...common.constants import (
     SEARCH_BOOLEAN_PREFIXES,
     SEARCH_DATE_PREFIXES,
     SEARCH_PREFIX_MAP,
+    SEARCH_PREFIX_NOTE,
     SEARCH_PREFIX_SORT,
 )
 
@@ -18,6 +19,7 @@ class SearchService:
     PREFIX_MAP = SEARCH_PREFIX_MAP
     DATE_PREFIXES = SEARCH_DATE_PREFIXES
     BOOLEAN_PREFIXES = SEARCH_BOOLEAN_PREFIXES
+    NOTE_PREFIX = SEARCH_PREFIX_NOTE
     SORT_PREFIX = SEARCH_PREFIX_SORT
 
     @staticmethod
@@ -63,6 +65,7 @@ class SearchService:
                     prefix in SearchService.PREFIX_MAP
                     or prefix in SearchService.DATE_PREFIXES
                     or prefix in SearchService.BOOLEAN_PREFIXES
+                    or prefix == SearchService.NOTE_PREFIX
                     or prefix == SearchService.SORT_PREFIX
                 ):
                     is_partial = True
@@ -133,6 +136,14 @@ class SearchService:
                         )
                         all_params.append(cond["value"])
 
+                # Add user_notes to global search
+                if cond["is_partial"]:
+                    global_ids_sql.append("SELECT id AS image_id FROM images WHERE user_notes LIKE ? COLLATE NOCASE")
+                    all_params.append(f"%{cond['value']}%")
+                else:
+                    global_ids_sql.append("SELECT id AS image_id FROM images WHERE user_notes = ? COLLATE NOCASE")
+                    all_params.append(cond["value"])
+
                 sub_queries.append(f"i.id {in_clause} ({' UNION '.join(global_ids_sql)})")
 
             elif cond["prefix"] in cls.DATE_PREFIXES:
@@ -194,6 +205,22 @@ class SearchService:
                         f"i.id {op} (SELECT parent_id FROM images WHERE parent_id IS NOT NULL AND deleted_at IS NULL)"
                     )
 
+            elif cond["prefix"] == cls.NOTE_PREFIX:
+                if cond["is_partial"]:
+                    op = "LIKE" if not is_negative else "NOT LIKE"
+                    if not is_negative:
+                        sub_queries.append(f"i.user_notes IS NOT NULL AND i.user_notes {op} ? COLLATE NOCASE")
+                    else:
+                        sub_queries.append(f"(i.user_notes IS NULL OR i.user_notes {op} ? COLLATE NOCASE)")
+                    all_params.append(f"%{cond['value']}%")
+                else:
+                    op = "=" if not is_negative else "!="
+                    if not is_negative:
+                        sub_queries.append(f"i.user_notes IS NOT NULL AND i.user_notes {op} ? COLLATE NOCASE")
+                    else:
+                        sub_queries.append(f"(i.user_notes IS NULL OR i.user_notes {op} ? COLLATE NOCASE)")
+                    all_params.append(cond["value"])
+
             else:
                 # Targeted search (tags, models, etc.)
                 prefix = cond["prefix"]
@@ -253,6 +280,10 @@ class SearchService:
             results.append({"type": prefix_filter, "value": "created_at_asc", "count": 0})
             results.append({"type": prefix_filter, "value": "created_at_desc", "count": 0})
             return results
+
+        # Special handling for note prefix (no suggestions)
+        if prefix_filter == cls.NOTE_PREFIX:
+            return []
 
         # Determine which prefixes to search
         target_prefixes = [prefix_filter] if prefix_filter in cls.PREFIX_MAP else cls.PREFIX_MAP.keys()

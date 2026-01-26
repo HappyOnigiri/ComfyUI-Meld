@@ -1,4 +1,5 @@
 import type React from "react";
+import { useEffect, useState } from "react";
 import type { GalleryAction, MeldImage, Settings } from "../../../types";
 
 interface ViewerInfoPanelProps {
@@ -8,6 +9,7 @@ interface ViewerInfoPanelProps {
 	showIcons: boolean;
 	parentChain: { id: number | null; imgSrc: string | null }[];
 	dispatch: React.Dispatch<GalleryAction>;
+	onUpdateNotes?: (imageId: number, notes: string) => Promise<void>;
 }
 
 export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
@@ -17,7 +19,39 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 	showIcons,
 	parentChain,
 	dispatch,
+	onUpdateNotes,
 }) => {
+	const [notes, setNotes] = useState(image.user_notes || "");
+	const [saveStatus, setSaveStatus] = useState<"idle" | "saving">("idle");
+
+	// Update local state when image changes
+	useEffect(() => {
+		setNotes(image.user_notes || "");
+		setSaveStatus("idle");
+	}, [image.user_notes]);
+
+	// Debounce save
+	useEffect(() => {
+		if (notes === (image.user_notes || "")) return;
+
+		const timer = setTimeout(async () => {
+			if (onUpdateNotes) {
+				setSaveStatus("saving");
+				await onUpdateNotes(image.id, notes);
+				setSaveStatus("idle");
+			}
+		}, 1000);
+
+		return () => clearTimeout(timer);
+	}, [notes, image.id, image.user_notes, onUpdateNotes]);
+
+	const handleBlur = async () => {
+		if (notes !== (image.user_notes || "") && onUpdateNotes) {
+			setSaveStatus("saving");
+			await onUpdateNotes(image.id, notes);
+			setSaveStatus("idle");
+		}
+	};
 	return (
 		<div
 			className={`meld-viewer-details-overlay ${isFullscreen ? "meld-viewer-details-overlay--fullscreen" : ""} ${!showIcons ? "meld-viewer-details-overlay--no-icons" : ""}`}
@@ -189,6 +223,35 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 						</div>
 					</div>
 				)}
+
+			{(isFullscreen
+				? settings["fullscreen.details.show_user_notes"]
+				: settings["viewer.details.show_user_notes"]) && (
+				<div className="meld-viewer-details-item meld-viewer-details-item--notes">
+					<div className="meld-viewer-details-label">
+						Notes
+						{saveStatus === "saving" && (
+							<span className="meld-notes-status">Saving...</span>
+						)}
+					</div>
+					<textarea
+						className="meld-viewer-notes-textarea"
+						value={notes}
+						onChange={(e) => setNotes(e.target.value)}
+						onBlur={handleBlur}
+						onMouseDown={(e) => e.stopPropagation()}
+						onKeyDown={(e) => {
+							e.stopPropagation();
+							// Allow Escape to blur
+							if (e.key === "Escape") {
+								(e.target as HTMLTextAreaElement).blur();
+							}
+						}}
+						placeholder="Add notes for this image..."
+						onClick={(e) => e.stopPropagation()}
+					/>
+				</div>
+			)}
 		</div>
 	);
 };

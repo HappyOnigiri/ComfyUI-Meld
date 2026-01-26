@@ -294,6 +294,25 @@ export const FullScreenTab: React.FC<FullScreenTabProps> = ({
 				</SettingItem>
 
 				<SettingItem
+					label="Show User Notes"
+					description="Display user notes in fullscreen details."
+				>
+					<label className="meld-switch">
+						<input
+							type="checkbox"
+							checked={localSettings["fullscreen.details.show_user_notes"]}
+							onChange={() =>
+								handleToggle(
+									"fullscreen.details.show_user_notes",
+									localSettings["fullscreen.details.show_user_notes"],
+								)
+							}
+						/>
+						<span className="meld-switch__slider" />
+					</label>
+				</SettingItem>
+
+				<SettingItem
 					label="Max Negative Prompt Lines"
 					description="Maximum number of lines to display for the negative prompt in fullscreen."
 				>

@@ -336,6 +336,25 @@ export const ViewTab: React.FC<ViewTabProps> = ({
 				</SettingItem>
 
 				<SettingItem
+					label="Show User Notes"
+					description="Display user notes in the details panel."
+				>
+					<label className="meld-switch">
+						<input
+							type="checkbox"
+							checked={localSettings["viewer.details.show_user_notes"]}
+							onChange={() =>
+								handleToggle(
+									"viewer.details.show_user_notes",
+									localSettings["viewer.details.show_user_notes"],
+								)
+							}
+						/>
+						<span className="meld-switch__slider" />
+					</label>
+				</SettingItem>
+
+				<SettingItem
 					label="Max Negative Prompt Lines"
 					description="Maximum number of lines to display for the negative prompt."
 				>
