@@ -28,16 +28,18 @@ export const useImageActions = (
 			const data = await imagesApi.fetchImageWorkflow(image.id);
 			if (!data.workflow) {
 				alert("No workflow information is saved for this image.");
-				return;
+				return false;
 			}
 
 			await (window as unknown as { app: ComfyApp }).app.loadGraphData(
 				data.workflow,
 			);
 			logger.log("Workflow restored successfully from Meld");
+			return true;
 		} catch (error) {
 			logger.error("Error restoring workflow:", error);
 			alert("Failed to restore workflow.");
+			return false;
 		}
 	}, []);
 
@@ -56,7 +58,7 @@ export const useImageActions = (
 				alert(
 					`Node type ${nodeName} not found. Please make sure the Meld Unified Loader node is installed.`,
 				);
-				return;
+				return false;
 			}
 
 			const widgetMap: Record<string, string> = {
@@ -104,9 +106,11 @@ export const useImageActions = (
 			comfyApp.graph.add(node);
 			comfyApp.canvas.selectNode(node);
 			comfyApp.canvas.centerOnNode(node);
+			return true;
 		} catch (e) {
 			console.error("Error adding Unified Loader:", e);
 			alert("Failed to load settings.");
+			return false;
 		}
 	}, []);
 
@@ -162,7 +166,9 @@ export const useImageActions = (
 								: "No 'Meld Image Loader' or 'Load Image' node found in the current workflow.",
 					},
 				});
+				return false;
 			}
+			return true;
 		},
 		[dispatch],
 	);
