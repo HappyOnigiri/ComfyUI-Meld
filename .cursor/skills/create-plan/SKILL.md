@@ -19,7 +19,6 @@ This repository is a ComfyUI custom_nodes project with:
 3. Critical: Do not modify or create any real code files. Focus exclusively on investigation and planning.
 
 ## 2. Global Constraints for This Repository (Must Follow)
-- User communication language: Respond to the user in Japanese.
 - Code and comments: When code changes are eventually implemented, all source code, identifiers, and comments must be English only and must not include non-ASCII characters.
 - Architecture map: Always read `architecture.md` at the start of a task. If an implementation later creates new modules/directories, adds critical logic, changes data flow, or renames major components, `architecture.md` must be updated accordingly.
 - CI requirement (for implementation phase): After code changes, `make ci` must pass (linting, tests, and static analysis).
@@ -101,6 +100,6 @@ If the change is backend-only or touches Python, also include relevant test comm
 ## 5. Workflow
 1. Read `architecture.md` first and understand where relevant code lives.
 2. Search and read the relevant code to understand current behavior and constraints.
-3. List open questions and ask the user (in Japanese) before finalizing the plan.
+3. List open questions and ask the user before finalizing the plan.
 4. Produce the final implementation plan in chat or as Markdown using the required format above.
 5. Once the plan is finalized, save it under `tmp/` using the filename format: `YYYY-MM-DD-HHmm_{title}.md`.
