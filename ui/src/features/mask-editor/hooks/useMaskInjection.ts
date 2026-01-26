@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { useGallery } from "../../../store/GalleryContext";
 import type { MeldImage } from "../../../types";
+import { injectImageToGraph } from "../../workflows/utils/injectImageToGraph";
 
 export const useMaskInjection = () => {
 	const { dispatch } = useGallery();
@@ -8,45 +9,15 @@ export const useMaskInjection = () => {
 	const injectMaskToGraph = useCallback(
 		(image: MeldImage, maskFilename: string) => {
 			console.log("[Meld-Debug] injectMaskToGraph called with:", maskFilename);
+
+			// 1. Update loader node with the source image (best effort)
+			injectImageToGraph(image);
+
 			// @ts-expect-error: ComfyUI global
 			const comfyApp = window.app;
 			if (!comfyApp?.graph) {
 				console.log("[Meld-Debug] injectMaskToGraph: No comfyApp.graph found");
 				return false;
-			}
-
-			// 1. Update MeldImageLoader with the source image
-			let imagePath = image.filename;
-			if (image.subfolder) {
-				imagePath = `${image.subfolder}/${image.filename}`;
-			}
-			if (image.type && image.type !== "input") {
-				imagePath = `${imagePath} [${image.type}]`;
-			}
-
-			const loaderNodes = comfyApp.graph._nodes.filter(
-				(n: { type: string }) =>
-					n.type === "MeldImageLoader" ||
-					n.type === "LoadImage" ||
-					n.type === "Load Image",
-			);
-			if (loaderNodes.length > 0) {
-				const loaderNode = loaderNodes[0];
-				const loaderImageWidget = loaderNode.widgets.find(
-					(w: { name: string }) => w.name === "image",
-				);
-				if (loaderImageWidget) {
-					loaderImageWidget.value = imagePath;
-					if (typeof loaderImageWidget.callback === "function") {
-						loaderImageWidget.callback(imagePath);
-					}
-					console.log(
-						"[Meld-Debug] injectMaskToGraph: Updated Loader node",
-						loaderNode.id,
-						"with",
-						imagePath,
-					);
-				}
 			}
 
 			// 2. Update LoadImageMask with the new mask
