@@ -8669,27 +8669,27 @@ const Td = [
     icon: jd
   },
   {
-    id: "restore_full_workflow",
-    label: "Restore Full Workflow",
-    icon: Cd
-  },
-  { id: "queue_workflow", label: "Queue Workflow", icon: Ed },
-  {
     id: "send_to_workflow_mask",
     label: "Send to Workflow (Mask)",
     icon: Md
   },
+  { id: "queue_workflow", label: "Queue Workflow", icon: Ed },
   {
     id: "queue_workflow_mask",
     label: "Queue Workflow (Mask)",
     icon: Nd
   },
   {
+    id: "restore_full_workflow",
+    label: "Restore Full Workflow",
+    icon: Cd
+  },
+  { id: "edit_tags", label: "Edit Tags", icon: bd },
+  {
     id: "edit_source_image",
     label: "Edit Source Image",
     icon: Id
   },
-  { id: "edit_tags", label: "Edit Tags", icon: bd },
   {
     id: "restore_image",
     label: "Restore Image (Trash)",
@@ -11436,10 +11436,10 @@ const Td = [
         handler: l
       },
       {
-        id: "restore_full_workflow",
-        label: "Restore Full Workflow",
-        icon: Cd,
-        handler: a
+        id: "send_to_workflow_mask",
+        label: "Send to Workflow (Mask)",
+        icon: Md,
+        handler: () => o("apply")
       },
       {
         id: "queue_workflow",
@@ -11448,28 +11448,28 @@ const Td = [
         handler: i
       },
       {
-        id: "send_to_workflow_mask",
-        label: "Send to Workflow (Mask)",
-        icon: Md,
-        handler: () => o("apply")
-      },
-      {
         id: "queue_workflow_mask",
         label: "Queue Workflow (Mask)",
         icon: Nd,
         handler: () => o("run")
       },
       {
-        id: "edit_source_image",
-        label: "Edit source image",
-        icon: Id,
-        handler: u
+        id: "restore_full_workflow",
+        label: "Restore Full Workflow",
+        icon: Cd,
+        handler: a
       },
       {
         id: "edit_tags",
         label: "Edit Tags",
         icon: bd,
         handler: c
+      },
+      {
+        id: "edit_source_image",
+        label: "Edit Source Image",
+        icon: Id,
+        handler: u
       },
       ...v ? [
         {

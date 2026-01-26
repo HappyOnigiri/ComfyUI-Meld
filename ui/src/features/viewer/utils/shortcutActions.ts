@@ -25,27 +25,27 @@ export const QUICK_SHORTCUT_ACTIONS: ShortcutAction[] = [
 		icon: AddUnifiedLoaderIcon,
 	},
 	{
-		id: "restore_full_workflow",
-		label: "Restore Full Workflow",
-		icon: RestoreFullWorkflowIcon,
-	},
-	{ id: "queue_workflow", label: "Queue Workflow", icon: QueueWorkflowIcon },
-	{
 		id: "send_to_workflow_mask",
 		label: "Send to Workflow (Mask)",
 		icon: SendToWorkflowMaskIcon,
 	},
+	{ id: "queue_workflow", label: "Queue Workflow", icon: QueueWorkflowIcon },
 	{
 		id: "queue_workflow_mask",
 		label: "Queue Workflow (Mask)",
 		icon: QueueWorkflowMaskIcon,
 	},
 	{
+		id: "restore_full_workflow",
+		label: "Restore Full Workflow",
+		icon: RestoreFullWorkflowIcon,
+	},
+	{ id: "edit_tags", label: "Edit Tags", icon: EditTagsIcon },
+	{
 		id: "edit_source_image",
 		label: "Edit Source Image",
 		icon: EditSourceImageIcon,
 	},
-	{ id: "edit_tags", label: "Edit Tags", icon: EditTagsIcon },
 	{
 		id: "restore_image",
 		label: "Restore Image (Trash)",

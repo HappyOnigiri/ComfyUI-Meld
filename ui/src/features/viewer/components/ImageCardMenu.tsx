@@ -125,10 +125,10 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 							handler: onAddUnifiedLoader,
 						},
 						{
-							id: "restore_full_workflow",
-							label: "Restore Full Workflow",
-							icon: RestoreFullWorkflowIcon,
-							handler: onRestoreWorkflow,
+							id: "send_to_workflow_mask",
+							label: "Send to Workflow (Mask)",
+							icon: SendToWorkflowMaskIcon,
+							handler: () => onRunWithMask("apply"),
 						},
 						{
 							id: "queue_workflow",
@@ -137,28 +137,28 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 							handler: onRunWithWorkflow,
 						},
 						{
-							id: "send_to_workflow_mask",
-							label: "Send to Workflow (Mask)",
-							icon: SendToWorkflowMaskIcon,
-							handler: () => onRunWithMask("apply"),
-						},
-						{
 							id: "queue_workflow_mask",
 							label: "Queue Workflow (Mask)",
 							icon: QueueWorkflowMaskIcon,
 							handler: () => onRunWithMask("run"),
 						},
 						{
-							id: "edit_source_image",
-							label: "Edit source image",
-							icon: EditSourceImageIcon,
-							handler: onEditSource,
+							id: "restore_full_workflow",
+							label: "Restore Full Workflow",
+							icon: RestoreFullWorkflowIcon,
+							handler: onRestoreWorkflow,
 						},
 						{
 							id: "edit_tags",
 							label: "Edit Tags",
 							icon: EditTagsIcon,
 							handler: onEditTags,
+						},
+						{
+							id: "edit_source_image",
+							label: "Edit Source Image",
+							icon: EditSourceImageIcon,
+							handler: onEditSource,
 						},
 						...(showRestore
 							? [
