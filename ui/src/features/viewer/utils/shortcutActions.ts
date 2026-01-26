@@ -1,14 +1,15 @@
-import {
-	ArrowBigRight,
-	ArrowRight,
-	Play,
-	PlusCircle,
-	RefreshCw,
-	Square,
-	Tag,
-	Trash2,
-} from "lucide-react";
+import { Trash2 } from "lucide-react";
 import type React from "react";
+import {
+	AddUnifiedLoaderIcon,
+	EditSourceImageIcon,
+	EditTagsIcon,
+	QueueWorkflowIcon,
+	QueueWorkflowMaskIcon,
+	RestoreFullWorkflowIcon,
+	RestoreImageIcon,
+	SendToWorkflowMaskIcon,
+} from "./shortcutActionIcons";
 
 export interface ShortcutAction {
 	id: string;
@@ -18,21 +19,37 @@ export interface ShortcutAction {
 
 export const QUICK_SHORTCUT_ACTIONS: ShortcutAction[] = [
 	{ id: "", label: "None", icon: null },
-	{ id: "add_unified_loader", label: "Add Unified Loader", icon: ArrowRight },
+	{
+		id: "add_unified_loader",
+		label: "Add Unified Loader",
+		icon: AddUnifiedLoaderIcon,
+	},
 	{
 		id: "restore_full_workflow",
 		label: "Restore Full Workflow",
-		icon: ArrowBigRight,
+		icon: RestoreFullWorkflowIcon,
 	},
-	{ id: "queue_workflow", label: "Queue Workflow", icon: Play },
+	{ id: "queue_workflow", label: "Queue Workflow", icon: QueueWorkflowIcon },
 	{
 		id: "send_to_workflow_mask",
 		label: "Send to Workflow (Mask)",
-		icon: Square,
+		icon: SendToWorkflowMaskIcon,
 	},
-	{ id: "queue_workflow_mask", label: "Queue Workflow (Mask)", icon: Square },
-	{ id: "edit_source_image", label: "Edit Source Image", icon: PlusCircle },
-	{ id: "edit_tags", label: "Edit Tags", icon: Tag },
-	{ id: "restore_image", label: "Restore Image (Trash)", icon: RefreshCw },
+	{
+		id: "queue_workflow_mask",
+		label: "Queue Workflow (Mask)",
+		icon: QueueWorkflowMaskIcon,
+	},
+	{
+		id: "edit_source_image",
+		label: "Edit Source Image",
+		icon: EditSourceImageIcon,
+	},
+	{ id: "edit_tags", label: "Edit Tags", icon: EditTagsIcon },
+	{
+		id: "restore_image",
+		label: "Restore Image (Trash)",
+		icon: RestoreImageIcon,
+	},
 	{ id: "delete_or_trash", label: "Delete / Trash", icon: Trash2 },
 ];

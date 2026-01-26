@@ -1,16 +1,16 @@
-import {
-	ArrowBigRight,
-	ArrowRight,
-	MoreVertical,
-	Play,
-	PlusCircle,
-	RefreshCw,
-	Square,
-	Tag,
-	Trash2,
-} from "lucide-react";
+import { MoreVertical, Trash2 } from "lucide-react";
 import type React from "react";
 import type { Settings } from "../../../types";
+import {
+	AddUnifiedLoaderIcon,
+	EditSourceImageIcon,
+	EditTagsIcon,
+	QueueWorkflowIcon,
+	QueueWorkflowMaskIcon,
+	RestoreFullWorkflowIcon,
+	RestoreImageIcon,
+	SendToWorkflowMaskIcon,
+} from "../utils/shortcutActionIcons";
 import { QUICK_SHORTCUT_ACTIONS } from "../utils/shortcutActions";
 
 interface ImageCardMenuProps {
@@ -121,43 +121,43 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 						{
 							id: "add_unified_loader",
 							label: "Add Unified Loader",
-							icon: ArrowRight,
+							icon: AddUnifiedLoaderIcon,
 							handler: onAddUnifiedLoader,
 						},
 						{
 							id: "restore_full_workflow",
 							label: "Restore Full Workflow",
-							icon: ArrowBigRight,
+							icon: RestoreFullWorkflowIcon,
 							handler: onRestoreWorkflow,
 						},
 						{
 							id: "queue_workflow",
 							label: "Queue Workflow",
-							icon: Play,
+							icon: QueueWorkflowIcon,
 							handler: onRunWithWorkflow,
 						},
 						{
 							id: "send_to_workflow_mask",
 							label: "Send to Workflow (Mask)",
-							icon: Square,
+							icon: SendToWorkflowMaskIcon,
 							handler: () => onRunWithMask("apply"),
 						},
 						{
 							id: "queue_workflow_mask",
 							label: "Queue Workflow (Mask)",
-							icon: Square,
+							icon: QueueWorkflowMaskIcon,
 							handler: () => onRunWithMask("run"),
 						},
 						{
 							id: "edit_source_image",
 							label: "Edit source image",
-							icon: PlusCircle,
+							icon: EditSourceImageIcon,
 							handler: onEditSource,
 						},
 						{
 							id: "edit_tags",
 							label: "Edit Tags",
-							icon: Tag,
+							icon: EditTagsIcon,
 							handler: onEditTags,
 						},
 						...(showRestore
@@ -165,7 +165,7 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 									{
 										id: "restore_image",
 										label: "Restore Image",
-										icon: RefreshCw,
+										icon: RestoreImageIcon,
 										handler: onRestore as () => void,
 										color: "var(--meld-accent-color)",
 									},

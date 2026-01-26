@@ -272,6 +272,8 @@
 	background: var(--meld-card-content-bg);
 	border: 1px solid var(--comfy-menu-border, rgba(255, 255, 255, 0.1));
 	color: var(--meld-text-secondary);
+	/* Used by SVG icons to create a background-colored halo. */
+	--meld-icon-halo: var(--meld-card-content-bg);
 	width: 24px;
 	height: 24px;
 	border-radius: 4px;
@@ -288,6 +290,7 @@
 	background-color: var(--meld-accent-color);
 	border-color: var(--meld-accent-color);
 	color: var(--comfy-input-text, #fff);
+	--meld-icon-halo: var(--meld-accent-color);
 }
 
 .meld-image-card__menu {
@@ -301,6 +304,8 @@
 	min-width: 180px;
 	z-index: 5000;
 	overflow: hidden;
+	/* Used by SVG icons to create a background-colored halo. */
+	--meld-icon-halo: var(--comfy-menu-bg, #333);
 }
 
 .meld-image-card__menu-item {
@@ -324,6 +329,7 @@
 .meld-image-card__menu-item:hover {
 	background-color: var(--meld-accent-color);
 	color: var(--comfy-input-text, white);
+	--meld-icon-halo: var(--meld-accent-color);
 }
 
 .meld-image-card__thumbnail-wrapper {
