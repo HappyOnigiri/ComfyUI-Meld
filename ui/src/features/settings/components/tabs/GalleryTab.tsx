@@ -210,7 +210,7 @@ export const GalleryTab: React.FC<GalleryTabProps> = ({
 				</SettingItem>
 
 				<SettingItem
-					label="Show Notes"
+					label="Show User Notes"
 					description="Display user notes on the card."
 				>
 					<select
