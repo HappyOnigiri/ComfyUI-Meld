@@ -8,6 +8,7 @@ import {
 	QueueWorkflowMaskIcon,
 	RestoreFullWorkflowIcon,
 	RestoreImageIcon,
+	SendToWorkflowIcon,
 	SendToWorkflowMaskIcon,
 } from "./shortcutActionIcons";
 
@@ -23,6 +24,11 @@ export const QUICK_SHORTCUT_ACTIONS: ShortcutAction[] = [
 		id: "add_unified_loader",
 		label: "Add Unified Loader",
 		icon: AddUnifiedLoaderIcon,
+	},
+	{
+		id: "send_to_workflow",
+		label: "Send to Workflow",
+		icon: SendToWorkflowIcon,
 	},
 	{
 		id: "send_to_workflow_mask",

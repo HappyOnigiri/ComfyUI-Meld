@@ -21,6 +21,7 @@ export const useImageCardLogic = (image: MeldImage) => {
 		handleAddUnifiedLoader,
 		handleEditSource,
 		handleEditTags,
+		handleSendToWorkflow,
 		handleRunWithWorkflow,
 		handleRunWithMask,
 		handleRestore,
@@ -164,6 +165,10 @@ export const useImageCardLogic = (image: MeldImage) => {
 		handleEditTags(image);
 	};
 
+	const handleSendToWorkflowAction = () => {
+		handleSendToWorkflow(image);
+	};
+
 	const handleDeleteAction = () => {
 		handleDelete(image);
 	};
@@ -200,6 +205,7 @@ export const useImageCardLogic = (image: MeldImage) => {
 		handleAddUnifiedLoader: handleAddUnifiedLoaderAction,
 		handleEditSource: handleEditSourceAction,
 		handleEditTags: handleEditTagsAction,
+		handleSendToWorkflow: handleSendToWorkflowAction,
 		handleRestore: handleRestoreAction,
 		handleDelete: handleDeleteAction,
 		handleRunWithWorkflow: handleRunWithWorkflowAction,

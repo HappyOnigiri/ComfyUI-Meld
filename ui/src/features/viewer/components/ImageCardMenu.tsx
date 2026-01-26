@@ -9,6 +9,7 @@ import {
 	QueueWorkflowMaskIcon,
 	RestoreFullWorkflowIcon,
 	RestoreImageIcon,
+	SendToWorkflowIcon,
 	SendToWorkflowMaskIcon,
 } from "../utils/shortcutActionIcons";
 import { QUICK_SHORTCUT_ACTIONS } from "../utils/shortcutActions";
@@ -20,6 +21,7 @@ interface ImageCardMenuProps {
 	settings: Settings;
 	onAddUnifiedLoader: () => void;
 	onRestoreWorkflow: () => void;
+	onSendToWorkflow: () => void;
 	onRunWithWorkflow: () => void;
 	onRunWithMask: (mode: "apply" | "run") => void;
 	onEditSource: () => void;
@@ -37,6 +39,7 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 	settings,
 	onAddUnifiedLoader,
 	onRestoreWorkflow,
+	onSendToWorkflow,
 	onRunWithWorkflow,
 	onRunWithMask,
 	onEditSource,
@@ -52,6 +55,8 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 				return onAddUnifiedLoader;
 			case "restore_full_workflow":
 				return onRestoreWorkflow;
+			case "send_to_workflow":
+				return onSendToWorkflow;
 			case "queue_workflow":
 				return onRunWithWorkflow;
 			case "send_to_workflow_mask":
@@ -123,6 +128,12 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 							label: "Add Unified Loader",
 							icon: AddUnifiedLoaderIcon,
 							handler: onAddUnifiedLoader,
+						},
+						{
+							id: "send_to_workflow",
+							label: "Send to Workflow",
+							icon: SendToWorkflowIcon,
+							handler: onSendToWorkflow,
 						},
 						{
 							id: "send_to_workflow_mask",

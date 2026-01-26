@@ -7,6 +7,7 @@ import type {
 	MeldImage,
 } from "../../../types";
 import { fetchWorkflows } from "../../workflows/api/workflowsApi";
+import { injectImageToGraph } from "../../workflows/utils/injectImageToGraph";
 import * as imagesApi from "../api/imagesApi";
 
 /**
@@ -129,6 +130,25 @@ export const useImageActions = (
 				type: "OPEN_MODAL",
 				payload: { type: "parent_selection", imageId: image.id },
 			});
+		},
+		[dispatch],
+	);
+
+	const handleSendToWorkflow = useCallback(
+		(image: MeldImage) => {
+			const result = injectImageToGraph(image);
+			if (!result.ok) {
+				dispatch({
+					type: "OPEN_MODAL",
+					payload: {
+						type: "error",
+						message:
+							result.reason === "no_app_graph"
+								? "No active workflow graph found. Please open a workflow first."
+								: "No 'Meld Image Loader' or 'Load Image' node found in the current workflow.",
+					},
+				});
+			}
 		},
 		[dispatch],
 	);
@@ -257,6 +277,7 @@ export const useImageActions = (
 		handleAddUnifiedLoader,
 		handleEditTags,
 		handleEditSource,
+		handleSendToWorkflow,
 		handleRunWithWorkflow,
 		handleRunWithMask,
 		handleRestore,

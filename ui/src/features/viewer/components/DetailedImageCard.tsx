@@ -33,6 +33,7 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(
 			handleAddUnifiedLoader,
 			handleEditSource,
 			handleEditTags,
+			handleSendToWorkflow,
 			handleRestore,
 			handleDelete,
 			handleRunWithWorkflow,
@@ -274,6 +275,7 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(
 					settings={state.settings}
 					onAddUnifiedLoader={handleAddUnifiedLoader}
 					onRestoreWorkflow={handleRestoreWorkflow}
+					onSendToWorkflow={handleSendToWorkflow}
 					onRunWithWorkflow={handleRunWithWorkflow}
 					onRunWithMask={(mode) => handleRunWithMask(mode)}
 					onEditSource={handleEditSource}
