@@ -309,10 +309,16 @@
 	gap: 8px;
 	padding: 8px 12px;
 	font-size: 11px;
+	line-height: 1;
 	color: var(--meld-text-color);
 	cursor: pointer;
 	transition: background-color 0.2s;
 	outline: none;
+}
+
+.meld-image-card__menu-item span {
+	display: inline-block;
+	line-height: 14px; /* Match icon height */
 }
 
 .meld-image-card__menu-item:hover {

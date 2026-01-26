@@ -1,5 +1,6 @@
 import type React from "react";
 import type { Settings } from "../../../../types";
+import { QUICK_SHORTCUT_ACTIONS } from "../../../viewer/utils/shortcutActions";
 import { SettingItem } from "../SettingItem";
 
 interface GalleryTabProps {
@@ -313,6 +314,38 @@ export const GalleryTab: React.FC<GalleryTabProps> = ({
 						onBlur={() => handleNumberBlur({ key: "gallery.max_load_count" })}
 					/>
 				</SettingItem>
+			</div>
+
+			<div className="meld-settings-group">
+				<div className="meld-settings-group-title">Quick Shortcuts (Card)</div>
+				{[1, 2, 3].map((slot) => (
+					<SettingItem
+						key={slot}
+						label={`Quick Shortcut Slot ${slot}`}
+						description={`Choose an action for shortcut slot ${slot}.`}
+					>
+						<select
+							className="meld-select"
+							value={
+								localSettings[
+									`gallery.quick_shortcut.${slot}` as keyof Settings
+								] as string
+							}
+							onChange={(e) =>
+								setLocalSettings((prev) => ({
+									...prev,
+									[`gallery.quick_shortcut.${slot}`]: e.target.value,
+								}))
+							}
+						>
+							{QUICK_SHORTCUT_ACTIONS.map((action) => (
+								<option key={action.id} value={action.id}>
+									{action.label}
+								</option>
+							))}
+						</select>
+					</SettingItem>
+				))}
 			</div>
 		</div>
 	);

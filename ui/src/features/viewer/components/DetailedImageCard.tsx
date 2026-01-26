@@ -271,6 +271,7 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(
 					isMenuOpen={isMenuOpen}
 					setIsMenuOpen={setIsMenuOpen}
 					menuRef={menuRef}
+					settings={state.settings}
 					onAddUnifiedLoader={handleAddUnifiedLoader}
 					onRestoreWorkflow={handleRestoreWorkflow}
 					onRunWithWorkflow={handleRunWithWorkflow}

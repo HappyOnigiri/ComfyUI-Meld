@@ -88,6 +88,9 @@ export const initialState: GalleryState = {
 		"viewer.shortcut.9": "",
 		"viewer.shortcut.0": "",
 		"viewer.shortcut.show_cheat_sheet": true,
+		"gallery.quick_shortcut.1": "add_unified_loader",
+		"gallery.quick_shortcut.2": "",
+		"gallery.quick_shortcut.3": "",
 		"search.show_all_keywords": true,
 	},
 	pagination: {

@@ -113,6 +113,9 @@ export interface Settings {
 	"viewer.shortcut.9": string;
 	"viewer.shortcut.0": string;
 	"viewer.shortcut.show_cheat_sheet": boolean;
+	"gallery.quick_shortcut.1": string;
+	"gallery.quick_shortcut.2": string;
+	"gallery.quick_shortcut.3": string;
 	"search.show_all_keywords": boolean;
 }
 
