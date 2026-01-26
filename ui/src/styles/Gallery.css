@@ -811,7 +811,8 @@
 	border: 1px solid transparent;
 	color: white;
 	cursor: pointer;
-	padding: 10px;
+	width: 40px;
+	height: 40px;
 	transition: all 0.2s;
 	border-radius: 50%;
 	display: flex;
@@ -820,6 +821,7 @@
 	backdrop-filter: blur(4px);
 	outline: none;
 	box-sizing: border-box;
+	flex-shrink: 0;
 }
 
 .meld-viewer-action-btn:hover {
@@ -840,6 +842,38 @@
 
 .meld-viewer-action-btn--restore:hover {
 	background: var(--meld-success-color, #44bb44);
+}
+
+/* Viewer Action Menu overrides */
+.meld-viewer-actions .meld-image-card__menu-container {
+	position: relative;
+	width: 40px;
+	height: 40px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.meld-viewer-actions .meld-image-card__menu-btn {
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	border-radius: 50%;
+}
+
+.meld-viewer-actions .meld-image-card__menu {
+	top: 110%;
+	right: 0;
+	background: var(--comfy-menu-bg, rgba(20, 20, 20, 0.95));
+	backdrop-filter: blur(10px);
+	border: 1px solid var(--meld-border-color);
+	box-shadow: 0 4px 20px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.5));
+	min-width: 200px;
+}
+
+.meld-viewer-actions .meld-image-card__menu-item {
+	padding: 10px 15px;
+	font-size: 14px;
 }
 
 /* Fullscreen Specific Overrides */
