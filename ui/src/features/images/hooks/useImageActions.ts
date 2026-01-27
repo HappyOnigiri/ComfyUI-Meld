@@ -154,6 +154,65 @@ export const useImageActions = (
 
 	const handleSendToWorkflow = useCallback(
 		(image: MeldImage) => {
+			// @ts-expect-error
+			const comfyApp = window.app;
+			if (!comfyApp?.graph) {
+				dispatch({
+					type: "OPEN_MODAL",
+					payload: {
+						type: "error",
+						message:
+							"No active workflow graph found. Please open a workflow first.",
+					},
+				});
+				return false;
+			}
+
+			const isLoaderNode = (type: string | undefined) => {
+				if (!type) return false;
+				const t = type.replace(/\s+/g, "").toLowerCase();
+				return t === "meldimageloader" || t === "loadimage";
+			};
+
+			const loaderNodes = comfyApp.graph._nodes.filter((n: { type: string }) =>
+				isLoaderNode(n.type),
+			);
+
+			if (loaderNodes.length === 0) {
+				dispatch({
+					type: "OPEN_MODAL",
+					payload: {
+						type: "error",
+						message:
+							"No 'Meld Image Loader' or 'Load Image' node found in the current workflow.",
+					},
+				});
+				return false;
+			}
+
+			if (loaderNodes.length > 1) {
+				// Multiple nodes found, open selection modal
+				dispatch({
+					type: "OPEN_MODAL",
+					payload: {
+						type: "node_selection",
+						image,
+						nodes: loaderNodes.map(
+							(n: { id: string | number; type: string; title?: string }) => ({
+								id: String(n.id),
+								type: n.type,
+								title: n.title,
+							}),
+						),
+						onSelect: (nodeId) => {
+							injectImageToGraph(image, nodeId);
+						},
+					},
+				});
+				return true;
+			}
+
+			// Single node found, inject immediately
 			const result = injectImageToGraph(image);
 			if (!result.ok) {
 				dispatch({

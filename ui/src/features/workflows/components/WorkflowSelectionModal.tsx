@@ -1,16 +1,36 @@
-import { AlertCircle, FileJson, Play, X } from "lucide-react";
+import { AlertCircle, ChevronRight, FileJson, Play, X } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { useGallery } from "../../../store/GalleryContext";
 import type { MeldImage } from "../../../types";
-import { fetchWorkflows, type WorkflowInfo } from "../api/workflowsApi";
+import {
+	fetchWorkflowRaw,
+	fetchWorkflows,
+	type WorkflowInfo,
+} from "../api/workflowsApi";
 
 interface WorkflowSelectionModalProps {
 	images: MeldImage[];
-	onExecute: (workflowName: string) => Promise<void>;
+	onExecute: (
+		workflowName: string,
+		targetLoaderNodeId?: string,
+	) => Promise<void>;
 	isMaskMode?: boolean;
+}
+
+interface LoaderNodeInfo {
+	id: string;
+	type: string;
+	title?: string;
+}
+
+interface WorkflowNode {
+	id: string | number;
+	type?: string;
+	class_type?: string;
+	title?: string;
 }
 
 export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
@@ -23,6 +43,11 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [executing, setExecuting] = useState(false);
+	const [expandedWorkflow, setExpandedWorkflow] = useState<string | null>(null);
+	const [workflowNodes, setWorkflowNodes] = useState<
+		Record<string, LoaderNodeInfo[]>
+	>({});
+	const [loadingNodes, setLoadingNodes] = useState<Record<string, boolean>>({});
 
 	const sortedWorkflows = useMemo(() => {
 		return workflows
@@ -34,10 +59,8 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 					if (wf.mask_count === 0) {
 						valid = false;
 						reason = "No 'Load Image (as Mask)' node found.";
-					} else if (wf.mask_count > 1) {
-						valid = false;
-						reason = `Multiple 'Load Image (as Mask)' nodes found (${wf.mask_count}).`;
 					}
+					// Allow multiple mask nodes, user will pick one
 				}
 
 				return { ...wf, valid, reason };
@@ -91,15 +114,113 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 		[handleClose],
 	);
 
-	const handleRun = async (workflowName: string) => {
+	const handleRun = async (
+		workflowName: string,
+		targetLoaderNodeId?: string,
+	) => {
 		if (executing) return;
 		try {
 			setExecuting(true);
-			await onExecute(workflowName);
+			await onExecute(workflowName, targetLoaderNodeId);
 			handleClose();
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
 			setExecuting(false);
+		}
+	};
+
+	const fetchNodesForWorkflow = async (workflowName: string) => {
+		if (workflowNodes[workflowName] || loadingNodes[workflowName]) return;
+
+		try {
+			setLoadingNodes((prev) => ({ ...prev, [workflowName]: true }));
+			const workflow = await fetchWorkflowRaw(workflowName);
+			const loaders: LoaderNodeInfo[] = [];
+
+			const isTargetNode = (type: string | undefined) => {
+				if (!type) return false;
+				const t = type.replace(/\s+/g, "").toLowerCase(); // Normalize and lowercase
+				if (isMaskMode) {
+					return t === "loadimagemask";
+				}
+				return t === "meldimageloader" || t === "loadimage";
+			};
+
+			if (workflow.nodes && Array.isArray(workflow.nodes)) {
+				// UI Format
+				console.log(
+					"[Meld] Extracting nodes from UI format workflow",
+					workflow.nodes.length,
+				);
+				for (const node of workflow.nodes as WorkflowNode[]) {
+					if (isTargetNode(node.type)) {
+						console.log(
+							"[Meld] Found target node (UI):",
+							node.id,
+							node.type,
+							node.title,
+						);
+						loaders.push({
+							id: String(node.id),
+							type: node.type || "",
+							title: node.title,
+						});
+					}
+				}
+			} else {
+				// API Format
+				console.log("[Meld] Extracting nodes from API format workflow");
+				for (const nodeId in workflow) {
+					const node = workflow[nodeId] as WorkflowNode;
+					if (
+						node &&
+						typeof node === "object" &&
+						isTargetNode(node.class_type)
+					) {
+						console.log(
+							"[Meld] Found target node (API):",
+							nodeId,
+							node.class_type,
+						);
+						loaders.push({
+							id: nodeId,
+							type: node.class_type || "",
+						});
+					}
+				}
+			}
+
+			if (loaders.length === 0) {
+				console.warn(
+					"[Meld] No loader nodes found in workflow JSON despite count > 0",
+				);
+			}
+
+			setWorkflowNodes((prev) => ({ ...prev, [workflowName]: loaders }));
+		} catch (err) {
+			console.error("Failed to fetch workflow nodes:", err);
+		} finally {
+			setLoadingNodes((prev) => ({ ...prev, [workflowName]: false }));
+		}
+	};
+
+	const toggleExpand = (wf: WorkflowInfo) => {
+		if (!wf.valid || executing) return;
+
+		const targetCount = isMaskMode
+			? wf.mask_count
+			: wf.loader_count + wf.load_image_count;
+
+		if (targetCount <= 1) {
+			handleRun(wf.name);
+			return;
+		}
+
+		if (expandedWorkflow === wf.name) {
+			setExpandedWorkflow(null);
+		} else {
+			setExpandedWorkflow(wf.name);
+			fetchNodesForWorkflow(wf.name);
 		}
 	};
 
@@ -163,7 +284,7 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 										? `${images.length} images`
 										: images[0]?.filename}
 								</strong>
-								. Workflows must have exactly one{" "}
+								. Workflows must have at least one{" "}
 								<strong>Meld Image Loader</strong> or{" "}
 								<strong>Load Image</strong> node
 								{isMaskMode && (
@@ -174,43 +295,123 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 								)}
 								.
 							</div>
-							{sortedWorkflows.map((wf) => (
-								<div
-									key={wf.name}
-									className={`meld-workflow-item ${!wf.valid ? "meld-workflow-item--invalid" : ""}`}
-									onClick={() => wf.valid && !executing && handleRun(wf.name)}
-									title={wf.reason || "Click to run"}
-								>
-									<div className="meld-workflow-item__info">
-										<div className="meld-workflow-item__name">{wf.name}</div>
-										{!wf.valid && (
-											<div className="meld-workflow-item__reason">
-												{wf.reason}
+							{sortedWorkflows.map((wf) => {
+								const totalLoaders = isMaskMode
+									? wf.mask_count
+									: wf.loader_count + wf.load_image_count;
+								const isExpanded = expandedWorkflow === wf.name;
+								const nodes = workflowNodes[wf.name] || [];
+								const isLoadingWfNodes = loadingNodes[wf.name];
+
+								return (
+									<div key={wf.name} className="meld-workflow-item-container">
+										<div
+											className={`meld-workflow-item ${!wf.valid ? "meld-workflow-item--invalid" : ""} ${isExpanded ? "meld-workflow-item--expanded" : ""}`}
+											onClick={() => toggleExpand(wf)}
+											title={wf.reason || "Click to select"}
+										>
+											<div className="meld-workflow-item__info">
+												<div className="meld-workflow-item__name">
+													{wf.name}
+												</div>
+												{!wf.valid && (
+													<div className="meld-workflow-item__reason">
+														{wf.reason}
+													</div>
+												)}
+												{wf.valid && (
+													<div className="meld-workflow-item__supports">
+														{totalLoaders > 1
+															? `Multiple loaders found (${totalLoaders})`
+															: isMaskMode
+																? "Supports: Load Image (as Mask)"
+																: `Supports: ${wf.loader_count > 0 ? "Meld Loader" : "Load Image"}`}
+													</div>
+												)}
 											</div>
-										)}
-										{wf.valid && (
-											<div className="meld-workflow-item__supports">
-												Supports:{" "}
-												{wf.loader_count > 0 ? "Meld Loader" : "Load Image"}
+											{wf.valid && totalLoaders <= 1 && (
+												<button
+													type="button"
+													className="meld-btn meld-btn-primary meld-btn-small"
+													disabled={executing}
+													onClick={(e) => {
+														e.stopPropagation();
+														handleRun(wf.name);
+													}}
+												>
+													<Play size={14} />
+													{executing ? "Queuing..." : "Queue"}
+												</button>
+											)}
+											{wf.valid && totalLoaders > 1 && (
+												<button
+													type="button"
+													className="meld-btn meld-btn-primary meld-btn-small"
+													disabled={executing}
+													onClick={(e) => {
+														e.stopPropagation();
+														toggleExpand(wf);
+													}}
+													style={{
+														display: "flex",
+														alignItems: "center",
+														gap: "4px",
+													}}
+												>
+													{isExpanded ? "Close" : "Select Node"}
+													<ChevronRight
+														size={14}
+														style={{
+															transform: isExpanded
+																? "rotate(90deg)"
+																: "rotate(0deg)",
+															transition: "transform 0.2s",
+														}}
+													/>
+												</button>
+											)}
+										</div>
+
+										{isExpanded && (
+											<div className="meld-workflow-node-picker">
+												{isLoadingWfNodes ? (
+													<div className="meld-workflow-node-picker__loading">
+														<div className="meld-loading-spinner meld-loading-spinner--small" />
+														<span>Loading nodes...</span>
+													</div>
+												) : (
+													<>
+														<div className="meld-workflow-node-picker__label">
+															Select target loader node:
+														</div>
+														<div className="meld-workflow-node-picker__list">
+															{nodes.map((node) => (
+																<button
+																	key={node.id}
+																	type="button"
+																	className="meld-workflow-node-item"
+																	disabled={executing}
+																	onClick={() => handleRun(wf.name, node.id)}
+																>
+																	<div className="meld-workflow-node-item__info">
+																		<span className="meld-workflow-node-item__title">
+																			{node.title || node.type}
+																		</span>
+																		<span className="meld-workflow-node-item__id">
+																			#{node.id}
+																		</span>
+																	</div>
+																	<Play size={12} />
+																</button>
+															))}
+														</div>
+													</>
+												)}
 											</div>
 										)}
 									</div>
-									{wf.valid && (
-										<button
-											type="button"
-											className="meld-btn meld-btn-primary meld-btn-small"
-											disabled={executing}
-											onClick={(e) => {
-												e.stopPropagation();
-												handleRun(wf.name);
-											}}
-										>
-											<Play size={14} />
-											{executing ? "Queuing..." : "Queue"}
-										</button>
-									)}
-								</div>
-							))}
+								);
+							})}
 						</div>
 					)}
 				</div>

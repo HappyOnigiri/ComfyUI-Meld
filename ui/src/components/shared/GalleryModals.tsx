@@ -5,8 +5,10 @@ import { MaskEditorModal } from "../../features/mask-editor/components/MaskEdito
 import { SettingsModal } from "../../features/settings/components/SettingsModal";
 import { TagEditModal } from "../../features/tags/components/TagEditModal";
 import { NoteEditModal } from "../../features/viewer/components/NoteEditModal";
+import { NodeSelectionModal } from "../../features/workflows/components/NodeSelectionModal";
 import { WorkflowSelectionModal } from "../../features/workflows/components/WorkflowSelectionModal";
 import { useWorkflowExecution } from "../../features/workflows/hooks/useWorkflowExecution";
+import { injectImageToGraph } from "../../features/workflows/utils/injectImageToGraph";
 import { useGallery } from "../../store/GalleryContext";
 import { DeleteConfirmModal } from "./DeleteConfirmModal";
 import { ErrorModal } from "./ErrorModal";
@@ -26,12 +28,28 @@ export const GalleryModals: React.FC = () => {
 				<WorkflowSelectionModal
 					images={state.activeModal.images}
 					isMaskMode={!!state.activeModal.maskFilename}
-					onExecute={async (workflowName) => {
+					onExecute={async (workflowName, targetLoaderNodeId) => {
 						if (state.activeModal.type === "workflow_selection") {
 							const maskFilename = state.activeModal.maskFilename;
 							for (const img of state.activeModal.images) {
-								await executeWorkflow(workflowName, img, maskFilename);
+								await executeWorkflow(
+									workflowName,
+									img,
+									maskFilename,
+									targetLoaderNodeId,
+								);
 							}
+						}
+					}}
+				/>
+			)}
+			{state.activeModal.type === "node_selection" && (
+				<NodeSelectionModal
+					image={state.activeModal.image}
+					nodes={state.activeModal.nodes}
+					onSelect={(nodeId) => {
+						if (state.activeModal.type === "node_selection") {
+							injectImageToGraph(state.activeModal.image, nodeId);
 						}
 					}}
 				/>
