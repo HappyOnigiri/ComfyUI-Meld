@@ -71,6 +71,11 @@ def main() -> None:
             "ui/**,py/image_manager/**,py/meld_save_image/**,.cursor/rules/**,*.md,*.toml,requirements.txt,Makefile,__init__.py",
             "tests/**",
         ),
+        (
+            "repomix-docs",
+            "docs/**,*.md,*.toml,requirements.txt,Makefile,__init__.py,.cursor/rules/**",
+            None,
+        ),
     ]
 
     # Add nodes
