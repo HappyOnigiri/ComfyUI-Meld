@@ -4,6 +4,7 @@ import {
 	ArrowUpDown,
 	Box,
 	Calendar,
+	FileText,
 	Star,
 	Tag,
 	Type,
@@ -58,6 +59,8 @@ const getIcon = (type: string) => {
 			return <ArrowUp size={12} />;
 		case "has_derivatives":
 			return <ArrowDown size={12} />;
+		case "note":
+			return <FileText size={12} />;
 		case "sort":
 			return <ArrowUpDown size={12} />;
 		default:

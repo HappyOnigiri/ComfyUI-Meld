@@ -397,6 +397,9 @@ class SearchService:
         for prefix in cls.PREFIX_MAP.keys():
             keywords.append({"type": prefix, "value": "keyword"})
 
+        # Note prefix
+        keywords.append({"type": cls.NOTE_PREFIX, "value": "text"})
+
         return keywords
 
     @classmethod
