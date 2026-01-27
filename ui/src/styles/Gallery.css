@@ -2825,6 +2825,8 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	border-radius: 6px;
 	cursor: pointer;
 	transition: all 0.2s ease;
+	min-height: 50px;
+	height: auto;
 }
 
 .meld-workflow-item:hover:not(.meld-workflow-item--invalid) {
@@ -2835,7 +2837,115 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 
 .meld-workflow-item--invalid {
 	cursor: not-allowed;
-	filter: grayscale(1) opacity(0.5);
+	filter: grayscale(1);
+	color: var(--meld-text-secondary);
+}
+
+.meld-workflow-item--expanded {
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+	border-bottom: 1px solid var(--meld-border-color);
+	background-color: var(--meld-bg-secondary);
+}
+
+.meld-workflow-item-container {
+	margin-bottom: 8px;
+	border: 1px solid var(--meld-border-color);
+	border-radius: 8px;
+	overflow: visible;
+	display: flex;
+	flex-direction: column;
+}
+
+.meld-workflow-item-container .meld-workflow-item {
+	margin-bottom: 0;
+	border: none;
+	border-radius: 0;
+}
+
+.meld-workflow-node-picker {
+	background-color: var(--meld-bg-primary);
+	padding: 12px;
+	border-top: none;
+}
+
+.meld-workflow-node-picker__loading {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px;
+	color: var(--meld-text-secondary);
+	font-size: 13px;
+}
+
+.meld-workflow-node-picker__label {
+	font-size: 12px;
+	color: var(--meld-text-secondary);
+	margin-bottom: 8px;
+	font-weight: 500;
+}
+
+.meld-workflow-node-picker__list {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.meld-workflow-node-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 8px 12px;
+	background-color: var(--meld-bg-secondary);
+	border: 1px solid var(--meld-border-color);
+	border-radius: 6px;
+	cursor: pointer;
+	transition: all 0.2s;
+	text-align: left;
+	width: 100%;
+}
+
+.meld-workflow-node-item:hover:not(:disabled) {
+	background-color: var(--meld-bg-hover);
+	border-color: var(--meld-accent-color);
+}
+
+.meld-workflow-node-item:disabled {
+	color: var(--meld-text-secondary);
+	cursor: not-allowed;
+	filter: grayscale(1);
+}
+
+.meld-workflow-node-item__info {
+	display: flex;
+	flex-direction: column;
+}
+
+.meld-workflow-node-item__title {
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--meld-text-primary);
+}
+
+.meld-workflow-node-item__id {
+	font-size: 11px;
+	color: var(--meld-text-secondary);
+	font-family: monospace;
+}
+
+.meld-workflow-item__expand-icon {
+	color: var(--meld-text-secondary);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+}
+
+.meld-loading-spinner--small {
+	width: 14px;
+	height: 14px;
+	border-width: 2px;
 }
 
 .meld-workflow-item__info {
