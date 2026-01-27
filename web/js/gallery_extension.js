@@ -10768,7 +10768,7 @@ const Wd = [
         children: /* @__PURE__ */ s.jsxs(
           "div",
           {
-            className: "meld-modal-content meld-modal-content--medium",
+            className: "meld-modal-content meld-modal-content--large",
             onClick: (C) => C.stopPropagation(),
             children: [
               /* @__PURE__ */ s.jsxs("div", { className: "meld-modal-header", children: [

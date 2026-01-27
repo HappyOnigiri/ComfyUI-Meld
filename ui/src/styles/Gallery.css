@@ -1311,6 +1311,14 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	box-shadow: 0 10px 30px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.5));
 }
 
+.meld-modal-content--small {
+	width: 500px;
+}
+
+.meld-modal-content--medium {
+	width: 800px;
+}
+
 .meld-modal-content--large {
 	width: 1000px;
 }
@@ -2810,7 +2818,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
-	max-height: 400px;
+	max-height: 600px;
 	overflow-y: auto;
 	padding-right: 4px;
 }

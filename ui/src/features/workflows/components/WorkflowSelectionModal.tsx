@@ -231,7 +231,7 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 			onMouseUp={handleOverlayMouseUp}
 		>
 			<div
-				className="meld-modal-content meld-modal-content--medium"
+				className="meld-modal-content meld-modal-content--large"
 				onClick={(e) => e.stopPropagation()}
 			>
 				<div className="meld-modal-header">
