@@ -1,4 +1,4 @@
-.PHONY: ci test-all lint lint-py lint-ui lint-misc lint-scripts build-ui watch-ui local-check-scripts check-scripts check-ts-rules check-only-ascii repomix loc
+.PHONY: ci test-all lint lint-py lint-ui lint-misc lint-scripts build-ui watch-ui local-check-scripts check-scripts check-ts-rules check-non-ascii repomix loc
 
 # -----------------------------------------------------------------------------
 # Cross-platform development notes (Windows / macOS / Linux)
@@ -86,7 +86,7 @@ lint-ui: ui/node_modules/.install-stamp
 	cd ui && npx tsc --noEmit
 	cd ui && npx @biomejs/biome check --write src --error-on-warnings
 
-lint-misc: check-only-ascii check-ts-rules
+lint-misc: check-non-ascii check-ts-rules
 
 lint-scripts: check-scripts local-check-scripts
 
@@ -103,8 +103,8 @@ check-scripts:
 check-ts-rules:
 	@$(PYTHON) scripts/check_ts_rules.py
 
-check-only-ascii:
-	@$(PYTHON) scripts/check_only_ascii.py
+check-non-ascii:
+	@$(PYTHON) scripts/check_non_ascii.py
 
 repomix:
 	$(PYTHON) scripts/generate_repomix.py
