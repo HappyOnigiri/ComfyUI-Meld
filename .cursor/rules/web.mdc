@@ -150,3 +150,11 @@ Before marking a task as complete:
 1. Run `npm run check` (Biome Lint).
 2. Run `npm run build` (TypeScript Check).
 3. Verify no `console.log` remains (use explicit logging utils if needed).
+
+## 9. Documentation Updates (Mandatory)
+
+When modifying Web Extension features (especially related to Image Manager, Gallery, or Viewer), you MUST update the documentation.
+
+- **Trigger**: Functional changes or new features (not required for bug fixes).
+- **Scope**: Update both Japanese (`docs/ja/ImageManager.md`) and English (`docs/en/ImageManager.md`).
+- **Target**: Ensure `Image Manager` related changes are reflected in `docs/{lang}/ImageManager.md`.

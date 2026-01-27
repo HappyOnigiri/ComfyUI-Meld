@@ -132,3 +132,13 @@ NODE_DISPLAY_NAME_MAPPINGS = {
 * DO NOT use `argparse`. Inputs come from `INPUT_TYPES`.
 * DO NOT use `cv2.imshow` or `plt.show`. Output images via `RETURN_TYPES`.
 * DO NOT forget the trailing comma in single-item tuples.
+
+## 6. Documentation Updates (Mandatory)
+
+When modifying custom node functionality (adding features or changing behavior), you MUST update the documentation.
+
+- **Trigger**: Functional changes or new features (not required for bug fixes).
+- **Scope**: Update both Japanese (`docs/ja/`) and English (`docs/en/`) documentation.
+- **Tool**: Use the `document-custom-node` skill to ensure correct formatting.
+- **Location**: Documentation files are located in the `docs/` directory.
+
