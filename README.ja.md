@@ -5,89 +5,45 @@
 
 [English README](README.md)
 
-**ワークフローを "融合（Meld）" し、制作プロセスを次世代の効率へ。**
+**生成画像を“強力なアセットデータベース”へ。**
 
-`ComfyUI-Meld` は、複雑化した ComfyUI のワークフローを統合・整理し、制作現場における「保守性の向上」と「ヒューマンエラーの削減」を実現するために設計された高品質ノードパックです。
+`ComfyUI-Meld` は、混沌としがちなワークフローを整理し、生成結果を「再利用できる資産」として蓄積するためのノードパックです。プロンプト、設定、系統情報（Lineage）を自動で記録し、すべての生成履歴を保持します。
 
-従来のワークフローで発生しがちだった、数十個のノードが複雑に絡み合う「スパゲッティ状態」を解消。複数の工程を単一の高性能ノードへと集約（Meld）することで、キャンバスの視認性を劇的に改善します。
-
----
-
-## 本プロジェクトの設計思想
-
-本ツールは、単なる便利ツールの枠を超え、業務レベルの制作パイプラインに耐えうる「インフラストラクチャ」を目指して開発されました。
-
-1. **Dependancy-Free（依存関係の極小化）** 外部ライブラリの追加インストールを原則不要とし、Python標準ライブラリおよびComfyUI標準環境のみで動作します。環境構築時のトラブル（Dependency Hell）を回避し、共有・移行が容易です。
-2. **Privacy-Focus（プライバシー配慮）** 画像メタデータから生成に関する情報（プロンプトやワークフローなど）のみを抽出し、GPS情報などのプライベートなEXIFデータは読み込まない設計となっています。また、ファイル操作においては指定されたディレクトリおよびそのサブディレクトリ以下のみを読み込み対象とします（適切なアクセス権限管理を推奨します）。
-3. **Atomic Operations（処理の集約化）** 「ファイル読み込み→テキスト抽出→文字列結合→条件分岐」といった一連の処理を一つのノード内で完結。データ伝達のノイズを減らし、計算資源を最適化します。
-* **Meld Image Manager（画像管理システム）** 検索、タグ付け、系統（Lineage）追跡機能を備えた統合画像管理システム。
+Meld Image Manager により、ComfyUI 内で検索・タグ付け・系統追跡を一体化。ベストな結果を見つけ、その“由来”を確認し、そのまま即座に次のイテレーションへつなげます。
 
 ---
 
-## 収録ノードの概要
+## Image Manager（Meld Image Manager）
 
-### 1. Meld Prompt Constructor (高度プロンプト構築)
-複数の外部テキストファイルや画像メタデータから、動的にプロンプトを生成・構成します。
-* **メリット**: キャンバス上のテキストノードを大幅に削減。複数のプロンプトパターンを外部ファイルで管理し、自動的に切り替える運用に最適です。
+Image Manager は、ComfyUI のサイドバーに追加される統合画像管理システムです。生成画像の閲覧・検索・整理を高速化し、過去の作品をワークフローに再利用する流れをスムーズにします。
 
-### 2. Meld Auto-Exposure (画像露出最適化)
-入力画像の輝度分布を解析し、生成に適した最適な明るさとコントラストへ自動補正します。
-* **メリット**: img2imgやControlNetなど、入力画像の品質が生成結果に直結するワークフローにおいて、前処理を自動化し結果を安定させます。
+- **ギャラリー**: 生成画像を高速に一覧・整理
+- **詳細ビューアー**: プロンプト、モデル、生成設定、ノート、タグの確認・編集
+- **高度な検索**: プロンプト/タグ/日付/モデル名などで柔軟に絞り込み
+- **系統管理（Lineage）**: img2img 等の親子関係を可視化
+- **ワークフロー連携**: 画像をワンクリックで読み込み、設定やワークフローの復元を補助
 
-### 3. Meld Save Image (画像保存と管理)
-生成された画像を保存すると同時に、**Meld Image Manager** のデータベースに自動登録します。
-* **メリット**: プロンプト、ワークフロー、モデル情報などのメタデータを自動抽出して保存。さらに、画像間の親子関係（系統）を自動的に追跡します。
+基本は、ワークフロー実行完了時に **Output 画像が自動登録** されます。さらに `Meld Save Image` を使うと、タグの自動付与や親画像（Source）の明示指定など、管理を強化できます。
+
+詳細な使い方とショートカット、検索構文は [`docs/ja/ImageManager.md`](./docs/ja/ImageManager.md) を参照してください。
 
 ---
 
-## ノードの詳細な使い方
+## 収録ノード（全9種）
 
-### 1. Meld Prompt Constructor
+各ノードの詳細は `docs/ja/nodes/` を参照してください。
 
-このノードはワークフロー構築の核となるノードで、洗練されたランダム化エンジンによって動的なプロンプト生成を可能にします。
-
-#### ランダムプロンプトの構文
-
-テキスト入力欄や `.txt` ファイル内で以下の構文を直接使用できます。
-
-* **シンプルな選択**: `{boy|girl|dog}`
-  * リストの中からランダムに1つを選択します。
-* **重み付きの選択**: `{0.1::rare|common}`
-  * `::` の前の数値は選択確率の重みです（デフォルト: 1.0）。この例では、"rare" が選ばれる確率は非常に低くなります。
-* **動的なネガティブプロンプト抽出**: `-monochrome` または `-(bad quality:1.2)`
-  * ハイフン `-` で始まる単語は**自動的に Negative Prompt 出力に移動**し、ハイフンは削除されます。
-
-**Outputs (出力):**
-* **positive_prompt**: 処理ロジック適用後の結合されたプロンプト。
-* **negative_prompt**: ハイフン（`-`）構文によって抽出されたネガティブキーワード。
-
-<details>
-<summary><b>▶ クリックして詳細な構文とファイルルールを表示</b></summary>
-
-#### ファイルとパターンのルール
-
-* **Directory**: `.txt` ファイルが保存されているフォルダを指定します。
-* **File Pattern**: ファイルをフィルタリングします（例: `*.txt`）。アンダースコア `_` で始まるファイルは無視されます。
-* **Selection Method**:
-  * `random`: 各ファイルからランダムに1行を選択します。
-  * `sequential`: `seed` に基づいて順番に行を選択します。
-* **Use Break**: 有効にすると、異なるファイルからのプロンプトを `BREAK` キーワードで結合します。
-
-#### コメントシステム
-
-標準的なコメント構文を使用して、プロンプトファイルを整理・管理できます。
-
-* `// コメント` または `# コメント`: 1行コメント。
-* `/* コメント */`: 複数行のブロックコメント。
-
-</details>
-
-### 2. Meld Auto-Exposure
-
-生成画像の安定性を高めるためのプロフェッショナルグレードの輝度補正を提供します。
-
-* **解析と調整**: 画像の輝度分布を自動的に解析し、明るさとコントラストを最適なレベルに調整します。
-* **実戦仕様**: ライティングの一貫性が重要となる ControlNet や img2img パイプラインの前処理に最適です。
+| ノード | 役割（概要） | ドキュメント |
+| :--- | :--- | :--- |
+| **Meld Prompt Constructor** | テキストファイル群から動的構文を使ってプロンプトを構築し、ネガティブを自動分離 | [`docs/ja/nodes/MeldPromptConstructor.md`](./docs/ja/nodes/MeldPromptConstructor.md) |
+| **Meld Auto Exposure** | 輝度を解析し、目標明るさへ近づけるガンマ補正を自動適用 | [`docs/ja/nodes/MeldAutoExposure.md`](./docs/ja/nodes/MeldAutoExposure.md) |
+| **Meld Save Image** | 画像保存＋Image Manager へ自動登録（メタデータ保存、pHash による Lineage 構築、タグ付け） | [`docs/ja/nodes/MeldSaveImage.md`](./docs/ja/nodes/MeldSaveImage.md) |
+| **Meld Unified Loader** | Checkpoint ロードと基本生成パラメータ定義を統合し、`base_settings` として再利用可能に出力 | [`docs/ja/nodes/MeldUnifiedLoader.md`](./docs/ja/nodes/MeldUnifiedLoader.md) |
+| **Meld Settings Unpacker** | `BASE_SETTINGS` 辞書を seed/steps/cfg/解像度等の個別パラメータへ分解して出力 | [`docs/ja/nodes/MeldSettingsUnpacker.md`](./docs/ja/nodes/MeldSettingsUnpacker.md) |
+| **Meld Image Loader** | 画像を読み込み、埋め込みメタデータからプロンプト/設定を抽出し、モデルロードも試行 | [`docs/ja/nodes/MeldImageLoader.md`](./docs/ja/nodes/MeldImageLoader.md) |
+| **Meld Image Loader Batch** | ディレクトリ内の画像を index 指定で連続読み込み（メタデータ解析・復元も実施） | [`docs/ja/nodes/MeldImageLoaderBatch.md`](./docs/ja/nodes/MeldImageLoaderBatch.md) |
+| **Meld Pixelate（Instant Pixelate）** | ダウンサンプル→最近傍アップスケールでピクセル化（モザイク/ドット絵） | [`docs/ja/nodes/MeldPixelate.md`](./docs/ja/nodes/MeldPixelate.md) |
+| **Meld Pattern Heart（Infinite Heart Generator）** | ハートパターンをグリッド/エッジ沿い等で自動配置して装飾 | [`docs/ja/nodes/MeldPatternHeart.md`](./docs/ja/nodes/MeldPatternHeart.md) |
 
 ---
 
@@ -107,7 +63,9 @@ comfy node install NodeMeld/ComfyUI-Meld
 `custom_nodes` ディレクトリで以下のコマンドを実行し、ComfyUIを再起動してください。
 
 ```bash
-git clone [https://github.com/NodeMeld/ComfyUI-Meld.git](https://github.com/NodeMeld/ComfyUI-Meld.git)
+git clone https://github.com/HappyOnigiri/ComfyUI-Meld.git
+cd ComfyUI-Meld
+pip install -r requirements.txt
 
 ```
 
@@ -117,17 +75,22 @@ git clone [https://github.com/NodeMeld/ComfyUI-Meld.git](https://github.com/Node
 
 * **対応OS**: Windows / Linux / macOS
 * **Python**: 3.10以上推奨
-* **依存関係**: 特になし（ComfyUI標準環境で動作）
 * **ライセンス**: Apache License 2.0 (商用利用可、改変可)
+
+---
+
+## プライバシー
+
+画像メタデータから **生成に関する情報（プロンプト/ワークフロー等）のみ** を抽出し、GPS 等のプライベートな EXIF データは読み込みません。また、ファイル読み込みは **指定したディレクトリとそのサブディレクトリ** のみに限定します（適切なアクセス権限管理を推奨します）。
 
 ---
 
 ## お問い合わせ/Issue
 
-[GitHub Issues](https://github.com/NodeMeld/ComfyUI-Meld/issues)
+[GitHub Issues](https://github.com/HappyOnigiri/ComfyUI-Meld/issues)
 
 ---
 
-**開発元**: [NodeMeld](https://github.com/NodeMeld)
+**開発元**: [HappyOnigiri](https://github.com/HappyOnigiri)
 
 ---

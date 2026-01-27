@@ -108,3 +108,29 @@ Meld supports a rich query syntax in the search bar. The available prefixes are 
   2. Add typed wrapper in the corresponding frontend feature directory (e.g., `ui/src/features/X/api/XApi.ts`).
   3. If the logic is shared across multiple features (like basic image operations), place it in `features/images`.
   4. Update `architecture.md` if a new major service/module is created.
+
+## 5. Documentation
+
+### Documentation Layout
+All documentation lives under `docs/` and is maintained in two languages:
+- `docs/en/`: English documentation.
+- `docs/ja/`: Japanese documentation.
+
+Within each language directory:
+- `ImageManager.md`: End-user documentation for the Meld Image Manager / Gallery (web extension UI + workflows).
+- `nodes/*.md`: Per-node documentation (one file per node, shared structure across languages).
+
+### Localization Rules
+- Keep English and Japanese documentation **feature-equivalent** (same sections, same semantics).
+- Use the directory convention (`docs/en/`, `docs/ja/`) for localized docs.
+- Source code must remain English-only; localization is handled in documentation files only.
+
+### When Documentation Must Be Updated
+- **Custom node behavior changes / new node added**:
+  - Update the corresponding files in both `docs/en/nodes/` and `docs/ja/nodes/`.
+- **Web extension feature changes (Image Manager / Gallery / Viewer)**:
+  - Update both `docs/en/ImageManager.md` and `docs/ja/ImageManager.md`.
+
+### Adding a New Document
+- Add the English document under `docs/en/...` and the Japanese counterpart under `docs/ja/...`.
+- Keep filenames consistent between languages (e.g., `docs/en/nodes/MeldFoo.md` and `docs/ja/nodes/MeldFoo.md`).

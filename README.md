@@ -5,113 +5,93 @@
 
 [Japanese README](README.ja.md)
 
-**Meld your workflow. Eliminate the spaghetti.**
+**Turn your generated images into a powerful asset database.**
 
-`ComfyUI-Meld` is a suite of high-performance infrastructure nodes designed to streamline complex ComfyUI workflows. It aggregates multi-step logic--such as advanced prompt construction, metadata extraction, and adaptive image processing--into single, atomic operations.
+ComfyUI-Meld transforms chaotic workflows into an organized, reusable pipeline. It automatically captures prompts, settings, and lineage, ensuring no generation is ever lost.
 
-Designed for stability, security, and zero-dependency hell.
-
----
-
-## Key Features
-
-* **Workflow De-cluttering**: Replaces dozens of primitive nodes with a single "Meld" node, significantly reducing canvas noise.
-* **Zero Dependency Hell**: Works out-of-the-box using standard libraries. No external `pip install` required.
-* **Privacy-Focused Metadata Handling**: Extracts only generation data, naturally ignoring private EXIF fields.
-* **Scoped File Loading**: Reads files exclusively from the specified directory and its subdirectories.
-* **Advanced Prompting**: A powerful engine that handles file-based wildcards, dynamic weights, and automatic negative prompt extraction.
-* **Meld Image Manager**: Integrated image management system with search, tagging, and lineage tracking.
+With the Meld Image Manager, you can unify search, tagging, and lineage tracking directly within ComfyUI. Find your best result, inspect its DNA, and iterate instantly.
 
 ---
 
-## Node Usage: Meld Save Image
+## Image Manager (Meld Image Manager)
 
-This node saves generated images to the output directory and automatically registers them in the **Meld Image Manager** database.
+The Image Manager is an integrated image management system added to ComfyUI's sidebar. It speeds up browsing, searching, and organizing generated images, and makes it smoother to reuse past work back in your workflows.
 
-* **Automatic Metadata Extraction**: Saves prompts, workflow, and model information.
-* **Lineage Tracking**: Automatically links child images to their parents based on metadata or pHash.
-* **Tagging**: Support for adding custom tags at generation time.
+- **Gallery**: Browse and organize generated images quickly
+- **Detail Viewer**: Inspect and edit prompts, models, generation settings, notes, and tags
+- **Advanced Search**: Filter flexibly by prompt/tags/date/model name and more
+- **Lineage Tracking**: Visualize parent-child relationships such as img2img
+- **Workflow Integration**: One-click load images and assist restoring settings and workflows
 
+By default, **output images are automatically registered** when a workflow execution completes. If you additionally use `Meld Save Image`, you can enhance management with features like automatic tagging and explicitly specifying a source (parent) image.
 
-This node is the heart of workflow organization. It allows for dynamic prompt generation with a sophisticated randomization engine.
-
-### Random Prompt Syntax
-
-You can use the following syntax directly in the text input or within your `.txt` files:
-
-* **Simple Choice**: `{boy|girl|dog}`
-  * Randomly selects one of the items.
-* **Weighted Choice**: `{0.1::rare|common}`
-  * The value before `::` is the probability weight (Default: 1.0). In this example, "rare" is much less likely to be chosen.
-* **Dynamic Negative Extraction**: `-monochrome` or `-(bad quality:1.2)`
-  * Any word starting with a hyphen `-` is **automatically moved to the Negative Prompt output**, and the hyphen is removed.
-
-**Outputs:**
-* **positive_prompt**: Combined prompt after processing logic.
-* **negative_prompt**: Extracted negative keywords (from hyphen `-` syntax).
-
-<details>
-<summary><b>Click to see Advanced Syntax & File Rules</b></summary>
-
-#### File & Pattern Rules
-
-* **Directory**: Specify the folder where your `.txt` files are stored.
-* **File Pattern**: Filters files (e.g., `*.txt`). Files starting with `_` are ignored.
-* **Selection Method**:
-  * `random`: Picks a random line from each file.
-  * `sequential`: Picks a line based on the `seed`.
-* **Use Break**: If enabled, joins prompts from different files using the `BREAK` keyword.
-
-#### Commenting System
-
-You can keep your prompt files organized with standard comment syntax:
-
-* `// comment` or `# comment`: Single-line comments.
-* `/* comment */`: Multi-line block comments.
-
-</details>
+For detailed usage, shortcuts, and search syntax, see [`docs/en/ImageManager.md`](./docs/en/ImageManager.md).
 
 ---
 
-## Node Usage: Meld Auto-Exposure
+## Included Nodes (9 total)
 
-Provides professional-grade luminance correction to stabilize your generations.
+See `docs/en/nodes/` for details.
 
-* **Analyze & Adjust**: Automatically analyzes image luminance and adjusts brightness/contrast to optimal levels.
-* **Production Ready**: Perfect for pre-processing images for ControlNet or img2img pipelines where lighting consistency is key.
+| Node | Role (Summary) | Docs |
+| :--- | :--- | :--- |
+| **Meld Prompt Constructor** | Build prompts from text files with dynamic syntax and automatically split negatives | [`docs/en/nodes/MeldPromptConstructor.md`](./docs/en/nodes/MeldPromptConstructor.md) |
+| **Meld Auto Exposure** | Analyze luminance and apply automatic gamma correction toward a target brightness | [`docs/en/nodes/MeldAutoExposure.md`](./docs/en/nodes/MeldAutoExposure.md) |
+| **Meld Save Image** | Save images and auto-register to Image Manager (metadata, pHash-based lineage, tagging) | [`docs/en/nodes/MeldSaveImage.md`](./docs/en/nodes/MeldSaveImage.md) |
+| **Meld Unified Loader** | Combine checkpoint loading and base generation parameters, output reusable `base_settings` | [`docs/en/nodes/MeldUnifiedLoader.md`](./docs/en/nodes/MeldUnifiedLoader.md) |
+| **Meld Settings Unpacker** | Unpack a `BASE_SETTINGS` dict into seed/steps/cfg/resolution and other parameters | [`docs/en/nodes/MeldSettingsUnpacker.md`](./docs/en/nodes/MeldSettingsUnpacker.md) |
+| **Meld Image Loader** | Load an image, extract prompt/settings from embedded metadata, and attempt model loading | [`docs/en/nodes/MeldImageLoader.md`](./docs/en/nodes/MeldImageLoader.md) |
+| **Meld Image Loader Batch** | Load images from a directory sequentially by index (including metadata analysis/restoration) | [`docs/en/nodes/MeldImageLoaderBatch.md`](./docs/en/nodes/MeldImageLoaderBatch.md) |
+| **Meld Pixelate (Instant Pixelate)** | Pixelate via downsample then nearest-neighbor upscale (mosaic / pixel art) | [`docs/en/nodes/MeldPixelate.md`](./docs/en/nodes/MeldPixelate.md) |
+| **Meld Pattern Heart (Infinite Heart Generator)** | Decorate by auto-placing heart patterns on grids, edges, and more | [`docs/en/nodes/MeldPatternHeart.md`](./docs/en/nodes/MeldPatternHeart.md) |
 
 ---
 
 ## Installation
 
-### Option 1: Comfy Registry (Recommended)
+### Recommended: ComfyUI Manager or Registry
+
+In ComfyUI Manager's search, type **"Meld"** and install it.
+Or run the following command from the CLI:
 
 ```bash
-comfy node install nodemeld/comfyui-meld
+comfy node install NodeMeld/ComfyUI-Meld
+
 ```
 
-### Option 2: Manual Clone
+### Manual Installation
+
+Run the following commands under your `custom_nodes` directory, then restart ComfyUI:
 
 ```bash
-cd custom_nodes
-git clone https://github.com/NodeMeld/ComfyUI-Meld.git
+git clone https://github.com/HappyOnigiri/ComfyUI-Meld.git
+cd ComfyUI-Meld
+pip install -r requirements.txt
+
 ```
 
 ---
 
-## Security & Privacy
+## Specs & Requirements
 
-We prioritize system safety:
-
-* **Scoped File Access**: Reads files exclusively from the specified directory and its subdirectories. Please ensure directory permissions are managed appropriately at the system level.
-* **Selective Metadata Extraction**: When extracting data from images, we focus only on generation-related tags (workflow, prompt, etc.). Private EXIF data like GPS coordinates are naturally ignored as they are not part of our extraction logic.
-
-## License
-
-This project is licensed under the **Apache License 2.0**. It includes explicit patent grants, making it safe for both individual and enterprise use.
+- **Supported OS**: Windows / Linux / macOS
+- **Python**: 3.10+ recommended
+- **License**: Apache License 2.0 (commercial use and modifications allowed)
 
 ---
 
-**Author**: [NodeMeld](https://github.com/NodeMeld)
+## Privacy
+
+We extract **only generation-related information** (prompt/workflow/etc.) from image metadata, and do not read private EXIF data such as GPS. File loading is limited to **the directory you specify and its subdirectories** (we recommend managing permissions appropriately).
+
+---
+
+## Contact / Issues
+
+[GitHub Issues](https://github.com/HappyOnigiri/ComfyUI-Meld/issues)
+
+---
+
+**Developed by**: [HappyOnigiri](https://github.com/HappyOnigiri)
 
 ---
