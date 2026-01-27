@@ -61,12 +61,10 @@ def list_workflows() -> list[dict[str, Any]]:
                                 process_node(node)
 
                 total_loaders = loader_count + load_image_count
-                valid = total_loaders == 1
+                valid = total_loaders >= 1
                 reason = ""
                 if total_loaders == 0:
                     reason = "No 'Meld Image Loader' or 'Load Image' node found."
-                elif total_loaders > 1:
-                    reason = f"Multiple image loader nodes found ({total_loaders})."
 
                 workflows.append(
                     {

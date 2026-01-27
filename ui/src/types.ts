@@ -152,6 +152,12 @@ export type ActiveModal =
 			isPermanent?: boolean;
 	  }
 	| { type: "mask_editor"; imageId: number; mode: "apply" | "run" }
+	| {
+			type: "node_selection";
+			image: MeldImage;
+			nodes: { id: string; type: string; title?: string }[];
+			onSelect: (nodeId: string) => void;
+	  }
 	| { type: "note_edit"; imageId: number; notes: string };
 
 export interface GalleryState {

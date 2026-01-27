@@ -17,52 +17,68 @@ interface ComfyNode {
 
 export const useWorkflowExecution = () => {
 	const executeWorkflow = useCallback(
-		async (workflowName: string, image: MeldImage, maskFilename?: string) => {
+		async (
+			workflowName: string,
+			image: MeldImage,
+			maskFilename?: string,
+			targetLoaderNodeId?: string,
+		) => {
 			console.log("[Meld] executeWorkflow called:", {
 				workflowName,
 				imageId: image.id,
 				maskFilename,
+				targetLoaderNodeId,
 			});
 			// 1. Fetch the raw workflow JSON
 			const workflow = await fetchWorkflowRaw(workflowName);
 			console.log("[Meld] Workflow fetched:", workflowName);
 
 			// 2. Find the MeldImageLoader, LoadImage, and LoadImageMask nodes
-			let loaderNodeId: string | null = null;
+			let loaderNodeId: string | null = targetLoaderNodeId || null;
 			let maskNodeId: string | null = null;
 			let isUIFormat = false;
+
+			const isLoaderNode = (type: string | undefined) => {
+				if (!type) return false;
+				const t = type.replace(/\s+/g, "");
+				return t === "MeldImageLoader" || t === "LoadImage";
+			};
 
 			if (workflow.nodes && Array.isArray(workflow.nodes)) {
 				// UI Format (saved from ComfyUI web interface)
 				isUIFormat = true;
-				const loaderNode = (workflow.nodes as ComfyNode[]).find(
-					(n) =>
-						n.type === "MeldImageLoader" ||
-						n.type === "LoadImage" ||
-						n.type === "Load Image",
-				);
-				if (loaderNode) {
-					loaderNodeId = String(loaderNode.id);
+				if (!loaderNodeId) {
+					const loaderNode = (workflow.nodes as ComfyNode[]).find((n) =>
+						isLoaderNode(n.type),
+					);
+					if (loaderNode) {
+						loaderNodeId = String(loaderNode.id);
+					}
 				}
 
 				const maskNode = (workflow.nodes as ComfyNode[]).find(
-					(n) => n.type === "LoadImageMask",
+					(n) => n.type?.replace(/\s+/g, "") === "LoadImageMask",
 				);
 				if (maskNode) {
 					maskNodeId = String(maskNode.id);
 				}
 			} else {
 				// API Format: { "node_id": { "inputs": { ... }, "class_type": "..." } }
+				if (!loaderNodeId) {
+					for (const nodeId in workflow) {
+						const node = workflow[nodeId] as ComfyNode;
+						if (isLoaderNode(node.class_type)) {
+							loaderNodeId = nodeId;
+							break;
+						}
+					}
+				}
+
 				for (const nodeId in workflow) {
 					const node = workflow[nodeId] as ComfyNode;
-					if (
-						node.class_type === "MeldImageLoader" ||
-						node.class_type === "LoadImage" ||
-						node.class_type === "Load Image"
-					) {
-						loaderNodeId = nodeId;
-					} else if (node.class_type === "LoadImageMask") {
+					if (node.class_type?.replace(/\s+/g, "") === "LoadImageMask") {
 						maskNodeId = nodeId;
+						break;
 					}
 				}
 			}
@@ -140,11 +156,7 @@ export const useWorkflowExecution = () => {
 				console.log("[Meld] Active graph nodes count:", activeNodes.length);
 
 				const loaderNode = activeNodes.find(
-					(n) =>
-						String(n.id) === loaderNodeId ||
-						n.type === "MeldImageLoader" ||
-						n.type === "LoadImage" ||
-						n.type === "Load Image",
+					(n) => String(n.id) === loaderNodeId || isLoaderNode(n.type),
 				);
 
 				if (loaderNode) {
@@ -169,7 +181,9 @@ export const useWorkflowExecution = () => {
 
 				if (maskFilename) {
 					const maskNode = activeNodes.find(
-						(n) => String(n.id) === maskNodeId || n.type === "LoadImageMask",
+						(n) =>
+							String(n.id) === maskNodeId ||
+							n.type?.replace(/\s+/g, "") === "LoadImageMask",
 					);
 					console.log("[Meld] Updating mask node widget:", {
 						nodeId: maskNode?.id,
