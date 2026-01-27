@@ -35,7 +35,7 @@ graph LR
 | **positive** | `STRING` | 画像から抽出されたポジティブプロンプト。 |
 | **negative** | `STRING` | 画像から抽出されたネガティブプロンプト。 |
 | **summary** | `STRING` | 検出されたパラメータやモデル情報のログ要約。 |
-| **base_settings** | `BASE_SETTINGS` | シード、ステップ数、CFG、サンプラー名などを格納した辞書データ（`MeldSettingsUnpacker` 等で使用）。 |
+| **base_settings** | `BASE_SETTINGS` | シード、ステップ数、CFG、サンプラー名などを格納した辞書データ（`Meld Settings Unpacker` 等で使用）。 |
 
 ## 仕組みとヒント
 

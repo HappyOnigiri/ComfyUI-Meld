@@ -35,7 +35,7 @@ graph LR
 | **positive** | `STRING` | The positive prompt extracted from the image. |
 | **negative** | `STRING` | The negative prompt extracted from the image. |
 | **summary** | `STRING` | A summary log of detected parameters and model information. |
-| **base_settings** | `BASE_SETTINGS` | A dictionary containing seed, steps, CFG, sampler name, etc. (for use with `MeldSettingsUnpacker`). |
+| **base_settings** | `BASE_SETTINGS` | A dictionary containing seed, steps, CFG, sampler name, etc. (for use with `Meld Settings Unpacker`). |
 
 ## Tips & Mechanics
 
