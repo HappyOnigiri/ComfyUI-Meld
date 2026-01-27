@@ -25,6 +25,10 @@ class MeldAutoExposure:
     FUNCTION = "adjust_gamma"
     CATEGORY = "Meld/Image"
 
+    # --- Node Description ---
+    DESCRIPTION = "Analyzes image brightness (luminance) and automatically applies gamma correction to approach a target brightness level.\nUseful for brightening generated images that are too dark, or conversely, toning down images that are too bright."
+    # ---------------------------
+
     def adjust_gamma(
         self,
         image: torch.Tensor,

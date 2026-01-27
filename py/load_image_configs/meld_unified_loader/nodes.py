@@ -27,6 +27,13 @@ class MeldUnifiedLoader:
     FUNCTION = "load_and_process"
     CATEGORY = "Meld/Loaders"
 
+    # --- Node Description ---
+    DESCRIPTION = (
+        "A unified loader that handles checkpoint loading and defines basic generation parameters in a single node.\n"
+        "It also outputs a base_settings dictionary that can be reused or unpacked by subsequent nodes (e.g., Meld Settings Unpacker)."
+    )
+    # ---------------------------
+
     def load_and_process(
         self,
         model_name: str,

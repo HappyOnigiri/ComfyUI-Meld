@@ -25,6 +25,13 @@ class MeldImageLoaderBatch:
     CATEGORY = "Meld/Image"
     OUTPUT_NODE = True
 
+    # --- Node Description ---
+    DESCRIPTION = (
+        "Loads images from a specified directory by index for batch processing or sequential loading.\n"
+        "Like Meld Image Loader, it also parses and restores embedded metadata (prompts, model, sampler settings, etc.)."
+    )
+    # ---------------------------
+
     def load_batch(self, directory_path: str, index: int, stop_at_limit: bool) -> dict:
         valid_ext = [".png", ".jpg", ".jpeg", ".webp"]
         if not os.path.isdir(directory_path):

@@ -27,6 +27,10 @@ class MeldPixelate:
     FUNCTION = "pixelate"
     CATEGORY = "Meld/Sandbox"
 
+    # --- Node Description ---
+    DESCRIPTION = "Applies a pixelation effect (mosaic) to an image by downscaling and then upscaling.\nUseful for creating retro pixel art effects or censoring content.\nFeatures:\n- High-quality pixelation using area downscaling\n- Sharp edges using nearest neighbor upscaling"
+    # ---------------------------
+
     def pixelate(self, image: torch.Tensor, pixel_size: int) -> tuple[torch.Tensor]:
         # image shape is [Batch, Height, Width, Channels]
         B, H, W, C = image.shape

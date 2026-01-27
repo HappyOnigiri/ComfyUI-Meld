@@ -26,6 +26,10 @@ class MeldPatternHeart:
     FUNCTION = "fill_with_pattern"
     CATEGORY = "Meld/Sandbox"
 
+    # --- Node Description ---
+    DESCRIPTION = "Automatically draws and places heart patterns on an image.\nFeatures:\n- Grid tiling or boundary placement (Edge/Edge Inward)\n- Auto-orientation for boundary hearts\n- Adjustable size, opacity, and spacing\n- Random rotation support"
+    # ---------------------------
+
     def fill_with_pattern(
         self,
         image: torch.Tensor,

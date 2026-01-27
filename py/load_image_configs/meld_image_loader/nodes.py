@@ -51,6 +51,13 @@ class MeldImageLoader:
     CATEGORY = "Meld/Image"
     OUTPUT_NODE = True
 
+    # --- Node Description ---
+    DESCRIPTION = (
+        "Loads an image and automatically extracts embedded generation metadata (prompts, model, sampler settings, etc.).\n"
+        "Also attempts to load the checkpoint model based on the detected metadata to streamline reuse and iteration."
+    )
+    # ---------------------------
+
     def load(self, image: str) -> dict:
         image_path = folder_paths.get_annotated_filepath(image)
         image_loader = nodes.LoadImage()  # type: ignore

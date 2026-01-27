@@ -8,6 +8,10 @@ class MeldSettingsUnpacker:
     FUNCTION = "unpack"
     CATEGORY = "Meld/Utils"
 
+    # --- Node Description ---
+    DESCRIPTION = "Unpacks a BASE_SETTINGS dictionary into individual generation parameters (seed, steps, cfg, sampler, scheduler, width, height)."
+    # ---------------------------
+
     def unpack(self, base_settings: dict) -> tuple[int, int, float, str, str, int, int]:
         if not isinstance(base_settings, dict):
             return (0, 20, 8.0, "euler", "normal", 512, 512)

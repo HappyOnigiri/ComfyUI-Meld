@@ -71,6 +71,14 @@ class MeldSaveImage:
     OUTPUT_NODE = True
     CATEGORY = "Meld/Image Manager"
 
+    # --- Node Description ---
+    DESCRIPTION = (
+        "Saves generated images and automatically registers them into the Image Manager database.\n"
+        "Also extracts and saves metadata (prompts, workflows, model info) and uses perceptual hash (pHash) "
+        "to infer parent images and build a lineage tree."
+    )
+    # ---------------------------
+
     def save_images(
         self,
         images: torch.Tensor,
