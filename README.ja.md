@@ -93,7 +93,7 @@ pip install -r requirements.txt
 * **不具合報告 (Bug Report)**: エラーログやスクリーンショットを添付していただけると、修正がスムーズになります。
 * **機能要望 (Feature Request)**: 「こんな機能が欲しい」「ここが使いにくい」といったアイデアをお待ちしています。
 
-> **Notice:** 開発者は日本人ですので、Issue は日本語で気軽にお送りください。
+> **Notice:** 開発者は日本人ですので、Issue は日本語で気軽にどうぞ。
 
 [GitHub Issues を開く](https://github.com/HappyOnigiri/ComfyUI-Meld/issues)
 
@@ -103,7 +103,7 @@ pip install -r requirements.txt
 
 **Pull Request (PR) は、ドキュメントの誤字修正から新機能の実装まで、どんな小さなものでも大歓迎です！**
 
-完璧なコードである必要はありません。「とりあえず動く」状態でもお気軽に送ってください。
+完璧なコードである必要はありません。「とりあえず動く」状態でも問題ありません。
 
 ---
 
