@@ -1,0 +1,35 @@
+name: 機能要望 (Feature Request)
+description: 新機能の提案や改善案はこちらからお願いします
+title: "[Feat]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Meldをより良くするためのアイデアを歓迎します！
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 関連する課題 (Is your feature request related to a problem?)
+      description: 「何に困っているか」または「何を解決したいか」を教えてください。
+      placeholder: 例：過去の画像を検索する時に、日付で絞り込めないので不便...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: 解決策のアイデア (Describe the solution you'd like)
+      description: どのような機能があれば解決するか、具体的なイメージがあれば教えてください。
+      placeholder: 例：検索バーに `date:2024-01-01` のような構文を追加してほしい。
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: その他の代替案 (Describe alternatives you've considered)
+      description: もし他に検討した方法があれば教えてください（任意）。
+    validations:
+      required: false
