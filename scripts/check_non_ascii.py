@@ -4,7 +4,9 @@ import re
 import subprocess
 from pathlib import Path
 
-EXCLUDE_RE = re.compile(r"(\.ja\.md$|^docs/ja/|^\.cursor/rules/|^web/js/gallery_extension\.js$)")
+EXCLUDE_RE = re.compile(
+    r"(\.ja\.md$|^docs/ja/|^\.cursor/rules/|^web/js/gallery_extension\.js$|^\.github/ISSUE_TEMPLATE/.*\.ja\.yml$)"
+)
 
 # Allowed non-ASCII characters (e.g., symbols, arrows, and punctuation used in documentation)
 # Range \u2000-\u2bff covers:
