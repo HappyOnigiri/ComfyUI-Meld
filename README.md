@@ -86,9 +86,15 @@ We extract **only generation-related information** (prompt/workflow/etc.) from i
 
 ---
 
-## Contact / Issues
+## Support & Feedback
 
-[GitHub Issues](https://github.com/HappyOnigiri/ComfyUI-Meld/issues)
+We welcome all kinds of feedback, including bug reports, feature requests, and questions!
+Please feel free to open an issue on GitHub.
+
+* **Bug Report**: Please include error logs or screenshots if possible.
+* **Feature Request**: We would love to hear your ideas for new features or improvements.
+
+[Open GitHub Issues](https://github.com/HappyOnigiri/ComfyUI-Meld/issues)
 
 ---
 
