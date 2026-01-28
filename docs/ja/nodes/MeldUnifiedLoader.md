@@ -6,7 +6,7 @@ Checkpointのロードと、基本的な画像生成パラメータ（プロン�
 
 通常、ComfyUIのワークフローでは `Load Checkpoint` ノードとは別に、プロンプト入力やサンプリング設定（KSamplerへの入力値）が分散しがちです。
 このノードを使用すると、モデルの読み込みと同時に主要な生成パラメータを一箇所で管理できます。
-また、設定値を `base_settings` という辞書形式で出力するため、後続のノード（`Meld Settings Unpacker` など）で同じ設定を簡単に再利用・展開することが可能です。
+また、設定値を `base_settings` という辞書形式で出力するため、後続のノード（[Meld Settings Unpacker](./MeldSettingsUnpacker.md) など）で同じ設定を簡単に再利用・展開することが可能です。
 
 ## 接続イメージ
 
@@ -47,7 +47,7 @@ Checkpointのロードと、基本的な画像生成パラメータ（プロン�
 ## 使い方・仕組み
 
 1.  **一元管理**: 生成に必要な基本的な設定をこのノードだけで完結させることができます。
-2.  **設定の再利用**: `base_settings` 出力を `Meld Settings Unpacker` に接続すると、別の場所でパラメータ個別に展開して利用できます。これにより、複雑なワークフローでも設定の同期が容易になります。
+2.  **設定の再利用**: `base_settings` 出力を [Meld Settings Unpacker](./MeldSettingsUnpacker.md) に接続すると、別の場所でパラメータ個別に展開して利用できます。これにより、複雑なワークフローでも設定の同期が容易になります。
 3.  **Checkpoint Loaderとの違い**: 通常の `Load Checkpoint` ノードと異なり、VAEやCLIPの個別ロード設定（`load_checkpoint_guess_config` ロジックを使用）を内部で自動的に最適化して行います。
 
 ## Image Manager との連携

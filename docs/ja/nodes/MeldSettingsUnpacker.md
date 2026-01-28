@@ -2,7 +2,7 @@
 
 `BASE_SETTINGS` 形式の辞書データを受け取り、生成に必要な個別のパラメータ（シード値、ステップ数、解像度など）に分解して出力するユーティリティノードです。
 
-`Meld Unified Loader` や `Meld Image Loader` など、画像生成設定をまとめて出力するノードと組み合わせて使用することで、ワークフローを簡潔に保つことができます。
+[Meld Unified Loader](./MeldUnifiedLoader.md) や [Meld Image Loader](./MeldImageLoader.md) など、画像生成設定をまとめて出力するノードと組み合わせて使用することで、ワークフローを簡潔に保つことができます。
 
 ## 入力 (Inputs)
 
@@ -10,7 +10,7 @@
 
 | 名前 | 型 | デフォルト | 説明 |
 | :--- | :--- | :--- | :--- |
-| **base_settings** | `BASE_SETTINGS` | - | 設定値が含まれた辞書データ。通常は `Meld Unified Loader` 等の出力ポートから接続します。 |
+| **base_settings** | `BASE_SETTINGS` | - | 設定値が含まれた辞書データ。通常は [Meld Unified Loader](./MeldUnifiedLoader.md) 等の出力ポートから接続します。 |
 
 ## 出力 (Outputs)
 

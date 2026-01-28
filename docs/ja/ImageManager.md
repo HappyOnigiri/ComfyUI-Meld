@@ -22,8 +22,8 @@ Image Manager は、ComfyUI での画像生成プロセスに深く統合され�
 *   標準の `Save Image` ノードなどで生成された画像（`output` フォルダに保存されるもの）が、実行完了時に自動的にギャラリーへ追加されます。
 *   メタデータ（プロンプト、モデル情報、ワークフロー）も同時に保存されるため、後から簡単に検索や復元が可能です。
 
-### Meld Save Image による高度な管理
-専用の **`Meld Save Image`** ノードを使用することで、さらに柔軟な管理が可能になります。
+### [Meld Save Image](./nodes/MeldSaveImage.md) による高度な管理
+専用の **[Meld Save Image](./nodes/MeldSaveImage.md)** ノードを使用することで、さらに柔軟な管理が可能になります。
 *   **タグの自動付与**: ノードの `tags` 入力にカンマ区切りでタグ（例: `favorite, portrait`）を指定すると、生成時にそのタグが自動的に付与された状態で登録されます。
 *   **Source 画像（親）の明示的な指定**: `origin_image` 入力に画像を接続することで、その画像を「親画像（Source）」として明示的に指定し、系統管理（Lineage）に記録できます。自動推定に頼らず、正確な親子関係を維持したい場合に役立ちます。
 
@@ -71,8 +71,8 @@ ComfyUI 画面左側のサイドバーに表示されるパネルです。
 ### 画像メニューアクション
 画像上のメニューや右クリックから以下のアクションを実行できます。
 
-*   **Add Unified Loader**: 生成に使用したモデル設定を `Meld Unified Loader` ノードに適用します。
-*   **Send to Workflow**: 画像を現在のワークフローにある `Load Image` や `Meld Image Loader` ノードに送信します。
+*   **Add Unified Loader**: 生成に使用したモデル設定を [Meld Unified Loader](./nodes/MeldUnifiedLoader.md) ノードに適用します。
+*   **Send to Workflow**: 画像を現在のワークフローにある `Load Image` や [Meld Image Loader](./nodes/MeldImageLoader.md) ノードに送信します。
     *   **Send to Workflow (Mask)**: Inpaint 用に、画像とマスクを現在のワークフローに送信します。
 *   **Queue Workflow**: 選択したワークフローに画像を入力して実行します。
     *   **Queue Workflow (Mask)**: マスクエディタを開き、Inpaint ワークフローを実行します。

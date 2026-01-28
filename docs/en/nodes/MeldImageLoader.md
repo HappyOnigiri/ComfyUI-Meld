@@ -33,7 +33,7 @@ This significantly streamlines the process of reusing previously generated image
 | **positive** | `STRING` | The extracted positive prompt. |
 | **negative** | `STRING` | The extracted negative prompt. |
 | **summary** | `STRING` | A summary text of all extracted parameters (including logs). Can be viewed with a Show Text node. |
-| **base_settings** | `BASE_SETTINGS` | A dictionary data grouping basic settings such as Seed, Steps, CFG, Sampler name, etc. Can be extracted into individual values using `Meld Settings Unpacker` etc. |
+| **base_settings** | `BASE_SETTINGS` | A dictionary data grouping basic settings such as Seed, Steps, CFG, Sampler name, etc. Can be extracted into individual values using [Meld Settings Unpacker](./MeldSettingsUnpacker.md) etc. |
 
 ## Usage & Tips
 
@@ -48,4 +48,4 @@ This significantly streamlines the process of reusing previously generated image
     The model is loaded if the model name (checkpoint name) described in the metadata exists under `models/checkpoints` in the current ComfyUI environment. Even if the filename does not match exactly, it may try to find and load a similar name, but success is not guaranteed.
 
 *   **Using base_settings**:
-    The output `base_settings` can be connected to the `Meld Settings Unpacker` node to be extracted as individual INT/FLOAT/STRING values such as `seed`, `steps`, `cfg`.
+    The output `base_settings` can be connected to the [Meld Settings Unpacker](./MeldSettingsUnpacker.md) node to be extracted as individual INT/FLOAT/STRING values such as `seed`, `steps`, `cfg`.

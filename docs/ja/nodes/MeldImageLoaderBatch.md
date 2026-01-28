@@ -1,7 +1,7 @@
 # Meld Image Loader (Batch) (MeldImageLoaderBatch)
 
 指定したディレクトリ内の画像を、インデックスに基づいて読み込むノードです。バッチ処理や連続的な画像の読み込みに適しています。
-`Meld Image Loader` と同様に、画像に含まれるメタデータ（プロンプト、モデル、設定）の解析と復元も行います。
+[Meld Image Loader](./MeldImageLoader.md) と同様に、画像に含まれるメタデータ（プロンプト、モデル、設定）の解析と復元も行います。
 
 ## 接続イメージ
 
@@ -35,7 +35,7 @@ graph LR
 | **positive** | `STRING` | 画像から抽出されたポジティブプロンプト。 |
 | **negative** | `STRING` | 画像から抽出されたネガティブプロンプト。 |
 | **summary** | `STRING` | 検出されたパラメータやモデル情報のログ要約。 |
-| **base_settings** | `BASE_SETTINGS` | シード、ステップ数、CFG、サンプラー名などを格納した辞書データ（`Meld Settings Unpacker` 等で使用）。 |
+| **base_settings** | `BASE_SETTINGS` | シード、ステップ数、CFG、サンプラー名などを格納した辞書データ（[Meld Settings Unpacker](./MeldSettingsUnpacker.md) 等で使用）。 |
 
 ## 仕組みとヒント
 

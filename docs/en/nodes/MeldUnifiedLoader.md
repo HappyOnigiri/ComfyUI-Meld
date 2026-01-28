@@ -6,7 +6,7 @@ A unified loader that handles Checkpoint loading and defines basic image generat
 
 In standard ComfyUI workflows, `Load Checkpoint` nodes, prompt inputs, and sampling settings (inputs to KSampler) are often scattered.
 This node allows you to manage model loading and key generation parameters in one place.
-It also outputs settings as a dictionary called `base_settings`, which can be easily reused or unpacked by subsequent nodes (e.g., `Meld Settings Unpacker`).
+It also outputs settings as a dictionary called `base_settings`, which can be easily reused or unpacked by subsequent nodes (e.g., [Meld Settings Unpacker](./MeldSettingsUnpacker.md)).
 
 ## Connection
 
@@ -47,7 +47,7 @@ It also outputs settings as a dictionary called `base_settings`, which can be ea
 ## Usage & Mechanism
 
 1.  **Centralized Management**: You can complete the basic settings required for generation with just this node.
-2.  **Reuse Settings**: Connect the `base_settings` output to `Meld Settings Unpacker` to unpack and use parameters individually elsewhere. This makes it easy to synchronize settings in complex workflows.
+2.  **Reuse Settings**: Connect the `base_settings` output to [Meld Settings Unpacker](./MeldSettingsUnpacker.md) to unpack and use parameters individually elsewhere. This makes it easy to synchronize settings in complex workflows.
 3.  **Difference from Checkpoint Loader**: Unlike the standard `Load Checkpoint` node, it internally optimizes the loading of VAE and CLIP (using logic similar to `load_checkpoint_guess_config`).
 
 ## Integration with Image Manager

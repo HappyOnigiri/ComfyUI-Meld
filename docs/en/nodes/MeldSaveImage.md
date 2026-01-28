@@ -20,7 +20,7 @@ In addition to extracting and saving metadata such as prompts, workflows, and mo
 | Name | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
 | **origin_image** | `IMAGE` | - | Connect the source image (e.g., for img2img) to explicitly specify it as the "parent". The node calculates the pHash of the input and links to the closest matching image in the database. |
-| **positive** | `STRING` | - | The positive prompt. Usually connected from `Meld Image Loader` or `Meld Prompt Constructor`, but manual input is also possible. Saved as metadata. |
+| **positive** | `STRING` | - | The positive prompt. Usually connected from [Meld Image Loader](./MeldImageLoader.md) or [Meld Prompt Constructor](./MeldPromptConstructor.md), but manual input is also possible. Saved as metadata. |
 | **negative** | `STRING` | - | The negative prompt. Saved as metadata. |
 | **tags** | `STRING` | - | Tags to apply to the image. Multiple tags can be specified using comma separation (e.g., `girl, masterpiece, best quality`). |
 

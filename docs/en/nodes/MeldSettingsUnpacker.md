@@ -2,7 +2,7 @@
 
 This utility node takes a dictionary data in `BASE_SETTINGS` format and unpacks it into individual parameters required for generation (seed, steps, resolution, etc.).
 
-It is designed to be used in combination with nodes that output generation settings in a bundle, such as `Meld Unified Loader` or `Meld Image Loader`, helping to keep workflows clean and organized.
+It is designed to be used in combination with nodes that output generation settings in a bundle, such as [Meld Unified Loader](./MeldUnifiedLoader.md) or [Meld Image Loader](./MeldImageLoader.md), helping to keep workflows clean and organized.
 
 ## Inputs
 
@@ -10,7 +10,7 @@ It is designed to be used in combination with nodes that output generation setti
 
 | Name | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| **base_settings** | `BASE_SETTINGS` | - | A dictionary containing setting values. Typically connected from the output of nodes like `Meld Unified Loader`. |
+| **base_settings** | `BASE_SETTINGS` | - | A dictionary containing setting values. Typically connected from the output of nodes like [Meld Unified Loader](./MeldUnifiedLoader.md). |
 
 ## Outputs
 

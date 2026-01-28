@@ -23,7 +23,7 @@ The Image Manager is an integrated image management system added to ComfyUI's si
 - **Lineage Tracking**: Visualize parent-child relationships such as img2img
 - **Workflow Integration**: One-click load images and assist restoring settings and workflows
 
-By default, **output images are automatically registered** when a workflow execution completes. If you additionally use `Meld Save Image`, you can enhance management with features like automatic tagging and explicitly specifying a source (parent) image.
+By default, **output images are automatically registered** when a workflow execution completes. If you additionally use [Meld Save Image](./docs/en/nodes/MeldSaveImage.md), you can enhance management with features like automatic tagging and explicitly specifying a source (parent) image.
 
 For detailed usage, shortcuts, and search syntax, see [`docs/en/ImageManager.md`](./docs/en/ImageManager.md).
 
@@ -33,17 +33,17 @@ For detailed usage, shortcuts, and search syntax, see [`docs/en/ImageManager.md`
 
 See `docs/en/nodes/` for details.
 
-| Node | Role (Summary) | Docs |
-| :--- | :--- | :--- |
-| **Meld Prompt Constructor** | Build prompts from text files with dynamic syntax and automatically split negatives | [`docs/en/nodes/MeldPromptConstructor.md`](./docs/en/nodes/MeldPromptConstructor.md) |
-| **Meld Auto Exposure** | Analyze luminance and apply automatic gamma correction toward a target brightness | [`docs/en/nodes/MeldAutoExposure.md`](./docs/en/nodes/MeldAutoExposure.md) |
-| **Meld Save Image** | Save images and auto-register to Image Manager (metadata, pHash-based lineage, tagging) | [`docs/en/nodes/MeldSaveImage.md`](./docs/en/nodes/MeldSaveImage.md) |
-| **Meld Unified Loader** | Combine checkpoint loading and base generation parameters, output reusable `base_settings` | [`docs/en/nodes/MeldUnifiedLoader.md`](./docs/en/nodes/MeldUnifiedLoader.md) |
-| **Meld Settings Unpacker** | Unpack a `BASE_SETTINGS` dict into seed/steps/cfg/resolution and other parameters | [`docs/en/nodes/MeldSettingsUnpacker.md`](./docs/en/nodes/MeldSettingsUnpacker.md) |
-| **Meld Image Loader** | Load an image, extract prompt/settings from embedded metadata, and attempt model loading | [`docs/en/nodes/MeldImageLoader.md`](./docs/en/nodes/MeldImageLoader.md) |
-| **Meld Image Loader Batch** | Load images from a directory sequentially by index (including metadata analysis/restoration) | [`docs/en/nodes/MeldImageLoaderBatch.md`](./docs/en/nodes/MeldImageLoaderBatch.md) |
-| **Meld Pixelate (Instant Pixelate)** | Pixelate via downsample then nearest-neighbor upscale (mosaic / pixel art) | [`docs/en/nodes/MeldPixelate.md`](./docs/en/nodes/MeldPixelate.md) |
-| **Meld Pattern Heart (Infinite Heart Generator)** | Decorate by auto-placing heart patterns on grids, edges, and more | [`docs/en/nodes/MeldPatternHeart.md`](./docs/en/nodes/MeldPatternHeart.md) |
+| Node | Role (Summary) |
+| :--- | :--- |
+| **[Meld Prompt Constructor](./docs/en/nodes/MeldPromptConstructor.md)** | Build prompts from text files with dynamic syntax and automatically split negatives |
+| **[Meld Auto Exposure](./docs/en/nodes/MeldAutoExposure.md)** | Analyze luminance and apply automatic gamma correction toward a target brightness |
+| **[Meld Save Image](./docs/en/nodes/MeldSaveImage.md)** | Save images and auto-register to Image Manager (metadata, pHash-based lineage, tagging) |
+| **[Meld Unified Loader](./docs/en/nodes/MeldUnifiedLoader.md)** | Combine checkpoint loading and base generation parameters, output reusable `base_settings` |
+| **[Meld Settings Unpacker](./docs/en/nodes/MeldSettingsUnpacker.md)** | Unpack a `BASE_SETTINGS` dict into seed/steps/cfg/resolution and other parameters |
+| **[Meld Image Loader](./docs/en/nodes/MeldImageLoader.md)** | Load an image, extract prompt/settings from embedded metadata, and attempt model loading |
+| **[Meld Image Loader Batch](./docs/en/nodes/MeldImageLoaderBatch.md)** | Load images from a directory sequentially by index (including metadata analysis/restoration) |
+| **[Meld Pixelate (Instant Pixelate)](./docs/en/nodes/MeldPixelate.md)** | Pixelate via downsample then nearest-neighbor upscale (mosaic / pixel art) |
+| **[Meld Pattern Heart (Infinite Heart Generator)](./docs/en/nodes/MeldPatternHeart.md)** | Decorate by auto-placing heart patterns on grids, edges, and more |
 
 ---
 

@@ -20,7 +20,7 @@
 | 名前 | 型 | デフォルト | 説明 |
 | :--- | :--- | :--- | :--- |
 | **origin_image** | `IMAGE` | - | img2img の元画像などを明示的に「親画像」として指定する場合に入力します。指定された画像の pHash を計算し、データベース内の最も近い画像を親としてリンクします。 |
-| **positive** | `STRING` | - | ポジティブプロンプト。通常は `Meld Image Loader` や `Meld Prompt Constructor` から接続しますが、手動入力も可能です。メタデータとして保存されます。 |
+| **positive** | `STRING` | - | ポジティブプロンプト。通常は [Meld Image Loader](./MeldImageLoader.md) や [Meld Prompt Constructor](./MeldPromptConstructor.md) から接続しますが、手動入力も可能です。メタデータとして保存されます。 |
 | **negative** | `STRING` | - | ネガティブプロンプト。メタデータとして保存されます。 |
 | **tags** | `STRING` | - | 画像に付与するタグ。カンマ区切りで複数のタグを指定できます（例: `girl, masterpiece, best quality`）。 |
 

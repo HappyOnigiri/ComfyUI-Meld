@@ -23,7 +23,7 @@ Image Manager は、ComfyUI のサイドバーに追加される統合画像管�
 - **系統管理（Lineage）**: img2img 等の親子関係を可視化
 - **ワークフロー連携**: 画像をワンクリックで読み込み、設定やワークフローの復元を補助
 
-基本は、ワークフロー実行完了時に **Output 画像が自動登録** されます。さらに `Meld Save Image` を使うと、タグの自動付与や親画像（Source）の明示指定など、管理を強化できます。
+基本は、ワークフロー実行完了時に **Output 画像が自動登録** されます。さらに [Meld Save Image](./docs/ja/nodes/MeldSaveImage.md) を使うと、タグの自動付与や親画像（Source）の明示指定など、管理を強化できます。
 
 詳細な使い方とショートカット、検索構文は [`docs/ja/ImageManager.md`](./docs/ja/ImageManager.md) を参照してください。
 
@@ -33,17 +33,17 @@ Image Manager は、ComfyUI のサイドバーに追加される統合画像管�
 
 各ノードの詳細は `docs/ja/nodes/` を参照してください。
 
-| ノード | 役割（概要） | ドキュメント |
-| :--- | :--- | :--- |
-| **Meld Prompt Constructor** | テキストファイル群から動的構文を使ってプロンプトを構築し、ネガティブを自動分離 | [`docs/ja/nodes/MeldPromptConstructor.md`](./docs/ja/nodes/MeldPromptConstructor.md) |
-| **Meld Auto Exposure** | 輝度を解析し、目標明るさへ近づけるガンマ補正を自動適用 | [`docs/ja/nodes/MeldAutoExposure.md`](./docs/ja/nodes/MeldAutoExposure.md) |
-| **Meld Save Image** | 画像保存＋Image Manager へ自動登録（メタデータ保存、pHash による Lineage 構築、タグ付け） | [`docs/ja/nodes/MeldSaveImage.md`](./docs/ja/nodes/MeldSaveImage.md) |
-| **Meld Unified Loader** | Checkpoint ロードと基本生成パラメータ定義を統合し、`base_settings` として再利用可能に出力 | [`docs/ja/nodes/MeldUnifiedLoader.md`](./docs/ja/nodes/MeldUnifiedLoader.md) |
-| **Meld Settings Unpacker** | `BASE_SETTINGS` 辞書を seed/steps/cfg/解像度等の個別パラメータへ分解して出力 | [`docs/ja/nodes/MeldSettingsUnpacker.md`](./docs/ja/nodes/MeldSettingsUnpacker.md) |
-| **Meld Image Loader** | 画像を読み込み、埋め込みメタデータからプロンプト/設定を抽出し、モデルロードも試行 | [`docs/ja/nodes/MeldImageLoader.md`](./docs/ja/nodes/MeldImageLoader.md) |
-| **Meld Image Loader Batch** | ディレクトリ内の画像を index 指定で連続読み込み（メタデータ解析・復元も実施） | [`docs/ja/nodes/MeldImageLoaderBatch.md`](./docs/ja/nodes/MeldImageLoaderBatch.md) |
-| **Meld Pixelate（Instant Pixelate）** | ダウンサンプル→最近傍アップスケールでピクセル化（モザイク/ドット絵） | [`docs/ja/nodes/MeldPixelate.md`](./docs/ja/nodes/MeldPixelate.md) |
-| **Meld Pattern Heart（Infinite Heart Generator）** | ハートパターンをグリッド/エッジ沿い等で自動配置して装飾 | [`docs/ja/nodes/MeldPatternHeart.md`](./docs/ja/nodes/MeldPatternHeart.md) |
+| ノード | 役割（概要） |
+| :--- | :--- |
+| **[Meld Prompt Constructor](./docs/ja/nodes/MeldPromptConstructor.md)** | テキストファイル群から動的構文を使ってプロンプトを構築し、ネガティブを自動分離 |
+| **[Meld Auto Exposure](./docs/ja/nodes/MeldAutoExposure.md)** | 輝度を解析し、目標明るさへ近づけるガンマ補正を自動適用 |
+| **[Meld Save Image](./docs/ja/nodes/MeldSaveImage.md)** | 画像保存＋Image Manager へ自動登録（メタデータ保存、pHash による Lineage 構築、タグ付け） |
+| **[Meld Unified Loader](./docs/ja/nodes/MeldUnifiedLoader.md)** | Checkpoint ロードと基本生成パラメータ定義を統合し、`base_settings` として再利用可能に出力 |
+| **[Meld Settings Unpacker](./docs/ja/nodes/MeldSettingsUnpacker.md)** | `BASE_SETTINGS` 辞書を seed/steps/cfg/解像度等の個別パラメータへ分解して出力 |
+| **[Meld Image Loader](./docs/ja/nodes/MeldImageLoader.md)** | 画像を読み込み、埋め込みメタデータからプロンプト/設定を抽出し、モデルロードも試行 |
+| **[Meld Image Loader Batch](./docs/ja/nodes/MeldImageLoaderBatch.md)** | ディレクトリ内の画像を index 指定で連続読み込み（メタデータ解析・復元も実施） |
+| **[Meld Pixelate（Instant Pixelate）](./docs/ja/nodes/MeldPixelate.md)** | ダウンサンプル→最近傍アップスケールでピクセル化（モザイク/ドット絵） |
+| **[Meld Pattern Heart（Infinite Heart Generator）](./docs/ja/nodes/MeldPatternHeart.md)** | ハートパターンをグリッド/エッジ沿い等で自動配置して装飾 |
 
 ---
 

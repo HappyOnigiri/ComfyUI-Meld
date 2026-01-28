@@ -33,7 +33,7 @@ ComfyUIで生成された画像（またはA1111などで生成された画像�
 | **positive** | `STRING` | 抽出されたポジティブプロンプト。 |
 | **negative** | `STRING` | 抽出されたネガティブプロンプト。 |
 | **summary** | `STRING` | 抽出された全パラメータの概要テキスト（ログ含む）。Show Textノードなどで確認できます。 |
-| **base_settings** | `BASE_SETTINGS` | Seed, Steps, CFG, Sampler名などの基本設定をまとめた辞書データ。`Meld Settings Unpacker` などで個別の値に取り出せます。 |
+| **base_settings** | `BASE_SETTINGS` | Seed, Steps, CFG, Sampler名などの基本設定をまとめた辞書データ。[Meld Settings Unpacker](./MeldSettingsUnpacker.md) などで個別の値に取り出せます。 |
 
 ## 使い方とヒント
 
@@ -48,4 +48,4 @@ ComfyUIで生成された画像（またはA1111などで生成された画像�
     メタデータに記載されているモデル名（チェックポイント名）が、現在のComfyUI環境の `models/checkpoints` 以下に存在する場合にロードされます。ファイル名が完全一致しない場合でも、類似の名前を探してロードを試みる場合がありますが、必ずしも成功するとは限りません。
 
 *   **base_settingsの活用**:
-    出力される `base_settings` は、`Meld Settings Unpacker` ノードに接続することで、`seed`, `steps`, `cfg` などの個別のINT/FLOAT/STRING値として取り出すことができます。
+    出力される `base_settings` は、[Meld Settings Unpacker](./MeldSettingsUnpacker.md) ノードに接続することで、`seed`, `steps`, `cfg` などの個別のINT/FLOAT/STRING値として取り出すことができます。
