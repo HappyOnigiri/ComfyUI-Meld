@@ -94,6 +94,8 @@ Please feel free to open an issue on GitHub.
 * **Bug Report**: Please include error logs or screenshots if possible.
 * **Feature Request**: We would love to hear your ideas for new features or improvements.
 
+> **Notice:** Please note that the developer is Japanese. I will respond to your issues using **machine translation**. To ensure smooth communication, please try to use **simple English** and attach **screenshots or logs** whenever possible.
+
 [Open GitHub Issues](https://github.com/HappyOnigiri/ComfyUI-Meld/issues)
 
 ---

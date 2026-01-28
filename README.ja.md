@@ -93,6 +93,8 @@ GitHub Issues は開発者への連絡手段として開放していますので
 * **不具合報告 (Bug Report)**: エラーログやスクリーンショットを添付していただけると、修正がスムーズになります。
 * **機能要望 (Feature Request)**: 「こんな機能が欲しい」「ここが使いにくい」といったアイデアをお待ちしています。
 
+> **Notice:** 開発者は日本人ですので、Issue は日本語で気軽にお送りください。
+
 [GitHub Issues を開く](https://github.com/HappyOnigiri/ComfyUI-Meld/issues)
 
 ---

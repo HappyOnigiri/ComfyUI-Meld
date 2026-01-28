@@ -1,0 +1,70 @@
+name: "[EN] Bug Report"
+description: Report a bug or error
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for your report! Detailed information helps us fix issues faster.
+
+        **Note:** The developer is Japanese and uses **auto-translation**. Please use **simple English** if possible. Screenshots and logs are very helpful!
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Where did the bug occur?
+      options:
+        - Image Manager (Gallery / Viewer / Search)
+        - Custom Nodes (Save Image / Loader / etc)
+        - Installation / Startup
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Provide a clear and concise description of the bug.
+      placeholder: e.g. Clicking "Delete" in Image Manager does nothing.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction Steps
+      description: How do we reproduce the issue?
+      placeholder: |
+        1. Open ComfyUI
+        2. Open Meld Image Manager
+        3. Select an image and press "Delete"
+        4. An error appears
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Please tell us about your environment (OS, Browser, Versions, etc.).
+      value: |
+        - OS: Windows 10 / macOS / Linux
+        - Browser: Chrome / Edge / Firefox
+        - ComfyUI Version: (e.g. latest, v0.x.x)
+        - Python Version: 3.10
+        - ComfyUI-Meld Version: (e.g. nightly, v0.x.x)
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Error Messages
+      description: |
+        Please paste any console logs from ComfyUI or browser developer tools (F12).
+      render: shell
+    validations:
+      required: false
