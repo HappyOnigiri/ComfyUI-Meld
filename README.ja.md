@@ -42,8 +42,8 @@ Image Manager は、ComfyUI のサイドバーに追加される統合画像管�
 | **[Meld Settings Unpacker](./docs/ja/nodes/MeldSettingsUnpacker.md)** | `BASE_SETTINGS` 辞書を seed/steps/cfg/解像度等の個別パラメータへ分解して出力 |
 | **[Meld Image Loader](./docs/ja/nodes/MeldImageLoader.md)** | 画像を読み込み、埋め込みメタデータからプロンプト/設定を抽出し、モデルロードも試行 |
 | **[Meld Image Loader Batch](./docs/ja/nodes/MeldImageLoaderBatch.md)** | ディレクトリ内の画像を index 指定で連続読み込み（メタデータ解析・復元も実施） |
-| **[Meld Pixelate（Instant Pixelate）](./docs/ja/nodes/MeldPixelate.md)** | ダウンサンプル→最近傍アップスケールでピクセル化（モザイク/ドット絵） |
-| **[Meld Pattern Heart（Infinite Heart Generator）](./docs/ja/nodes/MeldPatternHeart.md)** | ハートパターンをグリッド/エッジ沿い等で自動配置して装飾 |
+| **[Meld Instant Pixelate](./docs/ja/nodes/MeldPixelate.md)** | ダウンサンプル→最近傍アップスケールでピクセル化（モザイク/ドット絵） |
+| **[Meld Infinite Heart Generator](./docs/ja/nodes/MeldPatternHeart.md)** | ハートパターンをグリッド/エッジ沿い等で自動配置して装飾 |
 
 ---
 

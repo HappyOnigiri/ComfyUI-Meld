@@ -42,8 +42,8 @@ See `docs/en/nodes/` for details.
 | **[Meld Settings Unpacker](./docs/en/nodes/MeldSettingsUnpacker.md)** | Unpack a `BASE_SETTINGS` dict into seed/steps/cfg/resolution and other parameters |
 | **[Meld Image Loader](./docs/en/nodes/MeldImageLoader.md)** | Load an image, extract prompt/settings from embedded metadata, and attempt model loading |
 | **[Meld Image Loader Batch](./docs/en/nodes/MeldImageLoaderBatch.md)** | Load images from a directory sequentially by index (including metadata analysis/restoration) |
-| **[Meld Pixelate (Instant Pixelate)](./docs/en/nodes/MeldPixelate.md)** | Pixelate via downsample then nearest-neighbor upscale (mosaic / pixel art) |
-| **[Meld Pattern Heart (Infinite Heart Generator)](./docs/en/nodes/MeldPatternHeart.md)** | Decorate by auto-placing heart patterns on grids, edges, and more |
+| **[Meld Instant Pixelate](./docs/en/nodes/MeldPixelate.md)** | Pixelate via downsample then nearest-neighbor upscale (mosaic / pixel art) |
+| **[Meld Infinite Heart Generator](./docs/en/nodes/MeldPatternHeart.md)** | Decorate by auto-placing heart patterns on grids, edges, and more |
 
 ---
 
