@@ -141,4 +141,3 @@ When modifying custom node functionality (adding features or changing behavior),
 - **Scope**: Update both Japanese (`docs/ja/`) and English (`docs/en/`) documentation.
 - **Tool**: Use the `document-custom-node` skill to ensure correct formatting.
 - **Location**: Documentation files are located in the `docs/` directory.
-

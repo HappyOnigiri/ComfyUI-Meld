@@ -86,7 +86,10 @@ lint-ui: ui/node_modules/.install-stamp
 	cd ui && npx tsc --noEmit
 	cd ui && npx @biomejs/biome check --write src --error-on-warnings
 
-lint-misc: check-non-ascii check-ts-rules
+lint-misc: fix-newlines check-non-ascii check-ts-rules
+
+fix-newlines:
+	@$(PYTHON) scripts/fix_newlines.py
 
 lint-scripts: check-scripts local-check-scripts
 
