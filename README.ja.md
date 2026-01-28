@@ -99,6 +99,14 @@ GitHub Issues は開発者への連絡手段として開放していますので
 
 ---
 
+## 貢献について (Contribution)
+
+**Pull Request (PR) は、ドキュメントの誤字修正から新機能の実装まで、どんな小さなものでも大歓迎です！**
+
+完璧なコードである必要はありません。「とりあえず動く」状態でもお気軽に送ってください。
+
+---
+
 **開発元**: [HappyOnigiri](https://github.com/HappyOnigiri)
 
 ---

@@ -100,6 +100,14 @@ Please feel free to open an issue on GitHub.
 
 ---
 
+## Contribution
+
+**Pull Requests (PRs) are warmly welcomed, from typo fixes to new features!**
+
+Your code doesn't have to be perfect. Please feel free to submit even if it's just "functional" for now.
+
+---
+
 **Developed by**: [HappyOnigiri](https://github.com/HappyOnigiri)
 
 ---
