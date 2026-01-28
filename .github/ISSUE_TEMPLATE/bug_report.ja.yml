@@ -1,4 +1,4 @@
-name: バグ報告 (Bug Report)
+name: "[JA] 不具合報告"
 description: 不具合の報告はこちらからお願いします
 title: "[Bug]: "
 labels: ["bug"]
@@ -11,7 +11,7 @@ body:
   - type: dropdown
     id: area
     attributes:
-      label: 発生箇所 (Area)
+      label: 発生箇所
       description: 不具合はどこで発生しましたか？
       options:
         - Image Manager (Gallery / Viewer / Search)
@@ -24,7 +24,7 @@ body:
   - type: textarea
     id: description
     attributes:
-      label: 不具合の内容 (Description)
+      label: 不具合の内容
       description: どのような不具合か具体的に記述してください。
       placeholder: Image Managerで画像を削除しようとしても反応しない、など
     validations:
@@ -33,7 +33,7 @@ body:
   - type: textarea
     id: steps
     attributes:
-      label: 再現手順 (Reproduction Steps)
+      label: 再現手順
       description: どのようにすればその不具合を再現できますか？
       placeholder: |
         1. ComfyUIを起動
@@ -46,20 +46,21 @@ body:
   - type: textarea
     id: environment
     attributes:
-      label: 環境情報 (Environment)
+      label: 環境情報
       description: OS、ブラウザ、ComfyUIのバージョンなどを教えてください。
       value: |
         - OS: Windows 10 / macOS / Linux
         - Browser: Chrome / Edge / Firefox
         - ComfyUI Version: (e.g. latest, v0.x.x)
         - Python Version: 3.10
+        - ComfyUI-Meld Version: (e.g. nightly, v0.x.x)
     validations:
       required: true
 
   - type: textarea
     id: logs
     attributes:
-      label: ログ / エラーメッセージ (Logs)
+      label: ログ / エラーメッセージ
       description: |
         ComfyUIのコンソールログ、またはブラウザのデベロッパーツール(F12)のコンソールに出ているエラーを貼り付けてください。
       render: shell
