@@ -4,7 +4,7 @@ description = "High-performance nodes for Prompt Construction, Metadata Extracti
 version = "0.1.0"
 license = { text = "Apache-2.0" }
 authors = [
-    { name = "NodeMeld", email = "nodemeld@gmail.com" }
+    { name = "HappyOnigiri", email = "nodemeld+happy-onigiri@gmail.com" }
 ]
 requires-python = ">=3.10,<3.12"
 readme = "README.md"
@@ -35,11 +35,11 @@ dev = [
 ]
 
 [project.urls]
-Repository = "https://github.com/NodeMeld/ComfyUI-Meld"
-"Bug Tracker" = "https://github.com/NodeMeld/ComfyUI-Meld/issues"
+Repository = "https://github.com/HappyOnigiri/ComfyUI-Meld"
+"Bug Tracker" = "https://github.com/HappyOnigiri/ComfyUI-Meld/issues"
 
 [tool.comfy]
-PublisherId = "nodemeld"
+PublisherId = "happyonigiri"
 DisplayName = "Meld: Workflow Consolidator"
 Icon = ""
 

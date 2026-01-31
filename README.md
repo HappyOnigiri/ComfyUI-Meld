@@ -55,7 +55,7 @@ In ComfyUI Manager's search, type **"Meld"** and install it.
 Or run the following command from the CLI:
 
 ```bash
-comfy node install NodeMeld/ComfyUI-Meld
+comfy node install HappyOnigiri/ComfyUI-Meld
 
 ```
 
