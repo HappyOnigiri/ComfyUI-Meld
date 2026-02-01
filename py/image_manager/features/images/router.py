@@ -41,6 +41,64 @@ from .service import get_parent_suggestions, get_unique_filename
 routes = web.RouteTableDef()
 
 
+def _text_contains_flux(value: str | None) -> bool:
+    if not value:
+        return False
+    return "flux" in value.lower()
+
+
+def _is_flux_metadata(
+    model_name: str | None,
+    workflow_json: str | None,
+    prompt_json: str | None,
+    a1111_text: str | None,
+) -> bool:
+    # Requirement: auto-detect Flux vs SD without hiding user options.
+    # Keep the heuristic conservative: only return True when clear hints exist.
+    if _text_contains_flux(model_name):
+        return True
+    if _text_contains_flux(workflow_json):
+        return True
+    if _text_contains_flux(prompt_json):
+        return True
+    if _text_contains_flux(a1111_text):
+        return True
+    return False
+
+
+def _extract_guidance_value(data: object) -> float | None:
+    """Extract guidance value from nested data structure.
+
+    Args:
+        data: The data to search for guidance values.
+    """
+    if isinstance(data, dict):
+        for key, value in data.items():
+            if isinstance(key, str) and key.lower() in {"guidance", "guidance_scale"}:
+                if isinstance(value, (int, float)):
+                    return float(value)
+            found = _extract_guidance_value(value)
+            if found is not None:
+                return found
+        return None
+    if isinstance(data, list):
+        for item in data:
+            found = _extract_guidance_value(item)
+            if found is not None:
+                return found
+        return None
+    return None
+
+
+def _extract_guidance_from_json(json_text: str | None) -> float | None:
+    if not json_text:
+        return None
+    try:
+        return _extract_guidance_value(json.loads(json_text))
+    except Exception:
+        return None
+
+
 @routes.get("/meld/image/{image_id}/details")
 async def get_image_details(request: web.Request) -> web.Response:
     try:
@@ -223,10 +281,16 @@ async def get_image_snapshot_data(request: web.Request) -> web.Response:
             seed=0,
             steps=20,
             cfg=8.0,
+            guidance=3.5,
+            clip_name1="",
+            clip_name2="",
+            clip_type="",
+            clip_device="",
             sampler_name="euler",
             scheduler="normal",
             width=db_width or 512,
             height=db_height or 512,
+            is_flux=_is_flux_metadata(model_name, workflow_json, None, None),
         )
 
         if base_dir:
@@ -256,18 +320,39 @@ async def get_image_snapshot_data(request: web.Request) -> web.Response:
                 found_k = False
                 if wf_json:
                     k_params, found_k = MetadataHelper.get_ksampler_params(wf_json, [])
+                    guidance_val = _extract_guidance_from_json(wf_json)
+                    if guidance_val is not None:
+                        data.guidance = guidance_val
 
                 if not found_k and pr_json:
                     k_params, found_k = MetadataHelper.get_ksampler_params_from_prompt(pr_json, [])
+                    guidance_val = _extract_guidance_from_json(pr_json)
+                    if guidance_val is not None:
+                        data.guidance = guidance_val
 
                 if not found_k and a1111_text:
                     k_params = MetadataHelper.parse_a1111_params(a1111_text)
                     found_k = bool(k_params)
+                    guidance_val = _extract_guidance_from_json(a1111_text)
+                    if guidance_val is not None:
+                        data.guidance = guidance_val
+
+                data.is_flux = _is_flux_metadata(m_name, wf_json, pr_json, a1111_text)
 
                 if found_k:
                     for k in ["seed", "steps", "cfg", "sampler_name", "scheduler"]:
                         if k in k_params and k_params[k] is not None:
                             setattr(data, k, k_params[k])
+
+                clip_params, clip_found = MetadataHelper.get_dual_clip_params(wf_json, [])
+                if not clip_found and pr_json:
+                    clip_params, clip_found = MetadataHelper.get_dual_clip_params(pr_json, [])
+
+                if clip_found:
+                    data.clip_name1 = str(clip_params.get("clip_name1") or "")
+                    data.clip_name2 = str(clip_params.get("clip_name2") or "")
+                    data.clip_type = str(clip_params.get("clip_type") or "")
+                    data.clip_device = str(clip_params.get("clip_device") or "")
 
         return web.json_response(ApiResponse(success=True, data=data.to_dict()).to_dict())
     except Exception as e:

@@ -10,6 +10,8 @@ import { fetchWorkflows } from "../../workflows/api/workflowsApi";
 import { injectImageToGraph } from "../../workflows/utils/injectImageToGraph";
 import * as imagesApi from "../api/imagesApi";
 
+type SnapshotData = Awaited<ReturnType<typeof imagesApi.fetchSnapshotData>>;
+
 /**
  * Shared Image Actions Hook
  *
@@ -46,7 +48,9 @@ export const useImageActions = (
 	const handleAddUnifiedLoader = useCallback(async (image: MeldImage) => {
 		try {
 			const data = await imagesApi.fetchSnapshotData(image.id);
-			const nodeName = "MeldUnifiedLoader";
+			const nodeName = data.is_flux
+				? "MeldUnifiedFluxLoader"
+				: "MeldUnifiedLoader";
 			// @ts-expect-error
 			const comfyApp = window.app;
 			// @ts-expect-error
@@ -61,24 +65,40 @@ export const useImageActions = (
 				return false;
 			}
 
-			const widgetMap: Record<string, string> = {
-				model_name: "model_name",
-				positive: "positive",
-				negative: "negative",
-				seed: "seed",
-				steps: "steps",
-				cfg: "cfg",
-				sampler_name: "sampler_name",
-				scheduler: "scheduler",
-				control_after_generate: "control_after_generate",
-				width: "width",
-				height: "height",
-			};
+			const widgetMap: Partial<Record<keyof SnapshotData, string>> =
+				data.is_flux
+					? {
+							model_name: "model_name",
+							clip_name1: "clip_name1",
+							clip_name2: "clip_name2",
+							clip_type: "clip_type",
+							clip_device: "clip_device",
+							positive: "positive",
+							seed: "seed",
+							steps: "steps",
+							guidance: "guidance",
+							sampler_name: "sampler_name",
+							scheduler: "scheduler",
+							width: "width",
+							height: "height",
+						}
+					: {
+							model_name: "model_name",
+							positive: "positive",
+							negative: "negative",
+							seed: "seed",
+							steps: "steps",
+							cfg: "cfg",
+							sampler_name: "sampler_name",
+							scheduler: "scheduler",
+							width: "width",
+							height: "height",
+						};
 
 			if (node.widgets) {
 				for (const [dataKey, widgetName] of Object.entries(widgetMap)) {
-					const val = (data as Record<string, string | number>)[dataKey];
-					if (val !== undefined && val !== null) {
+					const val = data[dataKey as keyof SnapshotData];
+					if (val !== undefined && val !== null && val !== "") {
 						const widget = node.widgets.find(
 							(w: { name: string; value: string | number }) =>
 								w.name === widgetName,

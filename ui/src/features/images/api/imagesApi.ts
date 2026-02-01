@@ -165,8 +165,16 @@ export const fetchSnapshotData = async (
 	seed: number;
 	steps: number;
 	cfg: number;
+	guidance: number;
+	clip_name1: string;
+	clip_name2: string;
+	clip_type: string;
+	clip_device: string;
 	sampler_name: string;
 	scheduler: string;
+	width: number;
+	height: number;
+	is_flux: boolean;
 }> => {
 	const res = await api.fetchApi(`/meld/image/${imageId}/snapshot_data`);
 	return handleResponse(res);

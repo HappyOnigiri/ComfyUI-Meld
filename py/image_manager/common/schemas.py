@@ -313,10 +313,16 @@ class ImageSnapshotResponse(BaseSchema):
     seed: int
     steps: int
     cfg: float
+    guidance: float
+    clip_name1: str
+    clip_name2: str
+    clip_type: str
+    clip_device: str
     sampler_name: str
     scheduler: str
     width: int
     height: int
+    is_flux: bool
 
 
 @dataclass
