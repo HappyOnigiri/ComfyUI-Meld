@@ -447,7 +447,7 @@ class Parsers:
 
             for node in sorted_nodes:
                 n_type = node.get("type", "")
-                if "DualCLIPLoader" not in n_type:
+                if "DualCLIPLoader" not in n_type and "DualCLIPLoaderGGUF" not in n_type:
                     continue
 
                 widget_values = node.get("widgets_values", [])

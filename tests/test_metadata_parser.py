@@ -33,6 +33,7 @@ class TestMetadataParser(unittest.TestCase):
         self.json_5_path = os.path.join(self.data_dir, "5.json")
         self.json_6_path = os.path.join(self.data_dir, "6.json")
         self.flux_workflow_path = os.path.join(self.workflow_dir, "Flux.json")
+        self.flux_gguf_workflow_path = os.path.join(self.workflow_dir, "Flux_GGUF.json")
 
     def _parse_exiftool_txt(self, path: str) -> dict:
         data = {}
@@ -187,6 +188,26 @@ class TestMetadataParser(unittest.TestCase):
         self.assertNotEqual(params["clip_name1"], params["clip_name2"])
         self.assertEqual(params["clip_type"], "flux")
         self.assertEqual(params["clip_device"], "default")
+
+    def test_extract_from_flux_gguf_workflow(self) -> None:
+        """Flux_GGUF.json: Should extract model_name from UnetLoaderGGUF and CLIP from DualCLIPLoaderGGUF"""
+        with open(self.flux_gguf_workflow_path, encoding="utf-8") as f:
+            workflow_data = json.load(f)
+
+        # 1. Test model_name extraction (MetadataExtractor)
+        info = {"workflow": json.dumps(workflow_data)}
+        res = MetadataHelper.extract_from_data(info)
+        positive, negative, model_name, wf_json, pr_json, a1111, logs = res
+
+        # Expected to fail initially until we update MetadataExtractor
+        self.assertEqual(model_name, "flux1-dev-Q4_K_S.gguf")
+
+        # 2. Test DualCLIPLoaderGGUF extraction (Parsers)
+        params, found = MetadataHelper.get_dual_clip_params(workflow_data, [])
+        self.assertTrue(found)
+        self.assertEqual(params["clip_name1"], "t5-v1_1-xxl-encoder-Q4_K_S.gguf")
+        self.assertEqual(params["clip_name2"], "clip_l.safetensors")
+        self.assertEqual(params["clip_type"], "flux")
 
     def test_extract_from_pattern_webp_exif(self) -> None:
         meta = self._parse_exiftool_txt(self.pattern_webp_exif_path)

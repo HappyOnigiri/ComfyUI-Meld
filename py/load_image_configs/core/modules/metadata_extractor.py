@@ -138,7 +138,16 @@ class MetadataExtractor:
                             t = n.get("type", "")
                             if any(x in t for x in ["UpscaleModelLoader", "ControlNetLoader", "DiffusersLoader"]):
                                 continue
-                            if any(x in t for x in ["CheckpointLoader", "TensorRTLoader", "ModelLoader", "UNETLoader"]):
+                            if any(
+                                x in t
+                                for x in [
+                                    "CheckpointLoader",
+                                    "TensorRTLoader",
+                                    "ModelLoader",
+                                    "UNETLoader",
+                                    "UnetLoaderGGUF",
+                                ]
+                            ):
                                 w = n.get("widgets_values", [])
                                 if w:
                                     m_name = w[0]
@@ -149,9 +158,9 @@ class MetadataExtractor:
                                             m_name = w[1]
 
                                     if m_name and isinstance(m_name, str):
-                                        prio = (
-                                            2 if any(ext in m_name.lower() for ext in [".safetensors", ".ckpt"]) else 1
-                                        )
+                                        prio = 1
+                                        if any(ext in m_name.lower() for ext in [".safetensors", ".ckpt", ".gguf"]):
+                                            prio = 2
                                         candidates.append((prio, m_name))
                             if t in sg_dict:
                                 res = find_model(sg_dict[t].get("nodes", []), sg_dict, depth + 1)
@@ -162,14 +171,23 @@ class MetadataExtractor:
                             t = n.get("class_type", "")
                             if any(x in t for x in ["UpscaleModelLoader", "ControlNetLoader", "DiffusersLoader"]):
                                 continue
-                            if any(x in t for x in ["CheckpointLoader", "TensorRTLoader", "ModelLoader", "UNETLoader"]):
+                            if any(
+                                x in t
+                                for x in [
+                                    "CheckpointLoader",
+                                    "TensorRTLoader",
+                                    "ModelLoader",
+                                    "UNETLoader",
+                                    "UnetLoaderGGUF",
+                                ]
+                            ):
                                 inputs = n.get("inputs", {})
                                 for k in ["ckpt_name", "unet_name", "model_name", "model_type"]:
                                     if k in inputs and isinstance(inputs[k], str):
                                         m_name = inputs[k]
-                                        prio = (
-                                            2 if any(ext in m_name.lower() for ext in [".safetensors", ".ckpt"]) else 1
-                                        )
+                                        prio = 1
+                                        if any(ext in m_name.lower() for ext in [".safetensors", ".ckpt", ".gguf"]):
+                                            prio = 2
                                         candidates.append((prio, m_name))
                     if candidates:
                         candidates.sort(key=lambda x: (x[0], len(x[1])), reverse=True)
