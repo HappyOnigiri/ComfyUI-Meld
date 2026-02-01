@@ -5,6 +5,7 @@ from .py.load_image_configs import (
     MeldImageLoader,
     MeldImageLoaderBatch,
     MeldSettingsUnpacker,
+    MeldUnifiedFluxLoader,
     MeldUnifiedLoader,
 )
 from .py.meld_save_image.nodes import MeldSaveImage
@@ -18,6 +19,7 @@ NODE_CLASS_MAPPINGS = {
     "MeldImageLoader": MeldImageLoader,
     "MeldImageLoaderBatch": MeldImageLoaderBatch,
     "MeldSettingsUnpacker": MeldSettingsUnpacker,
+    "MeldUnifiedFluxLoader": MeldUnifiedFluxLoader,
     "MeldUnifiedLoader": MeldUnifiedLoader,
     "MeldPromptConstructor": MeldPromptConstructor,
     "MeldPatternHeart": MeldPatternHeart,
@@ -30,6 +32,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "MeldImageLoader": "Meld Image Loader",
     "MeldImageLoaderBatch": "Meld Image Loader (Batch)",
     "MeldSettingsUnpacker": "Meld Settings Unpacker",
+    "MeldUnifiedFluxLoader": "Meld Unified Flux Loader",
     "MeldUnifiedLoader": "Meld Unified Loader",
     "MeldPromptConstructor": "Meld Prompt Constructor",
     "MeldPatternHeart": "Meld Infinite Heart Generator",
