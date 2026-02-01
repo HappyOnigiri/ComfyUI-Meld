@@ -71,6 +71,10 @@ class MetadataHelper:
         return Parsers.get_ksampler_params_from_prompt(prompt_json, logs)
 
     @staticmethod
+    def get_dual_clip_params(workflow_json: str | dict | None, logs: list[str]) -> tuple[dict[str, Any], bool]:
+        return Parsers.get_dual_clip_params(workflow_json, logs)
+
+    @staticmethod
     def get_resolution_params(
         workflow_json: str | dict | None,
         original_image_tensor: torch.Tensor,

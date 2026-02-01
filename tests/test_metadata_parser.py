@@ -22,6 +22,7 @@ from py.load_image_configs import MetadataHelper  # noqa: E402
 class TestMetadataParser(unittest.TestCase):
     def setUp(self) -> None:
         self.data_dir = os.path.join(os.path.dirname(__file__), "data", "metadata_parser")
+        self.workflow_dir = os.path.join(os.path.dirname(__file__), "data", "workflows")
         self.pattern_png_path = os.path.join(self.data_dir, "pattern_png.metadata")
         self.pattern_webp_exif_path = os.path.join(self.data_dir, "pattern_webp_exif.metadata")
         self.pattern_webp_desc_path = os.path.join(self.data_dir, "pattern_webp_desc.metadata")
@@ -31,6 +32,7 @@ class TestMetadataParser(unittest.TestCase):
         self.json_4_path = os.path.join(self.data_dir, "4.json")
         self.json_5_path = os.path.join(self.data_dir, "5.json")
         self.json_6_path = os.path.join(self.data_dir, "6.json")
+        self.flux_workflow_path = os.path.join(self.workflow_dir, "Flux.json")
 
     def _parse_exiftool_txt(self, path: str) -> dict:
         data = {}
@@ -172,6 +174,19 @@ class TestMetadataParser(unittest.TestCase):
         # Retrieve parameters within subgraph
         params, found = MetadataHelper.get_ksampler_params(workflow_data, [])
         self.assertTrue(found)
+
+    def test_extract_dual_clip_params_from_flux_workflow(self) -> None:
+        """Flux.json: DualCLIPLoader should keep clip_name1 and clip_name2 distinct"""
+        with open(self.flux_workflow_path, encoding="utf-8") as f:
+            workflow_data = json.load(f)
+
+        params, found = MetadataHelper.get_dual_clip_params(workflow_data, [])
+        self.assertTrue(found)
+        self.assertEqual(params["clip_name1"], "t5xxl_fp8_e4m3fn.safetensors")
+        self.assertEqual(params["clip_name2"], "clip_l.safetensors")
+        self.assertNotEqual(params["clip_name1"], params["clip_name2"])
+        self.assertEqual(params["clip_type"], "flux")
+        self.assertEqual(params["clip_device"], "default")
 
     def test_extract_from_pattern_webp_exif(self) -> None:
         meta = self._parse_exiftool_txt(self.pattern_webp_exif_path)

@@ -433,6 +433,60 @@ class Parsers:
         return params, found
 
     @staticmethod
+    def get_dual_clip_params(workflow_json: str | dict | None, logs: list[str]) -> tuple[dict[str, Any], bool]:
+        try:
+            if not workflow_json:
+                return {}, False
+            if isinstance(workflow_json, str):
+                wf = json.loads(workflow_json)
+            else:
+                wf = workflow_json
+
+            nodes_list = wf.get("nodes", [])
+            sorted_nodes = sorted(nodes_list, key=lambda x: int(x.get("id", 0)))
+
+            for node in sorted_nodes:
+                n_type = node.get("type", "")
+                if "DualCLIPLoader" not in n_type:
+                    continue
+
+                widget_values = node.get("widgets_values", [])
+                inputs = node.get("inputs", [])
+
+                widget_names = []
+                for inp in inputs:
+                    widget = inp.get("widget")
+                    if isinstance(widget, dict) and "name" in widget:
+                        widget_names.append(widget["name"])
+
+                mapping: dict[str, Any] = {}
+                if widget_names:
+                    for idx, name in enumerate(widget_names):
+                        if idx < len(widget_values):
+                            mapping[name] = widget_values[idx]
+                else:
+                    default_names = ["clip_name1", "clip_name2", "type", "device"]
+                    for idx, name in enumerate(default_names):
+                        if idx < len(widget_values):
+                            mapping[name] = widget_values[idx]
+
+                params = {
+                    "clip_name1": mapping.get("clip_name1"),
+                    "clip_name2": mapping.get("clip_name2"),
+                    "clip_type": mapping.get("type") or mapping.get("clip_type"),
+                    "clip_device": mapping.get("device") or mapping.get("clip_device"),
+                }
+
+                if any(v is not None for v in params.values()):
+                    logs.append("-> DualCLIPLoader params found in workflow.")
+                    return params, True
+
+            return {}, False
+        except Exception as e:
+            logs.append(f"!! DualCLIPLoader parse error: {e}")
+            return {}, False
+
+    @staticmethod
     def get_ksampler_params_from_prompt(prompt_json: str | dict | None, logs: list[str]) -> tuple[dict[str, Any], bool]:
         params = {"seed": 0, "steps": 20, "cfg": 8.0, "sampler_name": "euler", "scheduler": "normal"}
         found = False
