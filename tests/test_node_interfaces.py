@@ -179,9 +179,10 @@ class TestNodeInterfaces(unittest.TestCase):
             "scheduler": "karras",
             "width": 1024,
             "height": 1024,
+            "guidance": 4.2,
         }
         res = node.unpack(settings)
-        self.assertEqual(len(res), 7)
+        self.assertEqual(len(res), 8)
         self.assertEqual(res[0], 123)
         self.assertEqual(res[1], 30)
         self.assertEqual(res[2], 7.5)
@@ -189,6 +190,7 @@ class TestNodeInterfaces(unittest.TestCase):
         self.assertEqual(res[4], "karras")
         self.assertEqual(res[5], 1024)
         self.assertEqual(res[6], 1024)
+        self.assertEqual(res[7], 4.2)
 
 
 if __name__ == "__main__":
