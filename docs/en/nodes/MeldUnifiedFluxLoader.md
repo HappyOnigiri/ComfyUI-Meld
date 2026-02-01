@@ -46,5 +46,9 @@ It provides Flux-specific Guidance input and treats CFG as a fixed internal valu
 - **CFG and Negative**:
   CFG is fixed to 1.0 and negative is set to an empty string to match Flux usage.
 
+- **GGUF Support**:
+  If a file with the `.gguf` extension is selected for `model_name` or `clip_name`, the node automatically switches to GGUF-specific loaders (`UnetLoaderGGUF` / `DualCLIPLoaderGGUF`).
+  *Requires the ComfyUI-GGUF extension to be installed.*
+
 - **Reuse Settings**:
   Connect `base_settings` to [Meld Settings Unpacker](./MeldSettingsUnpacker.md) to extract individual values.

@@ -46,5 +46,9 @@ Flux 特有の Guidance を入力に持ち、CFG は内部で固定値として�
 - **CFG と Negative**:
   CFG は内部で 1.0 固定、Negative は空文字列が設定されます（Flux 向けの仕様に合わせた扱い）。
 
+- **GGUF 対応**:
+  `model_name` や `clip_name` に `.gguf` 拡張子のファイルが選択された場合、自動的に GGUF 専用のローダー（`UnetLoaderGGUF` / `DualCLIPLoaderGGUF`）を使用してロードを行います。
+  *※ ComfyUI-GGUF エクステンションがインストールされている必要があります。*
+
 - **設定の再利用**:
   `base_settings` を [Meld Settings Unpacker](./MeldSettingsUnpacker.md) に接続すると、各パラメータを個別に取り出せます。
