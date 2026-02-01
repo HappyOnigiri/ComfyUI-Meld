@@ -82,7 +82,7 @@ In the right-side panel, you can view/edit:
 
 From the image menu or right-click:
 
-*   **Add Unified Loader**: Apply model settings used for generation to a [Meld Unified Loader](./nodes/MeldUnifiedLoader.md) node.
+*   **Add Unified Loader**: Analyze generation settings and automatically add either a [Meld Unified Loader](./nodes/MeldUnifiedLoader.md) or [Meld Unified Flux Loader](./nodes/MeldUnifiedFluxLoader.md).
 *   **Send to Workflow**: Send the image to a `Load Image` or [Meld Image Loader](./nodes/MeldImageLoader.md) node in the current workflow.
     *   **Send to Workflow (Mask)**: Send the image and mask to the current workflow for inpainting.
 *   **Queue Workflow**: Execute a workflow using the image as input.

@@ -29,7 +29,7 @@ For detailed usage, shortcuts, and search syntax, see [`docs/en/ImageManager.md`
 
 ---
 
-## Included Nodes (9 total)
+## Included Nodes (10 total)
 
 See `docs/en/nodes/` for details.
 
@@ -39,6 +39,7 @@ See `docs/en/nodes/` for details.
 | **[Meld Auto Exposure](./docs/en/nodes/MeldAutoExposure.md)** | Analyze luminance and apply automatic gamma correction toward a target brightness |
 | **[Meld Save Image](./docs/en/nodes/MeldSaveImage.md)** | Save images and auto-register to Image Manager (metadata, pHash-based lineage, tagging) |
 | **[Meld Unified Loader](./docs/en/nodes/MeldUnifiedLoader.md)** | Combine checkpoint loading and base generation parameters, output reusable `base_settings` |
+| **[Meld Unified Flux Loader](./docs/en/nodes/MeldUnifiedFluxLoader.md)** | Flux-specific unified loader with Guidance input and fixed CFG handling |
 | **[Meld Settings Unpacker](./docs/en/nodes/MeldSettingsUnpacker.md)** | Unpack a `BASE_SETTINGS` dict into seed/steps/cfg/resolution and other parameters |
 | **[Meld Image Loader](./docs/en/nodes/MeldImageLoader.md)** | Load an image, extract prompt/settings from embedded metadata, and attempt model loading |
 | **[Meld Image Loader Batch](./docs/en/nodes/MeldImageLoaderBatch.md)** | Load images from a directory sequentially by index (including metadata analysis/restoration) |

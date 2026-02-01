@@ -29,7 +29,7 @@ Image Manager は、ComfyUI のサイドバーに追加される統合画像管�
 
 ---
 
-## 収録ノード（全9種）
+## 収録ノード（全10種）
 
 各ノードの詳細は `docs/ja/nodes/` を参照してください。
 
@@ -39,6 +39,7 @@ Image Manager は、ComfyUI のサイドバーに追加される統合画像管�
 | **[Meld Auto Exposure](./docs/ja/nodes/MeldAutoExposure.md)** | 輝度を解析し、目標明るさへ近づけるガンマ補正を自動適用 |
 | **[Meld Save Image](./docs/ja/nodes/MeldSaveImage.md)** | 画像保存＋Image Manager へ自動登録（メタデータ保存、pHash による Lineage 構築、タグ付け） |
 | **[Meld Unified Loader](./docs/ja/nodes/MeldUnifiedLoader.md)** | Checkpoint ロードと基本生成パラメータ定義を統合し、`base_settings` として再利用可能に出力 |
+| **[Meld Unified Flux Loader](./docs/ja/nodes/MeldUnifiedFluxLoader.md)** | Flux向けの統合ローダー（Guidance入力と固定CFGに対応） |
 | **[Meld Settings Unpacker](./docs/ja/nodes/MeldSettingsUnpacker.md)** | `BASE_SETTINGS` 辞書を seed/steps/cfg/解像度等の個別パラメータへ分解して出力 |
 | **[Meld Image Loader](./docs/ja/nodes/MeldImageLoader.md)** | 画像を読み込み、埋め込みメタデータからプロンプト/設定を抽出し、モデルロードも試行 |
 | **[Meld Image Loader Batch](./docs/ja/nodes/MeldImageLoaderBatch.md)** | ディレクトリ内の画像を index 指定で連続読み込み（メタデータ解析・復元も実施） |

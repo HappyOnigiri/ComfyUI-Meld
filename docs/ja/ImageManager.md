@@ -71,7 +71,7 @@ ComfyUI 画面左側のサイドバーに表示されるパネルです。
 ### 画像メニューアクション
 画像上のメニューや右クリックから以下のアクションを実行できます。
 
-*   **Add Unified Loader**: 生成に使用したモデル設定を [Meld Unified Loader](./nodes/MeldUnifiedLoader.md) ノードに適用します。
+*   **Add Unified Loader**: 生成に使用した設定を解析し、[Meld Unified Loader](./nodes/MeldUnifiedLoader.md) または [Meld Unified Flux Loader](./nodes/MeldUnifiedFluxLoader.md) を自動選択して追加します。
 *   **Send to Workflow**: 画像を現在のワークフローにある `Load Image` や [Meld Image Loader](./nodes/MeldImageLoader.md) ノードに送信します。
     *   **Send to Workflow (Mask)**: Inpaint 用に、画像とマスクを現在のワークフローに送信します。
 *   **Queue Workflow**: 選択したワークフローに画像を入力して実行します。

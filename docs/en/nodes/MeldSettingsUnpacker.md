@@ -19,10 +19,11 @@ It is designed to be used in combination with nodes that output generation setti
 | **seed** | `INT` | The seed value for generation. |
 | **steps** | `INT` | The number of steps for generation. |
 | **cfg** | `FLOAT` | The CFG (Classifier Free Guidance) scale. |
-| **sampler_name** | `STRING` | The name of the sampler (e.g., `euler`, `dpmpp_2m`). |
-| **scheduler** | `STRING` | The name of the scheduler (e.g., `normal`, `karras`). |
+| **sampler_name** | `COMBO` | Sampler selection value compatible with KSampler inputs (e.g., `euler`, `dpmpp_2m`). |
+| **scheduler** | `COMBO` | Scheduler selection value compatible with KSampler inputs (e.g., `normal`, `karras`). |
 | **width** | `INT` | The width of the image. |
 | **height** | `INT` | The height of the image. |
+| **guidance** | `FLOAT` | Guidance value for Flux (Distilled CFG). |
 
 ## Default Behavior
 
@@ -35,3 +36,4 @@ If the input `base_settings` is not a dictionary, or if specific keys are missin
 *   **scheduler**: "normal"
 *   **width**: 512
 *   **height**: 512
+*   **guidance**: 3.5

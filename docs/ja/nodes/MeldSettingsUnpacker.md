@@ -19,10 +19,11 @@
 | **seed** | `INT` | 生成に使用するシード値。 |
 | **steps** | `INT` | 生成のステップ数。 |
 | **cfg** | `FLOAT` | CFG (Classifier Free Guidance) スケール。 |
-| **sampler_name** | `STRING` | サンプラーの名前（例: `euler`, `dpmpp_2m`）。 |
-| **scheduler** | `STRING` | スケジューラーの名前（例: `normal`, `karras`）。 |
+| **sampler_name** | `COMBO` | KSampler の入力に直接接続できるサンプラー選択値（例: `euler`, `dpmpp_2m`）。 |
+| **scheduler** | `COMBO` | KSampler の入力に直接接続できるスケジューラー選択値（例: `normal`, `karras`）。 |
 | **width** | `INT` | 画像の幅。 |
 | **height** | `INT` | 画像の高さ。 |
+| **guidance** | `FLOAT` | Flux 用の Guidance 値（Distilled CFG）。 |
 
 ## デフォルト動作
 
@@ -35,3 +36,4 @@
 *   **scheduler**: "normal"
 *   **width**: 512
 *   **height**: 512
+*   **guidance**: 3.5
