@@ -167,7 +167,8 @@ export interface GalleryState {
 	error: string | null;
 	viewScope: "default" | "trash";
 	viewerImageId: number | null;
-	viewerMode: "gallery" | "lineage";
+	viewerMode: "gallery" | "lineage" | "lighttable";
+	viewerLightTableSlotId?: string | null;
 	viewerInitialMaskMode: "apply" | "run" | false;
 	lineageImages: MeldImage[];
 	activeModal: ActiveModal;
@@ -217,7 +218,8 @@ export type GalleryAction =
 				| number
 				| {
 						id: number;
-						mode: "gallery" | "lineage";
+						mode: "gallery" | "lineage" | "lighttable";
+						slotId?: string;
 						initialMaskMode?: "apply" | "run" | boolean;
 				  };
 	  }

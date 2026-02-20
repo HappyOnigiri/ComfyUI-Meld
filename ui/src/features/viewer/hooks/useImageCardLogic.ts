@@ -127,27 +127,26 @@ export const useImageCardLogic = (image: MeldImage) => {
 	};
 
 	const handleMouseDown = (e: React.MouseEvent) => {
-		// Prevent text selection when clicking the card area (container)
-		// unless it's a specific interactive element that needs it.
-		// Since this is attached to the container and the thumbnail,
-		// we should generally prevent default if we're going to select.
+		// To ensure smooth D&D operation, avoid unnecessary preventDefault in mousedown of MeldImageCard root or thumbnail.
+		// Exclude interactive UI elements (textarea, input, button, etc.)
 		if (
-			e.shiftKey ||
-			e.ctrlKey ||
-			e.metaKey ||
-			state.selectedIds.size > 0 ||
-			!(e.target as HTMLElement).closest(
-				"img.meld-image-card__thumbnail, img.meld-lineage-badge__parent-thumb, textarea, input, button",
+			(e.target as HTMLElement).closest(
+				"textarea, input, button, .meld-image-card__meta-content",
 			)
 		) {
-			// Only prevent default if we are not clicking on a thumbnail, lineage badge, button, or input element
-			if (
-				!(e.target as HTMLElement).closest(
-					"textarea, input, button, .meld-image-card__meta-content",
-				)
-			) {
-				e.preventDefault();
-			}
+			return;
+		}
+
+		// If there are no modifier keys (Shift, Ctrl, etc.) and the current image is already selected,
+		// allow D&D by not calling preventDefault.
+		// Potential for D&D, so do not preventDefault
+		if (!e.shiftKey && !e.ctrlKey && !e.metaKey && isSelected) {
+			return;
+		}
+
+		// For other selection processes, prevent default behavior such as text selection
+		if (e.shiftKey || e.ctrlKey || e.metaKey || state.selectedIds.size > 0) {
+			e.preventDefault();
 		}
 	};
 

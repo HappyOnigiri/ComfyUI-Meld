@@ -10,6 +10,7 @@ import { getImageViewUrl } from "../../../utils/url";
 import * as imagesApi from "../../images/api/imagesApi";
 import { useImageActions } from "../../images/hooks/useImageActions";
 import { useImageLineage } from "../../images/hooks/useImageLineage";
+import { useLightTableStore } from "../../light-table/store";
 
 function getAdjacentIds(params: {
 	ids: number[];
@@ -121,6 +122,25 @@ export const useImageViewerLogic = ({
 			state.searchQuery.toLowerCase().includes("has_derivatives:true") ||
 			state.searchQuery.toLowerCase().includes("has_derivatives:1");
 
+		if (viewerMode === "lighttable" && state.viewerLightTableSlotId) {
+			const ltStore = useLightTableStore.getState();
+			const bucketIds = ltStore.buckets[state.viewerLightTableSlotId] || [];
+
+			// Find from images/lineageImages already in memory instead of complex batch retrieval.
+			const mappedImages = bucketIds
+				.map((idStr) => {
+					const idNum = Number.parseInt(idStr, 10);
+					return (
+						images.find((img) => img.id === idNum) ||
+						lineageImages.find((img) => img.id === idNum) ||
+						null
+					);
+				})
+				.filter((img): img is MeldImage => img !== null);
+
+			return mappedImages;
+		}
+
 		return viewerMode === "lineage"
 			? lineageImages
 			: images.filter(
@@ -130,7 +150,14 @@ export const useImageViewerLogic = ({
 							!img.has_children ||
 							isShowingDerivativesSearch),
 				);
-	}, [viewerMode, lineageImages, images, settings, state.searchQuery]);
+	}, [
+		viewerMode,
+		state.viewerLightTableSlotId,
+		lineageImages,
+		images,
+		settings,
+		state.searchQuery,
+	]);
 
 	const currentIndex =
 		viewerImageId === null
@@ -140,7 +167,9 @@ export const useImageViewerLogic = ({
 	const image = (
 		viewerMode === "lineage" && lineageImages.length > 0
 			? lineageImages
-			: images
+			: viewerMode === "lighttable"
+				? currentThumbnails
+				: images
 	).find((img) => img.id === viewerImageId);
 
 	const handleDelete = useCallback(

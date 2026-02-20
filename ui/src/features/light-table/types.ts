@@ -11,6 +11,7 @@ export interface SlotConfig {
 	color: string;
 	shortcutKey: string;
 	defaultAction: SlotAction;
+	clearAfterAction?: boolean;
 }
 
 export interface TrayState {
@@ -24,4 +25,6 @@ export interface TrayState {
 	removeFromBucket: (slotId: string, imageId: string) => void;
 	clearBucket: (slotId: string) => void;
 	updateSlot: (slotId: string, config: Partial<SlotConfig>) => void;
+	addSlot: (config: SlotConfig) => void;
+	removeSlot: (slotId: string) => void;
 }

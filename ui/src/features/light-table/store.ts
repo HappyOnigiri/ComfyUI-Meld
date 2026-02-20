@@ -9,6 +9,7 @@ const defaultSlots: SlotConfig[] = [
 		color: "var(--meld-success-color, #4ade80)",
 		shortcutKey: "1",
 		defaultAction: { type: "add_tag", value: "favorite" },
+		clearAfterAction: true,
 	},
 	{
 		id: "refine",
@@ -16,13 +17,15 @@ const defaultSlots: SlotConfig[] = [
 		color: "var(--brand-yellow, #ffd700)",
 		shortcutKey: "2",
 		defaultAction: { type: "send_to_node" },
+		clearAfterAction: true,
 	},
 	{
 		id: "trash",
 		label: "Trash",
-		color: "var(--brand-red, #ff4c4c)",
+		color: "var(--meld-danger-color, #ff4c4c)",
 		shortcutKey: "3",
 		defaultAction: { type: "delete" },
+		clearAfterAction: true,
 	},
 ];
 
@@ -33,10 +36,10 @@ export const useLightTableStore = create<TrayState>()(
 			slots: defaultSlots,
 			buckets: {},
 
-			setIsOpen: (isOpen) => set({ isOpen }),
+			setIsOpen: (isOpen: boolean) => set({ isOpen }),
 
-			addToBucket: (slotId, imageId) =>
-				set((state) => {
+			addToBucket: (slotId: string, imageId: string) =>
+				set((state: TrayState) => {
 					// Remove from other buckets to avoid duplicates
 					const newBuckets = { ...state.buckets };
 					for (const key in newBuckets) {
@@ -55,8 +58,8 @@ export const useLightTableStore = create<TrayState>()(
 					return { buckets: newBuckets };
 				}),
 
-			removeFromBucket: (slotId, imageId) =>
-				set((state) => ({
+			removeFromBucket: (slotId: string, imageId: string) =>
+				set((state: TrayState) => ({
 					buckets: {
 						...state.buckets,
 						[slotId]:
@@ -64,25 +67,44 @@ export const useLightTableStore = create<TrayState>()(
 					},
 				})),
 
-			clearBucket: (slotId) =>
-				set((state) => ({
+			clearBucket: (slotId: string) =>
+				set((state: TrayState) => ({
 					buckets: {
 						...state.buckets,
 						[slotId]: [],
 					},
 				})),
 
-			updateSlot: (slotId, config) =>
-				set((state) => ({
+			updateSlot: (slotId: string, config: Partial<SlotConfig>) =>
+				set((state: TrayState) => ({
 					slots: state.slots.map((slot) =>
 						slot.id === slotId ? { ...slot, ...config } : slot,
 					),
 				})),
+
+			addSlot: (config: SlotConfig) =>
+				set((state: TrayState) => ({
+					slots: [...state.slots, config],
+				})),
+
+			removeSlot: (slotId: string) =>
+				set((state: TrayState) => {
+					const newSlots = state.slots.filter((slot) => slot.id !== slotId);
+					const newBuckets = { ...state.buckets };
+					delete newBuckets[slotId];
+					return {
+						slots: newSlots,
+						buckets: newBuckets,
+					};
+				}),
 		}),
 		{
 			name: "meld-light-table-storage",
-			// Only persist slots configuration, not the temporary buckets
-			partialize: (state) => ({ slots: state.slots }),
+			// Persist both slots configuration and buckets
+			partialize: (state: TrayState) => ({
+				slots: state.slots,
+				buckets: state.buckets,
+			}),
 		},
 	),
 );

@@ -20,6 +20,7 @@ import { logger } from "../../../logger";
 import { ImportProgress } from "../../importer/components/ImportProgress";
 import { LightTable } from "../../light-table/components/LightTable";
 import { useLightTableStore } from "../../light-table/store";
+import type { TrayState } from "../../light-table/types";
 import { FavoritesContextMenu } from "../../search/components/FavoritesContextMenu";
 import { SearchBar } from "../../search/components/SearchBar";
 import { TagManagerView } from "../../tags/components/TagManagerView";
@@ -46,6 +47,10 @@ export const GalleryPanel: React.FC = () => {
 	} = useGalleryLogic();
 	const { isOpen: isLightTableOpen, setIsOpen: setIsLightTableOpen } =
 		useLightTableStore();
+	const lightTableBuckets = useLightTableStore((s: TrayState) => s.buckets);
+	const hasImagesInLightTable = (
+		Object.values(lightTableBuckets) as string[][]
+	).some((bucket: string[]) => bucket && bucket.length > 0);
 	logger.log("GalleryPanel: isLightTableOpen =", isLightTableOpen);
 
 	const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
@@ -83,6 +88,34 @@ export const GalleryPanel: React.FC = () => {
 	return (
 		<div
 			className={`meld-gallery ${state.viewScope === "trash" ? "meld-gallery--trash" : ""}`}
+			onDragOver={(e) => {
+				const isFromSlot = e.dataTransfer.types.includes(
+					"application/meld-lt-source-slot",
+				);
+				if (isFromSlot) {
+					e.preventDefault();
+					e.dataTransfer.dropEffect = "move";
+				}
+			}}
+			onDrop={(e) => {
+				const sourceSlot = e.dataTransfer.getData(
+					"application/meld-lt-source-slot",
+				);
+				if (sourceSlot) {
+					e.preventDefault();
+					const transferredData = e.dataTransfer.getData("text/plain");
+					if (transferredData) {
+						const imageIds = transferredData.split(",");
+						imageIds.forEach((id) => {
+							if (id) {
+								useLightTableStore
+									.getState()
+									.removeFromBucket(sourceSlot, id.trim());
+							}
+						});
+					}
+				}
+			}}
 		>
 			<div className="meld-gallery__header">
 				{state.viewScope === "trash" ? (
@@ -157,19 +190,37 @@ export const GalleryPanel: React.FC = () => {
 								color: isLightTableOpen
 									? "var(--brand-yellow, #ffd700)"
 									: "var(--meld-text-secondary)",
+								position: "relative",
 								cursor: "pointer",
 								display: "flex",
 								alignItems: "center",
 							}}
 							title="Light Table"
 						>
-							<PanelBottom
-								size={14}
-								fill={
-									isLightTableOpen ? "var(--brand-yellow, #ffd700)" : "none"
-								}
-								style={{ opacity: isLightTableOpen ? 1 : 0.8 }}
-							/>
+							<div style={{ position: "relative" }}>
+								<PanelBottom
+									size={14}
+									fill={
+										isLightTableOpen ? "var(--brand-yellow, #ffd700)" : "none"
+									}
+									style={{ opacity: isLightTableOpen ? 1 : 0.8 }}
+								/>
+								{!isLightTableOpen && hasImagesInLightTable && (
+									<div
+										style={{
+											position: "absolute",
+											top: "-2px",
+											right: "-2px",
+											width: "6px",
+											height: "6px",
+											borderRadius: "50%",
+											backgroundColor: "var(--brand-yellow, #ffd700)",
+											boxShadow:
+												"0 0 2px var(--comfy-menu-shadow, rgba(0,0,0,0.5))",
+										}}
+									/>
+								)}
+							</div>
 						</button>
 						<button
 							type="button"

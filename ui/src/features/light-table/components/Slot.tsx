@@ -44,8 +44,12 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 
 	// Settings state
 	const [editLabel, setEditLabel] = useState(config.label);
+	const [editColor, setEditColor] = useState(config.color);
 	const [editAction, setEditAction] = useState<ActionType>(
 		config.defaultAction.type,
+	);
+	const [editClearAction, setEditClearAction] = useState<boolean>(
+		config.clearAfterAction ?? true,
 	);
 
 	const menuRef = useRef<HTMLDivElement>(null);
@@ -137,8 +141,22 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 		executeSlotAction(actionToExecute, imageIds, images, galleryDispatch);
 
 		// After action dispatched
-		useLightTableStore.getState().clearBucket(config.id);
+		if (config.clearAfterAction !== false) {
+			useLightTableStore.getState().clearBucket(config.id);
+		}
 		setIsMenuOpen(false);
+	};
+
+	const handleDeleteSlot = () => {
+		const store = useLightTableStore.getState();
+		if (store.slots.length <= 1) return;
+		if (
+			window.confirm(
+				`Delete tab "${config.label}"?\n(Images will return to the gallery)`,
+			)
+		) {
+			store.removeSlot(config.id);
+		}
 	};
 
 	return (
@@ -163,6 +181,16 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 								key={img.id}
 								className="meld-lt-slot-panel__image-wrapper"
 								draggable
+								onClick={() => {
+									galleryDispatch({
+										type: "OPEN_VIEWER",
+										payload: {
+											id: img.id,
+											mode: "lighttable",
+											slotId: config.id,
+										},
+									});
+								}}
 								onDragStart={(e) => handleImageDragStart(e, img.id)}
 								onDragEnd={(e) => handleImageDragEnd(e, img.id)}
 							>
@@ -223,7 +251,7 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 						type="button"
 						className="meld-lt-slot__menu-btn"
 						onClick={() => setIsSettingsOpen(!isSettingsOpen)}
-						title="Slot Settings"
+						title="Tab Setting"
 					>
 						<Settings size={14} />
 					</button>
@@ -239,6 +267,38 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 								/>
 							</div>
 							<div className="meld-lt-slot__settings-row">
+								<label htmlFor={`slot-color-${config.id}`}>Tab Color:</label>
+								<div
+									style={{
+										display: "flex",
+										gap: "8px",
+										alignItems: "center",
+										flex: 1,
+									}}
+								>
+									<input
+										id={`slot-color-${config.id}`}
+										type="color"
+										value={
+											editColor.startsWith("var")
+												? editColor.match(/#([0-9a-fA-F]{3,6})/)?.[0] ||
+													"var(--meld-text-secondary, #9ca3af)"
+												: /^#[0-9a-fA-F]{6}$/i.test(editColor)
+													? editColor
+													: "var(--meld-text-secondary, #9ca3af)"
+										}
+										onChange={(e) => setEditColor(e.target.value)}
+										style={{ flexShrink: 0 }}
+									/>
+									<input
+										value={editColor}
+										onChange={(e) => setEditColor(e.target.value)}
+										placeholder="#hex or CSS var"
+										style={{ flex: 1, minWidth: 0 }}
+									/>
+								</div>
+							</div>
+							<div className="meld-lt-slot__settings-row">
 								<label htmlFor={`slot-action-${config.id}`}>
 									Default Action:
 								</label>
@@ -252,22 +312,67 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 									<option value="delete">Delete</option>
 								</select>
 							</div>
+							<div
+								className="meld-lt-slot__settings-row"
+								style={{ marginTop: "8px" }}
+							>
+								<label
+									style={{
+										display: "flex",
+										alignItems: "center",
+										gap: "8px",
+										cursor: "pointer",
+										fontSize: "12px",
+										color: "var(--meld-text-secondary)",
+									}}
+								>
+									<input
+										type="checkbox"
+										checked={editClearAction}
+										onChange={(e) => setEditClearAction(e.target.checked)}
+										style={{ margin: 0 }}
+									/>
+									Clear images after execution
+								</label>
+							</div>
 							<button
 								type="button"
 								className="meld-lt-slot__settings-save"
 								onClick={() => {
 									useLightTableStore.getState().updateSlot(config.id, {
 										label: editLabel,
+										color: editColor,
 										defaultAction: {
 											type: editAction,
 											value: editAction === "add_tag" ? "favorite" : undefined,
 										},
+										clearAfterAction: editClearAction,
 									});
 									setIsSettingsOpen(false);
 								}}
 							>
 								Save Settings
 							</button>
+							{useLightTableStore.getState().slots.length > 1 && (
+								<button
+									type="button"
+									className="meld-lt-slot__settings-delete-btn"
+									onClick={handleDeleteSlot}
+									style={{
+										background: "none",
+										border: "none",
+										color: "var(--brand-red, #ff4c4c)",
+										cursor: "pointer",
+										marginTop: "12px",
+										textDecoration: "underline",
+										padding: 0,
+										alignSelf: "flex-end",
+										fontSize: "12px",
+									}}
+								>
+									Delete Tab
+								</button>
+							)}
 						</div>
 					)}
 				</div>

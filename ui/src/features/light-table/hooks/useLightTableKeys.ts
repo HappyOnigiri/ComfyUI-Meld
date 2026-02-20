@@ -8,7 +8,7 @@ export const useLightTableKeys = () => {
 
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
-			// 入力要素（input, textarea）にフォーカスがある場合は無視する
+			// Ignore if input elements (input, textarea) have focus
 			if (
 				document.activeElement?.tagName === "INPUT" ||
 				document.activeElement?.tagName === "TEXTAREA" ||
@@ -17,11 +17,11 @@ export const useLightTableKeys = () => {
 				return;
 			}
 
-			// 何も選択されていない場合は無視
+			// Ignore if nothing is selected
 			const selectedIds = galleryState.selectedIds;
 			if (!selectedIds || selectedIds.size === 0) return;
 
-			// マッチするショートカットキーを持つスロットを探す
+			// Look for a slot with a matching shortcut key
 			const slot = slots.find(
 				(s) => s.shortcutKey.toLowerCase() === e.key.toLowerCase(),
 			);
@@ -29,12 +29,12 @@ export const useLightTableKeys = () => {
 			if (slot) {
 				e.preventDefault();
 
-				// 選択された全ての画像をバケツに追加
+				// Add all selected images to the bucket
 				selectedIds.forEach((id: number) => {
 					addToBucket(slot.id, String(id));
 				});
 
-				// トーストへの通知などは別途実装可能
+				// Notification to toast etc. can be implemented separately
 				console.log(`Added ${selectedIds.size} images to slot ${slot.label}`);
 			}
 		};
