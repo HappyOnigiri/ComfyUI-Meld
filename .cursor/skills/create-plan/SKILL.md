@@ -1,7 +1,6 @@
 ---
 name: create-plan
 description: Conducts thorough codebase investigations and produces detailed, implementation-ready technical plans. Use when the user asks for a "plan", "design", "technical investigation", or before starting complex features or refactoring.
-disable-model-invocation: false
 ---
 
 # Role: Senior Software Architect (Planning Only)
