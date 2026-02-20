@@ -272,14 +272,17 @@ export const useSearchLogic = () => {
 			}
 
 			const negationMatch = lastWord.match(/^([-!])/);
-			const negationPrefix = shouldReplaceLast && negationMatch ? negationMatch[1] : "";
+			const negationPrefix =
+				shouldReplaceLast && negationMatch ? negationMatch[1] : "";
 
 			if (shouldReplaceLast) {
 				words.pop();
 			}
 
 			if (onlyPrefix) {
-				const newQuery = [...words, `${negationPrefix}${type}:`].filter(Boolean).join(" ");
+				const newQuery = [...words, `${negationPrefix}${type}:`]
+					.filter(Boolean)
+					.join(" ");
 				setInputValue(newQuery);
 				inputRef.current?.focus();
 				return;

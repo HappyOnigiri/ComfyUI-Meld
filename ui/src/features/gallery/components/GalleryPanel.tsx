@@ -2,6 +2,7 @@ import {
 	Download,
 	LayoutGrid,
 	LayoutList,
+	PanelBottom,
 	RefreshCw,
 	Search,
 	Settings,
@@ -17,6 +18,8 @@ import { ImageCard } from "../../../components/shared/ImageCard";
 import { LazyRender } from "../../../components/shared/LazyRender";
 import { logger } from "../../../logger";
 import { ImportProgress } from "../../importer/components/ImportProgress";
+import { LightTable } from "../../light-table/components/LightTable";
+import { useLightTableStore } from "../../light-table/store";
 import { FavoritesContextMenu } from "../../search/components/FavoritesContextMenu";
 import { SearchBar } from "../../search/components/SearchBar";
 import { TagManagerView } from "../../tags/components/TagManagerView";
@@ -41,6 +44,9 @@ export const GalleryPanel: React.FC = () => {
 		isSearchActive,
 		loadMoreRef,
 	} = useGalleryLogic();
+	const { isOpen: isLightTableOpen, setIsOpen: setIsLightTableOpen } =
+		useLightTableStore();
+	logger.log("GalleryPanel: isLightTableOpen =", isLightTableOpen);
 
 	const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
 	const [favoritesAnchorRect, setFavoritesAnchorRect] =
@@ -134,6 +140,37 @@ export const GalleryPanel: React.FC = () => {
 								/>
 							</button>
 						)}
+						<button
+							type="button"
+							onClick={() => {
+								logger.log(
+									"GalleryPanel: Toggle Light Table clicked, from",
+									isLightTableOpen,
+									"to",
+									!isLightTableOpen,
+								);
+								setIsLightTableOpen(!isLightTableOpen);
+							}}
+							style={{
+								background: "none",
+								border: "none",
+								color: isLightTableOpen
+									? "var(--brand-yellow, #ffd700)"
+									: "var(--meld-text-secondary)",
+								cursor: "pointer",
+								display: "flex",
+								alignItems: "center",
+							}}
+							title="Light Table"
+						>
+							<PanelBottom
+								size={14}
+								fill={
+									isLightTableOpen ? "var(--brand-yellow, #ffd700)" : "none"
+								}
+								style={{ opacity: isLightTableOpen ? 1 : 0.8 }}
+							/>
+						</button>
 						<button
 							type="button"
 							onClick={() => {
@@ -385,6 +422,9 @@ export const GalleryPanel: React.FC = () => {
 					onSelect={handleSelectFavorite}
 				/>
 			)}
+
+			{/* Rendered at the bottom of the screen via Portal */}
+			<LightTable />
 		</div>
 	);
 };

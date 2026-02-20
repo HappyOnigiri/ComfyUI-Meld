@@ -1,4 +1,5 @@
 import React from "react";
+import { useLightTableStore } from "../../features/light-table/store";
 import { ImageCardMenu } from "../../features/viewer/components/ImageCardMenu";
 import { useImageCardLogic } from "../../features/viewer/hooks/useImageCardLogic";
 import type { MeldImage } from "../../types";
@@ -36,6 +37,17 @@ export const SimpleImageCard: React.FC<SimpleImageCardProps> = React.memo(
 		const showRestore = state.viewScope === "trash";
 		const deleteLabel = showRestore ? "Delete Permanently" : "Move to Trash";
 
+		const handleDragStart = (e: React.DragEvent) => {
+			e.stopPropagation();
+			let idsToTransfer = String(image.id);
+			if (isSelected && state.selectedIds.size > 0) {
+				idsToTransfer = Array.from(state.selectedIds).join(",");
+			}
+			e.dataTransfer.setData("text/plain", idsToTransfer);
+			// Open the dock automatically
+			useLightTableStore.getState().setIsOpen(true);
+		};
+
 		return (
 			<div
 				className={`meld-image-card meld-image-card--grid-only ${isSelected ? "meld-image-card--selected" : ""} ${isMenuOpen ? "meld-image-card--menu-open" : ""}`}
@@ -44,6 +56,8 @@ export const SimpleImageCard: React.FC<SimpleImageCardProps> = React.memo(
 				onKeyDown={handleKeyDown}
 				role="button"
 				tabIndex={0}
+				draggable={true}
+				onDragStart={handleDragStart}
 			>
 				<div className="meld-image-card__thumbnail-wrapper">
 					<button
@@ -75,6 +89,7 @@ export const SimpleImageCard: React.FC<SimpleImageCardProps> = React.memo(
 						className="meld-image-card__thumbnail"
 						alt={image.filename}
 						loading="lazy"
+						draggable={false}
 						width={image.width || undefined}
 						height={image.height || undefined}
 						onMouseDown={handleMouseDown}
