@@ -48,9 +48,6 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 	const [editAction, setEditAction] = useState<ActionType>(
 		config.defaultAction.type,
 	);
-	const [editClearAction, setEditClearAction] = useState<boolean>(
-		config.clearAfterAction ?? true,
-	);
 
 	const menuRef = useRef<HTMLDivElement>(null);
 	const settingsRef = useRef<HTMLDivElement>(null);
@@ -79,7 +76,17 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 	}, [isMenuOpen, isSettingsOpen]);
 
 	const bucketImages = bucketItems
-		.map((id) => galleryState.images.find((img) => img.id === Number(id)))
+		.map((id) => {
+			const imgId = Number(id);
+			let img = galleryState.images.find((i) => i.id === imgId);
+			if (!img) {
+				img = galleryState.lineageImages.find((i) => i.id === imgId);
+			}
+			if (!img) {
+				img = useLightTableStore.getState().images[id];
+			}
+			return img;
+		})
 		.filter(Boolean) as MeldImage[];
 
 	const handleDragOver = (e: React.DragEvent) => {
@@ -102,7 +109,17 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 			const imageIds = transferredData.split(",");
 			imageIds.forEach((id) => {
 				if (id) {
-					useLightTableStore.getState().addToBucket(config.id, id.trim());
+					const imageIdStr = id.trim();
+					const imgIdNum = Number(imageIdStr);
+					let image = galleryState.images.find((img) => img.id === imgIdNum);
+					if (!image) {
+						image = galleryState.lineageImages.find(
+							(img) => img.id === imgIdNum,
+						);
+					}
+					useLightTableStore
+						.getState()
+						.addToBucket(config.id, imageIdStr, image);
 				}
 			});
 		}
@@ -134,16 +151,8 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 		};
 
 		const imageIds = bucketItems.map((id) => Number(id));
-		const images = imageIds
-			.map((id) => galleryState.images.find((img) => img.id === id))
-			.filter(Boolean) as MeldImage[];
+		executeSlotAction(actionToExecute, imageIds, bucketImages, galleryDispatch);
 
-		executeSlotAction(actionToExecute, imageIds, images, galleryDispatch);
-
-		// After action dispatched
-		if (config.clearAfterAction !== false) {
-			useLightTableStore.getState().clearBucket(config.id);
-		}
 		setIsMenuOpen(false);
 	};
 
@@ -312,29 +321,7 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 									<option value="delete">Delete</option>
 								</select>
 							</div>
-							<div
-								className="meld-lt-slot__settings-row"
-								style={{ marginTop: "8px" }}
-							>
-								<label
-									style={{
-										display: "flex",
-										alignItems: "center",
-										gap: "8px",
-										cursor: "pointer",
-										fontSize: "12px",
-										color: "var(--meld-text-secondary)",
-									}}
-								>
-									<input
-										type="checkbox"
-										checked={editClearAction}
-										onChange={(e) => setEditClearAction(e.target.checked)}
-										style={{ margin: 0 }}
-									/>
-									Clear images after execution
-								</label>
-							</div>
+
 							<button
 								type="button"
 								className="meld-lt-slot__settings-save"
@@ -346,7 +333,6 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 											type: editAction,
 											value: editAction === "add_tag" ? "favorite" : undefined,
 										},
-										clearAfterAction: editClearAction,
 									});
 									setIsSettingsOpen(false);
 								}}

@@ -2,6 +2,7 @@ import { Plus, Trash } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useGallery } from "../../../store/GalleryContext";
 import { useLightTableKeys } from "../hooks/useLightTableKeys";
 import { useLightTableStore } from "../store";
 import type { SlotConfig } from "../types";
@@ -17,6 +18,7 @@ import "./LightTable.css";
 export const LightTable: React.FC = () => {
 	useLightTableKeys();
 	const { isOpen, slots } = useLightTableStore();
+	const { state: galleryState } = useGallery();
 	const [activeTabId, setActiveTabId] = useState(slots[0]?.id || "keep");
 	const portalContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -55,7 +57,6 @@ export const LightTable: React.FC = () => {
 			color: "var(--meld-text-secondary, #9ca3af)",
 			shortcutKey: "",
 			defaultAction: { type: "add_tag", value: "favorite" },
-			clearAfterAction: true,
 		});
 		setActiveTabId(newId);
 	};
@@ -81,9 +82,13 @@ export const LightTable: React.FC = () => {
 								const imageIds = transferredData.split(",");
 								imageIds.forEach((id) => {
 									if (id) {
+										const imageIdStr = id.trim();
+										const image = galleryState.images.find(
+											(img) => String(img.id) === imageIdStr,
+										);
 										useLightTableStore
 											.getState()
-											.addToBucket(slot.id, id.trim());
+											.addToBucket(slot.id, imageIdStr, image);
 									}
 								});
 							}

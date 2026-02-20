@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import type { MeldImage } from "../../types";
 import type { SlotConfig, TrayState } from "./types";
 
 const defaultSlots: SlotConfig[] = [
@@ -9,7 +10,6 @@ const defaultSlots: SlotConfig[] = [
 		color: "var(--meld-success-color, #4ade80)",
 		shortcutKey: "1",
 		defaultAction: { type: "add_tag", value: "favorite" },
-		clearAfterAction: true,
 	},
 	{
 		id: "refine",
@@ -17,7 +17,6 @@ const defaultSlots: SlotConfig[] = [
 		color: "var(--brand-yellow, #ffd700)",
 		shortcutKey: "2",
 		defaultAction: { type: "send_to_node" },
-		clearAfterAction: true,
 	},
 	{
 		id: "trash",
@@ -25,7 +24,6 @@ const defaultSlots: SlotConfig[] = [
 		color: "var(--meld-danger-color, #ff4c4c)",
 		shortcutKey: "3",
 		defaultAction: { type: "delete" },
-		clearAfterAction: true,
 	},
 ];
 
@@ -35,10 +33,11 @@ export const useLightTableStore = create<TrayState>()(
 			isOpen: false,
 			slots: defaultSlots,
 			buckets: {},
+			images: {},
 
 			setIsOpen: (isOpen: boolean) => set({ isOpen }),
 
-			addToBucket: (slotId: string, imageId: string) =>
+			addToBucket: (slotId: string, imageId: string, image?: MeldImage) =>
 				set((state: TrayState) => {
 					// Remove from other buckets to avoid duplicates
 					const newBuckets = { ...state.buckets };
@@ -55,25 +54,50 @@ export const useLightTableStore = create<TrayState>()(
 						newBuckets[slotId] = [...newBuckets[slotId], imageId];
 					}
 
-					return { buckets: newBuckets };
+					const newImages = { ...state.images };
+					if (image) {
+						newImages[imageId] = image;
+					}
+
+					return { buckets: newBuckets, images: newImages };
 				}),
 
 			removeFromBucket: (slotId: string, imageId: string) =>
-				set((state: TrayState) => ({
-					buckets: {
+				set((state: TrayState) => {
+					const newBuckets = {
 						...state.buckets,
 						[slotId]:
 							state.buckets[slotId]?.filter((id) => id !== imageId) || [],
-					},
-				})),
+					};
+
+					const stillInUse = Object.values(newBuckets).some((bucket) =>
+						bucket.includes(imageId),
+					);
+					const newImages = { ...state.images };
+					if (!stillInUse) {
+						delete newImages[imageId];
+					}
+
+					return { buckets: newBuckets, images: newImages };
+				}),
 
 			clearBucket: (slotId: string) =>
-				set((state: TrayState) => ({
-					buckets: {
+				set((state: TrayState) => {
+					const newBuckets = {
 						...state.buckets,
 						[slotId]: [],
-					},
-				})),
+					};
+
+					const usedImageIds = new Set(Object.values(newBuckets).flat());
+					const newImages = { ...state.images };
+					for (const id of Object.keys(newImages)) {
+						if (!usedImageIds.has(id)) {
+							delete newImages[id];
+						}
+					}
+
+					return { buckets: newBuckets, images: newImages };
+				}),
 
 			updateSlot: (slotId: string, config: Partial<SlotConfig>) =>
 				set((state: TrayState) => ({
@@ -92,18 +116,29 @@ export const useLightTableStore = create<TrayState>()(
 					const newSlots = state.slots.filter((slot) => slot.id !== slotId);
 					const newBuckets = { ...state.buckets };
 					delete newBuckets[slotId];
+
+					const usedImageIds = new Set(Object.values(newBuckets).flat());
+					const newImages = { ...state.images };
+					for (const id of Object.keys(newImages)) {
+						if (!usedImageIds.has(id)) {
+							delete newImages[id];
+						}
+					}
+
 					return {
 						slots: newSlots,
 						buckets: newBuckets,
+						images: newImages,
 					};
 				}),
 		}),
 		{
 			name: "meld-light-table-storage",
-			// Persist both slots configuration and buckets
+			// Persist both slots configuration, buckets, and images
 			partialize: (state: TrayState) => ({
 				slots: state.slots,
 				buckets: state.buckets,
+				images: state.images,
 			}),
 		},
 	),
