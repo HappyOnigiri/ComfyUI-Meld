@@ -262,20 +262,39 @@ export const useSearchLogic = () => {
 
 	const applySearchSuggestion = useCallback(
 		(type: string, value: string, onlyPrefix = false) => {
+			const words = getSearchTokens(inputValue);
+			const lastWord = words[words.length - 1] || "";
+
+			let shouldReplaceLast = false;
+			const cleanLastWord = lastWord.replace(/^([-!])/, "").toLowerCase();
+			if (cleanLastWord && type.toLowerCase().startsWith(cleanLastWord)) {
+				shouldReplaceLast = true;
+			}
+
+			const negationMatch = lastWord.match(/^([-!])/);
+			const negationPrefix = shouldReplaceLast && negationMatch ? negationMatch[1] : "";
+
+			if (shouldReplaceLast) {
+				words.pop();
+			}
+
 			if (onlyPrefix) {
-				const newQuery = `${type}:`;
+				const newQuery = [...words, `${negationPrefix}${type}:`].filter(Boolean).join(" ");
 				setInputValue(newQuery);
 				inputRef.current?.focus();
 				return;
 			}
+
 			const noQuoteTypes = searchConfig?.no_quote_prefixes || [];
 			const isNoQuote = noQuoteTypes.includes(type);
 			const valueWithQuotes = isNoQuote ? value : `"${value}"`;
-			const newQuery = `${type}:${valueWithQuotes}`;
+			const term = `${negationPrefix}${type}:${valueWithQuotes}`;
+
+			const newQuery = [...words, term].filter(Boolean).join(" ");
 			setInputValue(newQuery);
 			handleSearch(newQuery);
 		},
-		[handleSearch, searchConfig],
+		[inputValue, handleSearch, searchConfig],
 	);
 
 	const handleInputChange = useCallback(
