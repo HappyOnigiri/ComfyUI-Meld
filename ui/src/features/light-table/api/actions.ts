@@ -25,7 +25,7 @@ export const executeSlotAction = (
 			});
 			break;
 
-		case "add_tag":
+		case "edit_tags":
 			dispatch({
 				type: "OPEN_MODAL",
 				payload: {

@@ -82,12 +82,13 @@
 .meld-lt-slot__action-menu {
 	position: absolute;
 	bottom: calc(100% + 6px);
-	left: 0;
+	right: 0;
 	background: var(--meld-bg-primary, #1c1d21);
 	border: 1px solid var(--meld-border-color, #444);
 	border-radius: 6px;
 	padding: 4px;
-	min-width: 150px;
+	min-width: 220px;
+	width: max-content;
 	box-shadow: 0 -4px 15px var(--comfy-menu-shadow, transparent);
 	z-index: 200;
 }

@@ -2,7 +2,7 @@ import type { MeldImage } from "../../types";
 
 export type ActionType =
 	| "delete"
-	| "add_tag"
+	| "edit_tags"
 	| "move_folder"
 	| "queue_workflow"
 	| "run_with_mask"

@@ -141,7 +141,7 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 
 		// Show toast on action completion (only when not canceled via modal)
 		const actionLabelMap: Record<ActionType, string> = {
-			add_tag: "Tags added",
+			edit_tags: "Tags updated",
 			delete: "Delete initiated",
 			move_folder: "Moved to folder",
 			queue_workflow: "Queued Workflow",
@@ -237,7 +237,11 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 					{isActionMenuOpen && (
 						<div className="meld-lt-slot__action-menu">
 							{[
-								{ type: "add_tag" as ActionType, label: "Add Tag", icon: Tag },
+								{
+									type: "edit_tags" as ActionType,
+									label: "Edit Tags",
+									icon: Tag,
+								},
 								{
 									type: "queue_workflow" as ActionType,
 									label: "Queue Workflow",
