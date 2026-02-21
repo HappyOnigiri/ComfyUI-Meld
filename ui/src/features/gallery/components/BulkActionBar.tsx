@@ -36,6 +36,7 @@ export const BulkActionBar: React.FC = () => {
 		if (!container) {
 			container = document.createElement("div");
 			container.id = "meld-bulk-bar-portal";
+			container.dataset.mountCount = "0";
 
 			// Find .comfyui-body-bottom (same location as LightTable)
 			const bottomArea = document.querySelector(".comfyui-body-bottom");
@@ -46,10 +47,26 @@ export const BulkActionBar: React.FC = () => {
 				document.body.appendChild(container);
 			}
 		}
+
+		// Increment usage count
+		const count = Number.parseInt(container.dataset.mountCount || "0", 10);
+		container.dataset.mountCount = (count + 1).toString();
+
 		portalContainerRef.current = container;
 
 		return () => {
-			// Do not remove it here to reuse it, or we could remove it if it's empty
+			if (container) {
+				const currentCount = Number.parseInt(
+					container.dataset.mountCount || "1",
+					10,
+				);
+				const newCount = currentCount - 1;
+				container.dataset.mountCount = newCount.toString();
+
+				if (newCount <= 0) {
+					container.remove();
+				}
+			}
 		};
 	}, []);
 
@@ -155,34 +172,14 @@ export const BulkActionBar: React.FC = () => {
 					{/* Overlay to close menu when clicking outside */}
 					<div
 						className="meld-bulk-bar-menu-overlay"
-						style={{
-							position: "fixed",
-							top: 0,
-							left: 0,
-							right: 0,
-							bottom: 0,
-							zIndex: 1999,
-						}}
 						onClick={() => setIsMenuOpen(false)}
 						onMouseDown={(e) => e.stopPropagation()}
 					/>
 					<div
 						className="meld-bulk-bar-menu"
 						style={{
-							position: "fixed",
 							bottom: window.innerHeight - menuAnchorRect.top + 5,
 							left: menuAnchorRect.left,
-							backgroundColor: "var(--comfy-menu-bg, #222)",
-							border: "1px solid var(--comfy-menu-border, #444)",
-							borderRadius: "4px",
-							boxShadow:
-								"0 -4px 12px var(--comfy-menu-shadow, rgba(0,0,0,0.5))",
-							zIndex: 2000,
-							minWidth: "180px",
-							display: "flex",
-							flexDirection: "column",
-							overflow: "hidden",
-							padding: "4px 0",
 						}}
 						onClick={(e) => e.stopPropagation()}
 					>
