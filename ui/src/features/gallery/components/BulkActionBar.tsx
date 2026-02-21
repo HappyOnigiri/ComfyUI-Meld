@@ -49,8 +49,8 @@ export const BulkActionBar: React.FC = () => {
 		}
 
 		// Increment usage count
-		const count = Number.parseInt(container.dataset.mountCount || "0", 10);
-		container.dataset.mountCount = (count + 1).toString();
+		const mountCount = Number.parseInt(container.dataset.mountCount || "0", 10);
+		container.dataset.mountCount = (mountCount + 1).toString();
 
 		portalContainerRef.current = container;
 
