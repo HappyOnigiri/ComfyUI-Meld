@@ -1,11 +1,17 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
+import fs from 'fs';
+
+const pyprojectToml = fs.readFileSync(resolve(__dirname, '../pyproject.toml'), 'utf-8');
+const versionMatch = pyprojectToml.match(/version\s*=\s*"([^"]+)"/);
+const version = versionMatch ? versionMatch[1] : 'unknown';
 
 export default defineConfig({
   plugins: [react()],
   define: {
     'process.env.NODE_ENV': JSON.stringify('production'),
+    '__APP_VERSION__': JSON.stringify(version),
   },
   build: {
     // Output JS file so ComfyUI can load it

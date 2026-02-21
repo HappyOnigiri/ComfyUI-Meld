@@ -8,6 +8,8 @@ declare global {
 	}
 }
 
+declare const __APP_VERSION__: string;
+
 // Declare to resolve any path format imports
 declare module "*/scripts/app.js" {
 	export const app: ComfyApp;
