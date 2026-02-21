@@ -1,4 +1,5 @@
-language: "ja-JP"
+language: "en-US"
+tone_instructions: "Please provide the PR summary and review comments in both English and Japanese. Use <details> tags to make the Japanese translation collapsible."
 
 reviews:
   profile: "chill"
