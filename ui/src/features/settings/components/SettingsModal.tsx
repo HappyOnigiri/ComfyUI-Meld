@@ -6,6 +6,7 @@ import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { useSettingsModalLogic } from "../hooks/useSettingsModalLogic";
 import { FullScreenTab } from "./tabs/FullScreenTab";
 import { GalleryTab } from "./tabs/GalleryTab";
+import { InformationTab } from "./tabs/InformationTab";
 import { ShortcutsTab } from "./tabs/ShortcutsTab";
 import { SystemTab } from "./tabs/SystemTab";
 import { ViewTab } from "./tabs/ViewTab";
@@ -63,6 +64,7 @@ export const SettingsModal: React.FC = () => {
 		{ id: "Full Screen", label: "Full Screen" },
 		{ id: "Shortcuts", label: "Shortcuts" },
 		{ id: "System", label: "System" },
+		{ id: "Information", label: "Information" },
 	];
 
 	const renderActiveTab = () => {
@@ -132,6 +134,8 @@ export const SettingsModal: React.FC = () => {
 						handleResetShortcuts={handleResetShortcuts}
 					/>
 				);
+			case "Information":
+				return <InformationTab />;
 			default:
 				return null;
 		}
