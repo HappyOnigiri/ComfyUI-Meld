@@ -92,7 +92,9 @@ class MeldUnifiedFluxLoader:
                 "scheduler": (comfy.samplers.KSampler.SCHEDULERS,),
                 "width": ("INT", {"default": 1024, "min": 1, "max": 16384, "step": 8}),
                 "height": ("INT", {"default": 1024, "min": 1, "max": 16384, "step": 8}),
-            }
+            },
+            "optional": {},
+            "hidden": {},
         }
 
     RETURN_TYPES = ("MODEL", "CLIP", "VAE", "STRING", "BASE_SETTINGS")

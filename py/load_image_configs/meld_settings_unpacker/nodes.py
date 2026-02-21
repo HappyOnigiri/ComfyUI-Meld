@@ -6,7 +6,11 @@ import comfy.samplers
 class MeldSettingsUnpacker:
     @classmethod
     def INPUT_TYPES(cls) -> dict[str, Any]:
-        return {"required": {"base_settings": ("BASE_SETTINGS",)}}
+        return {
+            "required": {"base_settings": ("BASE_SETTINGS",)},
+            "optional": {},
+            "hidden": {},
+        }
 
     RETURN_TYPES = (
         "INT",
