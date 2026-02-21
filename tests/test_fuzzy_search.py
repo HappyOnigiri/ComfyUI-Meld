@@ -27,7 +27,7 @@ class TestFuzzySearch(unittest.TestCase):
             "checkpoints\\subfolder\\model_v2.ckpt",
         ]
         # Use type: ignore because folder_paths is mocked via sys.modules
-        folder_paths.get_filename_list.return_value = self.available_models  # type: ignore
+        folder_paths.get_filename_list.return_value = self.available_models
 
     def test_exact_match(self) -> None:
         """Test for exact match"""

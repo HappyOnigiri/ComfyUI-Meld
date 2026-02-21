@@ -6,7 +6,7 @@ import folder_paths
 
 class MeldUnifiedLoader:
     @classmethod
-    def INPUT_TYPES(cls) -> dict:
+    def INPUT_TYPES(cls) -> dict[str, Any]:
         return {
             "required": {
                 "model_name": (folder_paths.get_filename_list("checkpoints"),),
@@ -46,7 +46,7 @@ class MeldUnifiedLoader:
         scheduler: str,
         width: int,
         height: int,
-    ) -> tuple[Any, Any, Any, str, str, dict]:
+    ) -> tuple[Any, Any, Any, str, str, dict[str, Any]]:
         import comfy.sd
 
         # 1. Load model (Logic similar to standard CheckpointLoaderSimple)

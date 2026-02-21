@@ -31,7 +31,7 @@ def is_within_var(line: str, match_start: int) -> bool:
     return True
 
 
-def check_file(filepath: str) -> list:
+def check_file(filepath: str) -> list[tuple[int, str, str]]:
     errors = []
     try:
         with open(filepath, encoding="utf-8") as f:

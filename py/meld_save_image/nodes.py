@@ -3,6 +3,7 @@ import os
 import re
 import time
 from datetime import datetime
+from typing import Any
 
 import folder_paths
 import torch
@@ -37,7 +38,7 @@ class MeldSaveImage:
         self.compress_level = 4
 
     @classmethod
-    def INPUT_TYPES(cls) -> dict:
+    def INPUT_TYPES(cls) -> dict[str, Any]:
         return {
             "required": {
                 "images": ("IMAGE",),
@@ -89,9 +90,9 @@ class MeldSaveImage:
         positive: str | None = None,
         negative: str | None = None,
         tags: str | None = None,
-        prompt: dict | None = None,
-        extra_pnginfo: dict | None = None,
-    ) -> dict:
+        prompt: dict[str, Any] | None = None,
+        extra_pnginfo: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         if filename_prefix is None:
             filename_prefix = "%date:yyyy-MM-dd-HH-mm-ss%"
 

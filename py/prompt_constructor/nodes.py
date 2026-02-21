@@ -2,6 +2,7 @@ import fnmatch
 import os
 import random
 import re
+from typing import Any
 
 
 class MeldPromptConstructor:
@@ -9,7 +10,7 @@ class MeldPromptConstructor:
         pass
 
     @classmethod
-    def INPUT_TYPES(cls) -> dict:
+    def INPUT_TYPES(cls) -> dict[str, Any]:
         return {
             "required": {
                 "directory": ("STRING", {"default": "./my_prompts", "multiline": False}),
@@ -129,7 +130,7 @@ class MeldPromptConstructor:
             text = re.sub(r"\{([^{}]+)\}", self._replace_random_choice, text)
         return text
 
-    def _replace_random_choice(self, match: re.Match) -> str:
+    def _replace_random_choice(self, match: re.Match[Any]) -> str:
         content = match.group(1)
         options = content.split("|")
 

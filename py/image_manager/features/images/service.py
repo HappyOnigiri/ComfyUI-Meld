@@ -1,6 +1,7 @@
 import json
 import os
 import sqlite3
+from typing import Any
 
 import folder_paths
 
@@ -8,11 +9,13 @@ from ....load_image_configs.core.metadata_helper import MetadataHelper
 from ...common.schemas import ParentSuggestion
 
 
-def extract_source_filenames(workflow_json: str | dict | None, prompt_json: str | dict | None) -> list[str]:
+def extract_source_filenames(
+    workflow_json: str | dict[str, Any] | None, prompt_json: str | dict[str, Any] | None
+) -> list[str]:
     filenames = set()
 
     # Helper to check for image inputs
-    def check_inputs(inputs: dict) -> None:
+    def check_inputs(inputs: dict[str, Any]) -> None:
         if not isinstance(inputs, dict):
             return
         # Common widget names for image loading

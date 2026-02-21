@@ -8,7 +8,7 @@ from ..core.metadata_helper import MetadataHelper
 
 class MeldImageLoader:
     @classmethod
-    def INPUT_TYPES(cls) -> dict:
+    def INPUT_TYPES(cls) -> dict[str, Any]:
         import os
 
         files = []
@@ -58,9 +58,9 @@ class MeldImageLoader:
     )
     # ---------------------------
 
-    def load(self, image: str) -> dict:
+    def load(self, image: str) -> dict[str, Any]:
         image_path = folder_paths.get_annotated_filepath(image)
-        image_loader = nodes.LoadImage()  # type: ignore
+        image_loader = nodes.LoadImage()
         image_output, _ = image_loader.load_image(image)
 
         logs_list = []

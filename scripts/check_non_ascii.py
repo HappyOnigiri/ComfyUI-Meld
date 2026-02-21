@@ -51,21 +51,21 @@ def _first_non_ascii_locations(data: bytes, max_hits: int = 20) -> list[tuple[in
             col_no += 1
         return hits
 
-    hits: list[tuple[int, int]] = []
-    line_no = 1
-    col_no = 1
+    hits_ascii: list[tuple[int, int]] = []
+    line_no_ascii = 1
+    col_no_ascii = 1
     for char in text:
         if char == "\n":
-            line_no += 1
-            col_no = 1
+            line_no_ascii += 1
+            col_no_ascii = 1
             continue
         if ord(char) > 0x7F:
             if not ALLOWED_NON_ASCII_RE.match(char):
-                hits.append((line_no, col_no))
-                if len(hits) >= max_hits:
+                hits_ascii.append((line_no_ascii, col_no_ascii))
+                if len(hits_ascii) >= max_hits:
                     break
-        col_no += 1
-    return hits
+        col_no_ascii += 1
+    return hits_ascii
 
 
 def main() -> int:

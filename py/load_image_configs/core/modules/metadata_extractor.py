@@ -1,6 +1,7 @@
 import json
 import re
 from collections.abc import Mapping
+from typing import Any
 
 from PIL import Image
 
@@ -21,7 +22,7 @@ class MetadataExtractor:
 
     @staticmethod
     def extract_from_data(
-        info: dict, exif: Mapping | None = None
+        info: dict[Any, Any], exif: Mapping[Any, Any] | None = None
     ) -> tuple[str, str, str, str | None, str | None, str | None, list[str]]:
         positive = ""
         negative = ""
@@ -129,7 +130,9 @@ class MetadataExtractor:
                         if isinstance(v, dict) and "id" in v:
                             subgraphs_dict_for_model[v["id"]] = v
 
-                def find_model(nodes_data: list | dict, sg_dict: dict, depth: int = 0) -> str | None:
+                def find_model(
+                    nodes_data: list[Any] | dict[str, Any], sg_dict: dict[str, Any], depth: int = 0
+                ) -> str | None:
                     if depth > 10:
                         return None
                     candidates = []

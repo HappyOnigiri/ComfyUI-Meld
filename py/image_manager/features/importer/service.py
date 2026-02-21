@@ -4,6 +4,7 @@ import os
 import sqlite3
 import threading
 import time
+from typing import Any
 
 import folder_paths
 from PIL import Image
@@ -118,8 +119,8 @@ def infer_parent_id(
     phash: str | None = None,
     created_at: float | None = None,
     strategy: str = "phash_created",
-    workflow_json: str | dict | None = None,
-    prompt_json: str | dict | None = None,
+    workflow_json: str | dict[str, Any] | None = None,
+    prompt_json: str | dict[str, Any] | None = None,
     threshold: int | None = None,
 ) -> int | None:
     """

@@ -37,7 +37,7 @@ def list_workflows() -> list[dict[str, Any]]:
                 load_image_count = 0
                 mask_count = 0
 
-                def process_node(node: dict) -> None:
+                def process_node(node: dict[str, Any]) -> None:
                     nonlocal loader_count, load_image_count, mask_count
                     # Check both type and class_type for robustness
                     node_type = node.get("type") or node.get("class_type")

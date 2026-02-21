@@ -6,13 +6,13 @@ T = TypeVar("T", bound="BaseSchema")
 
 @dataclass
 class BaseSchema:
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         """Convert the dataclass instance to a dictionary, removing None values."""
         # asdict is built-in and handles nested dataclasses
         return asdict(self)
 
     @classmethod
-    def from_dict(cls: type[T], data: dict) -> T:
+    def from_dict(cls: type[T], data: dict[str, Any]) -> T:
         """Create a dataclass instance from a dictionary, ignoring extra keys."""
         if data is None:
             return None

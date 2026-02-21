@@ -6,7 +6,7 @@ import folder_paths
 
 class MeldUnifiedFluxLoader:
     @classmethod
-    def INPUT_TYPES(cls) -> dict:
+    def INPUT_TYPES(cls) -> dict[str, Any]:
         import nodes as comfy_nodes
 
         nodes_any = cast(Any, comfy_nodes)
@@ -125,7 +125,7 @@ class MeldUnifiedFluxLoader:
         scheduler: str,
         width: int,
         height: int,
-    ) -> tuple[Any, Any, Any, str, dict]:
+    ) -> tuple[Any, Any, Any, str, dict[str, Any]]:
         import nodes as comfy_nodes
 
         nodes_any = cast(Any, comfy_nodes)

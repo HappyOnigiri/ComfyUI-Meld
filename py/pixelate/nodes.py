@@ -1,10 +1,12 @@
+from typing import Any
+
 import torch
 import torch.nn.functional as F
 
 
 class MeldPixelate:
     @classmethod
-    def INPUT_TYPES(cls) -> dict:
+    def INPUT_TYPES(cls) -> dict[str, Any]:
         return {
             "required": {
                 "image": ("IMAGE",),
