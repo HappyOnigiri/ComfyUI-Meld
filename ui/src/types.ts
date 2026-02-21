@@ -153,6 +153,7 @@ export type ActiveModal =
 			type: "workflow_selection";
 			images: MeldImage[];
 			maskFilename?: string;
+			isMaskSequence?: boolean;
 			onSuccess?: () => void;
 	  }
 	| {
@@ -165,8 +166,15 @@ export type ActiveModal =
 	| {
 			type: "mask_editor";
 			imageId: number;
-			mode: "apply" | "run";
+			mode: "apply" | "run" | "run_sequence";
 			onSuccess?: () => void;
+	  }
+	| {
+			type: "mask_sequence_step";
+			images: MeldImage[];
+			currentIndex: number;
+			workflowName: string;
+			targetLoaderNodeId?: string;
 	  }
 	| {
 			type: "node_selection";

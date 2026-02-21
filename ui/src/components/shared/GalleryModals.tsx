@@ -28,9 +28,26 @@ export const GalleryModals: React.FC = () => {
 			{state.activeModal.type === "workflow_selection" && (
 				<WorkflowSelectionModal
 					images={state.activeModal.images}
-					isMaskMode={!!state.activeModal.maskFilename}
+					isMaskMode={
+						!!state.activeModal.maskFilename ||
+						!!state.activeModal.isMaskSequence
+					}
 					onExecute={async (workflowName, targetLoaderNodeId) => {
 						if (state.activeModal.type === "workflow_selection") {
+							if (state.activeModal.isMaskSequence) {
+								dispatch({
+									type: "OPEN_MODAL",
+									payload: {
+										type: "mask_sequence_step",
+										images: state.activeModal.images,
+										currentIndex: 0,
+										workflowName,
+										targetLoaderNodeId,
+									},
+								});
+								return false;
+							}
+
 							const maskFilename = state.activeModal.maskFilename;
 							const onSuccess = state.activeModal.onSuccess;
 							for (const img of state.activeModal.images) {
@@ -107,6 +124,41 @@ export const GalleryModals: React.FC = () => {
 						imageId={state.activeModal.imageId}
 						mode={state.activeModal.mode}
 						onSuccess={state.activeModal.onSuccess}
+						onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+					/>,
+					document.body,
+				)}
+
+			{state.activeModal.type === "mask_sequence_step" &&
+				createPortal(
+					<MaskEditorModal
+						key={state.activeModal.images[state.activeModal.currentIndex].id}
+						imageId={
+							state.activeModal.images[state.activeModal.currentIndex].id
+						}
+						mode="run_sequence"
+						sequenceData={{
+							workflowName: state.activeModal.workflowName,
+							targetLoaderNodeId: state.activeModal.targetLoaderNodeId,
+							currentIndex: state.activeModal.currentIndex,
+							totalCount: state.activeModal.images.length,
+						}}
+						onSuccess={() => {
+							if (state.activeModal.type === "mask_sequence_step") {
+								const nextIndex = state.activeModal.currentIndex + 1;
+								if (nextIndex < state.activeModal.images.length) {
+									dispatch({
+										type: "OPEN_MODAL",
+										payload: {
+											...state.activeModal,
+											currentIndex: nextIndex,
+										},
+									});
+								} else {
+									dispatch({ type: "CLOSE_MODAL" });
+								}
+							}
+						}}
 						onClose={() => dispatch({ type: "CLOSE_MODAL" })}
 					/>,
 					document.body,

@@ -714,6 +714,12 @@
 	outline: none;
 }
 
+.meld-bulk-bar-menu__item:disabled {
+	color: var(--meld-text-muted, #666);
+	cursor: not-allowed;
+	pointer-events: none;
+}
+
 .meld-bulk-bar-menu__item:hover {
 	background-color: var(--meld-accent-color);
 	color: white;

@@ -109,6 +109,12 @@
 	background: var(--meld-bg-tertiary, #2a2e38);
 }
 
+.meld-lt-slot__action-menu-item--disabled {
+	color: var(--meld-text-muted, #666);
+	cursor: not-allowed;
+	pointer-events: none;
+}
+
 .meld-lt-slot__action-menu-item--danger {
 	color: var(--meld-danger-color, #ff4c4c);
 }

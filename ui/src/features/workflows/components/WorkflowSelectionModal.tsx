@@ -23,7 +23,7 @@ interface WorkflowSelectionModalProps {
 	onExecute: (
 		workflowName: string,
 		targetLoaderNodeId?: string,
-	) => Promise<void>;
+	) => Promise<boolean | undefined>;
 	onSuccess?: () => void;
 	isMaskMode?: boolean;
 }
@@ -146,9 +146,11 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 		if (executing) return;
 		try {
 			setExecuting(true);
-			await onExecute(workflowName, targetLoaderNodeId);
+			const shouldClose = await onExecute(workflowName, targetLoaderNodeId);
 			onSuccess?.();
-			handleClose();
+			if (shouldClose !== false) {
+				handleClose();
+			}
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
 			setExecuting(false);

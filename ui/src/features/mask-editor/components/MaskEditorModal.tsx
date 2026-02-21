@@ -15,6 +15,7 @@ import { api } from "/scripts/api.js";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { useGallery } from "../../../store/GalleryContext";
 import { getImageViewUrl } from "../../../utils/url";
+import { useWorkflowExecution } from "../../workflows/hooks/useWorkflowExecution";
 import { useMaskInjection } from "../hooks/useMaskInjection";
 import type {
 	MaskBitmap,
@@ -33,6 +34,12 @@ import {
 interface MaskEditorModalProps {
 	imageId: number;
 	mode: MaskMode;
+	sequenceData?: {
+		workflowName: string;
+		targetLoaderNodeId?: string;
+		currentIndex: number;
+		totalCount: number;
+	};
 	onSuccess?: () => void;
 	onClose: () => void;
 }
@@ -40,12 +47,14 @@ interface MaskEditorModalProps {
 export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 	imageId,
 	mode,
+	sequenceData,
 	onSuccess,
 	onClose,
 }) => {
 	const { state, dispatch } = useGallery();
 	const image = state.images.find((img) => img.id === imageId);
 	const { injectMaskToGraph } = useMaskInjection();
+	const { executeWorkflow } = useWorkflowExecution();
 
 	useEscapeToClose({ onEscape: onClose });
 
@@ -505,15 +514,25 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 		if (!image) return;
 		const filename = await uploadMask();
 		if (filename) {
-			dispatch({
-				type: "OPEN_MODAL",
-				payload: {
-					type: "workflow_selection",
-					images: [image],
-					maskFilename: filename,
-					onSuccess,
-				},
-			});
+			if (mode === "run_sequence" && sequenceData) {
+				await executeWorkflow(
+					sequenceData.workflowName,
+					image,
+					filename,
+					sequenceData.targetLoaderNodeId,
+				);
+				onSuccess?.();
+			} else {
+				dispatch({
+					type: "OPEN_MODAL",
+					payload: {
+						type: "workflow_selection",
+						images: [image],
+						maskFilename: filename,
+						onSuccess,
+					},
+				});
+			}
 		}
 	};
 
@@ -629,7 +648,14 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 									) : (
 										<Play size={16} />
 									)}
-									<span>Queue</span>
+									<span>
+										{mode === "run_sequence" && sequenceData
+											? sequenceData.currentIndex ===
+												sequenceData.totalCount - 1
+												? "Queue (Last)"
+												: `Queue (${sequenceData.currentIndex + 1}/${sequenceData.totalCount})`
+											: "Queue"}
+									</span>
 								</button>
 							)}
 							<button

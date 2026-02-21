@@ -32,9 +32,8 @@ export const BulkActionBar: React.FC = () => {
 
 	// Get or create the portal container to render inside .comfyui-body-bottom
 	useEffect(() => {
-		let container = document.getElementById(
-			"meld-bulk-bar-portal",
-		) as HTMLDivElement | null;
+		const el = document.getElementById("meld-bulk-bar-portal");
+		let container = el instanceof HTMLDivElement ? el : null;
 		if (!container) {
 			// We must create a portal mount point at runtime because the ComfyUI host HTML cannot be modified by the extension.
 			container = document.createElement("div");
@@ -128,7 +127,7 @@ export const BulkActionBar: React.FC = () => {
 	const handleBulkRunWithMask = () => {
 		const selectedImages = getImagesFromSelection();
 		if (selectedImages.length > 0) {
-			handleRunWithMask(selectedImages[0], "run");
+			handleRunWithMask(selectedImages, "run");
 		}
 	};
 
@@ -219,15 +218,14 @@ export const BulkActionBar: React.FC = () => {
 								>
 									<FileJson size={14} /> Queue Workflow
 								</button>
-								{count === 1 && (
-									<button
-										type="button"
-										className="meld-bulk-bar-menu__item"
-										onClick={() => executeAction(handleBulkRunWithMask)}
-									>
-										<ScanLine size={14} /> Queue Workflow (Mask)
-									</button>
-								)}
+								{/* Mask workflow action supports multiple images as a sequence */}
+								<button
+									type="button"
+									className="meld-bulk-bar-menu__item"
+									onClick={() => executeAction(handleBulkRunWithMask)}
+								>
+									<ScanLine size={14} /> Queue Workflow (Mask)
+								</button>
 								<button
 									type="button"
 									className="meld-bulk-bar-menu__item"

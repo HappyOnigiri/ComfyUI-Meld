@@ -68,9 +68,9 @@ export const executeSlotAction = (
 				dispatch({
 					type: "OPEN_MODAL",
 					payload: {
-						type: "mask_editor",
-						imageId: imageIds[0],
-						mode: "run",
+						type: "workflow_selection",
+						images: images.filter((img) => imageIds.includes(img.id)),
+						isMaskSequence: true,
 						onSuccess,
 					},
 				});
