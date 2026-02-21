@@ -2,7 +2,7 @@ import ast
 import os
 import sys
 
-from .abstract_check import ASTChecker
+from .abstract_check import ASTChecker  # pyre-ignore[21]
 
 # Allowed packages list from original check_dependencies.py
 ALLOWED_PACKAGES = {
@@ -176,7 +176,8 @@ class DependencyChecker(ASTChecker):
 
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
         if node.level == 0 and node.module:
-            self._check_import(node.module, node.lineno)
+            module: str = node.module
+            self._check_import(module, node.lineno)
         self.generic_visit(node)
 
     def _check_import(self, module_name: str, lineno: int) -> None:
