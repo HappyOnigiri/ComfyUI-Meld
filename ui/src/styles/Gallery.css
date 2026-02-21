@@ -1,10 +1,8 @@
 :root {
 	--meld-bg-color: var(--comfy-menu-bg, #222);
 	--meld-text-color: var(--comfy-input-text, var(--fg-color, #eee));
-	--meld-text-secondary: var(
-		--desc-color,
-		var(--comfy-menu-label-text, var(--text-secondary, #888))
-	);
+	--meld-text-secondary: var(--desc-color,
+			var(--comfy-menu-label-text, var(--text-secondary, #888)));
 	--meld-accent-color: var(--comfy-input-text-active, #4488ff);
 	--meld-success-color: var(--comfy-input-text-active, #44bb44);
 	--meld-danger-color: var(--error-color, #ff4444);
@@ -12,10 +10,8 @@
 	--meld-border-subtle: var(--border-subtle, var(--comfy-menu-border, #333));
 	--meld-card-bg: var(--comfy-input-bg, rgba(0, 0, 0, 0.2));
 	--meld-card-content-bg: var(--comfy-menu-bg, rgba(255, 255, 255, 0.05));
-	--meld-card-selected-bg: var(
-		--comfy-input-bg-active,
-		var(--comfy-input-bg, rgba(68, 136, 255, 0.2))
-	);
+	--meld-card-selected-bg: var(--comfy-input-bg-active,
+			var(--comfy-input-bg, rgba(68, 136, 255, 0.2)));
 }
 
 .meld-gallery {
@@ -58,7 +54,7 @@
 	padding-top: 4px;
 }
 
-.meld-gallery__actions > button {
+.meld-gallery__actions>button {
 	/* Keep header icon buttons compact and consistent across WebUI/Desktop WebViews. */
 	padding: 2px;
 	line-height: 1;
@@ -652,61 +648,87 @@
 
 /* BulkActionBar Styles */
 .meld-bulk-bar {
-	position: fixed;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	height: 50px;
+	height: 36px;
 	background: var(--comfy-menu-bg, #222);
 	border-top: 1px solid var(--meld-border-color);
 	display: flex;
 	align-items: center;
 	padding: 0 20px;
-	z-index: 1000;
-	box-shadow: 0 -2px 10px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.5));
 	gap: 15px;
+	pointer-events: auto;
 }
 
 .meld-bulk-bar__info {
 	color: var(--meld-text-color);
-	font-size: 14px;
+	font-size: 13px;
 	font-weight: bold;
-	margin-right: 10px;
+	margin-right: auto;
+	/* Push buttons to the right */
 }
 
 .meld-bulk-bar__button {
 	border: none;
-	padding: 8px 15px;
+	padding: 6px 12px;
 	border-radius: 4px;
 	cursor: pointer;
-	font-size: 14px;
+	font-size: 13px;
 	font-weight: bold;
-	transition: opacity 0.2s;
+	transition: background-color 0.2s;
+	display: flex;
+	align-items: center;
 }
 
 .meld-bulk-bar__button:hover {
 	background-color: var(--comfy-input-bg-active, rgba(255, 255, 255, 0.1));
 }
 
-.meld-bulk-bar__button--edit {
-	background: var(--comfy-input-bg, #444);
-	color: var(--meld-text-color);
-}
-
-.meld-bulk-bar__button--workflow {
+.meld-bulk-bar__button--action {
 	background: var(--meld-accent-color);
 	color: white;
-}
-
-.meld-bulk-bar__button--delete {
-	background: var(--meld-danger-color);
-	color: white;
-	padding: 8px 20px;
 }
 
 .meld-bulk-bar__button--cancel {
 	background: var(--comfy-input-bg, #444);
 	color: var(--meld-text-secondary);
+}
+
+/* BulkActionBar Context Menu */
+.meld-bulk-bar-menu__item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 12px;
+	font-size: 12px;
+	line-height: 1;
+	color: var(--meld-text-color);
+	cursor: pointer;
+	background: transparent;
+	border: none;
+	width: 100%;
+	text-align: left;
+	transition: background-color 0.2s;
+	outline: none;
+}
+
+.meld-bulk-bar-menu__item:hover {
+	background-color: var(--meld-accent-color);
+	color: white;
+}
+
+.meld-bulk-bar-menu__item--danger:hover {
+	background-color: var(--meld-danger-color);
+	color: white;
+}
+
+.meld-bulk-bar-menu__item--restore:hover {
+	background-color: var(--meld-success-color);
+	color: white;
+}
+
+.meld-bulk-bar-menu__divider {
+	height: 1px;
+	background-color: var(--comfy-menu-border, #444);
+	margin: 4px 0;
 }
 
 @keyframes spin {
@@ -730,7 +752,8 @@
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background: rgba(0, 0, 0, 0.85); /* color-check-ignore */
+	background: rgba(0, 0, 0, 0.85);
+	/* color-check-ignore */
 	z-index: 10000;
 	display: flex;
 	align-items: center;
@@ -1313,10 +1336,8 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background: var(
-		--meld-overlay-bg,
-		color-mix(in srgb, var(--comfy-menu-bg, #15161a) 10%, transparent)
-	);
+	background: var(--meld-overlay-bg,
+			color-mix(in srgb, var(--comfy-menu-bg, #15161a) 10%, transparent));
 	backdrop-filter: blur(2px);
 	display: flex;
 	align-items: center;
@@ -2154,11 +2175,11 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	border-radius: 50%;
 }
 
-.meld-switch input:checked + .meld-switch__slider {
+.meld-switch input:checked+.meld-switch__slider {
 	background-color: var(--comfy-input-bg, #444);
 }
 
-.meld-switch input:checked + .meld-switch__slider:before {
+.meld-switch input:checked+.meld-switch__slider:before {
 	transform: translateX(20px);
 	background-color: var(--comfy-input-text-active, #4a9eff);
 }
@@ -2810,18 +2831,18 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 }
 
 .meld-viewer-cheat-sheet__item--active {
-	background: var(
-		--interface-menu-component-surface-hovered,
-		rgba(255, 255, 255, 0.1) /* color-check-ignore */
-	);
+	background: var(--interface-menu-component-surface-hovered,
+			rgba(255, 255, 255, 0.1)
+			/* color-check-ignore */
+		);
 	transform: translateX(4px);
 }
 
 .meld-viewer-cheat-sheet__item--active .meld-viewer-cheat-sheet__key {
-	background: var(
-		--interface-menu-component-surface-selected,
-		rgba(255, 255, 255, 0.2) /* color-check-ignore */
-	);
+	background: var(--interface-menu-component-surface-selected,
+			rgba(255, 255, 255, 0.2)
+			/* color-check-ignore */
+		);
 	color: var(--text-primary, white);
 }
 
