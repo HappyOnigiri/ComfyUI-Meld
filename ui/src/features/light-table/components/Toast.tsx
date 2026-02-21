@@ -4,8 +4,8 @@ import { useLightTableStore } from "../store";
 import "./Toast.css";
 
 /**
- * ライトテーブル用トーストコンポーネント。
- * store.toastMessage が非 null のときに表示される。
+ * Toast component for Light Table.
+ * Displayed when store.toastMessage is non-null.
  */
 export const Toast: React.FC = () => {
 	const toastMessage = useLightTableStore((s) => s.toastMessage);

@@ -3,7 +3,7 @@
 .meld-toast {
 	position: fixed;
 	bottom: 64px;
-	/* 少し上に上げて見やすく */
+	/* Offset from bottom */
 	left: 50%;
 	transform: translateX(-50%);
 	background: var(--comfy-menu-bg, #15161a);

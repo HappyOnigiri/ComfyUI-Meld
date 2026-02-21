@@ -4,24 +4,24 @@ import { useEffect } from "react";
 import "./ConfirmModal.css";
 
 interface ConfirmModalProps {
-	/** モーダルに表示するメッセージ */
+	/** Message to display in the modal */
 	message: string;
-	/** 確認ボタンが押されたときのコールバック */
+	/** Callback when the confirm button is pressed */
 	onConfirm: () => void;
-	/** キャンセルされたときのコールバック */
+	/** Callback when cancelled */
 	onCancel: () => void;
 }
 
 /**
- * ライトテーブル用の確認モーダルコンポーネント。
- * ESC キーまたはオーバーレイクリックでキャンセルできる。
+ * Confirmation modal component for Light Table.
+ * Can be cancelled with ESC key or overlay click.
  */
 export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 	message,
 	onConfirm,
 	onCancel,
 }) => {
-	// ESC キーでキャンセル
+	// Cancel with ESC key
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (e.key === "Escape") {
@@ -41,7 +41,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 			}}
 			role="presentation"
 		>
-			{/* ダイアログ本体クリックはオーバーレイに伝播させない */}
+			{/* Stop propagation for dialog clicks */}
 			<div
 				className="meld-confirm-modal__dialog"
 				onClick={(e) => e.stopPropagation()}
@@ -57,7 +57,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 						className="meld-confirm-modal__btn meld-confirm-modal__btn--cancel"
 						onClick={onCancel}
 					>
-						キャンセル
+						Cancel
 					</button>
 					<button
 						type="button"
