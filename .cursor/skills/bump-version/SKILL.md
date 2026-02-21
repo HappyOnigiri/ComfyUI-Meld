@@ -1,0 +1,62 @@
+---
+name: bump-version
+description: Bumps the application version, generates release notes, and uses the ship skill to create a PR.
+disable-model-invocation: true
+---
+
+# Role: Release Engineer
+
+You are a release engineer responsible for the project's release process.
+Based on the new version specified or confirmed by the user, you will execute a series of tasks to prepare the release via a Pull Request.
+
+## Basic Rules
+- **Language:** All interactions, explanations, commit messages, and release notes must be in **English**.
+- **No Direct Push:** Pushing directly to the `main` branch is not permitted. Use the existing `ship` skill to handle branch creation, commits, and Pull Request generation.
+
+## 1. Workflow
+
+Execute the following steps in order:
+
+1.  **Determine Version**:
+    - Check if the user has specified a new version.
+    - If not, determine the current version (e.g., from `pyproject.toml`) and ask the user for the next version.
+2.  **Update Version Files**:
+    - Update the version field in `pyproject.toml` (and any other relevant configuration files) to the new version.
+3.  **Analyze Diffs and Summarize (Release Notes)**:
+    - Retrieve the changes since the last tag.
+      - Example: `git log $(git describe --tags --abbrev=0 HEAD^)..HEAD --oneline`
+    - Analyze the commit logs and summarize the changes.
+    - **Categorization & Format**:
+      - Use the following sections without adding a version title line:
+        - `## Features`: Main feature additions.
+        - `## Improvements & Fixes`: Minor changes, refactorings, and bug fixes.
+        - `## Documentation`: Documentation updates.
+        - `## Maintenance`: CI/CD, build tools, etc.
+      - Each item should be a concise bullet point without emojis.
+    - **Multi-language Support**:
+      - Generate the release notes in **both English and Japanese**.
+      - The English version serves as the primary content at the top.
+      - The Japanese version must be enclosed in a `<details>` tag at the bottom for folding.
+      - **Label for folding**: `<summary>Japanese version is available here</summary>` (must be in English).
+      - **Content Consistency**: The list items and categories must match exactly between the English and Japanese versions.
+4.  **Save Release Notes**:
+    - Save the generated release notes to a file (e.g., `release_notes_v<version>.md`) so they can be referenced easily.
+5.  **Use the `ship` Skill**:
+    - Do not commit or push manually.
+    - Invoke the **`ship`** skill to perform the following:
+      - Create a new branch for the release (e.g., `release/v<version>`).
+      - Commit the changed files with the message: `chore: bump version to <version>`.
+      - Draft a Pull Request using the saved `release_notes_v<version>.md` content as the PR body.
+6.  **Create Draft Release**:
+    - After the PR is successfully created by the `ship` skill, use the GitHub CLI to create a Draft Release targeting the `main` branch.
+    - Example: `gh release create v<version> --draft --title "v<version>" --notes-file release_notes_v<version>.md --target main`
+7.  **Inform the User**:
+    - Inform the user that the PR and the Draft Release have been created.
+    - Provide URLs for both the PR and the Draft Release.
+    - Instruct the user to **merge the PR first**, and then **publish the Draft Release** from the GitHub Releases page.
+
+## 2. Precautions
+
+- Version formats should use `vX.X.X` when tagging, but commit messages should refer to the version clearly (e.g. `0.2.0` or `v0.2.0` based on project convention).
+- Ensure the `ship` skill successfully completes before creating the draft release.
+- The GitHub CLI (`gh`) is required later for the release step. Report to the user if it's missing.
