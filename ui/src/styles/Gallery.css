@@ -652,61 +652,116 @@
 
 /* BulkActionBar Styles */
 .meld-bulk-bar {
-	position: fixed;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	height: 50px;
+	height: 36px;
 	background: var(--comfy-menu-bg, #222);
 	border-top: 1px solid var(--meld-border-color);
 	display: flex;
 	align-items: center;
 	padding: 0 20px;
-	z-index: 1000;
-	box-shadow: 0 -2px 10px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.5));
 	gap: 15px;
+	pointer-events: auto;
 }
 
 .meld-bulk-bar__info {
 	color: var(--meld-text-color);
-	font-size: 14px;
+	font-size: 13px;
 	font-weight: bold;
-	margin-right: 10px;
+	margin-right: auto;
+	/* Push buttons to the right */
 }
 
 .meld-bulk-bar__button {
 	border: none;
-	padding: 8px 15px;
+	padding: 6px 12px;
 	border-radius: 4px;
 	cursor: pointer;
-	font-size: 14px;
+	font-size: 13px;
 	font-weight: bold;
-	transition: opacity 0.2s;
+	transition: background-color 0.2s;
+	display: flex;
+	align-items: center;
 }
 
 .meld-bulk-bar__button:hover {
 	background-color: var(--comfy-input-bg-active, rgba(255, 255, 255, 0.1));
 }
 
-.meld-bulk-bar__button--edit {
-	background: var(--comfy-input-bg, #444);
-	color: var(--meld-text-color);
-}
-
-.meld-bulk-bar__button--workflow {
+.meld-bulk-bar__button--action {
 	background: var(--meld-accent-color);
 	color: white;
-}
-
-.meld-bulk-bar__button--delete {
-	background: var(--meld-danger-color);
-	color: white;
-	padding: 8px 20px;
 }
 
 .meld-bulk-bar__button--cancel {
 	background: var(--comfy-input-bg, #444);
 	color: var(--meld-text-secondary);
+}
+
+/* BulkActionBar Context Menu */
+.meld-bulk-bar-menu__item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 12px;
+	font-size: 12px;
+	line-height: 1;
+	color: var(--meld-text-color);
+	cursor: pointer;
+	background: transparent;
+	border: none;
+	width: 100%;
+	text-align: left;
+	transition: background-color 0.2s;
+	outline: none;
+}
+
+.meld-bulk-bar-menu__item:disabled {
+	color: var(--meld-text-muted, #666);
+	cursor: not-allowed;
+	pointer-events: none;
+}
+
+.meld-bulk-bar-menu__item:hover {
+	background-color: var(--meld-accent-color);
+	color: white;
+}
+
+.meld-bulk-bar-menu__item--danger:hover {
+	background-color: var(--meld-danger-color);
+	color: white;
+}
+
+.meld-bulk-bar-menu__item--restore:hover {
+	background-color: var(--meld-success-color);
+	color: white;
+}
+
+.meld-bulk-bar-menu__divider {
+	height: 1px;
+	background-color: var(--comfy-menu-border, #444);
+	margin: 4px 0;
+}
+
+.meld-bulk-bar-menu-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 1999;
+}
+
+.meld-bulk-bar-menu {
+	position: fixed;
+	background-color: var(--comfy-menu-bg, #222);
+	border: 1px solid var(--comfy-menu-border, #444);
+	border-radius: 4px;
+	box-shadow: 0 -4px 12px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.5));
+	z-index: 2000;
+	min-width: 180px;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	padding: 4px 0;
 }
 
 @keyframes spin {
@@ -730,7 +785,13 @@
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background: rgba(0, 0, 0, 0.85); /* color-check-ignore */
+	background: rgba(
+		0,
+		0,
+		0,
+		0.85
+		/* color-check-ignore */
+	);
 	z-index: 10000;
 	display: flex;
 	align-items: center;
@@ -817,7 +878,6 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	backdrop-filter: blur(4px);
 	outline: none;
 	box-sizing: border-box;
 	flex-shrink: 0;
@@ -864,7 +924,6 @@
 	top: 110%;
 	right: 0;
 	background: var(--comfy-menu-bg, rgba(20, 20, 20, 0.95));
-	backdrop-filter: blur(10px);
 	border: 1px solid var(--meld-border-color);
 	box-shadow: 0 4px 20px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.5));
 	min-width: 200px;
@@ -1315,9 +1374,8 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	bottom: 0;
 	background: var(
 		--meld-overlay-bg,
-		color-mix(in srgb, var(--comfy-menu-bg, #15161a) 10%, transparent)
+		color-mix(in srgb, var(--comfy-menu-bg, #15161a) 25%, transparent)
 	);
-	backdrop-filter: blur(2px);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -2705,7 +2763,6 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	background: var(--comfy-menu-bg, rgba(0, 0, 0, 0.5));
 	padding: 20px;
 	border-radius: 50%;
-	backdrop-filter: blur(4px);
 }
 
 .meld-viewer-image--loading {
@@ -2793,7 +2850,6 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	border: 1px solid var(--comfy-menu-border, rgba(255, 255, 255, 0.05));
 	/* color-check-ignore */
 	pointer-events: none;
-	backdrop-filter: blur(2px);
 }
 
 .meld-viewer-content--fullscreen .meld-viewer-cheat-sheet {
@@ -2810,18 +2866,16 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 }
 
 .meld-viewer-cheat-sheet__item--active {
-	background: var(
-		--interface-menu-component-surface-hovered,
-		rgba(255, 255, 255, 0.1) /* color-check-ignore */
-	);
+	/* biome-ignore format: off */
+	background: var(--interface-menu-component-surface-hovered, rgba(255, 255, 255, 0.1));
+	/* color-check-ignore */
 	transform: translateX(4px);
 }
 
 .meld-viewer-cheat-sheet__item--active .meld-viewer-cheat-sheet__key {
-	background: var(
-		--interface-menu-component-surface-selected,
-		rgba(255, 255, 255, 0.2) /* color-check-ignore */
-	);
+	/* biome-ignore format: off */
+	background: var(--interface-menu-component-surface-selected, rgba(255, 255, 255, 0.2));
+	/* color-check-ignore */
 	color: var(--text-primary, white);
 }
 

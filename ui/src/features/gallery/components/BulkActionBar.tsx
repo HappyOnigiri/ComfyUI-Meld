@@ -1,21 +1,105 @@
-import { FileJson, RefreshCw, Tag, Trash2, X } from "lucide-react";
+import {
+	Download,
+	FileJson,
+	Menu,
+	RefreshCw,
+	ScanLine,
+	Tag,
+	Trash2,
+	X,
+} from "lucide-react";
 import type React from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { useGallery } from "../../../store/GalleryContext";
 import { useImageActions } from "../../images/hooks/useImageActions";
 
 export const BulkActionBar: React.FC = () => {
 	const { state, dispatch, deleteSelected, restoreSelected } = useGallery();
-	const { handleRunWithWorkflow } = useImageActions(state, dispatch);
+	const { handleRunWithWorkflow, handleRunWithMask } = useImageActions(
+		state,
+		dispatch,
+	);
 	const count = state.selectedIds.size;
 
-	if (count === 0) return null;
+	const [isMenuOpen, setIsMenuOpen] = useState(false);
+	const [menuAnchorRect, setMenuAnchorRect] = useState<DOMRect | null>(null);
+	const actionButtonRef = useRef<HTMLButtonElement>(null);
+	const [portalContainer, setPortalContainer] = useState<HTMLDivElement | null>(
+		null,
+	);
+
+	// Get or create the portal container to render inside .comfyui-body-bottom
+	useEffect(() => {
+		const el = document.getElementById("meld-bulk-bar-portal");
+		let container = el instanceof HTMLDivElement ? el : null;
+		if (!container) {
+			// We must create a portal mount point at runtime because the ComfyUI host HTML cannot be modified by the extension.
+			container = document.createElement("div");
+			container.id = "meld-bulk-bar-portal";
+			container.dataset.mountCount = "0";
+
+			// Find .comfyui-body-bottom (same location as LightTable)
+			const bottomArea = document.querySelector(".comfyui-body-bottom");
+			if (bottomArea) {
+				bottomArea.appendChild(container);
+			} else {
+				// Fallback
+				document.body.appendChild(container);
+			}
+		}
+
+		// Increment usage count
+		const mountCount = Number.parseInt(container.dataset.mountCount || "0", 10);
+		container.dataset.mountCount = (mountCount + 1).toString();
+
+		setPortalContainer(container);
+
+		return () => {
+			if (container) {
+				const currentCount = Number.parseInt(
+					container.dataset.mountCount || "1",
+					10,
+				);
+				const newCount = currentCount - 1;
+				container.dataset.mountCount = newCount.toString();
+
+				if (newCount <= 0) {
+					container.remove();
+				}
+			}
+		};
+	}, []);
+
+	useEscapeToClose({
+		onEscape: () => setIsMenuOpen(false),
+		enabled: isMenuOpen,
+	});
+
+	if (count === 0 || !portalContainer) return null;
 
 	const isTrashMode = state.viewScope === "trash";
 
+	const getImagesFromSelection = () => {
+		return state.images.filter((img) => state.selectedIds.has(img.id));
+	};
+
+	const handleActionClick = () => {
+		if (actionButtonRef.current) {
+			setMenuAnchorRect(actionButtonRef.current.getBoundingClientRect());
+			setIsMenuOpen(true);
+		}
+	};
+
+	const executeAction = (actionFn: () => void) => {
+		actionFn();
+		setIsMenuOpen(false);
+	};
+
+	// Actions implemented identically to context menu / modals
 	const handleBulkTagEdit = () => {
-		const selectedImages = state.images.filter((img) =>
-			state.selectedIds.has(img.id),
-		);
+		const selectedImages = getImagesFromSelection();
 		const allTags = new Set<string>();
 		for (const img of selectedImages) {
 			if (img.tags) {
@@ -36,82 +120,45 @@ export const BulkActionBar: React.FC = () => {
 	};
 
 	const handleBulkRunWithWorkflow = () => {
-		const selectedImages = state.images.filter((img) =>
-			state.selectedIds.has(img.id),
-		);
+		const selectedImages = getImagesFromSelection();
 		handleRunWithWorkflow(selectedImages);
 	};
 
-	return (
+	const handleBulkRunWithMask = () => {
+		const selectedImages = getImagesFromSelection();
+		if (selectedImages.length > 0) {
+			handleRunWithMask(selectedImages, "run");
+		}
+	};
+
+	const handleBulkDownload = () => {
+		dispatch({
+			type: "OPEN_MODAL",
+			payload: {
+				type: "download_options",
+				imageIds: Array.from(state.selectedIds),
+			},
+		});
+	};
+
+	const bulkBarJSX = (
 		<div
 			className={`meld-bulk-bar ${isTrashMode ? "meld-bulk-bar--trash" : ""}`}
 		>
 			<span className="meld-bulk-bar__info">{count} items selected</span>
 
-			{isTrashMode ? (
-				<>
-					<button
-						type="button"
-						className="meld-bulk-bar__button meld-bulk-bar__button--restore"
-						onClick={restoreSelected}
-					>
-						<RefreshCw
-							size={16}
-							style={{ marginRight: "8px", verticalAlign: "middle" }}
-						/>
-						Restore
-					</button>
-					<button
-						type="button"
-						className="meld-bulk-bar__button meld-bulk-bar__button--delete"
-						onClick={deleteSelected}
-					>
-						<Trash2
-							size={16}
-							style={{ marginRight: "8px", verticalAlign: "middle" }}
-						/>
-						Delete Permanently
-					</button>
-				</>
-			) : (
-				<>
-					<button
-						type="button"
-						className="meld-bulk-bar__button meld-bulk-bar__button--edit"
-						onClick={handleBulkTagEdit}
-					>
-						<Tag
-							size={16}
-							style={{ marginRight: "8px", verticalAlign: "middle" }}
-						/>
-						Edit Tags
-					</button>
-
-					<button
-						type="button"
-						className="meld-bulk-bar__button meld-bulk-bar__button--workflow"
-						onClick={handleBulkRunWithWorkflow}
-					>
-						<FileJson
-							size={16}
-							style={{ marginRight: "8px", verticalAlign: "middle" }}
-						/>
-						Queue Workflow
-					</button>
-
-					<button
-						type="button"
-						className="meld-bulk-bar__button meld-bulk-bar__button--delete"
-						onClick={deleteSelected}
-					>
-						<Trash2
-							size={16}
-							style={{ marginRight: "8px", verticalAlign: "middle" }}
-						/>
-						Move to Trash
-					</button>
-				</>
-			)}
+			<button
+				ref={actionButtonRef}
+				type="button"
+				className="meld-bulk-bar__button meld-bulk-bar__button--action"
+				onClick={handleActionClick}
+			>
+				<Menu
+					size={16}
+					style={{ marginRight: "8px", verticalAlign: "middle" }}
+				/>
+				Action
+			</button>
 
 			<button
 				type="button"
@@ -121,6 +168,86 @@ export const BulkActionBar: React.FC = () => {
 				<X size={16} style={{ marginRight: "8px", verticalAlign: "middle" }} />
 				Cancel
 			</button>
+
+			{isMenuOpen && menuAnchorRect && (
+				<>
+					{/* Overlay to close menu when clicking outside */}
+					<div
+						className="meld-bulk-bar-menu-overlay"
+						onClick={() => setIsMenuOpen(false)}
+						onMouseDown={(e) => e.stopPropagation()}
+					/>
+					<div
+						className="meld-bulk-bar-menu"
+						style={{
+							bottom: window.innerHeight - menuAnchorRect.top + 5,
+							left: menuAnchorRect.left,
+						}}
+						onClick={(e) => e.stopPropagation()}
+					>
+						{isTrashMode ? (
+							<>
+								<button
+									type="button"
+									className="meld-bulk-bar-menu__item meld-bulk-bar-menu__item--restore"
+									onClick={() => executeAction(restoreSelected)}
+								>
+									<RefreshCw size={14} /> Restore
+								</button>
+								<button
+									type="button"
+									className="meld-bulk-bar-menu__item meld-bulk-bar-menu__item--danger"
+									onClick={() => executeAction(deleteSelected)}
+								>
+									<Trash2 size={14} /> Delete Permanently
+								</button>
+							</>
+						) : (
+							<>
+								<button
+									type="button"
+									className="meld-bulk-bar-menu__item"
+									onClick={() => executeAction(handleBulkTagEdit)}
+								>
+									<Tag size={14} /> Edit Tags
+								</button>
+								<button
+									type="button"
+									className="meld-bulk-bar-menu__item"
+									onClick={() => executeAction(handleBulkRunWithWorkflow)}
+								>
+									<FileJson size={14} /> Queue Workflow
+								</button>
+								{/* Mask workflow action supports multiple images as a sequence */}
+								<button
+									type="button"
+									className="meld-bulk-bar-menu__item"
+									onClick={() => executeAction(handleBulkRunWithMask)}
+								>
+									<ScanLine size={14} /> Queue Workflow (Mask)
+								</button>
+								<button
+									type="button"
+									className="meld-bulk-bar-menu__item"
+									onClick={() => executeAction(handleBulkDownload)}
+								>
+									<Download size={14} /> Download
+								</button>
+								<div className="meld-bulk-bar-menu__divider" />
+								<button
+									type="button"
+									className="meld-bulk-bar-menu__item meld-bulk-bar-menu__item--danger"
+									onClick={() => executeAction(deleteSelected)}
+								>
+									<Trash2 size={14} /> Move to Trash
+								</button>
+							</>
+						)}
+					</div>
+				</>
+			)}
 		</div>
 	);
+
+	return createPortal(bulkBarJSX, portalContainer);
 };

@@ -267,9 +267,10 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 							].map((item) => (
 								<div
 									key={item.type}
-									className={`meld-lt-slot__action-menu-item${item.danger ? " meld-lt-slot__action-menu-item--danger" : ""}`}
+									className={`meld-lt-slot__action-menu-item${item.danger ? " meld-lt-slot__action-menu-item--danger" : ""}${"disabled" in item && item.disabled ? " meld-lt-slot__action-menu-item--disabled" : ""}`}
 									onMouseDown={(e) => e.stopPropagation()}
 									onClick={() => {
+										if ("disabled" in item && item.disabled) return;
 										setIsActionMenuOpen(false);
 										setTimeout(() => handleAction(item.type), 0);
 									}}

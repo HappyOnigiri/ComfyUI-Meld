@@ -264,8 +264,9 @@ export const useImageActions = (
 	);
 
 	const handleRunWithMask = useCallback(
-		async (image: MeldImage, mode: "apply" | "run" = "run") => {
-			console.log("[Meld] handleRunWithMask called", image, mode);
+		async (images: MeldImage | MeldImage[], mode: "apply" | "run" = "run") => {
+			console.log("[Meld] handleRunWithMask called", images, mode);
+			const imageArray = Array.isArray(images) ? images : [images];
 
 			if (mode === "apply") {
 				// Check if the current workflow has the required nodes
@@ -306,33 +307,57 @@ export const useImageActions = (
 					});
 					return;
 				}
-			} else {
-				// For "run" mode, check if there's any workflow that supports masks
-				try {
-					const workflows = await fetchWorkflows();
-					const hasCompatibleWorkflow = workflows.some(
-						(wf) => wf.valid && wf.mask_count === 1,
-					);
-					if (!hasCompatibleWorkflow) {
-						dispatch({
-							type: "OPEN_MODAL",
-							payload: {
-								type: "error",
-								message:
-									"No workflows found with exactly one 'Load Image (as Mask)' node. Please save a compatible workflow first.",
-							},
-						});
-						return;
-					}
-				} catch (err) {
-					console.error("[Meld] Error checking workflows:", err);
-					// Fallback: let them open the editor, they'll see errors later if no workflows exist
+
+				// Only single image supported for raw "apply" without a workflow
+				if (imageArray.length > 1) {
+					dispatch({
+						type: "OPEN_MODAL",
+						payload: {
+							type: "error",
+							message:
+								"'Apply' mode without queueing only supports single image selection.",
+						},
+					});
+					return;
 				}
+
+				dispatch({
+					type: "OPEN_MODAL",
+					payload: { type: "mask_editor", imageId: imageArray[0].id, mode },
+				});
+				return;
 			}
 
+			// For "run" mode, check if there's any workflow that supports masks
+			try {
+				const workflows = await fetchWorkflows();
+				const hasCompatibleWorkflow = workflows.some(
+					(wf) => wf.valid && wf.mask_count >= 1,
+				);
+				if (!hasCompatibleWorkflow) {
+					dispatch({
+						type: "OPEN_MODAL",
+						payload: {
+							type: "error",
+							message:
+								"No workflows found with at least one 'Load Image (as Mask)' node. Please save a compatible workflow first.",
+						},
+					});
+					return;
+				}
+			} catch (err) {
+				console.error("[Meld] Error checking workflows:", err);
+				// Fallback: let them open the editor, they'll see errors later if no workflows exist
+			}
+
+			// In run mode, we always go through workflow_selection, which will start the sequence
 			dispatch({
 				type: "OPEN_MODAL",
-				payload: { type: "mask_editor", imageId: image.id, mode },
+				payload: {
+					type: "workflow_selection",
+					images: imageArray,
+					isMaskSequence: true,
+				},
 			});
 		},
 		[dispatch],

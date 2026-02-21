@@ -1,6 +1,6 @@
 import type { MeldImage } from "../../types";
 
-export type MaskMode = "apply" | "run";
+export type MaskMode = "apply" | "run" | "run_sequence";
 
 export type MaskTool = "rect" | "ellipse" | "lasso";
 
