@@ -7,6 +7,11 @@
         "**/node_modules",
         "**/__pycache__"
     ],
+    "extraPaths": [
+        "../../..",
+        "../../../..",
+        "env/Lib/site-packages"
+    ],
     "reportMissingImports": "none",
     "executionEnvironments": [
         {
