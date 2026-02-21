@@ -9,21 +9,18 @@ const defaultSlots: SlotConfig[] = [
 		label: "Keep",
 		color: "var(--meld-success-color, #4ade80)",
 		shortcutKey: "1",
-		defaultAction: { type: "add_tag", value: "favorite" },
 	},
 	{
 		id: "refine",
 		label: "Refine",
 		color: "var(--brand-yellow, #ffd700)",
 		shortcutKey: "2",
-		defaultAction: { type: "send_to_node" },
 	},
 	{
 		id: "trash",
 		label: "Trash",
 		color: "var(--meld-danger-color, #ff4c4c)",
 		shortcutKey: "3",
-		defaultAction: { type: "delete" },
 	},
 ];
 
@@ -34,6 +31,7 @@ export const useLightTableStore = create<TrayState>()(
 			slots: defaultSlots,
 			buckets: {},
 			images: {},
+			toastMessage: null,
 
 			setIsOpen: (isOpen: boolean) => set({ isOpen }),
 
@@ -131,6 +129,17 @@ export const useLightTableStore = create<TrayState>()(
 						images: newImages,
 					};
 				}),
+
+			/**
+			 * Show toast message for 2.5 seconds.
+			 * If called multiple times, the latest message overwrites the previous one.
+			 */
+			showToast: (message: string) => {
+				set({ toastMessage: message });
+				setTimeout(() => {
+					set({ toastMessage: null });
+				}, 2500);
+			},
 		}),
 		{
 			name: "meld-light-table-storage",

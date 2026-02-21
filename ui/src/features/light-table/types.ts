@@ -12,7 +12,6 @@ export interface SlotConfig {
 	label: string;
 	color: string;
 	shortcutKey: string;
-	defaultAction: SlotAction;
 }
 
 export interface TrayState {
@@ -20,6 +19,8 @@ export interface TrayState {
 	buckets: Record<string, string[]>;
 	slots: SlotConfig[];
 	images: Record<string, MeldImage>;
+	/** Toast notification message (null = hidden) */
+	toastMessage: string | null;
 
 	// Actions
 	setIsOpen: (isOpen: boolean) => void;
@@ -29,4 +30,6 @@ export interface TrayState {
 	updateSlot: (slotId: string, config: Partial<SlotConfig>) => void;
 	addSlot: (config: SlotConfig) => void;
 	removeSlot: (slotId: string) => void;
+	/** Show toast for 2.5 seconds */
+	showToast: (message: string) => void;
 }
