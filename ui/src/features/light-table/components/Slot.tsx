@@ -1,6 +1,8 @@
 import {
 	ChevronDown,
+	Download,
 	Eraser,
+	FileJson,
 	Settings,
 	Tag,
 	Trash2,
@@ -141,8 +143,10 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 		const actionLabelMap: Record<ActionType, string> = {
 			add_tag: "Tags added",
 			delete: "Delete initiated",
-			send_to_node: "Sent to node",
 			move_folder: "Moved to folder",
+			queue_workflow: "Queued Workflow",
+			run_with_mask: "Opened Mask Editor",
+			download: "Opened Download Options",
 		};
 
 		const onSuccess = () => {
@@ -235,9 +239,19 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 							{[
 								{ type: "add_tag" as ActionType, label: "Add Tag", icon: Tag },
 								{
-									type: "send_to_node" as ActionType,
-									label: "Send to Node",
+									type: "queue_workflow" as ActionType,
+									label: "Queue Workflow",
+									icon: FileJson,
+								},
+								{
+									type: "run_with_mask" as ActionType,
+									label: "Queue Workflow (Mask)",
 									icon: Workflow,
+								},
+								{
+									type: "download" as ActionType,
+									label: "Download",
+									icon: Download,
 								},
 								{
 									type: "delete" as ActionType,

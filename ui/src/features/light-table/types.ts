@@ -1,6 +1,12 @@
 import type { MeldImage } from "../../types";
 
-export type ActionType = "delete" | "add_tag" | "move_folder" | "send_to_node";
+export type ActionType =
+	| "delete"
+	| "add_tag"
+	| "move_folder"
+	| "queue_workflow"
+	| "run_with_mask"
+	| "download";
 
 export interface SlotAction {
 	type: ActionType;

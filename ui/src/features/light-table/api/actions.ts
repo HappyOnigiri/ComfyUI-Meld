@@ -43,19 +43,30 @@ export const executeSlotAction = (
 			onSuccess?.();
 			break;
 
-		case "send_to_node":
-			// Use the first image for send_to_node since injecting multiple might be complex
+		case "queue_workflow":
+			dispatch({
+				type: "OPEN_MODAL",
+				payload: { type: "workflow_selection", images },
+			});
+			onSuccess?.();
+			break;
+
+		case "run_with_mask":
 			if (imageIds.length > 0) {
-				// Here we could directly inject or open a generic selection,
-				// but let's dispatch an alert or use workflow implementation if accessible.
-				// For now, prompt the user that batch sending to node is not fully supported natively,
-				// or just send the first one.
-				console.warn(
-					"send_to_node is complex for batch, delegating to future implementation",
-				);
-				alert(`Would send ${imageIds.length} images to nodes (Feature WIP)`);
+				dispatch({
+					type: "OPEN_MODAL",
+					payload: { type: "mask_editor", imageId: imageIds[0], mode: "run" },
+				});
 				onSuccess?.();
 			}
+			break;
+
+		case "download":
+			dispatch({
+				type: "OPEN_MODAL",
+				payload: { type: "download_options", imageIds },
+			});
+			onSuccess?.();
 			break;
 
 		default:
