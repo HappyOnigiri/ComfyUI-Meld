@@ -7,7 +7,8 @@ export type Category =
 	| "View"
 	| "Full Screen"
 	| "Shortcuts"
-	| "System";
+	| "System"
+	| "Information";
 
 export const useSettingsModalLogic = () => {
 	const { state, dispatch, updateSetting } = useGallery();
