@@ -10742,7 +10742,6 @@ const qu = [
     { id: "Full Screen", label: "Full Screen" },
     { id: "Shortcuts", label: "Shortcuts" },
     { id: "System", label: "System" },
-    { id: "System", label: "System" },
     { id: "Information", label: "Information" }
   ], J = () => {
     switch (e) {
