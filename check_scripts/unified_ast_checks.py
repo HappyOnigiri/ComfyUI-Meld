@@ -10,6 +10,7 @@ from common.abstract_check import ASTChecker
 from common.api_response_checker import ApiResponseChecker
 from common.api_usage_check import ApiUsageChecker
 from common.dependency_check import DependencyChecker
+from common.sqlite_type_checker import SqliteCursorTypeChecker
 
 
 def run_ast_checks() -> None:
@@ -17,6 +18,7 @@ def run_ast_checks() -> None:
         DependencyChecker,
         ApiUsageChecker,
         ApiResponseChecker,
+        SqliteCursorTypeChecker,
     ]
 
     # Collect all files that need to be checked and which checkers apply to them
