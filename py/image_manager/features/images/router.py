@@ -319,19 +319,22 @@ async def get_image_snapshot_data(request: web.Request) -> web.Response:
                 k_params: dict[str, Any] = {}
                 found_k = False
                 if wf_json:
-                    k_params, found_k = MetadataHelper.get_ksampler_params(wf_json, [])
+                    raw_kp, found_k = MetadataHelper.get_ksampler_params(wf_json, [])
+                    k_params = dict(raw_kp) if raw_kp else {}
                     guidance_val = _extract_guidance_from_json(wf_json)
                     if guidance_val is not None:
                         data.guidance = guidance_val
 
                 if not found_k and pr_json:
-                    k_params, found_k = MetadataHelper.get_ksampler_params_from_prompt(pr_json, [])
+                    raw_kp, found_k = MetadataHelper.get_ksampler_params_from_prompt(pr_json, [])
+                    k_params = dict(raw_kp) if raw_kp else {}
                     guidance_val = _extract_guidance_from_json(pr_json)
                     if guidance_val is not None:
                         data.guidance = guidance_val
 
                 if not found_k and a1111_text:
-                    k_params = MetadataHelper.parse_a1111_params(a1111_text)
+                    raw_kp = MetadataHelper.parse_a1111_params(a1111_text)
+                    k_params = dict(raw_kp) if raw_kp else {}
                     found_k = bool(k_params)
                     guidance_val = _extract_guidance_from_json(a1111_text)
                     if guidance_val is not None:
@@ -419,10 +422,11 @@ async def list_images(request: web.Request) -> web.Response:
                 f"SELECT r.image_id, t.name FROM tags t JOIN tag_image_relations r ON t.id = r.tag_id WHERE r.image_id IN ({placeholders})",
                 image_ids,
             )
-            for img_id, tag_name in cursor.fetchall():
-                if img_id not in tags_map:
-                    tags_map[img_id] = []
-                tags_map[img_id].append(tag_name)
+            for row_img_id, tag_name in cursor.fetchall():
+                iid: int = int(row_img_id)
+                if iid not in tags_map:
+                    tags_map[iid] = []
+                tags_map[iid].append(tag_name)
 
             if lineage_max_depth > 1:
                 ancestor_sql = f"""
@@ -444,10 +448,11 @@ async def list_images(request: web.Request) -> web.Response:
                 """
                 cursor.execute(ancestor_sql, (*image_ids, lineage_max_depth))
                 for start_id, a_id, a_fname, a_subf, a_type in cursor.fetchall():
-                    if start_id not in ancestors_map:
-                        ancestors_map[start_id] = []
-                    if len(ancestors_map[start_id]) < lineage_max_depth:
-                        ancestors_map[start_id].append(
+                    sid: int = int(start_id)
+                    if sid not in ancestors_map:
+                        ancestors_map[sid] = []
+                    if len(ancestors_map[sid]) < lineage_max_depth:
+                        ancestors_map[sid].append(
                             {"id": a_id, "filename": a_fname, "subfolder": a_subf, "type": a_type}
                         )
 
@@ -458,10 +463,11 @@ async def list_images(request: web.Request) -> web.Response:
                     f"SELECT r.image_id, pp.name, r.strength FROM positive_prompts pp JOIN positive_prompt_image_relations r ON pp.id = r.positive_prompt_id WHERE r.image_id IN ({ph})",
                     needs_reconstruction_pos,
                 )
-                for img_id, name, strength in cursor.fetchall():
-                    if img_id not in reconstructed_pos_map:
-                        reconstructed_pos_map[img_id] = []
-                    reconstructed_pos_map[img_id].append(name if strength == 1.0 else f"({name}:{strength})")
+                for row_img_id, name, strength in cursor.fetchall():
+                    iid = int(row_img_id)
+                    if iid not in reconstructed_pos_map:
+                        reconstructed_pos_map[iid] = []
+                    reconstructed_pos_map[iid].append(name if strength == 1.0 else f"({name}:{strength})")
 
             needs_reconstruction_neg = [img[0] for img in images if img[13] is None] if not is_minimal else []
             if needs_reconstruction_neg:
@@ -470,10 +476,11 @@ async def list_images(request: web.Request) -> web.Response:
                     f"SELECT r.image_id, np.name, r.strength FROM negative_prompts np JOIN negative_prompt_image_relations r ON np.id = r.negative_prompt_id WHERE r.image_id IN ({ph})",
                     needs_reconstruction_neg,
                 )
-                for img_id, name, strength in cursor.fetchall():
-                    if img_id not in reconstructed_neg_map:
-                        reconstructed_neg_map[img_id] = []
-                    reconstructed_neg_map[img_id].append(name if strength == 1.0 else f"({name}:{strength})")
+                for row_img_id, name, strength in cursor.fetchall():
+                    iid = int(row_img_id)
+                    if iid not in reconstructed_neg_map:
+                        reconstructed_neg_map[iid] = []
+                    reconstructed_neg_map[iid].append(name if strength == 1.0 else f"({name}:{strength})")
 
         result_list = []
 
@@ -507,11 +514,14 @@ async def list_images(request: web.Request) -> web.Response:
 
             if is_minimal:
                 if positive and len(positive) > 200:
-                    positive = positive[:200] + "..."
+                    _pos: str = str(positive)
+                    positive = _pos[:200] + "..."
                 if negative and len(negative) > 200:
-                    negative = negative[:200] + "..."
+                    _neg: str = str(negative)
+                    negative = _neg[:200] + "..."
                 if user_notes and len(user_notes) > 200:
-                    user_notes = user_notes[:200] + "..."
+                    _notes: str = str(user_notes)
+                    user_notes = _notes[:200] + "..."
 
             tags = tags_map.get(img_id, [])
 
@@ -1379,8 +1389,6 @@ def _get_image_path(img_type: str, subfolder: str, filename: str) -> str | None:
 
 def _strip_metadata(image_path: str) -> bytes:
     import io
-
-    from PIL import Image
 
     with Image.open(image_path) as img:
         clean_img = Image.new(img.mode, img.size)
