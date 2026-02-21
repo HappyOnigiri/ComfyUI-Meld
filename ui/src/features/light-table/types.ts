@@ -36,6 +36,7 @@ export interface TrayState {
 	updateSlot: (slotId: string, config: Partial<SlotConfig>) => void;
 	addSlot: (config: SlotConfig) => void;
 	removeSlot: (slotId: string) => void;
+	removeImages: (imageIds: number[]) => void;
 	/** Show toast for 2.5 seconds */
 	showToast: (message: string) => void;
 }

@@ -3,6 +3,7 @@ import type React from "react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import * as imagesApi from "../../features/images/api/imagesApi";
+import { useLightTableStore } from "../../features/light-table/store";
 import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 import { useGallery } from "../../store/GalleryContext";
 import type { MeldImage } from "../../types";
@@ -152,6 +153,8 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 			await imagesApi.deleteImages(imageIds, isPermanent);
 			if (!isMounted.current) return;
 
+			useLightTableStore.getState().removeImages(Array.from(idsToDeleteSet));
+
 			if (state.activeModal.type === "delete_confirm") {
 				state.activeModal.onSuccess?.();
 			}
@@ -194,6 +197,8 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 
 			await imagesApi.deleteImages(Array.from(allIdsToDelete), isPermanent);
 			if (!isMounted.current) return;
+
+			useLightTableStore.getState().removeImages(Array.from(allIdsToDelete));
 
 			if (state.activeModal.type === "delete_confirm") {
 				state.activeModal.onSuccess?.();

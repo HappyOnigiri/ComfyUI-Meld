@@ -240,6 +240,7 @@ export const useImageViewerLogic = ({
 				}
 
 				await imagesApi.deleteImages(Array.from(idsToDelete), isPermanent);
+				useLightTableStore.getState().removeImages(Array.from(idsToDelete));
 				if (!isPermanent) {
 					const deletedImages = currentThumbnails.filter((img) =>
 						idsToDelete.has(img.id),
