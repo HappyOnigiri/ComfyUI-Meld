@@ -16755,7 +16755,9 @@ const Rg = () => {
   const { state: e, dispatch: t, deleteSelected: n, restoreSelected: r } = xe(), { handleRunWithWorkflow: s, handleRunWithMask: a } = vs(
     e,
     t
-  ), o = e.selectedIds.size, [i, c] = p.useState(!1), [d, m] = p.useState(null), v = p.useRef(null), [w, x] = p.useState(null);
+  ), o = e.selectedIds.size, [i, c] = p.useState(!1), [d, m] = p.useState(null), v = p.useRef(null), [w, x] = p.useState(
+    null
+  );
   if (p.useEffect(() => {
     let j = document.getElementById(
       "meld-bulk-bar-portal"
