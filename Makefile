@@ -35,38 +35,15 @@ else
 PYTHON ?= python
 endif
 
-# CI: Parallel execution of all checks and tests
-# Automatically uses -j 4 to speed up the process.
+# CI: Execution of all checks and tests via Python script
 ci:
-	@echo "Starting CI with parallel execution..."
-	@$(MAKE) --no-print-directory -j 4 ci-parallel
-
-ci-parallel: lint-py lint-ui lint-misc lint-scripts test-all build-ui
-
-loc:
-	@$(PYTHON) scripts/loc.py
-
-# UI node_modules management
-ui/node_modules/.install-stamp: ui/package.json ui/package-lock.json
-	@echo "Installing UI dependencies..."
-	cd ui && npm ci
-	@touch $@
+	@$(PYTHON) scripts/ci.py
 
 build-ui: ui/node_modules/.install-stamp
 	cd ui && npm run build
 
 watch-ui: ui/node_modules/.install-stamp
 	cd ui && npm run dev
-
-local-check-scripts:
-	@if [ -d "local_check_scripts" ]; then \
-		for script in local_check_scripts/*.py; do \
-			if [ -f "$$script" ]; then \
-				echo "Running local check: $$script"; \
-				$(PYTHON) "$$script" || exit 1; \
-			fi; \
-		done; \
-	fi
 
 test-all:
 	$(PYTHON) -m unittest discover tests
@@ -98,6 +75,16 @@ check-scripts:
 		for script in check_scripts/*.py; do \
 			if [ -f "$$script" ]; then \
 				echo "Running check script: $$script"; \
+				$(PYTHON) "$$script" || exit 1; \
+			fi; \
+		done; \
+	fi
+
+local-check-scripts:
+	@if [ -d "local_check_scripts" ]; then \
+		for script in local_check_scripts/*.py; do \
+			if [ -f "$$script" ]; then \
+				echo "Running local check: $$script"; \
 				$(PYTHON) "$$script" || exit 1; \
 			fi; \
 		done; \
