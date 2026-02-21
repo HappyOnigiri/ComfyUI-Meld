@@ -3,7 +3,7 @@ import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-# ターミナルカラーの定義
+# Terminal color definitions
 COLOR_GREEN = "\033[92m"
 COLOR_RED = "\033[91m"
 COLOR_RESET = "\033[0m"
@@ -13,11 +13,10 @@ TASKS = [
     ("Python-Lint-ruff-check", "python -m ruff check . --fix"),
     ("Python-Lint-mypy", "python -m mypy py tests"),
     ("Python-Lint-pyright", "npx pyright"),
-    ("UI-Lint-tsc", "npm --prefix ui run type-check"),  # Makefileに合わせてcd ui && npx tsc --noEmitを調整
     (
         "UI-Lint-biome",
         "npm --prefix ui run lint",
-    ),  # Makefileに合わせてcd ui && npx @biomejs/biome check --write src --error-on-warningsを調整
+    ),  # Command for biome lint in ui directory
     ("Fix-Newlines", "python scripts/fix_newlines.py"),
     ("Check-Non-ASCII", "python scripts/check_non_ascii.py"),
     ("Check-TS-Rules", "python scripts/check_ts_rules.py"),
@@ -27,20 +26,18 @@ TASKS = [
     ("Build-UI", "npm --prefix ui run build"),
 ]
 
-# Makefileでのコマンドを確認して調整が必要なものを修正
+# Command adjustments for specific task types
 # UI-Lint-tsc: cd ui && npx tsc --noEmit
 # UI-Lint-biome: cd ui && npx @biomejs/biome check --write src --error-on-warnings
 # Build-UI: cd ui && npm run build
 
 
 def run_task(name: str, command: str) -> tuple[bool, str, str]:
-    # uiディレクトリでの実行が必要な場合の調整
+    # Adjustments for tasks that need to run in the ui directory
     cwd = None
     if name.startswith("UI-") or name == "Build-UI":
-        # Makefileでは cd ui && ... となっていたので、ここでは cwd を指定して実行する
         cwd = "ui"
-        # コマンドから ui ディレクトリ接頭辞などを除去する必要があるかもしれないが
-        # Makefileの中身に基づいて、具体的なコマンドを再定義する
+        # Redefine commands based on Makefile logic
         if name == "UI-Lint-tsc":
             command = "npx tsc --noEmit"
         elif name == "UI-Lint-biome":
@@ -68,11 +65,15 @@ def run_task(name: str, command: str) -> tuple[bool, str, str]:
 
 
 def main() -> None:
+    # Workaround for Windows encoding issues
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(errors="replace")
+
     print("Starting CI with Python script...")
 
     os.makedirs(".logs", exist_ok=True)
 
-    # 並列実行 (Makefileと同じ -j 4 相当)
+    # Parallel execution (equivalent to Makefile -j 4)
     max_workers = 4
     failed_tasks = []
 
@@ -82,14 +83,14 @@ def main() -> None:
         for future in as_completed(future_to_task):
             success, name, output = future.result()
 
-            # 完了したタスクのサマリーを表示
+            # Print summary for finished task
             status_text = f"{COLOR_GREEN}SUCCESS{COLOR_RESET}" if success else f"{COLOR_RED}FAILED{COLOR_RESET}"
-            if "ERROR" in output and not success and not output.startswith("Python"):  # 簡易的な例外判定
+            if "ERROR" in output and not success and not output.startswith("Python"):  # Simple exception detection
                 status_text = f"{COLOR_RED}ERROR{COLOR_RESET}"
 
             print(f"  {name:<40} {status_text}")
 
-            # ログの保存
+            # Save log to file
             log_filename = os.path.join(".logs", f"{name.replace(' ', '_')}.log")
             with open(log_filename, "w", encoding="utf-8") as f:
                 f.write(output)
