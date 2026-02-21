@@ -5,7 +5,10 @@ alwaysApply: true
 # Basic Rules
 
 - **Mandatory CI Execution**: After modifying the code, you must run `make ci` and ensure that all linting, tests, and static analysis complete successfully.
-- **No Automatic Commits**: You must NOT perform any `git commit` or use the `commit` skill automatically. Always seek explicit user approval before committing any changes.
+- **No Automatic Commits or Git Operations**: You must NOT perform any `git commit`, `git checkout -b`, or use the `commit`, `create-branch`, `create-pr`, or `ship` skills automatically. Always seek explicit user approval and instructions before:
+  - Committing any changes.
+  - Creating a new branch.
+  - Creating or updating a Pull Request.
 
 # Implementation Rules
 
