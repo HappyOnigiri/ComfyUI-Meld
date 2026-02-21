@@ -58,6 +58,7 @@ htmlcov/
 
 # Local configuration / Logs
 *.log
+.logs/
 *.local.*
 local_*.json
 local_check_scripts/
