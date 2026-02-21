@@ -11145,13 +11145,13 @@ const qu = [
       }
       try {
         if (!(await Ou()).some(
-          (m) => m.valid && m.mask_count === 1
+          (m) => m.valid && m.mask_count >= 1
         )) {
           t({
             type: "OPEN_MODAL",
             payload: {
               type: "error",
-              message: "No workflows found with exactly one 'Load Image (as Mask)' node. Please save a compatible workflow first."
+              message: "No workflows found with at least one 'Load Image (as Mask)' node. Please save a compatible workflow first."
             }
           });
           return;

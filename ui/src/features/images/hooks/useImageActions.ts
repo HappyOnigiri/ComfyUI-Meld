@@ -332,7 +332,7 @@ export const useImageActions = (
 			try {
 				const workflows = await fetchWorkflows();
 				const hasCompatibleWorkflow = workflows.some(
-					(wf) => wf.valid && wf.mask_count === 1,
+					(wf) => wf.valid && wf.mask_count >= 1,
 				);
 				if (!hasCompatibleWorkflow) {
 					dispatch({
@@ -340,7 +340,7 @@ export const useImageActions = (
 						payload: {
 							type: "error",
 							message:
-								"No workflows found with exactly one 'Load Image (as Mask)' node. Please save a compatible workflow first.",
+								"No workflows found with at least one 'Load Image (as Mask)' node. Please save a compatible workflow first.",
 						},
 					});
 					return;
