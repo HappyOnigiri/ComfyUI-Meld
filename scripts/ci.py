@@ -75,32 +75,42 @@ def main() -> None:
 
     # Parallel execution (equivalent to Makefile -j 4)
     max_workers = 4
-    failed_tasks = []
+    results = {}
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         future_to_task = {executor.submit(run_task, name, cmd): name for name, cmd in TASKS}
 
         for future in as_completed(future_to_task):
             success, name, output = future.result()
+            results[name] = (success, output)
 
-            # Print summary for finished task
-            status_text = f"{COLOR_GREEN}SUCCESS{COLOR_RESET}" if success else f"{COLOR_RED}FAILED{COLOR_RESET}"
-            if "ERROR" in output and not success and not output.startswith("Python"):  # Simple exception detection
-                status_text = f"{COLOR_RED}ERROR{COLOR_RESET}"
-
-            print(f"  {name:<40} {status_text}")
-
-            # Save log to file
+            # Save logs to file
             log_filename = os.path.join(".logs", f"{name.replace(' ', '_')}.log")
             with open(log_filename, "w", encoding="utf-8") as f:
                 f.write(output)
 
-            if not success:
-                failed_tasks.append((name, output))
+    # Print results in original order
+    failed_tasks = []
+    print("\n" + "-" * 60)
+    for name, _ in TASKS:
+        success, output = results[name]
+
+        if success:
+            status_text = f"{COLOR_GREEN}SUCCESS{COLOR_RESET}"
+            symbol = "[+]"
+        else:
+            status_text = f"{COLOR_RED}FAILED{COLOR_RESET}"
+            symbol = "[-]"
+            if "ERROR" in output and not name.startswith("Python"):
+                status_text = f"{COLOR_RED}ERROR{COLOR_RESET}"
+            failed_tasks.append((name, output))
+
+        # Consistent layout
+        print(f"  {symbol} {name:<35} {status_text}")
+    print("-" * 60)
 
     if failed_tasks:
-        print("\n" + "=" * 80)
-        print(f"{COLOR_RED}CI FAILED ({len(failed_tasks)} tasks failed){COLOR_RESET}")
+        print(f"\n{COLOR_RED}CI FAILED ({len(failed_tasks)} tasks failed){COLOR_RESET}")
         print("=" * 80)
         for name, output in failed_tasks:
             print(f"\n--- Detailed log for {name} ---")
