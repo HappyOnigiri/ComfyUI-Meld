@@ -34,18 +34,14 @@ jobs:
         working-directory: ui
         run: npm ci
 
-      - name: Build UI
-        working-directory: ui
-        run: npm run build
-
-      - name: Check for JS build diff
-        run: |
-          if [ -n "$(git diff --name-only web/js/)" ]; then
-            echo "Error: Files in web/js/ are out of sync with ui/src."
-            echo "Please run 'npm run build' in the 'ui' directory and commit the changes."
-            git diff web/js/
-            exit 1
-          fi
-
       - name: Run CI
         run: make ci
+
+      - name: Check for diff
+        run: |
+          if [ -n "$(git diff --name-only)" ]; then
+            echo "Error: Working directory is dirty after CI."
+            echo "Please run 'make ci' locally and commit the changes."
+            git diff
+            exit 1
+          fi
