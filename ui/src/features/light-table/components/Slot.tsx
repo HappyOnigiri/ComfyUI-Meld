@@ -1,6 +1,7 @@
 import {
 	Archive,
 	ChevronDown,
+	Eraser,
 	FolderOutput,
 	Play,
 	Settings,
@@ -255,6 +256,19 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 						</div>
 					)}
 				</div>
+				<button
+					type="button"
+					className="meld-lt-slot__menu-btn"
+					onClick={() => {
+						if (window.confirm("Clear items in this tab?")) {
+							useLightTableStore.getState().clearBucket(config.id);
+						}
+					}}
+					title="Clear Tab"
+					disabled={itemCount === 0}
+				>
+					<Eraser size={14} />
+				</button>
 				<div className="meld-lt-slot__settings-wrapper" ref={settingsRef}>
 					<button
 						type="button"

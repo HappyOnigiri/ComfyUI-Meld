@@ -62,12 +62,13 @@
 	background: transparent;
 	border: none;
 	border-bottom: 2px solid transparent;
-	color: var(--error-color, #ff4c4c);
+	color: var(--desc-color, #888);
 	font-size: 13px;
 	cursor: pointer;
 	transition: all 0.2s;
 }
 
 .meld-light-table__clear-btn:hover {
+	color: var(--error-color, #ff4c4c);
 	background: var(--comfy-input-bg);
 }
