@@ -3,22 +3,22 @@ import os
 
 from .abstract_check import ASTChecker  # pyre-ignore[21]
 
-# SQLiteのcursor.fetchall() / fetchone() 結果を直接dictのキーや
-# ループ変数として型変換なしでdictの添字に使っているパターンを検出する。
+# Detect patterns where SQLite cursor.fetchall() / fetchone() results are used directly
+# as dictionary keys or loop variables without type conversion.
 #
-# 検出対象パターン:
+# Patterns targeted for detection:
 #   cursor.execute("SELECT id, ...")
 #   for img_id, ... in cursor.fetchall():
-#       some_dict[img_id] = ...   ← img_id が int() などで変換されていない
+#       some_dict[img_id] = ...   <- img_id is not converted with int() etc.
 #
-# 修正済みパターン（OK）:
+# Corrected patterns (OK):
 #   for row_id, ... in cursor.fetchall():
 #       iid: int = int(row_id)
 #       some_dict[iid] = ...
 
 
 class SqliteCursorTypeChecker(ASTChecker):
-    """SQLiteカーソル結果を型変換なしでdictキーに使っているパターンを検出する。"""
+    """Detects patterns where SQLite cursor results are used as dict keys without type conversion."""
 
     def get_target_files(self) -> list[str]:
         targets = []
@@ -31,8 +31,8 @@ class SqliteCursorTypeChecker(ASTChecker):
         return targets
 
     def visit_For(self, node: ast.For) -> None:
-        """forループでcursor.fetchall()を使っているか確認する。"""
-        # cursor.fetchall() または cursor.fetchmany() を呼び出しているfor文を探す
+        """Check if cursor.fetchall() is used in a for loop."""
+        # Search for for-loops calling cursor.fetchall() or cursor.fetchmany()
         if not isinstance(node.iter, ast.Call):
             self.generic_visit(node)
             return
@@ -47,7 +47,7 @@ class SqliteCursorTypeChecker(ASTChecker):
             self.generic_visit(node)
             return
 
-        # ループ変数を取得する
+        # Get loop variables
         loop_vars: list[str] = []
         if isinstance(node.target, ast.Tuple):
             for elt in node.target.elts:
@@ -60,26 +60,26 @@ class SqliteCursorTypeChecker(ASTChecker):
             self.generic_visit(node)
             return
 
-        # ループ本体でdictの添字として使われている変数を確認する
+        # Check variables used as dictionary subscripts in the loop body
         dict_subscript_vars = self._collect_dict_subscript_vars(node.body)
 
-        # ループ変数がそのままdict添字に使われていないかチェック
-        # int()などに変換されてから使われているかをチェックする
+        # Check if loop variables are used as dict subscripts without being converted
+        # Check if they are converted using int() etc.
         int_cast_vars = self._collect_int_cast_vars(node.body)
 
         for var in loop_vars:
             if var in dict_subscript_vars and var not in int_cast_vars:
                 self.add_error(
                     node.lineno,
-                    f"SQLiteカーソル結果のループ変数 '{var}' が型変換なしで"
-                    f"dictのキーとして使われています。"
-                    f"int({var}) などで明示的にキャストしてください。",
+                    f"Loop variable '{var}' from SQLite cursor result is used as a "
+                    f"dict key without type conversion. "
+                    f"Please cast explicitly with int({var}) etc.",
                 )
 
         self.generic_visit(node)
 
     def _collect_dict_subscript_vars(self, stmts: list[ast.stmt]) -> set[str]:
-        """文のリストからdictの添字に使われている変数名を集める。"""
+        """Collect variable names used as dictionary subscripts from a list of statements."""
         vars_used: set[str] = set()
         for stmt in stmts:
             for node in ast.walk(stmt):
@@ -89,27 +89,26 @@ class SqliteCursorTypeChecker(ASTChecker):
         return vars_used
 
     def _collect_int_cast_vars(self, stmts: list[ast.stmt]) -> set[str]:
-        """文のリストでint()などにキャストされた後、別変数に代入されている
-        変数のセット（もとの変数名）を返す。
+        """Return a set of source variables that are cast using int() etc. and assigned to another variable.
 
-        例: iid: int = int(row_id) → row_id がキャスト済みとして記録される
-        例: iid = int(row_id) → row_id がキャスト済みとして記録される
+        Example: iid: int = int(row_id) -> row_id is recorded as cast
+        Example: iid = int(row_id) -> row_id is recorded as cast
         """
         cast_sources: set[str] = set()
         for stmt in stmts:
             for node in ast.walk(stmt):
-                # 代入文: x = int(y) のパターン
+                # Assignment: x = int(y) pattern
                 if isinstance(node, ast.Assign):
                     if isinstance(node.value, ast.Call):
                         cast_sources.update(self._extract_int_call_args(node.value))
-                # 型注釈付き代入: x: int = int(y) のパターン
+                # Annotated assignment: x: int = int(y) pattern
                 elif isinstance(node, ast.AnnAssign) and node.value is not None:
                     if isinstance(node.value, ast.Call):
                         cast_sources.update(self._extract_int_call_args(node.value))
         return cast_sources
 
     def _extract_int_call_args(self, call_node: ast.Call) -> set[str]:
-        """int(var) 形式の呼び出しから引数の変数名を返す。"""
+        """Return variable names from an int(var) call."""
         result: set[str] = set()
         if not isinstance(call_node.func, ast.Name):
             return result

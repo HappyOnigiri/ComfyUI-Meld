@@ -731,7 +731,6 @@
 	right: 0;
 	bottom: 0;
 	background: rgba(0, 0, 0, 0.85); /* color-check-ignore */
-	/* color-check-ignore */
 	z-index: 10000;
 	display: flex;
 	align-items: center;
@@ -1314,8 +1313,11 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background: var(--comfy-menu-bg, rgba(0, 0, 0, 0.7));
-	/* color-check-ignore */
+	background: var(
+		--meld-overlay-bg,
+		color-mix(in srgb, var(--comfy-menu-bg, #15161a) 10%, transparent)
+	);
+	backdrop-filter: blur(2px);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -2811,7 +2813,6 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	background: var(
 		--interface-menu-component-surface-hovered,
 		rgba(255, 255, 255, 0.1) /* color-check-ignore */
-		/* color-check-ignore */
 	);
 	transform: translateX(4px);
 }
@@ -2820,7 +2821,6 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	background: var(
 		--interface-menu-component-surface-selected,
 		rgba(255, 255, 255, 0.2) /* color-check-ignore */
-		/* color-check-ignore */
 	);
 	color: var(--text-primary, white);
 }
