@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { resolve } from 'path';
-import fs from 'fs';
+import { resolve } from 'node:path';
+import fs from 'node:fs';
 
 const pyprojectPath = resolve(__dirname, '../pyproject.toml');
 let pyprojectToml = '';
@@ -9,7 +9,7 @@ try {
   if (fs.existsSync(pyprojectPath)) {
     pyprojectToml = fs.readFileSync(pyprojectPath, 'utf-8');
   }
-} catch (e) {
+} catch (_e) {
   pyprojectToml = '';
 }
 const versionMatch = pyprojectToml.match(/version\s*=\s*"([^"]+)"/);
