@@ -1,6 +1,7 @@
 import type React from "react";
 import { createPortal } from "react-dom";
 import { ImportModal } from "../../features/importer/components/ImportModal";
+import { DownloadModal } from "../../features/light-table/components/DownloadModal";
 import { MaskEditorModal } from "../../features/mask-editor/components/MaskEditorModal";
 import { SettingsModal } from "../../features/settings/components/SettingsModal";
 import { TagEditModal } from "../../features/tags/components/TagEditModal";
@@ -31,6 +32,7 @@ export const GalleryModals: React.FC = () => {
 					onExecute={async (workflowName, targetLoaderNodeId) => {
 						if (state.activeModal.type === "workflow_selection") {
 							const maskFilename = state.activeModal.maskFilename;
+							const onSuccess = state.activeModal.onSuccess;
 							for (const img of state.activeModal.images) {
 								await executeWorkflow(
 									workflowName,
@@ -39,6 +41,7 @@ export const GalleryModals: React.FC = () => {
 									targetLoaderNodeId,
 								);
 							}
+							onSuccess?.();
 						}
 					}}
 				/>
@@ -71,6 +74,7 @@ export const GalleryModals: React.FC = () => {
 					<TagEditModal
 						imageIds={state.activeModal.imageIds}
 						initialTags={state.activeModal.tags}
+						onSuccess={state.activeModal.onSuccess}
 						onClose={() => dispatch({ type: "CLOSE_MODAL" })}
 					/>,
 					document.body,
@@ -88,6 +92,11 @@ export const GalleryModals: React.FC = () => {
 						imageIds={state.activeModal.imageIds}
 						hasLineage={state.activeModal.hasLineage}
 						isPermanent={state.activeModal.isPermanent}
+						onSuccess={() => {
+							if (state.activeModal.type === "delete_confirm") {
+								state.activeModal.onSuccess?.();
+							}
+						}}
 					/>,
 					document.body,
 				)}
@@ -97,6 +106,7 @@ export const GalleryModals: React.FC = () => {
 					<MaskEditorModal
 						imageId={state.activeModal.imageId}
 						mode={state.activeModal.mode}
+						onSuccess={state.activeModal.onSuccess}
 						onClose={() => dispatch({ type: "CLOSE_MODAL" })}
 					/>,
 					document.body,
@@ -107,6 +117,16 @@ export const GalleryModals: React.FC = () => {
 					<NoteEditModal
 						imageId={state.activeModal.imageId}
 						initialNotes={state.activeModal.notes}
+						onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+					/>,
+					document.body,
+				)}
+
+			{state.activeModal.type === "download_options" &&
+				createPortal(
+					<DownloadModal
+						imageIds={state.activeModal.imageIds}
+						onSuccess={state.activeModal.onSuccess}
 						onClose={() => dispatch({ type: "CLOSE_MODAL" })}
 					/>,
 					document.body,

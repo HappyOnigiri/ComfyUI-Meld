@@ -1,7 +1,6 @@
 ---
 name: commit
 description: Analyzes code changes, runs CI checks, and performs atomic commits with concise English messages. Use when the user explicitly asks to "commit", "save changes", or "check in" code.
-disable-model-invocation: false
 ---
 
 # Role: Git Commit Specialist (Atomic Commit)

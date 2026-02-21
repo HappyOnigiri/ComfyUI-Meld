@@ -140,25 +140,46 @@ export type ScanStatus = {
 export type ActiveModal =
 	| { type: "none" }
 	| { type: "parent_selection"; imageId: number }
-	| { type: "tag_edit"; imageIds: number[]; tags: string[] }
+	| {
+			type: "tag_edit";
+			imageIds: number[];
+			tags: string[];
+			onSuccess?: () => void;
+	  }
 	| { type: "import" }
 	| { type: "settings" }
 	| { type: "error"; message: string }
-	| { type: "workflow_selection"; images: MeldImage[]; maskFilename?: string }
+	| {
+			type: "workflow_selection";
+			images: MeldImage[];
+			maskFilename?: string;
+			onSuccess?: () => void;
+	  }
 	| {
 			type: "delete_confirm";
 			imageIds: number[];
 			hasLineage: boolean;
 			isPermanent?: boolean;
+			onSuccess?: () => void;
 	  }
-	| { type: "mask_editor"; imageId: number; mode: "apply" | "run" }
+	| {
+			type: "mask_editor";
+			imageId: number;
+			mode: "apply" | "run";
+			onSuccess?: () => void;
+	  }
 	| {
 			type: "node_selection";
 			image: MeldImage;
 			nodes: { id: string; type: string; title?: string }[];
 			onSelect: (nodeId: string) => void;
 	  }
-	| { type: "note_edit"; imageId: number; notes: string };
+	| { type: "note_edit"; imageId: number; notes: string }
+	| {
+			type: "download_options";
+			imageIds: number[];
+			onSuccess?: () => void;
+	  };
 
 export interface GalleryState {
 	images: MeldImage[];
@@ -167,7 +188,8 @@ export interface GalleryState {
 	error: string | null;
 	viewScope: "default" | "trash";
 	viewerImageId: number | null;
-	viewerMode: "gallery" | "lineage";
+	viewerMode: "gallery" | "lineage" | "lighttable";
+	viewerLightTableSlotId?: string | null;
 	viewerInitialMaskMode: "apply" | "run" | false;
 	lineageImages: MeldImage[];
 	activeModal: ActiveModal;
@@ -217,7 +239,8 @@ export type GalleryAction =
 				| number
 				| {
 						id: number;
-						mode: "gallery" | "lineage";
+						mode: "gallery" | "lineage" | "lighttable";
+						slotId?: string;
 						initialMaskMode?: "apply" | "run" | boolean;
 				  };
 	  }

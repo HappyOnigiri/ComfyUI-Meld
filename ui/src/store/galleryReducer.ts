@@ -1,3 +1,4 @@
+import { useLightTableStore } from "../features/light-table/store";
 import type { GalleryAction, GalleryState, MeldImage } from "../types";
 
 export const initialState: GalleryState = {
@@ -8,6 +9,7 @@ export const initialState: GalleryState = {
 	viewScope: "default",
 	viewerImageId: null,
 	viewerMode: "gallery",
+	viewerLightTableSlotId: null,
 	viewerInitialMaskMode: false,
 	lineageImages: [],
 	activeModal: { type: "none" },
@@ -315,6 +317,10 @@ export function galleryReducer(
 			const payload = action.payload;
 			const newId = typeof payload === "number" ? payload : payload.id;
 			const newMode = typeof payload === "number" ? "gallery" : payload.mode;
+			const slotId =
+				typeof payload !== "number" && payload.mode === "lighttable"
+					? payload.slotId
+					: null;
 			let initialMaskMode: "apply" | "run" | false = false;
 			if (typeof payload !== "number" && payload.initialMaskMode) {
 				if (typeof payload.initialMaskMode === "string") {
@@ -344,6 +350,7 @@ export function galleryReducer(
 				...state,
 				viewerImageId: newId,
 				viewerMode: newMode,
+				viewerLightTableSlotId: slotId,
 				viewerInitialMaskMode: initialMaskMode,
 				lineageImages: isSameLineage ? state.lineageImages : [],
 			};
@@ -352,6 +359,7 @@ export function galleryReducer(
 			return {
 				...state,
 				viewerImageId: null,
+				viewerLightTableSlotId: null,
 				viewerInitialMaskMode: false,
 				lineageImages: [],
 			};
@@ -366,16 +374,34 @@ export function galleryReducer(
 				state.searchQuery.toLowerCase().includes("has_derivatives:true") ||
 				state.searchQuery.toLowerCase().includes("has_derivatives:1");
 
-			const currentList =
-				state.viewerMode === "lineage" && state.lineageImages.length > 0
-					? state.lineageImages
-					: state.images.filter(
-							(img) =>
-								img.exists !== false &&
-								(state.settings["gallery.show_parent_images"] ||
-									!img.has_children ||
-									isShowingDerivativesSearch),
+			let currentList: MeldImage[] = [];
+			if (state.viewerMode === "lighttable" && state.viewerLightTableSlotId) {
+				const ltStore = useLightTableStore.getState();
+				const bucketIds = ltStore.buckets[state.viewerLightTableSlotId] || [];
+				currentList = bucketIds
+					.map((idStr) => {
+						const idNum = Number.parseInt(idStr, 10);
+						return (
+							state.images.find((img) => img.id === idNum) ||
+							state.lineageImages.find((img) => img.id === idNum) ||
+							null
 						);
+					})
+					.filter((img): img is MeldImage => img !== null);
+			} else if (
+				state.viewerMode === "lineage" &&
+				state.lineageImages.length > 0
+			) {
+				currentList = state.lineageImages;
+			} else {
+				currentList = state.images.filter(
+					(img) =>
+						img.exists !== false &&
+						(state.settings["gallery.show_parent_images"] ||
+							!img.has_children ||
+							isShowingDerivativesSearch),
+				);
+			}
 
 			if (state.viewerImageId === null || currentList.length === 0)
 				return state;
@@ -415,16 +441,34 @@ export function galleryReducer(
 				state.searchQuery.toLowerCase().includes("has_derivatives:true") ||
 				state.searchQuery.toLowerCase().includes("has_derivatives:1");
 
-			const currentList =
-				state.viewerMode === "lineage" && state.lineageImages.length > 0
-					? state.lineageImages
-					: state.images.filter(
-							(img) =>
-								img.exists !== false &&
-								(state.settings["gallery.show_parent_images"] ||
-									!img.has_children ||
-									isShowingDerivativesSearch),
+			let currentList: MeldImage[] = [];
+			if (state.viewerMode === "lighttable" && state.viewerLightTableSlotId) {
+				const ltStore = useLightTableStore.getState();
+				const bucketIds = ltStore.buckets[state.viewerLightTableSlotId] || [];
+				currentList = bucketIds
+					.map((idStr) => {
+						const idNum = Number.parseInt(idStr, 10);
+						return (
+							state.images.find((img) => img.id === idNum) ||
+							state.lineageImages.find((img) => img.id === idNum) ||
+							null
 						);
+					})
+					.filter((img): img is MeldImage => img !== null);
+			} else if (
+				state.viewerMode === "lineage" &&
+				state.lineageImages.length > 0
+			) {
+				currentList = state.lineageImages;
+			} else {
+				currentList = state.images.filter(
+					(img) =>
+						img.exists !== false &&
+						(state.settings["gallery.show_parent_images"] ||
+							!img.has_children ||
+							isShowingDerivativesSearch),
+				);
+			}
 
 			if (state.viewerImageId === null || currentList.length === 0)
 				return state;

@@ -33,12 +33,14 @@ import {
 interface MaskEditorModalProps {
 	imageId: number;
 	mode: MaskMode;
+	onSuccess?: () => void;
 	onClose: () => void;
 }
 
 export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 	imageId,
 	mode,
+	onSuccess,
 	onClose,
 }) => {
 	const { state, dispatch } = useGallery();
@@ -494,6 +496,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 			if (success) {
 				onClose();
 				dispatch({ type: "CLOSE_VIEWER" });
+				onSuccess?.();
 			}
 		}
 	};
@@ -508,6 +511,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 					type: "workflow_selection",
 					images: [image],
 					maskFilename: filename,
+					onSuccess,
 				},
 			});
 		}

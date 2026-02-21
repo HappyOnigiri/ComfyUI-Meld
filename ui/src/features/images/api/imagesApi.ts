@@ -179,3 +179,57 @@ export const fetchSnapshotData = async (
 	const res = await api.fetchApi(`/meld/image/${imageId}/snapshot_data`);
 	return handleResponse(res);
 };
+
+export const downloadZipImages = async (
+	imageIds: number[],
+	removeMetadata: boolean,
+): Promise<void> => {
+	const res = await api.fetchApi("/meld/api/download/zip", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ imageIds, removeMetadata }),
+	});
+	if (!res.ok) {
+		throw new Error("Failed to download ZIP");
+	}
+	const blob = await res.blob();
+	const url = window.URL.createObjectURL(blob);
+	const a = document.createElement("a");
+	a.href = url;
+	a.download = `meld_images_${Date.now()}.zip`;
+	document.body.appendChild(a);
+	a.click();
+	window.URL.revokeObjectURL(url);
+	document.body.removeChild(a);
+};
+
+export const downloadRawImage = async (
+	imageId: number,
+	removeMetadata: boolean,
+): Promise<void> => {
+	const res = await api.fetchApi("/meld/api/download/raw", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ imageId, removeMetadata }),
+	});
+	if (!res.ok) {
+		throw new Error(`Failed to download image ${imageId}`);
+	}
+
+	const disposition = res.headers.get("Content-Disposition");
+	let filename = `image_${imageId}.png`;
+	if (disposition?.includes("filename=")) {
+		const match = disposition.match(/filename="?([^"]+)"?/);
+		if (match?.[1]) filename = match[1];
+	}
+
+	const blob = await res.blob();
+	const url = window.URL.createObjectURL(blob);
+	const a = document.createElement("a");
+	a.href = url;
+	a.download = filename;
+	document.body.appendChild(a);
+	a.click();
+	window.URL.revokeObjectURL(url);
+	document.body.removeChild(a);
+};

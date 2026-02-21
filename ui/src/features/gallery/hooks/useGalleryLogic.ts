@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { logger } from "../../../logger";
 import { useGallery } from "../../../store/GalleryContext";
+import { useLightTableStore } from "../../light-table/store";
 
 export type SidebarView = "gallery" | "search" | "tags";
 
@@ -27,6 +28,17 @@ export const useGalleryLogic = () => {
 	const loadMoreRef = useRef<HTMLDivElement>(null);
 	const lastScrolledId = useRef<number | null>(null);
 
+	const lightTableBuckets = useLightTableStore((state) => state.buckets);
+	const hiddenImageIds = useMemo(() => {
+		const ids = new Set<number>();
+		for (const bucket of Object.values(lightTableBuckets)) {
+			for (const id of bucket) {
+				ids.add(Number(id));
+			}
+		}
+		return ids;
+	}, [lightTableBuckets]);
+
 	const displayedImages = useMemo(() => {
 		const isShowingDerivativesSearch =
 			state.searchQuery.toLowerCase().includes("has_derivatives:yes") ||
@@ -34,6 +46,10 @@ export const useGalleryLogic = () => {
 			state.searchQuery.toLowerCase().includes("has_derivatives:1");
 
 		return state.images.filter((img) => {
+			if (hiddenImageIds.has(img.id)) {
+				return false;
+			}
+
 			if (state.viewScope === "trash") {
 				return (
 					img.exists !== false || state.settings["gallery.trash.show_missing"]
@@ -46,7 +62,13 @@ export const useGalleryLogic = () => {
 					isShowingDerivativesSearch)
 			);
 		});
-	}, [state.images, state.settings, state.viewScope, state.searchQuery]);
+	}, [
+		state.images,
+		state.settings,
+		state.viewScope,
+		state.searchQuery,
+		hiddenImageIds,
+	]);
 
 	const visibleImages = useMemo(
 		() => displayedImages.slice(0, localLimit),

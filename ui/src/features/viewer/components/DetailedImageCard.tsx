@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import type { MeldImage } from "../../../types";
+import { useLightTableStore } from "../../light-table/store";
 import { useImageCardLogic } from "../hooks/useImageCardLogic";
 import { ImageCardMenu } from "./ImageCardMenu";
 import { PromptPopup } from "./PromptPopup";
@@ -51,6 +52,17 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(
 			}
 		}, [image.user_notes, saveStatus]);
 
+		const handleDragStart = (e: React.DragEvent) => {
+			e.stopPropagation();
+			let idsToTransfer = String(image.id);
+			if (isSelected && state.selectedIds.size > 0) {
+				idsToTransfer = Array.from(state.selectedIds).join(",");
+			}
+			e.dataTransfer.setData("text/plain", idsToTransfer);
+			// Open the dock automatically
+			useLightTableStore.getState().setIsOpen(true);
+		};
+
 		return (
 			<div
 				className={`meld-image-card ${isSelected ? "meld-image-card--selected" : ""} ${isMenuOpen ? "meld-image-card--menu-open" : ""}`}
@@ -59,6 +71,8 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(
 				onKeyDown={handleKeyDown}
 				role="button"
 				tabIndex={0}
+				draggable={true}
+				onDragStart={handleDragStart}
 			>
 				<div className="meld-image-card__thumbnail-wrapper">
 					<button
@@ -90,6 +104,7 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(
 						className="meld-image-card__thumbnail"
 						alt={image.filename}
 						loading="lazy"
+						draggable={false}
 						width={image.width || undefined}
 						height={image.height || undefined}
 						onMouseDown={handleMouseDown}

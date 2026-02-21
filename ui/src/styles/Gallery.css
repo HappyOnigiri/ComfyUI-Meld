@@ -139,9 +139,8 @@
 	gap: 8px;
 	font-weight: bold;
 	font-size: 13px;
-	color: var(
-		--meld-danger-color
-	); /* Keep warning color for icon and label only */
+	color: var(--meld-danger-color);
+	/* Keep warning color for icon and label only */
 }
 
 .meld-gallery__trash-toggle {
@@ -338,7 +337,8 @@
 
 .meld-image-card__menu-item span {
 	display: inline-block;
-	line-height: 14px; /* Match icon height */
+	line-height: 14px;
+	/* Match icon height */
 }
 
 .meld-image-card__menu-item:hover {
@@ -713,6 +713,7 @@
 	from {
 		transform: rotate(0deg);
 	}
+
 	to {
 		transform: rotate(360deg);
 	}
@@ -762,7 +763,8 @@
 
 .meld-viewer-image {
 	max-width: 100%;
-	max-height: calc(100% - 80px); /* Leave space for top actions */
+	max-height: calc(100% - 80px);
+	/* Leave space for top actions */
 	width: auto;
 	height: auto;
 	object-fit: contain;
@@ -784,7 +786,8 @@
 }
 
 .meld-viewer-content--with-thumbnails .meld-viewer-image {
-	max-height: calc(100% - 160px); /* Space for thumbnails and top actions */
+	max-height: calc(100% - 160px);
+	/* Space for thumbnails and top actions */
 }
 
 .meld-viewer-content--fullscreen .meld-viewer-image {
@@ -932,7 +935,8 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 
 .meld-viewer-nav {
 	position: absolute;
-	bottom: 15px; /* Same level as thumbnails */
+	bottom: 15px;
+	/* Same level as thumbnails */
 	background: var(--comfy-menu-bg, #111);
 	border: 1px solid var(--meld-border-color);
 	color: white;
@@ -945,7 +949,8 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	align-items: center;
 	justify-content: center;
 	outline: none;
-	height: 62px; /* Match thumbnail container height approximately */
+	height: 62px;
+	/* Match thumbnail container height approximately */
 }
 
 .meld-viewer-nav:hover {
@@ -965,7 +970,8 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	bottom: 15px;
 	top: auto;
 	transform: none;
-	height: 62px; /* Match non-fullscreen height */
+	height: 62px;
+	/* Match non-fullscreen height */
 	padding: 10px;
 	border-radius: 4px;
 	border: 1px solid var(--meld-border-color);
@@ -979,30 +985,38 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 /* Viewer Details Overlay */
 .meld-viewer-details-overlay {
 	position: absolute;
-	top: 70px; /* Below top actions */
+	top: 70px;
+	/* Below top actions */
 	right: 0;
-	bottom: 100px; /* Above thumbnails */
+	bottom: 100px;
+	/* Above thumbnails */
 	z-index: 2010;
-	background: rgba(0, 0, 0, 0.4); /* color-check-ignore */
+	background: var(--comfy-input-bg, rgba(0, 0, 0, 0.4));
+	/* color-check-ignore */
 	padding: 12px;
 	border-top-left-radius: 12px;
 	border-bottom-left-radius: 12px;
 	color: var(--meld-text-color);
 	font-size: 13px;
-	text-shadow: 0 1px 4px rgba(0, 0, 0, 1); /* color-check-ignore */
+	text-shadow: 0 1px 4px var(--comfy-menu-shadow, rgba(0, 0, 0, 1));
+	/* color-check-ignore */
 	width: 400px;
 	overflow-y: auto;
 	pointer-events: auto;
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
-	box-shadow: -4px 0 15px rgba(0, 0, 0, 0.3); /* color-check-ignore */
+	box-shadow: -4px 0 15px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.3));
+	/* color-check-ignore */
 }
 
 .meld-viewer-details-overlay--fullscreen {
-	top: 70px; /* Below top actions */
-	bottom: 90px; /* Clear nav buttons at the bottom */
-	background: rgba(0, 0, 0, 0.6); /* color-check-ignore */
+	top: 70px;
+	/* Below top actions */
+	bottom: 90px;
+	/* Clear nav buttons at the bottom */
+	background: var(--comfy-menu-bg, rgba(0, 0, 0, 0.6));
+	/* color-check-ignore */
 }
 
 .meld-viewer-details-overlay--no-icons {
@@ -1022,29 +1036,30 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	font-size: 10px;
 	text-transform: uppercase;
 	letter-spacing: 0.6px;
-	text-shadow: 0 1px 2px rgba(0, 0, 0, 1); /* color-check-ignore */
+	text-shadow: 0 1px 2px var(--comfy-menu-shadow, rgba(0, 0, 0, 1));
+	/* color-check-ignore */
 }
 
 .meld-viewer-details-value {
 	word-break: break-all;
 	line-height: 1.4;
-	text-shadow: 0 1px 2px rgba(0, 0, 0, 1); /* color-check-ignore */
+	text-shadow: 0 1px 2px var(--comfy-menu-shadow, rgba(0, 0, 0, 1));
+	/* color-check-ignore */
 }
 
 .meld-viewer-details-value--prompt {
 	font-family: monospace;
 	font-size: 11px;
-	background: rgba(0, 0, 0, 0.2); /* color-check-ignore */
+	background: var(--comfy-input-bg, rgba(0, 0, 0, 0.2));
+	/* color-check-ignore */
 	padding: 6px 8px;
 	border-radius: 4px;
 	white-space: pre-wrap;
-	text-shadow: 0 1px 2px rgba(0, 0, 0, 1); /* color-check-ignore */
+	text-shadow: 0 1px 2px var(--comfy-menu-shadow, rgba(0, 0, 0, 1));
+	/* color-check-ignore */
 	line-height: 1.3;
-	max-height: calc(
-		1.3em *
-		var(--meld-prompt-max-lines, 10) +
-		12px
-	); /* lines + padding */
+	max-height: calc(1.3em * var(--meld-prompt-max-lines, 10) + 12px);
+	/* lines + padding */
 	overflow-y: auto;
 }
 
@@ -1056,13 +1071,15 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 }
 
 .meld-viewer-details-tag {
-	background: rgba(255, 255, 255, 0.1); /* color-check-ignore */
+	background: var(--comfy-input-bg, rgba(255, 255, 255, 0.1));
+	/* color-check-ignore */
 	color: var(--meld-text-secondary);
 	padding: 2px 8px;
 	border-radius: 4px;
 	font-size: 11px;
 	text-shadow: none;
-	border: 1px solid rgba(255, 255, 255, 0.1); /* color-check-ignore */
+	border: 1px solid var(--comfy-menu-border, rgba(255, 255, 255, 0.1));
+	/* color-check-ignore */
 }
 
 .meld-viewer-details-item--notes {
@@ -1072,9 +1089,11 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 .meld-viewer-notes-textarea {
 	width: 100%;
 	min-height: 80px;
-	background: rgba(0, 0, 0, 0.3); /* color-check-ignore */
+	background: var(--comfy-input-bg, rgba(0, 0, 0, 0.3));
+	/* color-check-ignore */
 	color: var(--meld-text-color);
-	border: 1px solid rgba(255, 255, 255, 0.1); /* color-check-ignore */
+	border: 1px solid var(--comfy-menu-border, rgba(255, 255, 255, 0.1));
+	/* color-check-ignore */
 	border-radius: 6px;
 	padding: 8px;
 	font-size: 12px;
@@ -1087,14 +1106,16 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 
 .meld-viewer-notes-textarea:focus {
 	border-color: var(--meld-accent-color);
-	background: rgba(0, 0, 0, 0.4); /* color-check-ignore */
+	background: var(--comfy-input-bg, rgba(0, 0, 0, 0.4));
+	/* color-check-ignore */
 }
 
 /* Viewer Thumbnails */
 .meld-viewer-thumbnails-container {
 	position: absolute;
 	bottom: 15px;
-	left: 70px; /* Space for nav buttons */
+	left: 70px;
+	/* Space for nav buttons */
 	right: 70px;
 	z-index: 2010;
 	display: flex;
@@ -1194,7 +1215,8 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background: rgba(0, 0, 0, 0.7); /* color-check-ignore */
+	background: var(--comfy-menu-bg, rgba(0, 0, 0, 0.7));
+	/* color-check-ignore */
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -1291,7 +1313,11 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background: rgba(0, 0, 0, 0.7); /* color-check-ignore */
+	background: var(
+		--meld-overlay-bg,
+		color-mix(in srgb, var(--comfy-menu-bg, #15161a) 10%, transparent)
+	);
+	backdrop-filter: blur(2px);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -1842,8 +1868,10 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	position: absolute;
 	top: 10px;
 	right: 10px;
-	background: rgba(0, 0, 0, 0.5); /* color-check-ignore */
-	border: 1px solid rgba(255, 255, 255, 0.2); /* color-check-ignore */
+	background: var(--comfy-input-bg, rgba(0, 0, 0, 0.5));
+	/* color-check-ignore */
+	border: 1px solid var(--comfy-menu-border, rgba(255, 255, 255, 0.2));
+	/* color-check-ignore */
 	color: white;
 	cursor: pointer;
 	padding: 4px;
@@ -1856,7 +1884,8 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 }
 
 .meld-import-preview-close:hover {
-	background: rgba(0, 0, 0, 0.8); /* color-check-ignore */
+	background: var(--comfy-menu-bg, rgba(0, 0, 0, 0.8));
+	/* color-check-ignore */
 	color: var(--meld-accent-color);
 }
 
@@ -2516,6 +2545,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 		transform: translateY(-10px);
 		opacity: 0;
 	}
+
 	to {
 		transform: translateY(0);
 		opacity: 1;
@@ -2622,6 +2652,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 		opacity: 0;
 		transform: translate(-50%, calc(-50% + 10px));
 	}
+
 	to {
 		opacity: 1;
 		transform: translate(-50%, -50%);
@@ -2633,6 +2664,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 		opacity: 1;
 		transform: translate(-50%, -50%);
 	}
+
 	to {
 		opacity: 0;
 		transform: translate(-50%, calc(-50% - 10px));
@@ -2644,6 +2676,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 		opacity: 0;
 		transform: translate(-50%, 10px);
 	}
+
 	to {
 		opacity: 1;
 		transform: translate(-50%, 0);
@@ -2655,6 +2688,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 		opacity: 0;
 		transform: translate(-50%, -10px);
 	}
+
 	to {
 		opacity: 1;
 		transform: translate(-50%, 0);
@@ -2752,10 +2786,12 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	display: flex;
 	flex-direction: column;
 	gap: 6px;
-	background: rgba(0, 0, 0, 0.2); /* color-check-ignore */
+	background: var(--comfy-input-bg, rgba(0, 0, 0, 0.2));
+	/* color-check-ignore */
 	padding: 8px;
 	border-radius: 6px;
-	border: 1px solid rgba(255, 255, 255, 0.05); /* color-check-ignore */
+	border: 1px solid var(--comfy-menu-border, rgba(255, 255, 255, 0.05));
+	/* color-check-ignore */
 	pointer-events: none;
 	backdrop-filter: blur(2px);
 }
@@ -2794,7 +2830,8 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 }
 
 .meld-viewer-cheat-sheet__key {
-	background: rgba(255, 255, 255, 0.1); /* color-check-ignore */
+	background: var(--comfy-input-bg, rgba(255, 255, 255, 0.1));
+	/* color-check-ignore */
 	color: var(--meld-text-secondary);
 	width: 18px;
 	height: 18px;

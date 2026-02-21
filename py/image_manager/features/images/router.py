@@ -319,19 +319,22 @@ async def get_image_snapshot_data(request: web.Request) -> web.Response:
                 k_params: dict[str, Any] = {}
                 found_k = False
                 if wf_json:
-                    k_params, found_k = MetadataHelper.get_ksampler_params(wf_json, [])
+                    raw_kp, found_k = MetadataHelper.get_ksampler_params(wf_json, [])
+                    k_params = dict(raw_kp) if raw_kp else {}
                     guidance_val = _extract_guidance_from_json(wf_json)
                     if guidance_val is not None:
                         data.guidance = guidance_val
 
                 if not found_k and pr_json:
-                    k_params, found_k = MetadataHelper.get_ksampler_params_from_prompt(pr_json, [])
+                    raw_kp, found_k = MetadataHelper.get_ksampler_params_from_prompt(pr_json, [])
+                    k_params = dict(raw_kp) if raw_kp else {}
                     guidance_val = _extract_guidance_from_json(pr_json)
                     if guidance_val is not None:
                         data.guidance = guidance_val
 
                 if not found_k and a1111_text:
-                    k_params = MetadataHelper.parse_a1111_params(a1111_text)
+                    raw_kp = MetadataHelper.parse_a1111_params(a1111_text)
+                    k_params = dict(raw_kp) if raw_kp else {}
                     found_k = bool(k_params)
                     guidance_val = _extract_guidance_from_json(a1111_text)
                     if guidance_val is not None:
@@ -419,10 +422,11 @@ async def list_images(request: web.Request) -> web.Response:
                 f"SELECT r.image_id, t.name FROM tags t JOIN tag_image_relations r ON t.id = r.tag_id WHERE r.image_id IN ({placeholders})",
                 image_ids,
             )
-            for img_id, tag_name in cursor.fetchall():
-                if img_id not in tags_map:
-                    tags_map[img_id] = []
-                tags_map[img_id].append(tag_name)
+            for row_img_id, tag_name in cursor.fetchall():
+                iid: int = int(row_img_id)
+                if iid not in tags_map:
+                    tags_map[iid] = []
+                tags_map[iid].append(tag_name)
 
             if lineage_max_depth > 1:
                 ancestor_sql = f"""
@@ -444,10 +448,11 @@ async def list_images(request: web.Request) -> web.Response:
                 """
                 cursor.execute(ancestor_sql, (*image_ids, lineage_max_depth))
                 for start_id, a_id, a_fname, a_subf, a_type in cursor.fetchall():
-                    if start_id not in ancestors_map:
-                        ancestors_map[start_id] = []
-                    if len(ancestors_map[start_id]) < lineage_max_depth:
-                        ancestors_map[start_id].append(
+                    sid: int = int(start_id)
+                    if sid not in ancestors_map:
+                        ancestors_map[sid] = []
+                    if len(ancestors_map[sid]) < lineage_max_depth:
+                        ancestors_map[sid].append(
                             {"id": a_id, "filename": a_fname, "subfolder": a_subf, "type": a_type}
                         )
 
@@ -458,10 +463,11 @@ async def list_images(request: web.Request) -> web.Response:
                     f"SELECT r.image_id, pp.name, r.strength FROM positive_prompts pp JOIN positive_prompt_image_relations r ON pp.id = r.positive_prompt_id WHERE r.image_id IN ({ph})",
                     needs_reconstruction_pos,
                 )
-                for img_id, name, strength in cursor.fetchall():
-                    if img_id not in reconstructed_pos_map:
-                        reconstructed_pos_map[img_id] = []
-                    reconstructed_pos_map[img_id].append(name if strength == 1.0 else f"({name}:{strength})")
+                for row_img_id, name, strength in cursor.fetchall():
+                    iid = int(row_img_id)
+                    if iid not in reconstructed_pos_map:
+                        reconstructed_pos_map[iid] = []
+                    reconstructed_pos_map[iid].append(name if strength == 1.0 else f"({name}:{strength})")
 
             needs_reconstruction_neg = [img[0] for img in images if img[13] is None] if not is_minimal else []
             if needs_reconstruction_neg:
@@ -470,10 +476,11 @@ async def list_images(request: web.Request) -> web.Response:
                     f"SELECT r.image_id, np.name, r.strength FROM negative_prompts np JOIN negative_prompt_image_relations r ON np.id = r.negative_prompt_id WHERE r.image_id IN ({ph})",
                     needs_reconstruction_neg,
                 )
-                for img_id, name, strength in cursor.fetchall():
-                    if img_id not in reconstructed_neg_map:
-                        reconstructed_neg_map[img_id] = []
-                    reconstructed_neg_map[img_id].append(name if strength == 1.0 else f"({name}:{strength})")
+                for row_img_id, name, strength in cursor.fetchall():
+                    iid = int(row_img_id)
+                    if iid not in reconstructed_neg_map:
+                        reconstructed_neg_map[iid] = []
+                    reconstructed_neg_map[iid].append(name if strength == 1.0 else f"({name}:{strength})")
 
         result_list = []
 
@@ -507,11 +514,14 @@ async def list_images(request: web.Request) -> web.Response:
 
             if is_minimal:
                 if positive and len(positive) > 200:
-                    positive = positive[:200] + "..."
+                    _pos: str = str(positive)
+                    positive = _pos[:200] + "..."
                 if negative and len(negative) > 200:
-                    negative = negative[:200] + "..."
+                    _neg: str = str(negative)
+                    negative = _neg[:200] + "..."
                 if user_notes and len(user_notes) > 200:
-                    user_notes = user_notes[:200] + "..."
+                    _notes: str = str(user_notes)
+                    user_notes = _notes[:200] + "..."
 
             tags = tags_map.get(img_id, [])
 
@@ -1360,4 +1370,175 @@ async def register_image_endpoint(request: web.Request) -> web.Response:
         return web.json_response(ApiResponse(success=True, data={"id": image_id}).to_dict())
     except Exception as e:
         logging.exception("[Meld] Failed to register image")
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+
+
+def _get_image_path(img_type: str, subfolder: str, filename: str) -> str | None:
+    if img_type == "output":
+        base_dir = folder_paths.get_output_directory()
+    elif img_type == "input":
+        base_dir = folder_paths.get_input_directory()
+    elif img_type == "temp":
+        base_dir = folder_paths.get_temp_directory()
+    elif img_type == "custom":
+        # custom images must be within a known directory to prevent arbitrary file access
+        get_custom = getattr(folder_paths, "get_custom_directory", None)
+        if get_custom:
+            base_dir = get_custom()
+        else:
+            base_dir = folder_paths.get_input_directory()
+    else:
+        return None
+
+    if not base_dir:
+        return None
+
+    # Secure path resolution
+    base_abs = os.path.abspath(base_dir)
+    full_path = os.path.normpath(os.path.abspath(os.path.join(base_abs, subfolder, filename)))
+
+    # Verify containment
+    try:
+        if os.path.commonpath([base_abs, full_path]) != base_abs:
+            logging.warning(f"[Meld] Prevented suspicious file access: {full_path} outside of {base_abs}")
+            return None
+    except ValueError:
+        return None
+
+    return full_path
+
+
+def _strip_metadata(image_path: str) -> bytes:
+    import io
+
+    try:
+        with Image.open(image_path) as img:
+            # Paste into a new image to strip metadata
+            clean_img = Image.new(img.mode, img.size)
+            clean_img.paste(img)
+            buffer = io.BytesIO()
+            img_format = img.format or "PNG"
+
+            if img_format.upper() in ["JPEG", "JPG"]:
+                clean_img.save(buffer, format="JPEG", quality=95)
+            elif img_format.upper() == "WEBP":
+                clean_img.save(buffer, format="WEBP", lossless=True)
+            else:
+                clean_img.save(buffer, format="PNG")
+
+            return buffer.getvalue()
+    except Exception as e:
+        logging.error(f"[Meld] Failed to process image {image_path}: {e}")
+        raise ValueError("Invalid image file") from e
+
+
+@routes.post("/meld/api/download/zip")
+async def download_zip(request: web.Request) -> web.Response:
+    try:
+        data = await request.json()
+        image_ids = data.get("imageIds", [])
+        remove_metadata = data.get("removeMetadata", False)
+
+        if not image_ids:
+            return web.json_response(ApiResponse(success=False, error="No image IDs provided").to_dict(), status=400)
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        placeholders = ",".join(["?"] * len(image_ids))
+        cursor.execute(f"SELECT id, filename, subfolder, type FROM images WHERE id IN ({placeholders})", image_ids)
+        rows = cursor.fetchall()
+        conn.close()
+
+        import io
+        import zipfile
+
+        zip_buffer = io.BytesIO()
+
+        ALLOWED_EXTENSIONS = (".png", ".jpg", ".jpeg", ".webp")
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+            for _img_id, filename, subfolder, img_type in rows:
+                if not filename.lower().endswith(ALLOWED_EXTENSIONS):
+                    continue
+
+                path = _get_image_path(img_type, subfolder, filename)
+                if path and os.path.exists(path):
+                    try:
+                        if remove_metadata:
+                            img_bytes = _strip_metadata(path)
+                            zf.writestr(filename, img_bytes)
+                        else:
+                            # Basic validation even when not stripping metadata
+                            with Image.open(path) as img:
+                                img.verify()
+                            zf.write(path, filename)
+                    except Exception:
+                        logging.warning(f"[Meld] Skipping invalid or corrupted image in zip: {path}")
+                        continue
+
+        zip_buffer.seek(0)
+        return web.Response(
+            body=zip_buffer.read(),
+            content_type="application/zip",
+            headers={"Content-Disposition": 'attachment; filename="meld_images.zip"'},
+        )
+    except Exception as e:
+        import traceback
+
+        traceback.print_exc()
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+
+
+@routes.post("/meld/api/download/raw")
+async def download_raw(request: web.Request) -> web.Response:
+    try:
+        data = await request.json()
+        image_id = data.get("imageId")
+        remove_metadata = data.get("removeMetadata", False)
+
+        if not image_id:
+            return web.json_response(ApiResponse(success=False, error="No image ID provided").to_dict(), status=400)
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT filename, subfolder, type FROM images WHERE id = ?", (image_id,))
+        row = cursor.fetchone()
+        conn.close()
+
+        if not row:
+            return web.json_response(ApiResponse(success=False, error="Image not found").to_dict(), status=404)
+
+        filename, subfolder, img_type = row
+        ALLOWED_EXTENSIONS = (".png", ".jpg", ".jpeg", ".webp")
+        if not filename.lower().endswith(ALLOWED_EXTENSIONS):
+            return web.json_response(ApiResponse(success=False, error="Disallowed file type").to_dict(), status=400)
+
+        path = _get_image_path(img_type, subfolder, filename)
+
+        if not path or not os.path.exists(path):
+            return web.json_response(ApiResponse(success=False, error="File not found on disk").to_dict(), status=404)
+
+        try:
+            if remove_metadata:
+                img_bytes = _strip_metadata(path)
+            else:
+                # Basic validation
+                with Image.open(path) as img:
+                    img.verify()
+                with open(path, "rb") as f:
+                    img_bytes = f.read()
+        except Exception as e:
+            return web.json_response(ApiResponse(success=False, error=f"Invalid image file: {e}").to_dict(), status=400)
+
+        content_type = "image/png"
+        if filename.lower().endswith((".jpg", ".jpeg")):
+            content_type = "image/jpeg"
+        elif filename.lower().endswith(".webp"):
+            content_type = "image/webp"
+
+        headers = {"Content-Disposition": f'attachment; filename="{filename}"'}
+        return web.Response(body=img_bytes, content_type=content_type, headers=headers)
+    except Exception as e:
+        import traceback
+
+        traceback.print_exc()
         return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)

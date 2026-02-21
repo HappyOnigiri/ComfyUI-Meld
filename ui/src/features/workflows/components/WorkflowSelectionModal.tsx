@@ -24,6 +24,7 @@ interface WorkflowSelectionModalProps {
 		workflowName: string,
 		targetLoaderNodeId?: string,
 	) => Promise<void>;
+	onSuccess?: () => void;
 	isMaskMode?: boolean;
 }
 
@@ -43,6 +44,7 @@ interface WorkflowNode {
 export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 	images,
 	onExecute,
+	onSuccess,
 	isMaskMode,
 }) => {
 	const { dispatch } = useGallery();
@@ -145,6 +147,7 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 		try {
 			setExecuting(true);
 			await onExecute(workflowName, targetLoaderNodeId);
+			onSuccess?.();
 			handleClose();
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
