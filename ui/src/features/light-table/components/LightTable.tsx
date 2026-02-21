@@ -132,7 +132,7 @@ export const LightTable: React.FC = () => {
 					type="button"
 					className="meld-light-table__clear-btn"
 					onClick={() => setShowClearAllConfirm(true)}
-					title="Clear All Buckets"
+					title="Clear All Tabs"
 				>
 					<Trash size={14} />
 					<span>Clear All</span>

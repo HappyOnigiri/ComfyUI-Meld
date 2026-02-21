@@ -280,7 +280,7 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 						type="button"
 						className="meld-lt-slot__menu-btn"
 						onClick={() => setIsSettingsOpen(!isSettingsOpen)}
-						title="Tab Setting"
+						title="Tab Settings"
 					>
 						<Settings size={14} />
 					</button>
