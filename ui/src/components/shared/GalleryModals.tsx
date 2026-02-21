@@ -71,6 +71,7 @@ export const GalleryModals: React.FC = () => {
 					<TagEditModal
 						imageIds={state.activeModal.imageIds}
 						initialTags={state.activeModal.tags}
+						onSuccess={state.activeModal.onSuccess}
 						onClose={() => dispatch({ type: "CLOSE_MODAL" })}
 					/>,
 					document.body,
@@ -88,6 +89,11 @@ export const GalleryModals: React.FC = () => {
 						imageIds={state.activeModal.imageIds}
 						hasLineage={state.activeModal.hasLineage}
 						isPermanent={state.activeModal.isPermanent}
+						onSuccess={() => {
+							if (state.activeModal.type === "delete_confirm") {
+								state.activeModal.onSuccess?.();
+							}
+						}}
 					/>,
 					document.body,
 				)}

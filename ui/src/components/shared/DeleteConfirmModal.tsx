@@ -152,6 +152,10 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 			await imagesApi.deleteImages(imageIds, isPermanent);
 			if (!isMounted.current) return;
 
+			if (state.activeModal.type === "delete_confirm") {
+				state.activeModal.onSuccess?.();
+			}
+
 			if (!isPermanent && onSuccess) {
 				onSuccess(deletedImages);
 			}
@@ -190,6 +194,10 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 
 			await imagesApi.deleteImages(Array.from(allIdsToDelete), isPermanent);
 			if (!isMounted.current) return;
+
+			if (state.activeModal.type === "delete_confirm") {
+				state.activeModal.onSuccess?.();
+			}
 
 			if (!isPermanent && onSuccess) {
 				onSuccess(deletedImages);

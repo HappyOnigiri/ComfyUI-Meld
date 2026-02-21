@@ -6,14 +6,15 @@ import { useGallery } from "../../../store/GalleryContext";
 import { useLightTableKeys } from "../hooks/useLightTableKeys";
 import { useLightTableStore } from "../store";
 import type { SlotConfig } from "../types";
+import { ConfirmModal } from "./ConfirmModal";
 import { Slot } from "./Slot";
+import { Toast } from "./Toast";
 
 import "./LightTable.css";
 
 /**
  * Light Table component
  * Rendered directly at the bottom (.comfyui-body-bottom) using React Portal.
- * Does not depend on the sidebar DOM structure and is placed in the same layer as Image Feed.
  */
 export const LightTable: React.FC = () => {
 	useLightTableKeys();
@@ -21,6 +22,9 @@ export const LightTable: React.FC = () => {
 	const { state: galleryState } = useGallery();
 	const [activeTabId, setActiveTabId] = useState(slots[0]?.id || "keep");
 	const portalContainerRef = useRef<HTMLDivElement | null>(null);
+
+	/** Show/hide flag for Clear All confirm modal */
+	const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
 
 	// Get or create the portal container
 	useEffect(() => {
@@ -56,13 +60,21 @@ export const LightTable: React.FC = () => {
 			label: `Tab ${slots.length + 1}`,
 			color: "var(--meld-text-secondary, #9ca3af)",
 			shortcutKey: "",
-			defaultAction: { type: "add_tag", value: "favorite" },
 		});
 		setActiveTabId(newId);
 	};
 
+	const handleClearAll = () => {
+		slots.forEach((slot: SlotConfig) => {
+			useLightTableStore.getState().clearBucket(slot.id);
+		});
+		useLightTableStore.getState().showToast("All tabs cleared");
+		setShowClearAllConfirm(false);
+	};
+
 	const lightTableJSX = (
 		<div className="meld-light-table">
+			{/* Tab bar */}
 			<div className="meld-light-table__tabs">
 				{slots.map((slot: SlotConfig) => (
 					<button
@@ -94,7 +106,7 @@ export const LightTable: React.FC = () => {
 							}
 						}}
 					>
-						{slot.label} &nbsp; (
+						{slot.label}&nbsp; (
 						{useLightTableStore.getState().buckets[slot.id]?.length || 0})
 					</button>
 				))}
@@ -119,13 +131,7 @@ export const LightTable: React.FC = () => {
 				<button
 					type="button"
 					className="meld-light-table__clear-btn"
-					onClick={() => {
-						if (window.confirm("Clear all items in all tabs?")) {
-							slots.forEach((slot: SlotConfig) => {
-								useLightTableStore.getState().clearBucket(slot.id);
-							});
-						}
-					}}
+					onClick={() => setShowClearAllConfirm(true)}
 					title="Clear All Buckets"
 				>
 					<Trash size={14} />
@@ -133,6 +139,7 @@ export const LightTable: React.FC = () => {
 				</button>
 			</div>
 
+			{/* Tab content */}
 			<div className="meld-light-table__content">
 				{slots.map((slot: SlotConfig) => (
 					<div
@@ -144,6 +151,18 @@ export const LightTable: React.FC = () => {
 					</div>
 				))}
 			</div>
+
+			{/* Clear All confirm modal */}
+			{showClearAllConfirm && (
+				<ConfirmModal
+					message="Are you sure you want to clear all items in all tabs?"
+					onConfirm={handleClearAll}
+					onCancel={() => setShowClearAllConfirm(false)}
+				/>
+			)}
+
+			{/* Toast notification */}
+			<Toast />
 		</div>
 	);
 

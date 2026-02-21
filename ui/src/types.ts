@@ -140,7 +140,12 @@ export type ScanStatus = {
 export type ActiveModal =
 	| { type: "none" }
 	| { type: "parent_selection"; imageId: number }
-	| { type: "tag_edit"; imageIds: number[]; tags: string[] }
+	| {
+			type: "tag_edit";
+			imageIds: number[];
+			tags: string[];
+			onSuccess?: () => void;
+	  }
 	| { type: "import" }
 	| { type: "settings" }
 	| { type: "error"; message: string }
@@ -150,6 +155,7 @@ export type ActiveModal =
 			imageIds: number[];
 			hasLineage: boolean;
 			isPermanent?: boolean;
+			onSuccess?: () => void;
 	  }
 	| { type: "mask_editor"; imageId: number; mode: "apply" | "run" }
 	| {

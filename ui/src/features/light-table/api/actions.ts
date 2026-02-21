@@ -7,6 +7,7 @@ export const executeSlotAction = (
 	imageIds: number[],
 	images: MeldImage[],
 	dispatch: React.Dispatch<GalleryAction>,
+	onSuccess?: () => void,
 ) => {
 	if (imageIds.length === 0) return;
 
@@ -19,6 +20,7 @@ export const executeSlotAction = (
 					imageIds,
 					hasLineage: images.some((img) => img.parent_id || img.has_children),
 					isPermanent: false, // To make it simple, standard soft delete
+					onSuccess,
 				},
 			});
 			break;
@@ -30,6 +32,7 @@ export const executeSlotAction = (
 					type: "tag_edit",
 					imageIds,
 					tags: action.value ? [action.value] : [],
+					onSuccess,
 				},
 			});
 			break;
@@ -37,6 +40,7 @@ export const executeSlotAction = (
 		case "move_folder":
 			// Future implementation for moving folders
 			console.warn("move_folder action is not yet implemented");
+			onSuccess?.();
 			break;
 
 		case "send_to_node":
@@ -50,6 +54,7 @@ export const executeSlotAction = (
 					"send_to_node is complex for batch, delegating to future implementation",
 				);
 				alert(`Would send ${imageIds.length} images to nodes (Feature WIP)`);
+				onSuccess?.();
 			}
 			break;
 

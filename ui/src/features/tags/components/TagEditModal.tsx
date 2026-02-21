@@ -13,12 +13,14 @@ interface TagEditModalProps {
 	imageIds: number[];
 	initialTags: string[];
 	onClose: () => void;
+	onSuccess?: () => void;
 }
 
 export const TagEditModal: React.FC<TagEditModalProps> = ({
 	imageIds,
 	initialTags,
 	onClose,
+	onSuccess,
 }) => {
 	const { dispatch, refreshImages } = useGallery();
 	const [allTags, setAllTags] = useState<TagType[]>([]);
@@ -112,6 +114,7 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 			}
 			await refreshImages();
 			dispatch({ type: "CLEAR_SELECTION" });
+			onSuccess?.();
 			onClose();
 		} catch (error) {
 			console.error("Failed to update tags:", error);

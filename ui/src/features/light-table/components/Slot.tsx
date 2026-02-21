@@ -1,12 +1,10 @@
 import {
-	Archive,
 	ChevronDown,
 	Eraser,
-	FolderOutput,
-	Play,
 	Settings,
 	Tag,
 	Trash2,
+	Workflow,
 } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
@@ -15,6 +13,7 @@ import type { MeldImage } from "../../../types";
 import { executeSlotAction } from "../api/actions";
 import { useLightTableStore } from "../store";
 import type { ActionType, SlotConfig } from "../types";
+import { ConfirmModal } from "./ConfirmModal";
 
 import "./Slot.css";
 
@@ -22,59 +21,48 @@ interface SlotProps {
 	config: SlotConfig;
 }
 
-const getActionIcon = (type: ActionType, size = 16) => {
-	switch (type) {
-		case "delete":
-			return <Trash2 size={size} />;
-		case "add_tag":
-			return <Tag size={size} />;
-		case "move_folder":
-			return <FolderOutput size={size} />;
-		case "send_to_node":
-			return <Play size={size} />;
-		default:
-			return <Archive size={size} />;
-	}
-};
-
 export const Slot: React.FC<SlotProps> = ({ config }) => {
 	const { buckets } = useLightTableStore();
 	const { state: galleryState, dispatch: galleryDispatch } = useGallery();
-	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+	/** Show/hide flag for Clear Tab confirm modal */
+	const [showClearConfirm, setShowClearConfirm] = useState(false);
+	/** Show/hide flag for action context menu */
+	const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
 
-	// Settings state
+	// State for settings panel editing
 	const [editLabel, setEditLabel] = useState(config.label);
 	const [editColor, setEditColor] = useState(config.color);
-	const [editAction, setEditAction] = useState<ActionType>(
-		config.defaultAction.type,
-	);
 
-	const menuRef = useRef<HTMLDivElement>(null);
+	const actionMenuRef = useRef<HTMLDivElement>(null);
 	const settingsRef = useRef<HTMLDivElement>(null);
 
 	const bucketItems = buckets[config.id] || [];
 	const itemCount = bucketItems.length;
 
+	// Close settings panel when clicking outside
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
-			if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-				setIsMenuOpen(false);
-			}
 			if (
 				settingsRef.current &&
 				!settingsRef.current.contains(event.target as Node)
 			) {
 				setIsSettingsOpen(false);
 			}
+			if (
+				actionMenuRef.current &&
+				!actionMenuRef.current.contains(event.target as Node)
+			) {
+				setIsActionMenuOpen(false);
+			}
 		};
-		if (isMenuOpen || isSettingsOpen) {
+		if (isSettingsOpen || isActionMenuOpen) {
 			document.addEventListener("mousedown", handleClickOutside);
 		}
 		return () => {
 			document.removeEventListener("mousedown", handleClickOutside);
 		};
-	}, [isMenuOpen, isSettingsOpen]);
+	}, [isSettingsOpen, isActionMenuOpen]);
 
 	const bucketImages = bucketItems
 		.map((id) => {
@@ -139,34 +127,50 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 		}
 	};
 
-	const handleAction = (actionOverride?: ActionType) => {
+	/** Execute the specified action immediately */
+	const handleAction = (actionType: ActionType) => {
 		if (itemCount === 0) return;
 
-		const actionType = actionOverride || config.defaultAction.type;
 		const actionToExecute = {
 			type: actionType,
-			value:
-				actionType === config.defaultAction.type
-					? config.defaultAction.value
-					: undefined,
 		};
 
 		const imageIds = bucketItems.map((id) => Number(id));
-		executeSlotAction(actionToExecute, imageIds, bucketImages, galleryDispatch);
 
-		setIsMenuOpen(false);
+		// Show toast on action completion (only when not canceled via modal)
+		const actionLabelMap: Record<ActionType, string> = {
+			add_tag: "Tags added",
+			delete: "Delete initiated",
+			send_to_node: "Sent to node",
+			move_folder: "Moved to folder",
+		};
+
+		const onSuccess = () => {
+			useLightTableStore
+				.getState()
+				.showToast(actionLabelMap[actionType] ?? "Done");
+		};
+
+		executeSlotAction(
+			actionToExecute,
+			imageIds,
+			bucketImages,
+			galleryDispatch,
+			onSuccess,
+		);
+	};
+
+	const handleClearBucket = () => {
+		useLightTableStore.getState().clearBucket(config.id);
+		useLightTableStore.getState().showToast(`Tab "${config.label}" cleared`);
+		setShowClearConfirm(false);
 	};
 
 	const handleDeleteSlot = () => {
 		const store = useLightTableStore.getState();
 		if (store.slots.length <= 1) return;
-		if (
-			window.confirm(
-				`Delete tab "${config.label}"?\n(Images will return to the gallery)`,
-			)
-		) {
-			store.removeSlot(config.id);
-		}
+		store.removeSlot(config.id);
+		useLightTableStore.getState().showToast(`Tab "${config.label}" deleted`);
 	};
 
 	return (
@@ -177,10 +181,11 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 			onDragLeave={handleDragLeave}
 			onDrop={handleDrop}
 		>
+			{/* Images area */}
 			<div className="meld-lt-slot-panel__images">
 				{itemCount === 0 ? (
 					<div className="meld-lt-slot-panel__empty">
-						Drag & Drop images here
+						Drag &amp; Drop images here
 					</div>
 				) : (
 					bucketImages.map((img) => {
@@ -210,65 +215,66 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 					})
 				)}
 			</div>
+
+			{/* Actions area */}
 			<div className="meld-lt-slot__actions">
-				<button
-					type="button"
-					className="meld-lt-slot__action-btn"
-					onClick={() => handleAction()}
-					disabled={itemCount === 0}
-				>
-					{getActionIcon(config.defaultAction.type)}
-					<span className="meld-lt-slot__action-label">
-						{config.defaultAction.type === "delete"
-							? "Delete"
-							: config.defaultAction.type === "add_tag"
-								? "Tag"
-								: "Commit"}
-					</span>
-				</button>
-				<div className="meld-lt-slot__menu-wrapper" ref={menuRef}>
+				{/* Action menu button */}
+				<div className="meld-lt-slot__action-menu-wrapper" ref={actionMenuRef}>
 					<button
 						type="button"
-						className="meld-lt-slot__menu-btn"
-						onClick={() => setIsMenuOpen(!isMenuOpen)}
+						className="meld-lt-slot__action-btn"
+						onClick={() => setIsActionMenuOpen(!isActionMenuOpen)}
 						disabled={itemCount === 0}
+						title="Actions"
 					>
-						<ChevronDown size={14} />
+						Action
+						<ChevronDown size={12} />
 					</button>
-					{isMenuOpen && (
-						<div className="meld-lt-slot__dropdown">
-							<button type="button" onClick={() => handleAction("add_tag")}>
-								<Tag size={12} /> Add Tag
-							</button>
-							<button
-								type="button"
-								onClick={() => handleAction("send_to_node")}
-							>
-								<Play size={12} /> Send to Node
-							</button>
-							<button
-								className="meld-lt-slot__dropdown-danger"
-								type="button"
-								onClick={() => handleAction("delete")}
-							>
-								<Trash2 size={12} /> Delete
-							</button>
+					{isActionMenuOpen && (
+						<div className="meld-lt-slot__action-menu">
+							{[
+								{ type: "add_tag" as ActionType, label: "Add Tag", icon: Tag },
+								{
+									type: "send_to_node" as ActionType,
+									label: "Send to Node",
+									icon: Workflow,
+								},
+								{
+									type: "delete" as ActionType,
+									label: "Delete",
+									icon: Trash2,
+									danger: true,
+								},
+							].map((item) => (
+								<div
+									key={item.type}
+									className={`meld-lt-slot__action-menu-item${item.danger ? " meld-lt-slot__action-menu-item--danger" : ""}`}
+									onMouseDown={(e) => e.stopPropagation()}
+									onClick={() => {
+										setIsActionMenuOpen(false);
+										setTimeout(() => handleAction(item.type), 0);
+									}}
+								>
+									<item.icon size={13} />
+									<span>{item.label}</span>
+								</div>
+							))}
 						</div>
 					)}
 				</div>
+
+				{/* Clear Tab button */}
 				<button
 					type="button"
 					className="meld-lt-slot__menu-btn"
-					onClick={() => {
-						if (window.confirm("Clear items in this tab?")) {
-							useLightTableStore.getState().clearBucket(config.id);
-						}
-					}}
+					onClick={() => setShowClearConfirm(true)}
 					title="Clear Tab"
 					disabled={itemCount === 0}
 				>
 					<Eraser size={14} />
 				</button>
+
+				{/* Settings button */}
 				<div className="meld-lt-slot__settings-wrapper" ref={settingsRef}>
 					<button
 						type="button"
@@ -321,20 +327,6 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 									/>
 								</div>
 							</div>
-							<div className="meld-lt-slot__settings-row">
-								<label htmlFor={`slot-action-${config.id}`}>
-									Default Action:
-								</label>
-								<select
-									id={`slot-action-${config.id}`}
-									value={editAction}
-									onChange={(e) => setEditAction(e.target.value as ActionType)}
-								>
-									<option value="add_tag">Add Tag</option>
-									<option value="send_to_node">Send to Node</option>
-									<option value="delete">Delete</option>
-								</select>
-							</div>
 
 							<button
 								type="button"
@@ -343,12 +335,9 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 									useLightTableStore.getState().updateSlot(config.id, {
 										label: editLabel,
 										color: editColor,
-										defaultAction: {
-											type: editAction,
-											value: editAction === "add_tag" ? "favorite" : undefined,
-										},
 									});
 									setIsSettingsOpen(false);
+									useLightTableStore.getState().showToast("Settings saved");
 								}}
 							>
 								Save Settings
@@ -377,6 +366,15 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 					)}
 				</div>
 			</div>
+
+			{/* Clear Tab confirm modal */}
+			{showClearConfirm && (
+				<ConfirmModal
+					message={`Clear all items in the "${config.label}" tab?`}
+					onConfirm={handleClearBucket}
+					onCancel={() => setShowClearConfirm(false)}
+				/>
+			)}
 		</div>
 	);
 };
