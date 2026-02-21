@@ -35,7 +35,7 @@ class TestMetadataParser(unittest.TestCase):
         self.flux_workflow_path = os.path.join(self.workflow_dir, "Flux.json")
         self.flux_gguf_workflow_path = os.path.join(self.workflow_dir, "Flux_GGUF.json")
 
-    def _parse_exiftool_txt(self, path: str) -> dict:
+    def _parse_exiftool_txt(self, path: str) -> dict[str, Any]:
         data = {}
         with open(path, encoding="utf-8") as f:
             for line in f:
@@ -211,7 +211,7 @@ class TestMetadataParser(unittest.TestCase):
 
     def test_extract_from_pattern_webp_exif(self) -> None:
         meta = self._parse_exiftool_txt(self.pattern_webp_exif_path)
-        exif = {271: meta.get("Make"), 272: meta.get("Model")}
+        exif: dict[Any, Any] = {271: meta.get("Make"), 272: meta.get("Model")}
         info: dict[str, Any] = {}
         res = MetadataHelper.extract_from_data(info, exif)
         positive, negative, model_name, wf_json, pr_json, a1111, logs = res
@@ -222,7 +222,7 @@ class TestMetadataParser(unittest.TestCase):
 
     def test_extract_from_pattern_webp_desc(self) -> None:
         meta = self._parse_exiftool_txt(self.pattern_webp_desc_path)
-        exif = {270: meta.get("ImageDescription"), 271: meta.get("Make")}
+        exif: dict[Any, Any] = {270: meta.get("ImageDescription"), 271: meta.get("Make")}
         info: dict[str, Any] = {}
         res = MetadataHelper.extract_from_data(info, exif)
         positive, negative, model_name, wf_json, pr_json, a1111, logs = res

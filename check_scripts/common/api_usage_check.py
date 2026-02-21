@@ -58,13 +58,15 @@ class ApiUsageChecker(ASTChecker):
             return
 
         index_node = node.slice
-        # Handle Python versions < 3.9
-        if type(index_node).__name__ == "Index":
-            index_node = index_node.value
+        # Handle Python versions < 3.9 where slice is wrapped in ast.Index
+        if isinstance(index_node, ast.Index):
+            index_node_val = index_node.value  # type: ignore[attr-defined]
+        else:
+            index_node_val = index_node
 
         value = None
-        if isinstance(index_node, ast.Constant) and isinstance(index_node.value, str):
-            value = index_node.value
+        if isinstance(index_node_val, ast.Constant) and isinstance(index_node_val.value, str):
+            value = index_node_val.value
 
         if value is not None:
             self.add_error(node.lineno, f"Forbidden subscript access with string literal: {value!r}")

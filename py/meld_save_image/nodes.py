@@ -3,17 +3,12 @@ import os
 import re
 import time
 from datetime import datetime
+from typing import Any
 
 import folder_paths
-import torch
-
-try:
-    import imagehash
-except ImportError:
-    imagehash = None  # type: ignore
-
 import numpy as np
 import server
+import torch
 from comfy.cli_args import args
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
@@ -37,7 +32,7 @@ class MeldSaveImage:
         self.compress_level = 4
 
     @classmethod
-    def INPUT_TYPES(cls) -> dict:
+    def INPUT_TYPES(cls) -> dict[str, Any]:
         return {
             "required": {
                 "images": ("IMAGE",),
@@ -89,9 +84,9 @@ class MeldSaveImage:
         positive: str | None = None,
         negative: str | None = None,
         tags: str | None = None,
-        prompt: dict | None = None,
-        extra_pnginfo: dict | None = None,
-    ) -> dict:
+        prompt: dict[str, Any] | None = None,
+        extra_pnginfo: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         if filename_prefix is None:
             filename_prefix = "%date:yyyy-MM-dd-HH-mm-ss%"
 
@@ -163,6 +158,7 @@ class MeldSaveImage:
         matching_strategy = db_settings.get("gallery.matching_strategy", "phash_created")
         parent_id = None
 
+        imagehash = MetadataHelper.get_imagehash()
         if origin_image is not None and imagehash is not None:
             try:
                 # If origin_image is explicitly provided, we find its match in DB
@@ -182,6 +178,7 @@ class MeldSaveImage:
                 # Calculate phash of the first image in batch being saved to use as child phash
                 i_0 = 255.0 * images[0].cpu().numpy()
                 img_0 = Image.fromarray(np.clip(i_0, 0, 255).astype(np.uint8))
+                imagehash = MetadataHelper.get_imagehash()
                 child_phash = str(imagehash.phash(img_0)) if imagehash else None
 
                 parent_id = scan_service.infer_parent_id(
@@ -237,6 +234,7 @@ class MeldSaveImage:
             sha256 = calculate_sha256(full_path)
 
             # Calculate pHash
+            imagehash = MetadataHelper.get_imagehash()
             phash = None
             if imagehash is not None:
                 try:

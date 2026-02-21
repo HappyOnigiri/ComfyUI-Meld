@@ -8,7 +8,7 @@ class GraphUtils:
     def find_connected_showtext(
         target_node_id: int | str,
         links_list: list[Any],
-        nodes_list: list[dict],
+        nodes_list: list[dict[str, Any]],
         target_slot: int | str | None = None,
     ) -> str | None:
         target_node_id_str = str(target_node_id)
@@ -44,7 +44,7 @@ class GraphUtils:
     def trace_text_source(
         start_node_id: int | str,
         links_list: list[Any],
-        nodes_list: list[dict],
+        nodes_list: list[dict[str, Any]],
         depth: int = 0,
         origin_slot: int | str | None = None,
         target_type: str = "positive",
@@ -184,7 +184,7 @@ class GraphUtils:
         return ""
 
     @staticmethod
-    def resolve_subgraph_sampler(subgraph_id: str, subgraphs_dict: dict, depth: int = 0) -> dict:
+    def resolve_subgraph_sampler(subgraph_id: str, subgraphs_dict: dict[str, Any], depth: int = 0) -> dict[str, Any]:
         result: dict[str, Any] = {"has_sampler": False, "positive_input": None, "negative_input": None}
         if depth > 5 or subgraph_id not in subgraphs_dict:
             return result

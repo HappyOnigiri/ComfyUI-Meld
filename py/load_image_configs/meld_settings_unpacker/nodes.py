@@ -1,10 +1,16 @@
+from typing import Any
+
 import comfy.samplers
 
 
 class MeldSettingsUnpacker:
     @classmethod
-    def INPUT_TYPES(cls) -> dict:
-        return {"required": {"base_settings": ("BASE_SETTINGS",)}}
+    def INPUT_TYPES(cls) -> dict[str, Any]:
+        return {
+            "required": {"base_settings": ("BASE_SETTINGS",)},
+            "optional": {},
+            "hidden": {},
+        }
 
     RETURN_TYPES = (
         "INT",
@@ -24,7 +30,7 @@ class MeldSettingsUnpacker:
     DESCRIPTION = "Unpacks a BASE_SETTINGS dictionary into individual generation parameters (seed, steps, cfg, sampler, scheduler, width, height)."
     # ---------------------------
 
-    def unpack(self, base_settings: dict) -> tuple[int, int, float, str, str, int, int, float]:
+    def unpack(self, base_settings: dict[str, Any]) -> tuple[int, int, float, str, str, int, int, float]:
         if not isinstance(base_settings, dict):
             return (0, 20, 8.0, "euler", "normal", 512, 512, 3.5)
 

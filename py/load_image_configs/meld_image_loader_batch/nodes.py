@@ -10,7 +10,7 @@ from ..core.metadata_helper import MetadataHelper
 
 class MeldImageLoaderBatch:
     @classmethod
-    def INPUT_TYPES(cls) -> dict:
+    def INPUT_TYPES(cls) -> dict[str, Any]:
         return {
             "required": {
                 "directory_path": ("STRING", {"default": "C:\\Images", "multiline": False}),
@@ -32,7 +32,7 @@ class MeldImageLoaderBatch:
     )
     # ---------------------------
 
-    def load_batch(self, directory_path: str, index: int, stop_at_limit: bool) -> dict:
+    def load_batch(self, directory_path: str, index: int, stop_at_limit: bool) -> dict[str, Any]:
         valid_ext = [".png", ".jpg", ".jpeg", ".webp"]
         if not os.path.isdir(directory_path):
             return {

@@ -1,8 +1,9 @@
 import json
 import sqlite3
+from typing import Any
 
 
-def get_all_settings(cursor: sqlite3.Cursor) -> dict:
+def get_all_settings(cursor: sqlite3.Cursor) -> dict[str, Any]:
     cursor.execute("SELECT key, value FROM settings")
     rows = cursor.fetchall()
     settings = {}

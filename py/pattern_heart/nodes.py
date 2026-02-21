@@ -1,4 +1,5 @@
 import random
+from typing import Any
 
 import numpy as np
 import torch
@@ -7,7 +8,7 @@ from PIL import Image, ImageDraw, ImageFilter
 
 class MeldPatternHeart:
     @classmethod
-    def INPUT_TYPES(cls) -> dict:
+    def INPUT_TYPES(cls) -> dict[str, Any]:
         return {
             "required": {
                 "image": ("IMAGE",),  # Base image

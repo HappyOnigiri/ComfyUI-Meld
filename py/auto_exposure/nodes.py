@@ -1,9 +1,11 @@
+from typing import Any
+
 import torch
 
 
 class MeldAutoExposure:
     @classmethod
-    def INPUT_TYPES(cls) -> dict:
+    def INPUT_TYPES(cls) -> dict[str, Any]:
         return {
             "required": {
                 "image": ("IMAGE",),

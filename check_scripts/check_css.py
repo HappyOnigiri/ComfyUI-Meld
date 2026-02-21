@@ -8,7 +8,7 @@ import sys
 CSS_BLOCK_REGEX = re.compile(r"([^{}\n]+)\s*\{([^}]*)\}", re.MULTILINE | re.DOTALL)
 
 
-def check_file(filepath: str) -> list:
+def check_file(filepath: str) -> list[tuple[int, str, str]]:
     errors = []
     try:
         with open(filepath, encoding="utf-8") as f:

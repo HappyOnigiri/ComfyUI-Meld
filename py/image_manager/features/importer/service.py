@@ -4,16 +4,11 @@ import os
 import sqlite3
 import threading
 import time
+from typing import Any
 
 import folder_paths
-from PIL import Image
-
-try:
-    import imagehash
-except ImportError:
-    imagehash = None  # type: ignore
-
 import server
+from PIL import Image
 
 from ....load_image_configs.core.metadata_helper import MetadataHelper
 from ...common.db.client import (
@@ -118,8 +113,8 @@ def infer_parent_id(
     phash: str | None = None,
     created_at: float | None = None,
     strategy: str = "phash_created",
-    workflow_json: str | dict | None = None,
-    prompt_json: str | dict | None = None,
+    workflow_json: str | dict[str, Any] | None = None,
+    prompt_json: str | dict[str, Any] | None = None,
     threshold: int | None = None,
 ) -> int | None:
     """
@@ -332,8 +327,8 @@ def _scan_thread(
                 except Exception:
                     pass
 
-                # Calculate pHash
                 phash = None
+                imagehash = MetadataHelper.get_imagehash()
                 if imagehash is not None:
                     try:
                         with Image.open(full_path) as img:

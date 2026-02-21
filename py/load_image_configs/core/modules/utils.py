@@ -4,7 +4,7 @@ from typing import Any
 
 class Utils:
     @staticmethod
-    def get_node_by_id(nodes_list: list[dict], node_id: int | str) -> dict | None:
+    def get_node_by_id(nodes_list: list[dict[str, Any]], node_id: int | str) -> dict[str, Any] | None:
         node_id_str = str(node_id)
         for n in nodes_list:
             if str(n.get("id")) == node_id_str:
@@ -12,7 +12,7 @@ class Utils:
         return None
 
     @staticmethod
-    def get_link_by_id(links_list: list[Any], link_id: int | str | None) -> list | None:
+    def get_link_by_id(links_list: list[Any], link_id: int | str | None) -> list[Any] | None:
         if not link_id:
             return None
         for link in links_list:
@@ -32,7 +32,7 @@ class Utils:
         return None
 
     @staticmethod
-    def get_input_link_id(node: dict, input_name: str) -> int | str | None:
+    def get_input_link_id(node: dict[str, Any], input_name: str) -> int | str | None:
         inputs = node.get("inputs", [])
         for inp in inputs:
             if inp.get("name") == input_name:

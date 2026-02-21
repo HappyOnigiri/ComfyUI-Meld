@@ -10,11 +10,6 @@ import server
 from aiohttp import web
 from PIL import Image
 
-try:
-    import imagehash
-except ImportError:
-    imagehash = None  # type: ignore
-
 from ....load_image_configs.core.metadata_helper import MetadataHelper
 from ...common.db.client import TRASH_DIR, get_db_connection
 from ...common.model_repo import add_model_relation, get_or_create_model
@@ -1285,6 +1280,7 @@ async def register_image_endpoint(request: web.Request) -> web.Response:
         except Exception:
             pass
 
+        imagehash = MetadataHelper.get_imagehash()
         phash = None
         if imagehash is not None:
             try:

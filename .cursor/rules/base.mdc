@@ -9,6 +9,7 @@ alwaysApply: true
   - Committing any changes.
   - Creating a new branch.
   - Creating or updating a Pull Request.
+- **Temporary File Creation**: When creating temporary files such as log outputs, validation scripts, or temporary notes, always create them within the `tmp/` directory at the repository root.
 
 # Implementation Rules
 

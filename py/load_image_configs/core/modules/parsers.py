@@ -11,7 +11,7 @@ from .utils import Utils
 
 class Parsers:
     @staticmethod
-    def parse_workflow_json(workflow_json: str | dict | None, logs: list[str]) -> tuple[str, str]:
+    def parse_workflow_json(workflow_json: str | dict[str, Any] | None, logs: list[str]) -> tuple[str, str]:
         positive = ""
         negative = ""
 
@@ -147,7 +147,7 @@ class Parsers:
         return positive, negative
 
     @staticmethod
-    def parse_prompt_json(prompt_json: str | dict | None, logs: list[str]) -> tuple[str, str]:
+    def parse_prompt_json(prompt_json: str | dict[str, Any] | None, logs: list[str]) -> tuple[str, str]:
         positive = ""
         negative = ""
         try:
@@ -323,7 +323,7 @@ class Parsers:
 
     @staticmethod
     def get_ksampler_params(
-        workflow_json: str | dict | None, logs: list[str], subgraphs_dict: dict | None = None
+        workflow_json: str | dict[str, Any] | None, logs: list[str], subgraphs_dict: dict[str, Any] | None = None
     ) -> tuple[dict[str, Any], bool]:
         params = {"seed": 0, "steps": 20, "cfg": 8.0, "sampler_name": "euler", "scheduler": "normal"}
         found = False
@@ -433,7 +433,9 @@ class Parsers:
         return params, found
 
     @staticmethod
-    def get_dual_clip_params(workflow_json: str | dict | None, logs: list[str]) -> tuple[dict[str, Any], bool]:
+    def get_dual_clip_params(
+        workflow_json: str | dict[str, Any] | None, logs: list[str]
+    ) -> tuple[dict[str, Any], bool]:
         try:
             if not workflow_json:
                 return {}, False
@@ -487,7 +489,9 @@ class Parsers:
             return {}, False
 
     @staticmethod
-    def get_ksampler_params_from_prompt(prompt_json: str | dict | None, logs: list[str]) -> tuple[dict[str, Any], bool]:
+    def get_ksampler_params_from_prompt(
+        prompt_json: str | dict[str, Any] | None, logs: list[str]
+    ) -> tuple[dict[str, Any], bool]:
         params = {"seed": 0, "steps": 20, "cfg": 8.0, "sampler_name": "euler", "scheduler": "normal"}
         found = False
         try:
@@ -556,10 +560,10 @@ class Parsers:
 
     @staticmethod
     def get_resolution_params(
-        workflow_json: str | dict | None,
+        workflow_json: str | dict[str, Any] | None,
         original_image_tensor: torch.Tensor,
         logs: list[str],
-        subgraphs_dict: dict | None = None,
+        subgraphs_dict: dict[str, Any] | None = None,
     ) -> tuple[int, int, bool]:
         width = original_image_tensor.shape[2]
         height = original_image_tensor.shape[1]

@@ -6,7 +6,7 @@ import folder_paths
 
 class MeldUnifiedFluxLoader:
     @classmethod
-    def INPUT_TYPES(cls) -> dict:
+    def INPUT_TYPES(cls) -> dict[str, Any]:
         import nodes as comfy_nodes
 
         nodes_any = cast(Any, comfy_nodes)
@@ -92,7 +92,9 @@ class MeldUnifiedFluxLoader:
                 "scheduler": (comfy.samplers.KSampler.SCHEDULERS,),
                 "width": ("INT", {"default": 1024, "min": 1, "max": 16384, "step": 8}),
                 "height": ("INT", {"default": 1024, "min": 1, "max": 16384, "step": 8}),
-            }
+            },
+            "optional": {},
+            "hidden": {},
         }
 
     RETURN_TYPES = ("MODEL", "CLIP", "VAE", "STRING", "BASE_SETTINGS")
@@ -125,7 +127,7 @@ class MeldUnifiedFluxLoader:
         scheduler: str,
         width: int,
         height: int,
-    ) -> tuple[Any, Any, Any, str, dict]:
+    ) -> tuple[Any, Any, Any, str, dict[str, Any]]:
         import nodes as comfy_nodes
 
         nodes_any = cast(Any, comfy_nodes)
