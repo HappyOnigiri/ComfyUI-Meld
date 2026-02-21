@@ -122,3 +122,12 @@ class MetadataHelper:
     @staticmethod
     def find_and_load_checkpoint(model_name_query: str | None) -> tuple[object, object, object, str, str]:
         return ModelUtils.find_and_load_checkpoint(model_name_query)
+
+    @staticmethod
+    def get_imagehash() -> Any:  # noqa: ANN401
+        try:
+            import imagehash
+
+            return imagehash
+        except ImportError:
+            return None

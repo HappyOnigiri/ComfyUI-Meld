@@ -1,4 +1,4 @@
-from typing import Any, cast
+from typing import Any
 
 import folder_paths
 import nodes
@@ -60,7 +60,7 @@ class MeldImageLoader:
 
     def load(self, image: str) -> dict[str, Any]:
         image_path = folder_paths.get_annotated_filepath(image)
-        image_loader = cast(Any, nodes.LoadImage)()
+        image_loader = nodes.LoadImage()
         image_output, _ = image_loader.load_image(image)
 
         logs_list = []

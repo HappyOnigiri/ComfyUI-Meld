@@ -7,14 +7,8 @@ import time
 from typing import Any
 
 import folder_paths
-from PIL import Image
-
-try:
-    import imagehash
-except ImportError:
-    imagehash = None  # type: ignore
-
 import server
+from PIL import Image
 
 from ....load_image_configs.core.metadata_helper import MetadataHelper
 from ...common.db.client import (
@@ -333,8 +327,8 @@ def _scan_thread(
                 except Exception:
                     pass
 
-                # Calculate pHash
                 phash = None
+                imagehash = MetadataHelper.get_imagehash()
                 if imagehash is not None:
                     try:
                         with Image.open(full_path) as img:
