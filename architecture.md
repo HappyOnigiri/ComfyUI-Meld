@@ -27,7 +27,7 @@ This document serves as a comprehensive guide for AI agents and developers to un
 | `image_manager/` | **Core System**. Handles database operations, REST API, and image management logic. |
 | `image_manager/api.py` | **API Entry Point**. Integrates feature-specific routers and registers them with ComfyUI. |
 | `image_manager/common/` | **Shared Backend Logic**. Database connection, constants, and common schemas. |
-| `image_manager/features/` | **Feature Modules**. Modularized logic for images, tags, search, settings, and importer. |
+| `image_manager/features/` | **Feature Modules**. Modularized logic for images, tags, search, settings, importer, and workflows. |
 | `image_manager/nodes/` | Custom nodes related to saving/management (e.g., `MeldSaveImage`). |
 | `load_image_configs/` | Logic for loading images and parsing metadata (Unified Loader). |
 | `auto_exposure/`, `pixelate/`, etc. | Standalone utility nodes for image processing. |
@@ -38,7 +38,12 @@ This document serves as a comprehensive guide for AI agents and developers to un
 | `src/index.ts` | **Web Extension Entry**. Registers the extension with `app.registerExtension`. |
 | `src/api.ts` | **Global API Client**. Shared or minimal API utilities (e.g., `fetchHomeDir`). |
 | `src/features/` | **Feature Modules**. Modularized components, hooks, and **API clients** organized by feature. |
+| `src/features/gallery/` | **Gallery**. Main gallery UI and layout components for the resource manager. |
 | `src/features/images/` | **Shared Image Logic**. Core image CRUD API and common hooks (lineage, actions) used across the app. |
+| `src/features/light-table/` | **Light Table**. Logic and UI components for temporarily holding, comparing, and managing multiple images. |
+| `src/features/mask-editor/` | **Mask Editor**. Drawing and editing interface for image masks (img2img). |
+| `src/features/viewer/` | **Image Viewer**. Full-screen image viewing components. |
+| `src/features/workflows/` | **Workflows**. Management and execution of ComfyUI workflows (queuing, etc.). |
 | `src/components/shared/` | **Reusable UI Components**. Shared parts like modals, buttons, and basic cards. |
 | `src/store/` | State management (Context/Reducer) for the Gallery UI. |
 | `src/styles/` | Global and component-specific CSS files. |
