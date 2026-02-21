@@ -26,7 +26,9 @@ export const BulkActionBar: React.FC = () => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [menuAnchorRect, setMenuAnchorRect] = useState<DOMRect | null>(null);
 	const actionButtonRef = useRef<HTMLButtonElement>(null);
-	const portalContainerRef = useRef<HTMLDivElement | null>(null);
+	const [portalContainer, setPortalContainer] = useState<HTMLDivElement | null>(
+		null,
+	);
 
 	// Get or create the portal container to render inside .comfyui-body-bottom
 	useEffect(() => {
@@ -34,6 +36,7 @@ export const BulkActionBar: React.FC = () => {
 			"meld-bulk-bar-portal",
 		) as HTMLDivElement | null;
 		if (!container) {
+			// We must create a portal mount point at runtime because the ComfyUI host HTML cannot be modified by the extension.
 			container = document.createElement("div");
 			container.id = "meld-bulk-bar-portal";
 			container.dataset.mountCount = "0";
@@ -52,7 +55,7 @@ export const BulkActionBar: React.FC = () => {
 		const mountCount = Number.parseInt(container.dataset.mountCount || "0", 10);
 		container.dataset.mountCount = (mountCount + 1).toString();
 
-		portalContainerRef.current = container;
+		setPortalContainer(container);
 
 		return () => {
 			if (container) {
@@ -75,7 +78,7 @@ export const BulkActionBar: React.FC = () => {
 		enabled: isMenuOpen,
 	});
 
-	if (count === 0 || !portalContainerRef.current) return null;
+	if (count === 0 || !portalContainer) return null;
 
 	const isTrashMode = state.viewScope === "trash";
 
@@ -248,5 +251,5 @@ export const BulkActionBar: React.FC = () => {
 		</div>
 	);
 
-	return createPortal(bulkBarJSX, portalContainerRef.current);
+	return createPortal(bulkBarJSX, portalContainer);
 };
