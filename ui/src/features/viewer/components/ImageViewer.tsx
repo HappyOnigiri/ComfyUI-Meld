@@ -138,7 +138,11 @@ export function ImageViewer() {
 							className="meld-viewer-action-btn"
 							onClick={toggleFullscreen}
 							type="button"
-							title={isFullscreen ? "Exit Fullscreen (F)" : "Fullscreen (F)"}
+							title={
+								isFullscreen
+									? "Exit Fullscreen (F/Enter)"
+									: "Fullscreen (F/Enter)"
+							}
 						>
 							{isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
 						</button>

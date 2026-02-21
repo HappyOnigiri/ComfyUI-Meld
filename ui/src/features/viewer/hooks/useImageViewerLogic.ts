@@ -558,9 +558,17 @@ export const useImageViewerLogic = ({
 				e.key === "ArrowLeft" ||
 				e.key === "ArrowDown" ||
 				e.key === "ArrowUp";
-			const isToggleKey = ["f", "F", "i", "I", "t", "T", "r", "R"].includes(
-				e.key,
-			);
+			const isToggleKey = [
+				"f",
+				"F",
+				"i",
+				"I",
+				"t",
+				"T",
+				"r",
+				"R",
+				"Enter",
+			].includes(e.key);
 			const isEscapeKey = e.key === "Escape";
 			const isUndoKey =
 				(e.ctrlKey || e.metaKey) &&
@@ -619,7 +627,7 @@ export const useImageViewerLogic = ({
 				handleNext();
 			} else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
 				handlePrevious();
-			} else if (e.key === "f" || e.key === "F") {
+			} else if (e.key === "f" || e.key === "F" || e.key === "Enter") {
 				toggleFullscreen(e);
 			} else if (e.key === "i" || e.key === "I") {
 				setShowDetails((prev) => !prev);
