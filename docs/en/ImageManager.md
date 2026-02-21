@@ -255,6 +255,17 @@ Important backend settings.
 
 ---
 
+## 7. Light Table
+
+A temporary image pool feature displayed at the bottom of the screen.
+Used for temporarily keeping and comparing images by dragging and dropping them from the gallery.
+
+*   **Tab Management**: Create multiple tabs to categorize and keep your images.
+*   **Clear All**: Clear all images from all tabs at once.
+*   **Close**: You can close the Light Table by clicking the close button (`X`) on the top right.
+
+---
+
 ## Q&A / Tips
 
 **Q: Images do not appear in the gallery.**
