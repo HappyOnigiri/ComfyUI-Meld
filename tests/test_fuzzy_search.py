@@ -26,7 +26,7 @@ class TestFuzzySearch(unittest.TestCase):
             "ponyDiffusionV6XL.safetensors",
             "checkpoints\\subfolder\\model_v2.ckpt",
         ]
-        # Use type: ignore because folder_paths is mocked via sys.modules
+        # folder_paths is mocked via sys.modules
         folder_paths.get_filename_list.return_value = self.available_models
 
     def test_exact_match(self) -> None:

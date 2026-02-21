@@ -36,36 +36,36 @@ def _first_non_ascii_locations(data: bytes, max_hits: int = 20) -> list[tuple[in
         text = data.decode("utf-8")
     except UnicodeDecodeError:
         # Fallback to byte-based check if not valid UTF-8
-        hits: list[tuple[int, int]] = []
-        line_no = 1
-        col_no = 1
+        byte_hits: list[tuple[int, int]] = []
+        l_no = 1
+        c_no = 1
         for b in data:
             if b == 0x0A:  # \n
-                line_no += 1
-                col_no = 1
+                l_no += 1
+                c_no = 1
                 continue
             if b > 0x7F:
-                hits.append((line_no, col_no))
-                if len(hits) >= max_hits:
+                byte_hits.append((l_no, c_no))
+                if len(byte_hits) >= max_hits:
                     break
-            col_no += 1
-        return hits
+            c_no += 1
+        return byte_hits
 
-    hits_ascii: list[tuple[int, int]] = []
-    line_no_ascii = 1
-    col_no_ascii = 1
+    hits: list[tuple[int, int]] = []
+    line_no = 1
+    col_no = 1
     for char in text:
         if char == "\n":
-            line_no_ascii += 1
-            col_no_ascii = 1
+            line_no += 1
+            col_no = 1
             continue
         if ord(char) > 0x7F:
             if not ALLOWED_NON_ASCII_RE.match(char):
-                hits_ascii.append((line_no_ascii, col_no_ascii))
-                if len(hits_ascii) >= max_hits:
+                hits.append((line_no, col_no))
+                if len(hits) >= max_hits:
                     break
-        col_no_ascii += 1
-    return hits_ascii
+        col_no += 1
+    return hits
 
 
 def main() -> int:
