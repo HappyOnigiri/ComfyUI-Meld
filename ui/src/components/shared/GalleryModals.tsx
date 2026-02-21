@@ -1,6 +1,7 @@
 import type React from "react";
 import { createPortal } from "react-dom";
 import { ImportModal } from "../../features/importer/components/ImportModal";
+import { DownloadModal } from "../../features/light-table/components/DownloadModal";
 import { MaskEditorModal } from "../../features/mask-editor/components/MaskEditorModal";
 import { SettingsModal } from "../../features/settings/components/SettingsModal";
 import { TagEditModal } from "../../features/tags/components/TagEditModal";
@@ -113,6 +114,15 @@ export const GalleryModals: React.FC = () => {
 					<NoteEditModal
 						imageId={state.activeModal.imageId}
 						initialNotes={state.activeModal.notes}
+						onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+					/>,
+					document.body,
+				)}
+
+			{state.activeModal.type === "download_options" &&
+				createPortal(
+					<DownloadModal
+						imageIds={state.activeModal.imageIds}
 						onClose={() => dispatch({ type: "CLOSE_MODAL" })}
 					/>,
 					document.body,

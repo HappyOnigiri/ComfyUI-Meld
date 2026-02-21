@@ -164,7 +164,8 @@ export type ActiveModal =
 			nodes: { id: string; type: string; title?: string }[];
 			onSelect: (nodeId: string) => void;
 	  }
-	| { type: "note_edit"; imageId: number; notes: string };
+	| { type: "note_edit"; imageId: number; notes: string }
+	| { type: "download_options"; imageIds: number[] };
 
 export interface GalleryState {
 	images: MeldImage[];
