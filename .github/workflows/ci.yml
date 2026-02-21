@@ -39,9 +39,9 @@ jobs:
 
       - name: Check for diff
         run: |
-          if [ -n "$(git diff --name-only)" ]; then
+          if [ -n "$(git status --porcelain)" ]; then
             echo "Error: Working directory is dirty after CI."
             echo "Please run 'make ci' locally and commit the changes."
-            git diff
+            git status --porcelain
             exit 1
           fi
