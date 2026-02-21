@@ -7,3 +7,5 @@ reviews:
   high_level_summary: true
   poem: false
   sequence_diagrams: true
+  path_filters:
+    - "!web/**"
