@@ -50,6 +50,9 @@ def check_frontend_api_usage() -> int:
                 if not found_handle:
                     # Only check /meld/ endpoints
                     if any(q in line for q in ['"/meld/', "'/meld/", "`/meld/"]):
+                        # Allow download endpoints which return blobs
+                        if "download" in line:
+                            continue
                         errors.append(
                             f"{file_path}:{i + 1}: api.fetchApi call to /meld/ should be wrapped with handleResponse(res)."
                         )
