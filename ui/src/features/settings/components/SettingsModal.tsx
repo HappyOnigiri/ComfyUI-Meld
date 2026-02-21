@@ -64,7 +64,6 @@ export const SettingsModal: React.FC = () => {
 		{ id: "Full Screen", label: "Full Screen" },
 		{ id: "Shortcuts", label: "Shortcuts" },
 		{ id: "System", label: "System" },
-		{ id: "System", label: "System" },
 		{ id: "Information", label: "Information" },
 	];
 
