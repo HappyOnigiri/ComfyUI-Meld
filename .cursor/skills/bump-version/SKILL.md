@@ -26,12 +26,16 @@ Execute the following steps in order:
     - Retrieve the changes since the last tag.
       - Example: `git log $(git describe --tags --abbrev=0 HEAD^)..HEAD --oneline`
     - Analyze the commit logs and summarize the changes.
+    - **Filtering & Summarization Rules**:
+      - **Include user-facing changes** that general users can clearly understand (e.g., new features, visible improvements, crucial bug fixes).
+      - **Include development-related changes** (e.g., skill updates, CI/CD changes) ONLY if the Pull Request was specifically dedicated to development experience improvements. Do NOT include development-related tasks that were done passingly as part of a feature addition.
+      - Basically, summarize changes into **one bullet point per Pull Request**.
     - **Categorization & Format**:
       - Use the following sections without adding a version title line:
-        - `## Features`: Main feature additions.
-        - `## Improvements & Fixes`: Minor changes, refactorings, and bug fixes.
-        - `## Documentation`: Documentation updates.
-        - `## Maintenance`: CI/CD, build tools, etc.
+        - `## Features`: New user-facing features only. (Do NOT include any development-oriented items here).
+        - `## Improvements & Fixes`: User-facing improvements and bug fixes.
+        - `## Developer Experience`: CI/CD, build tools, skill updates, and other development related-changes (Only for dedicated PRs).
+      - Only include categories if there are changes that fit.
       - Each item should be a concise bullet point without emojis.
     - **Multi-language Support**:
       - Generate the release notes in **both English and Japanese**.
@@ -46,7 +50,7 @@ Execute the following steps in order:
     - Invoke the **`ship`** skill to perform the following:
       - Create a new branch for the release (e.g., `release/v<version>`).
       - Commit the changed files with the message: `chore: bump version to <version>`.
-      - Draft a Pull Request using the saved `tmp/release_notes_v<version>.md` content as the PR body.
+      - Create a Pull Request (NOT a draft) with the title `Bump version to v<version>` and use the saved `tmp/release_notes_v<version>.md` content as the PR body.
 6.  **Create Draft Release**:
     - After the PR is successfully created by the `ship` skill, use the GitHub CLI to create a Draft Release targeting the `main` branch.
     - Example: `gh release create v<version> --draft --title "v<version>" --notes-file tmp/release_notes_v<version>.md --target main`
