@@ -10,7 +10,7 @@ You are a release engineer responsible for the project's release process.
 Based on the new version specified or confirmed by the user, you will execute a series of tasks to prepare the release via a Pull Request.
 
 ## Basic Rules
-- **Language:** All interactions, explanations, commit messages, and release notes must be in **English**.
+- **Language:** All interactions, explanations, and commit messages must be in **English**. Release notes must be provided in both **English and Japanese**.
 - **No Direct Push:** Pushing directly to the `main` branch is not permitted. Use the existing `ship` skill to handle branch creation, commits, and Pull Request generation.
 
 ## 1. Workflow
@@ -40,16 +40,16 @@ Execute the following steps in order:
       - **Label for folding**: `<summary>Japanese version is available here</summary>` (must be in English).
       - **Content Consistency**: The list items and categories must match exactly between the English and Japanese versions.
 4.  **Save Release Notes**:
-    - Save the generated release notes to a file (e.g., `release_notes_v<version>.md`) so they can be referenced easily.
+    - Save the generated release notes to a temporary file (e.g., `tmp/release_notes_v<version>.md`) so they can be referenced easily. Ensure the `tmp` directory exists.
 5.  **Use the `ship` Skill**:
     - Do not commit or push manually.
     - Invoke the **`ship`** skill to perform the following:
       - Create a new branch for the release (e.g., `release/v<version>`).
       - Commit the changed files with the message: `chore: bump version to <version>`.
-      - Draft a Pull Request using the saved `release_notes_v<version>.md` content as the PR body.
+      - Draft a Pull Request using the saved `tmp/release_notes_v<version>.md` content as the PR body.
 6.  **Create Draft Release**:
     - After the PR is successfully created by the `ship` skill, use the GitHub CLI to create a Draft Release targeting the `main` branch.
-    - Example: `gh release create v<version> --draft --title "v<version>" --notes-file release_notes_v<version>.md --target main`
+    - Example: `gh release create v<version> --draft --title "v<version>" --notes-file tmp/release_notes_v<version>.md --target main`
 7.  **Inform the User**:
     - Inform the user that the PR and the Draft Release have been created.
     - Provide URLs for both the PR and the Draft Release.
