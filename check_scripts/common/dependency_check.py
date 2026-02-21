@@ -146,6 +146,7 @@ ALLOWED_PACKAGES = {
     "imagehash",
     "scipy",
     "pywt",
+    "zipfile",
 }
 
 

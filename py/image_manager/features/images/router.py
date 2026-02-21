@@ -1361,3 +1361,130 @@ async def register_image_endpoint(request: web.Request) -> web.Response:
     except Exception as e:
         logging.exception("[Meld] Failed to register image")
         return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+
+
+def _get_image_path(img_type: str, subfolder: str, filename: str) -> str | None:
+    if img_type == "output":
+        base_dir = folder_paths.get_output_directory()
+    elif img_type == "input":
+        base_dir = folder_paths.get_input_directory()
+    elif img_type == "temp":
+        base_dir = folder_paths.get_temp_directory()
+    elif img_type == "custom":
+        base_dir = ""
+    else:
+        return None
+    return os.path.normpath(os.path.abspath(os.path.join(base_dir, subfolder, filename)))
+
+
+def _strip_metadata(image_path: str) -> bytes:
+    import io
+
+    from PIL import Image
+
+    with Image.open(image_path) as img:
+        clean_img = Image.new(img.mode, img.size)
+        clean_img.paste(img)
+        buffer = io.BytesIO()
+        img_format = img.format or "PNG"
+
+        if img_format.upper() in ["JPEG", "JPG"]:
+            clean_img.save(buffer, format="JPEG", quality=95)
+        elif img_format.upper() == "WEBP":
+            clean_img.save(buffer, format="WEBP", lossless=True)
+        else:
+            clean_img.save(buffer, format="PNG")
+
+        return buffer.getvalue()
+
+
+@routes.post("/meld/api/download/zip")
+async def download_zip(request: web.Request) -> web.Response:
+    try:
+        data = await request.json()
+        image_ids = data.get("imageIds", [])
+        remove_metadata = data.get("removeMetadata", False)
+
+        if not image_ids:
+            return web.json_response(ApiResponse(success=False, error="No image IDs provided").to_dict(), status=400)
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        placeholders = ",".join(["?"] * len(image_ids))
+        cursor.execute(f"SELECT id, filename, subfolder, type FROM images WHERE id IN ({placeholders})", image_ids)
+        rows = cursor.fetchall()
+        conn.close()
+
+        import io
+        import zipfile
+
+        zip_buffer = io.BytesIO()
+
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+            for _img_id, filename, subfolder, img_type in rows:
+                path = _get_image_path(img_type, subfolder, filename)
+                if path and os.path.exists(path):
+                    if remove_metadata:
+                        img_bytes = _strip_metadata(path)
+                        zf.writestr(filename, img_bytes)
+                    else:
+                        zf.write(path, filename)
+
+        zip_buffer.seek(0)
+        return web.Response(
+            body=zip_buffer.read(),
+            content_type="application/zip",
+            headers={"Content-Disposition": 'attachment; filename="meld_images.zip"'},
+        )
+    except Exception as e:
+        import traceback
+
+        traceback.print_exc()
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+
+
+@routes.post("/meld/api/download/raw")
+async def download_raw(request: web.Request) -> web.Response:
+    try:
+        data = await request.json()
+        image_id = data.get("imageId")
+        remove_metadata = data.get("removeMetadata", False)
+
+        if not image_id:
+            return web.json_response(ApiResponse(success=False, error="No image ID provided").to_dict(), status=400)
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT filename, subfolder, type FROM images WHERE id = ?", (image_id,))
+        row = cursor.fetchone()
+        conn.close()
+
+        if not row:
+            return web.json_response(ApiResponse(success=False, error="Image not found").to_dict(), status=404)
+
+        filename, subfolder, img_type = row
+        path = _get_image_path(img_type, subfolder, filename)
+
+        if not path or not os.path.exists(path):
+            return web.json_response(ApiResponse(success=False, error="File not found on disk").to_dict(), status=404)
+
+        content_type = "image/png"
+        if filename.lower().endswith((".jpg", ".jpeg")):
+            content_type = "image/jpeg"
+        elif filename.lower().endswith(".webp"):
+            content_type = "image/webp"
+
+        headers = {"Content-Disposition": f'attachment; filename="{filename}"'}
+
+        if remove_metadata:
+            img_bytes = _strip_metadata(path)
+            return web.Response(body=img_bytes, content_type=content_type, headers=headers)
+        else:
+            with open(path, "rb") as f:
+                img_bytes = f.read()
+            return web.Response(body=img_bytes, content_type=content_type, headers=headers)
+    except Exception as e:
+        import traceback
+
+        traceback.print_exc()
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
