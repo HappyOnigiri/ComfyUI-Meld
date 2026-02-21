@@ -8,6 +8,7 @@ import type {
 } from "../../../types";
 import { getImageViewUrl } from "../../../utils/url";
 import * as imagesApi from "../../images/api/imagesApi";
+import { deleteImagesAndSyncLightTable } from "../../images/hooks/deleteHelpers";
 import { useImageActions } from "../../images/hooks/useImageActions";
 import { useImageLineage } from "../../images/hooks/useImageLineage";
 import { useLightTableStore } from "../../light-table/store";
@@ -239,7 +240,10 @@ export const useImageViewerLogic = ({
 					dispatch({ type: "CLOSE_VIEWER" });
 				}
 
-				await imagesApi.deleteImages(Array.from(idsToDelete), isPermanent);
+				await deleteImagesAndSyncLightTable(
+					Array.from(idsToDelete),
+					isPermanent,
+				);
 				if (!isPermanent) {
 					const deletedImages = currentThumbnails.filter((img) =>
 						idsToDelete.has(img.id),

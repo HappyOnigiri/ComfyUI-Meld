@@ -132,6 +132,31 @@ export const useLightTableStore = create<TrayState>()(
 					};
 				}),
 
+			removeImages: (imageIds: number[]) =>
+				set((state: TrayState) => {
+					const idStrings = imageIds.map(String);
+					const idSet = new Set(idStrings);
+					const newBuckets = { ...state.buckets };
+					let bucketsChanged = false;
+
+					for (const [slotId, bucket] of Object.entries(newBuckets)) {
+						const filtered = bucket.filter((id) => !idSet.has(id));
+						if (filtered.length !== bucket.length) {
+							newBuckets[slotId] = filtered;
+							bucketsChanged = true;
+						}
+					}
+
+					if (!bucketsChanged) return state;
+
+					const newImages = { ...state.images };
+					for (const idStr of idStrings) {
+						delete newImages[idStr];
+					}
+
+					return { buckets: newBuckets, images: newImages };
+				}),
+
 			/**
 			 * Show toast message for 2.5 seconds.
 			 * If called multiple times, the latest message overwrites the previous one.

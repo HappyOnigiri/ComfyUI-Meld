@@ -3,6 +3,7 @@ import type React from "react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import * as imagesApi from "../../features/images/api/imagesApi";
+import { deleteImagesAndSyncLightTable } from "../../features/images/hooks/deleteHelpers";
 import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 import { useGallery } from "../../store/GalleryContext";
 import type { MeldImage } from "../../types";
@@ -149,7 +150,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 			);
 			navigateViewerIfNeeded(idsToDeleteSet);
 
-			await imagesApi.deleteImages(imageIds, isPermanent);
+			await deleteImagesAndSyncLightTable(imageIds, isPermanent);
 			if (!isMounted.current) return;
 
 			if (state.activeModal.type === "delete_confirm") {
@@ -192,7 +193,10 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 			);
 			navigateViewerIfNeeded(allIdsToDelete);
 
-			await imagesApi.deleteImages(Array.from(allIdsToDelete), isPermanent);
+			await deleteImagesAndSyncLightTable(
+				Array.from(allIdsToDelete),
+				isPermanent,
+			);
 			if (!isMounted.current) return;
 
 			if (state.activeModal.type === "delete_confirm") {
