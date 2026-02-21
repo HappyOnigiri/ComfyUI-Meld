@@ -58,9 +58,9 @@ class ApiUsageChecker(ASTChecker):
             return
 
         index_node = node.slice
-        # Handle Python versions < 3.9 where slice is an ast.Index
-        if hasattr(index_node, "value"):
-            index_node_val = index_node.value
+        # Handle Python versions < 3.9 where slice is wrapped in ast.Index
+        if isinstance(index_node, ast.Index):
+            index_node_val = index_node.value  # type: ignore[attr-defined]
         else:
             index_node_val = index_node
 
