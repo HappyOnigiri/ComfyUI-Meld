@@ -9908,7 +9908,7 @@ const qu = [
     /* @__PURE__ */ l.jsx("div", { className: "meld-settings-group-title", children: "ComfyUI Meld" }),
     /* @__PURE__ */ l.jsx("div", { className: "meld-settings-item", children: /* @__PURE__ */ l.jsxs("div", { className: "meld-settings-item__info", children: [
       /* @__PURE__ */ l.jsx("div", { className: "meld-settings-item__label", children: "Version" }),
-      /* @__PURE__ */ l.jsx("div", { className: "meld-settings-item__description", children: "0.2.0" })
+      /* @__PURE__ */ l.jsx("div", { className: "meld-settings-item__description", children: "0.3.0" })
     ] }) })
   ] }),
   /* @__PURE__ */ l.jsxs("div", { className: "meld-settings-group", children: [
