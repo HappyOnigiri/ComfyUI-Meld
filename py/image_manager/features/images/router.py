@@ -1381,29 +1381,55 @@ def _get_image_path(img_type: str, subfolder: str, filename: str) -> str | None:
     elif img_type == "temp":
         base_dir = folder_paths.get_temp_directory()
     elif img_type == "custom":
-        base_dir = ""
+        # custom images must be within a known directory to prevent arbitrary file access
+        get_custom = getattr(folder_paths, "get_custom_directory", None)
+        if get_custom:
+            base_dir = get_custom()
+        else:
+            base_dir = folder_paths.get_input_directory()
     else:
         return None
-    return os.path.normpath(os.path.abspath(os.path.join(base_dir, subfolder, filename)))
+
+    if not base_dir:
+        return None
+
+    # Secure path resolution
+    base_abs = os.path.abspath(base_dir)
+    full_path = os.path.normpath(os.path.abspath(os.path.join(base_abs, subfolder, filename)))
+
+    # Verify containment
+    try:
+        if os.path.commonpath([base_abs, full_path]) != base_abs:
+            logging.warning(f"[Meld] Prevented suspicious file access: {full_path} outside of {base_abs}")
+            return None
+    except ValueError:
+        return None
+
+    return full_path
 
 
 def _strip_metadata(image_path: str) -> bytes:
     import io
 
-    with Image.open(image_path) as img:
-        clean_img = Image.new(img.mode, img.size)
-        clean_img.paste(img)
-        buffer = io.BytesIO()
-        img_format = img.format or "PNG"
+    try:
+        with Image.open(image_path) as img:
+            # Paste into a new image to strip metadata
+            clean_img = Image.new(img.mode, img.size)
+            clean_img.paste(img)
+            buffer = io.BytesIO()
+            img_format = img.format or "PNG"
 
-        if img_format.upper() in ["JPEG", "JPG"]:
-            clean_img.save(buffer, format="JPEG", quality=95)
-        elif img_format.upper() == "WEBP":
-            clean_img.save(buffer, format="WEBP", lossless=True)
-        else:
-            clean_img.save(buffer, format="PNG")
+            if img_format.upper() in ["JPEG", "JPG"]:
+                clean_img.save(buffer, format="JPEG", quality=95)
+            elif img_format.upper() == "WEBP":
+                clean_img.save(buffer, format="WEBP", lossless=True)
+            else:
+                clean_img.save(buffer, format="PNG")
 
-        return buffer.getvalue()
+            return buffer.getvalue()
+    except Exception as e:
+        logging.error(f"[Meld] Failed to process image {image_path}: {e}")
+        raise ValueError("Invalid image file") from e
 
 
 @routes.post("/meld/api/download/zip")
@@ -1428,15 +1454,26 @@ async def download_zip(request: web.Request) -> web.Response:
 
         zip_buffer = io.BytesIO()
 
+        ALLOWED_EXTENSIONS = (".png", ".jpg", ".jpeg", ".webp")
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
             for _img_id, filename, subfolder, img_type in rows:
+                if not filename.lower().endswith(ALLOWED_EXTENSIONS):
+                    continue
+
                 path = _get_image_path(img_type, subfolder, filename)
                 if path and os.path.exists(path):
-                    if remove_metadata:
-                        img_bytes = _strip_metadata(path)
-                        zf.writestr(filename, img_bytes)
-                    else:
-                        zf.write(path, filename)
+                    try:
+                        if remove_metadata:
+                            img_bytes = _strip_metadata(path)
+                            zf.writestr(filename, img_bytes)
+                        else:
+                            # Basic validation even when not stripping metadata
+                            with Image.open(path) as img:
+                                img.verify()
+                            zf.write(path, filename)
+                    except Exception:
+                        logging.warning(f"[Meld] Skipping invalid or corrupted image in zip: {path}")
+                        continue
 
         zip_buffer.seek(0)
         return web.Response(
@@ -1471,10 +1508,26 @@ async def download_raw(request: web.Request) -> web.Response:
             return web.json_response(ApiResponse(success=False, error="Image not found").to_dict(), status=404)
 
         filename, subfolder, img_type = row
+        ALLOWED_EXTENSIONS = (".png", ".jpg", ".jpeg", ".webp")
+        if not filename.lower().endswith(ALLOWED_EXTENSIONS):
+            return web.json_response(ApiResponse(success=False, error="Disallowed file type").to_dict(), status=400)
+
         path = _get_image_path(img_type, subfolder, filename)
 
         if not path or not os.path.exists(path):
             return web.json_response(ApiResponse(success=False, error="File not found on disk").to_dict(), status=404)
+
+        try:
+            if remove_metadata:
+                img_bytes = _strip_metadata(path)
+            else:
+                # Basic validation
+                with Image.open(path) as img:
+                    img.verify()
+                with open(path, "rb") as f:
+                    img_bytes = f.read()
+        except Exception as e:
+            return web.json_response(ApiResponse(success=False, error=f"Invalid image file: {e}").to_dict(), status=400)
 
         content_type = "image/png"
         if filename.lower().endswith((".jpg", ".jpeg")):
@@ -1483,14 +1536,7 @@ async def download_raw(request: web.Request) -> web.Response:
             content_type = "image/webp"
 
         headers = {"Content-Disposition": f'attachment; filename="{filename}"'}
-
-        if remove_metadata:
-            img_bytes = _strip_metadata(path)
-            return web.Response(body=img_bytes, content_type=content_type, headers=headers)
-        else:
-            with open(path, "rb") as f:
-                img_bytes = f.read()
-            return web.Response(body=img_bytes, content_type=content_type, headers=headers)
+        return web.Response(body=img_bytes, content_type=content_type, headers=headers)
     except Exception as e:
         import traceback
 

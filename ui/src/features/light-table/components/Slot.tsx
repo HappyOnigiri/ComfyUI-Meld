@@ -24,7 +24,8 @@ interface SlotProps {
 }
 
 export const Slot: React.FC<SlotProps> = ({ config }) => {
-	const { buckets } = useLightTableStore();
+	const { buckets, slots, images } = useLightTableStore();
+	const slotsCount = slots.length;
 	const { state: galleryState, dispatch: galleryDispatch } = useGallery();
 	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 	/** Show/hide flag for Clear Tab confirm modal */
@@ -74,7 +75,7 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 				img = galleryState.lineageImages.find((i) => i.id === imgId);
 			}
 			if (!img) {
-				img = useLightTableStore.getState().images[id];
+				img = images[id];
 			}
 			return img;
 		})
@@ -328,11 +329,12 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 										type="color"
 										value={
 											editColor.startsWith("var")
-												? editColor.match(/#([0-9a-fA-F]{3,6})/)?.[0] ||
-													"var(--meld-text-secondary, #9ca3af)"
-												: /^#[0-9a-fA-F]{6}$/i.test(editColor)
+												? (editColor.match(
+														/#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})/,
+													)?.[0] ?? "#9ca3af") // color-check-ignore
+												: /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/i.test(editColor)
 													? editColor
-													: "var(--meld-text-secondary, #9ca3af)"
+													: "#9ca3af" // color-check-ignore
 										}
 										onChange={(e) => setEditColor(e.target.value)}
 										style={{ flexShrink: 0 }}
@@ -360,7 +362,7 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 							>
 								Save Settings
 							</button>
-							{useLightTableStore.getState().slots.length > 1 && (
+							{slotsCount > 1 && (
 								<button
 									type="button"
 									className="meld-lt-slot__settings-delete-btn"

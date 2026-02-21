@@ -32,6 +32,7 @@ export const GalleryModals: React.FC = () => {
 					onExecute={async (workflowName, targetLoaderNodeId) => {
 						if (state.activeModal.type === "workflow_selection") {
 							const maskFilename = state.activeModal.maskFilename;
+							const onSuccess = state.activeModal.onSuccess;
 							for (const img of state.activeModal.images) {
 								await executeWorkflow(
 									workflowName,
@@ -40,6 +41,7 @@ export const GalleryModals: React.FC = () => {
 									targetLoaderNodeId,
 								);
 							}
+							onSuccess?.();
 						}
 					}}
 				/>
@@ -104,6 +106,7 @@ export const GalleryModals: React.FC = () => {
 					<MaskEditorModal
 						imageId={state.activeModal.imageId}
 						mode={state.activeModal.mode}
+						onSuccess={state.activeModal.onSuccess}
 						onClose={() => dispatch({ type: "CLOSE_MODAL" })}
 					/>,
 					document.body,
@@ -123,6 +126,7 @@ export const GalleryModals: React.FC = () => {
 				createPortal(
 					<DownloadModal
 						imageIds={state.activeModal.imageIds}
+						onSuccess={state.activeModal.onSuccess}
 						onClose={() => dispatch({ type: "CLOSE_MODAL" })}
 					/>,
 					document.body,

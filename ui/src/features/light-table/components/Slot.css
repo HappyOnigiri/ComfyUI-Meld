@@ -176,7 +176,7 @@
 	margin-top: 4px;
 	padding: 6px 8px;
 	background: var(--meld-accent-color, #3b82f6);
-	color: var(--fg-color, #fff);
+	color: var(--fg-color, #eee);
 	border: none;
 	border-radius: 4px;
 	cursor: pointer;

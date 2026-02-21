@@ -25,17 +25,30 @@ export const executeSlotAction = (
 			});
 			break;
 
-		case "edit_tags":
+		case "edit_tags": {
+			const allTags = new Set<string>();
+			for (const img of images) {
+				if (img.tags) {
+					for (const tag of img.tags) {
+						allTags.add(tag);
+					}
+				}
+			}
+			if (action.value) {
+				allTags.add(action.value);
+			}
+
 			dispatch({
 				type: "OPEN_MODAL",
 				payload: {
 					type: "tag_edit",
 					imageIds,
-					tags: action.value ? [action.value] : [],
+					tags: Array.from(allTags),
 					onSuccess,
 				},
 			});
 			break;
+		}
 
 		case "move_folder":
 			// Future implementation for moving folders
@@ -46,27 +59,29 @@ export const executeSlotAction = (
 		case "queue_workflow":
 			dispatch({
 				type: "OPEN_MODAL",
-				payload: { type: "workflow_selection", images },
+				payload: { type: "workflow_selection", images, onSuccess },
 			});
-			onSuccess?.();
 			break;
 
 		case "run_with_mask":
 			if (imageIds.length > 0) {
 				dispatch({
 					type: "OPEN_MODAL",
-					payload: { type: "mask_editor", imageId: imageIds[0], mode: "run" },
+					payload: {
+						type: "mask_editor",
+						imageId: imageIds[0],
+						mode: "run",
+						onSuccess,
+					},
 				});
-				onSuccess?.();
 			}
 			break;
 
 		case "download":
 			dispatch({
 				type: "OPEN_MODAL",
-				payload: { type: "download_options", imageIds },
+				payload: { type: "download_options", imageIds, onSuccess },
 			});
-			onSuccess?.();
 			break;
 
 		default:

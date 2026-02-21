@@ -24,6 +24,8 @@ const defaultSlots: SlotConfig[] = [
 	},
 ];
 
+let toastTimeoutId: ReturnType<typeof setTimeout> | null = null;
+
 export const useLightTableStore = create<TrayState>()(
 	persist(
 		(set) => ({
@@ -135,9 +137,15 @@ export const useLightTableStore = create<TrayState>()(
 			 * If called multiple times, the latest message overwrites the previous one.
 			 */
 			showToast: (message: string) => {
+				if (toastTimeoutId) {
+					clearTimeout(toastTimeoutId);
+				}
+
 				set({ toastMessage: message });
-				setTimeout(() => {
+
+				toastTimeoutId = setTimeout(() => {
 					set({ toastMessage: null });
+					toastTimeoutId = null;
 				}, 2500);
 			},
 		}),

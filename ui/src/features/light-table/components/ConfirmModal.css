@@ -82,5 +82,5 @@
 
 .meld-confirm-modal__btn--confirm {
 	background: var(--error-color, #ff4c4c);
-	color: var(--fg-color, #fff);
+	color: var(--fg-color, #eee);
 }

@@ -149,7 +149,12 @@ export type ActiveModal =
 	| { type: "import" }
 	| { type: "settings" }
 	| { type: "error"; message: string }
-	| { type: "workflow_selection"; images: MeldImage[]; maskFilename?: string }
+	| {
+			type: "workflow_selection";
+			images: MeldImage[];
+			maskFilename?: string;
+			onSuccess?: () => void;
+	  }
 	| {
 			type: "delete_confirm";
 			imageIds: number[];
@@ -157,7 +162,12 @@ export type ActiveModal =
 			isPermanent?: boolean;
 			onSuccess?: () => void;
 	  }
-	| { type: "mask_editor"; imageId: number; mode: "apply" | "run" }
+	| {
+			type: "mask_editor";
+			imageId: number;
+			mode: "apply" | "run";
+			onSuccess?: () => void;
+	  }
 	| {
 			type: "node_selection";
 			image: MeldImage;
@@ -165,7 +175,11 @@ export type ActiveModal =
 			onSelect: (nodeId: string) => void;
 	  }
 	| { type: "note_edit"; imageId: number; notes: string }
-	| { type: "download_options"; imageIds: number[] };
+	| {
+			type: "download_options";
+			imageIds: number[];
+			onSuccess?: () => void;
+	  };
 
 export interface GalleryState {
 	images: MeldImage[];

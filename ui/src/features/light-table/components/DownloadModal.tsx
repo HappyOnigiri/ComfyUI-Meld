@@ -7,11 +7,13 @@ import * as imagesApi from "../../images/api/imagesApi";
 
 interface DownloadModalProps {
 	imageIds: number[];
+	onSuccess?: () => void;
 	onClose: () => void;
 }
 
 export const DownloadModal: React.FC<DownloadModalProps> = ({
 	imageIds,
+	onSuccess,
 	onClose,
 }) => {
 	const [format, setFormat] = useState<"zip" | "raw">("zip");
@@ -52,6 +54,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({
 				}
 			}
 			onClose();
+			onSuccess?.();
 		} catch (error) {
 			console.error("Download failed:", error);
 			alert("Failed to download images.");
