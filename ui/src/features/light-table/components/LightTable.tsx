@@ -1,4 +1,4 @@
-import { Plus, Trash } from "lucide-react";
+import { Plus, Trash, X } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -18,7 +18,7 @@ import "./LightTable.css";
  */
 export const LightTable: React.FC = () => {
 	useLightTableKeys();
-	const { isOpen, slots, buckets } = useLightTableStore();
+	const { isOpen, slots, buckets, setIsOpen } = useLightTableStore();
 	const { state: galleryState } = useGallery();
 	const [activeTabId, setActiveTabId] = useState(slots[0]?.id || "keep");
 	const portalContainerRef = useRef<HTMLDivElement | null>(null);
@@ -135,6 +135,24 @@ export const LightTable: React.FC = () => {
 				>
 					<Trash size={14} />
 					<span>Clear All</span>
+				</button>
+				<button
+					type="button"
+					className="meld-light-table__close-btn"
+					onClick={() => setIsOpen(false)}
+					title="Close Light Table"
+					style={{
+						background: "none",
+						border: "none",
+						color: "var(--meld-text-secondary, #9ca3af)",
+						cursor: "pointer",
+						display: "flex",
+						alignItems: "center",
+						padding: "0 8px",
+						marginLeft: "8px",
+					}}
+				>
+					<X size={16} />
 				</button>
 			</div>
 
