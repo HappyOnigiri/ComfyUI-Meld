@@ -849,7 +849,6 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	backdrop-filter: blur(4px);
 	outline: none;
 	box-sizing: border-box;
 	flex-shrink: 0;
@@ -896,7 +895,6 @@
 	top: 110%;
 	right: 0;
 	background: var(--comfy-menu-bg, rgba(20, 20, 20, 0.95));
-	backdrop-filter: blur(10px);
 	border: 1px solid var(--meld-border-color);
 	box-shadow: 0 4px 20px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.5));
 	min-width: 200px;
@@ -1347,9 +1345,8 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	bottom: 0;
 	background: var(
 		--meld-overlay-bg,
-		color-mix(in srgb, var(--comfy-menu-bg, #15161a) 10%, transparent)
+		color-mix(in srgb, var(--comfy-menu-bg, #15161a) 25%, transparent)
 	);
-	backdrop-filter: blur(2px);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -2737,7 +2734,6 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	background: var(--comfy-menu-bg, rgba(0, 0, 0, 0.5));
 	padding: 20px;
 	border-radius: 50%;
-	backdrop-filter: blur(4px);
 }
 
 .meld-viewer-image--loading {
@@ -2825,7 +2821,6 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	border: 1px solid var(--comfy-menu-border, rgba(255, 255, 255, 0.05));
 	/* color-check-ignore */
 	pointer-events: none;
-	backdrop-filter: blur(2px);
 }
 
 .meld-viewer-content--fullscreen .meld-viewer-cheat-sheet {
