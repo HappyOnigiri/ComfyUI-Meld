@@ -666,8 +666,6 @@
 	color: var(--meld-text-color);
 	font-size: 13px;
 	font-weight: bold;
-	margin-right: auto;
-	/* Push buttons to the right */
 }
 
 .meld-bulk-bar__button {
