@@ -3,17 +3,17 @@ import {
 	FileJson,
 	Menu,
 	RefreshCw,
+	ScanLine,
 	Tag,
 	Trash2,
 	X,
-	ScanLine,
 } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { useGallery } from "../../../store/GalleryContext";
 import { useImageActions } from "../../images/hooks/useImageActions";
-import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 
 export const BulkActionBar: React.FC = () => {
 	const { state, dispatch, deleteSelected, restoreSelected } = useGallery();
@@ -123,7 +123,9 @@ export const BulkActionBar: React.FC = () => {
 	};
 
 	const bulkBarJSX = (
-		<div className={`meld-bulk-bar ${isTrashMode ? "meld-bulk-bar--trash" : ""}`}>
+		<div
+			className={`meld-bulk-bar ${isTrashMode ? "meld-bulk-bar--trash" : ""}`}
+		>
 			<span className="meld-bulk-bar__info">{count} items selected</span>
 
 			<button
@@ -132,7 +134,10 @@ export const BulkActionBar: React.FC = () => {
 				className="meld-bulk-bar__button meld-bulk-bar__button--action"
 				onClick={handleActionClick}
 			>
-				<Menu size={16} style={{ marginRight: "8px", verticalAlign: "middle" }} />
+				<Menu
+					size={16}
+					style={{ marginRight: "8px", verticalAlign: "middle" }}
+				/>
 				Action
 			</button>
 
@@ -170,7 +175,8 @@ export const BulkActionBar: React.FC = () => {
 							backgroundColor: "var(--comfy-menu-bg, #222)",
 							border: "1px solid var(--comfy-menu-border, #444)",
 							borderRadius: "4px",
-							boxShadow: "0 -4px 12px var(--comfy-menu-shadow, rgba(0,0,0,0.5))",
+							boxShadow:
+								"0 -4px 12px var(--comfy-menu-shadow, rgba(0,0,0,0.5))",
 							zIndex: 2000,
 							minWidth: "180px",
 							display: "flex",
