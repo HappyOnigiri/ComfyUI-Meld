@@ -553,7 +553,11 @@ export const useImageViewerLogic = ({
 			if (viewerImageId === null) return;
 
 			const isDeleteKey = e.key === "Delete" || e.key === "Backspace";
-			const isNavigationKey = e.key === "ArrowRight" || e.key === "ArrowLeft";
+			const isNavigationKey =
+				e.key === "ArrowRight" ||
+				e.key === "ArrowLeft" ||
+				e.key === "ArrowDown" ||
+				e.key === "ArrowUp";
 			const isToggleKey = ["f", "F", "i", "I", "t", "T", "r", "R"].includes(
 				e.key,
 			);
@@ -611,9 +615,9 @@ export const useImageViewerLogic = ({
 				} else {
 					dispatch({ type: "CLOSE_VIEWER" });
 				}
-			} else if (e.key === "ArrowRight") {
+			} else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
 				handleNext();
-			} else if (e.key === "ArrowLeft") {
+			} else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
 				handlePrevious();
 			} else if (e.key === "f" || e.key === "F") {
 				toggleFullscreen(e);

@@ -16128,7 +16128,7 @@ const Dg = ({
         return;
       }
       if (s === null) return;
-      const ne = z.key === "Delete" || z.key === "Backspace", Ee = z.key === "ArrowRight" || z.key === "ArrowLeft", Pe = ["f", "F", "i", "I", "t", "T", "r", "R"].includes(
+      const ne = z.key === "Delete" || z.key === "Backspace", Ee = z.key === "ArrowRight" || z.key === "ArrowLeft" || z.key === "ArrowDown" || z.key === "ArrowUp", Pe = ["f", "F", "i", "I", "t", "T", "r", "R"].includes(
         z.key
       ), Qe = z.key === "Escape", he = (z.ctrlKey || z.metaKey) && (z.key === "z" || z.key === "Z" || z.code === "KeyZ"), ge = /^[0-9]$/.test(z.key) && !z.ctrlKey && !z.metaKey && !z.altKey && z.code !== "KeyZ";
       if (ne || Ee || Pe || Qe || he || ge)
@@ -16152,9 +16152,9 @@ const Dg = ({
         return;
       if (z.key === "Escape")
         e.activeModal.type !== "none" && t({ type: "CLOSE_MODAL" }), document.fullscreenElement ? document.exitFullscreen() : t({ type: "CLOSE_VIEWER" });
-      else if (z.key === "ArrowRight")
+      else if (z.key === "ArrowRight" || z.key === "ArrowDown")
         K();
-      else if (z.key === "ArrowLeft")
+      else if (z.key === "ArrowLeft" || z.key === "ArrowUp")
         le();
       else if (z.key === "f" || z.key === "F")
         pe(z);
@@ -16683,6 +16683,7 @@ function Ag() {
                     onClick: m,
                     type: "button",
                     disabled: h,
+                    title: "Previous (Left/Up)",
                     children: /* @__PURE__ */ l.jsx(Nu, { size: 32 })
                   }
                 ),
@@ -16705,6 +16706,7 @@ function Ag() {
                     className: "meld-viewer-nav meld-viewer-nav--next",
                     onClick: S,
                     type: "button",
+                    title: "Next (Right/Down)",
                     children: /* @__PURE__ */ l.jsx(Qo, { size: 32 })
                   }
                 ),

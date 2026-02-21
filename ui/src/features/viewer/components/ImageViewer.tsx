@@ -178,6 +178,7 @@ export function ImageViewer() {
 						onClick={handlePrevious}
 						type="button"
 						disabled={isJumping}
+						title="Previous (Left/Up)"
 					>
 						<ChevronLeft size={32} />
 					</button>
@@ -204,6 +205,7 @@ export function ImageViewer() {
 						className="meld-viewer-nav meld-viewer-nav--next"
 						onClick={handleNext}
 						type="button"
+						title="Next (Right/Down)"
 					>
 						<ChevronRight size={32} />
 					</button>
