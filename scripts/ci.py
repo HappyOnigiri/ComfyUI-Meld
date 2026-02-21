@@ -65,6 +65,16 @@ def run_task(name: str, command: str) -> tuple[bool, str, str]:
         return False, name, str(e)
 
 
+# Tasks that modify files and must be run serially to avoid race conditions.
+# Future maintainers: add any new mutating tasks to this set.
+MUTATING_TASK_NAMES = {
+    "Python-Lint-ruff-format",
+    "Python-Lint-ruff-check",
+    "UI-Lint-biome",
+    "Fix-Newlines",
+}
+
+
 def main() -> None:
     # Workaround for Windows encoding issues
     if hasattr(sys.stdout, "reconfigure"):
@@ -76,12 +86,12 @@ def main() -> None:
 
     results = {}
 
-    # Split tasks into mutating and non-mutating to avoid concurrent file writes
+    # Split tasks into mutating and non-mutating to avoid concurrent file writes.
+    # We use an explicit allowlist for robustness.
     mutating_tasks = []
     non_mutating_tasks = []
     for name, cmd in TASKS:
-        # Identify mutating tasks by command text or known behavior
-        if any(x in cmd for x in ["format", "--fix", "fix_newlines"]) or "biome" in name.lower():
+        if name in MUTATING_TASK_NAMES:
             mutating_tasks.append((name, cmd))
         else:
             non_mutating_tasks.append((name, cmd))
