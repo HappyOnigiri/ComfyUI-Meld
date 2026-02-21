@@ -17,6 +17,7 @@ TASKS = [
         "UI-Lint-biome",
         "npm --prefix ui run lint",
     ),  # Command for biome lint in ui directory
+    ("UI-Lint-tsc", "npx tsc --noEmit"),
     ("Fix-Newlines", "python scripts/fix_newlines.py"),
     ("Check-Non-ASCII", "python scripts/check_non_ascii.py"),
     ("Check-TS-Rules", "python scripts/check_ts_rules.py"),
@@ -73,12 +74,30 @@ def main() -> None:
 
     os.makedirs(".logs", exist_ok=True)
 
-    # Parallel execution (equivalent to Makefile -j 4)
-    max_workers = 4
     results = {}
 
+    # Split tasks into mutating and non-mutating to avoid concurrent file writes
+    mutating_tasks = []
+    non_mutating_tasks = []
+    for name, cmd in TASKS:
+        # Identify mutating tasks by command text or known behavior
+        if any(x in cmd for x in ["format", "--fix", "fix_newlines"]) or "biome" in name.lower():
+            mutating_tasks.append((name, cmd))
+        else:
+            non_mutating_tasks.append((name, cmd))
+
+    # 1. Run mutating tasks serially
+    for name, cmd in mutating_tasks:
+        success, _, output = run_task(name, cmd)
+        results[name] = (success, output)
+        log_filename = os.path.join(".logs", f"{name.replace(' ', '_')}.log")
+        with open(log_filename, "w", encoding="utf-8") as f:
+            f.write(output)
+
+    # 2. Run non-mutating tasks in parallel
+    max_workers = 4
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        future_to_task = {executor.submit(run_task, name, cmd): name for name, cmd in TASKS}
+        future_to_task = {executor.submit(run_task, name, cmd): name for name, cmd in non_mutating_tasks}
 
         for future in as_completed(future_to_task):
             success, name, output = future.result()
