@@ -138,7 +138,11 @@ export function ImageViewer() {
 							className="meld-viewer-action-btn"
 							onClick={toggleFullscreen}
 							type="button"
-							title={isFullscreen ? "Exit Fullscreen (F)" : "Fullscreen (F)"}
+							title={
+								isFullscreen
+									? "Exit Fullscreen (F/Enter)"
+									: "Fullscreen (F/Enter)"
+							}
 						>
 							{isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
 						</button>
@@ -178,6 +182,7 @@ export function ImageViewer() {
 						onClick={handlePrevious}
 						type="button"
 						disabled={isJumping}
+						title="Previous (Left/Up)"
 					>
 						<ChevronLeft size={32} />
 					</button>
@@ -204,6 +209,7 @@ export function ImageViewer() {
 						className="meld-viewer-nav meld-viewer-nav--next"
 						onClick={handleNext}
 						type="button"
+						title="Next (Right/Down)"
 					>
 						<ChevronRight size={32} />
 					</button>

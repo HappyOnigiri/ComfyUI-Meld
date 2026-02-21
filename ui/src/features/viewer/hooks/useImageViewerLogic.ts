@@ -553,10 +553,22 @@ export const useImageViewerLogic = ({
 			if (viewerImageId === null) return;
 
 			const isDeleteKey = e.key === "Delete" || e.key === "Backspace";
-			const isNavigationKey = e.key === "ArrowRight" || e.key === "ArrowLeft";
-			const isToggleKey = ["f", "F", "i", "I", "t", "T", "r", "R"].includes(
-				e.key,
-			);
+			const isNavigationKey =
+				e.key === "ArrowRight" ||
+				e.key === "ArrowLeft" ||
+				e.key === "ArrowDown" ||
+				e.key === "ArrowUp";
+			const isToggleKey = [
+				"f",
+				"F",
+				"i",
+				"I",
+				"t",
+				"T",
+				"r",
+				"R",
+				"Enter",
+			].includes(e.key);
 			const isEscapeKey = e.key === "Escape";
 			const isUndoKey =
 				(e.ctrlKey || e.metaKey) &&
@@ -611,11 +623,11 @@ export const useImageViewerLogic = ({
 				} else {
 					dispatch({ type: "CLOSE_VIEWER" });
 				}
-			} else if (e.key === "ArrowRight") {
+			} else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
 				handleNext();
-			} else if (e.key === "ArrowLeft") {
+			} else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
 				handlePrevious();
-			} else if (e.key === "f" || e.key === "F") {
+			} else if (e.key === "f" || e.key === "F" || e.key === "Enter") {
 				toggleFullscreen(e);
 			} else if (e.key === "i" || e.key === "I") {
 				setShowDetails((prev) => !prev);
