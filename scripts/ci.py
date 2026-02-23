@@ -9,21 +9,21 @@ COLOR_RED = "\033[91m"
 COLOR_RESET = "\033[0m"
 
 TASKS = [
-    ("Python-Lint-ruff-format", "python -m ruff format ."),
-    ("Python-Lint-ruff-check", "python -m ruff check . --fix"),
-    ("Python-Lint-mypy", "python -m mypy py tests"),
+    ("Python-Lint-ruff-format", f"{sys.executable} -m ruff format ."),
+    ("Python-Lint-ruff-check", f"{sys.executable} -m ruff check . --fix"),
+    ("Python-Lint-mypy", f"{sys.executable} -m mypy py tests"),
     ("Python-Lint-pyright", "npx pyright"),
     (
         "UI-Lint-biome",
         "npm --prefix ui run lint",
     ),  # Command for biome lint in ui directory
     ("UI-Lint-tsc", "npx tsc --noEmit"),
-    ("Fix-Newlines", "python scripts/fix_newlines.py"),
-    ("Check-Non-ASCII", "python scripts/check_non_ascii.py"),
-    ("Check-TS-Rules", "python scripts/check_ts_rules.py"),
+    ("Fix-Newlines", f"{sys.executable} scripts/fix_newlines.py"),
+    ("Check-Non-ASCII", f"{sys.executable} scripts/check_non_ascii.py"),
+    ("Check-TS-Rules", f"{sys.executable} scripts/check_ts_rules.py"),
     ("Check-Scripts", "make --no-print-directory check-scripts"),
     ("Local-Check-Scripts", "make --no-print-directory local-check-scripts"),
-    ("Python-Tests", "python -m unittest discover tests"),
+    ("Python-Tests", f"{sys.executable} -m unittest discover tests"),
     ("Build-UI", "npm --prefix ui run build"),
 ]
 
