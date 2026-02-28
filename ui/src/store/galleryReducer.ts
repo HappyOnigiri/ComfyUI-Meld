@@ -177,9 +177,12 @@ export function galleryReducer(
 				newViewerId !== null &&
 				!images.some((img) => img.id === newViewerId)
 			) {
-				const existingImage = state.images.find(
-					(img) => img.id === newViewerId,
-				);
+				// Search state.images first, then fall back to state.viewerFallbackImage
+				const existingImage =
+					state.images.find((img) => img.id === newViewerId) ||
+					(state.viewerFallbackImage?.id === newViewerId
+						? state.viewerFallbackImage
+						: undefined);
 				if (existingImage) {
 					// Preserve the currently viewed image in a fallback field so the viewer doesn't close
 					viewerFallbackImage = existingImage;
