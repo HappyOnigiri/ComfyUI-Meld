@@ -14,8 +14,6 @@ import {
 import type React from "react";
 import { useCallback, useRef, useState } from "react";
 import { GalleryModals } from "../../../components/shared/GalleryModals";
-import { ImageCard } from "../../../components/shared/ImageCard";
-import { LazyRender } from "../../../components/shared/LazyRender";
 import { logger } from "../../../logger";
 import { ImportProgress } from "../../importer/components/ImportProgress";
 import { LightTable } from "../../light-table/components/LightTable";
@@ -27,6 +25,7 @@ import { TagManagerView } from "../../tags/components/TagManagerView";
 import { ImageViewer } from "../../viewer/components/ImageViewer";
 import { useGalleryLogic } from "../hooks/useGalleryLogic";
 import { BulkActionBar } from "./BulkActionBar";
+import { VirtualizedGalleryList } from "./VirtualizedGalleryList";
 import "../../../styles/Gallery.css";
 
 export const GalleryPanel: React.FC = () => {
@@ -391,78 +390,26 @@ export const GalleryPanel: React.FC = () => {
 				) : visibleImages.length === 0 ? (
 					<div className="meld-gallery__empty">No images found.</div>
 				) : (
-					<>
-						<div
-							className={`meld-gallery__list ${state.settings["gallery.view_mode"] === "grid_only" ? "meld-gallery__list--grid-only" : ""}`}
-							style={
-								{
-									"--meld-thumbnail-size": `${state.settings["sidebar.thumbnail_size"] || 100}px`,
-								} as React.CSSProperties
-							}
-						>
-							{visibleImages.map((image) => {
-								const thumbSize =
-									state.settings["sidebar.thumbnail_size"] || 100;
-								const isGridOnly =
-									state.settings["gallery.view_mode"] === "grid_only";
-								// Estimate width based on aspect ratio
-								const estimatedWidth =
-									isGridOnly && image.width && image.height
-										? Math.min(
-												thumbSize,
-												(thumbSize * image.width) / image.height,
-											) + 10
-										: isGridOnly
-											? thumbSize + 10
-											: "100%";
-
-								return (
-									<div
-										key={image.id}
-										data-image-id={image.id}
-										style={{
-											width: isGridOnly ? "auto" : "100%",
-											flexShrink: 0,
-											display: isGridOnly ? "inline-block" : "block",
-										}}
-									>
-										<LazyRender
-											height={
-												isGridOnly ? thumbSize + 10 : Math.max(thumbSize, 150)
-											}
-											style={{
-												width:
-													typeof estimatedWidth === "number"
-														? `${estimatedWidth}px`
-														: estimatedWidth,
-												minWidth:
-													typeof estimatedWidth === "number"
-														? `${estimatedWidth}px`
-														: estimatedWidth,
-												display: isGridOnly ? "inline-block" : "block",
-											}}
-										>
-											<ImageCard image={image} />
-										</LazyRender>
-									</div>
-								);
-							})}
-						</div>
-						<div
-							ref={loadMoreRef}
-							className="meld-gallery__load-more"
-							style={{ height: "20px", margin: "20px 0", textAlign: "center" }}
-						>
-							{state.isLoading && (
-								<div className="meld-gallery__loading">Loading more...</div>
-							)}
-							{localLimit >= displayedImages.length &&
-								!state.pagination.hasMore &&
-								visibleImages.length > 0 && (
-									<div className="meld-gallery__end">End of gallery</div>
-								)}
-						</div>
-					</>
+					<div
+						className="meld-gallery__list-wrapper"
+						style={{
+							flex: 1,
+							minHeight: 0,
+							display: "flex",
+							flexDirection: "column",
+						}}
+					>
+						<VirtualizedGalleryList
+							visibleImages={visibleImages}
+							settings={state.settings}
+							loadMoreRef={loadMoreRef}
+							viewerImageId={state.viewerImageId}
+							isLoading={state.isLoading}
+							localLimit={localLimit}
+							displayedImagesLength={displayedImages.length}
+							hasMore={state.pagination.hasMore}
+						/>
+					</div>
 				)}
 
 				<BulkActionBar />

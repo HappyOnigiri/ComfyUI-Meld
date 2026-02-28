@@ -184,30 +184,20 @@ export const useGalleryLogic = () => {
 		state.images.length,
 	]);
 
-	// Scroll synchronization with ImageViewer
+	// Scroll synchronization with ImageViewer: when the viewed image is beyond localLimit,
+	// expand localLimit so VirtualizedGalleryList can render it. The actual scrollToIndex
+	// is handled inside VirtualizedGalleryList.
 	useEffect(() => {
 		const idToScroll = state.viewerImageId ?? lastScrolledId.current;
 		if (idToScroll !== null) {
 			const isDisplayed = displayedImages.some((img) => img.id === idToScroll);
 			if (isDisplayed) {
-				// If the image is in displayedImages but not in visibleImages, expand localLimit
 				const index = displayedImages.findIndex((img) => img.id === idToScroll);
 				if (index >= localLimit) {
 					setLocalLimit(
 						Math.ceil((index + 1) / state.pagination.limit) *
 							state.pagination.limit,
 					);
-					return; // Wait for next render
-				}
-
-				const element = document.querySelector(
-					`[data-image-id="${idToScroll}"]`,
-				);
-				if (element) {
-					element.scrollIntoView({ behavior: "smooth", block: "nearest" });
-					if (state.viewerImageId === null) {
-						lastScrolledId.current = null;
-					}
 				}
 			}
 		}

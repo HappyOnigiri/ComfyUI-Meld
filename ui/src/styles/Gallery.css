@@ -49,12 +49,43 @@
 	border-bottom: 1px solid var(--meld-border-color);
 }
 
-/* Content area below the header: only this area scrolls */
+/* Content area below the header: flex container, scroll delegated to list area */
 .meld-gallery__content {
 	flex: 1;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	min-height: 0;
+	padding-bottom: 200px;
+}
+
+/* Scroll container for virtualized list - only this area scrolls when list is shown */
+.meld-gallery__list-scroll {
+	flex: 1;
+	min-height: 0;
 	overflow-y: auto;
 	scrollbar-gutter: stable;
-	padding-bottom: 200px;
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+.meld-gallery__list-wrapper {
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+/* Virtualized list row (grid_details mode) */
+.meld-gallery__virtual-row {
+	margin-bottom: 10px;
+}
+
+/* Virtualized grid row (grid_only mode) */
+.meld-gallery__virtual-grid-row {
+	margin-bottom: 6px;
+}
+
+.meld-gallery__list--virtualized {
+	margin-top: 10px;
 }
 
 .meld-gallery__actions {
