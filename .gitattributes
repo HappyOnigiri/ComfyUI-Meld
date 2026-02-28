@@ -1,1 +1,5 @@
 * text=auto eol=lf
+
+# Build artifacts (Tracked auto-generated files)
+/web/js/gallery_extension.js linguist-generated
+/web/js/style.css linguist-generated
