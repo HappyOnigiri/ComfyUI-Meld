@@ -102,6 +102,7 @@ export const useSettingsModalLogic = () => {
 			if (part.startsWith("tag:") && part.length > 4) return true;
 			if (part.startsWith("-tag:") && part.length > 5) return true;
 			if (part.startsWith("tag-toggle:") && part.length > 11) return true;
+			if (part.startsWith("lt:") && part.length > 3) return true;
 			return false;
 		});
 	};

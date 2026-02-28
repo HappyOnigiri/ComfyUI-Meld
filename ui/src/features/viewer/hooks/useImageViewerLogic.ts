@@ -460,6 +460,7 @@ export const useImageViewerLogic = ({
 			let moveNext = false;
 			let movePrev = false;
 			let isDeleted = false;
+			let sendToLtSlot: string | null = null;
 
 			for (const part of parts) {
 				if (part.startsWith("tag:")) {
@@ -495,7 +496,18 @@ export const useImageViewerLogic = ({
 					movePrev = true;
 				} else if (part === "delete") {
 					isDeleted = true;
+				} else if (part.startsWith("lt:")) {
+					const slotId = part.substring(3);
+					if (slotId) sendToLtSlot = slotId;
 				}
+			}
+
+			if (sendToLtSlot) {
+				const store = useLightTableStore.getState();
+				store.addToBucket(sendToLtSlot, String(currentImageId), image);
+				const slotName =
+					store.slots.find((s) => s.id === sendToLtSlot)?.label || sendToLtSlot;
+				store.showToast(`Sent to ${slotName}`);
 			}
 
 			if (addTags.length > 0 || removeTags.length > 0) {
