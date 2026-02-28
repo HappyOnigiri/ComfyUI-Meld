@@ -39,6 +39,11 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 		[state.searchQuery],
 	);
 
+	const isSearchActive = useMemo(
+		() => state.searchQuery.trim() !== "",
+		[state.searchQuery],
+	);
+
 	const currentList = useMemo(
 		() =>
 			state.viewerMode === "lineage" && state.lineageImages.length > 0
@@ -46,7 +51,8 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 				: state.images.filter(
 						(img) =>
 							img.exists !== false &&
-							(state.settings["gallery.show_parent_images"] ||
+							((state.settings["gallery.show_parent_images"] &&
+								!isSearchActive) ||
 								!img.has_children ||
 								isShowingDerivativesSearch),
 					),
@@ -55,6 +61,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 			state.lineageImages,
 			state.images,
 			state.settings,
+			isSearchActive,
 			isShowingDerivativesSearch,
 		],
 	);

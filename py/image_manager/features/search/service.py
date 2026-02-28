@@ -9,6 +9,8 @@ from ...common.constants import (
     RESERVED_TAG_KEYWORD,
     SEARCH_BOOLEAN_PREFIXES,
     SEARCH_DATE_PREFIXES,
+    SEARCH_PREFIX_FILENAME,
+    SEARCH_PREFIX_ID,
     SEARCH_PREFIX_MAP,
     SEARCH_PREFIX_NOTE,
     SEARCH_PREFIX_SORT,
@@ -21,6 +23,8 @@ class SearchService:
     BOOLEAN_PREFIXES = SEARCH_BOOLEAN_PREFIXES
     NOTE_PREFIX = SEARCH_PREFIX_NOTE
     SORT_PREFIX = SEARCH_PREFIX_SORT
+    ID_PREFIX = SEARCH_PREFIX_ID
+    FILENAME_PREFIX = SEARCH_PREFIX_FILENAME
 
     @staticmethod
     def parse_query(query_str: str | None) -> list[dict[str, Any]]:
@@ -67,6 +71,8 @@ class SearchService:
                     or prefix in SearchService.BOOLEAN_PREFIXES
                     or prefix == SearchService.NOTE_PREFIX
                     or prefix == SearchService.SORT_PREFIX
+                    or prefix == SearchService.ID_PREFIX
+                    or prefix == SearchService.FILENAME_PREFIX
                 ):
                     is_partial = True
                     # If value is quoted, it's exact match
@@ -221,6 +227,28 @@ class SearchService:
                         sub_queries.append(f"(i.user_notes IS NULL OR i.user_notes {op} ? COLLATE NOCASE)")
                     all_params.append(cond["value"])
 
+            elif cond["prefix"] == cls.ID_PREFIX:
+                # Exact match only
+                try:
+                    parsed_id = int(cond["value"])
+                except ValueError:
+                    raise ValueError(f"Invalid ID format: {cond['value']}. ID must be an integer.") from None
+
+                if is_negative:
+                    sub_queries.append("i.id != ?")
+                else:
+                    sub_queries.append("i.id = ?")
+                all_params.append(parsed_id)
+
+            elif cond["prefix"] == cls.FILENAME_PREFIX:
+                if cond["is_partial"]:
+                    op = "LIKE" if not is_negative else "NOT LIKE"
+                    sub_queries.append(f"i.filename {op} ? COLLATE NOCASE")
+                    all_params.append(f"%{cond['value']}%")
+                else:
+                    op = "=" if not is_negative else "!="
+                    sub_queries.append(f"i.filename {op} ? COLLATE NOCASE")
+                    all_params.append(cond["value"])
             else:
                 # Targeted search (tags, models, etc.)
                 prefix = cond["prefix"]
@@ -280,6 +308,10 @@ class SearchService:
             results.append({"type": prefix_filter, "value": "created_at_asc", "count": 0})
             results.append({"type": prefix_filter, "value": "created_at_desc", "count": 0})
             return results
+
+        # Special handling for id and filename prefixes (no suggestions)
+        if prefix_filter in (cls.ID_PREFIX, cls.FILENAME_PREFIX):
+            return []
 
         # Special handling for note prefix (no suggestions)
         if prefix_filter == cls.NOTE_PREFIX:

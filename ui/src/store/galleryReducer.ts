@@ -384,10 +384,7 @@ export function galleryReducer(
 				? state.settings["fullscreen.loop"]
 				: state.settings["viewer.loop"];
 
-			const isShowingDerivativesSearch =
-				state.searchQuery.toLowerCase().includes("has_derivatives:yes") ||
-				state.searchQuery.toLowerCase().includes("has_derivatives:true") ||
-				state.searchQuery.toLowerCase().includes("has_derivatives:1");
+			const isSearchActive = state.searchQuery.trim() !== "";
 
 			let currentList: MeldImage[] = [];
 			if (state.viewerMode === "lighttable" && state.viewerLightTableSlotId) {
@@ -413,8 +410,8 @@ export function galleryReducer(
 					(img) =>
 						img.exists !== false &&
 						(state.settings["gallery.show_parent_images"] ||
-							!img.has_children ||
-							isShowingDerivativesSearch),
+							isSearchActive ||
+							!img.has_children),
 				);
 			}
 
@@ -451,10 +448,7 @@ export function galleryReducer(
 				? state.settings["fullscreen.loop"]
 				: state.settings["viewer.loop"];
 
-			const isShowingDerivativesSearch =
-				state.searchQuery.toLowerCase().includes("has_derivatives:yes") ||
-				state.searchQuery.toLowerCase().includes("has_derivatives:true") ||
-				state.searchQuery.toLowerCase().includes("has_derivatives:1");
+			const isSearchActive = state.searchQuery.trim() !== "";
 
 			let currentList: MeldImage[] = [];
 			if (state.viewerMode === "lighttable" && state.viewerLightTableSlotId) {
@@ -480,8 +474,8 @@ export function galleryReducer(
 					(img) =>
 						img.exists !== false &&
 						(state.settings["gallery.show_parent_images"] ||
-							!img.has_children ||
-							isShowingDerivativesSearch),
+							isSearchActive ||
+							!img.has_children),
 				);
 			}
 

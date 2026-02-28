@@ -118,10 +118,7 @@ export const useImageViewerLogic = ({
 	}, [viewerImageId]);
 
 	const currentThumbnails = useMemo(() => {
-		const isShowingDerivativesSearch =
-			state.searchQuery.toLowerCase().includes("has_derivatives:yes") ||
-			state.searchQuery.toLowerCase().includes("has_derivatives:true") ||
-			state.searchQuery.toLowerCase().includes("has_derivatives:1");
+		const isSearchActive = state.searchQuery.trim() !== "";
 
 		if (viewerMode === "lighttable" && state.viewerLightTableSlotId) {
 			const ltStore = useLightTableStore.getState();
@@ -148,8 +145,8 @@ export const useImageViewerLogic = ({
 					(img) =>
 						img.exists !== false &&
 						(settings["gallery.show_parent_images"] ||
-							!img.has_children ||
-							isShowingDerivativesSearch),
+							isSearchActive ||
+							!img.has_children),
 				);
 	}, [
 		viewerMode,
