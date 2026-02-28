@@ -1,5 +1,6 @@
 import { MoreVertical, Trash2 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import type React from "react";
+import { useEffect, useState } from "react";
 import type { Settings } from "../../../types";
 import {
 	AddUnifiedLoaderIcon,
@@ -113,7 +114,7 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 	const containerClasses = [
 		"meld-image-card__menu-container",
 		variant === "thumbnail_overlay_top_right" &&
-		"meld-image-card__menu-container--thumbnail-overlay",
+			"meld-image-card__menu-container--thumbnail-overlay",
 	]
 		.filter(Boolean)
 		.join(" ");
@@ -158,7 +159,9 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 					);
 				})}
 			{isMenuOpen && (
-				<div className={`meld-image-card__menu ${menuPosition === "right" ? "meld-image-card__menu--right" : ""}`}>
+				<div
+					className={`meld-image-card__menu ${menuPosition === "right" ? "meld-image-card__menu--right" : ""}`}
+				>
 					{[
 						{
 							id: "add_unified_loader",
@@ -216,14 +219,14 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 						},
 						...(showRestore
 							? [
-								{
-									id: "restore_image",
-									label: "Restore Image",
-									icon: RestoreImageIcon,
-									handler: onRestore as () => void,
-									color: "var(--meld-accent-color)",
-								},
-							]
+									{
+										id: "restore_image",
+										label: "Restore Image",
+										icon: RestoreImageIcon,
+										handler: onRestore as () => void,
+										color: "var(--meld-accent-color)",
+									},
+								]
 							: []),
 						{
 							id: "delete_or_trash",
