@@ -101,6 +101,38 @@ class TestSearchService(unittest.TestCase):
         sql, params, order = SearchService.build_search_sql("sort:created_at_desc")
         self.assertEqual(order, "i.created_at DESC")
 
+    def test_search_id_exact(self) -> None:
+        sql, params, order = SearchService.build_search_sql("id:1")
+        query = f"SELECT id FROM images i WHERE 1=1 {sql}"
+        self.cursor.execute(query, params)
+        results = self.cursor.fetchall()
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0][0], 1)
+
+    def test_search_id_not_exact(self) -> None:
+        sql, params, order = SearchService.build_search_sql("-id:1")
+        query = f"SELECT id FROM images i WHERE 1=1 {sql}"
+        self.cursor.execute(query, params)
+        results = self.cursor.fetchall()
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0][0], 2)
+
+    def test_search_filename_exact(self) -> None:
+        sql, params, order = SearchService.build_search_sql('filename:"img1.png"')
+        query = f"SELECT id FROM images i WHERE 1=1 {sql}"
+        self.cursor.execute(query, params)
+        results = self.cursor.fetchall()
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0][0], 1)
+
+    def test_search_filename_partial(self) -> None:
+        sql, params, order = SearchService.build_search_sql("filename:g1.p")
+        query = f"SELECT id FROM images i WHERE 1=1 {sql}"
+        self.cursor.execute(query, params)
+        results = self.cursor.fetchall()
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0][0], 1)
+
     def test_suggestions_do_not_include_none(self) -> None:
         suggestions = SearchService.get_suggestions(self.cursor, "", prefix_filter="tag")
         none_suggestion = next((s for s in suggestions if s["value"] == RESERVED_TAG_KEYWORD), None)
