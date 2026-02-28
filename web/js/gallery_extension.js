@@ -17968,7 +17968,7 @@ Im.displayName = "SimpleImageCard";
 const Ec = ({ image: e }) => {
   const { state: t } = _e();
   return (t.settings["gallery.view_mode"] || "grid_details") === "grid_only" ? /* @__PURE__ */ s.jsx(Im, { image: e }) : /* @__PURE__ */ s.jsx(Mm, { image: e });
-}, Ml = 6, _y = 20, ky = ({
+}, Ml = 6, _y = 10, ky = ({
   visibleImages: e,
   settings: t,
   loadMoreRef: n,
@@ -18030,7 +18030,6 @@ const Ec = ({ image: e }) => {
             className: `meld-gallery__list ${v ? "meld-gallery__list--grid-only meld-gallery__list--virtualized" : "meld-gallery__list--virtualized"}`,
             style: {
               height: `${h.getTotalSize()}px`,
-              width: "100%",
               position: "relative"
             },
             children: u.map((p) => {
