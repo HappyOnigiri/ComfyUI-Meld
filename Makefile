@@ -1,4 +1,8 @@
-.PHONY: ci test-all lint lint-py lint-ui lint-misc lint-scripts build-ui watch-ui local-check-scripts check-scripts check-ts-rules check-non-ascii repomix loc
+.PHONY: ci test-all lint lint-py lint-ui lint-misc lint-scripts build-ui watch-ui local-check-scripts check-scripts check-ts-rules check-non-ascii repomix loc setup-hooks
+
+setup-hooks:
+	git config core.hooksPath scripts/git-hooks
+
 
 # -----------------------------------------------------------------------------
 # Cross-platform development notes (Windows / macOS / Linux)
