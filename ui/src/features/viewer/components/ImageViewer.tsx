@@ -280,6 +280,7 @@ export function ImageViewer() {
 									targetLoaderNodeId,
 								);
 							}
+							dispatch({ type: "CLOSE_MODAL" });
 							dispatch({ type: "CLOSE_VIEWER" });
 						}
 					}}
@@ -349,6 +350,7 @@ export function ImageViewer() {
 									},
 								});
 							} else {
+								dispatch({ type: "CLOSE_MODAL" });
 								dispatch({ type: "CLOSE_VIEWER" });
 							}
 						}

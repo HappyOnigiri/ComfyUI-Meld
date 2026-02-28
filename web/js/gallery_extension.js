@@ -6352,7 +6352,7 @@ const Eh = te("ZoomOut", [
   ["line", { x1: "8", x2: "14", y1: "11", y2: "11", key: "durymu" }]
 ]);
 window.api = se;
-async function de(e) {
+async function ce(e) {
   if (!e.ok) {
     let n = `API error: ${e.status} ${e.statusText}`;
     try {
@@ -6369,7 +6369,7 @@ async function de(e) {
 }
 const Mh = async () => {
   const e = await se.fetchApi("/meld/home-dir");
-  return (await de(e)).home;
+  return (await ce(e)).home;
 }, et = ({
   onEscape: e,
   enabled: t = !0,
@@ -6401,10 +6401,10 @@ const Ih = (e) => {
   const a = await se.fetchApi(
     `/meld/list?offset=${e}&limit=${t}&query=${encodeURIComponent(n)}&view=${r}${s ? "&minimal=true" : ""}`
   );
-  return de(a);
+  return ce(a);
 }, zu = async (e) => {
   const t = await se.fetchApi(`/meld/image/${e}/details`);
-  return de(t);
+  return ce(t);
 }, Ph = async (e, t = !1) => {
   const n = await se.fetchApi("/meld/bulk-delete", {
     method: "POST",
@@ -6414,41 +6414,41 @@ const Ih = (e) => {
       permanent: t
     })
   });
-  await de(n);
+  await ce(n);
 }, Zo = async (e) => {
   const t = await se.fetchApi("/meld/restore", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ids: e })
   });
-  return de(t);
+  return ce(t);
 }, Fu = async (e) => {
   const t = await se.fetchApi("/meld/register", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(e)
   });
-  return de(t);
+  return ce(t);
 }, mc = async (e, t) => {
   const n = await se.fetchApi("/meld/link-parent", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ childId: e, parentId: t })
   });
-  await de(n);
+  await ce(n);
 }, Rh = async (e, t) => {
   const n = t !== void 0 ? `&threshold=${t}` : "", r = await se.fetchApi(
     `/meld/suggest-parents?id=${e}${n}`
   );
   try {
-    return await de(r);
+    return await ce(r);
   } catch {
     return [];
   }
 }, qa = async (e) => {
   const t = await se.fetchApi(`/meld/lineage?id=${e}`);
   try {
-    return await de(t);
+    return await ce(t);
   } catch {
     return [];
   }
@@ -6458,27 +6458,27 @@ const Ih = (e) => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ imageId: e, tags: t })
   });
-  await de(n);
+  await ce(n);
 }, Ah = async (e, t) => {
   const n = await se.fetchApi("/meld/image-notes", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ imageId: e, userNotes: t })
   });
-  return de(n);
+  return ce(n);
 }, Ya = async (e, t, n) => {
   const r = await se.fetchApi("/meld/bulk-image-tags", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ imageIds: e, addTags: t, removeTags: n })
   });
-  await de(r);
+  await ce(r);
 }, zh = async (e) => {
   const t = await se.fetchApi(`/meld/image/${e}/workflow`);
-  return de(t);
+  return ce(t);
 }, Fh = async (e) => {
   const t = await se.fetchApi(`/meld/image/${e}/snapshot_data`);
-  return de(t);
+  return ce(t);
 }, Wh = async (e, t) => {
   const n = await se.fetchApi("/meld/api/download/zip", {
     method: "POST",
@@ -6507,40 +6507,40 @@ const Ih = (e) => {
   i.href = o, i.download = s, document.body.appendChild(i), i.click(), window.URL.revokeObjectURL(o), document.body.removeChild(i);
 }, Uh = async (e, t) => {
   const n = `/meld/suggest?query=${encodeURIComponent(e)}${t ? `&type=${t}` : ""}`, r = await se.fetchApi(n);
-  return de(r);
+  return ce(r);
 }, Qh = async () => {
   const e = await se.fetchApi("/meld/search-suggestions");
-  return de(e);
+  return ce(e);
 }, Vh = async () => {
   const e = await se.fetchApi("/meld/search-keywords");
-  return de(e);
+  return ce(e);
 }, Bh = async () => {
   const e = await se.fetchApi("/meld/search-config");
-  return de(e);
+  return ce(e);
 }, Hh = async () => {
   const e = await se.fetchApi("/meld/favorites");
-  return de(e);
+  return ce(e);
 }, Kh = async (e, t) => {
   const n = await se.fetchApi("/meld/favorites", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name: e, query: t })
   });
-  await de(n);
+  await ce(n);
 }, fc = async (e) => {
   const t = await se.fetchApi("/meld/favorites/delete", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ id: e })
   });
-  await de(t);
+  await ce(t);
 }, Gh = async (e, t, n) => {
   const r = await se.fetchApi("/meld/favorites/update", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ id: e, name: t, query: n })
   });
-  await de(r);
+  await ce(r);
 }, qh = {
   dev_mode: !1,
   "gallery.show_parent_image": !0,
@@ -6619,7 +6619,7 @@ const Ih = (e) => {
   let e;
   try {
     const t = await se.fetchApi("/meld/settings");
-    e = await de(t);
+    e = await ce(t);
   } catch (t) {
     return console.error("Failed to fetch settings, using defaults", t), qh;
   }
@@ -6630,7 +6630,7 @@ const Ih = (e) => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ key: e, value: t })
   });
-  await de(n);
+  await ce(n);
 }, pc = (e) => {
   let t;
   const n = /* @__PURE__ */ new Set(), r = (u, h) => {
@@ -7547,26 +7547,26 @@ const $u = f.createContext(void 0), ig = ({
   )}&type=${t}&subfolder=${encodeURIComponent(e.subfolder)}`;
 }, Jo = async () => {
   const e = await se.fetchApi("/meld/tags");
-  return de(e);
+  return ce(e);
 }, cg = async (e) => {
   const t = await se.fetchApi("/meld/tags", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name: e })
   });
-  return de(t);
+  return ce(t);
 }, dg = async (e) => {
   const t = await se.fetchApi(`/meld/tags?id=${e}`, {
     method: "DELETE"
   });
-  await de(t);
+  await ce(t);
 }, ug = async (e, t) => {
   const n = await se.fetchApi("/meld/tags/rename", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ id: e, name: t })
   });
-  await de(n);
+  await ce(n);
 }, mg = async (e) => {
   const t = new FormData();
   t.append("image", e);
@@ -7583,7 +7583,7 @@ const $u = f.createContext(void 0), ig = ({
     { signal: r }
   );
   try {
-    return await de(s);
+    return await ce(s);
   } catch (a) {
     return console.error("Failed to fetch folders", a), { folders: [], images: [], image_count: 0 };
   }
@@ -7594,7 +7594,7 @@ const $u = f.createContext(void 0), ig = ({
     { signal: r }
   );
   try {
-    return await de(s);
+    return await ce(s);
   } catch (a) {
     return console.error("Failed to fetch folder metadata", a), {};
   }
@@ -7604,7 +7604,7 @@ const $u = f.createContext(void 0), ig = ({
     { signal: n }
   );
   try {
-    return (await de(r)).count;
+    return (await ce(r)).count;
   } catch {
     return 0;
   }
@@ -7614,12 +7614,12 @@ const $u = f.createContext(void 0), ig = ({
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(e)
   });
-  await de(t);
+  await ce(t);
 }, yg = async () => {
   const e = await se.fetchApi("/meld/scan/cancel", {
     method: "POST"
   });
-  await de(e);
+  await ce(e);
 }, Uu = () => {
   const { dispatch: e } = ke(), [t, n] = f.useState(() => {
     const E = localStorage.getItem("meld-import-config"), O = {
@@ -8262,12 +8262,12 @@ const $u = f.createContext(void 0), ig = ({
   );
 }, Qu = async () => {
   const e = await se.fetchApi("/meld/workflows");
-  return de(e);
+  return ce(e);
 }, Vu = async (e) => {
   const t = await se.fetchApi(
     `/meld/workflow/raw?name=${encodeURIComponent(e)}`
   );
-  return de(t);
+  return ce(t);
 }, ei = () => ({ executeWorkflow: f.useCallback(
   async (t, n, r, s) => {
     var _, g, k, S, m, d, p;
@@ -8526,9 +8526,9 @@ const us = ({
     const F = A.getBoundingClientRect(), M = U.naturalWidth, H = U.naturalHeight;
     if (!M || !H) return null;
     const V = M / H, q = F.width / F.height;
-    let ne, ie, ce = 0, fe = 0;
-    return V > q ? (ne = F.width, ie = F.width / V, fe = (F.height - ie) / 2) : (ie = F.height, ne = F.height * V, ce = (F.width - ne) / 2), {
-      left: ce,
+    let ne, ie, de = 0, fe = 0;
+    return V > q ? (ne = F.width, ie = F.width / V, fe = (F.height - ie) / 2) : (ie = F.height, ne = F.height * V, de = (F.width - ne) / 2), {
+      left: de,
       top: fe,
       width: ne,
       height: ie
@@ -8573,12 +8573,12 @@ const us = ({
       if (A.save(), A.globalAlpha = 0.3, A.fillStyle = M, A.strokeStyle = "white", A.lineWidth = 2, A.setLineDash([5, 5]), A.beginPath(), S === "rect")
         A.rect(V, q, ne, ie);
       else if (S === "ellipse") {
-        const ce = V + ne / 2, fe = q + ie / 2;
-        A.ellipse(ce, fe, ne / 2, ie / 2, 0, 0, 2 * Math.PI);
+        const de = V + ne / 2, fe = q + ie / 2;
+        A.ellipse(de, fe, ne / 2, ie / 2, 0, 0, 2 * Math.PI);
       } else if (S === "lasso" && j.length > 1) {
         A.moveTo(j[0].x, j[0].y);
-        for (let ce = 1; ce < j.length; ce++)
-          A.lineTo(j[ce].x, j[ce].y);
+        for (let de = 1; de < j.length; de++)
+          A.lineTo(j[de].x, j[de].y);
         A.closePath();
       }
       A.fill(), A.globalAlpha = 1, A.stroke(), A.restore();
@@ -8626,13 +8626,13 @@ const us = ({
       Z((H) => {
         const V = Math.min(Math.max(0.1, H * M), 20);
         return O((q) => {
-          const ne = U.getBoundingClientRect(), ie = F.clientX - ne.left, ce = F.clientY - ne.top, fe = {
+          const ne = U.getBoundingClientRect(), ie = F.clientX - ne.left, de = F.clientY - ne.top, fe = {
             x: (ie - q.x) / H,
-            y: (ce - q.y) / H
+            y: (de - q.y) / H
           };
           return {
             x: ie - fe.x * V,
-            y: ce - fe.y * V
+            y: de - fe.y * V
           };
         }), V;
       });
@@ -8661,7 +8661,7 @@ const us = ({
     return v.current && A.observe(v.current), U(), () => A.disconnect();
   }, [B]);
   const Fe = (U) => {
-    var ce;
+    var de;
     const A = U.button === 2, F = U.button === 1, M = z && U.button === 0;
     if (A || F || M) {
       U.preventDefault(), U.stopPropagation(), Q.current = {
@@ -8675,7 +8675,7 @@ const us = ({
     if (U.button !== 0 || g || P || Date.now() - Te.current < 100)
       return;
     U.preventDefault();
-    const H = I(), V = (ce = v.current) == null ? void 0 : ce.getBoundingClientRect();
+    const H = I(), V = (de = v.current) == null ? void 0 : de.getBoundingClientRect();
     if (!H || !V) return;
     k(!0);
     const q = {
@@ -8706,7 +8706,7 @@ const us = ({
         M.top,
         Math.min(V.y, M.top + M.height)
       );
-      x({ x: q, y: ne }), S === "lasso" && b((ce) => [...ce, { x: q, y: ne }]);
+      x({ x: q, y: ne }), S === "lasso" && b((de) => [...de, { x: q, y: ne }]);
     }, A = (F) => {
       var V;
       const M = I(), H = (V = v.current) == null ? void 0 : V.getBoundingClientRect();
@@ -8720,14 +8720,14 @@ const us = ({
         ), ie = Math.max(
           M.top,
           Math.min(q.y, M.top + M.height)
-        ), ce = Math.min(d.x, ne), fe = Math.min(d.y, ie), he = Math.abs(d.x - ne), it = Math.abs(d.y - ie), dr = S === "lasso";
+        ), de = Math.min(d.x, ne), fe = Math.min(d.y, ie), he = Math.abs(d.x - ne), it = Math.abs(d.y - ie), dr = S === "lasso";
         if (he > 5 || it > 5 || dr && j.length > 2) {
           const wm = w.current.naturalWidth, xm = w.current.naturalHeight, Nn = wm / M.width, En = xm / M.height, _m = _g(ae, (un) => {
             if (S === "rect") {
-              const Mn = (ce - M.left) * Nn, Ut = (fe - M.top) * En, sl = he * Nn, al = it * En;
+              const Mn = (de - M.left) * Nn, Ut = (fe - M.top) * En, sl = he * Nn, al = it * En;
               un.rect(Mn, Ut, sl, al);
             } else if (S === "ellipse") {
-              const Mn = (ce - M.left) * Nn, Ut = (fe - M.top) * En, sl = he * Nn, al = it * En, km = Mn + sl / 2, Sm = Ut + al / 2;
+              const Mn = (de - M.left) * Nn, Ut = (fe - M.top) * En, sl = he * Nn, al = it * En, km = Mn + sl / 2, Sm = Ut + al / 2;
               un.ellipse(
                 km,
                 Sm,
@@ -8807,11 +8807,11 @@ const us = ({
         (he) => F.toBlob(he, "image/png")
       );
       if (!V) return null;
-      const ne = `meld_mask_${Date.now()}.png`, ie = new File([V], ne, { type: "image/png" }), ce = new FormData();
-      ce.append("image", ie), ce.append("type", "temp"), ce.append("overwrite", "true");
+      const ne = `meld_mask_${Date.now()}.png`, ie = new File([V], ne, { type: "image/png" }), de = new FormData();
+      de.append("image", ie), de.append("type", "temp"), de.append("overwrite", "true");
       const fe = await se.fetchApi("/upload/image", {
         method: "POST",
-        body: ce
+        body: de
       });
       return fe.ok ? (await fe.json()).name : null;
     } catch (U) {
@@ -16283,7 +16283,7 @@ const Hg = ({
     async (A) => {
       if (!A || !le) return;
       const F = le.id, M = [...le.tags], H = A.split(/\s+/), V = [], q = [];
-      let ne = !1, ie = !1, ce = !1;
+      let ne = !1, ie = !1, de = !1;
       for (const fe of H)
         if (fe.startsWith("tag:")) {
           const he = fe.substring(4);
@@ -16294,7 +16294,7 @@ const Hg = ({
         } else if (fe.startsWith("tag-toggle:")) {
           const he = fe.substring(11);
           he && (M.includes(he) ? q.includes(he) || q.push(he) : V.includes(he) || V.push(he));
-        } else fe === "next" ? ne = !0 : fe === "prev" ? ie = !0 : fe === "delete" && (ce = !0);
+        } else fe === "next" ? ne = !0 : fe === "prev" ? ie = !0 : fe === "delete" && (de = !0);
       if (V.length > 0 || q.length > 0)
         try {
           await Ya(
@@ -16318,7 +16318,7 @@ const Hg = ({
         } catch (fe) {
           console.error("Failed to update tags via shortcut:", fe);
         }
-      ce ? Te(!0) : ne ? Re() : ie && Fe();
+      de ? Te(!0) : ne ? Re() : ie && Fe();
     },
     [le, t, Re, Fe, Te]
   );
@@ -16329,7 +16329,8 @@ const Hg = ({
         M.key === "Enter" && (M.ctrlKey || M.metaKey) && M.preventDefault();
         return;
       }
-      if (s === null) return;
+      if (s === null || e.activeModal.type !== "none")
+        return;
       const q = M.key === "Delete" || M.key === "Backspace", ne = M.key === "ArrowRight" || M.key === "ArrowLeft" || M.key === "ArrowDown" || M.key === "ArrowUp", ie = [
         "f",
         "F",
@@ -16340,28 +16341,18 @@ const Hg = ({
         "r",
         "R",
         "Enter"
-      ].includes(M.key), ce = M.key === "Escape", fe = (M.ctrlKey || M.metaKey) && (M.key === "z" || M.key === "Z" || M.code === "KeyZ"), he = /^[0-9]$/.test(M.key) && !M.ctrlKey && !M.metaKey && !M.altKey && M.code !== "KeyZ";
-      if (q || ne || ie || ce || fe || he)
-        if (V)
-          if (ce) {
-            if (e.activeModal.type !== "none") {
-              M.preventDefault(), M.stopPropagation();
-              return;
-            }
-            M.preventDefault(), M.stopPropagation(), M.stopImmediatePropagation();
-          } else
-            return;
-        else {
-          if (ce && e.activeModal.type !== "none") {
-            M.preventDefault(), M.stopPropagation();
-            return;
-          }
+      ].includes(M.key), de = M.key === "Escape", fe = (M.ctrlKey || M.metaKey) && (M.key === "z" || M.key === "Z" || M.code === "KeyZ"), he = /^[0-9]$/.test(M.key) && !M.ctrlKey && !M.metaKey && !M.altKey && M.code !== "KeyZ";
+      if (q || ne || ie || de || fe || he)
+        if (!V)
           M.preventDefault(), M.stopPropagation(), M.stopImmediatePropagation();
-        }
+        else if (de)
+          M.preventDefault(), M.stopPropagation(), M.stopImmediatePropagation();
+        else
+          return;
       else
         return;
       if (M.key === "Escape")
-        e.activeModal.type !== "none" && t({ type: "CLOSE_MODAL" }), document.fullscreenElement ? document.exitFullscreen() : t({ type: "CLOSE_VIEWER" });
+        document.fullscreenElement ? document.exitFullscreen() : t({ type: "CLOSE_VIEWER" });
       else if (M.key === "ArrowRight" || M.key === "ArrowDown")
         Re();
       else if (M.key === "ArrowLeft" || M.key === "ArrowUp")
@@ -16470,10 +16461,10 @@ const Hg = ({
       );
       ne.length !== 0 && Promise.allSettled(ne.map((ie) => r(ie))).then(
         (ie) => {
-          for (const ce of ie)
-            ce.status === "rejected" && ee.warn(
+          for (const de of ie)
+            de.status === "rejected" && ee.warn(
               "Prefetching adjacent image details failed",
-              ce.reason
+              de.reason
             );
         }
       );
@@ -16980,7 +16971,7 @@ function Yg() {
                       re,
                       B
                     );
-                  t({ type: "CLOSE_VIEWER" });
+                  t({ type: "CLOSE_MODAL" }), t({ type: "CLOSE_VIEWER" });
                 }
               }
             }
@@ -17044,7 +17035,7 @@ function Yg() {
                       ...e.activeModal,
                       currentIndex: ue
                     }
-                  }) : t({ type: "CLOSE_VIEWER" });
+                  }) : (t({ type: "CLOSE_MODAL" }), t({ type: "CLOSE_VIEWER" }));
                 }
               },
               onClose: () => t({ type: "CLOSE_MODAL" })
