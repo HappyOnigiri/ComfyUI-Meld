@@ -243,8 +243,12 @@ Important backend settings.
     *   **Inherit Tags from Source**: When ON, tags from the parent image are automatically copied to child images.
 *   **Lineage**:
     *   **Max Lineage Depth**: How many generations to show in the tree. Reduce if performance is slow.
+*   **Thumbnail Cache**: Thumbnails are cached on disk for faster display.
+    *   **Clear Thumbnail Cache**: Delete all cached thumbnails. They will be regenerated on next view.
 *   **Trash**: When viewing Trash, you can **Restore** images or **Delete Permanently**.
     *   **Trash Retention Days**: How many days after moving to Trash an image can be permanently deleted. In the current implementation, `0` does not mean "never auto-delete"; it may become eligible for deletion during cleanup runs (a true "disable auto delete" option is not implemented yet).
+
+**Thumbnail API**: Gallery, viewer, and lineage use the `/api/meld/view-thumb` endpoint for thumbnails. Query parameters: `filename`, `subfolder`, `type` (output/input/temp/custom/trash), and `size` (max edge in pixels, default 200, max 400). Cached thumbnails are stored under `data/thumbnails/` (WebP format) and served with HTTP Cache-Control for faster loading.
 
 ### Gallery / View Settings
 

@@ -215,8 +215,12 @@ ComfyUI 画面左側のサイドバーに表示されるパネルです。
     *   **Inherit Tags from Source**: ONにすると、親画像のタグを生成された子画像に自動的にコピーします。
 *   **Lineage**:
     *   **Max Lineage Depth**: 系統図を何世代先まで表示するかを設定します。動作が重い場合は小さくしてください。
+*   **Thumbnail Cache（サムネイルキャッシュ）**: サムネイルはディスク上でキャッシュされ、表示が高速化されます。
+    *   **Clear Thumbnail Cache**: キャッシュされたサムネイルをすべて削除します。次回表示時に再生成されます。
 *   **Trash**: ゴミ箱（Trash）表示時には、選択した画像を **Restore**（元に戻す）したり **Delete Permanently**（完全に削除）したりできます。
     *   **Trash Retention Days**: ゴミ箱に入れた画像を何日後に完全に削除するかを設定します。現状の実装では `0` は「自動削除しない」ではなく、クリーンアップ実行時に削除対象になり得ます（自動削除を無効化する設定は未実装）。
+
+**Thumbnail API（サムネイルAPI）**: ギャラリー、ビューアー、系統図はサムネイル表示に `/api/meld/view-thumb` エンドポイントを使用します。クエリパラメータ: `filename`, `subfolder`, `type`（output/input/temp/custom/trash）, `size`（最大辺のピクセル数、デフォルト200、上限400）。キャッシュされたサムネイルは `data/thumbnails/` 以下（WebP形式）に保存され、HTTP Cache-Control により高速に配信されます。
 
 ### ギャラリー・表示設定
 *   **Gallery**: サムネイルのサイズや、一度に読み込む画像の数を調整し、パフォーマンスを最適化できます。
