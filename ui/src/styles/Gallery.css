@@ -65,13 +65,11 @@
 	min-height: 0;
 	overflow-y: auto;
 	scrollbar-gutter: stable;
-	margin-left: 10px;
-	margin-right: 10px;
 }
 
 .meld-gallery__list-wrapper {
-	margin-left: 10px;
-	margin-right: 10px;
+	margin-left: 0;
+	margin-right: 0;
 }
 
 /* Virtualized list row (grid_details mode) */

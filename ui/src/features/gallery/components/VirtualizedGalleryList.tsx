@@ -10,7 +10,7 @@ const LIST_MARGIN = 20;
 interface VirtualizedGalleryListProps {
 	visibleImages: MeldImage[];
 	settings: Settings;
-	loadMoreRef: React.RefObject<HTMLDivElement | null>;
+	loadMoreRef: React.RefObject<HTMLDivElement>;
 	viewerImageId: number | null;
 	isLoading: boolean;
 	localLimit: number;
@@ -49,10 +49,15 @@ export const VirtualizedGalleryList: React.FC<VirtualizedGalleryListProps> = ({
 		return () => observer.disconnect();
 	}, []);
 
+	// Card full width is thumbSize + 10 (padding), plus GRID_GAP between columns
+	const cardFullWidth = thumbSize + 10;
 	const columnCount = isGridOnly
 		? Math.max(
 				1,
-				Math.floor((containerWidth - LIST_MARGIN) / (thumbSize + GRID_GAP)),
+				Math.floor(
+					(containerWidth - LIST_MARGIN * 2 + GRID_GAP) /
+						(cardFullWidth + GRID_GAP),
+				),
 			)
 		: 1;
 	const rowCount = isGridOnly
@@ -185,7 +190,7 @@ export const VirtualizedGalleryList: React.FC<VirtualizedGalleryListProps> = ({
 				})}
 			</div>
 			<div
-				ref={loadMoreRef as React.RefObject<HTMLDivElement>}
+				ref={loadMoreRef}
 				className="meld-gallery__load-more"
 				style={{
 					height: "20px",
