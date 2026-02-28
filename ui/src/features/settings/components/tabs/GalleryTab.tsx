@@ -116,7 +116,7 @@ export const GalleryTab: React.FC<GalleryTabProps> = ({
 
 				<SettingItem
 					label="Show Source Images"
-					description="Display images that have been used as a basis for other images (sources)."
+					description="Display images that have been used as a basis for other images (sources). (Note: This setting is ignored during searches)"
 				>
 					<label className="meld-switch">
 						<input

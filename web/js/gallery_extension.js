@@ -9856,7 +9856,7 @@ const sm = [
       Z,
       {
         label: "Show Source Images",
-        description: "Display images that have been used as a basis for other images (sources).",
+        description: "Display images that have been used as a basis for other images (sources). (Note: This setting is ignored during searches)",
         children: /* @__PURE__ */ l.jsxs("label", { className: "meld-switch", children: [
           /* @__PURE__ */ l.jsx(
             "input",
