@@ -160,6 +160,8 @@ You can narrow results using the following syntax:
 | :--- | :--- | :--- |
 | `tag:` | Search by tag | `tag:landscape` `tag:best_quality` |
 | `model:` | Search by model name | `model:sdxl` `model:v1-5` |
+| `id:` | Search by exact database ID | `id:123` |
+| `filename:` | Search by filename (exact or partial match) | `filename:image.png` `filename:img` |
 | `date:` | Search by date | `date:2024-01-01` (day), `date:2024-01` (month) |
 | `after:` | Search after a date | `after:2024-01-01` |
 | `before:` | Search before a date | `before:2024-01-01` |
