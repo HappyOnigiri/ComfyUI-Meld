@@ -40,11 +40,6 @@ export const useGalleryLogic = () => {
 	}, [lightTableBuckets]);
 
 	const displayedImages = useMemo(() => {
-		const isShowingDerivativesSearch =
-			state.searchQuery.toLowerCase().includes("has_derivatives:yes") ||
-			state.searchQuery.toLowerCase().includes("has_derivatives:true") ||
-			state.searchQuery.toLowerCase().includes("has_derivatives:1");
-
 		return state.images.filter((img) => {
 			if (hiddenImageIds.has(img.id)) {
 				return false;
@@ -58,16 +53,16 @@ export const useGalleryLogic = () => {
 			return (
 				img.exists !== false &&
 				(state.settings["gallery.show_parent_images"] ||
-					!img.has_children ||
-					isShowingDerivativesSearch)
+					isSearchActive ||
+					!img.has_children)
 			);
 		});
 	}, [
 		state.images,
 		state.settings,
 		state.viewScope,
-		state.searchQuery,
 		hiddenImageIds,
+		isSearchActive,
 	]);
 
 	const visibleImages = useMemo(

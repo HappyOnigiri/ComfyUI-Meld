@@ -140,6 +140,8 @@ ComfyUI 画面左側のサイドバーに表示されるパネルです。
 | :--- | :--- | :--- |
 | `tag:` | タグで検索 | `tag:風景` `tag:best_quality` |
 | `model:` | モデル名で検索 | `model:sdxl` `model:v1-5` |
+| `id:` | データベースのIDで完全一致検索 | `id:123` |
+| `filename:` | ファイル名で検索（完全一致、部分一致） | `filename:image.png` `filename:img` |
 | `date:` | 日付で検索 | `date:2024-01-01` (特定日), `date:2024-01` (月指定) |
 | `after:` | 指定日以降を検索 | `after:2024-01-01` |
 | `before:` | 指定日以前を検索 | `before:2024-01-01` |
