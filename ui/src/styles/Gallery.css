@@ -56,7 +56,6 @@
 	flex-direction: column;
 	overflow: hidden;
 	min-height: 0;
-	padding-bottom: 200px;
 }
 
 /* Scroll container for virtualized list - only this area scrolls when list is shown */
@@ -64,7 +63,9 @@
 	flex: 1;
 	min-height: 0;
 	overflow-y: auto;
+	overflow-x: hidden;
 	scrollbar-gutter: stable;
+	padding-bottom: 200px;
 }
 
 .meld-gallery__list-wrapper {

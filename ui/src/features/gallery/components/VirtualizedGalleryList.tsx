@@ -5,7 +5,7 @@ import { ImageCard } from "../../../components/shared/ImageCard";
 import type { MeldImage, Settings } from "../../../types";
 
 const GRID_GAP = 6;
-const LIST_MARGIN = 20;
+const LIST_MARGIN = 10;
 
 interface VirtualizedGalleryListProps {
 	visibleImages: MeldImage[];
@@ -109,7 +109,6 @@ export const VirtualizedGalleryList: React.FC<VirtualizedGalleryListProps> = ({
 				className={`meld-gallery__list ${isGridOnly ? "meld-gallery__list--grid-only meld-gallery__list--virtualized" : "meld-gallery__list--virtualized"}`}
 				style={{
 					height: `${virtualizer.getTotalSize()}px`,
-					width: "100%",
 					position: "relative",
 				}}
 			>
