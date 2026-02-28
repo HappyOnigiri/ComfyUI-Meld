@@ -7,6 +7,8 @@ import {
 	Square,
 	Undo2,
 	X,
+	ZoomIn,
+	ZoomOut,
 } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -79,20 +81,30 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 	const [_selection, setSelection] = useState<MaskSelection | null>(null);
 	const [isUploading, setIsUploading] = useState(false);
 
-	const getImageBounds = useCallback(() => {
+	// Zoom and Pan states
+	const [scale, setScale] = useState(1);
+	const [pan, setPan] = useState({ x: 0, y: 0 });
+	const [isPanning, setIsPanning] = useState(false);
+	const [isPanDragging, setIsPanDragging] = useState(false);
+	const panStartRef = useRef<{
+		panX: number;
+		panY: number;
+		clientX: number;
+		clientY: number;
+	} | null>(null);
+
+	const getBaseImageBounds = useCallback(() => {
 		const img = imageRef.current;
 		const container = overlayRef.current;
 		if (!img || !container) return null;
 
 		const rect = container.getBoundingClientRect();
-		const imgRect = img.getBoundingClientRect();
-
 		const naturalWidth = img.naturalWidth;
 		const naturalHeight = img.naturalHeight;
 		if (!naturalWidth || !naturalHeight) return null;
 
 		const imageRatio = naturalWidth / naturalHeight;
-		const containerRatio = imgRect.width / imgRect.height;
+		const containerRatio = rect.width / rect.height;
 
 		let displayedWidth: number;
 		let displayedHeight: number;
@@ -100,21 +112,61 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 		let offsetY = 0;
 
 		if (imageRatio > containerRatio) {
-			displayedWidth = imgRect.width;
-			displayedHeight = imgRect.width / imageRatio;
-			offsetY = (imgRect.height - displayedHeight) / 2;
+			displayedWidth = rect.width;
+			displayedHeight = rect.width / imageRatio;
+			offsetY = (rect.height - displayedHeight) / 2;
 		} else {
-			displayedHeight = imgRect.height;
-			displayedWidth = imgRect.height * imageRatio;
-			offsetX = (imgRect.width - displayedWidth) / 2;
+			displayedHeight = rect.height;
+			displayedWidth = rect.height * imageRatio;
+			offsetX = (rect.width - displayedWidth) / 2;
 		}
 
 		return {
-			left: imgRect.left - rect.left + offsetX,
-			top: imgRect.top - rect.top + offsetY,
+			left: offsetX,
+			top: offsetY,
 			width: displayedWidth,
 			height: displayedHeight,
 		};
+	}, []);
+
+	const handleZoomIn = useCallback(() => {
+		setScale((prev) => {
+			const nextScale = Math.min(prev * 1.2, 20);
+			const overlay = overlayRef.current;
+			if (overlay) {
+				setPan((prevPan) => {
+					const rect = overlay.getBoundingClientRect();
+					const cx = rect.width / 2;
+					const cy = rect.height / 2;
+					const pos = {
+						x: (cx - prevPan.x) / prev,
+						y: (cy - prevPan.y) / prev,
+					};
+					return { x: cx - pos.x * nextScale, y: cy - pos.y * nextScale };
+				});
+			}
+			return nextScale;
+		});
+	}, []);
+
+	const handleZoomOut = useCallback(() => {
+		setScale((prev) => {
+			const nextScale = Math.max(0.1, prev / 1.2);
+			const overlay = overlayRef.current;
+			if (overlay) {
+				setPan((prevPan) => {
+					const rect = overlay.getBoundingClientRect();
+					const cx = rect.width / 2;
+					const cy = rect.height / 2;
+					const pos = {
+						x: (cx - prevPan.x) / prev,
+						y: (cy - prevPan.y) / prev,
+					};
+					return { x: cx - pos.x * nextScale, y: cy - pos.y * nextScale };
+				});
+			}
+			return nextScale;
+		});
 	}, []);
 
 	const draw = useCallback(() => {
@@ -133,7 +185,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 			"var(--comfy-input-bg)";
 
 		// 1. Draw existing mask from offscreen canvas
-		const bounds = getImageBounds();
+		const bounds = getBaseImageBounds();
 		if (maskOffscreenCanvasRef.current && bounds) {
 			ctx.save();
 			ctx.globalAlpha = 0.5; // Semi-transparent for confirmed mask
@@ -181,7 +233,14 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 			ctx.stroke();
 			ctx.restore();
 		}
-	}, [isDragging, startPos, currentPos, activeTool, lassoPath, getImageBounds]);
+	}, [
+		isDragging,
+		startPos,
+		currentPos,
+		activeTool,
+		lassoPath,
+		getBaseImageBounds,
+	]);
 
 	// Mask state with history for Undo
 	const [maskHistory, setMaskHistory] = useState<MaskBitmap[]>([]);
@@ -248,6 +307,60 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 	}, [currentMask, draw]);
 
 	useEffect(() => {
+		const overlay = overlayRef.current;
+		if (!overlay) return;
+
+		const handleWheel = (e: WheelEvent) => {
+			e.preventDefault();
+			const zoomFactor = e.deltaY > 0 ? 1 / 1.1 : 1.1;
+			setScale((prevScale) => {
+				const nextScale = Math.min(Math.max(0.1, prevScale * zoomFactor), 20);
+				setPan((prevPan) => {
+					const rect = overlay.getBoundingClientRect();
+					const mouseX = e.clientX - rect.left;
+					const mouseY = e.clientY - rect.top;
+					const pos = {
+						x: (mouseX - prevPan.x) / prevScale,
+						y: (mouseY - prevPan.y) / prevScale,
+					};
+					return {
+						x: mouseX - pos.x * nextScale,
+						y: mouseY - pos.y * nextScale,
+					};
+				});
+				return nextScale;
+			});
+		};
+
+		overlay.addEventListener("wheel", handleWheel, { passive: false });
+		return () => overlay.removeEventListener("wheel", handleWheel);
+	}, []);
+
+	useEffect(() => {
+		if (!isPanDragging) return;
+		const onMouseMove = (e: MouseEvent) => {
+			if (panStartRef.current) {
+				const dx = e.clientX - panStartRef.current.clientX;
+				const dy = e.clientY - panStartRef.current.clientY;
+				setPan({
+					x: panStartRef.current.panX + dx,
+					y: panStartRef.current.panY + dy,
+				});
+			}
+		};
+		const onMouseUp = () => {
+			setIsPanDragging(false);
+			panStartRef.current = null;
+		};
+		window.addEventListener("mousemove", onMouseMove);
+		window.addEventListener("mouseup", onMouseUp);
+		return () => {
+			window.removeEventListener("mousemove", onMouseMove);
+			window.removeEventListener("mouseup", onMouseUp);
+		};
+	}, [isPanDragging]);
+
+	useEffect(() => {
 		const updateSize = () => {
 			if (overlayRef.current && canvasRef.current) {
 				canvasRef.current.width = overlayRef.current.clientWidth;
@@ -266,6 +379,23 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 	}, [draw]);
 
 	const handleMouseDown = (e: React.MouseEvent) => {
+		const isRightClick = e.button === 2;
+		const isMiddleClick = e.button === 1;
+		const isSpacePanning = isPanning && e.button === 0;
+
+		if (isRightClick || isMiddleClick || isSpacePanning) {
+			e.preventDefault();
+			e.stopPropagation();
+			panStartRef.current = {
+				panX: pan.x,
+				panY: pan.y,
+				clientX: e.clientX,
+				clientY: e.clientY,
+			};
+			setIsPanDragging(true);
+			return;
+		}
+
 		if (
 			e.button !== 0 ||
 			isDragging ||
@@ -274,19 +404,25 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 		)
 			return;
 		e.preventDefault();
-		const bounds = getImageBounds();
+		const bounds = getBaseImageBounds();
 		const rect = overlayRef.current?.getBoundingClientRect();
 		if (!bounds || !rect) return;
 
 		setIsDragging(true);
+
+		const basePos = {
+			x: (e.clientX - rect.left - pan.x) / scale,
+			y: (e.clientY - rect.top - pan.y) / scale,
+		};
+
 		// Clamp coordinates to image bounds
 		const x = Math.max(
 			bounds.left,
-			Math.min(e.clientX - rect.left, bounds.left + bounds.width),
+			Math.min(basePos.x, bounds.left + bounds.width),
 		);
 		const y = Math.max(
 			bounds.top,
-			Math.min(e.clientY - rect.top, bounds.top + bounds.height),
+			Math.min(basePos.y, bounds.top + bounds.height),
 		);
 		setStartPos({ x, y });
 		setCurrentPos({ x, y });
@@ -302,19 +438,23 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 		if (!isDragging) return;
 
 		const handleWindowMouseMove = (e: MouseEvent) => {
-			const bounds = getImageBounds();
+			const bounds = getBaseImageBounds();
 			const rect = overlayRef.current?.getBoundingClientRect();
 			if (!bounds || !rect) return;
 
 			// Implementation Requirements: Clamp coordinates to the image bounds
 			// to ensure selection stays within the actual image area.
+			const basePos = {
+				x: (e.clientX - rect.left - pan.x) / scale,
+				y: (e.clientY - rect.top - pan.y) / scale,
+			};
 			const x = Math.max(
 				bounds.left,
-				Math.min(e.clientX - rect.left, bounds.left + bounds.width),
+				Math.min(basePos.x, bounds.left + bounds.width),
 			);
 			const y = Math.max(
 				bounds.top,
-				Math.min(e.clientY - rect.top, bounds.top + bounds.height),
+				Math.min(basePos.y, bounds.top + bounds.height),
 			);
 			setCurrentPos({ x, y });
 			if (activeTool === "lasso") {
@@ -323,16 +463,20 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 		};
 
 		const handleWindowMouseUp = (e: MouseEvent) => {
-			const bounds = getImageBounds();
+			const bounds = getBaseImageBounds();
 			const rect = overlayRef.current?.getBoundingClientRect();
 			if (bounds && rect && currentMask && imageRef.current) {
+				const basePos = {
+					x: (e.clientX - rect.left - pan.x) / scale,
+					y: (e.clientY - rect.top - pan.y) / scale,
+				};
 				const x = Math.max(
 					bounds.left,
-					Math.min(e.clientX - rect.left, bounds.left + bounds.width),
+					Math.min(basePos.x, bounds.left + bounds.width),
 				);
 				const y = Math.max(
 					bounds.top,
-					Math.min(e.clientY - rect.top, bounds.top + bounds.height),
+					Math.min(basePos.y, bounds.top + bounds.height),
 				);
 
 				const finalX = Math.min(startPos.x, x);
@@ -412,10 +556,13 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 		isDragging,
 		startPos.x,
 		startPos.y,
-		getImageBounds,
+		getBaseImageBounds,
 		currentMask,
 		activeTool,
 		lassoPath,
+		pan.x,
+		pan.y,
+		scale,
 	]);
 
 	const handleUndo = useCallback(() => {
@@ -427,6 +574,9 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 	// Keyboard shortcuts
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.code === "Space" && !e.repeat) {
+				setIsPanning(true);
+			}
 			// Cmd+Z (Mac) or Ctrl+Z (Windows/Linux)
 			if (
 				(e.metaKey || e.ctrlKey) &&
@@ -448,9 +598,18 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 			}
 		};
 
+		const handleKeyUp = (e: KeyboardEvent) => {
+			if (e.code === "Space") {
+				setIsPanning(false);
+			}
+		};
+
 		window.addEventListener("keydown", handleKeyDown, { capture: true });
-		return () =>
+		window.addEventListener("keyup", handleKeyUp, { capture: true });
+		return () => {
 			window.removeEventListener("keydown", handleKeyDown, { capture: true });
+			window.removeEventListener("keyup", handleKeyUp, { capture: true });
+		};
 	}, [handleUndo, onClose]);
 
 	const handleClear = () => {
@@ -610,25 +769,90 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 							<Lasso size={18} />
 							<span>Lasso</span>
 						</button>
+
+						<div
+							style={{
+								width: 1,
+								backgroundColor: "var(--meld-border-color)",
+								margin: "0 4px",
+							}}
+						/>
+						<button
+							className="meld-mask-tool-btn"
+							onClick={handleZoomOut}
+							type="button"
+							title="Zoom Out"
+						>
+							<ZoomOut size={18} />
+						</button>
+						<button
+							className="meld-mask-tool-btn"
+							onClick={() => {
+								setScale(1);
+								setPan({ x: 0, y: 0 });
+							}}
+							type="button"
+							title="Reset Zoom"
+							style={{
+								minWidth: "48px",
+								justifyContent: "center",
+								fontSize: "11px",
+							}}
+						>
+							{Math.round(scale * 100)}%
+						</button>
+						<button
+							className="meld-mask-tool-btn"
+							onClick={handleZoomIn}
+							type="button"
+							title="Zoom In"
+						>
+							<ZoomIn size={18} />
+						</button>
 					</div>
 					<div
 						ref={overlayRef}
 						className="meld-mask-editor-canvas-container"
 						onMouseDown={handleMouseDown}
+						onContextMenu={(e) => e.preventDefault()}
 						role="presentation"
+						style={{
+							cursor: isPanDragging
+								? "grabbing"
+								: isPanning
+									? "grab"
+									: "crosshair",
+						}}
 					>
-						<img
-							ref={imageRef}
-							src={getImageViewUrl(image)}
-							alt="To be masked"
-							className="meld-mask-editor-image"
-							onDragStart={(e) => e.preventDefault()}
-						/>
-						<canvas
-							ref={canvasRef}
-							className="meld-mask-editor-canvas"
-							onDragStart={(e) => e.preventDefault()}
-						/>
+						<div
+							className="meld-mask-editor-transform-layer"
+							style={{
+								transform: `translate(${pan.x}px, ${pan.y}px) scale(${scale})`,
+								transformOrigin: "0 0",
+								position: "absolute",
+								top: 0,
+								left: 0,
+								width: "100%",
+								height: "100%",
+								display: "flex",
+								alignItems: "center",
+								justifyContent: "center",
+								pointerEvents: "none",
+							}}
+						>
+							<img
+								ref={imageRef}
+								src={getImageViewUrl(image)}
+								alt="To be masked"
+								className="meld-mask-editor-image"
+								onDragStart={(e) => e.preventDefault()}
+							/>
+							<canvas
+								ref={canvasRef}
+								className="meld-mask-editor-canvas"
+								onDragStart={(e) => e.preventDefault()}
+							/>
+						</div>
 					</div>
 					<div className="meld-mask-editor-footer">
 						<div className="meld-mask-editor-hint">
