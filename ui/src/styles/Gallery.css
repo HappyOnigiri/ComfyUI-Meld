@@ -23,9 +23,10 @@
 	background: var(--meld-bg-color);
 	color: var(--meld-text-color);
 	padding: 0;
-	padding-bottom: 200px;
-	scrollbar-gutter: stable;
-	overflow-y: auto;
+	/* Use Flexbox layout to fix the header and enable content scrolling */
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
 	height: 100%;
 	box-sizing: border-box;
 }
@@ -37,8 +38,8 @@
 }
 
 .meld-gallery__header {
-	position: sticky;
-	top: 0;
+	/* Header is a fixed child of Flexbox and always visible */
+	flex-shrink: 0;
 	background: var(--meld-bg-color);
 	z-index: 100;
 	padding: 10px;
@@ -46,6 +47,14 @@
 	flex-direction: column;
 	gap: 10px;
 	border-bottom: 1px solid var(--meld-border-color);
+}
+
+/* Content area below the header: only this area scrolls */
+.meld-gallery__content {
+	flex: 1;
+	overflow-y: auto;
+	scrollbar-gutter: stable;
+	padding-bottom: 200px;
 }
 
 .meld-gallery__actions {

@@ -170,6 +170,24 @@ app.registerExtension({
 						galleryContainer,
 					});
 
+					// Configure height constraints for the ComfyUI sidebar parent chain.
+					// height: 100% is required for all elements in the chain:
+					// sidebar-content-container -> intermediate div -> el
+					el.style.height = "100%";
+					el.style.overflow = "hidden";
+					let parent = el.parentElement;
+					while (
+						parent &&
+						!parent.classList.contains("sidebar-content-container")
+					) {
+						parent.style.height = "100%";
+						parent.style.overflow = "hidden";
+						parent = parent.parentElement;
+					}
+					if (parent) {
+						parent.style.overflow = "hidden";
+					}
+
 					if (!galleryContainer) {
 						logger.log("galleryContainer not found, creating new one");
 						galleryContainer = document.createElement("div");
@@ -178,6 +196,8 @@ app.registerExtension({
 						galleryContainer.style.width = "100%";
 						galleryContainer.style.display = "flex";
 						galleryContainer.style.flexDirection = "column";
+						// Prevent the ComfyUI sidebar from stretching to the content height
+						galleryContainer.style.overflow = "hidden";
 					}
 
 					if (!el.contains(galleryContainer)) {
