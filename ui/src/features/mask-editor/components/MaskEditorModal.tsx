@@ -64,7 +64,15 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 	const maskOffscreenCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
 	const [isDragging, setIsDragging] = useState(false);
-	const [activeTool, setActiveTool] = useState<MaskTool>("rect");
+	const [activeTool, setActiveTool] = useState<MaskTool>(() => {
+		const saved = localStorage.getItem("meld-mask-tool");
+		return (saved as MaskTool) || "rect";
+	});
+
+	useEffect(() => {
+		localStorage.setItem("meld-mask-tool", activeTool);
+	}, [activeTool]);
+
 	const [startPos, setStartPos] = useState({ x: 0, y: 0 });
 	const [currentPos, setCurrentPos] = useState({ x: 0, y: 0 });
 	const [lassoPath, setLassoPath] = useState<Point[]>([]);
@@ -420,8 +428,14 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
 			// Cmd+Z (Mac) or Ctrl+Z (Windows/Linux)
-			if ((e.metaKey || e.ctrlKey) && e.key === "z") {
+			if (
+				(e.metaKey || e.ctrlKey) &&
+				e.key.toLowerCase() === "z" &&
+				!e.shiftKey
+			) {
 				e.preventDefault();
+				e.stopPropagation();
+				e.stopImmediatePropagation();
 				handleUndo();
 			} else if (e.key === "Escape") {
 				e.preventDefault();
