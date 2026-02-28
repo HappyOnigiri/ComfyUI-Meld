@@ -1,3 +1,15 @@
+export const getThumbnailViewUrl = (
+	img: { filename: string; subfolder: string; type?: string | null },
+	maxSize: number = 200,
+): string => {
+	if (!img.filename) return "";
+	const enc = encodeURIComponent;
+	const type = img.type || "output";
+	const subfolder = img.subfolder ?? "";
+	const base = `filename=${enc(img.filename)}&type=${type}&subfolder=${enc(subfolder)}&size=${maxSize}`;
+	return `/api/meld/view-thumb?${base}`;
+};
+
 export const getImageViewUrl = (img: {
 	filename: string;
 	subfolder: string;

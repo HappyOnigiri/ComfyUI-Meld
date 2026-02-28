@@ -25,6 +25,7 @@ export const SettingsModal: React.FC = () => {
 		handleNumberBlur,
 		handleResetShortcuts,
 		handleViewTrash,
+		handleClearThumbnailCache,
 		validateShortcut,
 		// Input states
 		initialLoadCountInput,
@@ -78,6 +79,7 @@ export const SettingsModal: React.FC = () => {
 						handleToggle={handleToggle}
 						setLocalSettings={setLocalSettings}
 						handleViewTrash={handleViewTrash}
+						handleClearThumbnailCache={handleClearThumbnailCache}
 						lineageMaxDepthInput={lineageMaxDepthInput}
 						trashRetentionDaysInput={trashRetentionDaysInput}
 						autoLinkPhashThresholdInput={autoLinkPhashThresholdInput}

@@ -2,7 +2,7 @@ import { ArrowDown, ArrowUp, RefreshCw } from "lucide-react";
 import type React from "react";
 import { memo } from "react";
 import type { GalleryAction, MeldImage } from "../../../types";
-import { getImageViewUrl } from "../../../utils/url";
+import { getThumbnailViewUrl } from "../../../utils/url";
 
 // Memoized Thumbnail item to prevent unnecessary re-renders when navigating images
 const ThumbnailItem = memo(
@@ -25,7 +25,7 @@ const ThumbnailItem = memo(
 			typeof thumb.parent_id === "number" &&
 			thumb.parent_id === currentImage.id;
 
-		const thumbSrc = getImageViewUrl(thumb);
+		const thumbSrc = getThumbnailViewUrl(thumb);
 
 		return (
 			<div className="meld-viewer-thumbnail-wrapper">

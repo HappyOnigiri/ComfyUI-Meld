@@ -2,7 +2,7 @@ import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { useGallery } from "../../../store/GalleryContext";
 import type { MeldImage } from "../../../types";
-import { getImageViewUrl } from "../../../utils/url";
+import { getThumbnailViewUrl } from "../../../utils/url";
 import { useImageActions } from "../../images/hooks/useImageActions";
 import { useImageLineage } from "../../images/hooks/useImageLineage";
 
@@ -92,7 +92,11 @@ export const useImageCardLogic = (image: MeldImage) => {
 				}${image.filename}`
 			: image.filename;
 
-	const imgSrc = getImageViewUrl(image);
+	const thumbSize = state.settings["sidebar.thumbnail_size"] || 100;
+	const imgSrc = getThumbnailViewUrl(
+		image,
+		Math.min(400, Math.round(thumbSize * 1.5)),
+	);
 
 	const handleClick = (e: React.MouseEvent) => {
 		if (e.shiftKey) {

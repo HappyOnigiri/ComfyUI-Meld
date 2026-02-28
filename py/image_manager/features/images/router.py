@@ -1,3 +1,4 @@
+import hashlib
 import json
 import logging
 import os
@@ -11,7 +12,7 @@ from aiohttp import web
 from PIL import Image
 
 from ....load_image_configs.core.metadata_helper import MetadataHelper
-from ...common.db.client import TRASH_DIR, get_db_connection
+from ...common.db.client import THUMBNAIL_CACHE_DIR, TRASH_DIR, get_db_connection
 from ...common.model_repo import add_model_relation, get_or_create_model
 from ...common.schemas import (
     ApiResponse,
@@ -1147,6 +1148,149 @@ async def get_lineage_endpoint(request: web.Request) -> web.Response:
     except Exception as e:
         logging.exception("[Meld] Failed to get lineage")
         return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+
+
+def _resolve_image_path_for_thumb(
+    filename: str,
+    subfolder: str,
+    img_type: str,
+) -> tuple[str | None, str | None]:
+    """
+    Resolve image path for thumbnail generation.
+    Returns (absolute_path, error_message).
+    If error_message is not None, absolute_path is None.
+    """
+    if not filename or not img_type:
+        return (None, "filename and type are required")
+
+    # Security: prevent path traversal
+    if filename[0] == "/" or ".." in filename:
+        return (None, "invalid filename")
+
+    filename = os.path.basename(filename)
+
+    base_dir: str | None = None
+    effective_subfolder = ""
+
+    if img_type == "trash":
+        base_dir = TRASH_DIR
+        effective_subfolder = ""
+    elif img_type == "output":
+        base_dir = folder_paths.get_output_directory()
+        effective_subfolder = subfolder or ""
+    elif img_type == "input":
+        base_dir = folder_paths.get_input_directory()
+        effective_subfolder = subfolder or ""
+    elif img_type == "temp":
+        base_dir = folder_paths.get_temp_directory()
+        effective_subfolder = subfolder or ""
+    elif img_type == "custom":
+        if subfolder is None:
+            return (None, "subfolder is required for custom type")
+        full_path = os.path.normpath(os.path.abspath(os.path.join(subfolder, filename)))
+        if not os.path.isfile(full_path):
+            return (None, "file not found")
+        if not filename.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
+            return (None, "unsupported format")
+        return (full_path, None)
+    else:
+        return (None, f"invalid type: {img_type}")
+
+    if base_dir is None:
+        return (None, "base directory not configured")
+
+    full_path = os.path.normpath(os.path.abspath(os.path.join(base_dir, effective_subfolder, filename)))
+    base_abs = os.path.abspath(base_dir)
+    try:
+        if os.path.commonpath([base_abs, full_path]) != base_abs:
+            return (None, "path traversal detected")
+    except ValueError:
+        return (None, "path traversal detected")
+
+    if not os.path.isfile(full_path):
+        return (None, "file not found")
+
+    if not filename.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
+        return (None, "unsupported format")
+
+    return (full_path, None)
+
+
+@routes.get("/meld/view-thumb")
+async def view_thumb_endpoint(request: web.Request) -> web.StreamResponse:
+    try:
+        filename = request.query.get("filename")
+        subfolder = request.query.get("subfolder") or ""
+        img_type = request.query.get("type", "output")
+        size_param = request.query.get("size", "200")
+        try:
+            size = min(400, max(1, int(size_param)))
+        except ValueError:
+            size = 200
+
+        resolved, err = _resolve_image_path_for_thumb(filename or "", subfolder, img_type)
+        if err is not None:
+            if "required" in err or "invalid" in err:
+                return web.Response(status=400, text=err)
+            if "path traversal" in err or "detected" in err:
+                return web.Response(status=403, text=err)
+            if "not found" in err:
+                return web.Response(status=404, text=err)
+            return web.Response(status=400, text=err)
+
+        if resolved is None:
+            return web.Response(status=400, text="path resolution failed")
+
+        source_path = resolved
+
+        os.makedirs(THUMBNAIL_CACHE_DIR, exist_ok=True)
+        cache_key = hashlib.sha256(f"{source_path}_{size}".encode()).hexdigest()
+        cache_path = os.path.join(THUMBNAIL_CACHE_DIR, f"{cache_key}.webp")
+
+        cache_hit = False
+        if os.path.exists(cache_path):
+            try:
+                if os.path.getmtime(source_path) <= os.path.getmtime(cache_path):
+                    cache_hit = True
+            except OSError:
+                pass
+
+        if not cache_hit:
+            with Image.open(source_path) as img:
+                img.load()
+                img.thumbnail((size, size), Image.Resampling.LANCZOS)
+                img.save(cache_path, "WEBP", quality=85)
+
+        response = web.FileResponse(
+            cache_path,
+            headers={"Cache-Control": "public, max-age=86400"},
+        )
+        return response
+    except Exception as e:
+        logging.exception("[Meld] Error in view_thumb: %s", e)
+        return web.Response(status=500, text="Internal server error")
+
+
+@routes.post("/meld/clear-thumbnail-cache")
+async def clear_thumbnail_cache_endpoint(request: web.Request) -> web.Response:
+    try:
+        deleted_count = 0
+        if os.path.isdir(THUMBNAIL_CACHE_DIR):
+            for name in os.listdir(THUMBNAIL_CACHE_DIR):
+                if name.lower().endswith(".webp"):
+                    fp = os.path.join(THUMBNAIL_CACHE_DIR, name)
+                    try:
+                        os.remove(fp)
+                        deleted_count += 1
+                    except OSError as e:
+                        logging.warning("[Meld] Failed to remove cache file %s: %s", fp, e)
+        return web.json_response(ApiResponse(success=True, data={"deleted_count": deleted_count}).to_dict())
+    except Exception as e:
+        logging.exception("[Meld] Error in clear_thumbnail_cache: %s", e)
+        return web.json_response(
+            ApiResponse(success=False, error=str(e)).to_dict(),
+            status=500,
+        )
 
 
 @routes.get("/meld/view-trash")

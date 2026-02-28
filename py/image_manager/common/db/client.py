@@ -12,6 +12,7 @@ DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.
 os.makedirs(DATA_DIR, exist_ok=True)
 DB_PATH = os.path.join(DATA_DIR, "default.db")
 TRASH_DIR = os.path.join(DATA_DIR, "trash")
+THUMBNAIL_CACHE_DIR = os.path.join(DATA_DIR, "thumbnails")
 
 
 _CursorT = TypeVar("_CursorT", bound=sqlite3.Cursor)

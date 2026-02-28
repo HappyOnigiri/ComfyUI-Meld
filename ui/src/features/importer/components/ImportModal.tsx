@@ -15,7 +15,7 @@ import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { logger } from "../../../logger";
 import { useGallery } from "../../../store/GalleryContext";
 import type { Tag as TagType } from "../../../types";
-import { getImageViewUrl } from "../../../utils/url";
+import { getThumbnailViewUrl } from "../../../utils/url";
 import * as tagsApi from "../../tags/api/tagsApi";
 import * as importerApi from "../api/importerApi";
 
@@ -561,7 +561,7 @@ export const ImportModal: React.FC = () => {
 													{f.preview ? (
 														<img
 															className="meld-folder-preview"
-															src={getImageViewUrl(f.preview)}
+															src={getThumbnailViewUrl(f.preview)}
 															alt=""
 														/>
 													) : (
@@ -589,7 +589,7 @@ export const ImportModal: React.FC = () => {
 														onClick={() => setPreviewImage(img)}
 													>
 														<img
-															src={getImageViewUrl(img)}
+															src={getThumbnailViewUrl(img)}
 															alt={img.filename}
 															title={img.filename}
 														/>
@@ -626,7 +626,7 @@ export const ImportModal: React.FC = () => {
 								<X size={24} />
 							</button>
 							<img
-								src={getImageViewUrl(previewImage)}
+								src={getThumbnailViewUrl(previewImage)}
 								alt={previewImage.filename}
 							/>
 						</div>

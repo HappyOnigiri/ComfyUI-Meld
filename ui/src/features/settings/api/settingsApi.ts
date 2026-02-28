@@ -143,3 +143,12 @@ export const saveSetting = async (
 	});
 	await handleResponse(res);
 };
+
+export const clearThumbnailCache = async (): Promise<{
+	deleted_count: number;
+}> => {
+	const res = await api.fetchApi("/meld/clear-thumbnail-cache", {
+		method: "POST",
+	});
+	return handleResponse<{ deleted_count: number }>(res);
+};
