@@ -170,16 +170,25 @@ export function galleryReducer(
 			const { images, total, offset } = action.payload;
 			// If viewer is open and in gallery mode, check if the image still exists
 			let newViewerId = state.viewerImageId;
+			let newImages = images;
 			if (
 				state.viewerMode === "gallery" &&
 				newViewerId !== null &&
 				!images.some((img) => img.id === newViewerId)
 			) {
-				newViewerId = null;
+				const existingImage = state.images.find(
+					(img) => img.id === newViewerId,
+				);
+				if (existingImage) {
+					// Preserve the currently viewed image so the viewer doesn't close
+					newImages = [...images, existingImage];
+				} else {
+					newViewerId = null;
+				}
 			}
 			return {
 				...state,
-				images,
+				images: newImages,
 				isLoading: false,
 				error: null,
 				viewerImageId: newViewerId,
