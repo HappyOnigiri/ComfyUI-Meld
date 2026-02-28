@@ -229,11 +229,16 @@ class SearchService:
 
             elif cond["prefix"] == cls.ID_PREFIX:
                 # Exact match only
+                try:
+                    parsed_id = int(cond["value"])
+                except ValueError:
+                    raise ValueError(f"Invalid ID format: {cond['value']}. ID must be an integer.") from None
+
                 if is_negative:
                     sub_queries.append("i.id != ?")
                 else:
                     sub_queries.append("i.id = ?")
-                all_params.append(cond["value"])
+                all_params.append(parsed_id)
 
             elif cond["prefix"] == cls.FILENAME_PREFIX:
                 if cond["is_partial"]:
