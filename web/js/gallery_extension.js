@@ -274,8 +274,8 @@ var wc = { exports: {} }, ut = {}, xc = { exports: {} }, _c = {};
     if ($ !== L) {
       N[0] = $;
       e: for (var M = 0, B = N.length, ce = B >>> 1; M < ce; ) {
-        var Q = 2 * (M + 1) - 1, re = N[Q], q = Q + 1, me = N[q];
-        if (0 > s(re, $)) q < B && 0 > s(me, re) ? (N[M] = me, N[q] = $, M = q) : (N[M] = re, N[Q] = $, M = Q);
+        var V = 2 * (M + 1) - 1, re = N[V], q = V + 1, me = N[q];
+        if (0 > s(re, $)) q < B && 0 > s(me, re) ? (N[M] = me, N[q] = $, M = q) : (N[M] = re, N[V] = $, M = V);
         else if (q < B && 0 > s(me, $)) N[M] = me, N[q] = $, M = q;
         else break e;
       }
@@ -329,8 +329,8 @@ var wc = { exports: {} }, ut = {}, xc = { exports: {} }, _c = {};
       }
       if (v !== null) var ce = !0;
       else {
-        var Q = n(u);
-        Q !== null && T(y, Q.startTime - L), ce = !1;
+        var V = n(u);
+        V !== null && T(y, V.startTime - L), ce = !1;
       }
       return ce;
     } finally {
@@ -7677,8 +7677,8 @@ const Pu = p.createContext(void 0), qh = ({
           }
           Z.log("Step 2: Metadata fetch complete."), s(
             (B) => B.map((ce) => {
-              const Q = M[ce.name];
-              return Q ? { ...ce, count: Q.count, preview: Q.preview } : ce;
+              const V = M[ce.name];
+              return V ? { ...ce, count: V.count, preview: V.preview } : ce;
             })
           );
         }).catch((M) => {
@@ -8493,10 +8493,14 @@ const ls = ({
 }) => {
   const { state: a, dispatch: o } = ke(), i = a.images.find((O) => O.id === e), { injectMaskToGraph: c } = og(), { executeWorkflow: u } = Ko();
   lt({ onEscape: s });
-  const h = p.useRef(null), v = p.useRef(null), w = p.useRef(null), x = p.useRef(null), [g, k] = p.useState(!1), [S, m] = p.useState("rect"), [d, f] = p.useState({ x: 0, y: 0 }), [y, _] = p.useState({ x: 0, y: 0 }), [j, b] = p.useState([]), [C, z] = p.useState(null), [D, I] = p.useState(!1), W = p.useCallback(() => {
-    const O = w.current, V = v.current;
-    if (!O || !V) return null;
-    const U = V.getBoundingClientRect(), K = O.getBoundingClientRect(), le = O.naturalWidth, pe = O.naturalHeight;
+  const h = p.useRef(null), v = p.useRef(null), w = p.useRef(null), x = p.useRef(null), [g, k] = p.useState(!1), [S, m] = p.useState(() => localStorage.getItem("meld-mask-tool") || "rect");
+  p.useEffect(() => {
+    localStorage.setItem("meld-mask-tool", S);
+  }, [S]);
+  const [d, f] = p.useState({ x: 0, y: 0 }), [y, _] = p.useState({ x: 0, y: 0 }), [j, b] = p.useState([]), [C, z] = p.useState(null), [D, I] = p.useState(!1), W = p.useCallback(() => {
+    const O = w.current, Q = v.current;
+    if (!O || !Q) return null;
+    const U = Q.getBoundingClientRect(), K = O.getBoundingClientRect(), le = O.naturalWidth, pe = O.naturalHeight;
     if (!le || !pe) return null;
     const Te = le / pe, Ue = K.width / K.height;
     let De, Ce, st = 0, wt = 0;
@@ -8509,30 +8513,30 @@ const ls = ({
   }, []), J = p.useCallback(() => {
     const O = h.current;
     if (!O) return;
-    const V = O.getContext("2d");
-    if (!V) return;
-    V.clearRect(0, 0, O.width, O.height);
+    const Q = O.getContext("2d");
+    if (!Q) return;
+    Q.clearRect(0, 0, O.width, O.height);
     const U = getComputedStyle(document.documentElement), K = U.getPropertyValue("--comfy-input-bg-active") || U.getPropertyValue("--comfy-input-bg") || U.getPropertyValue("--bg-color") || "var(--comfy-input-bg)", le = W();
-    if (x.current && le && (V.save(), V.globalAlpha = 0.5, V.drawImage(
+    if (x.current && le && (Q.save(), Q.globalAlpha = 0.5, Q.drawImage(
       x.current,
       le.left,
       le.top,
       le.width,
       le.height
-    ), V.restore()), g) {
+    ), Q.restore()), g) {
       const pe = Math.min(d.x, y.x), Te = Math.min(d.y, y.y), Ue = Math.abs(d.x - y.x), De = Math.abs(d.y - y.y);
-      if (V.save(), V.globalAlpha = 0.3, V.fillStyle = K, V.strokeStyle = "white", V.lineWidth = 2, V.setLineDash([5, 5]), V.beginPath(), S === "rect")
-        V.rect(pe, Te, Ue, De);
+      if (Q.save(), Q.globalAlpha = 0.3, Q.fillStyle = K, Q.strokeStyle = "white", Q.lineWidth = 2, Q.setLineDash([5, 5]), Q.beginPath(), S === "rect")
+        Q.rect(pe, Te, Ue, De);
       else if (S === "ellipse") {
         const Ce = pe + Ue / 2, st = Te + De / 2;
-        V.ellipse(Ce, st, Ue / 2, De / 2, 0, 0, 2 * Math.PI);
+        Q.ellipse(Ce, st, Ue / 2, De / 2, 0, 0, 2 * Math.PI);
       } else if (S === "lasso" && j.length > 1) {
-        V.moveTo(j[0].x, j[0].y);
+        Q.moveTo(j[0].x, j[0].y);
         for (let Ce = 1; Ce < j.length; Ce++)
-          V.lineTo(j[Ce].x, j[Ce].y);
-        V.closePath();
+          Q.lineTo(j[Ce].x, j[Ce].y);
+        Q.closePath();
       }
-      V.fill(), V.globalAlpha = 1, V.stroke(), V.restore();
+      Q.fill(), Q.globalAlpha = 1, Q.stroke(), Q.restore();
     }
   }, [g, d, y, S, j, W]), [E, R] = p.useState([]), P = p.useMemo(() => E.length > 0 ? E[E.length - 1] : w.current ? qs(
     w.current.naturalWidth,
@@ -8557,30 +8561,30 @@ const ls = ({
     x.current || (x.current = document.createElement("canvas"));
     const O = x.current;
     O.width = P.width, O.height = P.height;
-    const V = O.getContext("2d");
-    if (!V) return;
+    const Q = O.getContext("2d");
+    if (!Q) return;
     const U = Ba(P, [255, 255, 255], 255);
-    V.putImageData(U, 0, 0), J();
+    Q.putImageData(U, 0, 0), J();
   }, [P, J]), p.useEffect(() => {
     const O = () => {
       v.current && h.current && (h.current.width = v.current.clientWidth, h.current.height = v.current.clientHeight, J());
-    }, V = new ResizeObserver(O);
-    return v.current && V.observe(v.current), O(), () => V.disconnect();
+    }, Q = new ResizeObserver(O);
+    return v.current && Q.observe(v.current), O(), () => Q.disconnect();
   }, [J]);
   const M = (O) => {
     var pe;
     if (O.button !== 0 || g || D || Date.now() - N.current < 100)
       return;
     O.preventDefault();
-    const V = W(), U = (pe = v.current) == null ? void 0 : pe.getBoundingClientRect();
-    if (!V || !U) return;
+    const Q = W(), U = (pe = v.current) == null ? void 0 : pe.getBoundingClientRect();
+    if (!Q || !U) return;
     k(!0);
     const K = Math.max(
-      V.left,
-      Math.min(O.clientX - U.left, V.left + V.width)
+      Q.left,
+      Math.min(O.clientX - U.left, Q.left + Q.width)
     ), le = Math.max(
-      V.top,
-      Math.min(O.clientY - U.top, V.top + V.height)
+      Q.top,
+      Math.min(O.clientY - U.top, Q.top + Q.height)
     );
     f({ x: K, y: le }), _({ x: K, y: le }), b(S === "lasso" ? [{ x: K, y: le }] : []), z(null);
   };
@@ -8598,7 +8602,7 @@ const ls = ({
         Math.min(U.clientY - le.top, K.top + K.height)
       );
       _({ x: pe, y: Te }), S === "lasso" && b((De) => [...De, { x: pe, y: Te }]);
-    }, V = (U) => {
+    }, Q = (U) => {
       var pe;
       const K = W(), le = (pe = v.current) == null ? void 0 : pe.getBoundingClientRect();
       if (K && le && P && w.current) {
@@ -8644,8 +8648,8 @@ const ls = ({
       }
       N.current = Date.now(), k(!1), b([]);
     };
-    return window.addEventListener("mousemove", O), window.addEventListener("mouseup", V), () => {
-      window.removeEventListener("mousemove", O), window.removeEventListener("mouseup", V);
+    return window.addEventListener("mousemove", O), window.addEventListener("mouseup", Q), () => {
+      window.removeEventListener("mousemove", O), window.removeEventListener("mouseup", Q);
     };
   }, [
     g,
@@ -8660,8 +8664,8 @@ const ls = ({
     E.length > 1 && R((O) => O.slice(0, -1));
   }, [E.length]);
   p.useEffect(() => {
-    const O = (V) => {
-      (V.metaKey || V.ctrlKey) && V.key === "z" ? (V.preventDefault(), B()) : V.key === "Escape" && (V.preventDefault(), V.stopPropagation(), V.stopImmediatePropagation(), s(), document.fullscreenElement && document.exitFullscreen().catch(() => {
+    const O = (Q) => {
+      (Q.metaKey || Q.ctrlKey) && Q.key.toLowerCase() === "z" && !Q.shiftKey ? (Q.preventDefault(), Q.stopPropagation(), Q.stopImmediatePropagation(), B()) : Q.key === "Escape" && (Q.preventDefault(), Q.stopPropagation(), Q.stopImmediatePropagation(), s(), document.fullscreenElement && document.exitFullscreen().catch(() => {
       }));
     };
     return window.addEventListener("keydown", O, { capture: !0 }), () => window.removeEventListener("keydown", O, { capture: !0 });
@@ -8672,14 +8676,14 @@ const ls = ({
         w.current.naturalWidth,
         w.current.naturalHeight
       );
-      R((V) => [...V, O]);
+      R((Q) => [...Q, O]);
     }
-  }, Q = async () => {
+  }, V = async () => {
     if (!P || !w.current) return null;
     I(!0);
     try {
-      const { width: O, height: V } = P, U = document.createElement("canvas");
-      U.width = O, U.height = V;
+      const { width: O, height: Q } = P, U = document.createElement("canvas");
+      U.width = O, U.height = Q;
       const K = U.getContext("2d");
       if (!K) return null;
       const le = Ba(P, [255, 255, 255], 255);
@@ -8702,11 +8706,11 @@ const ls = ({
     }
   }, re = async () => {
     if (!i) return;
-    const O = await Q();
+    const O = await V();
     O && c(i, O) && (s(), o({ type: "CLOSE_VIEWER" }), r == null || r());
   }, q = async () => {
     if (!i) return;
-    const O = await Q();
+    const O = await V();
     O && (t === "run_sequence" && n ? (await u(
       n.workflowName,
       i,
@@ -8917,57 +8921,57 @@ const ls = ({
     shortcutErrors: i,
     setShortcutErrors: c,
     handleClose: async () => {
-      const Q = Object.keys(a).filter(
+      const V = Object.keys(a).filter(
         (re) => a[re] !== e.settings[re] && !i[re]
       );
-      if (Q.length > 0)
-        for (const re of Q)
+      if (V.length > 0)
+        for (const re of V)
           await n(re, a[re]);
       t({ type: "CLOSE_MODAL" });
     },
-    handleToggle: (Q, re) => {
+    handleToggle: (V, re) => {
       o((q) => ({
         ...q,
-        [Q]: !re
+        [V]: !re
       }));
     },
-    handleNumberChange: (Q, re, q, me) => {
-      Q === "gallery.initial_load_count" ? h(re) : Q === "gallery.max_load_count" ? w(re) : Q === "gallery.lineage_max_depth" ? g(re) : Q === "viewer.thumbnail_window_size" ? S(re) : Q === "gallery.trash_retention_days" ? d(re) : Q === "gallery.auto_link_phash_threshold" ? y(re) : Q === "gallery.suggest_phash_threshold" ? j(re) : Q === "viewer.details.max_positive_prompt_lines" ? C(re) : Q === "viewer.details.max_negative_prompt_lines" ? D(re) : Q === "fullscreen.details.max_positive_prompt_lines" ? W(re) : Q === "fullscreen.details.max_negative_prompt_lines" ? E(re) : Q === "sidebar.thumbnail_size" && P(re);
+    handleNumberChange: (V, re, q, me) => {
+      V === "gallery.initial_load_count" ? h(re) : V === "gallery.max_load_count" ? w(re) : V === "gallery.lineage_max_depth" ? g(re) : V === "viewer.thumbnail_window_size" ? S(re) : V === "gallery.trash_retention_days" ? d(re) : V === "gallery.auto_link_phash_threshold" ? y(re) : V === "gallery.suggest_phash_threshold" ? j(re) : V === "viewer.details.max_positive_prompt_lines" ? C(re) : V === "viewer.details.max_negative_prompt_lines" ? D(re) : V === "fullscreen.details.max_positive_prompt_lines" ? W(re) : V === "fullscreen.details.max_negative_prompt_lines" ? E(re) : V === "sidebar.thumbnail_size" && P(re);
       const O = Number.parseInt(re, 10);
       if (!Number.isNaN(O)) {
-        let V = O;
-        q !== void 0 && V < q && (V = q), me !== void 0 && V > me && (V = me), o((U) => ({
+        let Q = O;
+        q !== void 0 && Q < q && (Q = q), me !== void 0 && Q > me && (Q = me), o((U) => ({
           ...U,
-          [Q]: V
+          [V]: Q
         }));
       }
     },
-    handleNumberBlur: (Q) => {
-      Q.key === "gallery.initial_load_count" ? h(
+    handleNumberBlur: (V) => {
+      V.key === "gallery.initial_load_count" ? h(
         a["gallery.initial_load_count"].toString()
-      ) : Q.key === "gallery.max_load_count" ? w(a["gallery.max_load_count"].toString()) : Q.key === "gallery.lineage_max_depth" ? g(
+      ) : V.key === "gallery.max_load_count" ? w(a["gallery.max_load_count"].toString()) : V.key === "gallery.lineage_max_depth" ? g(
         a["gallery.lineage_max_depth"].toString()
-      ) : Q.key === "viewer.thumbnail_window_size" ? S(
+      ) : V.key === "viewer.thumbnail_window_size" ? S(
         a["viewer.thumbnail_window_size"].toString()
-      ) : Q.key === "gallery.trash_retention_days" ? d(
+      ) : V.key === "gallery.trash_retention_days" ? d(
         a["gallery.trash_retention_days"].toString()
-      ) : Q.key === "gallery.auto_link_phash_threshold" ? y(
+      ) : V.key === "gallery.auto_link_phash_threshold" ? y(
         a["gallery.auto_link_phash_threshold"].toString()
-      ) : Q.key === "gallery.suggest_phash_threshold" ? j(
+      ) : V.key === "gallery.suggest_phash_threshold" ? j(
         a["gallery.suggest_phash_threshold"].toString()
-      ) : Q.key === "viewer.details.max_positive_prompt_lines" ? C(
+      ) : V.key === "viewer.details.max_positive_prompt_lines" ? C(
         a["viewer.details.max_positive_prompt_lines"].toString()
-      ) : Q.key === "viewer.details.max_negative_prompt_lines" ? D(
+      ) : V.key === "viewer.details.max_negative_prompt_lines" ? D(
         a["viewer.details.max_negative_prompt_lines"].toString()
-      ) : Q.key === "fullscreen.details.max_positive_prompt_lines" ? W(
+      ) : V.key === "fullscreen.details.max_positive_prompt_lines" ? W(
         a["fullscreen.details.max_positive_prompt_lines"].toString()
-      ) : Q.key === "fullscreen.details.max_negative_prompt_lines" ? E(
+      ) : V.key === "fullscreen.details.max_negative_prompt_lines" ? E(
         a["fullscreen.details.max_negative_prompt_lines"].toString()
-      ) : Q.key === "sidebar.thumbnail_size" && P(a["sidebar.thumbnail_size"].toString());
+      ) : V.key === "sidebar.thumbnail_size" && P(a["sidebar.thumbnail_size"].toString());
     },
     handleResetShortcuts: () => {
-      o((Q) => ({
-        ...Q,
+      o((V) => ({
+        ...V,
         "viewer.shortcut.1": "tag:keep next",
         "viewer.shortcut.2": "tag:best next",
         "viewer.shortcut.3": "tag:fix-needed next",
@@ -8983,7 +8987,7 @@ const ls = ({
     handleViewTrash: () => {
       t({ type: "SET_VIEW_SCOPE", payload: "trash" }), t({ type: "CLOSE_MODAL" });
     },
-    validateShortcut: (Q) => Q.trim() ? Q.trim().split(/\s+/).every((q) => !!(q === "next" || q === "prev" || q === "delete" || q.startsWith("tag:") && q.length > 4 || q.startsWith("-tag:") && q.length > 5 || q.startsWith("tag-toggle:") && q.length > 11)) : !0,
+    validateShortcut: (V) => V.trim() ? V.trim().split(/\s+/).every((q) => !!(q === "next" || q === "prev" || q === "delete" || q.startsWith("tag:") && q.length > 4 || q.startsWith("-tag:") && q.length > 5 || q.startsWith("tag-toggle:") && q.length > 11)) : !0,
     // Input states
     initialLoadCountInput: u,
     maxLoadCountInput: v,
@@ -14762,12 +14766,12 @@ const wg = ({ image: e }) => {
       var ce;
       const T = vl(r), L = (T.pop() || "").match(/^([-!])/), $ = L ? L[1] : "", B = ((S == null ? void 0 : S.no_quote_prefixes) || []).includes(P.type);
       if (P.value === "") {
-        const Q = `${[...T, `${$}${P.type}:`].join(" ").trim()}`;
-        s(Q);
+        const V = `${[...T, `${$}${P.type}:`].join(" ").trim()}`;
+        s(V);
       } else {
-        const Q = B ? P.value : `"${P.value}"`, re = `${[
+        const V = B ? P.value : `"${P.value}"`, re = `${[
           ...T,
-          `${$}${P.type}:${Q}`
+          `${$}${P.type}:${V}`
         ].join(" ").trim()} `;
         s(re), o([]), c(!1);
       }
@@ -14785,14 +14789,14 @@ const wg = ({ image: e }) => {
       let M = !1;
       const B = $.replace(/^([-!])/, "").toLowerCase();
       B && P.toLowerCase().startsWith(B) && (M = !0);
-      const ce = $.match(/^([-!])/), Q = M && ce ? ce[1] : "";
+      const ce = $.match(/^([-!])/), V = M && ce ? ce[1] : "";
       if (M && L.pop(), N) {
-        const K = [...L, `${Q}${P}:`].filter(Boolean).join(" ");
+        const K = [...L, `${V}${P}:`].filter(Boolean).join(" ");
         s(K), (U = d.current) == null || U.focus();
         return;
       }
-      const me = ((S == null ? void 0 : S.no_quote_prefixes) || []).includes(P) ? T : `"${T}"`, O = `${Q}${P}:${me}`, V = [...L, O].filter(Boolean).join(" ");
-      s(V), C(V);
+      const me = ((S == null ? void 0 : S.no_quote_prefixes) || []).includes(P) ? T : `"${T}"`, O = `${V}${P}:${me}`, Q = [...L, O].filter(Boolean).join(" ");
+      s(Q), C(Q);
     },
     [r, C, S]
   ), J = p.useCallback(
@@ -15871,9 +15875,9 @@ const Dg = ({
     c["viewer.show_details_by_default"]
   ), [D, I] = p.useState(null), W = D ?? c["viewer.show_thumbnails"], [J, E] = p.useState(!1), [R, P] = p.useState(!1), [T, N] = p.useState(null), [L, $] = p.useState(null), [M, B] = p.useState(
     null
-  ), ce = p.useRef(null), Q = p.useRef(!0);
-  p.useEffect(() => (Q.current = !0, () => {
-    Q.current = !1;
+  ), ce = p.useRef(null), V = p.useRef(!0);
+  p.useEffect(() => (V.current = !0, () => {
+    V.current = !1;
   }), []);
   const re = p.useRef(s);
   p.useEffect(() => {
@@ -15894,7 +15898,7 @@ const Dg = ({
     a,
     c,
     e.searchQuery
-  ]), me = s === null ? -1 : q.findIndex((Y) => Y.id === s), O = (o === "lineage" && i.length > 0 ? i : o === "lighttable" ? q : a).find((Y) => Y.id === s), V = p.useCallback(
+  ]), me = s === null ? -1 : q.findIndex((Y) => Y.id === s), O = (o === "lineage" && i.length > 0 ? i : o === "lighttable" ? q : a).find((Y) => Y.id === s), Q = p.useCallback(
     async (Y = !1) => {
       if (!O) return;
       const se = y ? c["fullscreen.delete_mode"] : c["viewer.delete_mode"];
@@ -15917,7 +15921,7 @@ const Dg = ({
           for (const ne of X)
             oe.add(ne.id);
         }
-        if (!Q.current || re.current === null) return;
+        if (!V.current || re.current === null) return;
         if (q.length > oe.size) {
           let X = !1;
           for (let ne = me + 1; ne < q.length; ne++)
@@ -15982,7 +15986,7 @@ const Dg = ({
           se,
           e.searchQuery
         );
-        if (!Q.current || (t({ type: "APPEND_IMAGES", payload: X }), re.current === null)) return;
+        if (!V.current || (t({ type: "APPEND_IMAGES", payload: X }), re.current === null)) return;
         if (X.images.length > 0) {
           const ne = X.images[X.images.length - 1];
           t({
@@ -16024,12 +16028,12 @@ const Dg = ({
     const Y = T.map((A) => A.id), se = Y[0];
     try {
       const A = await Bo(Y);
-      if (!Q.current) return;
+      if (!V.current) return;
       if (t({ type: "ADD_IMAGES", payload: T }), e.viewScope === "trash") {
         const oe = A.restored_ids || Y;
         t({ type: "REMOVE_IMAGES", payload: oe });
       }
-      if (N(null), !Q.current) return;
+      if (N(null), !V.current) return;
       t({
         type: "OPEN_VIEWER",
         payload: { id: se, mode: o }
@@ -16116,9 +16120,9 @@ const Dg = ({
         } catch (he) {
           console.error("Failed to update tags via shortcut:", he);
         }
-      Qe ? V(!0) : Ee ? K() : Pe && le();
+      Qe ? Q(!0) : Ee ? K() : Pe && le();
     },
-    [O, t, K, le, V]
+    [O, t, K, le, Q]
   );
   p.useEffect(() => {
     const Y = (A) => {
@@ -16173,13 +16177,13 @@ const Dg = ({
       else if ((A.key === "r" || A.key === "R") && e.viewScope === "trash")
         Te();
       else if (A.key === "Delete")
-        V();
+        Q();
       else if ((A.ctrlKey || A.metaKey) && (A.key === "z" || A.key === "Z"))
         De();
       else if (ge && !X) {
         const at = `viewer.shortcut.${A.key}`, ar = c[at];
         typeof ar == "string" && ar && (B(A.key), setTimeout(() => {
-          Q.current && B(null);
+          V.current && B(null);
         }, 500), Ce(ar));
       }
     };
@@ -16198,7 +16202,7 @@ const Dg = ({
     K,
     le,
     c,
-    V,
+    Q,
     e.activeModal.type,
     De,
     U,
@@ -16211,11 +16215,11 @@ const Dg = ({
     });
   }, [s, r]), p.useEffect(() => {
     o === "lineage" && s !== null && i.length === 0 && (E(!0), Ua(s).then((Y) => {
-      Q.current && t({ type: "SET_LINEAGE", payload: Y });
+      V.current && t({ type: "SET_LINEAGE", payload: Y });
     }).catch((Y) => {
       console.error("Failed to fetch lineage:", Y);
     }).finally(() => {
-      Q.current && E(!1);
+      V.current && E(!1);
     }));
   }, [o, s, i.length, t]), p.useEffect(() => {
     o !== "gallery" || s === null || e.isLoading || !e.pagination.hasMore || me !== -1 && me >= q.length - 15 && n();
@@ -16319,7 +16323,7 @@ const Dg = ({
     overlayRef: ce,
     handleNext: K,
     handlePrevious: le,
-    handleDelete: V,
+    handleDelete: Q,
     handleUpdateUserNotes: w,
     handleEditNotes: () => O && h(O),
     handleTagEdit: U,
@@ -16757,7 +16761,7 @@ function Ag() {
             {
               images: e.activeModal.images,
               isMaskMode: !!e.activeModal.maskFilename || !!e.activeModal.isMaskSequence,
-              onExecute: async (ce, Q) => {
+              onExecute: async (ce, V) => {
                 if (e.activeModal.type === "workflow_selection") {
                   if (e.activeModal.isMaskSequence)
                     return t({
@@ -16767,7 +16771,7 @@ function Ag() {
                         images: e.activeModal.images,
                         currentIndex: 0,
                         workflowName: ce,
-                        targetLoaderNodeId: Q
+                        targetLoaderNodeId: V
                       }
                     }), !1;
                   const re = e.activeModal.maskFilename;
@@ -16776,7 +16780,7 @@ function Ag() {
                       ce,
                       q,
                       re,
-                      Q
+                      V
                     );
                   t({ type: "CLOSE_VIEWER" });
                 }
