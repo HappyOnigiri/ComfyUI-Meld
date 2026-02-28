@@ -148,6 +148,42 @@ export const GalleryPanel: React.FC = () => {
 					</div>
 				) : (
 					<div className="meld-gallery__actions">
+						<button
+							type="button"
+							onClick={() => {
+								if (viewMode === "search") {
+									setLastSearchQuery(state.searchQuery);
+									if (state.searchQuery) {
+										dispatch({ type: "SET_SEARCH_QUERY", payload: "" });
+									}
+									setViewMode("gallery");
+								} else {
+									if (!state.searchQuery && lastSearchQuery) {
+										dispatch({
+											type: "SET_SEARCH_QUERY",
+											payload: lastSearchQuery,
+										});
+									}
+									setViewMode("search");
+								}
+							}}
+							style={{
+								background: "none",
+								border: "none",
+								color: isSearchActive
+									? "var(--meld-success-color)"
+									: viewMode === "search"
+										? "var(--meld-text-color)"
+										: "var(--meld-text-secondary)",
+								cursor: "pointer",
+								display: "flex",
+								alignItems: "center",
+								fontWeight: isSearchActive ? "bold" : "normal",
+							}}
+							title="Search"
+						>
+							<Search size={14} />
+						</button>
 						{state.favorites.length > 0 && (
 							<button
 								ref={favoritesButtonRef}
@@ -173,6 +209,56 @@ export const GalleryPanel: React.FC = () => {
 								/>
 							</button>
 						)}
+						<button
+							type="button"
+							onClick={() =>
+								setViewMode(viewMode === "tags" ? "gallery" : "tags")
+							}
+							style={{
+								background: "none",
+								border: "none",
+								color:
+									viewMode === "tags"
+										? "var(--meld-accent-color)"
+										: "var(--meld-text-secondary)",
+								cursor: "pointer",
+								display: "flex",
+								alignItems: "center",
+								fontWeight: viewMode === "tags" ? "bold" : "normal",
+							}}
+							title="Tag Manager"
+						>
+							<Tag size={14} />
+						</button>
+						<button
+							type="button"
+							onClick={() => {
+								const currentMode =
+									state.settings["gallery.view_mode"] || "grid_details";
+								const nextMode =
+									currentMode === "grid_details" ? "grid_only" : "grid_details";
+								updateSetting("gallery.view_mode", nextMode);
+							}}
+							style={{
+								background: "none",
+								border: "none",
+								color: "var(--meld-text-secondary)",
+								cursor: "pointer",
+								display: "flex",
+								alignItems: "center",
+							}}
+							title={
+								state.settings["gallery.view_mode"] === "grid_only"
+									? "Switch to Details View"
+									: "Switch to Grid Only View"
+							}
+						>
+							{state.settings["gallery.view_mode"] === "grid_only" ? (
+								<LayoutList size={14} />
+							) : (
+								<LayoutGrid size={14} />
+							)}
+						</button>
 						<button
 							type="button"
 							onClick={() => {
@@ -221,92 +307,6 @@ export const GalleryPanel: React.FC = () => {
 									/>
 								)}
 							</div>
-						</button>
-						<button
-							type="button"
-							onClick={() => {
-								if (viewMode === "search") {
-									setLastSearchQuery(state.searchQuery);
-									if (state.searchQuery) {
-										dispatch({ type: "SET_SEARCH_QUERY", payload: "" });
-									}
-									setViewMode("gallery");
-								} else {
-									if (!state.searchQuery && lastSearchQuery) {
-										dispatch({
-											type: "SET_SEARCH_QUERY",
-											payload: lastSearchQuery,
-										});
-									}
-									setViewMode("search");
-								}
-							}}
-							style={{
-								background: "none",
-								border: "none",
-								color: isSearchActive
-									? "var(--meld-success-color)"
-									: viewMode === "search"
-										? "var(--meld-text-color)"
-										: "var(--meld-text-secondary)",
-								cursor: "pointer",
-								display: "flex",
-								alignItems: "center",
-								fontWeight: isSearchActive ? "bold" : "normal",
-							}}
-							title="Search"
-						>
-							<Search size={14} />
-						</button>
-						<button
-							type="button"
-							onClick={() => {
-								const currentMode =
-									state.settings["gallery.view_mode"] || "grid_details";
-								const nextMode =
-									currentMode === "grid_details" ? "grid_only" : "grid_details";
-								updateSetting("gallery.view_mode", nextMode);
-							}}
-							style={{
-								background: "none",
-								border: "none",
-								color: "var(--meld-text-secondary)",
-								cursor: "pointer",
-								display: "flex",
-								alignItems: "center",
-							}}
-							title={
-								state.settings["gallery.view_mode"] === "grid_only"
-									? "Switch to Details View"
-									: "Switch to Grid Only View"
-							}
-						>
-							{state.settings["gallery.view_mode"] === "grid_only" ? (
-								<LayoutList size={14} />
-							) : (
-								<LayoutGrid size={14} />
-							)}
-						</button>
-						<button
-							type="button"
-							onClick={() =>
-								setViewMode(viewMode === "tags" ? "gallery" : "tags")
-							}
-							style={{
-								background: "none",
-								border: "none",
-								color:
-									viewMode === "tags"
-										? "var(--meld-accent-color)"
-										: "var(--meld-text-secondary)",
-								cursor: "pointer",
-								display: "flex",
-								alignItems: "center",
-								fontWeight: viewMode === "tags" ? "bold" : "normal",
-							}}
-							title="Tag Manager"
-						>
-							<Tag size={14} />
 						</button>
 						<button
 							type="button"
