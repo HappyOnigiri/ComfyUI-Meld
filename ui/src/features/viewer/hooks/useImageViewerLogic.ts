@@ -165,13 +165,19 @@ export const useImageViewerLogic = ({
 			? -1
 			: currentThumbnails.findIndex((img) => img.id === viewerImageId);
 
-	const image = (
+	const foundImage = (
 		viewerMode === "lineage" && lineageImages.length > 0
 			? lineageImages
 			: viewerMode === "lighttable"
 				? currentThumbnails
 				: images
 	).find((img) => img.id === viewerImageId);
+
+	const image =
+		foundImage ||
+		(viewerImageId === state.viewerFallbackImage?.id
+			? state.viewerFallbackImage
+			: undefined);
 
 	const handleDelete = useCallback(
 		async (forceNoConfirm = false) => {
