@@ -135,45 +135,45 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 		};
 	}, []);
 
+	const getCenteredPan = useCallback(
+		(
+			overlay: HTMLDivElement | null,
+			prevPan: { x: number; y: number },
+			prevScale: number,
+			nextScale: number,
+		) => {
+			if (!overlay) return prevPan;
+			const rect = overlay.getBoundingClientRect();
+			const cx = rect.width / 2;
+			const cy = rect.height / 2;
+			const pos = {
+				x: (cx - prevPan.x) / prevScale,
+				y: (cy - prevPan.y) / prevScale,
+			};
+			return { x: cx - pos.x * nextScale, y: cy - pos.y * nextScale };
+		},
+		[],
+	);
+
 	const handleZoomIn = useCallback(() => {
 		setScale((prev) => {
 			const nextScale = Math.min(prev * 1.2, 20);
-			const overlay = overlayRef.current;
-			if (overlay) {
-				setPan((prevPan) => {
-					const rect = overlay.getBoundingClientRect();
-					const cx = rect.width / 2;
-					const cy = rect.height / 2;
-					const pos = {
-						x: (cx - prevPan.x) / prev,
-						y: (cy - prevPan.y) / prev,
-					};
-					return { x: cx - pos.x * nextScale, y: cy - pos.y * nextScale };
-				});
-			}
+			setPan((prevPan) =>
+				getCenteredPan(overlayRef.current, prevPan, prev, nextScale),
+			);
 			return nextScale;
 		});
-	}, []);
+	}, [getCenteredPan]);
 
 	const handleZoomOut = useCallback(() => {
 		setScale((prev) => {
 			const nextScale = Math.max(0.1, prev / 1.2);
-			const overlay = overlayRef.current;
-			if (overlay) {
-				setPan((prevPan) => {
-					const rect = overlay.getBoundingClientRect();
-					const cx = rect.width / 2;
-					const cy = rect.height / 2;
-					const pos = {
-						x: (cx - prevPan.x) / prev,
-						y: (cy - prevPan.y) / prev,
-					};
-					return { x: cx - pos.x * nextScale, y: cy - pos.y * nextScale };
-				});
-			}
+			setPan((prevPan) =>
+				getCenteredPan(overlayRef.current, prevPan, prev, nextScale),
+			);
 			return nextScale;
 		});
-	}, []);
+	}, [getCenteredPan]);
 
 	const draw = useCallback(() => {
 		const canvas = canvasRef.current;
@@ -579,10 +579,27 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 
 	// Keyboard shortcuts
 	useEffect(() => {
+		const isInteractiveTarget = (target: EventTarget | null) => {
+			if (!target) return false;
+			const el = target as HTMLElement;
+			const tagName = el.tagName;
+			return (
+				tagName === "INPUT" ||
+				tagName === "TEXTAREA" ||
+				tagName === "BUTTON" ||
+				tagName === "SELECT" ||
+				tagName === "A" ||
+				el.isContentEditable ||
+				(el.tabIndex != null && el.tabIndex >= 0)
+			);
+		};
+
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (e.code === "Space" && !e.repeat) {
-				e.preventDefault();
-				setIsPanning(true);
+				if (!isInteractiveTarget(e.target)) {
+					e.preventDefault();
+					setIsPanning(true);
+				}
 			}
 			// Cmd+Z (Mac) or Ctrl+Z (Windows/Linux)
 			if (
@@ -607,8 +624,10 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 
 		const handleKeyUp = (e: KeyboardEvent) => {
 			if (e.code === "Space") {
-				e.preventDefault();
-				setIsPanning(false);
+				if (!isInteractiveTarget(e.target)) {
+					e.preventDefault();
+					setIsPanning(false);
+				}
 			}
 		};
 
