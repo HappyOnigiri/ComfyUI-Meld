@@ -199,6 +199,7 @@ export interface GalleryState {
 	viewerMode: "gallery" | "lineage" | "lighttable";
 	viewerLightTableSlotId?: string | null;
 	viewerInitialMaskMode: "apply" | "run" | false;
+	viewerFallbackImage?: MeldImage | null;
 	lineageImages: MeldImage[];
 	activeModal: ActiveModal;
 	lastSelectedId: number | null;

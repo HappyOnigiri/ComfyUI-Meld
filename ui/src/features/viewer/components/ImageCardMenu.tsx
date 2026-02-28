@@ -1,5 +1,6 @@
 import { MoreVertical, Trash2 } from "lucide-react";
 import type React from "react";
+import { useEffect, useState } from "react";
 import type { Settings } from "../../../types";
 import {
 	AddUnifiedLoaderIcon,
@@ -60,6 +61,21 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 	iconSize = 16,
 	buttonClassName = "",
 }) => {
+	const [menuPosition, setMenuPosition] = useState<"left" | "right">("left");
+
+	useEffect(() => {
+		if (isMenuOpen && menuRef.current) {
+			const rect = menuRef.current.getBoundingClientRect();
+			// If the menu button is closer than 200px to the left edge of the screen,
+			// there won't be enough space to show the 180px wide menu on the left.
+			if (rect.left < 200) {
+				setMenuPosition("right");
+			} else {
+				setMenuPosition("left");
+			}
+		}
+	}, [isMenuOpen, menuRef]);
+
 	const getActionHandler = (actionId: string) => {
 		switch (actionId) {
 			case "add_unified_loader":
@@ -143,7 +159,9 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 					);
 				})}
 			{isMenuOpen && (
-				<div className="meld-image-card__menu">
+				<div
+					className={`meld-image-card__menu ${menuPosition === "right" ? "meld-image-card__menu--right" : ""}`}
+				>
 					{[
 						{
 							id: "add_unified_loader",

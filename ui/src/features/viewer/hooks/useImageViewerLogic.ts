@@ -165,13 +165,19 @@ export const useImageViewerLogic = ({
 			? -1
 			: currentThumbnails.findIndex((img) => img.id === viewerImageId);
 
-	const image = (
+	const foundImage = (
 		viewerMode === "lineage" && lineageImages.length > 0
 			? lineageImages
 			: viewerMode === "lighttable"
 				? currentThumbnails
 				: images
 	).find((img) => img.id === viewerImageId);
+
+	const image =
+		foundImage ||
+		(viewerImageId === state.viewerFallbackImage?.id
+			? state.viewerFallbackImage
+			: undefined);
 
 	const handleDelete = useCallback(
 		async (forceNoConfirm = false) => {
@@ -552,6 +558,11 @@ export const useImageViewerLogic = ({
 
 			if (viewerImageId === null) return;
 
+			// Do not intercept keyboard events when a modal is open inside the viewer
+			if (state.activeModal.type !== "none") {
+				return;
+			}
+
 			const isDeleteKey = e.key === "Delete" || e.key === "Backspace";
 			const isNavigationKey =
 				e.key === "ArrowRight" ||
@@ -589,20 +600,10 @@ export const useImageViewerLogic = ({
 				isShortcutKey
 			) {
 				if (!isTargetInput) {
-					if (isEscapeKey && state.activeModal.type !== "none") {
-						e.preventDefault();
-						e.stopPropagation();
-						return;
-					}
 					e.preventDefault();
 					e.stopPropagation();
 					e.stopImmediatePropagation();
 				} else if (isEscapeKey) {
-					if (state.activeModal.type !== "none") {
-						e.preventDefault();
-						e.stopPropagation();
-						return;
-					}
 					e.preventDefault();
 					e.stopPropagation();
 					e.stopImmediatePropagation();
@@ -614,10 +615,6 @@ export const useImageViewerLogic = ({
 			}
 
 			if (e.key === "Escape") {
-				if (state.activeModal.type !== "none") {
-					dispatch({ type: "CLOSE_MODAL" });
-				}
-
 				if (document.fullscreenElement) {
 					document.exitFullscreen();
 				} else {

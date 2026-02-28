@@ -11,6 +11,7 @@ export const initialState: GalleryState = {
 	viewerMode: "gallery",
 	viewerLightTableSlotId: null,
 	viewerInitialMaskMode: false,
+	viewerFallbackImage: null,
 	lineageImages: [],
 	activeModal: { type: "none" },
 	lastSelectedId: null,
@@ -170,12 +171,24 @@ export function galleryReducer(
 			const { images, total, offset } = action.payload;
 			// If viewer is open and in gallery mode, check if the image still exists
 			let newViewerId = state.viewerImageId;
+			let viewerFallbackImage = null;
 			if (
 				state.viewerMode === "gallery" &&
 				newViewerId !== null &&
 				!images.some((img) => img.id === newViewerId)
 			) {
-				newViewerId = null;
+				// Search state.images first, then fall back to state.viewerFallbackImage
+				const existingImage =
+					state.images.find((img) => img.id === newViewerId) ||
+					(state.viewerFallbackImage?.id === newViewerId
+						? state.viewerFallbackImage
+						: undefined);
+				if (existingImage) {
+					// Preserve the currently viewed image in a fallback field so the viewer doesn't close
+					viewerFallbackImage = existingImage;
+				} else {
+					newViewerId = null;
+				}
 			}
 			return {
 				...state,
@@ -183,6 +196,7 @@ export function galleryReducer(
 				isLoading: false,
 				error: null,
 				viewerImageId: newViewerId,
+				viewerFallbackImage,
 				pagination: {
 					total,
 					offset,
@@ -361,6 +375,7 @@ export function galleryReducer(
 				viewerImageId: null,
 				viewerLightTableSlotId: null,
 				viewerInitialMaskMode: false,
+				viewerFallbackImage: null,
 				lineageImages: [],
 			};
 		case "NEXT_IMAGE": {
