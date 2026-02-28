@@ -8,6 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    concurrency:
+      group: rebuild-${{ github.ref }}
+      cancel-in-progress: true
 
     steps:
       - name: Checkout repository
@@ -22,6 +25,10 @@ jobs:
 
       - name: Merge main branch
         run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "::error::This workflow must not run on the main branch. Run it from a feature branch."
+            exit 1
+          fi
           git fetch origin main
           if ! git merge origin/main; then
             conflicted=$(git diff --name-only --diff-filter=U)
@@ -57,6 +64,8 @@ jobs:
       - name: Commit and Push
         run: |
           git add web/js/
-          git restore --staged web/js/viewer.js
+          if [ -n "$(git ls-files --staged web/js/viewer.js)" ]; then
+            git restore --staged web/js/viewer.js
+          fi
           git diff --staged --quiet || git commit -m "chore: merge main and rebuild artifacts"
           git push
