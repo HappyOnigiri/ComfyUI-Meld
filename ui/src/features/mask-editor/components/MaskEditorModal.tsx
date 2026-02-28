@@ -46,6 +46,10 @@ interface MaskEditorModalProps {
 	onClose: () => void;
 }
 
+const isMaskTool = (value: string | null): value is MaskTool => {
+	return value === "rect" || value === "ellipse" || value === "lasso";
+};
+
 export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 	imageId,
 	mode,
@@ -68,11 +72,13 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 	const [isDragging, setIsDragging] = useState(false);
 	const [activeTool, setActiveTool] = useState<MaskTool>(() => {
 		const saved = localStorage.getItem("meld-mask-tool");
-		return (saved as MaskTool) || "rect";
+		return isMaskTool(saved) ? saved : "rect";
 	});
 
 	useEffect(() => {
-		localStorage.setItem("meld-mask-tool", activeTool);
+		if (isMaskTool(activeTool)) {
+			localStorage.setItem("meld-mask-tool", activeTool);
+		}
 	}, [activeTool]);
 
 	const [startPos, setStartPos] = useState({ x: 0, y: 0 });
