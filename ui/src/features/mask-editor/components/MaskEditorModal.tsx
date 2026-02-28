@@ -581,6 +581,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (e.code === "Space" && !e.repeat) {
+				e.preventDefault();
 				setIsPanning(true);
 			}
 			// Cmd+Z (Mac) or Ctrl+Z (Windows/Linux)
@@ -606,6 +607,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 
 		const handleKeyUp = (e: KeyboardEvent) => {
 			if (e.code === "Space") {
+				e.preventDefault();
 				setIsPanning(false);
 			}
 		};
@@ -788,6 +790,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 							onClick={handleZoomOut}
 							type="button"
 							title="Zoom Out"
+							aria-label="Zoom Out"
 						>
 							<ZoomOut size={18} />
 						</button>
@@ -799,6 +802,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 							}}
 							type="button"
 							title="Reset Zoom"
+							aria-label="Reset Zoom"
 							style={{
 								minWidth: "48px",
 								justifyContent: "center",
@@ -812,6 +816,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 							onClick={handleZoomIn}
 							type="button"
 							title="Zoom In"
+							aria-label="Zoom In"
 						>
 							<ZoomIn size={18} />
 						</button>

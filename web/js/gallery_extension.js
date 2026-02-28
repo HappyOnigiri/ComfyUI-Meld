@@ -8785,10 +8785,10 @@ const hc = (e) => e === "rect" || e === "ellipse" || e === "lasso", us = ({
   }, [re.length]);
   f.useEffect(() => {
     const $ = (F) => {
-      F.code === "Space" && !F.repeat && T(!0), (F.metaKey || F.ctrlKey) && F.key.toLowerCase() === "z" && !F.shiftKey ? (F.preventDefault(), F.stopPropagation(), F.stopImmediatePropagation(), ot()) : F.key === "Escape" && (F.preventDefault(), F.stopPropagation(), F.stopImmediatePropagation(), s(), document.fullscreenElement && document.exitFullscreen().catch(() => {
+      F.code === "Space" && !F.repeat && (F.preventDefault(), T(!0)), (F.metaKey || F.ctrlKey) && F.key.toLowerCase() === "z" && !F.shiftKey ? (F.preventDefault(), F.stopPropagation(), F.stopImmediatePropagation(), ot()) : F.key === "Escape" && (F.preventDefault(), F.stopPropagation(), F.stopImmediatePropagation(), s(), document.fullscreenElement && document.exitFullscreen().catch(() => {
       }));
     }, A = (F) => {
-      F.code === "Space" && T(!1);
+      F.code === "Space" && (F.preventDefault(), T(!1));
     };
     return window.addEventListener("keydown", $, { capture: !0 }), window.addEventListener("keyup", A, { capture: !0 }), () => {
       window.removeEventListener("keydown", $, { capture: !0 }), window.removeEventListener("keyup", A, { capture: !0 });
@@ -8928,6 +8928,7 @@ const hc = (e) => e === "rect" || e === "ellipse" || e === "lasso", us = ({
                     onClick: ue,
                     type: "button",
                     title: "Zoom Out",
+                    "aria-label": "Zoom Out",
                     children: /* @__PURE__ */ l.jsx(Mh, { size: 18 })
                   }
                 ),
@@ -8940,6 +8941,7 @@ const hc = (e) => e === "rect" || e === "ellipse" || e === "lasso", us = ({
                     },
                     type: "button",
                     title: "Reset Zoom",
+                    "aria-label": "Reset Zoom",
                     style: {
                       minWidth: "48px",
                       justifyContent: "center",
@@ -8958,6 +8960,7 @@ const hc = (e) => e === "rect" || e === "ellipse" || e === "lasso", us = ({
                     onClick: K,
                     type: "button",
                     title: "Zoom In",
+                    "aria-label": "Zoom In",
                     children: /* @__PURE__ */ l.jsx(Eh, { size: 18 })
                   }
                 )
