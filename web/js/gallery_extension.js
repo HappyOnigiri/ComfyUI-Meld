@@ -17287,6 +17287,29 @@ const zg = () => {
               }
             )
           ] }) : /* @__PURE__ */ l.jsxs("div", { className: "meld-gallery__actions", children: [
+            /* @__PURE__ */ l.jsx(
+              "button",
+              {
+                type: "button",
+                onClick: () => {
+                  s === "search" ? (i(e.searchQuery), e.searchQuery && t({ type: "SET_SEARCH_QUERY", payload: "" }), a("gallery")) : (!e.searchQuery && o && t({
+                    type: "SET_SEARCH_QUERY",
+                    payload: o
+                  }), a("search"));
+                },
+                style: {
+                  background: "none",
+                  border: "none",
+                  color: v ? "var(--meld-success-color)" : s === "search" ? "var(--meld-text-color)" : "var(--meld-text-secondary)",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  fontWeight: v ? "bold" : "normal"
+                },
+                title: "Search",
+                children: /* @__PURE__ */ l.jsx(Nn, { size: 14 })
+              }
+            ),
             e.favorites.length > 0 && /* @__PURE__ */ l.jsx(
               "button",
               {
@@ -17309,6 +17332,44 @@ const zg = () => {
                     fill: m ? "var(--brand-yellow, #ffd700)" : "none"
                   }
                 )
+              }
+            ),
+            /* @__PURE__ */ l.jsx(
+              "button",
+              {
+                type: "button",
+                onClick: () => a(s === "tags" ? "gallery" : "tags"),
+                style: {
+                  background: "none",
+                  border: "none",
+                  color: s === "tags" ? "var(--meld-accent-color)" : "var(--meld-text-secondary)",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  fontWeight: s === "tags" ? "bold" : "normal"
+                },
+                title: "Tag Manager",
+                children: /* @__PURE__ */ l.jsx(sr, { size: 14 })
+              }
+            ),
+            /* @__PURE__ */ l.jsx(
+              "button",
+              {
+                type: "button",
+                onClick: () => {
+                  const z = (e.settings["gallery.view_mode"] || "grid_details") === "grid_details" ? "grid_only" : "grid_details";
+                  r("gallery.view_mode", z);
+                },
+                style: {
+                  background: "none",
+                  border: "none",
+                  color: "var(--meld-text-secondary)",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center"
+                },
+                title: e.settings["gallery.view_mode"] === "grid_only" ? "Switch to Details View" : "Switch to Grid Only View",
+                children: e.settings["gallery.view_mode"] === "grid_only" ? /* @__PURE__ */ l.jsx(th, { size: 14 }) : /* @__PURE__ */ l.jsx(Cu, { size: 14 })
               }
             ),
             /* @__PURE__ */ l.jsx(
@@ -17358,67 +17419,6 @@ const zg = () => {
                     }
                   )
                 ] })
-              }
-            ),
-            /* @__PURE__ */ l.jsx(
-              "button",
-              {
-                type: "button",
-                onClick: () => {
-                  s === "search" ? (i(e.searchQuery), e.searchQuery && t({ type: "SET_SEARCH_QUERY", payload: "" }), a("gallery")) : (!e.searchQuery && o && t({
-                    type: "SET_SEARCH_QUERY",
-                    payload: o
-                  }), a("search"));
-                },
-                style: {
-                  background: "none",
-                  border: "none",
-                  color: v ? "var(--meld-success-color)" : s === "search" ? "var(--meld-text-color)" : "var(--meld-text-secondary)",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  fontWeight: v ? "bold" : "normal"
-                },
-                title: "Search",
-                children: /* @__PURE__ */ l.jsx(Nn, { size: 14 })
-              }
-            ),
-            /* @__PURE__ */ l.jsx(
-              "button",
-              {
-                type: "button",
-                onClick: () => {
-                  const z = (e.settings["gallery.view_mode"] || "grid_details") === "grid_details" ? "grid_only" : "grid_details";
-                  r("gallery.view_mode", z);
-                },
-                style: {
-                  background: "none",
-                  border: "none",
-                  color: "var(--meld-text-secondary)",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center"
-                },
-                title: e.settings["gallery.view_mode"] === "grid_only" ? "Switch to Details View" : "Switch to Grid Only View",
-                children: e.settings["gallery.view_mode"] === "grid_only" ? /* @__PURE__ */ l.jsx(th, { size: 14 }) : /* @__PURE__ */ l.jsx(Cu, { size: 14 })
-              }
-            ),
-            /* @__PURE__ */ l.jsx(
-              "button",
-              {
-                type: "button",
-                onClick: () => a(s === "tags" ? "gallery" : "tags"),
-                style: {
-                  background: "none",
-                  border: "none",
-                  color: s === "tags" ? "var(--meld-accent-color)" : "var(--meld-text-secondary)",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  fontWeight: s === "tags" ? "bold" : "normal"
-                },
-                title: "Tag Manager",
-                children: /* @__PURE__ */ l.jsx(sr, { size: 14 })
               }
             ),
             /* @__PURE__ */ l.jsx(
