@@ -318,6 +318,21 @@ export function galleryReducer(
 				selectedIds: new Set<number>(),
 				lastSelectedId: null,
 			};
+		case "DESELECT_IMAGES": {
+			const newSelectedIds = new Set(state.selectedIds);
+			let lastSelectedId = state.lastSelectedId;
+			action.payload.forEach((id) => {
+				newSelectedIds.delete(id);
+				if (lastSelectedId === id) {
+					lastSelectedId = null;
+				}
+			});
+			return {
+				...state,
+				selectedIds: newSelectedIds,
+				lastSelectedId,
+			};
+		}
 		case "SET_VIEW_SCOPE":
 			return {
 				...state,
