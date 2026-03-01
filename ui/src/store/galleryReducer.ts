@@ -125,6 +125,9 @@ export function galleryReducer(
 		case "REMOVE_IMAGES": {
 			const idsToRemove = new Set(action.payload);
 			const newImages = state.images.filter((img) => !idsToRemove.has(img.id));
+			const newLineageImages = state.lineageImages.filter(
+				(img) => !idsToRemove.has(img.id),
+			);
 			const newSelectedIds = new Set(state.selectedIds);
 			for (const id of action.payload) {
 				newSelectedIds.delete(id);
@@ -132,6 +135,7 @@ export function galleryReducer(
 			return {
 				...state,
 				images: newImages,
+				lineageImages: newLineageImages,
 				selectedIds: newSelectedIds,
 				pagination: {
 					...state.pagination,

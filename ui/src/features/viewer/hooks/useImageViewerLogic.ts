@@ -478,6 +478,46 @@ export const useImageViewerLogic = ({
 					// Use the correct internal ID for the store action
 					store.addToBucket(slot.id, String(currentImageId), image);
 					store.showToast(`Sent to ${slot.label}`);
+
+					// If not explicitly deleted, move to next image and hide from current view
+					if (!isDeleted) {
+						if (currentThumbnails.length > 1) {
+							// Find next or previous image to navigate to
+							let nextTargetId: number | null = null;
+							for (
+								let i = currentIndex + 1;
+								i < currentThumbnails.length;
+								i++
+							) {
+								if (currentThumbnails[i].id !== currentImageId) {
+									nextTargetId = currentThumbnails[i].id;
+									break;
+								}
+							}
+							if (nextTargetId === null) {
+								for (let i = currentIndex - 1; i >= 0; i--) {
+									if (currentThumbnails[i].id !== currentImageId) {
+										nextTargetId = currentThumbnails[i].id;
+										break;
+									}
+								}
+							}
+
+							if (nextTargetId !== null) {
+								dispatch({
+									type: "OPEN_VIEWER",
+									payload: { id: nextTargetId, mode: viewerMode },
+								});
+							} else {
+								dispatch({ type: "CLOSE_VIEWER" });
+							}
+						} else {
+							dispatch({ type: "CLOSE_VIEWER" });
+						}
+
+						// Remove from current session list
+						dispatch({ type: "REMOVE_IMAGES", payload: [currentImageId] });
+					}
 				} else {
 					// Slot not found - show error toast
 					store.showToast(
@@ -527,7 +567,16 @@ export const useImageViewerLogic = ({
 				handlePrevious();
 			}
 		},
-		[image, dispatch, handleNext, handlePrevious, handleDelete],
+		[
+			image,
+			dispatch,
+			handleNext,
+			handlePrevious,
+			handleDelete,
+			currentIndex,
+			currentThumbnails,
+			viewerMode,
+		],
 	);
 
 	useEffect(() => {
