@@ -1185,9 +1185,40 @@ def _resolve_image_path_for_thumb(
         base_dir = folder_paths.get_temp_directory()
         effective_subfolder = subfolder or ""
     elif img_type == "custom":
-        if subfolder is None:
+        # subfolder for custom type is the full directory path (stored by importer).
+        # Verify it is under a trusted base to prevent path traversal.
+        if subfolder is None or subfolder == "":
             return (None, "subfolder is required for custom type")
         full_path = os.path.normpath(os.path.abspath(os.path.join(subfolder, filename)))
+        dir_path = os.path.dirname(full_path)
+        dir_abs = os.path.abspath(dir_path)
+        # Allowed roots: ComfyUI dirs and custom if available
+        allowed_roots: list[str] = []
+        for d in (
+            folder_paths.get_output_directory(),
+            folder_paths.get_input_directory(),
+            folder_paths.get_temp_directory(),
+            TRASH_DIR,
+        ):
+            if d:
+                allowed_roots.append(os.path.abspath(d))
+        get_custom = getattr(folder_paths, "get_custom_directory", None)
+        if get_custom:
+            custom_dir = get_custom()
+            if custom_dir:
+                allowed_roots.append(os.path.abspath(custom_dir))
+        if not allowed_roots:
+            return (None, "base directory not configured")
+        under_allowed = False
+        for base_abs in allowed_roots:
+            try:
+                if os.path.commonpath([base_abs, dir_abs]) == base_abs:
+                    under_allowed = True
+                    break
+            except ValueError:
+                continue
+        if not under_allowed:
+            return (None, "path traversal detected")
         if not os.path.isfile(full_path):
             return (None, "file not found")
         if not filename.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
