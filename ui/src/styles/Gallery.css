@@ -30,7 +30,7 @@
 	--meld-z-prompt-popup: 10500;
 	--meld-z-modal-overlay: 11000;
 	--meld-z-toast: 11500;
-	--meld-z-debug: 20000;
+	--meld-z-import-preview: 20000;
 }
 
 .meld-gallery {
@@ -1945,7 +1945,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	right: 0;
 	bottom: 0;
 	background: transparent;
-	z-index: var(--meld-z-debug);
+	z-index: var(--meld-z-import-preview);
 	border-radius: 0;
 }
 
