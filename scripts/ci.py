@@ -36,7 +36,6 @@ def run_task(name: str, command: str) -> tuple[bool, str, str]:
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
-            cwd=None,
             encoding="utf-8",
             errors="replace",
         )
