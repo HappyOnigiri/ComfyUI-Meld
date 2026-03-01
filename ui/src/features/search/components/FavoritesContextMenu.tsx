@@ -8,6 +8,7 @@ import { useGallery } from "../../../store/GalleryContext";
 import { stopReactKeyboardEvent } from "../../../utils/keyboard";
 import { useFavoritesLogic } from "../hooks/useFavoritesLogic";
 import { FavoriteItem } from "./FavoriteItem";
+import styles from "./FavoritesContextMenu.module.css";
 
 interface FavoritesContextMenuProps {
 	anchorRect: DOMRect | null;
@@ -90,43 +91,14 @@ export const FavoritesContextMenu: React.FC<FavoritesContextMenuProps> = ({
 			{/* Menu container */}
 			<div
 				ref={menuRef}
-				className="meld-favorites-context-menu"
+				className={`${styles.menu} meld-favorites-context-menu`}
 				style={{
-					position: "fixed",
 					top: position.top,
 					left: position.left,
-					width: "300px",
-					maxHeight: "400px",
-					backgroundColor: "var(--comfy-menu-bg, #222)",
-					border: "1px solid var(--comfy-menu-border, #444)",
-					borderRadius: "8px",
-					boxShadow: "0 8px 24px var(--comfy-menu-shadow, rgba(0,0,0,0.5))",
-					display: "flex",
-					flexDirection: "column",
-					overflow: "hidden",
 				}}
 			>
-				<div
-					style={{
-						padding: "12px",
-						borderBottom: "1px solid var(--comfy-menu-border, #333)",
-						display: "flex",
-						alignItems: "center",
-						justifyContent: "space-between",
-						backgroundColor:
-							"var(--comfy-input-bg-active, rgba(255, 255, 255, 0.02))",
-					}}
-				>
-					<div
-						style={{
-							display: "flex",
-							alignItems: "center",
-							gap: "8px",
-							fontWeight: "bold",
-							fontSize: "14px",
-							color: "var(--meld-text-color)",
-						}}
-					>
+				<div className={styles.header}>
+					<div className={styles.title}>
 						<Star
 							size={14}
 							color="var(--brand-yellow, #ffd700)"
@@ -134,23 +106,10 @@ export const FavoritesContextMenu: React.FC<FavoritesContextMenuProps> = ({
 						/>
 						Favorites
 					</div>
-					<div
-						style={{ fontSize: "12px", color: "var(--meld-text-secondary)" }}
-					>
-						{state.favorites.length} items
-					</div>
+					<div className={styles.count}>{state.favorites.length} items</div>
 				</div>
 
-				<div
-					style={{
-						overflowY: "auto",
-						padding: "8px",
-						display: "flex",
-						flexDirection: "column",
-						gap: "6px",
-						backgroundColor: "var(--comfy-input-bg, #1a1a1a)",
-					}}
-				>
+				<div className={styles.list}>
 					{state.favorites.map((fav) => (
 						<FavoriteItem
 							key={fav.id}
@@ -165,21 +124,7 @@ export const FavoritesContextMenu: React.FC<FavoritesContextMenuProps> = ({
 					))}
 				</div>
 
-				{toastMessage && (
-					<div
-						style={{
-							padding: "8px 12px",
-							backgroundColor: "var(--comfy-menu-bg, #333)",
-							borderTop: "1px solid var(--comfy-menu-border, #444)",
-							color: "var(--meld-success-color)",
-							fontSize: "12px",
-							fontWeight: "bold",
-							textAlign: "center",
-						}}
-					>
-						{toastMessage}
-					</div>
-				)}
+				{toastMessage && <div className={styles.toast}>{toastMessage}</div>}
 			</div>
 
 			{/* Edit Favorite Modal */}
@@ -195,9 +140,7 @@ export const FavoritesContextMenu: React.FC<FavoritesContextMenuProps> = ({
 						onClick={(e) => e.stopPropagation()}
 					>
 						<div className="meld-modal-header">
-							<h2
-								style={{ display: "flex", alignItems: "center", gap: "10px" }}
-							>
+							<h2 className={styles.editTitle}>
 								<Star size={20} color="var(--meld-accent-color)" />
 								Edit Favorite
 							</h2>
@@ -211,28 +154,11 @@ export const FavoritesContextMenu: React.FC<FavoritesContextMenuProps> = ({
 						</div>
 
 						<div className="meld-modal-body">
-							<div
-								style={{
-									display: "flex",
-									flexDirection: "column",
-									gap: "16px",
-									padding: "8px 0",
-								}}
-							>
-								<div
-									style={{
-										display: "flex",
-										flexDirection: "column",
-										gap: "6px",
-									}}
-								>
+							<div className={styles.form}>
+								<div className={styles.fieldGroup}>
 									<label
 										htmlFor="edit-favorite-name-ctx"
-										style={{
-											fontSize: "12px",
-											fontWeight: "bold",
-											color: "var(--meld-text-secondary)",
-										}}
+										className={styles.label}
 									>
 										Name
 									</label>
@@ -243,15 +169,7 @@ export const FavoritesContextMenu: React.FC<FavoritesContextMenuProps> = ({
 										value={editFavoriteName}
 										onChange={(e) => setEditFavoriteName(e.target.value)}
 										placeholder="Favorite Name"
-										style={{
-											backgroundColor: "var(--comfy-input-bg, #1a1a1a)",
-											border: "1px solid var(--comfy-menu-border, #333)",
-											borderRadius: "4px",
-											color: "var(--meld-text-color)",
-											padding: "8px 12px",
-											fontSize: "14px",
-											outline: "none",
-										}}
+										className={styles.input}
 										onKeyDown={(e) => {
 											if (e.key === "Enter") {
 												stopReactKeyboardEvent(e);
@@ -264,20 +182,10 @@ export const FavoritesContextMenu: React.FC<FavoritesContextMenuProps> = ({
 										}}
 									/>
 								</div>
-								<div
-									style={{
-										display: "flex",
-										flexDirection: "column",
-										gap: "6px",
-									}}
-								>
+								<div className={styles.fieldGroup}>
 									<label
 										htmlFor="edit-favorite-query-ctx"
-										style={{
-											fontSize: "12px",
-											fontWeight: "bold",
-											color: "var(--meld-text-secondary)",
-										}}
+										className={styles.label}
 									>
 										Search Query
 									</label>
@@ -287,17 +195,7 @@ export const FavoritesContextMenu: React.FC<FavoritesContextMenuProps> = ({
 										onChange={(e) => setEditFavoriteQuery(e.target.value)}
 										placeholder="Search Query"
 										rows={3}
-										style={{
-											backgroundColor: "var(--comfy-input-bg, #1a1a1a)",
-											border: "1px solid var(--comfy-menu-border, #333)",
-											borderRadius: "4px",
-											color: "var(--meld-text-color)",
-											padding: "8px 12px",
-											fontSize: "13px",
-											fontFamily: "monospace",
-											outline: "none",
-											resize: "vertical",
-										}}
+										className={styles.textarea}
 										onKeyDown={(e) => {
 											if (e.key === "Enter" && !e.shiftKey) {
 												stopReactKeyboardEvent(e);
