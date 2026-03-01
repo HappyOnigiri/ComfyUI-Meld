@@ -244,8 +244,8 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 							onClick={(e) => {
 								e.preventDefault();
 								e.stopPropagation();
+								item.handler();
 								setIsMenuOpen(false);
-								setTimeout(() => item.handler(), 0);
 							}}
 						>
 							<item.icon size={14} color={item.color} />

@@ -331,8 +331,8 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 									onMouseDown={(e) => e.stopPropagation()}
 									onClick={() => {
 										if ("disabled" in item && item.disabled) return;
+										handleAction(item.type);
 										setIsActionMenuOpen(false);
-										setTimeout(() => handleAction(item.type), 0);
 									}}
 								>
 									<item.icon size={13} />
