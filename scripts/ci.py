@@ -15,9 +15,9 @@ TASKS = [
     ("Python-Lint-pyright", "npx pyright"),
     (
         "UI-Lint-biome",
-        "npm --prefix ui run lint",
+        "npm --prefix ui run check",
     ),  # Command for biome lint in ui directory
-    ("UI-Lint-tsc", "npx tsc --noEmit"),
+    ("UI-Lint-tsc", "npm --prefix ui run typecheck"),
     ("Fix-Newlines", f"{sys.executable} scripts/fix_newlines.py"),
     ("Check-Non-ASCII", f"{sys.executable} scripts/check_non_ascii.py"),
     ("Check-TS-Rules", f"{sys.executable} scripts/check_ts_rules.py"),
@@ -27,25 +27,8 @@ TASKS = [
     ("Build-UI", "npm --prefix ui run build"),
 ]
 
-# Command adjustments for specific task types
-# UI-Lint-tsc: cd ui && npx tsc --noEmit
-# UI-Lint-biome: cd ui && npx @biomejs/biome check --write src --error-on-warnings
-# Build-UI: cd ui && npm run build
-
 
 def run_task(name: str, command: str) -> tuple[bool, str, str]:
-    # Adjustments for tasks that need to run in the ui directory
-    cwd = None
-    if name.startswith("UI-") or name == "Build-UI":
-        cwd = "ui"
-        # Redefine commands based on Makefile logic
-        if name == "UI-Lint-tsc":
-            command = "npx tsc --noEmit"
-        elif name == "UI-Lint-biome":
-            command = "npx @biomejs/biome check --write src --error-on-warnings"
-        elif name == "Build-UI":
-            command = "npm run build"
-
     try:
         process = subprocess.Popen(
             command,
@@ -53,7 +36,7 @@ def run_task(name: str, command: str) -> tuple[bool, str, str]:
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
-            cwd=cwd,
+            cwd=None,
             encoding="utf-8",
             errors="replace",
         )
