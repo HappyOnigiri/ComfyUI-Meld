@@ -14,9 +14,9 @@
   "scripts": {
     "dev": "vite build --watch",
     "build": "tsc && vite build",
+    "typecheck": "tsc --noEmit",
     "preview": "vite preview",
     "check": "biome check --write src --error-on-warnings",
-    "ci": "tsc --noEmit && biome check --write src --error-on-warnings",
     "lint": "biome lint src",
     "format": "biome format --write src"
   },
