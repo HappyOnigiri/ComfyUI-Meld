@@ -2923,6 +2923,18 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	z-index: var(--meld-z-modal-overlay);
 }
 
+.meld-search-suggestions {
+	z-index: var(--meld-z-popover);
+}
+
+.meld-search-toast {
+	z-index: var(--meld-z-dropdown);
+}
+
+.meld-search-edit-modal-overlay {
+	z-index: var(--meld-z-modal-overlay);
+}
+
 .meld-viewer-content--fullscreen .meld-viewer-cheat-sheet {
 	bottom: 85px;
 }

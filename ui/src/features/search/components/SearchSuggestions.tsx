@@ -169,7 +169,6 @@ export const SearchSuggestions = ({
 					backgroundColor: "var(--comfy-menu-bg, #222)",
 					border: "1px solid var(--comfy-menu-border, #444)",
 					borderRadius: "0 0 6px 6px",
-					zIndex: 1000,
 					marginTop: "8px",
 					maxHeight: "400px",
 					overflowY: "auto",
