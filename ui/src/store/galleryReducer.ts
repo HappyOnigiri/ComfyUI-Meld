@@ -108,6 +108,7 @@ export const initialState: GalleryState = {
 	searchQuery: "",
 	favorites: [],
 	toastMessage: null,
+	toastType: "info",
 	confirmModal: null,
 };
 
@@ -552,11 +553,21 @@ export function galleryReducer(
 				...state,
 				searchQuery: action.payload,
 			};
-		case "SHOW_TOAST":
+		case "SHOW_TOAST": {
+			const payload = action.payload;
+			if (typeof payload === "string") {
+				return {
+					...state,
+					toastMessage: payload,
+					toastType: "info",
+				};
+			}
 			return {
 				...state,
-				toastMessage: action.payload,
+				toastMessage: payload.message,
+				toastType: payload.type || "info",
 			};
+		}
 		case "HIDE_TOAST":
 			return {
 				...state,

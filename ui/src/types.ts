@@ -214,6 +214,7 @@ export interface GalleryState {
 	searchQuery: string;
 	favorites: Favorite[];
 	toastMessage: string | null;
+	toastType: "info" | "error";
 	confirmModal: {
 		message: string;
 		onConfirm: () => void;
@@ -272,7 +273,10 @@ export type GalleryAction =
 	| { type: "ADD_IMAGES"; payload: MeldImage[] }
 	| { type: "UPDATE_IMAGE"; payload: MeldImage }
 	| { type: "REFRESH" }
-	| { type: "SHOW_TOAST"; payload: string }
+	| {
+			type: "SHOW_TOAST";
+			payload: string | { message: string; type?: "info" | "error" };
+	  }
 	| { type: "HIDE_TOAST" }
 	| {
 			type: "OPEN_CONFIRM_MODAL";
