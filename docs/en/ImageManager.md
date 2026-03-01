@@ -13,16 +13,6 @@ It streamlines browsing, searching, and organizing generated images, making it s
 
 ---
 
-## UI Stability Update (Overlay Dependency Reduction)
-
-To reduce accidental click blocking and z-index conflicts, popover-style UIs now avoid fullscreen transparent overlays for outside-click detection.
-
-*   **Applies to menus/popovers**: Bulk action menu, favorites context menu, and similar popovers use a shared `pointerdown` (capture) outside-click handler.
-*   **Modal behavior remains unchanged**: True modals/lightboxes still use modal overlays and close with `Esc`.
-*   **Expected effect**: Lower chance of "visible but unclickable" UI caused by transparent overlay layers.
-
----
-
 ## Basic Concept: Automatic Registration and Management
 
 Image Manager is deeply integrated into the image generation process in ComfyUI.

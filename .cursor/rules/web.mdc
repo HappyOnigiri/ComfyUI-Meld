@@ -153,8 +153,8 @@ Before marking a task as complete:
 
 ## 9. Documentation Updates (Mandatory)
 
-When modifying Web Extension features (especially related to Image Manager, Gallery, or Viewer), you MUST update the documentation.
+When modifying Web Extension features, update user-facing docs only when the change is visible to users.
 
-- **Trigger**: Functional changes or new features (not required for bug fixes).
-- **Scope**: Update both Japanese (`docs/ja/ImageManager.md`) and English (`docs/en/ImageManager.md`).
-- **Target**: Ensure `Image Manager` related changes are reflected in `docs/{lang}/ImageManager.md`.
+- **Trigger**: Update `docs/{lang}/ImageManager.md` only for user-visible behavior/UI changes. Do not require docs updates for internal refactors, implementation-only changes, or development-only guidance.
+- **Scope**: For user-visible Image Manager changes, update both Japanese (`docs/ja/ImageManager.md`) and English (`docs/en/ImageManager.md`).
+- **Development guidance**: Reflect development-related notes in source code comments or under `.cursor/rules/` instead of user-facing docs.
