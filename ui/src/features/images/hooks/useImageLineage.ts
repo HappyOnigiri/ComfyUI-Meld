@@ -2,6 +2,9 @@ import { useCallback } from "react";
 import type { MeldImage, Settings } from "../../../types";
 import { getThumbnailViewUrl } from "../../../utils/url";
 
+/** Thumbnail size for lineage parent/child displays (small icons). */
+const LINEAGE_THUMBNAIL_SIZE = 56;
+
 /**
  * Shared Image Lineage Hook
  *
@@ -16,7 +19,7 @@ export const useImageLineage = (images: MeldImage[], settings: Settings) => {
 			if (img.ancestors && img.ancestors.length > 0) {
 				return img.ancestors.slice(0, maxDepth).map((a) => ({
 					id: a.id,
-					imgSrc: getThumbnailViewUrl(a, 56),
+					imgSrc: getThumbnailViewUrl(a, LINEAGE_THUMBNAIL_SIZE),
 				}));
 			}
 
@@ -27,7 +30,7 @@ export const useImageLineage = (images: MeldImage[], settings: Settings) => {
 
 			let imgSrc: string | null = null;
 			if (parentInState) {
-				imgSrc = getThumbnailViewUrl(parentInState, 56);
+				imgSrc = getThumbnailViewUrl(parentInState, LINEAGE_THUMBNAIL_SIZE);
 			} else {
 				imgSrc = getThumbnailViewUrl(
 					{
@@ -35,7 +38,7 @@ export const useImageLineage = (images: MeldImage[], settings: Settings) => {
 						subfolder: img.parent_subfolder || "",
 						type: img.parent_type,
 					},
-					56,
+					LINEAGE_THUMBNAIL_SIZE,
 				);
 			}
 

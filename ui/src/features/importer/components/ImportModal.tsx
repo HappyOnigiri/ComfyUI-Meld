@@ -561,7 +561,7 @@ export const ImportModal: React.FC = () => {
 													{f.preview ? (
 														<img
 															className="meld-folder-preview"
-															src={getThumbnailViewUrl(f.preview)}
+															src={getThumbnailViewUrl(f.preview, 64)}
 															alt=""
 														/>
 													) : (
@@ -589,7 +589,7 @@ export const ImportModal: React.FC = () => {
 														onClick={() => setPreviewImage(img)}
 													>
 														<img
-															src={getThumbnailViewUrl(img)}
+															src={getThumbnailViewUrl(img, 120)}
 															alt={img.filename}
 															title={img.filename}
 														/>
@@ -626,7 +626,7 @@ export const ImportModal: React.FC = () => {
 								<X size={24} />
 							</button>
 							<img
-								src={getThumbnailViewUrl(previewImage)}
+								src={getThumbnailViewUrl(previewImage, 400)}
 								alt={previewImage.filename}
 							/>
 						</div>

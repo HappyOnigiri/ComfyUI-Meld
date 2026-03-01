@@ -25,7 +25,7 @@ const ThumbnailItem = memo(
 			typeof thumb.parent_id === "number" &&
 			thumb.parent_id === currentImage.id;
 
-		const thumbSrc = getThumbnailViewUrl(thumb);
+		const thumbSrc = getThumbnailViewUrl(thumb, 64);
 
 		return (
 			<div className="meld-viewer-thumbnail-wrapper">

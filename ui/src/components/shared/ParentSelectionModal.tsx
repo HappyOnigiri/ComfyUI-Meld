@@ -223,11 +223,14 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 									>
 										{image.parent_filename && (
 											<img
-												src={getThumbnailViewUrl({
-													filename: image.parent_filename,
-													subfolder: image.parent_subfolder || "",
-													type: image.parent_type || "output",
-												})}
+												src={getThumbnailViewUrl(
+													{
+														filename: image.parent_filename,
+														subfolder: image.parent_subfolder || "",
+														type: image.parent_type || "output",
+													},
+													64,
+												)}
 												alt="Current Source"
 												style={{
 													width: "40px",
@@ -339,7 +342,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 													}}
 												>
 													<img
-														src={getThumbnailViewUrl(sug)}
+														src={getThumbnailViewUrl(sug, 64)}
 														alt={sug.filename}
 													/>
 													<div className="meld-suggestion-info">
@@ -389,7 +392,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 													}}
 												>
 													<img
-														src={getThumbnailViewUrl(sug)}
+														src={getThumbnailViewUrl(sug, 64)}
 														alt={sug.filename}
 													/>
 													<div className="meld-suggestion-info">
