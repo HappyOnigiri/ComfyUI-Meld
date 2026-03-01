@@ -1,15 +1,34 @@
 #!/usr/bin/env python3
-import glob
 import os
 import sys
+from pathlib import Path
+
+# Files/lines allowed to use .json() without handleResponse (e.g. upload returns different format)
+UPLOAD_JSON_EXCEPTIONS = {
+    "ui/src/features/importer/api/importerApi.ts",
+    "ui/src/features/mask-editor/components/MaskEditorModal.tsx",
+}
+
+# Endpoints returning blob or non-JSON formats
+BLOB_ENDPOINTS = ("download", "/prompt", "/upload/image")
+
+
+def get_files_to_check() -> list[str]:
+    """Search for .ts and .tsx files using api.fetchApi or .json()"""
+    base = Path("ui/src")
+    files = []
+    for ext in ("*.ts", "*.tsx"):
+        for p in base.rglob(ext):
+            if p.suffix == ".d.ts":
+                continue
+            text = p.read_text(encoding="utf-8", errors="replace")
+            if "api.fetchApi" in text or (".json()" in text and "api" in text):
+                files.append(str(p).replace("\\", "/"))
+    return sorted(set(files))
 
 
 def check_frontend_api_usage() -> int:
-    pattern = os.path.join("ui", "src", "features", "**", "api", "*.ts")
-    files = glob.glob(pattern, recursive=True)
-    # Also check the main api.ts
-    files.append(os.path.join("ui", "src", "api.ts"))
-
+    files = get_files_to_check()
     errors = []
 
     for file_path in files:
@@ -17,44 +36,49 @@ def check_frontend_api_usage() -> int:
             continue
 
         with open(file_path, encoding="utf-8") as f:
-            content = f.read()
+            lines = f.read().splitlines()
 
-        # Rule 1: Should not use res.json() directly if it's an API response
-        lines = content.splitlines()
         for i, line in enumerate(lines):
-            # Exclude handleResponse definition itself in ui/src/api.ts
-            if "handleResponse" in line and "export async function" in line:
+            # Inline ignore
+            if "frontend-api-check-ignore" in line:
                 continue
 
-            # Check for .json()
+            # Exclude handleResponse definition itself in ui/src/api.ts
+            if "handleResponse" in line and "export" in line and "function" in line:
+                continue
+
+            # Rule 1: Check .json() usage
             if ".json()" in line:
                 # In ui/src/api.ts, .json() is allowed as it's the implementation of handleResponse
-                if "ui/src/api.ts" in file_path.replace("\\", "/"):
+                if file_path.endswith("ui/src/api.ts"):
                     continue
-                # For uploadImage, it might be okay for now as it's not /meld/
-                if "uploadImage" in content and "return await res.json()" in line:
+
+                if file_path in UPLOAD_JSON_EXCEPTIONS:
                     continue
 
                 errors.append(f"{file_path}:{i + 1}: Forbidden direct .json() call. Use handleResponse(res) instead.")
 
             # Rule 2: If api.fetchApi is used, handleResponse should likely be used
             if "api.fetchApi" in line:
-                # Check if the next few lines or the same line has handleResponse
                 found_handle = False
-                # Look ahead up to 15 lines to be safe
                 for j in range(i, min(i + 15, len(lines))):
                     if "handleResponse" in lines[j]:
                         found_handle = True
                         break
 
                 if not found_handle:
-                    # Only check /meld/ endpoints
                     if any(q in line for q in ['"/meld/', "'/meld/", "`/meld/"]):
-                        # Allow download endpoints which return blobs
-                        if "download" in line:
+                        if any(b in line for b in BLOB_ENDPOINTS):
                             continue
                         errors.append(
                             f"{file_path}:{i + 1}: api.fetchApi call to /meld/ should be wrapped with handleResponse(res)."
+                        )
+                    else:
+                        # For non-meld endpoints (like ComfyUI ones), require handleResponse or exceptions
+                        if any(b in line for b in BLOB_ENDPOINTS):
+                            continue
+                        errors.append(
+                            f"{file_path}:{i + 1}: api.fetchApi call should be wrapped with handleResponse, or added to exceptions."
                         )
 
     if errors:
