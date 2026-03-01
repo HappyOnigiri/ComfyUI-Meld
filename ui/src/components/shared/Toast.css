@@ -21,6 +21,10 @@
 	pointer-events: none;
 }
 
+.meld-toast--error {
+	border-color: var(--meld-danger-color, #ff4c4c);
+}
+
 @keyframes meld-toast-in {
 	from {
 		opacity: 0;

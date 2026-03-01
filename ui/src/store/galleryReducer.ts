@@ -108,6 +108,7 @@ export const initialState: GalleryState = {
 	searchQuery: "",
 	favorites: [],
 	toastMessage: null,
+	toastType: "info",
 	confirmModal: null,
 };
 
@@ -124,6 +125,9 @@ export function galleryReducer(
 		case "REMOVE_IMAGES": {
 			const idsToRemove = new Set(action.payload);
 			const newImages = state.images.filter((img) => !idsToRemove.has(img.id));
+			const newLineageImages = state.lineageImages.filter(
+				(img) => !idsToRemove.has(img.id),
+			);
 			const newSelectedIds = new Set(state.selectedIds);
 			for (const id of action.payload) {
 				newSelectedIds.delete(id);
@@ -131,6 +135,7 @@ export function galleryReducer(
 			return {
 				...state,
 				images: newImages,
+				lineageImages: newLineageImages,
 				selectedIds: newSelectedIds,
 				pagination: {
 					...state.pagination,
@@ -552,11 +557,21 @@ export function galleryReducer(
 				...state,
 				searchQuery: action.payload,
 			};
-		case "SHOW_TOAST":
+		case "SHOW_TOAST": {
+			const payload = action.payload;
+			if (typeof payload === "string") {
+				return {
+					...state,
+					toastMessage: payload,
+					toastType: "info",
+				};
+			}
 			return {
 				...state,
-				toastMessage: action.payload,
+				toastMessage: payload.message,
+				toastType: payload.type || "info",
 			};
+		}
 		case "HIDE_TOAST":
 			return {
 				...state,

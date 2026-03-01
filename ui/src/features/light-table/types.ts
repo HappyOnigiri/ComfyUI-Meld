@@ -27,6 +27,8 @@ export interface TrayState {
 	images: Record<string, MeldImage>;
 	/** Toast notification message (null = hidden) */
 	toastMessage: string | null;
+	/** Toast type: info (greenish/default) or error (reddish) */
+	toastType: "info" | "error";
 
 	// Actions
 	setIsOpen: (isOpen: boolean) => void;
@@ -38,5 +40,5 @@ export interface TrayState {
 	removeSlot: (slotId: string) => void;
 	removeImages: (imageIds: number[]) => void;
 	/** Show toast for 2.5 seconds */
-	showToast: (message: string) => void;
+	showToast: (message: string, type?: "info" | "error") => void;
 }

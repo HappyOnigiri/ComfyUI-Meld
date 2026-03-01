@@ -34,6 +34,7 @@ export const useLightTableStore = create<TrayState>()(
 			buckets: {},
 			images: {},
 			toastMessage: null,
+			toastType: "info",
 
 			setIsOpen: (isOpen: boolean) => set({ isOpen }),
 
@@ -161,12 +162,12 @@ export const useLightTableStore = create<TrayState>()(
 			 * Show toast message for 2.5 seconds.
 			 * If called multiple times, the latest message overwrites the previous one.
 			 */
-			showToast: (message: string) => {
+			showToast: (message: string, type: "info" | "error" = "info") => {
 				if (toastTimeoutId) {
 					clearTimeout(toastTimeoutId);
 				}
 
-				set({ toastMessage: message });
+				set({ toastMessage: message, toastType: type });
 
 				toastTimeoutId = setTimeout(() => {
 					set({ toastMessage: null });

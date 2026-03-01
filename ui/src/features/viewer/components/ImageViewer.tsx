@@ -238,6 +238,7 @@ export function ImageViewer() {
 							isLoadingLineage={isLoadingLineage}
 							isLoading={state.isLoading}
 							viewerMode={viewerMode}
+							lightTableSlotId={state.viewerLightTableSlotId}
 						/>
 					)}
 

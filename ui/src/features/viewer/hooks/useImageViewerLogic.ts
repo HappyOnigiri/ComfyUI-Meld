@@ -12,6 +12,7 @@ import { deleteImagesAndSyncLightTable } from "../../images/hooks/deleteHelpers"
 import { useImageActions } from "../../images/hooks/useImageActions";
 import { useImageLineage } from "../../images/hooks/useImageLineage";
 import { useLightTableStore } from "../../light-table/store";
+import { parseShortcutCommand } from "../../settings/utils/shortcutGrammar";
 
 function getAdjacentIds(params: {
 	ids: number[];
@@ -216,7 +217,15 @@ export const useImageViewerLogic = ({
 						if (!idsToDelete.has(currentThumbnails[i].id)) {
 							dispatch({
 								type: "OPEN_VIEWER",
-								payload: { id: currentThumbnails[i].id, mode: viewerMode },
+								payload: {
+									id: currentThumbnails[i].id,
+									mode: viewerMode,
+									// Preserve slotId in lighttable mode to stay within the slot
+									...(viewerMode === "lighttable" &&
+									state.viewerLightTableSlotId
+										? { slotId: state.viewerLightTableSlotId }
+										: {}),
+								},
 							});
 							found = true;
 							break;
@@ -228,7 +237,15 @@ export const useImageViewerLogic = ({
 							if (!idsToDelete.has(currentThumbnails[i].id)) {
 								dispatch({
 									type: "OPEN_VIEWER",
-									payload: { id: currentThumbnails[i].id, mode: viewerMode },
+									payload: {
+										id: currentThumbnails[i].id,
+										mode: viewerMode,
+										// Preserve slotId in lighttable mode to stay within the slot
+										...(viewerMode === "lighttable" &&
+										state.viewerLightTableSlotId
+											? { slotId: state.viewerLightTableSlotId }
+											: {}),
+									},
 								});
 								found = true;
 								break;
@@ -271,6 +288,7 @@ export const useImageViewerLogic = ({
 			currentIndex,
 			viewerMode,
 			dispatch,
+			state.viewerLightTableSlotId,
 		],
 	);
 
@@ -389,7 +407,14 @@ export const useImageViewerLogic = ({
 
 			dispatch({
 				type: "OPEN_VIEWER",
-				payload: { id: idToOpen, mode: viewerMode },
+				payload: {
+					id: idToOpen,
+					mode: viewerMode,
+					// Preserve slotId in lighttable mode to stay within the slot
+					...(viewerMode === "lighttable" && state.viewerLightTableSlotId
+						? { slotId: state.viewerLightTableSlotId }
+						: {}),
+				},
 			});
 		} catch (err: unknown) {
 			dispatch({
@@ -397,7 +422,13 @@ export const useImageViewerLogic = ({
 				payload: err instanceof Error ? err.message : String(err),
 			});
 		}
-	}, [lastDeletedImages, dispatch, viewerMode, state.viewScope]);
+	}, [
+		lastDeletedImages,
+		dispatch,
+		viewerMode,
+		state.viewScope,
+		state.viewerLightTableSlotId,
+	]);
 
 	const handleUndo = useCallback(async () => {
 		if (lastDeletedImages && lastDeletedImages.length > 0) {
@@ -454,47 +485,78 @@ export const useImageViewerLogic = ({
 			const currentImageId = image.id;
 			const currentImageTags = [...image.tags];
 
-			const parts = command.split(/\s+/);
-			const addTags: string[] = [];
-			const removeTags: string[] = [];
-			let moveNext = false;
-			let movePrev = false;
-			let isDeleted = false;
+			const result = parseShortcutCommand(command, image);
+			const {
+				addTags,
+				removeTags,
+				isDeleted,
+				moveNext,
+				movePrev,
+				sendToLtSlot,
+			} = result;
 
-			for (const part of parts) {
-				if (part.startsWith("tag:")) {
-					const tag = part.substring(4);
-					if (
-						tag &&
-						!currentImageTags.includes(tag) &&
-						!addTags.includes(tag)
-					) {
-						addTags.push(tag);
-					}
-				} else if (part.startsWith("-tag:")) {
-					const tag = part.substring(5);
-					if (
-						tag &&
-						currentImageTags.includes(tag) &&
-						!removeTags.includes(tag)
-					) {
-						removeTags.push(tag);
-					}
-				} else if (part.startsWith("tag-toggle:")) {
-					const tag = part.substring(11);
-					if (tag) {
-						if (currentImageTags.includes(tag)) {
-							if (!removeTags.includes(tag)) removeTags.push(tag);
+			if (sendToLtSlot) {
+				const store = useLightTableStore.getState();
+				// Verify the slot exists before adding to bucket (Case-insensitive ID or Label)
+				const slot = store.slots.find(
+					(s) =>
+						s.id.toLowerCase() === sendToLtSlot.toLowerCase() ||
+						s.label.toLowerCase() === sendToLtSlot.toLowerCase(),
+				);
+
+				if (slot) {
+					// Use the correct internal ID for the store action
+					store.addToBucket(slot.id, String(currentImageId), image);
+					store.showToast(`Sent to ${slot.label}`);
+
+					// If not explicitly deleted, move to next image and hide from current view
+					if (!isDeleted) {
+						if (currentThumbnails.length > 1) {
+							// Find next or previous image to navigate to
+							let nextTargetId: number | null = null;
+							for (
+								let i = currentIndex + 1;
+								i < currentThumbnails.length;
+								i++
+							) {
+								if (currentThumbnails[i].id !== currentImageId) {
+									nextTargetId = currentThumbnails[i].id;
+									break;
+								}
+							}
+							if (nextTargetId === null) {
+								for (let i = currentIndex - 1; i >= 0; i--) {
+									if (currentThumbnails[i].id !== currentImageId) {
+										nextTargetId = currentThumbnails[i].id;
+										break;
+									}
+								}
+							}
+
+							if (nextTargetId !== null) {
+								dispatch({
+									type: "OPEN_VIEWER",
+									payload: { id: nextTargetId, mode: viewerMode },
+								});
+							} else {
+								dispatch({ type: "CLOSE_VIEWER" });
+							}
 						} else {
-							if (!addTags.includes(tag)) addTags.push(tag);
+							dispatch({ type: "CLOSE_VIEWER" });
 						}
+
+						// Remove from current session list
+						dispatch({ type: "REMOVE_IMAGES", payload: [currentImageId] });
 					}
-				} else if (part === "next") {
-					moveNext = true;
-				} else if (part === "prev") {
-					movePrev = true;
-				} else if (part === "delete") {
-					isDeleted = true;
+				} else {
+					// Slot not found - show error toast
+					store.showToast(
+						`Error: Light Table slot "${sendToLtSlot}" not found`,
+						"error",
+					);
+					console.warn(
+						`Attempted to send to non-existent LT slot: ${sendToLtSlot}`,
+					);
 				}
 			}
 
@@ -535,7 +597,16 @@ export const useImageViewerLogic = ({
 				handlePrevious();
 			}
 		},
-		[image, dispatch, handleNext, handlePrevious, handleDelete],
+		[
+			image,
+			dispatch,
+			handleNext,
+			handlePrevious,
+			handleDelete,
+			currentIndex,
+			currentThumbnails,
+			viewerMode,
+		],
 	);
 
 	useEffect(() => {

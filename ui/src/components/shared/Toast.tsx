@@ -24,7 +24,11 @@ export const Toast: React.FC = () => {
 	if (!toastMessage) return null;
 
 	return (
-		<div className="meld-toast" role="status" aria-live="polite">
+		<div
+			className={`meld-toast ${state.toastType === "error" ? "meld-toast--error" : ""}`}
+			role="status"
+			aria-live="polite"
+		>
 			{toastMessage}
 		</div>
 	);

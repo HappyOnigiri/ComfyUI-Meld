@@ -1,4 +1,4 @@
-import { useVirtualizer } from "@tanstack/react-virtual";
+import { useVirtualizer, type VirtualItem } from "@tanstack/react-virtual";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { ImageCard } from "../../../components/shared/ImageCard";
@@ -68,12 +68,12 @@ export const VirtualizedGalleryList: React.FC<VirtualizedGalleryListProps> = ({
 		? thumbSize + 10 + GRID_GAP
 		: Math.max(thumbSize, 150) + 20;
 
-	const virtualizer = useVirtualizer({
+	const virtualizer = useVirtualizer<HTMLDivElement, HTMLDivElement>({
 		count: rowCount,
 		getScrollElement: () => scrollRef.current,
 		estimateSize: () => rowHeightEstimate,
 		overscan: 5,
-		getItemKey: (index) =>
+		getItemKey: (index: number) =>
 			isGridOnly
 				? `row-${index}-${columnCount}`
 				: (visibleImages[index]?.id ?? index),
@@ -112,7 +112,7 @@ export const VirtualizedGalleryList: React.FC<VirtualizedGalleryListProps> = ({
 					position: "relative",
 				}}
 			>
-				{virtualItems.map((virtualRow) => {
+				{virtualItems.map((virtualRow: VirtualItem) => {
 					if (isGridOnly) {
 						const startIdx = virtualRow.index * columnCount;
 						const endIdx = Math.min(

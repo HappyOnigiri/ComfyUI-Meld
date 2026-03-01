@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import * as imagesApi from "../../features/images/api/imagesApi";
 import { deleteImagesAndSyncLightTable } from "../../features/images/hooks/deleteHelpers";
+import { useLightTableStore } from "../../features/light-table/store";
 import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 import { useGallery } from "../../store/GalleryContext";
 import type { MeldImage } from "../../types";
@@ -44,27 +45,42 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 		[state.searchQuery],
 	);
 
-	const currentList = useMemo(
-		() =>
-			state.viewerMode === "lineage" && state.lineageImages.length > 0
-				? state.lineageImages
-				: state.images.filter(
-						(img) =>
-							img.exists !== false &&
-							((state.settings["gallery.show_parent_images"] &&
-								!isSearchActive) ||
-								!img.has_children ||
-								isShowingDerivativesSearch),
-					),
-		[
-			state.viewerMode,
-			state.lineageImages,
-			state.images,
-			state.settings,
-			isSearchActive,
-			isShowingDerivativesSearch,
-		],
-	);
+	const currentList = useMemo(() => {
+		if (state.viewerMode === "lighttable" && state.viewerLightTableSlotId) {
+			const ltStore = useLightTableStore.getState();
+			const bucketIds = ltStore.buckets[state.viewerLightTableSlotId] || [];
+			return bucketIds
+				.map((idStr) => {
+					const idNum = Number.parseInt(idStr, 10);
+					return (
+						state.images.find((img) => img.id === idNum) ||
+						state.lineageImages.find((img) => img.id === idNum) ||
+						null
+					);
+				})
+				.filter((img): img is MeldImage => img !== null);
+		}
+
+		if (state.viewerMode === "lineage" && state.lineageImages.length > 0) {
+			return state.lineageImages;
+		}
+
+		return state.images.filter(
+			(img) =>
+				img.exists !== false &&
+				((state.settings["gallery.show_parent_images"] && !isSearchActive) ||
+					!img.has_children ||
+					isShowingDerivativesSearch),
+		);
+	}, [
+		state.viewerMode,
+		state.viewerLightTableSlotId,
+		state.lineageImages,
+		state.images,
+		state.settings,
+		isSearchActive,
+		isShowingDerivativesSearch,
+	]);
 
 	// Track current viewer state to prevent re-opening if closed during async operations
 	const viewerImageIdRef = useRef(state.viewerImageId);
@@ -119,7 +135,15 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 				if (!idsToDelete.has(currentList[i].id)) {
 					dispatch({
 						type: "OPEN_VIEWER",
-						payload: { id: currentList[i].id, mode: state.viewerMode },
+						payload: {
+							id: currentList[i].id,
+							mode: state.viewerMode,
+							// Preserve slotId in lighttable mode to stay within the slot
+							...(state.viewerMode === "lighttable" &&
+							state.viewerLightTableSlotId
+								? { slotId: state.viewerLightTableSlotId }
+								: {}),
+						},
 					});
 					found = true;
 					break;
@@ -132,7 +156,15 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 					if (!idsToDelete.has(currentList[i].id)) {
 						dispatch({
 							type: "OPEN_VIEWER",
-							payload: { id: currentList[i].id, mode: state.viewerMode },
+							payload: {
+								id: currentList[i].id,
+								mode: state.viewerMode,
+								// Preserve slotId in lighttable mode to stay within the slot
+								...(state.viewerMode === "lighttable" &&
+								state.viewerLightTableSlotId
+									? { slotId: state.viewerLightTableSlotId }
+									: {}),
+							},
 						});
 						found = true;
 						break;
@@ -144,7 +176,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 				dispatch({ type: "CLOSE_VIEWER" });
 			}
 		},
-		[state.viewerMode, currentList, dispatch],
+		[state.viewerMode, state.viewerLightTableSlotId, currentList, dispatch],
 	);
 
 	const handleDeleteSelected = async () => {

@@ -25,7 +25,9 @@ interface SlotProps {
 }
 
 export const Slot: React.FC<SlotProps> = ({ config }) => {
-	const { buckets, slots, images } = useLightTableStore();
+	const buckets = useLightTableStore((s) => s.buckets);
+	const slots = useLightTableStore((s) => s.slots);
+	const images = useLightTableStore((s) => s.images);
 	const slotsCount = slots.length;
 	const { state: galleryState, dispatch: galleryDispatch } = useGallery();
 	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -353,12 +355,39 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 								type="button"
 								className="meld-lt-slot__settings-save"
 								onClick={() => {
-									useLightTableStore.getState().updateSlot(config.id, {
-										label: editLabel,
+									const store = useLightTableStore.getState();
+									const trimmedLabel = editLabel.trim();
+
+									if (!trimmedLabel) {
+										store.showToast(
+											"Error: Tab label cannot be empty",
+											"error",
+										);
+										return;
+									}
+
+									// Check if another slot already uses this label or ID (case-insensitive)
+									const isDuplicate = store.slots.some(
+										(s) =>
+											s.id !== config.id &&
+											(s.label.toLowerCase() === trimmedLabel.toLowerCase() ||
+												s.id.toLowerCase() === trimmedLabel.toLowerCase()),
+									);
+
+									if (isDuplicate) {
+										store.showToast(
+											`Error: "${trimmedLabel}" is already in use`,
+											"error",
+										);
+										return;
+									}
+
+									store.updateSlot(config.id, {
+										label: trimmedLabel,
 										color: editColor,
 									});
 									setIsSettingsOpen(false);
-									useLightTableStore.getState().showToast("Settings saved");
+									store.showToast("Settings saved");
 								}}
 							>
 								Save Settings

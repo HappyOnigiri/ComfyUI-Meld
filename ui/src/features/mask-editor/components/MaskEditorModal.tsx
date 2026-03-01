@@ -16,7 +16,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "/scripts/api.js";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { useGallery } from "../../../store/GalleryContext";
+import type { MeldImage } from "../../../types";
 import { getImageViewUrl } from "../../../utils/url";
+import { useLightTableStore } from "../../light-table/store";
 import { useWorkflowExecution } from "../../workflows/hooks/useWorkflowExecution";
 import { useMaskInjection } from "../hooks/useMaskInjection";
 import type {
@@ -58,7 +60,24 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 	onClose,
 }) => {
 	const { state, dispatch } = useGallery();
-	const image = state.images.find((img) => img.id === imageId);
+
+	// Implementation Requirements: Must search images from gallery, lineage,
+	// and Light Table store because the modal can be opened from multiple contexts
+	// (gallery, viewer, light table). Caching the image in a ref prevents
+	// the modal from disappearing when SSE events replace state.images.
+	const resolvedImage = useMemo(() => {
+		return (
+			state.images.find((img) => img.id === imageId) ??
+			state.lineageImages.find((img) => img.id === imageId) ??
+			useLightTableStore.getState().images[String(imageId)]
+		);
+	}, [state.images, state.lineageImages, imageId]);
+
+	const cachedImageRef = useRef<MeldImage | undefined>(undefined);
+	if (resolvedImage) {
+		cachedImageRef.current = resolvedImage;
+	}
+	const image = resolvedImage ?? cachedImageRef.current;
 	const { injectMaskToGraph } = useMaskInjection();
 	const { executeWorkflow } = useWorkflowExecution();
 
@@ -273,6 +292,18 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 		}
 	}, [maskHistory.length]);
 
+	// Handle delayed image loading: ensure mask initialization via onLoad
+	const handleImageLoad = useCallback(() => {
+		if (imageRef.current?.naturalWidth && maskHistory.length === 0) {
+			setMaskHistory([
+				createMaskBitmap(
+					imageRef.current.naturalWidth,
+					imageRef.current.naturalHeight,
+				),
+			]);
+		}
+	}, [maskHistory.length]);
+
 	const overlayMouseDownRef = useRef(false);
 	const lastDragEndTimeRef = useRef(0);
 
@@ -311,6 +342,13 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 		ctx.putImageData(imageData, 0, 0);
 		draw();
 	}, [currentMask, draw]);
+
+	// Ensure real-time drawing during drag operations
+	useEffect(() => {
+		if (isDragging) {
+			draw();
+		}
+	}, [isDragging, draw]);
 
 	useEffect(() => {
 		const overlay = overlayRef.current;
@@ -876,6 +914,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 								alt="To be masked"
 								className="meld-mask-editor-image"
 								onDragStart={(e) => e.preventDefault()}
+								onLoad={handleImageLoad}
 							/>
 							<canvas
 								ref={canvasRef}

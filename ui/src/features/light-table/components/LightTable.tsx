@@ -18,7 +18,10 @@ import "./LightTable.css";
  */
 export const LightTable: React.FC = () => {
 	useLightTableKeys();
-	const { isOpen, slots, buckets, setIsOpen } = useLightTableStore();
+	const isOpen = useLightTableStore((s) => s.isOpen);
+	const slots = useLightTableStore((s) => s.slots);
+	const buckets = useLightTableStore((s) => s.buckets);
+	const setIsOpen = useLightTableStore((s) => s.setIsOpen);
 	const { state: galleryState } = useGallery();
 	const [activeTabId, setActiveTabId] = useState(slots[0]?.id || "keep");
 	const portalContainerRef = useRef<HTMLDivElement | null>(null);
