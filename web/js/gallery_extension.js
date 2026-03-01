@@ -17848,6 +17848,9 @@ const Im = (e) => {
                 draggable: !1,
                 width: e.width || void 0,
                 height: e.height || void 0,
+                style: {
+                  aspectRatio: e.width && e.height ? `${e.width} / ${e.height}` : void 0
+                },
                 onMouseDown: u,
                 onClick: (E) => {
                   E.stopPropagation(), _(E);
@@ -18152,6 +18155,9 @@ const Lm = Yt.memo(
                 draggable: !1,
                 width: e.width || void 0,
                 height: e.height || void 0,
+                style: {
+                  aspectRatio: e.width && e.height ? `${e.width} / ${e.height}` : void 0
+                },
                 onMouseDown: l,
                 onClick: (O) => {
                   O.stopPropagation(), o(O);
@@ -18636,7 +18642,35 @@ const Nc = ({ image: e }) => {
                 t({ type: "SET_SEARCH_QUERY", payload: C }), a("search");
               }
             }
-          ) : e.isLoading && d.length === 0 ? /* @__PURE__ */ s.jsx("div", { className: "meld-gallery__loading", children: "Loading images..." }) : f.length === 0 ? /* @__PURE__ */ s.jsx("div", { className: "meld-gallery__empty", children: "No images found." }) : /* @__PURE__ */ s.jsx(
+          ) : e.isLoading && d.length === 0 ? /* @__PURE__ */ s.jsx(
+            "div",
+            {
+              className: "meld-gallery__list-wrapper",
+              style: {
+                flex: 1,
+                minHeight: 0,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center"
+              },
+              children: /* @__PURE__ */ s.jsx("div", { className: "meld-gallery__loading", children: "Loading images..." })
+            }
+          ) : f.length === 0 ? /* @__PURE__ */ s.jsx(
+            "div",
+            {
+              className: "meld-gallery__list-wrapper",
+              style: {
+                flex: 1,
+                minHeight: 0,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center"
+              },
+              children: /* @__PURE__ */ s.jsx("div", { className: "meld-gallery__empty", children: "No images found." })
+            }
+          ) : /* @__PURE__ */ s.jsx(
             "div",
             {
               className: "meld-gallery__list-wrapper",
