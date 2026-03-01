@@ -107,6 +107,12 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(
 						draggable={false}
 						width={image.width || undefined}
 						height={image.height || undefined}
+						style={{
+							aspectRatio:
+								image.width && image.height
+									? `${image.width} / ${image.height}`
+									: undefined,
+						}}
 						onMouseDown={handleMouseDown}
 						onClick={(e) => {
 							e.stopPropagation();
