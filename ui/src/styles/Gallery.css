@@ -1,8 +1,10 @@
 :root {
 	--meld-bg-color: var(--comfy-menu-bg, #222);
 	--meld-text-color: var(--comfy-input-text, var(--fg-color, #eee));
-	--meld-text-secondary: var(--desc-color,
-			var(--comfy-menu-label-text, var(--text-secondary, #888)));
+	--meld-text-secondary: var(
+		--desc-color,
+		var(--comfy-menu-label-text, var(--text-secondary, #888))
+	);
 	--meld-accent-color: var(--comfy-input-text-active, #4488ff);
 	--meld-success-color: var(--comfy-input-text-active, #44bb44);
 	--meld-danger-color: var(--error-color, #ff4444);
@@ -10,8 +12,10 @@
 	--meld-border-subtle: var(--border-subtle, var(--comfy-menu-border, #333));
 	--meld-card-bg: var(--comfy-input-bg, rgba(0, 0, 0, 0.2));
 	--meld-card-content-bg: var(--comfy-menu-bg, rgba(255, 255, 255, 0.05));
-	--meld-card-selected-bg: var(--comfy-input-bg-active,
-			var(--comfy-input-bg, rgba(68, 136, 255, 0.2)));
+	--meld-card-selected-bg: var(
+		--comfy-input-bg-active,
+		var(--comfy-input-bg, rgba(68, 136, 255, 0.2))
+	);
 }
 
 .meld-gallery {
@@ -93,7 +97,7 @@
 	padding-top: 4px;
 }
 
-.meld-gallery__actions>button {
+.meld-gallery__actions > button {
 	/* Keep header icon buttons compact and consistent across WebUI/Desktop WebViews. */
 	padding: 2px;
 	line-height: 1;
@@ -825,12 +829,13 @@
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background: rgba(0,
-			0,
-			0,
-			0.85
-			/* color-check-ignore */
-		);
+	background: rgba(
+		0,
+		0,
+		0,
+		0.85
+		/* color-check-ignore */
+	);
 	z-index: 10000;
 	display: flex;
 	align-items: center;
@@ -1411,8 +1416,10 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background: var(--meld-overlay-bg,
-			color-mix(in srgb, var(--comfy-menu-bg, #15161a) 25%, transparent));
+	background: var(
+		--meld-overlay-bg,
+		color-mix(in srgb, var(--comfy-menu-bg, #15161a) 25%, transparent)
+	);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -2249,11 +2256,11 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	border-radius: 50%;
 }
 
-.meld-switch input:checked+.meld-switch__slider {
+.meld-switch input:checked + .meld-switch__slider {
 	background-color: var(--comfy-input-bg, #444);
 }
 
-.meld-switch input:checked+.meld-switch__slider:before {
+.meld-switch input:checked + .meld-switch__slider:before {
 	transform: translateX(20px);
 	background-color: var(--comfy-input-text-active, #4a9eff);
 }
