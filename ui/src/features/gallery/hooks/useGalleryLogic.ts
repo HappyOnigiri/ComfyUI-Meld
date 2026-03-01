@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useKeydownCapture } from "../../../hooks/useKeydownCapture";
 import { logger } from "../../../logger";
 import { useGallery } from "../../../store/GalleryContext";
+import { stopKeyboardEvent } from "../../../utils/keyboard";
 import { useLightTableStore } from "../../light-table/store";
 
 export type SidebarView = "gallery" | "search" | "tags";
@@ -81,24 +83,29 @@ export const useGalleryLogic = () => {
 		loadMoreImages,
 	]);
 
-	useEffect(() => {
-		const handleKeyDown = (e: KeyboardEvent) => {
-			if (e.key === "Escape") {
-				if (state.activeModal.type !== "none") {
-					dispatch({ type: "CLOSE_MODAL" });
-					e.preventDefault();
-					e.stopPropagation();
-				} else if (state.selectedIds.size > 0) {
-					dispatch({ type: "CLEAR_SELECTION" });
-					e.preventDefault();
-					e.stopPropagation();
-				}
+	useKeydownCapture({
+		onKeyDown: (e: KeyboardEvent) => {
+			if (e.key !== "Escape") {
+				return;
 			}
-		};
 
-		window.addEventListener("keydown", handleKeyDown);
-		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [state.activeModal.type, state.selectedIds.size, dispatch]);
+			const hasOpenDialog = Boolean(
+				document.querySelector(
+					'[role="dialog"][aria-modal="true"], [role="alertdialog"][aria-modal="true"], .meld-modal-overlay',
+				),
+			);
+			if (state.activeModal.type !== "none" || hasOpenDialog) {
+				return;
+			}
+
+			if (state.selectedIds.size === 0) {
+				return;
+			}
+
+			dispatch({ type: "CLEAR_SELECTION" });
+			stopKeyboardEvent(e);
+		},
+	});
 
 	useEffect(() => {
 		const observer = new IntersectionObserver(

@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { useOnPointerDownOutside } from "../../../hooks/useOnPointerDownOutside";
 import { useGallery } from "../../../store/GalleryContext";
+import { stopReactKeyboardEvent } from "../../../utils/keyboard";
 import { useFavoritesLogic } from "../hooks/useFavoritesLogic";
 import { FavoriteItem } from "./FavoriteItem";
 
@@ -252,8 +253,14 @@ export const FavoritesContextMenu: React.FC<FavoritesContextMenuProps> = ({
 											outline: "none",
 										}}
 										onKeyDown={(e) => {
-											if (e.key === "Enter") handleSaveEditFavorite();
-											if (e.key === "Escape") setEditingFavorite(null);
+											if (e.key === "Enter") {
+												stopReactKeyboardEvent(e);
+												handleSaveEditFavorite();
+											}
+											if (e.key === "Escape") {
+												stopReactKeyboardEvent(e);
+												setEditingFavorite(null);
+											}
 										}}
 									/>
 								</div>
@@ -293,10 +300,13 @@ export const FavoritesContextMenu: React.FC<FavoritesContextMenuProps> = ({
 										}}
 										onKeyDown={(e) => {
 											if (e.key === "Enter" && !e.shiftKey) {
-												e.preventDefault();
+												stopReactKeyboardEvent(e);
 												handleSaveEditFavorite();
 											}
-											if (e.key === "Escape") setEditingFavorite(null);
+											if (e.key === "Escape") {
+												stopReactKeyboardEvent(e);
+												setEditingFavorite(null);
+											}
 										}}
 									/>
 								</div>

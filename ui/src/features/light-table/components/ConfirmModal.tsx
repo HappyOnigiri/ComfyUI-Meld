@@ -1,5 +1,5 @@
 import type React from "react";
-import { useEffect } from "react";
+import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 
 import "./ConfirmModal.css";
 
@@ -21,16 +21,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 	onConfirm,
 	onCancel,
 }) => {
-	// Cancel with ESC key
-	useEffect(() => {
-		const handleKeyDown = (e: KeyboardEvent) => {
-			if (e.key === "Escape") {
-				onCancel();
-			}
-		};
-		document.addEventListener("keydown", handleKeyDown);
-		return () => document.removeEventListener("keydown", handleKeyDown);
-	}, [onCancel]);
+	useEscapeToClose({ onEscape: onCancel });
 
 	return (
 		<div
