@@ -16,7 +16,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "/scripts/api.js";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { useGallery } from "../../../store/GalleryContext";
+import type { MeldImage } from "../../../types";
 import { getImageViewUrl } from "../../../utils/url";
+import { useLightTableStore } from "../../light-table/store";
 import { useWorkflowExecution } from "../../workflows/hooks/useWorkflowExecution";
 import { useMaskInjection } from "../hooks/useMaskInjection";
 import type {
@@ -58,7 +60,24 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 	onClose,
 }) => {
 	const { state, dispatch } = useGallery();
-	const image = state.images.find((img) => img.id === imageId);
+
+	// Implementation Requirements: Must search images from gallery, lineage,
+	// and Light Table store because the modal can be opened from multiple contexts
+	// (gallery, viewer, light table). Caching the image in a ref prevents
+	// the modal from disappearing when SSE events replace state.images.
+	const resolvedImage = useMemo(() => {
+		return (
+			state.images.find((img) => img.id === imageId) ??
+			state.lineageImages.find((img) => img.id === imageId) ??
+			useLightTableStore.getState().images[String(imageId)]
+		);
+	}, [state.images, state.lineageImages, imageId]);
+
+	const cachedImageRef = useRef<MeldImage | undefined>(undefined);
+	if (resolvedImage) {
+		cachedImageRef.current = resolvedImage;
+	}
+	const image = resolvedImage ?? cachedImageRef.current;
 	const { injectMaskToGraph } = useMaskInjection();
 	const { executeWorkflow } = useWorkflowExecution();
 
