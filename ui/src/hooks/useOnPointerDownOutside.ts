@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 interface UseOnPointerDownOutsideOptions {
 	enabled: boolean;
@@ -14,6 +14,10 @@ interface UseOnPointerDownOutsideOptions {
  * Detects pointerdown events outside of the provided refs.
  * Uses capture phase by default so it can reliably observe events
  * before other bubbling handlers alter propagation.
+ *
+ * For best performance, pass stable ref arrays (for example with useMemo)
+ * and stable callbacks (for example with useCallback). This hook also keeps
+ * the latest refs/callback in refs to avoid frequent event re-subscriptions.
  */
 export const useOnPointerDownOutside = ({
 	enabled,
@@ -23,6 +27,16 @@ export const useOnPointerDownOutside = ({
 }: UseOnPointerDownOutsideOptions): void => {
 	const capture = options?.capture ?? true;
 	const ignoreNonPrimary = options?.ignoreNonPrimary ?? true;
+	const latestInsideRefsRef = useRef(insideRefs);
+	const latestOnOutsideRef = useRef(onOutside);
+
+	useEffect(() => {
+		latestInsideRefsRef.current = insideRefs;
+	}, [insideRefs]);
+
+	useEffect(() => {
+		latestOnOutsideRef.current = onOutside;
+	}, [onOutside]);
 
 	useEffect(() => {
 		if (!enabled) return;
@@ -41,13 +55,13 @@ export const useOnPointerDownOutside = ({
 				return;
 			}
 
-			const isInside = insideRefs.some((ref) => {
+			const isInside = latestInsideRefsRef.current.some((ref) => {
 				const element = ref.current;
 				return element ? element.contains(target) : false;
 			});
 
 			if (!isInside) {
-				onOutside(event);
+				latestOnOutsideRef.current(event);
 			}
 		};
 
@@ -57,5 +71,5 @@ export const useOnPointerDownOutside = ({
 				capture,
 			});
 		};
-	}, [enabled, insideRefs, onOutside, capture, ignoreNonPrimary]);
+	}, [enabled, capture, ignoreNonPrimary]);
 };
