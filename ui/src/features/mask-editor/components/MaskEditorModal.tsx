@@ -292,6 +292,18 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 		}
 	}, [maskHistory.length]);
 
+	// Handle delayed image loading: ensure mask initialization via onLoad
+	const handleImageLoad = useCallback(() => {
+		if (imageRef.current?.naturalWidth && maskHistory.length === 0) {
+			setMaskHistory([
+				createMaskBitmap(
+					imageRef.current.naturalWidth,
+					imageRef.current.naturalHeight,
+				),
+			]);
+		}
+	}, [maskHistory.length]);
+
 	const overlayMouseDownRef = useRef(false);
 	const lastDragEndTimeRef = useRef(0);
 
@@ -330,6 +342,13 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 		ctx.putImageData(imageData, 0, 0);
 		draw();
 	}, [currentMask, draw]);
+
+	// Ensure real-time drawing during drag operations
+	useEffect(() => {
+		if (isDragging) {
+			draw();
+		}
+	}, [isDragging, draw]);
 
 	useEffect(() => {
 		const overlay = overlayRef.current;
@@ -895,6 +914,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 								alt="To be masked"
 								className="meld-mask-editor-image"
 								onDragStart={(e) => e.preventDefault()}
+								onLoad={handleImageLoad}
 							/>
 							<canvas
 								ref={canvasRef}
