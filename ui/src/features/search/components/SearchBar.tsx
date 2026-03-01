@@ -98,6 +98,7 @@ export const SearchBar: React.FC = () => {
 			>
 				{toastMessage && (
 					<div
+						className="meld-search-toast"
 						style={{
 							position: "absolute",
 							top: "calc(100% + 8px)",
@@ -108,7 +109,6 @@ export const SearchBar: React.FC = () => {
 							padding: "8px 16px",
 							borderRadius: "4px",
 							fontSize: "12px",
-							zIndex: 2000,
 							whiteSpace: "pre-wrap",
 							textAlign: "center",
 							boxShadow: "0 4px 12px var(--comfy-menu-shadow, rgba(0,0,0,0.5))",
@@ -323,12 +323,9 @@ export const SearchBar: React.FC = () => {
 			{editingFavorite &&
 				createPortal(
 					<div
-						className="meld-modal-overlay"
+						className="meld-modal-overlay meld-search-edit-modal-overlay"
 						onMouseDown={handleOverlayMouseDown}
 						onMouseUp={handleOverlayMouseUp}
-						style={{
-							zIndex: 3000,
-						}}
 					>
 						<div
 							className="meld-modal-content meld-modal-content--small"

@@ -16,6 +16,21 @@
 		--comfy-input-bg-active,
 		var(--comfy-input-bg, rgba(68, 136, 255, 0.2))
 	);
+	/* Global z-index tokens: use these instead of magic numbers. */
+	--meld-z-base: 0;
+	--meld-z-gallery-header: 100;
+	--meld-z-light-table: 98;
+	--meld-z-popover: 200;
+	--meld-z-dropdown-overlay: 1999;
+	--meld-z-dropdown: 2000;
+	--meld-z-floating-menu: 5000;
+	--meld-z-viewer-overlay: 10000;
+	--meld-z-viewer-ui: 10010;
+	--meld-z-viewer-ui-secondary: 10005;
+	--meld-z-prompt-popup: 10500;
+	--meld-z-modal-overlay: 11000;
+	--meld-z-toast: 11500;
+	--meld-z-import-preview: 20000;
 }
 
 .meld-gallery {
@@ -41,7 +56,7 @@
 	/* Header is a fixed child of Flexbox and always visible */
 	flex-shrink: 0;
 	background: var(--meld-bg-color);
-	z-index: 100;
+	z-index: var(--meld-z-gallery-header);
 	padding: 10px;
 	display: flex;
 	flex-direction: column;
@@ -261,7 +276,7 @@
 }
 
 .meld-image-card--menu-open {
-	z-index: 2000;
+	z-index: var(--meld-z-dropdown);
 	position: relative;
 }
 
@@ -357,7 +372,7 @@
 	border-radius: 4px;
 	box-shadow: 0 4px 12px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.5));
 	min-width: 180px;
-	z-index: 5000;
+	z-index: var(--meld-z-floating-menu);
 	overflow: hidden;
 	/* Used by SVG icons to create a background-colored halo. */
 	--meld-icon-halo: var(--comfy-menu-bg, #333);
@@ -791,7 +806,7 @@
 	left: 0;
 	right: 0;
 	bottom: 0;
-	z-index: 1999;
+	z-index: var(--meld-z-dropdown-overlay);
 }
 
 .meld-bulk-bar-menu {
@@ -800,7 +815,7 @@
 	border: 1px solid var(--comfy-menu-border, #444);
 	border-radius: 4px;
 	box-shadow: 0 -4px 12px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.5));
-	z-index: 2000;
+	z-index: var(--meld-z-dropdown);
 	min-width: 180px;
 	display: flex;
 	flex-direction: column;
@@ -836,7 +851,7 @@
 		0.85
 		/* color-check-ignore */
 	);
-	z-index: 10000;
+	z-index: var(--meld-z-viewer-overlay);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -907,7 +922,7 @@
 	right: 15px;
 	display: flex;
 	gap: 10px;
-	z-index: 2020;
+	z-index: var(--meld-z-viewer-ui);
 }
 
 .meld-viewer-action-btn {
@@ -1045,7 +1060,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	color: white;
 	cursor: pointer;
 	padding: 10px;
-	z-index: 2020;
+	z-index: var(--meld-z-viewer-ui);
 	transition: all 0.2s;
 	border-radius: 4px;
 	display: flex;
@@ -1093,7 +1108,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	right: 0;
 	bottom: 100px;
 	/* Above thumbnails */
-	z-index: 2010;
+	z-index: var(--meld-z-viewer-ui-secondary);
 	background: var(--comfy-input-bg, rgba(0, 0, 0, 0.4));
 	/* color-check-ignore */
 	padding: 12px;
@@ -1220,7 +1235,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	left: 70px;
 	/* Space for nav buttons */
 	right: 70px;
-	z-index: 2010;
+	z-index: var(--meld-z-viewer-ui-secondary);
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -1323,7 +1338,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	z-index: 10500;
+	z-index: var(--meld-z-prompt-popup);
 	cursor: default;
 }
 
@@ -1423,7 +1438,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	z-index: 11000;
+	z-index: var(--meld-z-modal-overlay);
 }
 
 .meld-modal-content {
@@ -1930,7 +1945,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	right: 0;
 	bottom: 0;
 	background: transparent;
-	z-index: 20000;
+	z-index: var(--meld-z-import-preview);
 	border-radius: 0;
 }
 
@@ -2802,7 +2817,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	z-index: 2020;
+	z-index: var(--meld-z-viewer-ui);
 	color: var(--meld-accent-color);
 	background: var(--comfy-menu-bg, rgba(0, 0, 0, 0.5));
 	padding: 20px;
@@ -2883,7 +2898,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	position: absolute;
 	bottom: 85px;
 	left: 10px;
-	z-index: 2010;
+	z-index: var(--meld-z-viewer-ui-secondary);
 	display: flex;
 	flex-direction: column;
 	gap: 6px;
@@ -2894,6 +2909,30 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	border: 1px solid var(--comfy-menu-border, rgba(255, 255, 255, 0.05));
 	/* color-check-ignore */
 	pointer-events: none;
+}
+
+.meld-favorites-context-overlay {
+	z-index: var(--meld-z-dropdown-overlay);
+}
+
+.meld-favorites-context-menu {
+	z-index: var(--meld-z-dropdown);
+}
+
+.meld-favorites-edit-modal-overlay {
+	z-index: var(--meld-z-modal-overlay);
+}
+
+.meld-search-suggestions {
+	z-index: var(--meld-z-popover);
+}
+
+.meld-search-toast {
+	z-index: var(--meld-z-dropdown);
+}
+
+.meld-search-edit-modal-overlay {
+	z-index: var(--meld-z-modal-overlay);
 }
 
 .meld-viewer-content--fullscreen .meld-viewer-cheat-sheet {

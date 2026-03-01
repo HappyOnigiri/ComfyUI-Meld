@@ -91,13 +91,13 @@ export const FavoritesContextMenu: React.FC<FavoritesContextMenuProps> = ({
 		<>
 			{/* Outside click overlay */}
 			<div
+				className="meld-favorites-context-overlay"
 				style={{
 					position: "fixed",
 					top: 0,
 					left: 0,
 					right: 0,
 					bottom: 0,
-					zIndex: 1999,
 					backgroundColor: "transparent",
 				}}
 				onClick={onClose}
@@ -107,6 +107,7 @@ export const FavoritesContextMenu: React.FC<FavoritesContextMenuProps> = ({
 			{/* Menu container */}
 			<div
 				ref={menuRef}
+				className="meld-favorites-context-menu"
 				onClick={handleContentClick}
 				onMouseDown={handleContentMouseDown}
 				style={{
@@ -119,7 +120,6 @@ export const FavoritesContextMenu: React.FC<FavoritesContextMenuProps> = ({
 					border: "1px solid var(--comfy-menu-border, #444)",
 					borderRadius: "8px",
 					boxShadow: "0 8px 24px var(--comfy-menu-shadow, rgba(0,0,0,0.5))",
-					zIndex: 2000,
 					display: "flex",
 					flexDirection: "column",
 					overflow: "hidden",
@@ -204,8 +204,7 @@ export const FavoritesContextMenu: React.FC<FavoritesContextMenuProps> = ({
 			{/* Edit Favorite Modal */}
 			{editingFavorite && (
 				<div
-					className="meld-modal-overlay"
-					style={{ zIndex: 3000 }}
+					className="meld-modal-overlay meld-favorites-edit-modal-overlay"
 					onMouseDown={(e) => {
 						if (e.target === e.currentTarget) setEditingFavorite(null);
 					}}

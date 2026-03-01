@@ -2,7 +2,7 @@
 .meld-light-table {
 	background: var(--comfy-menu-bg, #15161a);
 	border-top: 1px solid var(--comfy-menu-border, #444);
-	z-index: 98;
+	z-index: var(--meld-z-light-table);
 	/* Positioned below Image Feed (z-index: 99) */
 	display: flex;
 	flex-direction: column;
