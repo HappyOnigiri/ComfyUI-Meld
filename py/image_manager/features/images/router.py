@@ -5,6 +5,7 @@ import logging
 import os
 import shutil
 import time
+import uuid
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from typing import Any
@@ -1167,11 +1168,27 @@ def _get_thumb_executor() -> ThreadPoolExecutor:
 def _generate_thumbnail(source_path: str, cache_path: str, size: int) -> None:
     """
     Synchronous helper to generate a thumbnail. Must run off the event loop.
+    Uses an atomic write to prevent race conditions.
     """
-    with Image.open(source_path) as img:
-        img.load()
-        img.thumbnail((size, size), Image.Resampling.LANCZOS)
-        img.save(cache_path, "WEBP", quality=85)
+    # Create a unique temporary path in the same directory for atomic rename
+    temp_path = f"{cache_path}.{uuid.uuid4().hex}.tmp"
+
+    try:
+        with Image.open(source_path) as img:
+            img.load()
+            img.thumbnail((size, size), Image.Resampling.LANCZOS)
+            img.save(temp_path, "WEBP", quality=85)
+
+        # os.replace is atomic and works across most platforms if on the same filesystem
+        os.replace(temp_path, cache_path)
+    except Exception:
+        # Cleanup temporary file if something went wrong
+        if os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except OSError:
+                pass
+        raise
 
 
 @dataclass(frozen=True)
