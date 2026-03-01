@@ -107,6 +107,8 @@ export const initialState: GalleryState = {
 	},
 	searchQuery: "",
 	favorites: [],
+	toastMessage: null,
+	confirmModal: null,
 };
 
 export function galleryReducer(
@@ -549,6 +551,26 @@ export function galleryReducer(
 			return {
 				...state,
 				searchQuery: action.payload,
+			};
+		case "SHOW_TOAST":
+			return {
+				...state,
+				toastMessage: action.payload,
+			};
+		case "HIDE_TOAST":
+			return {
+				...state,
+				toastMessage: null,
+			};
+		case "OPEN_CONFIRM_MODAL":
+			return {
+				...state,
+				confirmModal: action.payload,
+			};
+		case "CLOSE_CONFIRM_MODAL":
+			return {
+				...state,
+				confirmModal: null,
 			};
 		default:
 			return state;

@@ -7,7 +7,7 @@
 		--meld-overlay-bg,
 		color-mix(in srgb, var(--comfy-menu-bg, #15161a) 20%, transparent)
 	);
-	z-index: 9999;
+	z-index: 11500;
 	display: flex;
 	align-items: center;
 	justify-content: center;

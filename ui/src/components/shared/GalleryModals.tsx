@@ -11,9 +11,11 @@ import { WorkflowSelectionModal } from "../../features/workflows/components/Work
 import { useWorkflowExecution } from "../../features/workflows/hooks/useWorkflowExecution";
 import { injectImageToGraph } from "../../features/workflows/utils/injectImageToGraph";
 import { useGallery } from "../../store/GalleryContext";
+import { ConfirmModal } from "./ConfirmModal";
 import { DeleteConfirmModal } from "./DeleteConfirmModal";
 import { ErrorModal } from "./ErrorModal";
 import { ParentSelectionModal } from "./ParentSelectionModal";
+import { Toast } from "./Toast";
 
 export const GalleryModals: React.FC = () => {
 	const { state, dispatch } = useGallery();
@@ -183,6 +185,24 @@ export const GalleryModals: React.FC = () => {
 					/>,
 					document.body,
 				)}
+
+			{state.confirmModal &&
+				createPortal(
+					<ConfirmModal
+						message={state.confirmModal.message}
+						onConfirm={() => {
+							state.confirmModal?.onConfirm();
+							dispatch({ type: "CLOSE_CONFIRM_MODAL" });
+						}}
+						onCancel={() => {
+							state.confirmModal?.onCancel?.();
+							dispatch({ type: "CLOSE_CONFIRM_MODAL" });
+						}}
+					/>,
+					document.body,
+				)}
+
+			{state.toastMessage && createPortal(<Toast />, document.body)}
 		</>
 	);
 };
