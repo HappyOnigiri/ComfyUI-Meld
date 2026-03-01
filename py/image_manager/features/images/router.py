@@ -1,9 +1,12 @@
+import asyncio
 import hashlib
 import json
 import logging
 import os
 import shutil
 import time
+from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass
 from typing import Any
 
 import folder_paths
@@ -1150,22 +1153,52 @@ async def get_lineage_endpoint(request: web.Request) -> web.Response:
         return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
+_thumb_executor: ThreadPoolExecutor | None = None
+
+
+def _get_thumb_executor() -> ThreadPoolExecutor:
+    """Lazy-init module-level executor for thumbnail generation."""
+    global _thumb_executor
+    if _thumb_executor is None:
+        _thumb_executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="meld-thumb")
+    return _thumb_executor
+
+
+def _generate_thumbnail(source_path: str, cache_path: str, size: int) -> None:
+    """
+    Synchronous helper to generate a thumbnail. Must run off the event loop.
+    """
+    with Image.open(source_path) as img:
+        img.load()
+        img.thumbnail((size, size), Image.Resampling.LANCZOS)
+        img.save(cache_path, "WEBP", quality=85)
+
+
+@dataclass(frozen=True)
+class ResolveError:
+    """Structured error from _resolve_image_path_for_thumb."""
+
+    status_code: int
+    message: str
+
+
 def _resolve_image_path_for_thumb(
     filename: str,
     subfolder: str,
     img_type: str,
-) -> tuple[str | None, str | None]:
+) -> tuple[str | None, ResolveError | None]:
     """
     Resolve image path for thumbnail generation.
-    Returns (absolute_path, error_message).
-    If error_message is not None, absolute_path is None.
+    Returns (absolute_path, resolve_error).
+    If resolve_error is not None, absolute_path is None and caller should use
+    resolve_error.status_code and resolve_error.message for the response.
     """
     if not filename or not img_type:
-        return (None, "filename and type are required")
+        return (None, ResolveError(400, "filename and type are required"))
 
     # Security: prevent path traversal
     if filename[0] == "/" or ".." in filename:
-        return (None, "invalid filename")
+        return (None, ResolveError(400, "invalid filename"))
 
     filename = os.path.basename(filename)
 
@@ -1188,7 +1221,7 @@ def _resolve_image_path_for_thumb(
         # subfolder for custom type is the full directory path (stored by importer).
         # Verify it is under a trusted base to prevent path traversal.
         if subfolder is None or subfolder == "":
-            return (None, "subfolder is required for custom type")
+            return (None, ResolveError(400, "subfolder is required for custom type"))
         full_path = os.path.normpath(os.path.abspath(os.path.join(subfolder, filename)))
         dir_path = os.path.dirname(full_path)
         dir_abs = os.path.abspath(dir_path)
@@ -1208,7 +1241,7 @@ def _resolve_image_path_for_thumb(
             if custom_dir:
                 allowed_roots.append(os.path.abspath(custom_dir))
         if not allowed_roots:
-            return (None, "base directory not configured")
+            return (None, ResolveError(400, "base directory not configured"))
         under_allowed = False
         for base_abs in allowed_roots:
             try:
@@ -1218,31 +1251,31 @@ def _resolve_image_path_for_thumb(
             except ValueError:
                 continue
         if not under_allowed:
-            return (None, "path traversal detected")
+            return (None, ResolveError(403, "path traversal detected"))
         if not os.path.isfile(full_path):
-            return (None, "file not found")
+            return (None, ResolveError(404, "file not found"))
         if not filename.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
-            return (None, "unsupported format")
+            return (None, ResolveError(400, "unsupported format"))
         return (full_path, None)
     else:
-        return (None, f"invalid type: {img_type}")
+        return (None, ResolveError(400, f"invalid type: {img_type}"))
 
     if base_dir is None:
-        return (None, "base directory not configured")
+        return (None, ResolveError(400, "base directory not configured"))
 
     full_path = os.path.normpath(os.path.abspath(os.path.join(base_dir, effective_subfolder, filename)))
     base_abs = os.path.abspath(base_dir)
     try:
         if os.path.commonpath([base_abs, full_path]) != base_abs:
-            return (None, "path traversal detected")
+            return (None, ResolveError(403, "path traversal detected"))
     except ValueError:
-        return (None, "path traversal detected")
+        return (None, ResolveError(403, "path traversal detected"))
 
     if not os.path.isfile(full_path):
-        return (None, "file not found")
+        return (None, ResolveError(404, "file not found"))
 
     if not filename.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
-        return (None, "unsupported format")
+        return (None, ResolveError(400, "unsupported format"))
 
     return (full_path, None)
 
@@ -1261,13 +1294,7 @@ async def view_thumb_endpoint(request: web.Request) -> web.StreamResponse:
 
         resolved, err = _resolve_image_path_for_thumb(filename or "", subfolder, img_type)
         if err is not None:
-            if "required" in err or "invalid" in err:
-                return web.Response(status=400, text=err)
-            if "path traversal" in err or "detected" in err:
-                return web.Response(status=403, text=err)
-            if "not found" in err:
-                return web.Response(status=404, text=err)
-            return web.Response(status=400, text=err)
+            return web.Response(status=err.status_code, text=err.message)
 
         if resolved is None:
             return web.Response(status=400, text="path resolution failed")
@@ -1287,10 +1314,14 @@ async def view_thumb_endpoint(request: web.Request) -> web.StreamResponse:
                 pass
 
         if not cache_hit:
-            with Image.open(source_path) as img:
-                img.load()
-                img.thumbnail((size, size), Image.Resampling.LANCZOS)
-                img.save(cache_path, "WEBP", quality=85)
+            loop = asyncio.get_running_loop()
+            await loop.run_in_executor(
+                _get_thumb_executor(),
+                _generate_thumbnail,
+                source_path,
+                cache_path,
+                size,
+            )
 
         response = web.FileResponse(
             cache_path,
