@@ -37,12 +37,10 @@ def sync_directories(src_dir: Path, dst_dir: Path) -> None:
         if src_p.is_dir():
             dst_p.mkdir(parents=True, exist_ok=True)
         else:
+            src_stat = src_p.stat()
+            dst_stat = dst_p.stat() if dst_p.exists() else None
             # Only copy if different or doesn't exist
-            if (
-                not dst_p.exists()
-                or src_p.stat().st_mtime > dst_p.stat().st_mtime
-                or src_p.stat().st_size != dst_p.stat().st_size
-            ):
+            if dst_stat is None or src_stat.st_mtime > dst_stat.st_mtime or src_stat.st_size != dst_stat.st_size:
                 dst_p.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(src_p, dst_p)
                 print(f"Synced: {item}")
@@ -50,7 +48,7 @@ def sync_directories(src_dir: Path, dst_dir: Path) -> None:
 
 if __name__ == "__main__":
     # Project root is the parent directory of this script's directory (scripts/)
-    project_root = Path(__file__).parent.parent
+    project_root = Path(__file__).resolve().parent.parent
     src = project_root / ".cursor"
     dst = project_root / ".agent"
 

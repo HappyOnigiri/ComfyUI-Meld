@@ -1,4 +1,4 @@
-.PHONY: ci test-all lint lint-py lint-ui lint-misc lint-scripts build-ui watch-ui local-check-scripts check-scripts check-ts-rules check-non-ascii repomix loc setup-hooks
+.PHONY: ci test-all lint lint-py lint-ui lint-misc lint-scripts build-ui watch-ui local-check-scripts check-scripts check-ts-rules check-non-ascii repomix loc setup-hooks sync-agent
 
 setup-hooks:
 	git config core.hooksPath scripts/git-hooks
