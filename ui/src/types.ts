@@ -248,6 +248,7 @@ export type GalleryAction =
 	| { type: "SELECT_RANGE"; payload: number }
 	| { type: "SELECT_ALL" }
 	| { type: "CLEAR_SELECTION" }
+	| { type: "DESELECT_IMAGES"; payload: number[] }
 	| { type: "SET_VIEW_SCOPE"; payload: "default" | "trash" }
 	| {
 			type: "OPEN_VIEWER";

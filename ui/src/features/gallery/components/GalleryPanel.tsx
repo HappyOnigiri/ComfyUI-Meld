@@ -104,13 +104,22 @@ export const GalleryPanel: React.FC = () => {
 					const transferredData = e.dataTransfer.getData("text/plain");
 					if (transferredData) {
 						const imageIds = transferredData.split(",");
+						const idsToDeselect: number[] = [];
 						imageIds.forEach((id) => {
 							if (id) {
+								const cleanId = id.trim();
 								useLightTableStore
 									.getState()
-									.removeFromBucket(sourceSlot, id.trim());
+									.removeFromBucket(sourceSlot, cleanId);
+								const numId = Number(cleanId);
+								if (!Number.isNaN(numId)) {
+									idsToDeselect.push(numId);
+								}
 							}
 						});
+						if (idsToDeselect.length > 0) {
+							dispatch({ type: "DESELECT_IMAGES", payload: idsToDeselect });
+						}
 					}
 				}
 			}}
