@@ -35,6 +35,7 @@ export const SearchBar: React.FC = () => {
 	const {
 		isSaving,
 		toastMessage,
+		toastType,
 		editingFavorite,
 		setEditingFavorite,
 		editFavoriteName,
@@ -44,8 +45,20 @@ export const SearchBar: React.FC = () => {
 		handleDeleteFavorite,
 		handleEditFavorite,
 		handleSaveEditFavorite,
-		handleSaveFavorite,
+		handleSaveFavorite: handleSaveFavoriteLogic,
+		setToastMessage,
 	} = useFavoritesLogic();
+
+	const handleSaveFavorite = async () => {
+		const isAlreadyFavorite = state.favorites.some(
+			(f) => f.query === state.searchQuery,
+		);
+		if (isAlreadyFavorite) {
+			setToastMessage("This query is already in your favorites.", "error");
+			return;
+		}
+		await handleSaveFavoriteLogic();
+	};
 
 	useEscapeToClose({
 		onEscape: () => setEditingFavorite(null),
@@ -101,7 +114,10 @@ export const SearchBar: React.FC = () => {
 							boxShadow: "0 4px 12px var(--comfy-menu-shadow, rgba(0,0,0,0.5))",
 							pointerEvents: "none",
 							fontWeight: "bold",
-							border: "1px solid var(--comfy-menu-border, #444)",
+							border:
+								toastType === "error"
+									? "1px solid var(--brand-red, #ff4c4c)"
+									: "1px solid var(--comfy-menu-border, #444)",
 							animation: "meld-fade-in-down 0.3s ease-out",
 							width: "max-content",
 							maxWidth: "300px",

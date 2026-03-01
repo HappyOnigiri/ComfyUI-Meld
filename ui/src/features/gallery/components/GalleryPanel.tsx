@@ -44,8 +44,8 @@ export const GalleryPanel: React.FC = () => {
 		isSearchActive,
 		loadMoreRef,
 	} = useGalleryLogic();
-	const { isOpen: isLightTableOpen, setIsOpen: setIsLightTableOpen } =
-		useLightTableStore();
+	const isLightTableOpen = useLightTableStore((s) => s.isOpen);
+	const setIsLightTableOpen = useLightTableStore((s) => s.setIsOpen);
 	const lightTableBuckets = useLightTableStore((s: TrayState) => s.buckets);
 	const hasImagesInLightTable = (
 		Object.values(lightTableBuckets) as string[][]

@@ -4,7 +4,8 @@ import { useLightTableStore } from "../store";
 
 export const useLightTableKeys = () => {
 	const { state: galleryState } = useGallery();
-	const { slots, addToBucket } = useLightTableStore();
+	const slots = useLightTableStore((s) => s.slots);
+	const addToBucket = useLightTableStore((s) => s.addToBucket);
 
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {

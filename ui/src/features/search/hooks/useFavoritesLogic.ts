@@ -8,6 +8,7 @@ export const useFavoritesLogic = () => {
 	const { state, refreshFavorites } = useGallery();
 	const [isSaving, setIsSaving] = useState(false);
 	const [toastMessage, setToastMessage] = useState<string | null>(null);
+	const [toastType, setToastType] = useState<"info" | "error">("info");
 	const [editingFavorite, setEditingFavorite] = useState<Favorite | null>(null);
 	const [editFavoriteName, setEditFavoriteName] = useState("");
 	const [editFavoriteQuery, setEditFavoriteQuery] = useState("");
@@ -67,6 +68,7 @@ export const useFavoritesLogic = () => {
 		} catch (err) {
 			logger.error("Failed to update favorite", err);
 			setToastMessage("Failed to update favorite.");
+			setToastType("error");
 		} finally {
 			setIsSaving(false);
 		}
@@ -108,6 +110,7 @@ export const useFavoritesLogic = () => {
 	return {
 		isSaving,
 		toastMessage,
+		toastType,
 		editingFavorite,
 		setEditingFavorite,
 		editFavoriteName,
@@ -118,6 +121,9 @@ export const useFavoritesLogic = () => {
 		handleEditFavorite,
 		handleSaveEditFavorite,
 		handleSaveFavorite,
-		setToastMessage,
+		setToastMessage: (msg: string | null, type: "info" | "error" = "info") => {
+			setToastMessage(msg);
+			setToastType(type);
+		},
 	};
 };

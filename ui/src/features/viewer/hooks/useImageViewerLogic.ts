@@ -482,6 +482,7 @@ export const useImageViewerLogic = ({
 					// Slot not found - show error toast
 					store.showToast(
 						`Error: Light Table slot "${sendToLtSlot}" not found`,
+						"error",
 					);
 					console.warn(
 						`Attempted to send to non-existent LT slot: ${sendToLtSlot}`,
