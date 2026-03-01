@@ -3,6 +3,7 @@ import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
+import { useOnPointerDownOutside } from "../../../hooks/useOnPointerDownOutside";
 import { useGallery } from "../../../store/GalleryContext";
 import { useFavoritesLogic } from "../hooks/useFavoritesLogic";
 import { FavoriteItem } from "./FavoriteItem";
@@ -48,6 +49,11 @@ export const FavoritesContextMenu: React.FC<FavoritesContextMenuProps> = ({
 		},
 		enabled: true,
 	});
+	useOnPointerDownOutside({
+		enabled: Boolean(anchorRect) && !editingFavorite,
+		insideRefs: [menuRef],
+		onOutside: () => onClose(),
+	});
 
 	// Position the menu relative to the anchor
 	useEffect(() => {
@@ -78,38 +84,12 @@ export const FavoritesContextMenu: React.FC<FavoritesContextMenuProps> = ({
 
 	if (!anchorRect) return null;
 
-	const handleContentClick = (e: React.MouseEvent) => {
-		e.stopPropagation();
-		e.preventDefault();
-	};
-
-	const handleContentMouseDown = (e: React.MouseEvent) => {
-		e.stopPropagation();
-	};
-
 	return createPortal(
 		<>
-			{/* Outside click overlay */}
-			<div
-				className="meld-favorites-context-overlay"
-				style={{
-					position: "fixed",
-					top: 0,
-					left: 0,
-					right: 0,
-					bottom: 0,
-					backgroundColor: "transparent",
-				}}
-				onClick={onClose}
-				onMouseDown={(e) => e.stopPropagation()}
-			/>
-
 			{/* Menu container */}
 			<div
 				ref={menuRef}
 				className="meld-favorites-context-menu"
-				onClick={handleContentClick}
-				onMouseDown={handleContentMouseDown}
 				style={{
 					position: "fixed",
 					top: position.top,

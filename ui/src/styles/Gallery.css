@@ -21,7 +21,6 @@
 	--meld-z-gallery-header: 100;
 	--meld-z-light-table: 98;
 	--meld-z-popover: 200;
-	--meld-z-dropdown-overlay: 1999;
 	--meld-z-dropdown: 2000;
 	--meld-z-floating-menu: 5000;
 	--meld-z-viewer-overlay: 10000;
@@ -798,15 +797,6 @@
 	height: 1px;
 	background-color: var(--comfy-menu-border, #444);
 	margin: 4px 0;
-}
-
-.meld-bulk-bar-menu-overlay {
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	z-index: var(--meld-z-dropdown-overlay);
 }
 
 .meld-bulk-bar-menu {
@@ -2909,10 +2899,6 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	border: 1px solid var(--comfy-menu-border, rgba(255, 255, 255, 0.05));
 	/* color-check-ignore */
 	pointer-events: none;
-}
-
-.meld-favorites-context-overlay {
-	z-index: var(--meld-z-dropdown-overlay);
 }
 
 .meld-favorites-context-menu {

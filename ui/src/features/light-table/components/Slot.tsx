@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
+import { useOnPointerDownOutside } from "../../../hooks/useOnPointerDownOutside";
 import { useGallery } from "../../../store/GalleryContext";
 import type { MeldImage } from "../../../types";
 import { getThumbnailViewUrl } from "../../../utils/url";
@@ -46,33 +47,19 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 
 	const actionMenuRef = useRef<HTMLDivElement>(null);
 	const settingsRef = useRef<HTMLDivElement>(null);
+	useOnPointerDownOutside({
+		enabled: isSettingsOpen,
+		insideRefs: [settingsRef],
+		onOutside: () => setIsSettingsOpen(false),
+	});
+	useOnPointerDownOutside({
+		enabled: isActionMenuOpen,
+		insideRefs: [actionMenuRef],
+		onOutside: () => setIsActionMenuOpen(false),
+	});
 
 	const bucketItems = buckets[config.id] || [];
 	const itemCount = bucketItems.length;
-
-	// Close settings panel when clicking outside
-	useEffect(() => {
-		const handleClickOutside = (event: MouseEvent) => {
-			if (
-				settingsRef.current &&
-				!settingsRef.current.contains(event.target as Node)
-			) {
-				setIsSettingsOpen(false);
-			}
-			if (
-				actionMenuRef.current &&
-				!actionMenuRef.current.contains(event.target as Node)
-			) {
-				setIsActionMenuOpen(false);
-			}
-		};
-		if (isSettingsOpen || isActionMenuOpen) {
-			document.addEventListener("mousedown", handleClickOutside);
-		}
-		return () => {
-			document.removeEventListener("mousedown", handleClickOutside);
-		};
-	}, [isSettingsOpen, isActionMenuOpen]);
 
 	const bucketImages = bucketItems
 		.map((id) => {
