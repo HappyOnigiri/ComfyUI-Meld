@@ -6,7 +6,7 @@ import * as imagesApi from "../../features/images/api/imagesApi";
 import * as importerApi from "../../features/importer/api/importerApi";
 import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 import { useGallery } from "../../store/GalleryContext";
-import { getImageViewUrl } from "../../utils/url";
+import { getThumbnailViewUrl } from "../../utils/url";
 
 interface Suggestion {
 	id: number;
@@ -223,11 +223,14 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 									>
 										{image.parent_filename && (
 											<img
-												src={getImageViewUrl({
-													filename: image.parent_filename,
-													subfolder: image.parent_subfolder || "",
-													type: image.parent_type || "output",
-												})}
+												src={getThumbnailViewUrl(
+													{
+														filename: image.parent_filename,
+														subfolder: image.parent_subfolder || "",
+														type: image.parent_type || "output",
+													},
+													64,
+												)}
 												alt="Current Source"
 												style={{
 													width: "40px",
@@ -338,7 +341,10 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 															: {}),
 													}}
 												>
-													<img src={getImageViewUrl(sug)} alt={sug.filename} />
+													<img
+														src={getThumbnailViewUrl(sug, 64)}
+														alt={sug.filename}
+													/>
 													<div className="meld-suggestion-info">
 														<span className="meld-suggestion-filename">
 															{sug.filename}
@@ -385,7 +391,10 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 															: {}),
 													}}
 												>
-													<img src={getImageViewUrl(sug)} alt={sug.filename} />
+													<img
+														src={getThumbnailViewUrl(sug, 64)}
+														alt={sug.filename}
+													/>
 													<div className="meld-suggestion-info">
 														<span className="meld-suggestion-filename">
 															{sug.filename}

@@ -1,6 +1,9 @@
 import { useCallback } from "react";
 import type { MeldImage, Settings } from "../../../types";
-import { getImageViewUrl } from "../../../utils/url";
+import { getThumbnailViewUrl } from "../../../utils/url";
+
+/** Thumbnail size for lineage parent/child displays (small icons). */
+const LINEAGE_THUMBNAIL_SIZE = 56;
 
 /**
  * Shared Image Lineage Hook
@@ -16,7 +19,7 @@ export const useImageLineage = (images: MeldImage[], settings: Settings) => {
 			if (img.ancestors && img.ancestors.length > 0) {
 				return img.ancestors.slice(0, maxDepth).map((a) => ({
 					id: a.id,
-					imgSrc: getImageViewUrl(a),
+					imgSrc: getThumbnailViewUrl(a, LINEAGE_THUMBNAIL_SIZE),
 				}));
 			}
 
@@ -27,13 +30,16 @@ export const useImageLineage = (images: MeldImage[], settings: Settings) => {
 
 			let imgSrc: string | null = null;
 			if (parentInState) {
-				imgSrc = getImageViewUrl(parentInState);
+				imgSrc = getThumbnailViewUrl(parentInState, LINEAGE_THUMBNAIL_SIZE);
 			} else {
-				imgSrc = getImageViewUrl({
-					filename: img.parent_filename,
-					subfolder: img.parent_subfolder || "",
-					type: img.parent_type,
-				});
+				imgSrc = getThumbnailViewUrl(
+					{
+						filename: img.parent_filename,
+						subfolder: img.parent_subfolder || "",
+						type: img.parent_type,
+					},
+					LINEAGE_THUMBNAIL_SIZE,
+				);
 			}
 
 			if (!imgSrc) return [];

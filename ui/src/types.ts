@@ -213,6 +213,12 @@ export interface GalleryState {
 	};
 	searchQuery: string;
 	favorites: Favorite[];
+	toastMessage: string | null;
+	confirmModal: {
+		message: string;
+		onConfirm: () => void;
+		onCancel?: () => void;
+	} | null;
 }
 
 export type GalleryAction =
@@ -265,7 +271,18 @@ export type GalleryAction =
 	| { type: "REMOVE_IMAGES"; payload: number[] }
 	| { type: "ADD_IMAGES"; payload: MeldImage[] }
 	| { type: "UPDATE_IMAGE"; payload: MeldImage }
-	| { type: "REFRESH" };
+	| { type: "REFRESH" }
+	| { type: "SHOW_TOAST"; payload: string }
+	| { type: "HIDE_TOAST" }
+	| {
+			type: "OPEN_CONFIRM_MODAL";
+			payload: {
+				message: string;
+				onConfirm: () => void;
+				onCancel?: () => void;
+			};
+	  }
+	| { type: "CLOSE_CONFIRM_MODAL" };
 
 export interface ComfyApp {
 	registerExtension(extension: ComfyExtension): void;

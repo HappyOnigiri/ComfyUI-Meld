@@ -14,6 +14,7 @@ interface SystemTabProps {
 	handleToggle: (key: keyof Settings, currentValue: boolean) => void;
 	setLocalSettings: React.Dispatch<React.SetStateAction<Settings>>;
 	handleViewTrash: () => void;
+	handleClearThumbnailCache: () => void | Promise<void>;
 	// Input states
 	lineageMaxDepthInput: string;
 	trashRetentionDaysInput: string;
@@ -28,6 +29,7 @@ export const SystemTab: React.FC<SystemTabProps> = ({
 	handleToggle,
 	setLocalSettings,
 	handleViewTrash,
+	handleClearThumbnailCache,
 	lineageMaxDepthInput,
 	trashRetentionDaysInput,
 	autoLinkPhashThresholdInput,
@@ -150,6 +152,22 @@ export const SystemTab: React.FC<SystemTabProps> = ({
 							handleNumberBlur({ key: "gallery.lineage_max_depth" })
 						}
 					/>
+				</SettingItem>
+			</div>
+
+			<div className="meld-settings-group">
+				<div className="meld-settings-group-title">Thumbnail Cache</div>
+				<SettingItem
+					label="Clear Thumbnail Cache"
+					description="Delete all cached thumbnails. They will be regenerated on next view."
+				>
+					<button
+						type="button"
+						className="meld-button meld-button--secondary"
+						onClick={handleClearThumbnailCache}
+					>
+						Clear Thumbnail Cache
+					</button>
 				</SettingItem>
 			</div>
 

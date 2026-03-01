@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useGallery } from "../../../store/GalleryContext";
 import type { Settings } from "../../../types";
+import * as settingsApi from "../api/settingsApi";
 
 export type Category =
 	| "Gallery"
@@ -224,6 +225,30 @@ export const useSettingsModalLogic = () => {
 		dispatch({ type: "CLOSE_MODAL" });
 	};
 
+	const handleClearThumbnailCache = () => {
+		dispatch({
+			type: "OPEN_CONFIRM_MODAL",
+			payload: {
+				message: "Are you sure you want to delete all cached thumbnails?",
+				onConfirm: async () => {
+					try {
+						await settingsApi.clearThumbnailCache();
+						dispatch({
+							type: "SHOW_TOAST",
+							payload: "Thumbnail cache cleared",
+						});
+					} catch (e) {
+						console.error("Failed to clear thumbnail cache:", e);
+						dispatch({
+							type: "SET_ERROR",
+							payload: "Failed to clear thumbnail cache",
+						});
+					}
+				},
+			},
+		});
+	};
+
 	return {
 		activeTab,
 		setActiveTab,
@@ -237,6 +262,7 @@ export const useSettingsModalLogic = () => {
 		handleNumberBlur,
 		handleResetShortcuts,
 		handleViewTrash,
+		handleClearThumbnailCache,
 		validateShortcut,
 		// Input states
 		initialLoadCountInput,
