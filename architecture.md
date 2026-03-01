@@ -83,6 +83,13 @@ This document serves as a comprehensive guide for AI agents and developers to un
   - Use `api.fetchApi` for all network requests. **DO NOT** use native `fetch` directly for backend communication (to handle ComfyUI auth/routing).
   - **Strict Typing**: No `any`. Define interfaces in `src/types.ts`.
 
+### Frontend Layering Rules (z-index)
+- Use centralized z-index tokens defined in `ui/src/styles/Gallery.css` (`:root`, keys prefixed with `--meld-z-`).
+- Do not introduce new magic-number z-index values for global layers (viewer, modal, toast, dropdown, overlays, light table).
+- Add or update a `--meld-z-*` token first, then consume the token from feature CSS.
+- Keep local, component-internal stacking values minimal (e.g., `1/2/3`) only when they do not represent global UI layers.
+- For React components using inline `style`, avoid inline `zIndex`; use CSS classes that reference `--meld-z-*` tokens.
+
 ### API Protocols
 - **Routes**: `@server.PromptServer.instance.routes.post("/meld/resource")` (NO `/api` prefix).
 - **Response Format**: ALL `/meld/...` API responses MUST use the `ApiResponse` wrapper:
