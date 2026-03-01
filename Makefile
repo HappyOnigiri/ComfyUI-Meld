@@ -105,3 +105,7 @@ repomix:
 
 repomix-%:
 	$(PYTHON) scripts/generate_repomix.py repomix-$*
+
+sync-agent:
+	@$(PYTHON) scripts/sync_agent.py
+	@echo ".cursor files have been synchronized to .agent."
