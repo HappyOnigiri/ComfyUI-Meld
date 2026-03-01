@@ -98,7 +98,7 @@
 	min-width: 220px;
 	width: max-content;
 	box-shadow: 0 -4px 15px var(--comfy-menu-shadow, transparent);
-	z-index: 200;
+	z-index: var(--meld-z-popover);
 }
 
 .meld-lt-slot__action-menu-item {
@@ -166,7 +166,7 @@
 	gap: 8px;
 	min-width: 200px;
 	box-shadow: 0 -4px 15px var(--comfy-menu-shadow, transparent);
-	z-index: 100;
+	z-index: var(--meld-z-popover);
 	color: var(--fg-color, #eee);
 	font-size: 13px;
 }
