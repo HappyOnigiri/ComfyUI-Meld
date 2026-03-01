@@ -8,6 +8,7 @@ import { GalleryPanel } from "./features/gallery/components/GalleryPanel";
 import * as imagesApi from "./features/images/api/imagesApi";
 import * as settingsApi from "./features/settings/api/settingsApi";
 import { logger } from "./logger";
+import { startPortalRootAutoAttach } from "./portals/portalRoots";
 import { GalleryProvider } from "./store/GalleryContext";
 import type { ComfyApp } from "./types";
 import "./meld_unified_loader_ui";
@@ -69,6 +70,8 @@ app.registerExtension({
 	},
 
 	async setup(app: ComfyApp) {
+		startPortalRootAutoAttach();
+
 		// Initialize logger from server settings
 		try {
 			const settings = await settingsApi.fetchSettings();
