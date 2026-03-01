@@ -9,9 +9,10 @@ import {
 	X,
 } from "lucide-react";
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
+import { getPortalRoot } from "../../../portals/portalRoots";
 import { useGallery } from "../../../store/GalleryContext";
 import { useImageActions } from "../../images/hooks/useImageActions";
 
@@ -26,58 +27,14 @@ export const BulkActionBar: React.FC = () => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [menuAnchorRect, setMenuAnchorRect] = useState<DOMRect | null>(null);
 	const actionButtonRef = useRef<HTMLButtonElement>(null);
-	const [portalContainer, setPortalContainer] = useState<HTMLDivElement | null>(
-		null,
-	);
-
-	// Get or create the portal container to render inside .comfyui-body-bottom
-	useEffect(() => {
-		const el = document.getElementById("meld-bulk-bar-portal");
-		let container = el instanceof HTMLDivElement ? el : null;
-		if (!container) {
-			// We must create a portal mount point at runtime because the ComfyUI host HTML cannot be modified by the extension.
-			container = document.createElement("div");
-			container.id = "meld-bulk-bar-portal";
-			container.dataset.mountCount = "0";
-
-			// Find .comfyui-body-bottom (same location as LightTable)
-			const bottomArea = document.querySelector(".comfyui-body-bottom");
-			if (bottomArea) {
-				bottomArea.appendChild(container);
-			} else {
-				// Fallback
-				document.body.appendChild(container);
-			}
-		}
-
-		// Increment usage count
-		const mountCount = Number.parseInt(container.dataset.mountCount || "0", 10);
-		container.dataset.mountCount = (mountCount + 1).toString();
-
-		setPortalContainer(container);
-
-		return () => {
-			if (container) {
-				const currentCount = Number.parseInt(
-					container.dataset.mountCount || "1",
-					10,
-				);
-				const newCount = currentCount - 1;
-				container.dataset.mountCount = newCount.toString();
-
-				if (newCount <= 0) {
-					container.remove();
-				}
-			}
-		};
-	}, []);
+	const portalRoot = getPortalRoot("bulkActionBar");
 
 	useEscapeToClose({
 		onEscape: () => setIsMenuOpen(false),
 		enabled: isMenuOpen,
 	});
 
-	if (count === 0 || !portalContainer) return null;
+	if (count === 0) return null;
 
 	const isTrashMode = state.viewScope === "trash";
 
@@ -249,5 +206,5 @@ export const BulkActionBar: React.FC = () => {
 		</div>
 	);
 
-	return createPortal(bulkBarJSX, portalContainer);
+	return createPortal(bulkBarJSX, portalRoot);
 };
