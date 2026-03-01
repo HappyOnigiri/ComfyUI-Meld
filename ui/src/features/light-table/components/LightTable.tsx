@@ -1,7 +1,8 @@
 import { Plus, Trash, X } from "lucide-react";
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { createPortal } from "react-dom";
+import { getPortalRoot } from "../../../portals/portalRoots";
 import { useGallery } from "../../../store/GalleryContext";
 import { useLightTableKeys } from "../hooks/useLightTableKeys";
 import { useLightTableStore } from "../store";
@@ -24,37 +25,12 @@ export const LightTable: React.FC = () => {
 	const setIsOpen = useLightTableStore((s) => s.setIsOpen);
 	const { state: galleryState } = useGallery();
 	const [activeTabId, setActiveTabId] = useState(slots[0]?.id || "keep");
-	const portalContainerRef = useRef<HTMLDivElement | null>(null);
+	const portalRoot = getPortalRoot("lightTable");
 
 	/** Show/hide flag for Clear All confirm modal */
 	const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
 
-	// Get or create the portal container
-	useEffect(() => {
-		let container = document.getElementById(
-			"meld-light-table-portal",
-		) as HTMLDivElement | null;
-		if (!container) {
-			container = document.createElement("div");
-			container.id = "meld-light-table-portal";
-
-			// Find .comfyui-body-bottom (same location as Image Feed)
-			const bottomArea = document.querySelector(".comfyui-body-bottom");
-			if (bottomArea) {
-				bottomArea.appendChild(container);
-			} else {
-				// Fallback: append to document.body
-				document.body.appendChild(container);
-			}
-		}
-		portalContainerRef.current = container;
-
-		return () => {
-			// Keep the container even if the component is unmounted (reuse on remount)
-		};
-	}, []);
-
-	if (!isOpen || !portalContainerRef.current) return null;
+	if (!isOpen) return null;
 
 	const handleAddSlot = () => {
 		const newId = `slot_${Date.now().toString(36)}`;
@@ -186,5 +162,5 @@ export const LightTable: React.FC = () => {
 		</div>
 	);
 
-	return createPortal(lightTableJSX, portalContainerRef.current);
+	return createPortal(lightTableJSX, portalRoot);
 };
