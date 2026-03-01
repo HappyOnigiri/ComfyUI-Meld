@@ -40,6 +40,10 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 	const [editLabel, setEditLabel] = useState(config.label);
 	const [editColor, setEditColor] = useState(config.color);
 
+	// State for multi-selection
+	const [selectedIds, setSelectedIds] = useState<number[]>([]);
+	const [lastSelectedId, setLastSelectedId] = useState<number | null>(null);
+
 	const actionMenuRef = useRef<HTMLDivElement>(null);
 	const settingsRef = useRef<HTMLDivElement>(null);
 
@@ -84,6 +88,22 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 		})
 		.filter(Boolean) as MeldImage[];
 
+	// Clean up selectedIds when items are removed from the bucket
+	useEffect(() => {
+		setSelectedIds((prev) => {
+			const validNext = prev.filter((id) => bucketItems.includes(String(id)));
+			if (validNext.length !== prev.length) {
+				return validNext;
+			}
+			return prev;
+		});
+	}, [bucketItems]);
+
+	const validSelectedIds = selectedIds.filter((id) =>
+		bucketItems.includes(String(id)),
+	);
+	const hasSelection = validSelectedIds.length > 0;
+
 	const handleDragOver = (e: React.DragEvent) => {
 		e.preventDefault();
 		e.stopPropagation();
@@ -122,14 +142,27 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 
 	const handleImageDragStart = (e: React.DragEvent, imgId: number) => {
 		e.stopPropagation();
-		e.dataTransfer.setData("text/plain", String(imgId));
+		let draggedIds = [imgId];
+		if (validSelectedIds.includes(imgId)) {
+			draggedIds = validSelectedIds;
+		} else {
+			setSelectedIds([imgId]);
+			setLastSelectedId(imgId);
+		}
+		e.dataTransfer.setData("text/plain", draggedIds.join(","));
 		e.dataTransfer.setData("application/meld-lt-source-slot", config.id);
 		e.dataTransfer.effectAllowed = "move";
 	};
 
 	const handleImageDragEnd = (e: React.DragEvent, imgId: number) => {
 		if (e.dataTransfer.dropEffect === "none") {
-			useLightTableStore.getState().removeFromBucket(config.id, String(imgId));
+			const idsToRemove = validSelectedIds.includes(imgId)
+				? validSelectedIds
+				: [imgId];
+			idsToRemove.forEach((id) => {
+				useLightTableStore.getState().removeFromBucket(config.id, String(id));
+			});
+			setSelectedIds((prev) => prev.filter((id) => !idsToRemove.includes(id)));
 		}
 	};
 
@@ -141,7 +174,13 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 			type: actionType,
 		};
 
-		const imageIds = bucketItems.map((id) => Number(id));
+		// Run only on selected images if any exist, otherwise run on all images
+		const targetIds = hasSelection ? validSelectedIds : bucketItems.map(Number);
+		if (targetIds.length === 0) return;
+
+		const targetImages = targetIds
+			.map((id) => bucketImages.find((img) => img.id === id))
+			.filter(Boolean) as MeldImage[];
 
 		// Show toast on action completion (only when not canceled via modal)
 		const actionLabelMap: Record<ActionType, string> = {
@@ -161,8 +200,8 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 
 		executeSlotAction(
 			actionToExecute,
-			imageIds,
-			bucketImages,
+			targetIds,
+			targetImages,
 			galleryDispatch,
 			onSuccess,
 		);
@@ -201,17 +240,49 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 						return (
 							<div
 								key={img.id}
-								className="meld-lt-slot-panel__image-wrapper"
+								className={`meld-lt-slot-panel__image-wrapper${validSelectedIds.includes(img.id) ? " selected" : ""}`}
 								draggable
-								onClick={() => {
-									galleryDispatch({
-										type: "OPEN_VIEWER",
-										payload: {
-											id: img.id,
-											mode: "lighttable",
-											slotId: config.id,
-										},
-									});
+								onClick={(e) => {
+									if (e.ctrlKey || e.metaKey) {
+										// Toggle selection
+										setSelectedIds((prev) =>
+											prev.includes(img.id)
+												? prev.filter((id) => id !== img.id)
+												: [...prev, img.id],
+										);
+										setLastSelectedId(img.id);
+									} else if (e.shiftKey && lastSelectedId !== null) {
+										// Range selection
+										const currentIndex = bucketImages.findIndex(
+											(i) => i.id === img.id,
+										);
+										const lastIndex = bucketImages.findIndex(
+											(i) => i.id === lastSelectedId,
+										);
+										if (currentIndex !== -1 && lastIndex !== -1) {
+											const start = Math.min(currentIndex, lastIndex);
+											const end = Math.max(currentIndex, lastIndex);
+											const rangeIds = bucketImages
+												.slice(start, end + 1)
+												.map((i) => i.id);
+											setSelectedIds((prev) =>
+												Array.from(new Set([...prev, ...rangeIds])),
+											);
+										}
+										setLastSelectedId(img.id);
+									} else {
+										// Normal click: clear selection and open viewer
+										setSelectedIds([]);
+										setLastSelectedId(null);
+										galleryDispatch({
+											type: "OPEN_VIEWER",
+											payload: {
+												id: img.id,
+												mode: "lighttable",
+												slotId: config.id,
+											},
+										});
+									}
 								}}
 								onDragStart={(e) => handleImageDragStart(e, img.id)}
 								onDragEnd={(e) => handleImageDragEnd(e, img.id)}
@@ -234,7 +305,7 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 						disabled={itemCount === 0}
 						title="Actions"
 					>
-						Action
+						{hasSelection ? `Action (${validSelectedIds.length})` : "Action"}
 						<ChevronDown size={12} />
 					</button>
 					{isActionMenuOpen && (
