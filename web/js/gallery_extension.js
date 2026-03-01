@@ -13672,7 +13672,7 @@ const yy = () => {
                 className: `meld-lt-slot__action-menu-item${E.danger ? " meld-lt-slot__action-menu-item--danger" : ""}${"disabled" in E && E.disabled ? " meld-lt-slot__action-menu-item--disabled" : ""}`,
                 onMouseDown: (W) => W.stopPropagation(),
                 onClick: () => {
-                  "disabled" in E && E.disabled || (w(!1), setTimeout(() => P(E.type), 0));
+                  "disabled" in E && E.disabled || (P(E.type), w(!1));
                 },
                 children: [
                   /* @__PURE__ */ s.jsx(E.icon, { size: 13 }),
@@ -16466,7 +16466,7 @@ const Ny = ({
             className: `meld-image-card__menu-item ${O.className || ""}`,
             onMouseDown: (R) => R.stopPropagation(),
             onClick: (R) => {
-              R.preventDefault(), R.stopPropagation(), t(!1), setTimeout(() => O.handler(), 0);
+              R.preventDefault(), R.stopPropagation(), O.handler(), t(!1);
             },
             children: [
               /* @__PURE__ */ s.jsx(O.icon, { size: 14, color: O.color }),
