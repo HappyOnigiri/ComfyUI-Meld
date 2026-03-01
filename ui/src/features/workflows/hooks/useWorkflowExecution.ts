@@ -241,11 +241,11 @@ export const useWorkflowExecution = () => {
 			});
 
 			if (!res.ok) {
-				const errorData = await res.json(); // frontend-api-check-ignore
+				const errorData = await res.json(); // frontend-api-check-ignore: /prompt returns ComfyUI raw response format, safe to parse directly
 				throw new Error(errorData.error?.message || "Failed to queue workflow");
 			}
 
-			return await res.json(); // frontend-api-check-ignore
+			return await res.json(); // frontend-api-check-ignore: /prompt returns ComfyUI raw response format, safe to parse directly
 		},
 		[],
 	);
