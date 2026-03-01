@@ -143,12 +143,12 @@ export const useImageViewerLogic = ({
 		return viewerMode === "lineage"
 			? lineageImages
 			: images.filter(
-				(img) =>
-					img.exists !== false &&
-					(settings["gallery.show_parent_images"] ||
-						isSearchActive ||
-						!img.has_children),
-			);
+					(img) =>
+						img.exists !== false &&
+						(settings["gallery.show_parent_images"] ||
+							isSearchActive ||
+							!img.has_children),
+				);
 	}, [
 		viewerMode,
 		state.viewerLightTableSlotId,
@@ -474,8 +474,12 @@ export const useImageViewerLogic = ({
 					store.showToast(`Sent to ${slot.label}`);
 				} else {
 					// Slot not found - show error toast
-					store.showToast(`Error: Light Table slot "${sendToLtSlot}" not found`);
-					console.warn(`Attempted to send to non-existent LT slot: ${sendToLtSlot}`);
+					store.showToast(
+						`Error: Light Table slot "${sendToLtSlot}" not found`,
+					);
+					console.warn(
+						`Attempted to send to non-existent LT slot: ${sendToLtSlot}`,
+					);
 				}
 			}
 

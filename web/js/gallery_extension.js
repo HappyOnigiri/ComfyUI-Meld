@@ -15555,7 +15555,11 @@ const ry = ({
       } = H;
       if (Ke) {
         const Re = pe.getState(), Et = Re.slots.find((gt) => gt.id === Ke);
-        Et ? (Re.addToBucket(Ke, String(A), ne), Re.showToast(`Sent to ${Et.label}`)) : (Re.showToast(`Error: Light Table slot "${Ke}" not found`), console.warn(`Attempted to send to non-existent LT slot: ${Ke}`));
+        Et ? (Re.addToBucket(Ke, String(A), ne), Re.showToast(`Sent to ${Et.label}`)) : (Re.showToast(
+          `Error: Light Table slot "${Ke}" not found`
+        ), console.warn(
+          `Attempted to send to non-existent LT slot: ${Ke}`
+        ));
       }
       if (G.length > 0 || Y.length > 0)
         try {
