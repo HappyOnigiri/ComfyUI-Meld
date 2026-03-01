@@ -308,7 +308,7 @@ var Fc = { exports: {} }, at = {}, Wc = { exports: {} }, $c = {};
     }
   }
   function y(E) {
-    if (_ = !1, p(E), !w) if (n(c) !== null) w = !0, O(k);
+    if (_ = !1, p(E), !w) if (n(c) !== null) w = !0, z(k);
     else {
       var L = n(d);
       L !== null && T(y, L.startTime - E);
@@ -337,9 +337,9 @@ var Fc = { exports: {} }, at = {}, Wc = { exports: {} }, $c = {};
       g = null, v = V, x = !1;
     }
   }
-  var j = !1, b = null, C = -1, z = 5, P = -1;
+  var j = !1, b = null, C = -1, O = 5, P = -1;
   function D() {
-    return !(e.unstable_now() - P < z);
+    return !(e.unstable_now() - P < O);
   }
   function U() {
     if (b !== null) {
@@ -365,7 +365,7 @@ var Fc = { exports: {} }, at = {}, Wc = { exports: {} }, $c = {};
   } else Z = function() {
     S(U, 0);
   };
-  function O(E) {
+  function z(E) {
     b = E, j || (j = !0, Z());
   }
   function T(E, L) {
@@ -376,9 +376,9 @@ var Fc = { exports: {} }, at = {}, Wc = { exports: {} }, $c = {};
   e.unstable_IdlePriority = 5, e.unstable_ImmediatePriority = 1, e.unstable_LowPriority = 4, e.unstable_NormalPriority = 3, e.unstable_Profiling = null, e.unstable_UserBlockingPriority = 2, e.unstable_cancelCallback = function(E) {
     E.callback = null;
   }, e.unstable_continueExecution = function() {
-    w || x || (w = !0, O(k));
+    w || x || (w = !0, z(k));
   }, e.unstable_forceFrameRate = function(E) {
-    0 > E || 125 < E ? console.error("forceFrameRate takes a positive int between 0 and 125, forcing frame rates higher than 125 fps is not supported") : z = 0 < E ? Math.floor(1e3 / E) : 5;
+    0 > E || 125 < E ? console.error("forceFrameRate takes a positive int between 0 and 125, forcing frame rates higher than 125 fps is not supported") : O = 0 < E ? Math.floor(1e3 / E) : 5;
   }, e.unstable_getCurrentPriorityLevel = function() {
     return v;
   }, e.unstable_getFirstCallbackNode = function() {
@@ -438,7 +438,7 @@ var Fc = { exports: {} }, at = {}, Wc = { exports: {} }, $c = {};
       default:
         Q = 5e3;
     }
-    return Q = V + Q, E = { id: f++, callback: L, priorityLevel: E, startTime: V, expirationTime: Q, sortIndex: -1 }, V > M ? (E.sortIndex = V, t(d, E), n(c) === null && E === n(d) && (_ ? (h(C), C = -1) : _ = !0, T(y, V - M))) : (E.sortIndex = Q, t(c, E), w || x || (w = !0, O(k))), E;
+    return Q = V + Q, E = { id: f++, callback: L, priorityLevel: E, startTime: V, expirationTime: Q, sortIndex: -1 }, V > M ? (E.sortIndex = V, t(d, E), n(c) === null && E === n(d) && (_ ? (h(C), C = -1) : _ = !0, T(y, V - M))) : (E.sortIndex = Q, t(c, E), w || x || (w = !0, z(k))), E;
   }, e.unstable_shouldYield = D, e.unstable_wrapCallback = function(E) {
     var L = v;
     return function() {
@@ -2586,21 +2586,21 @@ function $d(e) {
     return null;
   }
   function w(h, u, p, y) {
-    for (var k = null, j = null, b = u, C = u = 0, z = null; b !== null && C < p.length; C++) {
-      b.index > C ? (z = b, b = null) : z = b.sibling;
+    for (var k = null, j = null, b = u, C = u = 0, O = null; b !== null && C < p.length; C++) {
+      b.index > C ? (O = b, b = null) : O = b.sibling;
       var P = v(h, b, p[C], y);
       if (P === null) {
-        b === null && (b = z);
+        b === null && (b = O);
         break;
       }
-      e && b && P.alternate === null && t(h, b), u = a(P, u, C), j === null ? k = P : j.sibling = P, j = P, b = z;
+      e && b && P.alternate === null && t(h, b), u = a(P, u, C), j === null ? k = P : j.sibling = P, j = P, b = O;
     }
     if (C === p.length) return n(h, b), Se && pn(h, C), k;
     if (b === null) {
       for (; C < p.length; C++) b = g(h, p[C], y), b !== null && (u = a(b, u, C), j === null ? k = b : j.sibling = b, j = b);
       return Se && pn(h, C), k;
     }
-    for (b = r(h, b); C < p.length; C++) z = x(b, h, C, p[C], y), z !== null && (e && z.alternate !== null && b.delete(z.key === null ? C : z.key), u = a(z, u, C), j === null ? k = z : j.sibling = z, j = z);
+    for (b = r(h, b); C < p.length; C++) O = x(b, h, C, p[C], y), O !== null && (e && O.alternate !== null && b.delete(O.key === null ? C : O.key), u = a(O, u, C), j === null ? k = O : j.sibling = O, j = O);
     return e && b.forEach(function(D) {
       return t(h, D);
     }), Se && pn(h, C), k;
@@ -2609,14 +2609,14 @@ function $d(e) {
     var k = fr(p);
     if (typeof k != "function") throw Error(W(150));
     if (p = k.call(p), p == null) throw Error(W(151));
-    for (var j = k = null, b = u, C = u = 0, z = null, P = p.next(); b !== null && !P.done; C++, P = p.next()) {
-      b.index > C ? (z = b, b = null) : z = b.sibling;
+    for (var j = k = null, b = u, C = u = 0, O = null, P = p.next(); b !== null && !P.done; C++, P = p.next()) {
+      b.index > C ? (O = b, b = null) : O = b.sibling;
       var D = v(h, b, P.value, y);
       if (D === null) {
-        b === null && (b = z);
+        b === null && (b = O);
         break;
       }
-      e && b && D.alternate === null && t(h, b), u = a(D, u, C), j === null ? k = D : j.sibling = D, j = D, b = z;
+      e && b && D.alternate === null && t(h, b), u = a(D, u, C), j === null ? k = D : j.sibling = D, j = D, b = O;
     }
     if (P.done) return n(
       h,
@@ -7671,8 +7671,8 @@ const em = m.createContext(void 0), Sg = ({
     };
     if (N)
       try {
-        const O = JSON.parse(N);
-        return { ...R, ...O, tags: [] };
+        const z = JSON.parse(N);
+        return { ...R, ...z, tags: [] };
       } catch {
         return R;
       }
@@ -7691,7 +7691,7 @@ const em = m.createContext(void 0), Sg = ({
     (async () => {
       try {
         const R = await Vh();
-        n((O) => O.custom_path ? O : { ...O, custom_path: R });
+        n((z) => z.custom_path ? z : { ...z, custom_path: R });
       } catch (R) {
         ee.error("Failed to fetch home directory:", R);
       }
@@ -7699,20 +7699,20 @@ const em = m.createContext(void 0), Sg = ({
   }, []), m.useEffect(() => {
     const N = new AbortController();
     return (async () => {
-      const O = t.type === "custom" ? t.custom_path : t.subfolder;
+      const z = t.type === "custom" ? t.custom_path : t.subfolder;
       if (ee.log(
-        `loadFolders started. Path: "${O}", Type: "${t.type}"`
-      ), t.type === "custom" && !O) {
+        `loadFolders started. Path: "${z}", Type: "${t.type}"`
+      ), t.type === "custom" && !z) {
         ee.log("Custom path is empty, skipping load."), l([]), o([]), c(0);
         return;
       }
       f(!0);
-      const T = O, E = t.type;
+      const T = z, E = t.type;
       try {
         ee.log("Step 1: Fast load starting...");
         const L = await Ng(
           t.type,
-          O,
+          z,
           !0,
           N.signal
         );
@@ -7789,7 +7789,7 @@ const em = m.createContext(void 0), Sg = ({
   ), [g, x, t.tags]), C = (N) => {
     const R = N.trim();
     R && !t.tags.includes(R) && (n({ ...t, tags: [...t.tags, R] }), w(""));
-  }, z = (N) => {
+  }, O = (N) => {
     n({ ...t, tags: t.tags.filter((R) => R !== N) });
   }, P = (N) => {
     N.key === "Enter" && x.trim() && (N.preventDefault(), C(x.trim()));
@@ -7810,8 +7810,8 @@ const em = m.createContext(void 0), Sg = ({
     }
   }, U = (N) => {
     if (t.type === "custom") {
-      const R = t.custom_path.includes("\\") ? "\\" : "/", O = t.custom_path.endsWith(R) ? `${t.custom_path}${N}` : `${t.custom_path}${R}${N}`;
-      n({ ...t, custom_path: O });
+      const R = t.custom_path.includes("\\") ? "\\" : "/", z = t.custom_path.endsWith(R) ? `${t.custom_path}${N}` : `${t.custom_path}${R}${N}`;
+      n({ ...t, custom_path: z });
     } else {
       const R = t.subfolder ? `${t.subfolder}/${N}` : N;
       n({ ...t, subfolder: R });
@@ -7821,8 +7821,8 @@ const em = m.createContext(void 0), Sg = ({
       const N = t.custom_path.includes("\\") ? "\\" : "/", R = t.custom_path.split(N);
       if (R.length > 1) {
         R.pop();
-        let O = R.join(N);
-        O === "" && N === "/" && (O = "/"), n({ ...t, custom_path: O });
+        let z = R.join(N);
+        z === "" && N === "/" && (z = "/"), n({ ...t, custom_path: z });
       }
     } else {
       const N = t.subfolder.split("/");
@@ -7921,7 +7921,7 @@ const em = m.createContext(void 0), Sg = ({
                           {
                             type: "button",
                             className: "meld-tag-edit-remove",
-                            onClick: () => z(N),
+                            onClick: () => O(N),
                             children: /* @__PURE__ */ s.jsx(ye, { size: 12 })
                           }
                         )
@@ -8381,14 +8381,14 @@ const em = m.createContext(void 0), Sg = ({
       j || await y.loadGraphData(a, !0, !0, t), await new Promise((P) => setTimeout(P, 200));
       const C = y.graph._nodes;
       console.log("[Meld] Active graph nodes count:", C.length);
-      const z = C.find(
+      const O = C.find(
         (P) => String(P.id) === o || d(P.type)
       );
-      if (z) {
-        const P = (S = z.widgets) == null ? void 0 : S.find((D) => D.name === "image");
+      if (O) {
+        const P = (S = O.widgets) == null ? void 0 : S.find((D) => D.name === "image");
         console.log("[Meld] Updating loader node widget:", {
-          nodeId: z.id,
-          type: z.type,
+          nodeId: O.id,
+          type: O.type,
           imagePath: f
         }), P && (P.value = f, typeof P.callback == "function" && P.callback(f));
       } else
@@ -8561,7 +8561,7 @@ const _c = (e) => e === "rect" || e === "ellipse" || e === "lasso", hs = ({
   m.useEffect(() => {
     _c(S) && localStorage.setItem("meld-mask-tool", S);
   }, [S]);
-  const [u, p] = m.useState({ x: 0, y: 0 }), [y, k] = m.useState({ x: 0, y: 0 }), [j, b] = m.useState([]), [C, z] = m.useState(null), [P, D] = m.useState(!1), [U, Z] = m.useState(1), [N, R] = m.useState({ x: 0, y: 0 }), [O, T] = m.useState(!1), [E, L] = m.useState(!1), V = m.useRef(null), M = m.useCallback(() => {
+  const [u, p] = m.useState({ x: 0, y: 0 }), [y, k] = m.useState({ x: 0, y: 0 }), [j, b] = m.useState([]), [C, O] = m.useState(null), [P, D] = m.useState(!1), [U, Z] = m.useState(1), [N, R] = m.useState({ x: 0, y: 0 }), [z, T] = m.useState(!1), [E, L] = m.useState(!1), V = m.useRef(null), M = m.useCallback(() => {
     const $ = v.current, Y = g.current;
     if (!$ || !Y) return null;
     const F = Y.getBoundingClientRect(), A = $.naturalWidth, I = $.naturalHeight;
@@ -8705,7 +8705,7 @@ const _c = (e) => e === "rect" || e === "ellipse" || e === "lasso", hs = ({
   }, [J]);
   const We = ($) => {
     var oe;
-    const Y = $.button === 2, F = $.button === 1, A = O && $.button === 0;
+    const Y = $.button === 2, F = $.button === 1, A = z && $.button === 0;
     if (Y || F || A) {
       $.preventDefault(), $.stopPropagation(), V.current = {
         panX: N.x,
@@ -8731,7 +8731,7 @@ const _c = (e) => e === "rect" || e === "ellipse" || e === "lasso", hs = ({
       I.top,
       Math.min(H.y, I.top + I.height)
     );
-    p({ x: q, y: se }), k({ x: q, y: se }), b(S === "lasso" ? [{ x: q, y: se }] : []), z(null);
+    p({ x: q, y: se }), k({ x: q, y: se }), b(S === "lasso" ? [{ x: q, y: se }] : []), O(null);
   };
   m.useEffect(() => {
     if (!w) return;
@@ -9012,7 +9012,7 @@ const _c = (e) => e === "rect" || e === "ellipse" || e === "lasso", hs = ({
                   onContextMenu: ($) => $.preventDefault(),
                   role: "presentation",
                   style: {
-                    cursor: E ? "grabbing" : O ? "grab" : "crosshair"
+                    cursor: E ? "grabbing" : z ? "grab" : "crosshair"
                   },
                   children: /* @__PURE__ */ s.jsxs(
                     "div",
@@ -9136,7 +9136,7 @@ const _c = (e) => e === "rect" || e === "ellipse" || e === "lasso", hs = ({
     e.settings["gallery.suggest_phash_threshold"].toString()
   ), [b, C] = m.useState(
     e.settings["viewer.details.max_positive_prompt_lines"].toString()
-  ), [z, P] = m.useState(
+  ), [O, P] = m.useState(
     e.settings["viewer.details.max_negative_prompt_lines"].toString()
   ), [
     D,
@@ -9148,7 +9148,7 @@ const _c = (e) => e === "rect" || e === "ellipse" || e === "lasso", hs = ({
     N
   ] = m.useState(
     e.settings["fullscreen.details.max_negative_prompt_lines"].toString()
-  ), [R, O] = m.useState(
+  ), [R, z] = m.useState(
     e.settings["sidebar.thumbnail_size"].toString()
   );
   return {
@@ -9174,7 +9174,7 @@ const _c = (e) => e === "rect" || e === "ellipse" || e === "lasso", hs = ({
       }));
     },
     handleNumberChange: (J, B, ae, Ce) => {
-      J === "gallery.initial_load_count" ? f(B) : J === "gallery.max_load_count" ? v(B) : J === "gallery.lineage_max_depth" ? w(B) : J === "viewer.thumbnail_window_size" ? S(B) : J === "gallery.trash_retention_days" ? u(B) : J === "gallery.auto_link_phash_threshold" ? y(B) : J === "gallery.suggest_phash_threshold" ? j(B) : J === "viewer.details.max_positive_prompt_lines" ? C(B) : J === "viewer.details.max_negative_prompt_lines" ? P(B) : J === "fullscreen.details.max_positive_prompt_lines" ? U(B) : J === "fullscreen.details.max_negative_prompt_lines" ? N(B) : J === "sidebar.thumbnail_size" && O(B);
+      J === "gallery.initial_load_count" ? f(B) : J === "gallery.max_load_count" ? v(B) : J === "gallery.lineage_max_depth" ? w(B) : J === "viewer.thumbnail_window_size" ? S(B) : J === "gallery.trash_retention_days" ? u(B) : J === "gallery.auto_link_phash_threshold" ? y(B) : J === "gallery.suggest_phash_threshold" ? j(B) : J === "viewer.details.max_positive_prompt_lines" ? C(B) : J === "viewer.details.max_negative_prompt_lines" ? P(B) : J === "fullscreen.details.max_positive_prompt_lines" ? U(B) : J === "fullscreen.details.max_negative_prompt_lines" ? N(B) : J === "sidebar.thumbnail_size" && z(B);
       const re = Number.parseInt(B, 10);
       if (!Number.isNaN(re)) {
         let Pe = re;
@@ -9205,7 +9205,7 @@ const _c = (e) => e === "rect" || e === "ellipse" || e === "lasso", hs = ({
         a["fullscreen.details.max_positive_prompt_lines"].toString()
       ) : J.key === "fullscreen.details.max_negative_prompt_lines" ? N(
         a["fullscreen.details.max_negative_prompt_lines"].toString()
-      ) : J.key === "sidebar.thumbnail_size" && O(a["sidebar.thumbnail_size"].toString());
+      ) : J.key === "sidebar.thumbnail_size" && z(a["sidebar.thumbnail_size"].toString());
     },
     handleResetShortcuts: () => {
       o((J) => ({
@@ -9256,7 +9256,7 @@ const _c = (e) => e === "rect" || e === "ellipse" || e === "lasso", hs = ({
     autoLinkPhashThresholdInput: p,
     suggestPhashThresholdInput: k,
     maxPositivePromptLinesInput: b,
-    maxNegativePromptLinesInput: z,
+    maxNegativePromptLinesInput: O,
     fullscreenMaxPositivePromptLinesInput: D,
     fullscreenMaxNegativePromptLinesInput: Z,
     thumbnailSizeInput: R
@@ -11026,7 +11026,7 @@ const hm = [
     maxNegativePromptLinesInput: j,
     fullscreenMaxPositivePromptLinesInput: b,
     fullscreenMaxNegativePromptLinesInput: C,
-    thumbnailSizeInput: z
+    thumbnailSizeInput: O
   } = Ag();
   tt({ onEscape: o });
   const P = m.useRef(!1), D = (R) => {
@@ -11068,7 +11068,7 @@ const hm = [
             handleToggle: i,
             handleNumberChange: c,
             handleNumberBlur: d,
-            thumbnailSizeInput: z,
+            thumbnailSizeInput: O,
             initialLoadCountInput: w,
             maxLoadCountInput: _
           }
@@ -11203,7 +11203,7 @@ const hm = [
     U && !c.includes(U) && (d([...c, U]), g(""));
   }, C = (D) => {
     d(c.filter((U) => U !== D));
-  }, z = async () => {
+  }, O = async () => {
     _(!0);
     try {
       if (h) {
@@ -11323,7 +11323,7 @@ const hm = [
               {
                 type: "button",
                 className: "meld-btn meld-btn-primary",
-                onClick: z,
+                onClick: O,
                 disabled: w,
                 children: w ? "Saving..." : "Save Changes"
               }
@@ -11379,12 +11379,12 @@ const hm = [
       };
       if (u.widgets) {
         for (const [b, C] of Object.entries(p)) {
-          const z = w[b];
-          if (z != null && z !== "") {
+          const O = w[b];
+          if (O != null && O !== "") {
             const P = u.widgets.find(
               (D) => D.name === C
             );
-            P && (P.value = z);
+            P && (P.value = O);
           }
         }
         const j = u.widgets.find(
@@ -11830,7 +11830,7 @@ const hm = [
   onSuccess: n,
   isMaskMode: r
 }) => {
-  var O;
+  var z;
   const { dispatch: l } = ve(), [a, o] = m.useState([]), [i, c] = m.useState(!0), [d, f] = m.useState(null), [g, v] = m.useState(!1), [x, w] = m.useState(null), [_, S] = m.useState({}), [h, u] = m.useState({}), [p, y] = m.useState(""), k = m.useRef(null), j = m.useMemo(() => a.map((T) => {
     let E = T.valid, L = T.reason;
     return r && T.mask_count === 0 && (E = !1, L = "No 'Load Image (as Mask)' node found."), { ...T, valid: E, reason: L };
@@ -11856,23 +11856,23 @@ const hm = [
   }, [C]), m.useEffect(() => {
     !i && k.current && k.current.focus();
   }, [i]);
-  const z = m.useCallback(() => {
+  const O = m.useCallback(() => {
     l({ type: "CLOSE_MODAL" });
   }, [l]);
-  tt({ onEscape: z });
+  tt({ onEscape: O });
   const P = m.useRef(!1), D = m.useCallback((T) => {
     T.target === T.currentTarget && (P.current = !0);
   }, []), U = m.useCallback(
     (T) => {
-      T.target === T.currentTarget && P.current && z(), P.current = !1;
+      T.target === T.currentTarget && P.current && O(), P.current = !1;
     },
-    [z]
+    [O]
   ), Z = async (T, E) => {
     if (!g)
       try {
         v(!0);
         const L = await t(T, E);
-        n == null || n(), L !== !1 && z();
+        n == null || n(), L !== !1 && O();
       } catch (L) {
         f(L instanceof Error ? L.message : String(L)), v(!1);
       }
@@ -11954,7 +11954,7 @@ const hm = [
                   {
                     type: "button",
                     className: "meld-modal-close",
-                    onClick: z,
+                    onClick: O,
                     children: /* @__PURE__ */ s.jsx(ye, { size: 20 })
                   }
                 )
@@ -11987,7 +11987,7 @@ const hm = [
                     children: [
                       "Select a workflow to process",
                       " ",
-                      /* @__PURE__ */ s.jsx("strong", { children: e.length > 1 ? `${e.length} images` : (O = e[0]) == null ? void 0 : O.filename }),
+                      /* @__PURE__ */ s.jsx("strong", { children: e.length > 1 ? `${e.length} images` : (z = e[0]) == null ? void 0 : z.filename }),
                       ". Workflows must have at least one",
                       " ",
                       /* @__PURE__ */ s.jsx("strong", { children: "Meld Image Loader" }),
@@ -12145,7 +12145,7 @@ const hm = [
                 {
                   type: "button",
                   className: "meld-btn meld-btn-secondary",
-                  onClick: z,
+                  onClick: O,
                   disabled: g,
                   children: "Cancel"
                 }
@@ -13292,25 +13292,25 @@ const hm = [
   var N;
   const { buckets: t, slots: n, images: r } = he(), l = n.length, { state: a, dispatch: o } = ve(), [i, c] = m.useState(!1), [d, f] = m.useState(!1), [g, v] = m.useState(!1), [x, w] = m.useState(e.label), [_, S] = m.useState(e.color), h = m.useRef(null), u = m.useRef(null), p = t[e.id] || [], y = p.length;
   m.useEffect(() => {
-    const R = (O) => {
-      u.current && !u.current.contains(O.target) && c(!1), h.current && !h.current.contains(O.target) && v(!1);
+    const R = (z) => {
+      u.current && !u.current.contains(z.target) && c(!1), h.current && !h.current.contains(z.target) && v(!1);
     };
     return (i || g) && document.addEventListener("mousedown", R), () => {
       document.removeEventListener("mousedown", R);
     };
   }, [i, g]);
   const k = p.map((R) => {
-    const O = Number(R);
-    let T = a.images.find((E) => E.id === O);
-    return T || (T = a.lineageImages.find((E) => E.id === O)), T || (T = r[R]), T;
+    const z = Number(R);
+    let T = a.images.find((E) => E.id === z);
+    return T || (T = a.lineageImages.find((E) => E.id === z)), T || (T = r[R]), T;
   }).filter(Boolean), j = (R) => {
     R.preventDefault(), R.stopPropagation(), R.currentTarget.classList.add("drag-over");
   }, b = (R) => {
     R.currentTarget.classList.remove("drag-over");
   }, C = (R) => {
     R.preventDefault(), R.stopPropagation(), R.currentTarget.classList.remove("drag-over");
-    const O = R.dataTransfer.getData("text/plain");
-    O && O.split(",").forEach((E) => {
+    const z = R.dataTransfer.getData("text/plain");
+    z && z.split(",").forEach((E) => {
       if (E) {
         const L = E.trim(), V = Number(L);
         let M = a.images.find((Q) => Q.id === V);
@@ -13319,13 +13319,13 @@ const hm = [
         )), he.getState().addToBucket(e.id, L, M);
       }
     });
-  }, z = (R, O) => {
-    R.stopPropagation(), R.dataTransfer.setData("text/plain", String(O)), R.dataTransfer.setData("application/meld-lt-source-slot", e.id), R.dataTransfer.effectAllowed = "move";
-  }, P = (R, O) => {
-    R.dataTransfer.dropEffect === "none" && he.getState().removeFromBucket(e.id, String(O));
+  }, O = (R, z) => {
+    R.stopPropagation(), R.dataTransfer.setData("text/plain", String(z)), R.dataTransfer.setData("application/meld-lt-source-slot", e.id), R.dataTransfer.effectAllowed = "move";
+  }, P = (R, z) => {
+    R.dataTransfer.dropEffect === "none" && he.getState().removeFromBucket(e.id, String(z));
   }, D = (R) => {
     if (y === 0) return;
-    const O = {
+    const z = {
       type: R
     }, T = p.map((V) => Number(V)), E = {
       edit_tags: "Tags updated",
@@ -13336,7 +13336,7 @@ const hm = [
       download: "Opened Download Options"
     };
     Yg(
-      O,
+      z,
       T,
       k,
       o,
@@ -13360,7 +13360,7 @@ const hm = [
       onDrop: C,
       children: [
         /* @__PURE__ */ s.jsx("div", { className: "meld-lt-slot-panel__images", children: y === 0 ? /* @__PURE__ */ s.jsx("div", { className: "meld-lt-slot-panel__empty", children: "Drag & Drop images here" }) : k.map((R) => {
-          const O = pt(R);
+          const z = pt(R);
           return /* @__PURE__ */ s.jsx(
             "div",
             {
@@ -13376,9 +13376,9 @@ const hm = [
                   }
                 });
               },
-              onDragStart: (T) => z(T, R.id),
+              onDragStart: (T) => O(T, R.id),
               onDragEnd: (T) => P(T, R.id),
-              children: /* @__PURE__ */ s.jsx("img", { src: O, alt: R.filename, draggable: !1 })
+              children: /* @__PURE__ */ s.jsx("img", { src: z, alt: R.filename, draggable: !1 })
             },
             R.id
           );
@@ -13430,7 +13430,7 @@ const hm = [
               "div",
               {
                 className: `meld-lt-slot__action-menu-item${R.danger ? " meld-lt-slot__action-menu-item--danger" : ""}${"disabled" in R && R.disabled ? " meld-lt-slot__action-menu-item--disabled" : ""}`,
-                onMouseDown: (O) => O.stopPropagation(),
+                onMouseDown: (z) => z.stopPropagation(),
                 onClick: () => {
                   "disabled" in R && R.disabled || (v(!1), setTimeout(() => D(R.type), 0));
                 },
@@ -14271,44 +14271,44 @@ const hm = [
 }, ty = () => {
   const { state: e, dispatch: t, updateSetting: n } = ve(), [r, l] = m.useState(e.searchQuery), [a, o] = m.useState([]), [i, c] = m.useState(!1), [d, f] = m.useState([]), [g, v] = m.useState([]), x = e.settings["search.show_all_keywords"], [w, _] = m.useState(-1), [S, h] = m.useState(null), u = m.useRef(null), p = m.useRef(e.searchQuery), y = m.useCallback(async () => {
     if (g.length > 0) return;
-    const O = await lg();
-    v(O);
+    const z = await lg();
+    v(z);
   }, [g.length]);
   m.useEffect(() => {
-    sg().then((O) => {
-      h(O);
+    sg().then((z) => {
+      h(z);
     }), x && y();
   }, [y, x]);
   const k = m.useMemo(() => {
     if (!S) return null;
-    const O = S.all_prefixes.join("|");
-    return new RegExp(`^[-!]?(${O}):(.*)$`, "i");
+    const z = S.all_prefixes.join("|");
+    return new RegExp(`^[-!]?(${z}):(.*)$`, "i");
   }, [S]), j = m.useCallback(() => {
-    const O = !x;
-    O && y(), n("search.show_all_keywords", O);
+    const z = !x;
+    z && y(), n("search.show_all_keywords", z);
   }, [x, y, n]), b = r !== p.current;
   m.useEffect(() => {
     if (!e.settings["search.quick_suggestions"]) {
       f([]);
       return;
     }
-    rg().then((O) => {
-      f(O);
+    rg().then((z) => {
+      f(z);
     });
   }, [e.settings["search.quick_suggestions"]]), m.useEffect(() => {
     l(e.searchQuery), p.current = e.searchQuery;
   }, [e.searchQuery]), m.useEffect(() => {
-    var O;
-    (O = u.current) == null || O.focus();
+    var z;
+    (z = u.current) == null || z.focus();
   }, []);
   const C = m.useCallback(
-    (O, T = !0) => {
-      p.current !== O && (ee.log("SearchBar: triggering search", { query: O }), t({ type: "SET_SEARCH_QUERY", payload: O }), T && c(!1), p.current = O);
+    (z, T = !0) => {
+      p.current !== z && (ee.log("SearchBar: triggering search", { query: z }), t({ type: "SET_SEARCH_QUERY", payload: z }), T && c(!1), p.current = z);
     },
     [t]
   );
   m.useEffect(() => {
-    const O = setTimeout(async () => {
+    const z = setTimeout(async () => {
       if (r === p.current)
         return;
       if (!e.settings["search.input_suggest"] || !k) {
@@ -14342,60 +14342,67 @@ const hm = [
       } else
         o([]), c(!1);
     }, 300);
-    return () => clearTimeout(O);
+    return () => clearTimeout(z);
   }, [
     r,
     e.settings["search.input_suggest"],
     k,
     S
   ]);
-  const z = m.useCallback(
-    (O) => {
+  const O = m.useCallback(
+    (z) => {
       var ue;
-      const T = Nl(r), L = (T.pop() || "").match(/^([-!])/), V = L ? L[1] : "", Q = ((S == null ? void 0 : S.no_quote_prefixes) || []).includes(O.type);
-      if (O.value === "") {
-        const de = `${[...T, `${V}${O.type}:`].join(" ").trim()}`;
+      const T = Nl(r), L = (T.pop() || "").match(/^([-!])/), V = L ? L[1] : "", Q = ((S == null ? void 0 : S.no_quote_prefixes) || []).includes(z.type);
+      if (z.value === "") {
+        const de = `${[...T, `${V}${z.type}:`].join(" ").trim()}`;
         l(de);
       } else {
-        const de = Q ? O.value : `"${O.value}"`, J = `${[
+        const de = Q ? z.value : `"${z.value}"`, J = `${[
           ...T,
-          `${V}${O.type}:${de}`
+          `${V}${z.type}:${de}`
         ].join(" ").trim()} `;
         l(J), o([]), c(!1);
       }
       (ue = u.current) == null || ue.focus();
     },
     [r, S]
-  ), P = (O) => {
-    O.key === "Enter" ? C(r) : O.key === "Tab" ? i && w >= 0 && (z(a[w]), O.preventDefault()) : O.key === "ArrowDown" ? i && (_((T) => Math.min(T + 1, a.length - 1)), O.preventDefault()) : O.key === "ArrowUp" ? i && (_((T) => Math.max(T - 1, -1)), O.preventDefault()) : O.key === "Escape" && c(!1);
+  ), P = (z) => {
+    if (z.key === "Enter")
+      i && w >= 0 ? O(a[w]) : C(r);
+    else if (z.key === "Tab") {
+      if (i && a.length > 0) {
+        const T = w >= 0 ? w : 0;
+        O(a[T]), z.preventDefault();
+      }
+    } else z.key === "ArrowDown" ? i && (_((T) => Math.min(T + 1, a.length - 1)), z.preventDefault()) : z.key === "ArrowUp" ? i && (_((T) => Math.max(T - 1, -1)), z.preventDefault()) : z.key === "Escape" && c(!1);
   }, D = m.useCallback(() => {
     l(""), C("");
   }, [C]), U = m.useCallback(
-    (O, T, E = !1) => {
+    (z, T, E = !1) => {
       var Pe;
       const L = Nl(r), V = L[L.length - 1] || "";
       let M = !1;
       const Q = V.replace(/^([-!])/, "").toLowerCase();
-      Q && O.toLowerCase().startsWith(Q) && (M = !0);
+      Q && z.toLowerCase().startsWith(Q) && (M = !0);
       const ue = V.match(/^([-!])/), de = M && ue ? ue[1] : "";
       if (M && L.pop(), E) {
-        const te = [...L, `${de}${O}:`].filter(Boolean).join(" ");
+        const te = [...L, `${de}${z}:`].filter(Boolean).join(" ");
         l(te), (Pe = u.current) == null || Pe.focus();
         return;
       }
-      const ae = ((S == null ? void 0 : S.no_quote_prefixes) || []).includes(O) ? T : `"${T}"`, Ce = `${de}${O}:${ae}`, re = [...L, Ce].filter(Boolean).join(" ");
+      const ae = ((S == null ? void 0 : S.no_quote_prefixes) || []).includes(z) ? T : `"${T}"`, Ce = `${de}${z}:${ae}`, re = [...L, Ce].filter(Boolean).join(" ");
       l(re), C(re);
     },
     [r, C, S]
   ), Z = m.useCallback(
-    (O) => {
-      l(O), O || C("");
+    (z) => {
+      l(z), z || C("");
     },
     [C]
   ), N = m.useCallback(() => {
     if (r === p.current || !k)
       return;
-    const O = Nl(r), T = O[O.length - 1];
+    const z = Nl(r), T = z[z.length - 1];
     if (!T) return;
     const E = !!T.match(k), L = T.replace(/^([-!])/, "").toLowerCase(), V = L && (S == null ? void 0 : S.all_prefixes.some((M) => M.startsWith(L)));
     (E || V) && c(!0);
@@ -14418,7 +14425,7 @@ const hm = [
     isQueryChanged: b,
     handleSearch: C,
     handleKeyDown: P,
-    applySuggestion: z,
+    applySuggestion: O,
     clearSearch: D,
     applySearchSuggestion: U,
     handleInputChange: Z,
@@ -14560,49 +14567,64 @@ const hm = [
             justifyContent: "space-between",
             padding: "10px 14px",
             cursor: "pointer",
-            backgroundColor: k === n ? "var(--comfy-menu-bg, #333)" : "transparent",
-            borderBottom: "1px solid var(--comfy-menu-border, #2a2a2a)"
+            backgroundColor: k === n ? "var(--comfy-input-bg-active, rgba(59, 130, 246, 0.15))" : "transparent",
+            borderBottom: "1px solid var(--comfy-menu-border, #2a2a2a)",
+            borderLeft: k === n ? "3px solid var(--meld-accent-color, #3b82f6)" : "3px solid transparent",
+            transition: "all 0.1s ease-out"
           },
-          children: /* @__PURE__ */ s.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "10px" }, children: [
-            /* @__PURE__ */ s.jsx(
-              "span",
-              {
-                style: {
-                  color: "var(--meld-text-secondary)",
-                  display: "flex"
-                },
-                children: kc(y.type)
-              }
-            ),
-            /* @__PURE__ */ s.jsxs(
-              "span",
-              {
-                style: {
-                  color: "var(--comfy-input-text-active, #3b82f6)",
-                  fontSize: "10px",
-                  fontWeight: "bold",
-                  textTransform: "uppercase",
-                  width: y.type.length > 8 ? "auto" : "60px",
-                  flexShrink: 0
-                },
-                children: [
-                  y.type,
-                  ":"
-                ]
-              }
-            ),
-            /* @__PURE__ */ s.jsx(
-              "span",
-              {
-                style: {
-                  color: y.value === _t ? "var(--meld-accent-color, #3b82f6)" : "var(--meld-text-color)",
-                  fontSize: "14px",
-                  fontWeight: y.value === _t ? "bold" : "normal"
-                },
-                children: y.value === _t ? y.type === "tag" ? `Untagged (${_t})` : `No ${y.type} (${_t})` : y.value
-              }
-            )
-          ] })
+          children: /* @__PURE__ */ s.jsxs(
+            "div",
+            {
+              style: {
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                transform: k === n ? "translateX(2px)" : "none",
+                transition: "transform 0.1s ease-out"
+              },
+              children: [
+                /* @__PURE__ */ s.jsx(
+                  "span",
+                  {
+                    style: {
+                      color: k === n ? "var(--meld-accent-color, #3b82f6)" : "var(--meld-text-secondary)",
+                      display: "flex",
+                      transition: "color 0.1s"
+                    },
+                    children: kc(y.type)
+                  }
+                ),
+                /* @__PURE__ */ s.jsxs(
+                  "span",
+                  {
+                    style: {
+                      color: "var(--comfy-input-text-active, #3b82f6)",
+                      fontSize: "10px",
+                      fontWeight: "bold",
+                      textTransform: "uppercase",
+                      width: y.type.length > 8 ? "auto" : "60px",
+                      flexShrink: 0
+                    },
+                    children: [
+                      y.type,
+                      ":"
+                    ]
+                  }
+                ),
+                /* @__PURE__ */ s.jsx(
+                  "span",
+                  {
+                    style: {
+                      color: y.value === _t ? "var(--meld-accent-color, #3b82f6)" : "var(--meld-text-color)",
+                      fontSize: "14px",
+                      fontWeight: y.value === _t ? "bold" : "normal"
+                    },
+                    children: y.value === _t ? y.type === "tag" ? `Untagged (${_t})` : `No ${y.type} (${_t})` : y.value
+                  }
+                )
+              ]
+            }
+          )
         },
         `${y.type}:${y.value}`
       ))
@@ -14806,14 +14828,14 @@ const hm = [
     toastMessage: j,
     editingFavorite: b,
     setEditingFavorite: C,
-    editFavoriteName: z,
+    editFavoriteName: O,
     setEditFavoriteName: P,
     editFavoriteQuery: D,
     setEditFavoriteQuery: U,
     handleDeleteFavorite: Z,
     handleEditFavorite: N,
     handleSaveEditFavorite: R,
-    handleSaveFavorite: O
+    handleSaveFavorite: z
   } = bm();
   tt({
     onEscape: () => C(null),
@@ -14968,7 +14990,7 @@ const hm = [
                       "button",
                       {
                         type: "button",
-                        onClick: O,
+                        onClick: z,
                         disabled: k,
                         title: e.favorites.some((M) => M.query === e.searchQuery) ? "Remove from Favorites" : "Add to Favorites",
                         style: {
@@ -15111,7 +15133,7 @@ const hm = [
                                     id: "edit-favorite-name",
                                     ref: T,
                                     type: "text",
-                                    value: z,
+                                    value: O,
                                     onChange: (M) => P(M.target.value),
                                     placeholder: "Favorite Name",
                                     style: {
@@ -15198,7 +15220,7 @@ const hm = [
                           type: "button",
                           className: "meld-btn meld-btn-primary",
                           onClick: R,
-                          disabled: k || !z.trim() || !D.trim(),
+                          disabled: k || !O.trim() || !D.trim(),
                           children: k ? "Saving..." : "Save Changes"
                         }
                       )
@@ -15296,7 +15318,7 @@ const hm = [
     } finally {
       h(!1);
     }
-  }, z = (D) => {
+  }, O = (D) => {
     t(`tag:${D}`);
   }, P = m.useMemo(() => n.filter(
     (D) => D.name.toLowerCase().includes(o.toLowerCase())
@@ -15406,7 +15428,7 @@ const hm = [
               type: "button",
               className: "meld-tag-item__btn",
               title: "Search by this tag",
-              onClick: () => z(D.name),
+              onClick: () => O(D.name),
               children: /* @__PURE__ */ s.jsx(En, { size: 14 })
             }
           ),
@@ -15495,9 +15517,9 @@ const ay = ({
     handleRunWithWorkflow: S,
     handleRunWithMask: h,
     handleEditSource: u
-  } = Ds(e, t), { getParentChain: p } = Cm(a, c), [y, k] = m.useState(!1), [j, b] = m.useState(!1), [C, z] = m.useState(
+  } = Ds(e, t), { getParentChain: p } = Cm(a, c), [y, k] = m.useState(!1), [j, b] = m.useState(!1), [C, O] = m.useState(
     c["viewer.show_details_by_default"]
-  ), [P, D] = m.useState(null), U = P ?? c["viewer.show_thumbnails"], [Z, N] = m.useState(!1), [R, O] = m.useState(!1), [T, E] = m.useState(null), [L, V] = m.useState(null), [M, Q] = m.useState(
+  ), [P, D] = m.useState(null), U = P ?? c["viewer.show_thumbnails"], [Z, N] = m.useState(!1), [R, z] = m.useState(!1), [T, E] = m.useState(null), [L, V] = m.useState(null), [M, Q] = m.useState(
     null
   ), ue = m.useRef(null), de = m.useRef(!0);
   m.useEffect(() => (de.current = !0, () => {
@@ -15603,7 +15625,7 @@ const ay = ({
   }, [t, y]), We = m.useCallback(async () => {
     const F = y ? c["fullscreen.loop"] : c["viewer.loop"];
     if (ae === 0 && o === "gallery" && e.pagination.hasMore && !R && F) {
-      O(!0);
+      z(!0);
       try {
         const A = e.pagination.limit, I = e.pagination.total, K = Math.max(0, I - A), H = await Vl(
           K,
@@ -15621,7 +15643,7 @@ const ay = ({
       } catch (A) {
         console.error("Failed to jump to end:", A);
       } finally {
-        O(!1);
+        z(!1);
       }
     } else
       t({ type: "PREVIOUS_IMAGE", payload: { isFullscreen: y } });
@@ -15786,7 +15808,7 @@ const ay = ({
       else if (I.key === "f" || I.key === "F" || I.key === "Enter")
         it(I);
       else if (I.key === "i" || I.key === "I")
-        z((bt) => !bt);
+        O((bt) => !bt);
       else if (I.key === "t" || I.key === "T")
         te();
       else if ((I.key === "r" || I.key === "R") && e.viewScope === "trash")
@@ -15805,7 +15827,7 @@ const ay = ({
     window.addEventListener("keydown", F, { capture: !0 });
     const A = () => {
       const I = !!document.fullscreenElement;
-      k(I), z(I ? c["fullscreen.show_details_by_default"] : c["viewer.show_details_by_default"]);
+      k(I), O(I ? c["fullscreen.show_details_by_default"] : c["viewer.show_details_by_default"]);
     };
     return document.addEventListener("fullscreenchange", A), () => {
       window.removeEventListener("keydown", F, { capture: !0 }), document.removeEventListener("fullscreenchange", A);
@@ -15925,7 +15947,7 @@ const ay = ({
   }, [l, B]), {
     isFullscreen: y,
     showDetails: C,
-    setShowDetails: z,
+    setShowDetails: O,
     showThumbnails: U,
     setShowThumbnailsOverride: D,
     isLoadingLineage: Z,
@@ -15992,8 +16014,8 @@ const ay = ({
   m.useEffect(() => {
     e && n.current && (n.current.getBoundingClientRect().left < 200 ? k("right") : k("left"));
   }, [e, n]);
-  const j = (z) => {
-    switch (z) {
+  const j = (O) => {
+    switch (O) {
       case "add_unified_loader":
         return l;
       case "restore_full_workflow":
@@ -16023,7 +16045,7 @@ const ay = ({
     r["gallery.quick_shortcut.1"],
     r["gallery.quick_shortcut.2"],
     r["gallery.quick_shortcut.3"]
-  ].filter((z) => z && z !== ""), C = [
+  ].filter((O) => O && O !== ""), C = [
     "meld-image-card__menu-container",
     h === "thumbnail_overlay_top_right" && "meld-image-card__menu-container--thumbnail-overlay"
   ].filter(Boolean).join(" ");
@@ -16033,18 +16055,18 @@ const ay = ({
       {
         type: "button",
         className: `meld-image-card__menu-btn ${p}`,
-        onClick: (z) => {
-          z.stopPropagation(), t(!e);
+        onClick: (O) => {
+          O.stopPropagation(), t(!e);
         },
         title: "Menu",
         children: /* @__PURE__ */ s.jsx(Lh, { size: u })
       }
     ),
-    S && b.map((z, P) => {
-      const D = hm.find((N) => N.id === z);
+    S && b.map((O, P) => {
+      const D = hm.find((N) => N.id === O);
       if (!D || !D.icon) return null;
-      const U = D.icon, Z = j(z);
-      return !Z || z === "restore_image" && !w ? null : /* @__PURE__ */ s.jsx(
+      const U = D.icon, Z = j(O);
+      return !Z || O === "restore_image" && !w ? null : /* @__PURE__ */ s.jsx(
         "button",
         {
           type: "button",
@@ -16055,7 +16077,7 @@ const ay = ({
           title: D.label,
           children: /* @__PURE__ */ s.jsx(U, { size: u })
         },
-        `${z}-${P}`
+        `${O}-${P}`
       );
     }),
     e && /* @__PURE__ */ s.jsx(
@@ -16134,20 +16156,20 @@ const ay = ({
             className: "meld-image-card__menu-item--danger",
             color: "var(--meld-danger-color)"
           }
-        ].map((z) => /* @__PURE__ */ s.jsxs(
+        ].map((O) => /* @__PURE__ */ s.jsxs(
           "div",
           {
-            className: `meld-image-card__menu-item ${z.className || ""}`,
+            className: `meld-image-card__menu-item ${O.className || ""}`,
             onMouseDown: (P) => P.stopPropagation(),
             onClick: (P) => {
-              P.preventDefault(), P.stopPropagation(), t(!1), setTimeout(() => z.handler(), 0);
+              P.preventDefault(), P.stopPropagation(), t(!1), setTimeout(() => O.handler(), 0);
             },
             children: [
-              /* @__PURE__ */ s.jsx(z.icon, { size: 14, color: z.color }),
-              /* @__PURE__ */ s.jsx("span", { children: z.label })
+              /* @__PURE__ */ s.jsx(O.icon, { size: 14, color: O.color }),
+              /* @__PURE__ */ s.jsx("span", { children: O.label })
             ]
           },
-          z.id
+          O.id
         ))
       }
     )
@@ -16382,7 +16404,7 @@ function dy() {
     handleAddUnifiedLoader: j,
     handleSendToWorkflow: b,
     handleRunWithWorkflow: C,
-    handleRunWithMask: z,
+    handleRunWithMask: O,
     handleEditSource: P,
     handleDelete: D,
     toggleFullscreen: U,
@@ -16394,7 +16416,7 @@ function dy() {
     dispatch: t,
     loadMoreImages: n,
     fetchFullImageDetails: r
-  }), O = m.useRef(null), T = m.useRef(null), { executeWorkflow: E } = ai(), L = m.useMemo(() => e.viewScope === "trash" ? "Delete Permanently" : "Move to Trash", [e.viewScope]);
+  }), z = m.useRef(null), T = m.useRef(null), { executeWorkflow: E } = ai(), L = m.useMemo(() => e.viewScope === "trash" ? "Delete Permanently" : "Move to Trash", [e.viewScope]);
   if (!Z) return null;
   const { viewerImageId: V, viewerMode: M } = e, Q = l ? e.settings["fullscreen.show_icons"] : e.settings["viewer.show_icons"];
   return fe.createPortal(
@@ -16467,7 +16489,7 @@ function dy() {
                       onRestoreWorkflow: k,
                       onSendToWorkflow: b,
                       onRunWithWorkflow: C,
-                      onRunWithMask: z,
+                      onRunWithMask: O,
                       onEditSource: P,
                       onEditTags: u,
                       onEditNotes: p,
@@ -16505,7 +16527,7 @@ function dy() {
                   /* @__PURE__ */ s.jsx(
                     "img",
                     {
-                      ref: O,
+                      ref: z,
                       src: li(Z),
                       alt: Z.filename,
                       className: `meld-viewer-image meld-viewer-image--${e.settings[l ? "fullscreen.small_image_mode" : "viewer.small_image_mode"] || "fit"} ${f ? "meld-viewer-image--loading" : ""}`,
@@ -16797,8 +16819,8 @@ const uy = () => {
       const P = document.querySelector(".comfyui-body-bottom");
       P ? P.appendChild(C) : document.body.appendChild(C);
     }
-    const z = Number.parseInt(C.dataset.mountCount || "0", 10);
-    return C.dataset.mountCount = (z + 1).toString(), x(C), () => {
+    const O = Number.parseInt(C.dataset.mountCount || "0", 10);
+    return C.dataset.mountCount = (O + 1).toString(), x(C), () => {
       if (C) {
         const D = Number.parseInt(
           C.dataset.mountCount || "1",
@@ -16817,9 +16839,9 @@ const uy = () => {
     b(), c(!1);
   }, u = () => {
     const b = _(), C = /* @__PURE__ */ new Set();
-    for (const z of b)
-      if (z.tags)
-        for (const P of z.tags)
+    for (const O of b)
+      if (O.tags)
+        for (const P of O.tags)
           C.add(P);
     t({
       type: "OPEN_MODAL",
@@ -17599,9 +17621,9 @@ const Im = (e) => {
     handleDelete: w,
     handleEditNotes: _,
     handleUpdateUserNotes: S
-  } = Ds(t, n), { getParentChain: h } = Cm(t.images, t.settings), [u, p] = m.useState(null), [y, k] = m.useState(!1), [j, b] = m.useState(null), [C, z] = m.useState(!1), P = m.useRef(null), D = async (te, Qe, We = !1) => {
+  } = Ds(t, n), { getParentChain: h } = Cm(t.images, t.settings), [u, p] = m.useState(null), [y, k] = m.useState(!1), [j, b] = m.useState(null), [C, O] = m.useState(!1), P = m.useRef(null), D = async (te, Qe, We = !1) => {
     try {
-      await navigator.clipboard.writeText(te), We ? (z(!0), setTimeout(() => z(!1), 2e3)) : (b(Qe), setTimeout(() => b(null), 2e3));
+      await navigator.clipboard.writeText(te), We ? (O(!0), setTimeout(() => O(!1), 2e3)) : (b(Qe), setTimeout(() => b(null), 2e3));
     } catch (it) {
       console.error("Failed to copy text: ", it);
     }
@@ -17616,7 +17638,7 @@ const Im = (e) => {
       window.removeEventListener("keydown", te), document.removeEventListener("mousedown", Qe);
     };
   }, [y, u]);
-  const U = h(e), N = t.settings["sidebar.show_filename"] === "filepath" ? `${e.type !== "custom" ? `${e.type}/` : ""}${e.subfolder ? `${e.subfolder}/` : ""}${e.filename}` : e.filename, R = t.settings["sidebar.thumbnail_size"] || 100, O = pt(
+  const U = h(e), N = t.settings["sidebar.show_filename"] === "filepath" ? `${e.type !== "custom" ? `${e.type}/` : ""}${e.subfolder ? `${e.subfolder}/` : ""}${e.filename}` : e.filename, R = t.settings["sidebar.thumbnail_size"] || 100, z = pt(
     e,
     Math.min(400, Math.round(R * 1.5))
   );
@@ -17634,7 +17656,7 @@ const Im = (e) => {
     menuRef: P,
     parentChain: U,
     displayFilename: N,
-    imgSrc: O,
+    imgSrc: z,
     handleCopy: D,
     handleClick: (te) => {
       te.shiftKey ? (te.preventDefault(), te.stopPropagation(), n({ type: "SELECT_RANGE", payload: e.id })) : te.ctrlKey || te.metaKey || t.selectedIds.size > 0 ? (te.preventDefault(), te.stopPropagation(), n({ type: "TOGGLE_SELECT", payload: e.id })) : n({ type: "OPEN_VIEWER", payload: e.id });
@@ -17760,15 +17782,15 @@ const Im = (e) => {
       handleEditSource: j,
       handleEditTags: b,
       handleEditNotes: C,
-      handleSendToWorkflow: z,
+      handleSendToWorkflow: O,
       handleRestore: P,
       handleDelete: D,
       handleRunWithWorkflow: U,
       handleRunWithMask: Z,
       fetchFullImageDetails: N
-    } = Im(e), [R, O] = m.useState("idle");
+    } = Im(e), [R, z] = m.useState("idle");
     m.useEffect(() => {
-      e.user_notes && R === "saving" && O("idle");
+      e.user_notes && R === "saving" && z("idle");
     }, [e.user_notes, R]);
     const T = (E) => {
       E.stopPropagation();
@@ -18022,7 +18044,7 @@ const Im = (e) => {
               settings: t.settings,
               onAddUnifiedLoader: k,
               onRestoreWorkflow: y,
-              onSendToWorkflow: z,
+              onSendToWorkflow: O,
               onRunWithWorkflow: U,
               onRunWithMask: (E) => Z(E),
               onEditSource: j,
@@ -18074,10 +18096,10 @@ const Lm = Yt.memo(
       handleEditNotes: p,
       handleDelete: y,
       handleRestore: k
-    } = Im(e), j = g.viewScope === "trash", b = j ? "Delete Permanently" : "Move to Trash", C = (z) => {
-      z.stopPropagation();
+    } = Im(e), j = g.viewScope === "trash", b = j ? "Delete Permanently" : "Move to Trash", C = (O) => {
+      O.stopPropagation();
       let P = String(e.id);
-      t && g.selectedIds.size > 0 && (P = Array.from(g.selectedIds).join(",")), z.dataTransfer.setData("text/plain", P), he.getState().setIsOpen(!0);
+      t && g.selectedIds.size > 0 && (P = Array.from(g.selectedIds).join(",")), O.dataTransfer.setData("text/plain", P), he.getState().setIsOpen(!0);
     };
     return /* @__PURE__ */ s.jsxs(
       "div",
@@ -18131,8 +18153,8 @@ const Lm = Yt.memo(
                 width: e.width || void 0,
                 height: e.height || void 0,
                 onMouseDown: l,
-                onClick: (z) => {
-                  z.stopPropagation(), o(z);
+                onClick: (O) => {
+                  O.stopPropagation(), o(O);
                 }
               }
             )
@@ -18365,14 +18387,14 @@ const Nc = ({ image: e }) => {
         ) && (C.preventDefault(), C.dataTransfer.dropEffect = "move");
       },
       onDrop: (C) => {
-        const z = C.dataTransfer.getData(
+        const O = C.dataTransfer.getData(
           "application/meld-lt-source-slot"
         );
-        if (z) {
+        if (O) {
           C.preventDefault();
           const P = C.dataTransfer.getData("text/plain");
           P && P.split(",").forEach((U) => {
-            U && he.getState().removeFromBucket(z, U.trim());
+            U && he.getState().removeFromBucket(O, U.trim());
           });
         }
       },
@@ -18478,8 +18500,8 @@ const Nc = ({ image: e }) => {
               {
                 type: "button",
                 onClick: () => {
-                  const z = (e.settings["gallery.view_mode"] || "grid_details") === "grid_details" ? "grid_only" : "grid_details";
-                  r("gallery.view_mode", z);
+                  const O = (e.settings["gallery.view_mode"] || "grid_details") === "grid_details" ? "grid_only" : "grid_details";
+                  r("gallery.view_mode", O);
                 },
                 style: {
                   background: "none",
