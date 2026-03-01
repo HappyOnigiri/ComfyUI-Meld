@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { logger } from "../../../logger";
 import { useGallery } from "../../../store/GalleryContext";
+import { stopReactKeyboardEvent } from "../../../utils/keyboard";
 import * as searchApi from "../api/searchApi";
 
 export interface Suggestion {
@@ -234,6 +235,7 @@ export const useSearchLogic = () => {
 
 	const handleKeyDown = (e: React.KeyboardEvent) => {
 		if (e.key === "Enter") {
+			stopReactKeyboardEvent(e);
 			if (showSuggestions && selectedIndex >= 0) {
 				applySuggestion(suggestions[selectedIndex]);
 			} else {
@@ -241,21 +243,22 @@ export const useSearchLogic = () => {
 			}
 		} else if (e.key === "Tab") {
 			if (showSuggestions && suggestions.length > 0) {
+				stopReactKeyboardEvent(e);
 				const indexToApply = selectedIndex >= 0 ? selectedIndex : 0;
 				applySuggestion(suggestions[indexToApply]);
-				e.preventDefault();
 			}
 		} else if (e.key === "ArrowDown") {
 			if (showSuggestions) {
+				stopReactKeyboardEvent(e);
 				setSelectedIndex((prev) => Math.min(prev + 1, suggestions.length - 1));
-				e.preventDefault();
 			}
 		} else if (e.key === "ArrowUp") {
 			if (showSuggestions) {
+				stopReactKeyboardEvent(e);
 				setSelectedIndex((prev) => Math.max(prev - 1, -1));
-				e.preventDefault();
 			}
 		} else if (e.key === "Escape") {
+			stopReactKeyboardEvent(e);
 			setShowSuggestions(false);
 		}
 	};

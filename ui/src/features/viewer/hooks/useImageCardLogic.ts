@@ -1,8 +1,10 @@
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
+import { useKeydownCapture } from "../../../hooks/useKeydownCapture";
 import { useOnPointerDownOutside } from "../../../hooks/useOnPointerDownOutside";
 import { useGallery } from "../../../store/GalleryContext";
 import type { MeldImage } from "../../../types";
+import { stopKeyboardEvent } from "../../../utils/keyboard";
 import { getThumbnailViewUrl } from "../../../utils/url";
 import { useImageActions } from "../../images/hooks/useImageActions";
 import { useImageLineage } from "../../images/hooks/useImageLineage";
@@ -62,22 +64,30 @@ export const useImageCardLogic = (image: MeldImage) => {
 		}
 	};
 
-	useEffect(() => {
-		const handleKeyDown = (e: KeyboardEvent) => {
-			if (e.key === "Escape") {
-				if (popupContent) {
-					setPopupContent(null);
-				} else {
-					setIsMenuOpen(false);
-				}
+	const handleEscapeKeyDown = useCallback(
+		(e: KeyboardEvent) => {
+			if (e.key !== "Escape") {
+				return;
 			}
-		};
 
-		window.addEventListener("keydown", handleKeyDown);
-		return () => {
-			window.removeEventListener("keydown", handleKeyDown);
-		};
-	}, [popupContent]);
+			if (popupContent) {
+				stopKeyboardEvent(e);
+				setPopupContent(null);
+				return;
+			}
+
+			if (isMenuOpen) {
+				stopKeyboardEvent(e);
+				setIsMenuOpen(false);
+			}
+		},
+		[popupContent, isMenuOpen],
+	);
+
+	useKeydownCapture({
+		enabled: isMenuOpen || popupContent !== null,
+		onKeyDown: handleEscapeKeyDown,
+	});
 
 	const parentChain = getParentChain(image);
 	const showFilename = state.settings["sidebar.show_filename"];

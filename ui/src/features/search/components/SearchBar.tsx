@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { useGallery } from "../../../store/GalleryContext";
+import { stopReactKeyboardEvent } from "../../../utils/keyboard";
 import { useFavoritesLogic } from "../hooks/useFavoritesLogic";
 import { useSearchLogic } from "../hooks/useSearchLogic";
 import { SearchSuggestions } from "./SearchSuggestions";
@@ -390,8 +391,14 @@ export const SearchBar: React.FC = () => {
 												outline: "none",
 											}}
 											onKeyDown={(e) => {
-												if (e.key === "Enter") handleSaveEditFavorite();
-												if (e.key === "Escape") setEditingFavorite(null);
+												if (e.key === "Enter") {
+													stopReactKeyboardEvent(e);
+													handleSaveEditFavorite();
+												}
+												if (e.key === "Escape") {
+													stopReactKeyboardEvent(e);
+													setEditingFavorite(null);
+												}
 											}}
 										/>
 									</div>
@@ -431,10 +438,13 @@ export const SearchBar: React.FC = () => {
 											}}
 											onKeyDown={(e) => {
 												if (e.key === "Enter" && !e.shiftKey) {
-													e.preventDefault();
+													stopReactKeyboardEvent(e);
 													handleSaveEditFavorite();
 												}
-												if (e.key === "Escape") setEditingFavorite(null);
+												if (e.key === "Escape") {
+													stopReactKeyboardEvent(e);
+													setEditingFavorite(null);
+												}
 											}}
 										/>
 									</div>
