@@ -16,13 +16,6 @@ export const useGalleryLogic = () => {
 
 	const [viewMode, setViewMode] = useState<SidebarView>("gallery");
 	const [lastSearchQuery, setLastSearchQuery] = useState("");
-	const [localLimit, setLocalLimit] = useState(state.pagination.limit);
-
-	// Reset localLimit when search query or view scope changes
-	// biome-ignore lint/correctness/useExhaustiveDependencies: Reset localLimit when search criteria changes
-	useEffect(() => {
-		setLocalLimit(state.pagination.limit);
-	}, [state.searchQuery, state.viewScope, state.pagination.limit]);
 
 	const isSearchActive = state.searchQuery.trim() !== "";
 	const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -65,10 +58,7 @@ export const useGalleryLogic = () => {
 		isSearchActive,
 	]);
 
-	const visibleImages = useMemo(
-		() => displayedImages.slice(0, localLimit),
-		[displayedImages, localLimit],
-	);
+	const visibleImages = displayedImages;
 
 	// If there are no images to display but more exist, automatically load the next page
 	useEffect(() => {
@@ -121,22 +111,8 @@ export const useGalleryLogic = () => {
 						return;
 					}
 
-					// If we have more images locally than shown, just increase localLimit
-					if (localLimit < displayedImages.length) {
-						logger.log(
-							"GalleryPanel: Increasing localLimit (local data available)",
-							{
-								oldLimit: localLimit,
-								newLimit: Math.min(
-									localLimit + state.pagination.limit,
-									displayedImages.length,
-								),
-								totalAvailableLocally: displayedImages.length,
-							},
-						);
-						setLocalLimit((prev) => prev + state.pagination.limit);
-					} else if (state.pagination.hasMore) {
-						// Otherwise, if the server says there are more, load them
+					if (state.pagination.hasMore) {
+						// If the server says there are more, load them
 						logger.log(
 							"GalleryPanel: Load more triggered via IntersectionObserver (fetching from server)",
 							{
@@ -173,39 +149,17 @@ export const useGalleryLogic = () => {
 		loadMoreImages,
 		state.isLoading,
 		state.pagination.hasMore,
-		localLimit,
 		displayedImages.length,
-		state.pagination.limit,
 		state.images.length,
 	]);
 
-	// Scroll synchronization with ImageViewer: when the viewed image is beyond localLimit,
-	// expand localLimit so VirtualizedGalleryList can render it. The actual scrollToIndex
-	// is handled inside VirtualizedGalleryList.
+	// Scroll synchronization with ImageViewer is handled efficiently by VirtualizedGalleryList
+	// which simply measures indexes and scrolls virtualizer. (No localLimit manipulation needed here anymore)
 	useEffect(() => {
-		const idToScroll = state.viewerImageId ?? lastScrolledId.current;
-		if (idToScroll !== null) {
-			const isDisplayed = displayedImages.some((img) => img.id === idToScroll);
-			if (isDisplayed) {
-				const index = displayedImages.findIndex((img) => img.id === idToScroll);
-				if (index >= localLimit) {
-					setLocalLimit(
-						Math.ceil((index + 1) / state.pagination.limit) *
-							state.pagination.limit,
-					);
-				}
-			}
-		}
-
 		if (state.viewerImageId !== null) {
 			lastScrolledId.current = state.viewerImageId;
 		}
-	}, [
-		state.viewerImageId,
-		displayedImages,
-		localLimit,
-		state.pagination.limit,
-	]);
+	}, [state.viewerImageId]);
 
 	return {
 		state,
@@ -217,7 +171,7 @@ export const useGalleryLogic = () => {
 		setViewMode,
 		lastSearchQuery,
 		setLastSearchQuery,
-		localLimit,
+		localLimit: state.pagination.limit,
 		displayedImages,
 		visibleImages,
 		isSearchActive,

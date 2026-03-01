@@ -13,8 +13,6 @@ interface VirtualizedGalleryListProps {
 	loadMoreRef: React.RefObject<HTMLDivElement>;
 	viewerImageId: number | null;
 	isLoading: boolean;
-	localLimit: number;
-	displayedImagesLength: number;
 	hasMore: boolean;
 }
 
@@ -24,8 +22,6 @@ export const VirtualizedGalleryList: React.FC<VirtualizedGalleryListProps> = ({
 	loadMoreRef,
 	viewerImageId,
 	isLoading,
-	localLimit,
-	displayedImagesLength,
 	hasMore,
 }) => {
 	const scrollRef = useRef<HTMLDivElement>(null);
@@ -64,9 +60,7 @@ export const VirtualizedGalleryList: React.FC<VirtualizedGalleryListProps> = ({
 		? Math.ceil(visibleImages.length / columnCount)
 		: visibleImages.length;
 
-	const rowHeightEstimate = isGridOnly
-		? thumbSize + 10 + GRID_GAP
-		: Math.max(thumbSize, 150) + 20;
+	const rowHeightEstimate = isGridOnly ? thumbSize + 14 : thumbSize + 40;
 
 	const virtualizer = useVirtualizer<HTMLDivElement, HTMLDivElement>({
 		count: rowCount,
@@ -124,6 +118,8 @@ export const VirtualizedGalleryList: React.FC<VirtualizedGalleryListProps> = ({
 						return (
 							<div
 								key={virtualRow.key}
+								ref={virtualizer.measureElement}
+								data-index={virtualRow.index}
 								className="meld-gallery__virtual-grid-row"
 								style={{
 									position: "absolute",
@@ -173,6 +169,8 @@ export const VirtualizedGalleryList: React.FC<VirtualizedGalleryListProps> = ({
 					return (
 						<div
 							key={virtualRow.key}
+							ref={virtualizer.measureElement}
+							data-index={virtualRow.index}
 							data-image-id={image.id}
 							className="meld-gallery__virtual-row"
 							style={{
@@ -200,11 +198,9 @@ export const VirtualizedGalleryList: React.FC<VirtualizedGalleryListProps> = ({
 				{isLoading && (
 					<div className="meld-gallery__loading">Loading more...</div>
 				)}
-				{localLimit >= displayedImagesLength &&
-					!hasMore &&
-					visibleImages.length > 0 && (
-						<div className="meld-gallery__end">End of gallery</div>
-					)}
+				{!isLoading && !hasMore && visibleImages.length > 0 && (
+					<div className="meld-gallery__end">End of gallery</div>
+				)}
 			</div>
 		</div>
 	);
