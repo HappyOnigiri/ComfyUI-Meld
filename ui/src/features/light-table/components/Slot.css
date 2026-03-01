@@ -31,6 +31,14 @@
 	border: 1px solid var(--meld-border-color, #444);
 	position: relative;
 	cursor: grab;
+	transition:
+		border-color 0.2s ease,
+		box-shadow 0.2s ease;
+}
+
+.meld-lt-slot-panel__image-wrapper.selected {
+	border-color: var(--meld-accent-color, #3b82f6);
+	box-shadow: 0 0 0 2px var(--meld-accent-color, #3b82f6);
 }
 
 .meld-lt-slot-panel__image-wrapper img {
