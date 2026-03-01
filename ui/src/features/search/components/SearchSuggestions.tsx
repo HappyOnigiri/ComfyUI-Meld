@@ -192,16 +192,33 @@ export const SearchSuggestions = ({
 							cursor: "pointer",
 							backgroundColor:
 								i === selectedIndex
-									? "var(--comfy-menu-bg, #333)"
+									? "var(--comfy-input-bg-active, rgba(59, 130, 246, 0.15))"
 									: "transparent",
 							borderBottom: "1px solid var(--comfy-menu-border, #2a2a2a)",
+							borderLeft:
+								i === selectedIndex
+									? "3px solid var(--meld-accent-color, #3b82f6)"
+									: "3px solid transparent",
+							transition: "all 0.1s ease-out",
 						}}
 					>
-						<div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+						<div
+							style={{
+								display: "flex",
+								alignItems: "center",
+								gap: "10px",
+								transform: i === selectedIndex ? "translateX(2px)" : "none",
+								transition: "transform 0.1s ease-out",
+							}}
+						>
 							<span
 								style={{
-									color: "var(--meld-text-secondary)",
+									color:
+										i === selectedIndex
+											? "var(--meld-accent-color, #3b82f6)"
+											: "var(--meld-text-secondary)",
 									display: "flex",
+									transition: "color 0.1s",
 								}}
 							>
 								{getIcon(s.type)}
