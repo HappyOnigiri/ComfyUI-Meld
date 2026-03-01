@@ -1,5 +1,6 @@
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
+import { useOnPointerDownOutside } from "../../../hooks/useOnPointerDownOutside";
 import { useGallery } from "../../../store/GalleryContext";
 import type { MeldImage } from "../../../types";
 import { getThumbnailViewUrl } from "../../../utils/url";
@@ -40,6 +41,11 @@ export const useImageCardLogic = (image: MeldImage) => {
 	const [copiedLabel, setCopiedLabel] = useState<string | null>(null);
 	const [popupCopied, setPopupCopied] = useState(false);
 	const menuRef = useRef<HTMLDivElement>(null);
+	useOnPointerDownOutside({
+		enabled: isMenuOpen,
+		insideRefs: [menuRef],
+		onOutside: () => setIsMenuOpen(false),
+	});
 
 	const handleCopy = async (text: string, label: string, isPopup = false) => {
 		try {
@@ -67,21 +73,11 @@ export const useImageCardLogic = (image: MeldImage) => {
 			}
 		};
 
-		const handleClickOutside = (event: MouseEvent) => {
-			if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-				setIsMenuOpen(false);
-			}
-		};
-
 		window.addEventListener("keydown", handleKeyDown);
-		if (isMenuOpen) {
-			document.addEventListener("mousedown", handleClickOutside);
-		}
 		return () => {
 			window.removeEventListener("keydown", handleKeyDown);
-			document.removeEventListener("mousedown", handleClickOutside);
 		};
-	}, [isMenuOpen, popupContent]);
+	}, [popupContent]);
 
 	const parentChain = getParentChain(image);
 	const showFilename = state.settings["sidebar.show_filename"];

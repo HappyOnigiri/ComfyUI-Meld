@@ -12,6 +12,7 @@ import type React from "react";
 import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
+import { useOnPointerDownOutside } from "../../../hooks/useOnPointerDownOutside";
 import { getPortalRoot } from "../../../portals/portalRoots";
 import { useGallery } from "../../../store/GalleryContext";
 import { useImageActions } from "../../images/hooks/useImageActions";
@@ -27,11 +28,17 @@ export const BulkActionBar: React.FC = () => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [menuAnchorRect, setMenuAnchorRect] = useState<DOMRect | null>(null);
 	const actionButtonRef = useRef<HTMLButtonElement>(null);
+	const menuRef = useRef<HTMLDivElement>(null);
 	const portalRoot = getPortalRoot("bulkActionBar");
 
 	useEscapeToClose({
 		onEscape: () => setIsMenuOpen(false),
 		enabled: isMenuOpen,
+	});
+	useOnPointerDownOutside({
+		enabled: isMenuOpen,
+		insideRefs: [actionButtonRef, menuRef],
+		onOutside: () => setIsMenuOpen(false),
 	});
 
 	if (count === 0) return null;
@@ -43,6 +50,11 @@ export const BulkActionBar: React.FC = () => {
 	};
 
 	const handleActionClick = () => {
+		if (isMenuOpen) {
+			setIsMenuOpen(false);
+			return;
+		}
+
 		if (actionButtonRef.current) {
 			setMenuAnchorRect(actionButtonRef.current.getBoundingClientRect());
 			setIsMenuOpen(true);
@@ -127,81 +139,73 @@ export const BulkActionBar: React.FC = () => {
 			</button>
 
 			{isMenuOpen && menuAnchorRect && (
-				<>
-					{/* Overlay to close menu when clicking outside */}
-					<div
-						className="meld-bulk-bar-menu-overlay"
-						onClick={() => setIsMenuOpen(false)}
-						onMouseDown={(e) => e.stopPropagation()}
-					/>
-					<div
-						className="meld-bulk-bar-menu"
-						style={{
-							bottom: window.innerHeight - menuAnchorRect.top + 5,
-							left: menuAnchorRect.left,
-						}}
-						onClick={(e) => e.stopPropagation()}
-					>
-						{isTrashMode ? (
-							<>
-								<button
-									type="button"
-									className="meld-bulk-bar-menu__item meld-bulk-bar-menu__item--restore"
-									onClick={() => executeAction(restoreSelected)}
-								>
-									<RefreshCw size={14} /> Restore
-								</button>
-								<button
-									type="button"
-									className="meld-bulk-bar-menu__item meld-bulk-bar-menu__item--danger"
-									onClick={() => executeAction(deleteSelected)}
-								>
-									<Trash2 size={14} /> Delete Permanently
-								</button>
-							</>
-						) : (
-							<>
-								<button
-									type="button"
-									className="meld-bulk-bar-menu__item"
-									onClick={() => executeAction(handleBulkTagEdit)}
-								>
-									<Tag size={14} /> Edit Tags
-								</button>
-								<button
-									type="button"
-									className="meld-bulk-bar-menu__item"
-									onClick={() => executeAction(handleBulkRunWithWorkflow)}
-								>
-									<FileJson size={14} /> Queue Workflow
-								</button>
-								{/* Mask workflow action supports multiple images as a sequence */}
-								<button
-									type="button"
-									className="meld-bulk-bar-menu__item"
-									onClick={() => executeAction(handleBulkRunWithMask)}
-								>
-									<ScanLine size={14} /> Queue Workflow (Mask)
-								</button>
-								<button
-									type="button"
-									className="meld-bulk-bar-menu__item"
-									onClick={() => executeAction(handleBulkDownload)}
-								>
-									<Download size={14} /> Download
-								</button>
-								<div className="meld-bulk-bar-menu__divider" />
-								<button
-									type="button"
-									className="meld-bulk-bar-menu__item meld-bulk-bar-menu__item--danger"
-									onClick={() => executeAction(deleteSelected)}
-								>
-									<Trash2 size={14} /> Move to Trash
-								</button>
-							</>
-						)}
-					</div>
-				</>
+				<div
+					ref={menuRef}
+					className="meld-bulk-bar-menu"
+					style={{
+						bottom: window.innerHeight - menuAnchorRect.top + 5,
+						left: menuAnchorRect.left,
+					}}
+				>
+					{isTrashMode ? (
+						<>
+							<button
+								type="button"
+								className="meld-bulk-bar-menu__item meld-bulk-bar-menu__item--restore"
+								onClick={() => executeAction(restoreSelected)}
+							>
+								<RefreshCw size={14} /> Restore
+							</button>
+							<button
+								type="button"
+								className="meld-bulk-bar-menu__item meld-bulk-bar-menu__item--danger"
+								onClick={() => executeAction(deleteSelected)}
+							>
+								<Trash2 size={14} /> Delete Permanently
+							</button>
+						</>
+					) : (
+						<>
+							<button
+								type="button"
+								className="meld-bulk-bar-menu__item"
+								onClick={() => executeAction(handleBulkTagEdit)}
+							>
+								<Tag size={14} /> Edit Tags
+							</button>
+							<button
+								type="button"
+								className="meld-bulk-bar-menu__item"
+								onClick={() => executeAction(handleBulkRunWithWorkflow)}
+							>
+								<FileJson size={14} /> Queue Workflow
+							</button>
+							{/* Mask workflow action supports multiple images as a sequence */}
+							<button
+								type="button"
+								className="meld-bulk-bar-menu__item"
+								onClick={() => executeAction(handleBulkRunWithMask)}
+							>
+								<ScanLine size={14} /> Queue Workflow (Mask)
+							</button>
+							<button
+								type="button"
+								className="meld-bulk-bar-menu__item"
+								onClick={() => executeAction(handleBulkDownload)}
+							>
+								<Download size={14} /> Download
+							</button>
+							<div className="meld-bulk-bar-menu__divider" />
+							<button
+								type="button"
+								className="meld-bulk-bar-menu__item meld-bulk-bar-menu__item--danger"
+								onClick={() => executeAction(deleteSelected)}
+							>
+								<Trash2 size={14} /> Move to Trash
+							</button>
+						</>
+					)}
+				</div>
 			)}
 		</div>
 	);
