@@ -386,9 +386,33 @@ export const GalleryPanel: React.FC = () => {
 						}}
 					/>
 				) : state.isLoading && displayedImages.length === 0 ? (
-					<div className="meld-gallery__loading">Loading images...</div>
+					<div
+						className="meld-gallery__list-wrapper"
+						style={{
+							flex: 1,
+							minHeight: 0,
+							display: "flex",
+							flexDirection: "column",
+							justifyContent: "center",
+							alignItems: "center",
+						}}
+					>
+						<div className="meld-gallery__loading">Loading images...</div>
+					</div>
 				) : visibleImages.length === 0 ? (
-					<div className="meld-gallery__empty">No images found.</div>
+					<div
+						className="meld-gallery__list-wrapper"
+						style={{
+							flex: 1,
+							minHeight: 0,
+							display: "flex",
+							flexDirection: "column",
+							justifyContent: "center",
+							alignItems: "center",
+						}}
+					>
+						<div className="meld-gallery__empty">No images found.</div>
+					</div>
 				) : (
 					<div
 						className="meld-gallery__list-wrapper"

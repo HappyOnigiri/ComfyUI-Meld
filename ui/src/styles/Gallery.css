@@ -278,6 +278,8 @@
 .meld-image-card--grid-only .meld-image-card__thumbnail-wrapper {
 	max-width: var(--meld-thumbnail-size, 100px);
 	max-height: var(--meld-thumbnail-size, 100px);
+	width: var(--meld-thumbnail-size, 100px);
+	height: var(--meld-thumbnail-size, 100px);
 	min-width: 0;
 	min-height: 0;
 	flex: none;

@@ -14,7 +14,7 @@
 	padding: 10px 18px;
 	border-radius: 8px;
 	box-shadow: 0 4px 20px var(--comfy-menu-shadow, transparent);
-	z-index: 10000;
+	z-index: 11500;
 	animation:
 		meld-toast-in 0.2s ease,
 		meld-toast-out 0.3s ease 2.2s forwards;

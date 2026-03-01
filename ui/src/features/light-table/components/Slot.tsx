@@ -12,6 +12,7 @@ import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { useGallery } from "../../../store/GalleryContext";
 import type { MeldImage } from "../../../types";
+import { getThumbnailViewUrl } from "../../../utils/url";
 import { executeSlotAction } from "../api/actions";
 import { useLightTableStore } from "../store";
 import type { ActionType, SlotConfig } from "../types";
@@ -194,8 +195,7 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 					</div>
 				) : (
 					bucketImages.map((img) => {
-						const type = "type" in img ? img.type : "output";
-						const imgSrc = `/api/view?filename=${encodeURIComponent(img.filename)}&type=${type}&subfolder=${encodeURIComponent(img.subfolder || "")}`;
+						const imgSrc = getThumbnailViewUrl(img);
 						return (
 							<div
 								key={img.id}
