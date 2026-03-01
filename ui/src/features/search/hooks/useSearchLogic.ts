@@ -234,10 +234,15 @@ export const useSearchLogic = () => {
 
 	const handleKeyDown = (e: React.KeyboardEvent) => {
 		if (e.key === "Enter") {
-			handleSearch(inputValue);
-		} else if (e.key === "Tab") {
 			if (showSuggestions && selectedIndex >= 0) {
 				applySuggestion(suggestions[selectedIndex]);
+			} else {
+				handleSearch(inputValue);
+			}
+		} else if (e.key === "Tab") {
+			if (showSuggestions && suggestions.length > 0) {
+				const indexToApply = selectedIndex >= 0 ? selectedIndex : 0;
+				applySuggestion(suggestions[indexToApply]);
 				e.preventDefault();
 			}
 		} else if (e.key === "ArrowDown") {

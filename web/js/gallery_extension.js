@@ -14172,7 +14172,14 @@ const fm = [
     },
     [r, S]
   ), P = (z) => {
-    z.key === "Enter" ? C(r) : z.key === "Tab" ? i && w >= 0 && (O(a[w]), z.preventDefault()) : z.key === "ArrowDown" ? i && (_((T) => Math.min(T + 1, a.length - 1)), z.preventDefault()) : z.key === "ArrowUp" ? i && (_((T) => Math.max(T - 1, -1)), z.preventDefault()) : z.key === "Escape" && c(!1);
+    if (z.key === "Enter")
+      i && w >= 0 ? O(a[w]) : C(r);
+    else if (z.key === "Tab") {
+      if (i && a.length > 0) {
+        const T = w >= 0 ? w : 0;
+        O(a[T]), z.preventDefault();
+      }
+    } else z.key === "ArrowDown" ? i && (_((T) => Math.min(T + 1, a.length - 1)), z.preventDefault()) : z.key === "ArrowUp" ? i && (_((T) => Math.max(T - 1, -1)), z.preventDefault()) : z.key === "Escape" && c(!1);
   }, D = f.useCallback(() => {
     l(""), C("");
   }, [C]), U = f.useCallback(
@@ -14365,49 +14372,64 @@ const fm = [
             justifyContent: "space-between",
             padding: "10px 14px",
             cursor: "pointer",
-            backgroundColor: k === n ? "var(--comfy-menu-bg, #333)" : "transparent",
-            borderBottom: "1px solid var(--comfy-menu-border, #2a2a2a)"
+            backgroundColor: k === n ? "var(--comfy-input-bg-active, rgba(59, 130, 246, 0.15))" : "transparent",
+            borderBottom: "1px solid var(--comfy-menu-border, #2a2a2a)",
+            borderLeft: k === n ? "3px solid var(--meld-accent-color, #3b82f6)" : "3px solid transparent",
+            transition: "all 0.1s ease-out"
           },
-          children: /* @__PURE__ */ s.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "10px" }, children: [
-            /* @__PURE__ */ s.jsx(
-              "span",
-              {
-                style: {
-                  color: "var(--meld-text-secondary)",
-                  display: "flex"
-                },
-                children: xc(y.type)
-              }
-            ),
-            /* @__PURE__ */ s.jsxs(
-              "span",
-              {
-                style: {
-                  color: "var(--comfy-input-text-active, #3b82f6)",
-                  fontSize: "10px",
-                  fontWeight: "bold",
-                  textTransform: "uppercase",
-                  width: y.type.length > 8 ? "auto" : "60px",
-                  flexShrink: 0
-                },
-                children: [
-                  y.type,
-                  ":"
-                ]
-              }
-            ),
-            /* @__PURE__ */ s.jsx(
-              "span",
-              {
-                style: {
-                  color: y.value === xt ? "var(--meld-accent-color, #3b82f6)" : "var(--meld-text-color)",
-                  fontSize: "14px",
-                  fontWeight: y.value === xt ? "bold" : "normal"
-                },
-                children: y.value === xt ? y.type === "tag" ? `Untagged (${xt})` : `No ${y.type} (${xt})` : y.value
-              }
-            )
-          ] })
+          children: /* @__PURE__ */ s.jsxs(
+            "div",
+            {
+              style: {
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                transform: k === n ? "translateX(2px)" : "none",
+                transition: "transform 0.1s ease-out"
+              },
+              children: [
+                /* @__PURE__ */ s.jsx(
+                  "span",
+                  {
+                    style: {
+                      color: k === n ? "var(--meld-accent-color, #3b82f6)" : "var(--meld-text-secondary)",
+                      display: "flex",
+                      transition: "color 0.1s"
+                    },
+                    children: xc(y.type)
+                  }
+                ),
+                /* @__PURE__ */ s.jsxs(
+                  "span",
+                  {
+                    style: {
+                      color: "var(--comfy-input-text-active, #3b82f6)",
+                      fontSize: "10px",
+                      fontWeight: "bold",
+                      textTransform: "uppercase",
+                      width: y.type.length > 8 ? "auto" : "60px",
+                      flexShrink: 0
+                    },
+                    children: [
+                      y.type,
+                      ":"
+                    ]
+                  }
+                ),
+                /* @__PURE__ */ s.jsx(
+                  "span",
+                  {
+                    style: {
+                      color: y.value === xt ? "var(--meld-accent-color, #3b82f6)" : "var(--meld-text-color)",
+                      fontSize: "14px",
+                      fontWeight: y.value === xt ? "bold" : "normal"
+                    },
+                    children: y.value === xt ? y.type === "tag" ? `Untagged (${xt})` : `No ${y.type} (${xt})` : y.value
+                  }
+                )
+              ]
+            }
+          )
         },
         `${y.type}:${y.value}`
       ))
