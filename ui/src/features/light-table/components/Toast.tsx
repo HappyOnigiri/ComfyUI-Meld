@@ -1,7 +1,7 @@
 import type React from "react";
 import { useLightTableStore } from "../store";
 
-import "./Toast.css";
+import "../../../components/shared/Toast.css";
 
 /**
  * Toast component for Light Table.

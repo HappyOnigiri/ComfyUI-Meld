@@ -2,7 +2,7 @@ import type React from "react";
 import { useEffect } from "react";
 import { useGallery } from "../../store/GalleryContext";
 
-import "../../features/light-table/components/Toast.css";
+import "./Toast.css";
 
 /**
  * Global Toast component.
