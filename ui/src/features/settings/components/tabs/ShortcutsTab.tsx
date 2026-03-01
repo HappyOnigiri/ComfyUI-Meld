@@ -44,6 +44,8 @@ export const ShortcutsTab: React.FC<ShortcutsTabProps> = ({
 					You can combine multiple commands with spaces.
 					<br />
 					Example: <code>tag:favorite next</code> (Add tag and move to next)
+					<br />
+					Use quotes for names with spaces. Example: <code>lt:"My Best"</code>
 				</p>
 				<div className="meld-settings-help__commands">
 					<strong>Available commands:</strong>
@@ -58,7 +60,9 @@ export const ShortcutsTab: React.FC<ShortcutsTabProps> = ({
 							<code>tag-toggle:NAME</code> - Toggle a tag
 						</li>
 						<li>
-							<code>lt:SLOT_ID</code> - Send to Light Table slot
+							<code>lt:SLOT_ID</code> - Send to Light Table (Example:{" "}
+							<code>lt:keep</code>, <code>lt:refine</code>,{" "}
+							<code>lt:trash</code>)
 						</li>
 						<li>
 							<code>next</code> / <code>prev</code> - Navigate images

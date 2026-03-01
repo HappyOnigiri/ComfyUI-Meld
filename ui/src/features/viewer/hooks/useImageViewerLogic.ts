@@ -467,10 +467,16 @@ export const useImageViewerLogic = ({
 
 			if (sendToLtSlot) {
 				const store = useLightTableStore.getState();
-				// Verify the slot exists before adding to bucket
-				const slot = store.slots.find((s) => s.id === sendToLtSlot);
+				// Verify the slot exists before adding to bucket (Case-insensitive ID or Label)
+				const slot = store.slots.find(
+					(s) =>
+						s.id.toLowerCase() === sendToLtSlot.toLowerCase() ||
+						s.label.toLowerCase() === sendToLtSlot.toLowerCase(),
+				);
+
 				if (slot) {
-					store.addToBucket(sendToLtSlot, String(currentImageId), image);
+					// Use the correct internal ID for the store action
+					store.addToBucket(slot.id, String(currentImageId), image);
 					store.showToast(`Sent to ${slot.label}`);
 				} else {
 					// Slot not found - show error toast

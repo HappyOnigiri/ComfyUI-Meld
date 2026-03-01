@@ -11,13 +11,28 @@ export interface CommandResult {
 }
 
 /**
+ * Tokenizes a command string, respecting quotes.
+ */
+const getCommandTokens = (command: string): string[] => {
+	const regex = /(?:[^\s"']+|"[^"]*"|'[^']*')+/g;
+	return command.trim().match(regex) || [];
+};
+
+/**
+ * Strips surrounding quotes from a string.
+ */
+const stripQuotes = (str: string): string => {
+	return str.replace(/^["']|["']$/g, "");
+};
+
+/**
  * Validates a shortcut command string.
  * @param command The command string to validate.
  * @returns true if the command is valid, false otherwise.
  */
 export const validateShortcutCommand = (command: string): boolean => {
 	if (!command.trim()) return true;
-	const parts = command.trim().split(/\s+/);
+	const parts = getCommandTokens(command);
 	return parts.every((part) => {
 		if (part === "next" || part === "prev" || part === "delete") return true;
 		if (part.startsWith("tag:") && part.length > 4) return true;
@@ -39,7 +54,7 @@ export const parseShortcutCommand = (
 	command: string,
 	currentImage?: MeldImage,
 ): CommandResult => {
-	const parts = command.trim().split(/\s+/);
+	const parts = getCommandTokens(command);
 	const result: CommandResult = {
 		addTags: [],
 		removeTags: [],
@@ -54,17 +69,17 @@ export const parseShortcutCommand = (
 
 	for (const part of parts) {
 		if (part.startsWith("tag:")) {
-			const tag = part.substring(4);
+			const tag = stripQuotes(part.substring(4));
 			if (tag && !result.addTags.includes(tag)) {
 				result.addTags.push(tag);
 			}
 		} else if (part.startsWith("-tag:")) {
-			const tag = part.substring(5);
+			const tag = stripQuotes(part.substring(5));
 			if (tag && !result.removeTags.includes(tag)) {
 				result.removeTags.push(tag);
 			}
 		} else if (part.startsWith("tag-toggle:")) {
-			const tag = part.substring(11);
+			const tag = stripQuotes(part.substring(11));
 			if (tag) {
 				if (currentImage) {
 					if (currentTags.includes(tag)) {
@@ -83,7 +98,7 @@ export const parseShortcutCommand = (
 		} else if (part === "delete") {
 			result.isDeleted = true;
 		} else if (part.startsWith("lt:")) {
-			const slotId = part.substring(3);
+			const slotId = stripQuotes(part.substring(3));
 			if (slotId) result.sendToLtSlot = slotId;
 		}
 	}
