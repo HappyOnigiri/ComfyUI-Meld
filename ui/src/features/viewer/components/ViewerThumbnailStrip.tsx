@@ -11,11 +11,15 @@ const ThumbnailItem = memo(
 		viewerImageId,
 		currentImage,
 		dispatch,
+		viewerMode,
+		lightTableSlotId,
 	}: {
 		thumb: MeldImage;
 		viewerImageId: number | null;
 		currentImage: MeldImage;
 		dispatch: React.Dispatch<GalleryAction>;
+		viewerMode: string;
+		lightTableSlotId?: string | null;
 	}) => {
 		const isCurrent = thumb.id === viewerImageId;
 		const isParent =
@@ -34,7 +38,14 @@ const ThumbnailItem = memo(
 					onClick={() =>
 						dispatch({
 							type: "OPEN_VIEWER",
-							payload: { id: thumb.id, mode: "gallery" },
+							payload: {
+								id: thumb.id,
+								mode: viewerMode as "gallery" | "lineage" | "lighttable",
+								// Preserve slotId in lighttable mode
+								...(viewerMode === "lighttable" && lightTableSlotId
+									? { slotId: lightTableSlotId }
+									: {}),
+							},
 						})
 					}
 					title={thumb.filename}
@@ -64,6 +75,7 @@ interface ViewerThumbnailStripProps {
 	isLoadingLineage: boolean;
 	isLoading: boolean;
 	viewerMode: string;
+	lightTableSlotId?: string | null;
 }
 
 export const ViewerThumbnailStrip: React.FC<ViewerThumbnailStripProps> = ({
@@ -74,6 +86,7 @@ export const ViewerThumbnailStrip: React.FC<ViewerThumbnailStripProps> = ({
 	isLoadingLineage,
 	isLoading,
 	viewerMode,
+	lightTableSlotId,
 }) => {
 	return (
 		<div className="meld-viewer-thumbnails-container">
@@ -95,6 +108,8 @@ export const ViewerThumbnailStrip: React.FC<ViewerThumbnailStripProps> = ({
 							viewerImageId={viewerImageId}
 							currentImage={currentImage}
 							dispatch={dispatch}
+							viewerMode={viewerMode}
+							lightTableSlotId={lightTableSlotId}
 						/>
 					))
 				)}

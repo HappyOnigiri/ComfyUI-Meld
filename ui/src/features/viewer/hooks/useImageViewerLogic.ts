@@ -217,7 +217,15 @@ export const useImageViewerLogic = ({
 						if (!idsToDelete.has(currentThumbnails[i].id)) {
 							dispatch({
 								type: "OPEN_VIEWER",
-								payload: { id: currentThumbnails[i].id, mode: viewerMode },
+								payload: {
+									id: currentThumbnails[i].id,
+									mode: viewerMode,
+									// Preserve slotId in lighttable mode to stay within the slot
+									...(viewerMode === "lighttable" &&
+									state.viewerLightTableSlotId
+										? { slotId: state.viewerLightTableSlotId }
+										: {}),
+								},
 							});
 							found = true;
 							break;
@@ -229,7 +237,15 @@ export const useImageViewerLogic = ({
 							if (!idsToDelete.has(currentThumbnails[i].id)) {
 								dispatch({
 									type: "OPEN_VIEWER",
-									payload: { id: currentThumbnails[i].id, mode: viewerMode },
+									payload: {
+										id: currentThumbnails[i].id,
+										mode: viewerMode,
+										// Preserve slotId in lighttable mode to stay within the slot
+										...(viewerMode === "lighttable" &&
+										state.viewerLightTableSlotId
+											? { slotId: state.viewerLightTableSlotId }
+											: {}),
+									},
 								});
 								found = true;
 								break;
@@ -272,6 +288,7 @@ export const useImageViewerLogic = ({
 			currentIndex,
 			viewerMode,
 			dispatch,
+			state.viewerLightTableSlotId,
 		],
 	);
 
@@ -390,7 +407,14 @@ export const useImageViewerLogic = ({
 
 			dispatch({
 				type: "OPEN_VIEWER",
-				payload: { id: idToOpen, mode: viewerMode },
+				payload: {
+					id: idToOpen,
+					mode: viewerMode,
+					// Preserve slotId in lighttable mode to stay within the slot
+					...(viewerMode === "lighttable" && state.viewerLightTableSlotId
+						? { slotId: state.viewerLightTableSlotId }
+						: {}),
+				},
 			});
 		} catch (err: unknown) {
 			dispatch({
@@ -398,7 +422,13 @@ export const useImageViewerLogic = ({
 				payload: err instanceof Error ? err.message : String(err),
 			});
 		}
-	}, [lastDeletedImages, dispatch, viewerMode, state.viewScope]);
+	}, [
+		lastDeletedImages,
+		dispatch,
+		viewerMode,
+		state.viewScope,
+		state.viewerLightTableSlotId,
+	]);
 
 	const handleUndo = useCallback(async () => {
 		if (lastDeletedImages && lastDeletedImages.length > 0) {
