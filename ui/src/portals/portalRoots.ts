@@ -19,8 +19,31 @@ const portalRootDefinitions: Record<PortalRootKey, PortalRootDefinition> = {
 const portalRootKeys = Object.keys(portalRootDefinitions) as PortalRootKey[];
 const portalRoots = new Map<PortalRootKey, HTMLDivElement>();
 
+const PORTAL_ROOT_ATTR = "data-meld-portal-root";
+
 let portalObserver: MutationObserver | null = null;
 let scheduledRafId: number | null = null;
+
+/**
+ * Check if a node list contains any element relevant to portal root attachment:
+ * - our portal roots (data-meld-portal-root)
+ * - the preferred parent (.comfyui-body-bottom) or elements containing it
+ */
+const PREFERRED_PARENT_SELECTOR = ".comfyui-body-bottom";
+
+function nodeListContainsRelevantNode(list: NodeList): boolean {
+	const portalSelector = `[${PORTAL_ROOT_ATTR}]`;
+	for (let i = 0; i < list.length; i++) {
+		const node = list[i];
+		if (node.nodeType !== Node.ELEMENT_NODE) continue;
+		const el = node as Element;
+		if (el.hasAttribute?.(PORTAL_ROOT_ATTR)) return true;
+		if (el.querySelector?.(portalSelector)) return true;
+		if (el.matches?.(PREFERRED_PARENT_SELECTOR)) return true;
+		if (el.querySelector?.(PREFERRED_PARENT_SELECTOR)) return true;
+	}
+	return false;
+}
 
 function getPreferredParent(selector: string): HTMLElement {
 	const preferred = document.querySelector(selector);
@@ -87,8 +110,17 @@ export function startPortalRootAutoAttach(): void {
 
 	ensureAllPortalRootsAttached();
 
-	portalObserver = new MutationObserver(() => {
-		scheduleEnsureAllPortalRootsAttached();
+	portalObserver = new MutationObserver((mutations: MutationRecord[]) => {
+		for (const m of mutations) {
+			if (nodeListContainsRelevantNode(m.addedNodes)) {
+				scheduleEnsureAllPortalRootsAttached();
+				return;
+			}
+			if (nodeListContainsRelevantNode(m.removedNodes)) {
+				scheduleEnsureAllPortalRootsAttached();
+				return;
+			}
+		}
 	});
 
 	portalObserver.observe(document.body, {
