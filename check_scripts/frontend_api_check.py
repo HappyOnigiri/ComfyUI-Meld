@@ -19,7 +19,7 @@ def get_files_to_check() -> list[str]:
     files = []
     for ext in ("*.ts", "*.tsx"):
         for p in base.rglob(ext):
-            if p.suffix == ".d.ts":
+            if p.name.endswith(".d.ts"):
                 continue
             text = p.read_text(encoding="utf-8", errors="replace")
             if "api.fetchApi" in text or (".json()" in text and "api" in text):
@@ -43,9 +43,13 @@ def check_frontend_api_usage() -> int:
             if "frontend-api-check-ignore" in line:
                 continue
 
-            # Exclude handleResponse definition itself in ui/src/api.ts
-            if "handleResponse" in line and "export" in line and "function" in line:
-                continue
+            # Exclude handleResponse definition itself
+            if "handleResponse" in line and "export" in line:
+                # regex to match: export (const|let|var|function|default) ... handleResponse
+                import re
+
+                if re.search(r"\bexport\s+(const|let|var|function|default|type)\b.*\bhandleResponse\b", line):
+                    continue
 
             # Rule 1: Check .json() usage
             if ".json()" in line:
@@ -67,16 +71,22 @@ def check_frontend_api_usage() -> int:
                         break
 
                 if not found_handle:
-                    if any(q in line for q in ['"/meld/', "'/meld/", "`/meld/"]):
-                        if any(b in line for b in BLOB_ENDPOINTS):
+                    import re
+
+                    # Extract the URL from api.fetchApi(URL, ...)
+                    url_match = re.search(r'api\.fetchApi\(\s*["\'`]([^"\'`]+)["\'`]', line)
+                    if url_match:
+                        url = url_match.group(1)
+                        # Check against BLOB_ENDPOINTS strictly (exact match or path segment)
+                        if any(url == b or url.startswith(f"{b}/") or f"/{b}/" in f"/{url}/" for b in BLOB_ENDPOINTS):
                             continue
+
+                    if any(q in line for q in ['"/meld/', "'/meld/", "`/meld/"]):
                         errors.append(
                             f"{file_path}:{i + 1}: api.fetchApi call to /meld/ should be wrapped with handleResponse(res)."
                         )
                     else:
                         # For non-meld endpoints (like ComfyUI ones), require handleResponse or exceptions
-                        if any(b in line for b in BLOB_ENDPOINTS):
-                            continue
                         errors.append(
                             f"{file_path}:{i + 1}: api.fetchApi call should be wrapped with handleResponse, or added to exceptions."
                         )
