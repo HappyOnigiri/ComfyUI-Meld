@@ -73,20 +73,25 @@ def check_frontend_api_usage() -> int:
                 if not found_handle:
                     import re
 
-                    # Extract the URL from api.fetchApi(URL, ...)
-                    url_match = re.search(r'api\.fetchApi\(\s*["\'`]([^"\'`]+)["\'`]', line)
-                    if url_match:
-                        url = url_match.group(1)
+                    # Extract the URL from api.fetchApi(URL, ...) - handle multiline
+                    buffer = " ".join(lines[i : min(i + 5, len(lines))])
+                    url_match = re.search(r'api\.fetchApi\(\s*["\'`]([^"\'`]+)["\'`]', buffer)
+                    url = url_match.group(1) if url_match else None
+
+                    if url:
                         # Check against BLOB_ENDPOINTS strictly (exact match or path segment)
                         if any(url == b or url.startswith(f"{b}/") or f"/{b}/" in f"/{url}/" for b in BLOB_ENDPOINTS):
                             continue
 
-                    if any(q in line for q in ['"/meld/', "'/meld/", "`/meld/"]):
+                    # Determine error message: use extracted URL if available, otherwise check line
+                    is_meld = (url and "/meld/" in f"/{url}/") or any(
+                        q in line for q in ['"/meld/', "'/meld/", "`/meld/"]
+                    )
+                    if is_meld:
                         errors.append(
                             f"{file_path}:{i + 1}: api.fetchApi call to /meld/ should be wrapped with handleResponse(res)."
                         )
                     else:
-                        # For non-meld endpoints (like ComfyUI ones), require handleResponse or exceptions
                         errors.append(
                             f"{file_path}:{i + 1}: api.fetchApi call should be wrapped with handleResponse, or added to exceptions."
                         )
