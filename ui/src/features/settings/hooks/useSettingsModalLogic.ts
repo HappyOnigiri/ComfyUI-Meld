@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useGallery } from "../../../store/GalleryContext";
 import type { Settings } from "../../../types";
+import { validateShortcutCommand } from "../utils/shortcutGrammar";
 
 export type Category =
 	| "Gallery"
@@ -95,16 +96,7 @@ export const useSettingsModalLogic = () => {
 	};
 
 	const validateShortcut = (command: string) => {
-		if (!command.trim()) return true;
-		const parts = command.trim().split(/\s+/);
-		return parts.every((part) => {
-			if (part === "next" || part === "prev" || part === "delete") return true;
-			if (part.startsWith("tag:") && part.length > 4) return true;
-			if (part.startsWith("-tag:") && part.length > 5) return true;
-			if (part.startsWith("tag-toggle:") && part.length > 11) return true;
-			if (part.startsWith("lt:") && part.length > 3) return true;
-			return false;
-		});
+		return validateShortcutCommand(command);
 	};
 
 	const handleNumberChange = (

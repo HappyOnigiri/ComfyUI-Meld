@@ -12,6 +12,7 @@ import { deleteImagesAndSyncLightTable } from "../../images/hooks/deleteHelpers"
 import { useImageActions } from "../../images/hooks/useImageActions";
 import { useImageLineage } from "../../images/hooks/useImageLineage";
 import { useLightTableStore } from "../../light-table/store";
+import { parseShortcutCommand } from "../../settings/utils/shortcutGrammar";
 
 function getAdjacentIds(params: {
 	ids: number[];
@@ -142,12 +143,12 @@ export const useImageViewerLogic = ({
 		return viewerMode === "lineage"
 			? lineageImages
 			: images.filter(
-					(img) =>
-						img.exists !== false &&
-						(settings["gallery.show_parent_images"] ||
-							isSearchActive ||
-							!img.has_children),
-				);
+				(img) =>
+					img.exists !== false &&
+					(settings["gallery.show_parent_images"] ||
+						isSearchActive ||
+						!img.has_children),
+			);
 	}, [
 		viewerMode,
 		state.viewerLightTableSlotId,
@@ -454,60 +455,28 @@ export const useImageViewerLogic = ({
 			const currentImageId = image.id;
 			const currentImageTags = [...image.tags];
 
-			const parts = command.split(/\s+/);
-			const addTags: string[] = [];
-			const removeTags: string[] = [];
-			let moveNext = false;
-			let movePrev = false;
-			let isDeleted = false;
-			let sendToLtSlot: string | null = null;
-
-			for (const part of parts) {
-				if (part.startsWith("tag:")) {
-					const tag = part.substring(4);
-					if (
-						tag &&
-						!currentImageTags.includes(tag) &&
-						!addTags.includes(tag)
-					) {
-						addTags.push(tag);
-					}
-				} else if (part.startsWith("-tag:")) {
-					const tag = part.substring(5);
-					if (
-						tag &&
-						currentImageTags.includes(tag) &&
-						!removeTags.includes(tag)
-					) {
-						removeTags.push(tag);
-					}
-				} else if (part.startsWith("tag-toggle:")) {
-					const tag = part.substring(11);
-					if (tag) {
-						if (currentImageTags.includes(tag)) {
-							if (!removeTags.includes(tag)) removeTags.push(tag);
-						} else {
-							if (!addTags.includes(tag)) addTags.push(tag);
-						}
-					}
-				} else if (part === "next") {
-					moveNext = true;
-				} else if (part === "prev") {
-					movePrev = true;
-				} else if (part === "delete") {
-					isDeleted = true;
-				} else if (part.startsWith("lt:")) {
-					const slotId = part.substring(3);
-					if (slotId) sendToLtSlot = slotId;
-				}
-			}
+			const result = parseShortcutCommand(command, image);
+			const {
+				addTags,
+				removeTags,
+				isDeleted,
+				moveNext,
+				movePrev,
+				sendToLtSlot,
+			} = result;
 
 			if (sendToLtSlot) {
 				const store = useLightTableStore.getState();
-				store.addToBucket(sendToLtSlot, String(currentImageId), image);
-				const slotName =
-					store.slots.find((s) => s.id === sendToLtSlot)?.label || sendToLtSlot;
-				store.showToast(`Sent to ${slotName}`);
+				// Verify the slot exists before adding to bucket
+				const slot = store.slots.find((s) => s.id === sendToLtSlot);
+				if (slot) {
+					store.addToBucket(sendToLtSlot, String(currentImageId), image);
+					store.showToast(`Sent to ${slot.label}`);
+				} else {
+					// Slot not found - show error toast
+					store.showToast(`Error: Light Table slot "${sendToLtSlot}" not found`);
+					console.warn(`Attempted to send to non-existent LT slot: ${sendToLtSlot}`);
+				}
 			}
 
 			if (addTags.length > 0 || removeTags.length > 0) {

@@ -58,7 +58,7 @@ export const ShortcutsTab: React.FC<ShortcutsTabProps> = ({
 							<code>tag-toggle:NAME</code> - Toggle a tag
 						</li>
 						<li>
-							<code>lt:SLOT_ID</code> - Send to Light Table tab
+							<code>lt:SLOT_ID</code> - Send to Light Table slot
 						</li>
 						<li>
 							<code>next</code> / <code>prev</code> - Navigate images
