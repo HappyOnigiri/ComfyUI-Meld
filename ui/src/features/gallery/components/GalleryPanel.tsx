@@ -38,7 +38,6 @@ export const GalleryPanel: React.FC = () => {
 		setViewMode,
 		lastSearchQuery,
 		setLastSearchQuery,
-		localLimit,
 		displayedImages,
 		visibleImages,
 		isSearchActive,
@@ -429,8 +428,6 @@ export const GalleryPanel: React.FC = () => {
 							loadMoreRef={loadMoreRef}
 							viewerImageId={state.viewerImageId}
 							isLoading={state.isLoading}
-							localLimit={localLimit}
-							displayedImagesLength={displayedImages.length}
 							hasMore={state.pagination.hasMore}
 						/>
 					</div>

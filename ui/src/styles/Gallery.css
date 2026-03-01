@@ -75,12 +75,12 @@
 
 /* Virtualized list row (grid_details mode) */
 .meld-gallery__virtual-row {
-	margin-bottom: 10px;
+	padding-bottom: 10px;
 }
 
 /* Virtualized grid row (grid_only mode) */
 .meld-gallery__virtual-grid-row {
-	margin-bottom: 6px;
+	padding-bottom: 6px;
 }
 
 .meld-gallery__list--virtualized {
@@ -238,7 +238,7 @@
 	align-items: flex-start;
 	background: var(--meld-card-bg);
 	padding: 10px;
-	margin-bottom: 10px;
+	margin-bottom: 0;
 	border-radius: 5px;
 	border: 1px solid transparent;
 	position: relative;
