@@ -89,16 +89,21 @@ export const useGalleryLogic = () => {
 				return;
 			}
 
-			if (state.activeModal.type !== "none") {
-				dispatch({ type: "CLOSE_MODAL" });
-				stopKeyboardEvent(e);
+			const hasOpenDialog = Boolean(
+				document.querySelector(
+					'[role="dialog"][aria-modal="true"], [role="alertdialog"][aria-modal="true"], .meld-modal-overlay',
+				),
+			);
+			if (state.activeModal.type !== "none" || hasOpenDialog) {
 				return;
 			}
 
-			if (state.selectedIds.size > 0) {
-				dispatch({ type: "CLEAR_SELECTION" });
-				stopKeyboardEvent(e);
+			if (state.selectedIds.size === 0) {
+				return;
 			}
+
+			dispatch({ type: "CLEAR_SELECTION" });
+			stopKeyboardEvent(e);
 		},
 	});
 

@@ -11,6 +11,7 @@ export const useLightTableKeys = () => {
 	const { state: galleryState } = useGallery();
 	const slots = useLightTableStore((s) => s.slots);
 	const addToBucket = useLightTableStore((s) => s.addToBucket);
+	const isActionable = slots.length > 0 && galleryState.selectedIds.size > 0;
 
 	const handleKeyDown = useCallback(
 		(e: KeyboardEvent) => {
@@ -44,5 +45,5 @@ export const useLightTableKeys = () => {
 		[slots, addToBucket, galleryState.selectedIds],
 	);
 
-	useKeydownCapture({ onKeyDown: handleKeyDown });
+	useKeydownCapture({ onKeyDown: handleKeyDown, enabled: isActionable });
 };
