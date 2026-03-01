@@ -6,6 +6,7 @@ import { RESERVED_TAG_KEYWORD } from "../../../constants";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { useGallery } from "../../../store/GalleryContext";
 import type { Tag as TagType } from "../../../types";
+import { stopReactKeyboardEvent } from "../../../utils/keyboard";
 import * as imagesApi from "../../images/api/imagesApi";
 import * as tagsApi from "../api/tagsApi";
 
@@ -126,8 +127,7 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 
 	const handleKeyDown = (e: React.KeyboardEvent) => {
 		if (e.key === "Enter" && searchQuery.trim()) {
-			e.preventDefault();
-			e.stopPropagation();
+			stopReactKeyboardEvent(e);
 			handleAddTag(searchQuery.trim());
 		}
 	};

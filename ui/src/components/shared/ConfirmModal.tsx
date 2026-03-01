@@ -1,5 +1,6 @@
 import type React from "react";
 import { useEffect, useRef } from "react";
+import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 
 // Use the same CSS as the light-table's ConfirmModal for consistency
 import "../../features/light-table/components/ConfirmModal.css";
@@ -25,6 +26,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 }) => {
 	const dialogRef = useRef<HTMLDivElement>(null);
 	const previousFocusRef = useRef<Element | null>(null);
+	useEscapeToClose({ onEscape: onCancel });
 
 	// Focus management: Trap Tab, ESC handler, and focus restore
 	useEffect(() => {
@@ -44,11 +46,6 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 		}
 
 		const handleKeyDown = (e: KeyboardEvent) => {
-			if (e.key === "Escape") {
-				onCancel();
-				return;
-			}
-
 			if (e.key === "Tab") {
 				if (!dialogRef.current) return;
 
@@ -88,7 +85,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 				(previousFocusRef.current as HTMLElement).focus();
 			}
 		};
-	}, [onCancel]);
+	}, []);
 
 	return (
 		<div
