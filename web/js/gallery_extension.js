@@ -14715,7 +14715,6 @@ const vm = [
         backgroundColor: "var(--comfy-menu-bg, #222)",
         border: "1px solid var(--comfy-menu-border, #444)",
         borderRadius: "0 0 6px 6px",
-        zIndex: 1e3,
         marginTop: "8px",
         maxHeight: "400px",
         overflowY: "auto",
@@ -15042,6 +15041,7 @@ const vm = [
               S && /* @__PURE__ */ s.jsx(
                 "div",
                 {
+                  className: "meld-search-toast",
                   style: {
                     position: "absolute",
                     top: "calc(100% + 8px)",
@@ -15052,7 +15052,6 @@ const vm = [
                     padding: "8px 16px",
                     borderRadius: "4px",
                     fontSize: "12px",
-                    zIndex: 2e3,
                     whiteSpace: "pre-wrap",
                     textAlign: "center",
                     boxShadow: "0 4px 12px var(--comfy-menu-shadow, rgba(0,0,0,0.5))",
@@ -15240,12 +15239,9 @@ const vm = [
           /* @__PURE__ */ s.jsx(
             "div",
             {
-              className: "meld-modal-overlay",
+              className: "meld-modal-overlay meld-search-edit-modal-overlay",
               onMouseDown: F,
               onMouseUp: G,
-              style: {
-                zIndex: 3e3
-              },
               children: /* @__PURE__ */ s.jsxs(
                 "div",
                 {
