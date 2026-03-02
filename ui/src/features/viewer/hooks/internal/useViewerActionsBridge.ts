@@ -214,31 +214,39 @@ export const useViewerActionsBridge = ({
 	const handleUndoDelete = useCallback(async () => {
 		if (!lastDeletedImages || lastDeletedImages.length === 0) return;
 		const idsToRestore = lastDeletedImages.map((img) => img.id);
-		const idToOpen = idsToRestore[0];
 
 		try {
 			const result = await imagesApi.restoreImages(idsToRestore);
 			if (!mountRefs.isMountedRef.current) return;
-			dispatch({ type: "ADD_IMAGES", payload: lastDeletedImages });
+			const restoredIds = result.restored_ids || idsToRestore;
+			const restoredIdSet = new Set(restoredIds);
+			const restoredImages = lastDeletedImages.filter((img) =>
+				restoredIdSet.has(img.id),
+			);
+			if (restoredImages.length > 0) {
+				dispatch({ type: "ADD_IMAGES", payload: restoredImages });
+			}
 
 			if (state.viewScope === "trash") {
-				const restoredIds = result.restored_ids || idsToRestore;
 				dispatch({ type: "REMOVE_IMAGES", payload: restoredIds });
 			}
 
 			setLastDeletedImages(null);
 			if (!mountRefs.isMountedRef.current) return;
 
-			dispatch({
-				type: "OPEN_VIEWER",
-				payload: {
-					id: idToOpen,
-					mode: viewerMode,
-					...(viewerMode === "lighttable" && state.viewerLightTableSlotId
-						? { slotId: state.viewerLightTableSlotId }
-						: {}),
-				},
-			});
+			const idToOpen = restoredIds[0];
+			if (idToOpen !== undefined) {
+				dispatch({
+					type: "OPEN_VIEWER",
+					payload: {
+						id: idToOpen,
+						mode: viewerMode,
+						...(viewerMode === "lighttable" && state.viewerLightTableSlotId
+							? { slotId: state.viewerLightTableSlotId }
+							: {}),
+					},
+				});
+			}
 		} catch (err: unknown) {
 			dispatch({
 				type: "SET_ERROR",

@@ -15755,27 +15755,27 @@ const zs = ({
     n && (l.length > 1 ? m() : t({ type: "CLOSE_VIEWER" }), await x(n));
   }, [l.length, t, m, x, n]), j = h.useCallback(async () => {
     if (!g || g.length === 0) return;
-    const M = g.map((T) => T.id), D = M[0];
+    const M = g.map((D) => D.id);
     try {
-      const T = await ui(M);
+      const D = await ui(M);
       if (!d.isMountedRef.current) return;
-      if (t({ type: "ADD_IMAGES", payload: g }), e.viewScope === "trash") {
-        const I = T.restored_ids || M;
-        t({ type: "REMOVE_IMAGES", payload: I });
-      }
-      if (_(null), !d.isMountedRef.current) return;
-      t({
+      const T = D.restored_ids || M, I = new Set(T), F = g.filter(
+        (N) => I.has(N.id)
+      );
+      if (F.length > 0 && t({ type: "ADD_IMAGES", payload: F }), e.viewScope === "trash" && t({ type: "REMOVE_IMAGES", payload: T }), _(null), !d.isMountedRef.current) return;
+      const V = T[0];
+      V !== void 0 && t({
         type: "OPEN_VIEWER",
         payload: {
-          id: D,
+          id: V,
           mode: o,
           ...o === "lighttable" && e.viewerLightTableSlotId ? { slotId: e.viewerLightTableSlotId } : {}
         }
       });
-    } catch (T) {
+    } catch (D) {
       t({
         type: "SET_ERROR",
-        payload: T instanceof Error ? T.message : String(T)
+        payload: D instanceof Error ? D.message : String(D)
       });
     }
   }, [
