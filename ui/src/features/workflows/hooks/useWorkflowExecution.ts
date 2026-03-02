@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 // @ts-expect-error: ComfyUI scripts are not available in build time
 import { api } from "/scripts/api.js";
+import { logger } from "../../../logger";
 import type { MeldImage } from "../../../types";
 import { fetchWorkflowRaw } from "../api/workflowsApi";
 
@@ -23,7 +24,7 @@ export const useWorkflowExecution = () => {
 			maskFilename?: string,
 			targetLoaderNodeId?: string,
 		) => {
-			console.log("[Meld] executeWorkflow called:", {
+			logger.log("executeWorkflow called:", {
 				workflowName,
 				imageId: image.id,
 				maskFilename,
@@ -31,7 +32,7 @@ export const useWorkflowExecution = () => {
 			});
 			// 1. Fetch the raw workflow JSON
 			const workflow = await fetchWorkflowRaw(workflowName);
-			console.log("[Meld] Workflow fetched:", workflowName);
+			logger.log("Workflow fetched:", workflowName);
 
 			// 2. Find the MeldImageLoader, LoadImage, and LoadImageMask nodes
 			let loaderNodeId: string | null = targetLoaderNodeId || null;
@@ -83,7 +84,7 @@ export const useWorkflowExecution = () => {
 				}
 			}
 
-			console.log("[Meld] Node IDs found:", {
+			logger.log("Node IDs found:", {
 				loaderNodeId,
 				maskNodeId,
 				isUIFormat,
@@ -153,7 +154,7 @@ export const useWorkflowExecution = () => {
 
 				// 3. Update the node in the NOW ACTIVE graph
 				const activeNodes = comfyApp.graph._nodes as ComfyNode[];
-				console.log("[Meld] Active graph nodes count:", activeNodes.length);
+				logger.log("Active graph nodes count:", activeNodes.length);
 
 				const loaderNode = activeNodes.find(
 					(n) => String(n.id) === loaderNodeId || isLoaderNode(n.type),
@@ -161,7 +162,7 @@ export const useWorkflowExecution = () => {
 
 				if (loaderNode) {
 					const widget = loaderNode.widgets?.find((w) => w.name === "image");
-					console.log("[Meld] Updating loader node widget:", {
+					logger.log("Updating loader node widget:", {
 						nodeId: loaderNode.id,
 						type: loaderNode.type,
 						imagePath,
@@ -185,7 +186,7 @@ export const useWorkflowExecution = () => {
 							String(n.id) === maskNodeId ||
 							n.type?.replace(/\s+/g, "") === "LoadImageMask",
 					);
-					console.log("[Meld] Updating mask node widget:", {
+					logger.log("Updating mask node widget:", {
 						nodeId: maskNode?.id,
 						maskFilename,
 					});

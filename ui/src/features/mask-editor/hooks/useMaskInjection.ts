@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { logger } from "../../../logger";
 import { useGallery } from "../../../store/GalleryContext";
 import type { MeldImage } from "../../../types";
 import { injectImageToGraph } from "../../workflows/utils/injectImageToGraph";
@@ -8,7 +9,7 @@ export const useMaskInjection = () => {
 
 	const injectMaskToGraph = useCallback(
 		(image: MeldImage, maskFilename: string) => {
-			console.log("[Meld-Debug] injectMaskToGraph called with:", maskFilename);
+			logger.log("[Meld-Debug] injectMaskToGraph called with:", maskFilename);
 
 			// 1. Update loader node with the source image (best effort)
 			injectImageToGraph(image);
@@ -16,7 +17,7 @@ export const useMaskInjection = () => {
 			// @ts-expect-error: ComfyUI global
 			const comfyApp = window.app;
 			if (!comfyApp?.graph) {
-				console.log("[Meld-Debug] injectMaskToGraph: No comfyApp.graph found");
+				logger.log("[Meld-Debug] injectMaskToGraph: No comfyApp.graph found");
 				return false;
 			}
 
@@ -26,7 +27,7 @@ export const useMaskInjection = () => {
 			);
 
 			if (maskNodes.length === 0) {
-				console.log(
+				logger.log(
 					"[Meld-Debug] injectMaskToGraph: No LoadImageMask nodes found in active graph",
 				);
 				dispatch({
@@ -46,7 +47,7 @@ export const useMaskInjection = () => {
 				(w: { name: string }) => w.name === "image",
 			);
 			const fullMaskPath = `${maskFilename} [temp]`;
-			console.log(
+			logger.log(
 				"[Meld-Debug] injectMaskToGraph: Updating node",
 				node.id,
 				"widget 'image' with",

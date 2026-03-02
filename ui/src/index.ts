@@ -220,7 +220,7 @@ app.registerExtension({
 						);
 					} else {
 						logger.log(
-							"[Meld] Gallery root already exists, React should handle re-render if needed",
+							"Gallery root already exists, React should handle re-render if needed",
 						);
 					}
 				},

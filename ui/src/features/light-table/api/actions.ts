@@ -1,4 +1,5 @@
 import type React from "react";
+import { logger } from "../../../logger";
 import type { GalleryAction, MeldImage } from "../../../types";
 import type { SlotAction } from "../types";
 
@@ -85,9 +86,7 @@ export const executeSlotAction = (
 			break;
 
 		default:
-			console.log(
-				`Action ${action.type} executed on ${imageIds.length} images`,
-			);
+			logger.log(`Action ${action.type} executed on ${imageIds.length} images`);
 			break;
 	}
 };
