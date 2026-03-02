@@ -274,8 +274,8 @@ var nd = { exports: {} }, st = {}, rd = { exports: {} }, ld = {};
     if (F !== T) {
       N[0] = F;
       e: for (var E = 0, z = N.length, U = z >>> 1; E < U; ) {
-        var O = 2 * (E + 1) - 1, H = N[O], J = O + 1, oe = N[J];
-        if (0 > l(H, F)) J < z && 0 > l(oe, H) ? (N[E] = oe, N[J] = F, E = J) : (N[E] = H, N[O] = F, E = O);
+        var O = 2 * (E + 1) - 1, K = N[O], J = O + 1, oe = N[J];
+        if (0 > l(K, F)) J < z && 0 > l(oe, K) ? (N[E] = oe, N[J] = F, E = J) : (N[E] = K, N[O] = F, E = O);
         else if (J < z && 0 > l(oe, F)) N[E] = oe, N[J] = F, E = J;
         else break e;
       }
@@ -3960,7 +3960,7 @@ function cp(e, t) {
       return null;
   }
 }
-var Ml = !1, We = !1, dp = typeof WeakSet == "function" ? WeakSet : Set, K = null;
+var Ml = !1, We = !1, dp = typeof WeakSet == "function" ? WeakSet : Set, G = null;
 function qn(e, t) {
   var n = e.ref;
   if (n !== null) if (typeof n == "function") try {
@@ -4010,9 +4010,9 @@ function up(e, t) {
     }
     n = n || { start: 0, end: 0 };
   } else n = null;
-  for (Wa = { focusedElem: e, selectionRange: n }, ts = !1, K = t; K !== null; ) if (t = K, e = t.child, (t.subtreeFlags & 1028) !== 0 && e !== null) e.return = t, K = e;
-  else for (; K !== null; ) {
-    t = K;
+  for (Wa = { focusedElem: e, selectionRange: n }, ts = !1, G = t; G !== null; ) if (t = G, e = t.child, (t.subtreeFlags & 1028) !== 0 && e !== null) e.return = t, G = e;
+  else for (; G !== null; ) {
+    t = G;
     try {
       var w = t.alternate;
       if (t.flags & 1024) switch (t.tag) {
@@ -4042,10 +4042,10 @@ function up(e, t) {
       Ee(t, t.return, g);
     }
     if (e = t.sibling, e !== null) {
-      e.return = t.return, K = e;
+      e.return = t.return, G = e;
       break;
     }
-    K = t.return;
+    G = t.return;
   }
   return w = gc, gc = !1, w;
 }
@@ -4303,9 +4303,9 @@ function Vu(e, t) {
       break;
     case 22:
       if (m = n !== null && n.memoizedState !== null, e.mode & 1 ? (We = (d = We) || m, yt(t, e), We = d) : yt(t, e), bt(e), r & 8192) {
-        if (d = e.memoizedState !== null, (e.stateNode.isHidden = d) && !m && e.mode & 1) for (K = e, m = e.child; m !== null; ) {
-          for (v = K = m; K !== null; ) {
-            switch (y = K, S = y.child, y.tag) {
+        if (d = e.memoizedState !== null, (e.stateNode.isHidden = d) && !m && e.mode & 1) for (G = e, m = e.child; m !== null; ) {
+          for (v = G = m; G !== null; ) {
+            switch (y = G, S = y.child, y.tag) {
               case 0:
               case 11:
               case 14:
@@ -4333,7 +4333,7 @@ function Vu(e, t) {
                   continue;
                 }
             }
-            S !== null ? (S.return = y, K = S) : xc(v);
+            S !== null ? (S.return = y, G = S) : xc(v);
           }
           m = m.sibling;
         }
@@ -4415,28 +4415,28 @@ function bt(e) {
   t & 4096 && (e.flags &= -4097);
 }
 function fp(e, t, n) {
-  K = e, Bu(e);
+  G = e, Bu(e);
 }
 function Bu(e, t, n) {
-  for (var r = (e.mode & 1) !== 0; K !== null; ) {
-    var l = K, a = l.child;
+  for (var r = (e.mode & 1) !== 0; G !== null; ) {
+    var l = G, a = l.child;
     if (l.tag === 22 && r) {
       var o = l.memoizedState !== null || Ml;
       if (!o) {
         var i = l.alternate, c = i !== null && i.memoizedState !== null || We;
         i = Ml;
         var d = We;
-        if (Ml = o, (We = c) && !d) for (K = l; K !== null; ) o = K, c = o.child, o.tag === 22 && o.memoizedState !== null ? _c(l) : c !== null ? (c.return = o, K = c) : _c(l);
-        for (; a !== null; ) K = a, Bu(a), a = a.sibling;
-        K = l, Ml = i, We = d;
+        if (Ml = o, (We = c) && !d) for (G = l; G !== null; ) o = G, c = o.child, o.tag === 22 && o.memoizedState !== null ? _c(l) : c !== null ? (c.return = o, G = c) : _c(l);
+        for (; a !== null; ) G = a, Bu(a), a = a.sibling;
+        G = l, Ml = i, We = d;
       }
       wc(e);
-    } else l.subtreeFlags & 8772 && a !== null ? (a.return = l, K = a) : wc(e);
+    } else l.subtreeFlags & 8772 && a !== null ? (a.return = l, G = a) : wc(e);
   }
 }
 function wc(e) {
-  for (; K !== null; ) {
-    var t = K;
+  for (; G !== null; ) {
+    var t = G;
     if (t.flags & 8772) {
       var n = t.alternate;
       try {
@@ -4520,34 +4520,34 @@ function wc(e) {
       }
     }
     if (t === e) {
-      K = null;
+      G = null;
       break;
     }
     if (n = t.sibling, n !== null) {
-      n.return = t.return, K = n;
+      n.return = t.return, G = n;
       break;
     }
-    K = t.return;
+    G = t.return;
   }
 }
 function xc(e) {
-  for (; K !== null; ) {
-    var t = K;
+  for (; G !== null; ) {
+    var t = G;
     if (t === e) {
-      K = null;
+      G = null;
       break;
     }
     var n = t.sibling;
     if (n !== null) {
-      n.return = t.return, K = n;
+      n.return = t.return, G = n;
       break;
     }
-    K = t.return;
+    G = t.return;
   }
 }
 function _c(e) {
-  for (; K !== null; ) {
-    var t = K;
+  for (; G !== null; ) {
+    var t = G;
     try {
       switch (t.tag) {
         case 0:
@@ -4589,15 +4589,15 @@ function _c(e) {
       Ee(t, t.return, c);
     }
     if (t === e) {
-      K = null;
+      G = null;
       break;
     }
     var i = t.sibling;
     if (i !== null) {
-      i.return = t.return, K = i;
+      i.return = t.return, G = i;
       break;
     }
-    K = t.return;
+    G = t.return;
   }
 }
 var mp = Math.ceil, ps = Vt.ReactCurrentDispatcher, Zo = Vt.ReactCurrentOwner, ft = Vt.ReactCurrentBatchConfig, ae = 0, De = null, Me = null, Oe = 0, tt = 0, Yn = hn(0), Te = 0, el = null, Cn = 0, Ts = 0, Jo = 0, Or = null, Ge = null, ei = 0, cr = 1 / 0, Rt = null, gs = !1, ao = null, on = null, Il = !1, tn = null, ys = 0, Ar = 0, oo = null, Hl = -1, Kl = 0;
@@ -5009,15 +5009,15 @@ function nr() {
       else {
         if (e = tn, tn = null, ys = 0, ae & 6) throw Error($(331));
         var l = ae;
-        for (ae |= 4, K = e.current; K !== null; ) {
-          var a = K, o = a.child;
-          if (K.flags & 16) {
+        for (ae |= 4, G = e.current; G !== null; ) {
+          var a = G, o = a.child;
+          if (G.flags & 16) {
             var i = a.deletions;
             if (i !== null) {
               for (var c = 0; c < i.length; c++) {
                 var d = i[c];
-                for (K = d; K !== null; ) {
-                  var m = K;
+                for (G = d; G !== null; ) {
+                  var m = G;
                   switch (m.tag) {
                     case 0:
                     case 11:
@@ -5025,19 +5025,19 @@ function nr() {
                       Pr(8, m, a);
                   }
                   var v = m.child;
-                  if (v !== null) v.return = m, K = v;
-                  else for (; K !== null; ) {
-                    m = K;
+                  if (v !== null) v.return = m, G = v;
+                  else for (; G !== null; ) {
+                    m = G;
                     var y = m.sibling, S = m.return;
                     if (Wu(m), m === d) {
-                      K = null;
+                      G = null;
                       break;
                     }
                     if (y !== null) {
-                      y.return = S, K = y;
+                      y.return = S, G = y;
                       break;
                     }
-                    K = S;
+                    G = S;
                   }
                 }
               }
@@ -5052,12 +5052,12 @@ function nr() {
                   } while (x !== null);
                 }
               }
-              K = a;
+              G = a;
             }
           }
-          if (a.subtreeFlags & 2064 && o !== null) o.return = a, K = o;
-          else e: for (; K !== null; ) {
-            if (a = K, a.flags & 2048) switch (a.tag) {
+          if (a.subtreeFlags & 2064 && o !== null) o.return = a, G = o;
+          else e: for (; G !== null; ) {
+            if (a = G, a.flags & 2048) switch (a.tag) {
               case 0:
               case 11:
               case 15:
@@ -5065,19 +5065,19 @@ function nr() {
             }
             var f = a.sibling;
             if (f !== null) {
-              f.return = a.return, K = f;
+              f.return = a.return, G = f;
               break e;
             }
-            K = a.return;
+            G = a.return;
           }
         }
         var u = e.current;
-        for (K = u; K !== null; ) {
-          o = K;
+        for (G = u; G !== null; ) {
+          o = G;
           var p = o.child;
-          if (o.subtreeFlags & 2064 && p !== null) p.return = o, K = p;
-          else e: for (o = u; K !== null; ) {
-            if (i = K, i.flags & 2048) try {
+          if (o.subtreeFlags & 2064 && p !== null) p.return = o, G = p;
+          else e: for (o = u; G !== null; ) {
+            if (i = G, i.flags & 2048) try {
               switch (i.tag) {
                 case 0:
                 case 11:
@@ -5088,15 +5088,15 @@ function nr() {
               Ee(i, i.return, j);
             }
             if (i === o) {
-              K = null;
+              G = null;
               break e;
             }
             var g = i.sibling;
             if (g !== null) {
-              g.return = i.return, K = g;
+              g.return = i.return, G = g;
               break e;
             }
-            K = i.return;
+            G = i.return;
           }
         }
         if (ae = l, pn(), Nt && typeof Nt.onPostCommitFiberRoot == "function") try {
@@ -6392,7 +6392,7 @@ const hg = (e) => {
   xs && console.warn("[Meld]", ...e);
 }, yg = (...e) => {
   console.error("[Meld]", ...e);
-}, Y = {
+}, H = {
   log: pg,
   warn: gg,
   error: yg,
@@ -7149,7 +7149,7 @@ const xf = h.createContext(void 0), Qg = ({
       for (; p < Math.min(x, f) && _ === l.current; )
         try {
           const g = Math.min(u, f - p);
-          Y.log("Background fetch: starting chunk", {
+          H.log("Background fetch: starting chunk", {
             offset: p,
             limit: g
           });
@@ -7165,7 +7165,7 @@ const xf = h.createContext(void 0), Qg = ({
             break;
           await new Promise((k) => setTimeout(k, 300));
         } catch (g) {
-          Y.error("Background fetch failed", g);
+          H.error("Background fetch failed", g);
           break;
         }
     },
@@ -7175,7 +7175,7 @@ const xf = h.createContext(void 0), Qg = ({
     const w = performance.now(), x = ++l.current;
     try {
       const _ = t.searchQuery.trim() !== "", f = t.settings["gallery.initial_load_count"];
-      Y.log("refreshImages: starting initial fetch", {
+      H.log("refreshImages: starting initial fetch", {
         isSearch: _,
         fetchLimit: f,
         query: t.searchQuery,
@@ -7189,14 +7189,14 @@ const xf = h.createContext(void 0), Qg = ({
         !1
         // not minimal for initial load
       ), p = performance.now() - w;
-      Y.log("refreshImages: initial fetch complete", {
+      H.log("refreshImages: initial fetch complete", {
         count: u.images.length,
         total: u.total,
         offset: u.offset,
         durationMs: p.toFixed(2)
       }), n({ type: "SET_IMAGES", payload: u }), u.total > f && o(f, u.total, x);
     } catch (_) {
-      Y.error("refreshImages: fetch failed", _), n({
+      H.error("refreshImages: fetch failed", _), n({
         type: "SET_ERROR",
         payload: _ instanceof Error ? _.message : String(_)
       });
@@ -7212,7 +7212,7 @@ const xf = h.createContext(void 0), Qg = ({
     const w = performance.now();
     try {
       const x = r.current, _ = t.searchQuery.trim() !== "", f = t.pagination.limit;
-      Y.log("loadMoreImages: starting fetch", {
+      H.log("loadMoreImages: starting fetch", {
         nextOffset: x,
         fetchLimit: f,
         isSearch: _
@@ -7225,14 +7225,14 @@ const xf = h.createContext(void 0), Qg = ({
         !0
         // use minimal mode for scroll-triggered loads
       ), p = performance.now() - w;
-      Y.log("loadMoreImages: fetch complete", {
+      H.log("loadMoreImages: fetch complete", {
         count: u.images.length,
         total: u.total,
         offset: u.offset,
         durationMs: p.toFixed(2)
       }), n({ type: "APPEND_IMAGES", payload: u });
     } catch (x) {
-      Y.error("loadMoreImages: fetch failed", x), n({
+      H.error("loadMoreImages: fetch failed", x), n({
         type: "SET_ERROR",
         payload: x instanceof Error ? x.message : String(x)
       });
@@ -7248,7 +7248,7 @@ const xf = h.createContext(void 0), Qg = ({
       const w = await Ig();
       n({ type: "SET_FAVORITES", payload: w });
     } catch (w) {
-      Y.error("Failed to load favorites", w);
+      H.error("Failed to load favorites", w);
     }
   }, []), m = h.useCallback(async () => {
     if (t.selectedIds.size === 0) return;
@@ -7304,7 +7304,7 @@ const xf = h.createContext(void 0), Qg = ({
         return f;
       const u = (async () => {
         try {
-          Y.log("fetchFullImageDetails: fetching full data", { id: w });
+          H.log("fetchFullImageDetails: fetching full data", { id: w });
           const p = await pf(w);
           return n({ type: "UPDATE_IMAGE", payload: p }), p;
         } finally {
@@ -7321,7 +7321,7 @@ const xf = h.createContext(void 0), Qg = ({
         const x = await vf();
         n({ type: "SET_SETTINGS", payload: x });
       } catch (x) {
-        Y.error("Failed to load settings", x);
+        H.error("Failed to load settings", x);
       }
     })();
   }, []), h.useEffect(() => {
@@ -7507,23 +7507,23 @@ const xf = h.createContext(void 0), Qg = ({
         const V = await mg();
         n((D) => D.custom_path ? D : { ...D, custom_path: V });
       } catch (V) {
-        Y.error("Failed to fetch home directory:", V);
+        H.error("Failed to fetch home directory:", V);
       }
     })();
   }, []), h.useEffect(() => {
     const C = new AbortController();
     return (async () => {
       const D = t.type === "custom" ? t.custom_path : t.subfolder;
-      if (Y.log(
+      if (H.log(
         `loadFolders started. Path: "${D}", Type: "${t.type}"`
       ), t.type === "custom" && !D) {
-        Y.log("Custom path is empty, skipping load."), l([]), o([]), c(0);
+        H.log("Custom path is empty, skipping load."), l([]), o([]), c(0);
         return;
       }
       m(!0);
       const L = D, N = t.type;
       try {
-        Y.log("Step 1: Fast load starting...");
+        H.log("Step 1: Fast load starting...");
         const T = await Yg(
           t.type,
           D,
@@ -7531,14 +7531,14 @@ const xf = h.createContext(void 0), Qg = ({
           C.signal
         );
         if (C.signal.aborted) {
-          Y.log("Step 1: Aborted.");
+          H.log("Step 1: Aborted.");
           return;
         }
-        Y.log(
+        H.log(
           `Step 1 complete. Found ${T.folders.length} folders, ${T.images.length} images.`
         ), l(T.folders), o(T.images), c(null);
         const F = T.folders.map((E) => E.name);
-        F.length > 0 && (Y.log(
+        F.length > 0 && (H.log(
           `Step 2: Metadata fetch starting for ${F.length} folders...`
         ), Xg(
           N,
@@ -7547,32 +7547,32 @@ const xf = h.createContext(void 0), Qg = ({
           C.signal
         ).then((E) => {
           if (C.signal.aborted) {
-            Y.log("Step 2: Aborted.");
+            H.log("Step 2: Aborted.");
             return;
           }
-          Y.log("Step 2: Metadata fetch complete."), l(
+          H.log("Step 2: Metadata fetch complete."), l(
             (z) => z.map((U) => {
               const O = E[U.name];
               return O ? { ...U, count: O.count, preview: O.preview } : U;
             })
           );
         }).catch((E) => {
-          E.name !== "AbortError" && Y.error("Step 2: Metadata fetch failed:", E);
-        })), Y.log("Step 3: Path image count starting..."), Zg(N, L, C.signal).then((E) => {
+          E.name !== "AbortError" && H.error("Step 2: Metadata fetch failed:", E);
+        })), H.log("Step 3: Path image count starting..."), Zg(N, L, C.signal).then((E) => {
           if (C.signal.aborted) {
-            Y.log("Step 3: Aborted.");
+            H.log("Step 3: Aborted.");
             return;
           }
-          Y.log(`Step 3: Path image count complete: ${E}`), c(E);
+          H.log(`Step 3: Path image count complete: ${E}`), c(E);
         }).catch((E) => {
-          E.name !== "AbortError" && Y.error("Step 3: Path image count failed:", E);
+          E.name !== "AbortError" && H.error("Step 3: Path image count failed:", E);
         });
       } catch (T) {
         if (T.name === "AbortError") {
-          Y.log("Request aborted.");
+          H.log("Request aborted.");
           return;
         }
-        Y.error("Failed to load folders:", T), l([]), o([]), c(0);
+        H.error("Failed to load folders:", T), l([]), o([]), c(0);
       } finally {
         C.signal.aborted || m(!1);
       }
@@ -7586,7 +7586,7 @@ const xf = h.createContext(void 0), Qg = ({
       const C = await hi();
       y(C);
     } catch (C) {
-      Y.error("Failed to fetch tags:", C);
+      H.error("Failed to fetch tags:", C);
     } finally {
       _(!1);
     }
@@ -7620,7 +7620,7 @@ const xf = h.createContext(void 0), Qg = ({
         }
       }), e({ type: "CLOSE_MODAL" });
     } catch (C) {
-      Y.error("Failed to start scan:", C), alert(`Failed to start scan: ${C}`);
+      H.error("Failed to start scan:", C), alert(`Failed to start scan: ${C}`);
     }
   }, A = (C) => {
     if (t.type === "custom") {
@@ -8394,14 +8394,14 @@ const se = ay()(
 }, pi = () => ({ executeWorkflow: h.useCallback(
   async (t, n, r, l) => {
     var S, w, x, _, f, u, p;
-    console.log("[Meld] executeWorkflow called:", {
+    H.log("[Meld] executeWorkflow called:", {
       workflowName: t,
       imageId: n.id,
       maskFilename: r,
       targetLoaderNodeId: l
     });
     const a = await Sf(t);
-    console.log("[Meld] Workflow fetched:", t);
+    H.log("[Meld] Workflow fetched:", t);
     let o = l || null, i = null, c = !1;
     const d = (g) => {
       if (!g) return !1;
@@ -8437,7 +8437,7 @@ const se = ay()(
           break;
         }
     }
-    if (console.log("[Meld] Node IDs found:", {
+    if (H.log("[Meld] Node IDs found:", {
       loaderNodeId: o,
       maskNodeId: i,
       isUIFormat: c
@@ -8465,13 +8465,13 @@ const se = ay()(
       }
       k || await g.loadGraphData(a, !0, !0, t), await new Promise((R) => setTimeout(R, 200));
       const M = g.graph._nodes;
-      console.log("[Meld] Active graph nodes count:", M.length);
+      H.log("[Meld] Active graph nodes count:", M.length);
       const P = M.find(
         (R) => String(R.id) === o || d(R.type)
       );
       if (P) {
         const R = (_ = P.widgets) == null ? void 0 : _.find((I) => I.name === "image");
-        console.log("[Meld] Updating loader node widget:", {
+        H.log("[Meld] Updating loader node widget:", {
           nodeId: P.id,
           type: P.type,
           imagePath: m
@@ -8487,7 +8487,7 @@ const se = ay()(
             return String(I.id) === i || ((A = I.type) == null ? void 0 : A.replace(/\s+/g, "")) === "LoadImageMask";
           }
         );
-        if (console.log("[Meld] Updating mask node widget:", {
+        if (H.log("[Meld] Updating mask node widget:", {
           nodeId: R == null ? void 0 : R.id,
           maskFilename: r
         }), R) {
@@ -8566,15 +8566,15 @@ const fy = () => {
   return { injectMaskToGraph: h.useCallback(
     (n, r) => {
       var m, v;
-      console.log("[Meld-Debug] injectMaskToGraph called with:", r), ll(n);
+      H.log("[Meld-Debug] injectMaskToGraph called with:", r), ll(n);
       const l = window.app;
       if (!(l != null && l.graph))
-        return console.log("[Meld-Debug] injectMaskToGraph: No comfyApp.graph found"), !1;
+        return H.log("[Meld-Debug] injectMaskToGraph: No comfyApp.graph found"), !1;
       const a = l.graph._nodes.filter(
         (y) => y.type === "LoadImageMask"
       );
       if (a.length === 0)
-        return console.log(
+        return H.log(
           "[Meld-Debug] injectMaskToGraph: No LoadImageMask nodes found in active graph"
         ), e({
           type: "OPEN_MODAL",
@@ -8586,7 +8586,7 @@ const fy = () => {
       const o = a[0], i = o.widgets.find(
         (y) => y.name === "image"
       ), c = `${r} [temp]`;
-      console.log(
+      H.log(
         "[Meld-Debug] injectMaskToGraph: Updating node",
         o.id,
         "widget 'image' with",
@@ -8651,9 +8651,9 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
   const [g, j] = h.useState({ x: 0, y: 0 }), [k, b] = h.useState({ x: 0, y: 0 }), [M, P] = h.useState([]), [R, I] = h.useState(null), [A, B] = h.useState(!1), [C, V] = h.useState(1), [D, L] = h.useState({ x: 0, y: 0 }), [N, T] = h.useState(!1), [F, E] = h.useState(!1), z = h.useRef(null), U = h.useCallback(() => {
     const W = w.current, Q = S.current;
     if (!W || !Q) return null;
-    const ee = Q.getBoundingClientRect(), G = W.naturalWidth, ne = W.naturalHeight;
-    if (!G || !ne) return null;
-    const ie = G / ne, Ne = ee.width / ee.height;
+    const ee = Q.getBoundingClientRect(), q = W.naturalWidth, ne = W.naturalHeight;
+    if (!q || !ne) return null;
+    const ie = q / ne, Ne = ee.width / ee.height;
     let me, _e, ye = 0, et = 0;
     return ie > Ne ? (me = ee.width, _e = ee.width / ie, et = (ee.height - _e) / 2) : (_e = ee.height, me = ee.height * ie, ye = (ee.width - me) / 2), {
       left: ye,
@@ -8662,16 +8662,16 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
       height: _e
     };
   }, []), O = h.useCallback(
-    (W, Q, ee, G) => {
+    (W, Q, ee, q) => {
       if (!W) return Q;
       const ne = W.getBoundingClientRect(), ie = ne.width / 2, Ne = ne.height / 2, me = {
         x: (ie - Q.x) / ee,
         y: (Ne - Q.y) / ee
       };
-      return { x: ie - me.x * G, y: Ne - me.y * G };
+      return { x: ie - me.x * q, y: Ne - me.y * q };
     },
     []
-  ), H = h.useCallback(() => {
+  ), K = h.useCallback(() => {
     V((W) => {
       const Q = Math.min(W * 1.2, 20);
       return L(
@@ -8691,7 +8691,7 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
     const Q = W.getContext("2d");
     if (!Q) return;
     Q.clearRect(0, 0, W.width, W.height);
-    const ee = getComputedStyle(document.documentElement), G = ee.getPropertyValue("--comfy-input-bg-active") || ee.getPropertyValue("--comfy-input-bg") || ee.getPropertyValue("--bg-color") || "var(--comfy-input-bg)", ne = U();
+    const ee = getComputedStyle(document.documentElement), q = ee.getPropertyValue("--comfy-input-bg-active") || ee.getPropertyValue("--comfy-input-bg") || ee.getPropertyValue("--bg-color") || "var(--comfy-input-bg)", ne = U();
     if (x.current && ne && (Q.save(), Q.globalAlpha = 0.5, Q.drawImage(
       x.current,
       ne.left,
@@ -8700,7 +8700,7 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
       ne.height
     ), Q.restore()), _) {
       const ie = Math.min(g.x, k.x), Ne = Math.min(g.y, k.y), me = Math.abs(g.x - k.x), _e = Math.abs(g.y - k.y);
-      if (Q.save(), Q.globalAlpha = 0.3, Q.fillStyle = G, Q.strokeStyle = "white", Q.lineWidth = 2, Q.setLineDash([5, 5]), Q.beginPath(), u === "rect")
+      if (Q.save(), Q.globalAlpha = 0.3, Q.fillStyle = q, Q.strokeStyle = "white", Q.lineWidth = 2, Q.setLineDash([5, 5]), Q.beginPath(), u === "rect")
         Q.rect(ie, Ne, me, _e);
       else if (u === "ellipse") {
         const ye = ie + me / 2, et = Ne + _e / 2;
@@ -8762,9 +8762,9 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
     if (!W) return;
     const Q = (ee) => {
       ee.preventDefault();
-      const G = ee.deltaY > 0 ? 1 / 1.1 : 1.1;
+      const q = ee.deltaY > 0 ? 1 / 1.1 : 1.1;
       V((ne) => {
-        const ie = Math.min(Math.max(0.1, ne * G), 20);
+        const ie = Math.min(Math.max(0.1, ne * q), 20);
         return L((Ne) => {
           const me = W.getBoundingClientRect(), _e = ee.clientX - me.left, ye = ee.clientY - me.top, et = {
             x: (_e - Ne.x) / ne,
@@ -8782,9 +8782,9 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
     if (!F) return;
     const W = (ee) => {
       if (z.current) {
-        const G = ee.clientX - z.current.clientX, ne = ee.clientY - z.current.clientY;
+        const q = ee.clientX - z.current.clientX, ne = ee.clientY - z.current.clientY;
         L({
-          x: z.current.panX + G,
+          x: z.current.panX + q,
           y: z.current.panY + ne
         });
       }
@@ -8802,8 +8802,8 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
   }, [oe]);
   const Ln = (W) => {
     var ye;
-    const Q = W.button === 2, ee = W.button === 1, G = N && W.button === 0;
-    if (Q || ee || G) {
+    const Q = W.button === 2, ee = W.button === 1, q = N && W.button === 0;
+    if (Q || ee || q) {
       W.preventDefault(), W.stopPropagation(), z.current = {
         panX: D.x,
         panY: D.y,
@@ -8834,40 +8834,40 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
     if (!_) return;
     const W = (ee) => {
       var _e;
-      const G = U(), ne = (_e = S.current) == null ? void 0 : _e.getBoundingClientRect();
-      if (!G || !ne) return;
+      const q = U(), ne = (_e = S.current) == null ? void 0 : _e.getBoundingClientRect();
+      if (!q || !ne) return;
       const ie = {
         x: (ee.clientX - ne.left - D.x) / C,
         y: (ee.clientY - ne.top - D.y) / C
       }, Ne = Math.max(
-        G.left,
-        Math.min(ie.x, G.left + G.width)
+        q.left,
+        Math.min(ie.x, q.left + q.width)
       ), me = Math.max(
-        G.top,
-        Math.min(ie.y, G.top + G.height)
+        q.top,
+        Math.min(ie.y, q.top + q.height)
       );
       b({ x: Ne, y: me }), u === "lasso" && P((ye) => [...ye, { x: Ne, y: me }]);
     }, Q = (ee) => {
       var ie;
-      const G = U(), ne = (ie = S.current) == null ? void 0 : ie.getBoundingClientRect();
-      if (G && ne && fe && w.current) {
+      const q = U(), ne = (ie = S.current) == null ? void 0 : ie.getBoundingClientRect();
+      if (q && ne && fe && w.current) {
         const Ne = {
           x: (ee.clientX - ne.left - D.x) / C,
           y: (ee.clientY - ne.top - D.y) / C
         }, me = Math.max(
-          G.left,
-          Math.min(Ne.x, G.left + G.width)
+          q.left,
+          Math.min(Ne.x, q.left + q.width)
         ), _e = Math.max(
-          G.top,
-          Math.min(Ne.y, G.top + G.height)
+          q.top,
+          Math.min(Ne.y, q.top + q.height)
         ), ye = Math.min(g.x, me), et = Math.min(g.y, _e), Rn = Math.abs(g.x - me), $s = Math.abs(g.y - _e), rm = u === "lasso";
         if (Rn > 5 || $s > 5 || rm && M.length > 2) {
-          const lm = w.current.naturalWidth, sm = w.current.naturalHeight, Dn = lm / G.width, Pn = sm / G.height, am = my(fe, (gn) => {
+          const lm = w.current.naturalWidth, sm = w.current.naturalHeight, Dn = lm / q.width, Pn = sm / q.height, am = my(fe, (gn) => {
             if (u === "rect") {
-              const On = (ye - G.left) * Dn, Kt = (et - G.top) * Pn, ml = Rn * Dn, hl = $s * Pn;
+              const On = (ye - q.left) * Dn, Kt = (et - q.top) * Pn, ml = Rn * Dn, hl = $s * Pn;
               gn.rect(On, Kt, ml, hl);
             } else if (u === "ellipse") {
-              const On = (ye - G.left) * Dn, Kt = (et - G.top) * Pn, ml = Rn * Dn, hl = $s * Pn, om = On + ml / 2, im = Kt + hl / 2;
+              const On = (ye - q.left) * Dn, Kt = (et - q.top) * Pn, ml = Rn * Dn, hl = $s * Pn, om = On + ml / 2, im = Kt + hl / 2;
               gn.ellipse(
                 om,
                 im,
@@ -8880,13 +8880,13 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
             } else if (u === "lasso" && M.length > 2) {
               const On = M[0];
               gn.moveTo(
-                (On.x - G.left) * Dn,
-                (On.y - G.top) * Pn
+                (On.x - q.left) * Dn,
+                (On.y - q.top) * Pn
               );
               for (let Kt = 1; Kt < M.length; Kt++)
                 gn.lineTo(
-                  (M[Kt].x - G.left) * Dn,
-                  (M[Kt].y - G.top) * Pn
+                  (M[Kt].x - q.left) * Dn,
+                  (M[Kt].y - q.top) * Pn
                 );
               gn.closePath();
             }
@@ -8915,15 +8915,15 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
     ue.length > 1 && Le((W) => W.slice(0, -1));
   }, [ue.length]);
   h.useEffect(() => {
-    const W = (G) => {
-      if (!G) return !1;
-      const ne = G, ie = ne.tagName;
+    const W = (q) => {
+      if (!q) return !1;
+      const ne = q, ie = ne.tagName;
       return ie === "INPUT" || ie === "TEXTAREA" || ie === "BUTTON" || ie === "SELECT" || ie === "A" || ne.isContentEditable || ne.tabIndex != null && ne.tabIndex >= 0;
-    }, Q = (G) => {
-      G.code === "Space" && !G.repeat && (W(G.target) || (G.preventDefault(), T(!0))), (G.metaKey || G.ctrlKey) && G.key.toLowerCase() === "z" && !G.shiftKey ? (G.preventDefault(), G.stopPropagation(), G.stopImmediatePropagation(), pr()) : G.key === "Escape" && (G.preventDefault(), G.stopPropagation(), G.stopImmediatePropagation(), l(), document.fullscreenElement && document.exitFullscreen().catch(() => {
+    }, Q = (q) => {
+      q.code === "Space" && !q.repeat && (W(q.target) || (q.preventDefault(), T(!0))), (q.metaKey || q.ctrlKey) && q.key.toLowerCase() === "z" && !q.shiftKey ? (q.preventDefault(), q.stopPropagation(), q.stopImmediatePropagation(), pr()) : q.key === "Escape" && (q.preventDefault(), q.stopPropagation(), q.stopImmediatePropagation(), l(), document.fullscreenElement && document.exitFullscreen().catch(() => {
       }));
-    }, ee = (G) => {
-      G.code === "Space" && (W(G.target) || (G.preventDefault(), T(!1)));
+    }, ee = (q) => {
+      q.code === "Space" && (W(q.target) || (q.preventDefault(), T(!1)));
     };
     return window.addEventListener("keydown", Q, { capture: !0 }), window.addEventListener("keyup", ee, { capture: !0 }), () => {
       window.removeEventListener("keydown", Q, { capture: !0 }), window.removeEventListener("keyup", ee, { capture: !0 });
@@ -8943,10 +8943,10 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
     try {
       const { width: W, height: Q } = fe, ee = document.createElement("canvas");
       ee.width = W, ee.height = Q;
-      const G = ee.getContext("2d");
-      if (!G) return null;
+      const q = ee.getContext("2d");
+      if (!q) return null;
       const ne = mo(fe, [255, 255, 255], 255);
-      G.putImageData(ne, 0, 0);
+      q.putImageData(ne, 0, 0);
       const ie = await new Promise(
         (Rn) => ee.toBlob(Rn, "image/png")
       );
@@ -9092,7 +9092,7 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
                   "button",
                   {
                     className: "meld-mask-tool-btn",
-                    onClick: H,
+                    onClick: K,
                     type: "button",
                     title: "Zoom In",
                     "aria-label": "Zoom In",
@@ -9291,57 +9291,57 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
     shortcutErrors: i,
     setShortcutErrors: c,
     handleClose: async () => {
-      const H = Object.keys(a).filter(
+      const K = Object.keys(a).filter(
         (J) => a[J] !== e.settings[J] && !i[J]
       );
-      if (H.length > 0)
-        for (const J of H)
+      if (K.length > 0)
+        for (const J of K)
           await n(J, a[J]);
       t({ type: "CLOSE_MODAL" });
     },
-    handleToggle: (H, J) => {
+    handleToggle: (K, J) => {
       o((oe) => ({
         ...oe,
-        [H]: !J
+        [K]: !J
       }));
     },
-    handleNumberChange: (H, J, oe, ue) => {
-      H === "gallery.initial_load_count" ? m(J) : H === "gallery.max_load_count" ? y(J) : H === "gallery.lineage_max_depth" ? w(J) : H === "viewer.thumbnail_window_size" ? _(J) : H === "gallery.trash_retention_days" ? u(J) : H === "gallery.auto_link_phash_threshold" ? g(J) : H === "gallery.suggest_phash_threshold" ? k(J) : H === "viewer.details.max_positive_prompt_lines" ? M(J) : H === "viewer.details.max_negative_prompt_lines" ? R(J) : H === "fullscreen.details.max_positive_prompt_lines" ? A(J) : H === "fullscreen.details.max_negative_prompt_lines" ? C(J) : H === "sidebar.thumbnail_size" && D(J);
+    handleNumberChange: (K, J, oe, ue) => {
+      K === "gallery.initial_load_count" ? m(J) : K === "gallery.max_load_count" ? y(J) : K === "gallery.lineage_max_depth" ? w(J) : K === "viewer.thumbnail_window_size" ? _(J) : K === "gallery.trash_retention_days" ? u(J) : K === "gallery.auto_link_phash_threshold" ? g(J) : K === "gallery.suggest_phash_threshold" ? k(J) : K === "viewer.details.max_positive_prompt_lines" ? M(J) : K === "viewer.details.max_negative_prompt_lines" ? R(J) : K === "fullscreen.details.max_positive_prompt_lines" ? A(J) : K === "fullscreen.details.max_negative_prompt_lines" ? C(J) : K === "sidebar.thumbnail_size" && D(J);
       const Le = Number.parseInt(J, 10);
       if (!Number.isNaN(Le)) {
         let fe = Le;
         oe !== void 0 && fe < oe && (fe = oe), ue !== void 0 && fe > ue && (fe = ue), o((Tt) => ({
           ...Tt,
-          [H]: fe
+          [K]: fe
         }));
       }
     },
-    handleNumberBlur: (H) => {
-      H.key === "gallery.initial_load_count" ? m(
+    handleNumberBlur: (K) => {
+      K.key === "gallery.initial_load_count" ? m(
         a["gallery.initial_load_count"].toString()
-      ) : H.key === "gallery.max_load_count" ? y(a["gallery.max_load_count"].toString()) : H.key === "gallery.lineage_max_depth" ? w(
+      ) : K.key === "gallery.max_load_count" ? y(a["gallery.max_load_count"].toString()) : K.key === "gallery.lineage_max_depth" ? w(
         a["gallery.lineage_max_depth"].toString()
-      ) : H.key === "viewer.thumbnail_window_size" ? _(
+      ) : K.key === "viewer.thumbnail_window_size" ? _(
         a["viewer.thumbnail_window_size"].toString()
-      ) : H.key === "gallery.trash_retention_days" ? u(
+      ) : K.key === "gallery.trash_retention_days" ? u(
         a["gallery.trash_retention_days"].toString()
-      ) : H.key === "gallery.auto_link_phash_threshold" ? g(
+      ) : K.key === "gallery.auto_link_phash_threshold" ? g(
         a["gallery.auto_link_phash_threshold"].toString()
-      ) : H.key === "gallery.suggest_phash_threshold" ? k(
+      ) : K.key === "gallery.suggest_phash_threshold" ? k(
         a["gallery.suggest_phash_threshold"].toString()
-      ) : H.key === "viewer.details.max_positive_prompt_lines" ? M(
+      ) : K.key === "viewer.details.max_positive_prompt_lines" ? M(
         a["viewer.details.max_positive_prompt_lines"].toString()
-      ) : H.key === "viewer.details.max_negative_prompt_lines" ? R(
+      ) : K.key === "viewer.details.max_negative_prompt_lines" ? R(
         a["viewer.details.max_negative_prompt_lines"].toString()
-      ) : H.key === "fullscreen.details.max_positive_prompt_lines" ? A(
+      ) : K.key === "fullscreen.details.max_positive_prompt_lines" ? A(
         a["fullscreen.details.max_positive_prompt_lines"].toString()
-      ) : H.key === "fullscreen.details.max_negative_prompt_lines" ? C(
+      ) : K.key === "fullscreen.details.max_negative_prompt_lines" ? C(
         a["fullscreen.details.max_negative_prompt_lines"].toString()
-      ) : H.key === "sidebar.thumbnail_size" && D(a["sidebar.thumbnail_size"].toString());
+      ) : K.key === "sidebar.thumbnail_size" && D(a["sidebar.thumbnail_size"].toString());
     },
     handleResetShortcuts: () => {
-      o((H) => ({
-        ...H,
+      o((K) => ({
+        ...K,
         "viewer.shortcut.1": "tag:keep next",
         "viewer.shortcut.2": "tag:best next",
         "viewer.shortcut.3": "tag:fix-needed next",
@@ -9368,8 +9368,8 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
                 type: "SHOW_TOAST",
                 payload: "Thumbnail cache cleared"
               });
-            } catch (H) {
-              console.error("Failed to clear thumbnail cache:", H), t({
+            } catch (K) {
+              console.error("Failed to clear thumbnail cache:", K), t({
                 type: "SET_ERROR",
                 payload: "Failed to clear thumbnail cache"
               });
@@ -9378,7 +9378,7 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
         }
       });
     },
-    validateShortcut: (H) => py(H),
+    validateShortcut: (K) => py(K),
     // Input states
     initialLoadCountInput: d,
     maxLoadCountInput: v,
@@ -9393,7 +9393,7 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
     fullscreenMaxNegativePromptLinesInput: B,
     thumbnailSizeInput: V
   };
-}, q = ({
+}, Y = ({
   label: e,
   description: t,
   children: n
@@ -9415,7 +9415,7 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
   /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-group", children: [
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-group-title", children: "Navigation & Display" }),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Tool Icons",
         description: "Display navigation and close icons in fullscreen mode.",
@@ -9436,7 +9436,7 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Delete Mode",
         description: "Choose how images are deleted in fullscreen mode.",
@@ -9459,7 +9459,7 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Loop Navigation",
         description: "Loop to the beginning/end when navigating in fullscreen.",
@@ -9480,7 +9480,7 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Small Image Display",
         description: "Choose how to display images smaller than the screen in fullscreen.",
@@ -9505,7 +9505,7 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
   /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-group", children: [
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-group-title", children: "Details Panel" }),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Details by Default",
         description: "Show the image details panel automatically when entering fullscreen.",
@@ -9526,7 +9526,7 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Filename/Path",
         description: "Choose how to display the filename or path in fullscreen details.",
@@ -9549,7 +9549,7 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Dimensions",
         description: "Display dimensions in fullscreen details.",
@@ -9570,7 +9570,7 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Created At",
         description: "Display generation date/time in fullscreen details.",
@@ -9591,7 +9591,7 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Source Info",
         description: "Display source image information in fullscreen details.",
@@ -9612,7 +9612,7 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Model",
         description: "Display model name in fullscreen details.",
@@ -9633,7 +9633,7 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Positive",
         description: "Display positive prompt in fullscreen details.",
@@ -9654,7 +9654,7 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Max Positive Prompt Lines",
         description: "Maximum number of lines to display for the positive prompt in fullscreen.",
@@ -9680,7 +9680,7 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Negative",
         description: "Display negative prompt in fullscreen details.",
@@ -9701,7 +9701,7 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show User Notes",
         description: "Display user notes in fullscreen details.",
@@ -9724,7 +9724,7 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Max Negative Prompt Lines",
         description: "Maximum number of lines to display for the negative prompt in fullscreen.",
@@ -9750,7 +9750,7 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Tags",
         description: "Display tags in fullscreen details.",
@@ -9948,7 +9948,7 @@ const Of = [
   /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-group", children: [
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-group-title", children: "Card Appearance" }),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Thumbnail Size",
         description: "Size of the image thumbnails in the sidebar (50-500px).",
@@ -9972,7 +9972,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Filename/Path",
         description: "Choose how to display the filename or path on the card.",
@@ -9995,7 +9995,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Dimensions",
         description: "Display the image dimensions (width x height) on the card.",
@@ -10016,7 +10016,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Created At",
         description: "Display the image creation date and time on the card.",
@@ -10037,7 +10037,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Source Images",
         description: "Display images that have been used as a basis for other images (sources). (Note: This setting is ignored during searches)",
@@ -10058,7 +10058,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Source Info",
         description: "Display source image information and lineage link on image cards.",
@@ -10079,7 +10079,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Model",
         description: "Display the model name on the card.",
@@ -10100,7 +10100,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Positive",
         description: "Display the positive prompt on the card.",
@@ -10121,7 +10121,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Negative",
         description: "Display the negative prompt on the card.",
@@ -10142,7 +10142,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show User Notes",
         description: "Display user notes on the card.",
@@ -10164,7 +10164,7 @@ const Of = [
         )
       }
     ),
-    /* @__PURE__ */ s.jsx(q, { label: "Show Tags", description: "Display tags on the card.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
+    /* @__PURE__ */ s.jsx(Y, { label: "Show Tags", description: "Display tags on the card.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
       /* @__PURE__ */ s.jsx(
         "input",
         {
@@ -10182,7 +10182,7 @@ const Of = [
   /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-group", children: [
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-group-title", children: "Search Behavior" }),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Quick Suggestions",
         description: "Show suggested keywords when the search field is empty.",
@@ -10203,7 +10203,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Input Suggestions",
         description: "Show suggestions when typing search prefixes (e.g. pos:).",
@@ -10227,7 +10227,7 @@ const Of = [
   /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-group", children: [
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-group-title", children: "List Behavior" }),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Initial Load Count",
         description: "Number of images to load and display immediately (10-1000).",
@@ -10251,7 +10251,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Maximum Load Count",
         description: "Maximum number of images to load in the background (10-1000000).",
@@ -10278,7 +10278,7 @@ const Of = [
   /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-group", children: [
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-group-title", children: "Quick Shortcuts (Card)" }),
     [1, 2, 3].map((c) => /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: `Quick Shortcut Slot ${c}`,
         description: `Choose an action for shortcut slot ${c}.`,
@@ -10468,7 +10468,7 @@ const Of = [
     ] }),
     /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-list", children: [
       i.map((c, d) => /* @__PURE__ */ s.jsx(
-        q,
+        Y,
         {
           label: `Shortcut ${d === 9 ? 0 : d + 1} (Key: ${d === 9 ? 0 : d + 1})`,
           description: `Command to execute when pressing '${d === 9 ? 0 : d + 1}' in View/Full Screen mode.`,
@@ -10499,7 +10499,7 @@ const Of = [
         c
       )),
       /* @__PURE__ */ s.jsx(
-        q,
+        Y,
         {
           label: "Show Cheat Sheet",
           description: "Display shortcut key guide in View/Full Screen mode.",
@@ -10521,7 +10521,7 @@ const Of = [
       )
     ] }),
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-extra", children: /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Reset Shortcuts",
         description: "Restore all shortcuts to their default values.",
@@ -10553,7 +10553,7 @@ const Of = [
   /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-group", children: [
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-group-title", children: "Image Matching" }),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Source Matching Strategy",
         description: "Algorithm used to identify the source image.",
@@ -10576,7 +10576,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Auto Linking Threshold (%)",
         description: "Minimum similarity percentage for automatic parent linking during creation or scan (0-100). Default: 92%. Should be strict to avoid false links.",
@@ -10600,7 +10600,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Source Suggestion Threshold (%)",
         description: "Minimum similarity percentage for showing candidates in manual 'Add Source' dialog (0-100). Default: 82%. Permissive enough to find ancestors.",
@@ -10624,7 +10624,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Inherit Tags from Source",
         description: "Automatically copy tags from the source image when a new image is registered or saved.",
@@ -10648,7 +10648,7 @@ const Of = [
   /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-group", children: [
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-group-title", children: "Lineage" }),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Max Lineage Depth",
         description: "Maximum number of ancestor levels to fetch and display (1-10).",
@@ -10675,7 +10675,7 @@ const Of = [
   /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-group", children: [
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-group-title", children: "Thumbnail Cache" }),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Clear Thumbnail Cache",
         description: "Delete all cached thumbnails. They will be regenerated on next view.",
@@ -10694,7 +10694,7 @@ const Of = [
   /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-group", children: [
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-group-title", children: "Trash" }),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Trash Retention Period (Days)",
         description: "How many days to keep deleted items in trash (0-365).",
@@ -10718,7 +10718,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Trash Management",
         description: "View and manage items currently in the trash bin.",
@@ -10747,7 +10747,7 @@ const Of = [
   /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-group", children: [
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-group-title", children: "Navigation & Display" }),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Loop Navigation",
         description: "Loop to the beginning/end when navigating in the viewer.",
@@ -10765,7 +10765,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Small Image Display",
         description: "Choose how to display images smaller than the viewer area.",
@@ -10787,7 +10787,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Tool Icons",
         description: "Display navigation and action icons in view mode.",
@@ -10808,7 +10808,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Thumbnails",
         description: "Display the thumbnail strip at the bottom of the viewer. Disabling this can improve performance on slower systems.",
@@ -10829,7 +10829,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Thumbnail Window Size",
         description: "Number of thumbnails to keep in the viewer (1-10000).",
@@ -10853,7 +10853,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Delete Mode",
         description: "Choose how images are deleted in view mode.",
@@ -10879,7 +10879,7 @@ const Of = [
   /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-group", children: [
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-group-title", children: "Details Panel" }),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Details by Default",
         description: "Show the image details panel automatically when opening the viewer.",
@@ -10900,7 +10900,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Filename/Path",
         description: "Choose how to display the filename or path in the details.",
@@ -10923,7 +10923,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Dimensions",
         description: "Display dimensions in the details panel.",
@@ -10944,7 +10944,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Created At",
         description: "Display generation date/time in the details panel.",
@@ -10965,7 +10965,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Source Info",
         description: "Display source image information in the details panel.",
@@ -10986,7 +10986,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Model",
         description: "Display model name in the details panel.",
@@ -11007,7 +11007,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Positive",
         description: "Display positive prompt in the details panel.",
@@ -11028,7 +11028,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Max Positive Prompt Lines",
         description: "Maximum number of lines to display for the positive prompt.",
@@ -11054,7 +11054,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Negative",
         description: "Display negative prompt in the details panel.",
@@ -11075,7 +11075,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show User Notes",
         description: "Display user notes in the details panel.",
@@ -11098,7 +11098,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Max Negative Prompt Lines",
         description: "Maximum number of lines to display for the negative prompt.",
@@ -11124,7 +11124,7 @@ const Of = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      q,
+      Y,
       {
         label: "Show Tags",
         description: "Display tags in the details panel.",
@@ -11502,9 +11502,9 @@ const Of = [
       const _ = await kg(x.id);
       return _.workflow ? (await window.app.loadGraphData(
         _.workflow
-      ), Y.log("Workflow restored successfully from Meld"), !0) : (alert("No workflow information is saved for this image."), !1);
+      ), H.log("Workflow restored successfully from Meld"), !0) : (alert("No workflow information is saved for this image."), !1);
     } catch (_) {
-      return Y.error("Error restoring workflow:", _), alert("Failed to restore workflow."), !1;
+      return H.error("Error restoring workflow:", _), alert("Failed to restore workflow."), !1;
     }
   }, []), a = h.useCallback(async (x) => {
     try {
@@ -11657,11 +11657,11 @@ const Of = [
   ), v = h.useCallback(
     async (x, _ = "run") => {
       var u;
-      console.log("[Meld] handleRunWithMask called", x, _);
+      H.log("[Meld] handleRunWithMask called", x, _);
       const f = Array.isArray(x) ? x : [x];
       if (_ === "apply") {
         const p = window.app, g = ((u = p == null ? void 0 : p.graph) == null ? void 0 : u._nodes) || [];
-        console.log(
+        H.log(
           "[Meld] Current graph nodes:",
           g.map((b) => ({
             id: b.id,
@@ -11673,7 +11673,7 @@ const Of = [
         ), k = g.some(
           (b) => b.type === "MeldImageLoader" || b.type === "LoadImage" || b.type === "Load Image"
         );
-        if (console.log("[Meld] Nodes found:", { hasMaskNode: j, hasLoaderNode: k }), !j || !k) {
+        if (H.log("[Meld] Nodes found:", { hasMaskNode: j, hasLoaderNode: k }), !j || !k) {
           const b = [];
           k || b.push("'Meld Image Loader'"), j || b.push("'Load Image (as Mask)'"), t({
             type: "OPEN_MODAL",
@@ -12050,12 +12050,12 @@ const Of = [
           return r ? z === "loadimagemask" : z === "meldimageloader" || z === "loadimage";
         };
         if (N.nodes && Array.isArray(N.nodes)) {
-          console.log(
+          H.log(
             "[Meld] Extracting nodes from UI format workflow",
             N.nodes.length
           );
           for (const E of N.nodes)
-            F(E.type) && (console.log(
+            F(E.type) && (H.log(
               "[Meld] Found target node (UI):",
               E.id,
               E.type,
@@ -12066,10 +12066,10 @@ const Of = [
               title: E.title
             }));
         } else {
-          console.log("[Meld] Extracting nodes from API format workflow");
+          H.log("[Meld] Extracting nodes from API format workflow");
           for (const E in N) {
             const z = N[E];
-            z && typeof z == "object" && F(z.class_type) && (console.log(
+            z && typeof z == "object" && F(z.class_type) && (H.log(
               "[Meld] Found target node (API):",
               E,
               z.class_type
@@ -13564,9 +13564,7 @@ const Ws = ({
         });
         break;
       default:
-        console.log(
-          `Action ${e.type} executed on ${t.length} images`
-        );
+        H.log(`Action ${e.type} executed on ${t.length} images`);
         break;
     }
 }, Py = ({ config: e }) => {
@@ -13603,11 +13601,11 @@ const Ws = ({
     const z = E.dataTransfer.getData("text/plain");
     z && z.split(",").forEach((O) => {
       if (O) {
-        const H = O.trim(), J = Number(H);
+        const K = O.trim(), J = Number(K);
         let oe = a.images.find((ue) => ue.id === J);
         oe || (oe = a.lineageImages.find(
           (ue) => ue.id === J
-        )), se.getState().addToBucket(e.id, H, oe);
+        )), se.getState().addToBucket(e.id, K, oe);
       }
     });
   }, V = (E, z) => {
@@ -13619,7 +13617,7 @@ const Ws = ({
       const U = R.includes(z) ? R : [z];
       U.forEach((O) => {
         se.getState().removeFromBucket(e.id, String(O));
-      }), u((O) => O.filter((H) => !U.includes(H)));
+      }), u((O) => O.filter((K) => !U.includes(K)));
     }
   }, L = (E) => {
     if (M === 0) return;
@@ -13627,7 +13625,7 @@ const Ws = ({
       type: E
     }, U = I ? R : b.map(Number);
     if (U.length === 0) return;
-    const O = U.map((oe) => P.find((ue) => ue.id === oe)).filter(Boolean), H = {
+    const O = U.map((oe) => P.find((ue) => ue.id === oe)).filter(Boolean), K = {
       edit_tags: "Tags updated",
       delete: "Delete initiated",
       move_folder: "Moved to folder",
@@ -13641,7 +13639,7 @@ const Ws = ({
       O,
       o,
       () => {
-        se.getState().showToast(H[E] ?? "Done");
+        se.getState().showToast(K[E] ?? "Done");
       }
     );
   }, N = () => {
@@ -13669,16 +13667,16 @@ const Ws = ({
               onClick: (U) => {
                 if (U.ctrlKey || U.metaKey)
                   u(
-                    (O) => O.includes(E.id) ? O.filter((H) => H !== E.id) : [...O, E.id]
+                    (O) => O.includes(E.id) ? O.filter((K) => K !== E.id) : [...O, E.id]
                   ), g(E.id);
                 else if (U.shiftKey && p !== null) {
                   const O = P.findIndex(
                     (J) => J.id === E.id
-                  ), H = P.findIndex(
+                  ), K = P.findIndex(
                     (J) => J.id === p
                   );
-                  if (O !== -1 && H !== -1) {
-                    const J = Math.min(O, H), oe = Math.max(O, H), ue = P.slice(J, oe + 1).map((Le) => Le.id);
+                  if (O !== -1 && K !== -1) {
+                    const J = Math.min(O, K), oe = Math.max(O, K), ue = P.slice(J, oe + 1).map((Le) => Le.id);
                     u(
                       (Le) => Array.from(/* @__PURE__ */ new Set([...Le, ...ue]))
                     );
@@ -14051,7 +14049,7 @@ const Ws = ({
         try {
           await Mc(p), await t();
         } catch (k) {
-          Y.error("Failed to delete favorite", k);
+          H.error("Failed to delete favorite", k);
         }
     },
     [t]
@@ -14069,7 +14067,7 @@ const Ws = ({
           y
         ), await t(), d(null);
       } catch (u) {
-        Y.error("Failed to update favorite", u), a("Failed to update favorite."), i("error");
+        H.error("Failed to update favorite", u), a("Failed to update favorite."), i("error");
       } finally {
         r(!1);
       }
@@ -14084,7 +14082,7 @@ const Ws = ({
         try {
           await Mc(p.id), await t();
         } catch (g) {
-          Y.error("Failed to delete favorite:", g);
+          H.error("Failed to delete favorite:", g);
         } finally {
           r(!1);
         }
@@ -14095,7 +14093,7 @@ const Ws = ({
     try {
       await Tg(e.searchQuery, e.searchQuery), await t();
     } catch (p) {
-      Y.error("Failed to save favorite:", p);
+      H.error("Failed to save favorite:", p);
     } finally {
       r(!1);
     }
@@ -14498,7 +14496,7 @@ const Ws = ({
   }, []);
   const M = h.useCallback(
     (D, L = !0) => {
-      p.current !== D && (Y.log("SearchBar: triggering search", { query: D }), t({ type: "SET_SEARCH_QUERY", payload: D }), L && c(!1), p.current = D);
+      p.current !== D && (H.log("SearchBar: triggering search", { query: D }), t({ type: "SET_SEARCH_QUERY", payload: D }), L && c(!1), p.current = D);
     },
     [t]
   );
@@ -14552,11 +14550,11 @@ const Ws = ({
         const O = `${[...L, `${F}${D.type}:`].join(" ").trim()}`;
         l(O);
       } else {
-        const O = z ? D.value : `"${D.value}"`, H = `${[
+        const O = z ? D.value : `"${D.value}"`, K = `${[
           ...L,
           `${F}${D.type}:${O}`
         ].join(" ").trim()} `;
-        l(H), o([]), c(!1);
+        l(K), o([]), c(!1);
       }
       (U = u.current) == null || U.focus();
     },
@@ -15035,7 +15033,7 @@ const Ws = ({
     setToastMessage: N
   } = qf(), T = async () => {
     if (e.favorites.some(
-      (H) => H.query === e.searchQuery
+      (K) => K.query === e.searchQuery
     )) {
       N("This query is already in your favorites.", "error");
       return;
@@ -16232,7 +16230,7 @@ const ov = ({
       _.length !== 0 && Promise.allSettled(_.map((f) => d(f))).then(
         (f) => {
           for (const u of f)
-            u.status === "rejected" && Y.warn(
+            u.status === "rejected" && H.warn(
               "Prefetching adjacent image details failed",
               u.reason
             );
@@ -16330,7 +16328,7 @@ const cv = ({
     a,
     c,
     e.searchQuery
-  ]), E = l === null ? -1 : F.findIndex((be) => be.id === l), U = (o === "lineage" && i.length > 0 ? i : o === "lighttable" ? F : a).find((be) => be.id === l) || (l === ((fl = e.viewerFallbackImage) == null ? void 0 : fl.id) ? e.viewerFallbackImage : void 0), { isFullscreen: O, toggleFullscreen: H } = nv({
+  ]), E = l === null ? -1 : F.findIndex((be) => be.id === l), U = (o === "lineage" && i.length > 0 ? i : o === "lighttable" ? F : a).find((be) => be.id === l) || (l === ((fl = e.viewerFallbackImage) == null ? void 0 : fl.id) ? e.viewerFallbackImage : void 0), { isFullscreen: O, toggleFullscreen: K } = nv({
     overlayRef: N,
     settings: c,
     setShowDetails: R
@@ -16386,7 +16384,7 @@ const cv = ({
     settings: c,
     dispatch: t,
     isMountedRef: T.isMountedRef,
-    toggleFullscreen: H,
+    toggleFullscreen: K,
     handleNext: J,
     handlePrevious: oe,
     handleDelete: () => {
@@ -16476,7 +16474,7 @@ const cv = ({
     handleRunWithWorkflow: () => U && u(U),
     handleRunWithMask: (be) => U && p(U, be),
     handleEditSource: () => U && g(U),
-    toggleFullscreen: H,
+    toggleFullscreen: K,
     currentIndex: E,
     currentThumbnails: F,
     image: U,
@@ -17103,12 +17101,12 @@ function mv() {
                         targetLoaderNodeId: O
                       }
                     }), !1;
-                  const H = e.activeModal.maskFilename;
+                  const K = e.activeModal.maskFilename;
                   for (const J of e.activeModal.images)
                     await N(
                       U,
                       J,
-                      H,
+                      K,
                       O
                     );
                   t({ type: "CLOSE_MODAL" }), t({ type: "CLOSE_VIEWER" });
@@ -17211,7 +17209,7 @@ const hv = () => {
     d
   ]), x = w;
   return h.useEffect(() => {
-    !e.isLoading && e.pagination.hasMore && e.images.length > 0 && w.length === 0 && (Y.log(
+    !e.isLoading && e.pagination.hasMore && e.images.length > 0 && w.length === 0 && (H.log(
       "GalleryPanel: Auto-loading more because all loaded images are hidden"
     ), r());
   }, [
@@ -17234,18 +17232,18 @@ const hv = () => {
       (u) => {
         if (u[0].isIntersecting) {
           if (e.isLoading) {
-            Y.log(
+            H.log(
               "GalleryPanel: Intersection observed but already loading"
             );
             return;
           }
-          e.pagination.hasMore ? (Y.log(
+          e.pagination.hasMore ? (H.log(
             "GalleryPanel: Load more triggered via IntersectionObserver (fetching from server)",
             {
               offset: e.images.length,
               hasMore: e.pagination.hasMore
             }
-          ), r()) : Y.log(
+          ), r()) : H.log(
             "GalleryPanel: Intersection observed but no more to load",
             {
               localCount: w.length,
@@ -18835,7 +18833,7 @@ const Qc = ({ image: e }) => {
     isSearchActive: m,
     loadMoreRef: v
   } = hv(), y = se((b) => b.isOpen), S = se((b) => b.setIsOpen), w = se((b) => b.buckets), x = Object.values(w).some((b) => b && b.length > 0);
-  Y.log("GalleryPanel: isLightTableOpen =", y);
+  H.log("GalleryPanel: isLightTableOpen =", y);
   const [_, f] = h.useState(!1), [u, p] = h.useState(null), g = h.useRef(null), j = h.useCallback(() => {
     g.current && (p(
       g.current.getBoundingClientRect()
@@ -18846,7 +18844,7 @@ const Qc = ({ image: e }) => {
     },
     [t, i, a]
   );
-  return Y.log("GalleryPanel: rendering", {
+  return H.log("GalleryPanel: rendering", {
     imageCount: e.images.length,
     displayedCount: c.length,
     visibleCount: d.length,
@@ -19003,7 +19001,7 @@ const Qc = ({ image: e }) => {
               {
                 type: "button",
                 onClick: () => {
-                  Y.log(
+                  H.log(
                     "GalleryPanel: Toggle Light Table clicked, from",
                     y,
                     "to",
@@ -19237,9 +19235,9 @@ Hc.registerExtension({
     Ly();
     try {
       const n = await vf();
-      Y.init(n.dev_mode), Y.log("Settings received:", n);
+      H.init(n.dev_mode), H.log("Settings received:", n);
     } catch (n) {
-      console.error("[Meld] Failed to fetch settings", n), Y.init(!1);
+      console.error("[Meld] Failed to fetch settings", n), H.init(!1);
     }
     if ((t = e.extensionManager) != null && t.registerSidebarTab) {
       e.ui.meld = {
@@ -19269,7 +19267,7 @@ Hc.registerExtension({
         var r;
         window.dispatchEvent(
           new CustomEvent("meld-scan-finished", { detail: n.detail })
-        ), (r = e.ui.meld) == null || r.refresh(), Y.log("Import completed.");
+        ), (r = e.ui.meld) == null || r.refresh(), H.log("Import completed.");
       }), te.addEventListener(
         "executed",
         async ({
@@ -19304,7 +19302,7 @@ Hc.registerExtension({
           tooltip: "Meld Image Manager",
           type: "custom",
           render: (n) => {
-            Y.log("render called", {
+            H.log("render called", {
               el: n,
               galleryRoot: Ol,
               galleryContainer: it
@@ -19312,9 +19310,9 @@ Hc.registerExtension({
             let r = n.parentElement;
             for (; r && !r.classList.contains("sidebar-content-container"); )
               r.style.height = "100%", r.style.overflow = "hidden", r = r.parentElement;
-            r && (r.style.overflow = "hidden"), it || (Y.log("galleryContainer not found, creating new one"), it = document.createElement("div"), it.id = "meld-gallery-container", it.style.height = "100%", it.style.width = "100%", it.style.display = "flex", it.style.flexDirection = "column", it.style.overflow = "hidden"), n.contains(it) || (Y.log("Appending galleryContainer to el"), n.appendChild(it)), Ol ? Y.log(
+            r && (r.style.overflow = "hidden"), it || (H.log("galleryContainer not found, creating new one"), it = document.createElement("div"), it.id = "meld-gallery-container", it.style.height = "100%", it.style.width = "100%", it.style.display = "flex", it.style.flexDirection = "column", it.style.overflow = "hidden"), n.contains(it) || (H.log("Appending galleryContainer to el"), n.appendChild(it)), Ol ? H.log(
               "[Meld] Gallery root already exists, React should handle re-render if needed"
-            ) : (Y.log("Creating new gallery root"), Ol = rf(it), Ol.render(
+            ) : (H.log("Creating new gallery root"), Ol = rf(it), Ol.render(
               Jt.createElement(
                 Qg,
                 null,
