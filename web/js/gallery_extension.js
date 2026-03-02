@@ -6392,7 +6392,7 @@ const hg = (e) => {
   xs && console.warn("[Meld]", ...e);
 }, yg = (...e) => {
   console.error("[Meld]", ...e);
-}, H = {
+}, Q = {
   log: pg,
   warn: gg,
   error: yg,
@@ -7149,7 +7149,7 @@ const xf = h.createContext(void 0), Qg = ({
       for (; p < Math.min(x, f) && _ === l.current; )
         try {
           const g = Math.min(u, f - p);
-          H.log("Background fetch: starting chunk", {
+          Q.log("Background fetch: starting chunk", {
             offset: p,
             limit: g
           });
@@ -7165,7 +7165,7 @@ const xf = h.createContext(void 0), Qg = ({
             break;
           await new Promise((k) => setTimeout(k, 300));
         } catch (g) {
-          H.error("Background fetch failed", g);
+          Q.error("Background fetch failed", g);
           break;
         }
     },
@@ -7175,7 +7175,7 @@ const xf = h.createContext(void 0), Qg = ({
     const w = performance.now(), x = ++l.current;
     try {
       const _ = t.searchQuery.trim() !== "", f = t.settings["gallery.initial_load_count"];
-      H.log("refreshImages: starting initial fetch", {
+      Q.log("refreshImages: starting initial fetch", {
         isSearch: _,
         fetchLimit: f,
         query: t.searchQuery,
@@ -7189,14 +7189,14 @@ const xf = h.createContext(void 0), Qg = ({
         !1
         // not minimal for initial load
       ), p = performance.now() - w;
-      H.log("refreshImages: initial fetch complete", {
+      Q.log("refreshImages: initial fetch complete", {
         count: u.images.length,
         total: u.total,
         offset: u.offset,
         durationMs: p.toFixed(2)
       }), n({ type: "SET_IMAGES", payload: u }), u.total > f && o(f, u.total, x);
     } catch (_) {
-      H.error("refreshImages: fetch failed", _), n({
+      Q.error("refreshImages: fetch failed", _), n({
         type: "SET_ERROR",
         payload: _ instanceof Error ? _.message : String(_)
       });
@@ -7212,7 +7212,7 @@ const xf = h.createContext(void 0), Qg = ({
     const w = performance.now();
     try {
       const x = r.current, _ = t.searchQuery.trim() !== "", f = t.pagination.limit;
-      H.log("loadMoreImages: starting fetch", {
+      Q.log("loadMoreImages: starting fetch", {
         nextOffset: x,
         fetchLimit: f,
         isSearch: _
@@ -7225,14 +7225,14 @@ const xf = h.createContext(void 0), Qg = ({
         !0
         // use minimal mode for scroll-triggered loads
       ), p = performance.now() - w;
-      H.log("loadMoreImages: fetch complete", {
+      Q.log("loadMoreImages: fetch complete", {
         count: u.images.length,
         total: u.total,
         offset: u.offset,
         durationMs: p.toFixed(2)
       }), n({ type: "APPEND_IMAGES", payload: u });
     } catch (x) {
-      H.error("loadMoreImages: fetch failed", x), n({
+      Q.error("loadMoreImages: fetch failed", x), n({
         type: "SET_ERROR",
         payload: x instanceof Error ? x.message : String(x)
       });
@@ -7248,7 +7248,7 @@ const xf = h.createContext(void 0), Qg = ({
       const w = await Ig();
       n({ type: "SET_FAVORITES", payload: w });
     } catch (w) {
-      H.error("Failed to load favorites", w);
+      Q.error("Failed to load favorites", w);
     }
   }, []), m = h.useCallback(async () => {
     if (t.selectedIds.size === 0) return;
@@ -7304,7 +7304,7 @@ const xf = h.createContext(void 0), Qg = ({
         return f;
       const u = (async () => {
         try {
-          H.log("fetchFullImageDetails: fetching full data", { id: w });
+          Q.log("fetchFullImageDetails: fetching full data", { id: w });
           const p = await pf(w);
           return n({ type: "UPDATE_IMAGE", payload: p }), p;
         } finally {
@@ -7321,7 +7321,7 @@ const xf = h.createContext(void 0), Qg = ({
         const x = await vf();
         n({ type: "SET_SETTINGS", payload: x });
       } catch (x) {
-        H.error("Failed to load settings", x);
+        Q.error("Failed to load settings", x);
       }
     })();
   }, []), h.useEffect(() => {
@@ -7507,23 +7507,23 @@ const xf = h.createContext(void 0), Qg = ({
         const V = await mg();
         n((D) => D.custom_path ? D : { ...D, custom_path: V });
       } catch (V) {
-        H.error("Failed to fetch home directory:", V);
+        Q.error("Failed to fetch home directory:", V);
       }
     })();
   }, []), h.useEffect(() => {
     const C = new AbortController();
     return (async () => {
       const D = t.type === "custom" ? t.custom_path : t.subfolder;
-      if (H.log(
+      if (Q.log(
         `loadFolders started. Path: "${D}", Type: "${t.type}"`
       ), t.type === "custom" && !D) {
-        H.log("Custom path is empty, skipping load."), l([]), o([]), c(0);
+        Q.log("Custom path is empty, skipping load."), l([]), o([]), c(0);
         return;
       }
       m(!0);
       const L = D, N = t.type;
       try {
-        H.log("Step 1: Fast load starting...");
+        Q.log("Step 1: Fast load starting...");
         const T = await Yg(
           t.type,
           D,
@@ -7531,14 +7531,14 @@ const xf = h.createContext(void 0), Qg = ({
           C.signal
         );
         if (C.signal.aborted) {
-          H.log("Step 1: Aborted.");
+          Q.log("Step 1: Aborted.");
           return;
         }
-        H.log(
+        Q.log(
           `Step 1 complete. Found ${T.folders.length} folders, ${T.images.length} images.`
         ), l(T.folders), o(T.images), c(null);
         const F = T.folders.map((E) => E.name);
-        F.length > 0 && (H.log(
+        F.length > 0 && (Q.log(
           `Step 2: Metadata fetch starting for ${F.length} folders...`
         ), Xg(
           N,
@@ -7547,32 +7547,32 @@ const xf = h.createContext(void 0), Qg = ({
           C.signal
         ).then((E) => {
           if (C.signal.aborted) {
-            H.log("Step 2: Aborted.");
+            Q.log("Step 2: Aborted.");
             return;
           }
-          H.log("Step 2: Metadata fetch complete."), l(
+          Q.log("Step 2: Metadata fetch complete."), l(
             (z) => z.map((U) => {
               const O = E[U.name];
               return O ? { ...U, count: O.count, preview: O.preview } : U;
             })
           );
         }).catch((E) => {
-          E.name !== "AbortError" && H.error("Step 2: Metadata fetch failed:", E);
-        })), H.log("Step 3: Path image count starting..."), Zg(N, L, C.signal).then((E) => {
+          E.name !== "AbortError" && Q.error("Step 2: Metadata fetch failed:", E);
+        })), Q.log("Step 3: Path image count starting..."), Zg(N, L, C.signal).then((E) => {
           if (C.signal.aborted) {
-            H.log("Step 3: Aborted.");
+            Q.log("Step 3: Aborted.");
             return;
           }
-          H.log(`Step 3: Path image count complete: ${E}`), c(E);
+          Q.log(`Step 3: Path image count complete: ${E}`), c(E);
         }).catch((E) => {
-          E.name !== "AbortError" && H.error("Step 3: Path image count failed:", E);
+          E.name !== "AbortError" && Q.error("Step 3: Path image count failed:", E);
         });
       } catch (T) {
         if (T.name === "AbortError") {
-          H.log("Request aborted.");
+          Q.log("Request aborted.");
           return;
         }
-        H.error("Failed to load folders:", T), l([]), o([]), c(0);
+        Q.error("Failed to load folders:", T), l([]), o([]), c(0);
       } finally {
         C.signal.aborted || m(!1);
       }
@@ -7586,7 +7586,7 @@ const xf = h.createContext(void 0), Qg = ({
       const C = await hi();
       y(C);
     } catch (C) {
-      H.error("Failed to fetch tags:", C);
+      Q.error("Failed to fetch tags:", C);
     } finally {
       _(!1);
     }
@@ -7620,7 +7620,7 @@ const xf = h.createContext(void 0), Qg = ({
         }
       }), e({ type: "CLOSE_MODAL" });
     } catch (C) {
-      H.error("Failed to start scan:", C), alert(`Failed to start scan: ${C}`);
+      Q.error("Failed to start scan:", C), alert(`Failed to start scan: ${C}`);
     }
   }, A = (C) => {
     if (t.type === "custom") {
@@ -8394,14 +8394,14 @@ const se = ay()(
 }, pi = () => ({ executeWorkflow: h.useCallback(
   async (t, n, r, l) => {
     var S, w, x, _, f, u, p;
-    H.log("executeWorkflow called:", {
+    Q.log("executeWorkflow called:", {
       workflowName: t,
       imageId: n.id,
       maskFilename: r,
       targetLoaderNodeId: l
     });
     const a = await Sf(t);
-    H.log("Workflow fetched:", t);
+    Q.log("Workflow fetched:", t);
     let o = l || null, i = null, c = !1;
     const d = (g) => {
       if (!g) return !1;
@@ -8437,7 +8437,7 @@ const se = ay()(
           break;
         }
     }
-    if (H.log("Node IDs found:", {
+    if (Q.log("Node IDs found:", {
       loaderNodeId: o,
       maskNodeId: i,
       isUIFormat: c
@@ -8465,13 +8465,13 @@ const se = ay()(
       }
       k || await g.loadGraphData(a, !0, !0, t), await new Promise((R) => setTimeout(R, 200));
       const M = g.graph._nodes;
-      H.log("Active graph nodes count:", M.length);
+      Q.log("Active graph nodes count:", M.length);
       const P = M.find(
         (R) => String(R.id) === o || d(R.type)
       );
       if (P) {
         const R = (_ = P.widgets) == null ? void 0 : _.find((I) => I.name === "image");
-        H.log("Updating loader node widget:", {
+        Q.log("Updating loader node widget:", {
           nodeId: P.id,
           type: P.type,
           imagePath: m
@@ -8487,7 +8487,7 @@ const se = ay()(
             return String(I.id) === i || ((A = I.type) == null ? void 0 : A.replace(/\s+/g, "")) === "LoadImageMask";
           }
         );
-        if (H.log("Updating mask node widget:", {
+        if (Q.log("Updating mask node widget:", {
           nodeId: R == null ? void 0 : R.id,
           maskFilename: r
         }), R) {
@@ -8566,15 +8566,15 @@ const fy = () => {
   return { injectMaskToGraph: h.useCallback(
     (n, r) => {
       var m, v;
-      H.log("[Meld-Debug] injectMaskToGraph called with:", r), ll(n);
+      Q.log("[Meld-Debug] injectMaskToGraph called with:", r), ll(n);
       const l = window.app;
       if (!(l != null && l.graph))
-        return H.log("[Meld-Debug] injectMaskToGraph: No comfyApp.graph found"), !1;
+        return Q.log("[Meld-Debug] injectMaskToGraph: No comfyApp.graph found"), !1;
       const a = l.graph._nodes.filter(
         (y) => y.type === "LoadImageMask"
       );
       if (a.length === 0)
-        return H.log(
+        return Q.log(
           "[Meld-Debug] injectMaskToGraph: No LoadImageMask nodes found in active graph"
         ), e({
           type: "OPEN_MODAL",
@@ -8586,7 +8586,7 @@ const fy = () => {
       const o = a[0], i = o.widgets.find(
         (y) => y.name === "image"
       ), c = `${r} [temp]`;
-      H.log(
+      Q.log(
         "[Meld-Debug] injectMaskToGraph: Updating node",
         o.id,
         "widget 'image' with",
@@ -8649,9 +8649,9 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
     Lc(u) && localStorage.setItem("meld-mask-tool", u);
   }, [u]);
   const [g, j] = h.useState({ x: 0, y: 0 }), [k, b] = h.useState({ x: 0, y: 0 }), [M, P] = h.useState([]), [R, I] = h.useState(null), [A, B] = h.useState(!1), [C, V] = h.useState(1), [D, L] = h.useState({ x: 0, y: 0 }), [N, T] = h.useState(!1), [F, E] = h.useState(!1), z = h.useRef(null), U = h.useCallback(() => {
-    const W = w.current, Q = S.current;
-    if (!W || !Q) return null;
-    const ee = Q.getBoundingClientRect(), q = W.naturalWidth, ne = W.naturalHeight;
+    const W = w.current, H = S.current;
+    if (!W || !H) return null;
+    const ee = H.getBoundingClientRect(), q = W.naturalWidth, ne = W.naturalHeight;
     if (!q || !ne) return null;
     const ie = q / ne, Ne = ee.width / ee.height;
     let me, _e, ye = 0, et = 0;
@@ -8662,56 +8662,56 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
       height: _e
     };
   }, []), O = h.useCallback(
-    (W, Q, ee, q) => {
-      if (!W) return Q;
+    (W, H, ee, q) => {
+      if (!W) return H;
       const ne = W.getBoundingClientRect(), ie = ne.width / 2, Ne = ne.height / 2, me = {
-        x: (ie - Q.x) / ee,
-        y: (Ne - Q.y) / ee
+        x: (ie - H.x) / ee,
+        y: (Ne - H.y) / ee
       };
       return { x: ie - me.x * q, y: Ne - me.y * q };
     },
     []
   ), K = h.useCallback(() => {
     V((W) => {
-      const Q = Math.min(W * 1.2, 20);
+      const H = Math.min(W * 1.2, 20);
       return L(
-        (ee) => O(S.current, ee, W, Q)
-      ), Q;
+        (ee) => O(S.current, ee, W, H)
+      ), H;
     });
   }, [O]), J = h.useCallback(() => {
     V((W) => {
-      const Q = Math.max(0.1, W / 1.2);
+      const H = Math.max(0.1, W / 1.2);
       return L(
-        (ee) => O(S.current, ee, W, Q)
-      ), Q;
+        (ee) => O(S.current, ee, W, H)
+      ), H;
     });
   }, [O]), oe = h.useCallback(() => {
     const W = y.current;
     if (!W) return;
-    const Q = W.getContext("2d");
-    if (!Q) return;
-    Q.clearRect(0, 0, W.width, W.height);
+    const H = W.getContext("2d");
+    if (!H) return;
+    H.clearRect(0, 0, W.width, W.height);
     const ee = getComputedStyle(document.documentElement), q = ee.getPropertyValue("--comfy-input-bg-active") || ee.getPropertyValue("--comfy-input-bg") || ee.getPropertyValue("--bg-color") || "var(--comfy-input-bg)", ne = U();
-    if (x.current && ne && (Q.save(), Q.globalAlpha = 0.5, Q.drawImage(
+    if (x.current && ne && (H.save(), H.globalAlpha = 0.5, H.drawImage(
       x.current,
       ne.left,
       ne.top,
       ne.width,
       ne.height
-    ), Q.restore()), _) {
+    ), H.restore()), _) {
       const ie = Math.min(g.x, k.x), Ne = Math.min(g.y, k.y), me = Math.abs(g.x - k.x), _e = Math.abs(g.y - k.y);
-      if (Q.save(), Q.globalAlpha = 0.3, Q.fillStyle = q, Q.strokeStyle = "white", Q.lineWidth = 2, Q.setLineDash([5, 5]), Q.beginPath(), u === "rect")
-        Q.rect(ie, Ne, me, _e);
+      if (H.save(), H.globalAlpha = 0.3, H.fillStyle = q, H.strokeStyle = "white", H.lineWidth = 2, H.setLineDash([5, 5]), H.beginPath(), u === "rect")
+        H.rect(ie, Ne, me, _e);
       else if (u === "ellipse") {
         const ye = ie + me / 2, et = Ne + _e / 2;
-        Q.ellipse(ye, et, me / 2, _e / 2, 0, 0, 2 * Math.PI);
+        H.ellipse(ye, et, me / 2, _e / 2, 0, 0, 2 * Math.PI);
       } else if (u === "lasso" && M.length > 1) {
-        Q.moveTo(M[0].x, M[0].y);
+        H.moveTo(M[0].x, M[0].y);
         for (let ye = 1; ye < M.length; ye++)
-          Q.lineTo(M[ye].x, M[ye].y);
-        Q.closePath();
+          H.lineTo(M[ye].x, M[ye].y);
+        H.closePath();
       }
-      Q.fill(), Q.globalAlpha = 1, Q.stroke(), Q.restore();
+      H.fill(), H.globalAlpha = 1, H.stroke(), H.restore();
     }
   }, [
     _,
@@ -8751,16 +8751,16 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
     x.current || (x.current = document.createElement("canvas"));
     const W = x.current;
     W.width = fe.width, W.height = fe.height;
-    const Q = W.getContext("2d");
-    if (!Q) return;
+    const H = W.getContext("2d");
+    if (!H) return;
     const ee = mo(fe, [255, 255, 255], 255);
-    Q.putImageData(ee, 0, 0), oe();
+    H.putImageData(ee, 0, 0), oe();
   }, [fe, oe]), h.useEffect(() => {
     _ && oe();
   }, [_, oe]), h.useEffect(() => {
     const W = S.current;
     if (!W) return;
-    const Q = (ee) => {
+    const H = (ee) => {
       ee.preventDefault();
       const q = ee.deltaY > 0 ? 1 / 1.1 : 1.1;
       V((ne) => {
@@ -8777,7 +8777,7 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
         }), ie;
       });
     };
-    return W.addEventListener("wheel", Q, { passive: !1 }), () => W.removeEventListener("wheel", Q);
+    return W.addEventListener("wheel", H, { passive: !1 }), () => W.removeEventListener("wheel", H);
   }, []), h.useEffect(() => {
     if (!F) return;
     const W = (ee) => {
@@ -8788,22 +8788,22 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
           y: z.current.panY + ne
         });
       }
-    }, Q = () => {
+    }, H = () => {
       E(!1), z.current = null;
     };
-    return window.addEventListener("mousemove", W), window.addEventListener("mouseup", Q), () => {
-      window.removeEventListener("mousemove", W), window.removeEventListener("mouseup", Q);
+    return window.addEventListener("mousemove", W), window.addEventListener("mouseup", H), () => {
+      window.removeEventListener("mousemove", W), window.removeEventListener("mouseup", H);
     };
   }, [F]), h.useEffect(() => {
     const W = () => {
       S.current && y.current && (y.current.width = S.current.clientWidth, y.current.height = S.current.clientHeight, oe());
-    }, Q = new ResizeObserver(W);
-    return S.current && Q.observe(S.current), W(), () => Q.disconnect();
+    }, H = new ResizeObserver(W);
+    return S.current && H.observe(S.current), W(), () => H.disconnect();
   }, [oe]);
   const Ln = (W) => {
     var ye;
-    const Q = W.button === 2, ee = W.button === 1, q = N && W.button === 0;
-    if (Q || ee || q) {
+    const H = W.button === 2, ee = W.button === 1, q = N && W.button === 0;
+    if (H || ee || q) {
       W.preventDefault(), W.stopPropagation(), z.current = {
         panX: D.x,
         panY: D.y,
@@ -8847,7 +8847,7 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
         Math.min(ie.y, q.top + q.height)
       );
       b({ x: Ne, y: me }), u === "lasso" && P((ye) => [...ye, { x: Ne, y: me }]);
-    }, Q = (ee) => {
+    }, H = (ee) => {
       var ie;
       const q = U(), ne = (ie = S.current) == null ? void 0 : ie.getBoundingClientRect();
       if (q && ne && fe && w.current) {
@@ -8896,8 +8896,8 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
       }
       Bt.current = Date.now(), f(!1), P([]);
     };
-    return window.addEventListener("mousemove", W), window.addEventListener("mouseup", Q), () => {
-      window.removeEventListener("mousemove", W), window.removeEventListener("mouseup", Q);
+    return window.addEventListener("mousemove", W), window.addEventListener("mouseup", H), () => {
+      window.removeEventListener("mousemove", W), window.removeEventListener("mouseup", H);
     };
   }, [
     _,
@@ -8919,14 +8919,14 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
       if (!q) return !1;
       const ne = q, ie = ne.tagName;
       return ie === "INPUT" || ie === "TEXTAREA" || ie === "BUTTON" || ie === "SELECT" || ie === "A" || ne.isContentEditable || ne.tabIndex != null && ne.tabIndex >= 0;
-    }, Q = (q) => {
+    }, H = (q) => {
       q.code === "Space" && !q.repeat && (W(q.target) || (q.preventDefault(), T(!0))), (q.metaKey || q.ctrlKey) && q.key.toLowerCase() === "z" && !q.shiftKey ? (q.preventDefault(), q.stopPropagation(), q.stopImmediatePropagation(), pr()) : q.key === "Escape" && (q.preventDefault(), q.stopPropagation(), q.stopImmediatePropagation(), l(), document.fullscreenElement && document.exitFullscreen().catch(() => {
       }));
     }, ee = (q) => {
       q.code === "Space" && (W(q.target) || (q.preventDefault(), T(!1)));
     };
-    return window.addEventListener("keydown", Q, { capture: !0 }), window.addEventListener("keyup", ee, { capture: !0 }), () => {
-      window.removeEventListener("keydown", Q, { capture: !0 }), window.removeEventListener("keyup", ee, { capture: !0 });
+    return window.addEventListener("keydown", H, { capture: !0 }), window.addEventListener("keyup", ee, { capture: !0 }), () => {
+      window.removeEventListener("keydown", H, { capture: !0 }), window.removeEventListener("keyup", ee, { capture: !0 });
     };
   }, [pr, l]);
   const fl = () => {
@@ -8935,14 +8935,14 @@ const Lc = (e) => e === "rect" || e === "ellipse" || e === "lasso", _s = ({
         w.current.naturalWidth,
         w.current.naturalHeight
       );
-      Le((Q) => [...Q, W]);
+      Le((H) => [...H, W]);
     }
   }, be = async () => {
     if (!fe || !w.current) return null;
     B(!0);
     try {
-      const { width: W, height: Q } = fe, ee = document.createElement("canvas");
-      ee.width = W, ee.height = Q;
+      const { width: W, height: H } = fe, ee = document.createElement("canvas");
+      ee.width = W, ee.height = H;
       const q = ee.getContext("2d");
       if (!q) return null;
       const ne = mo(fe, [255, 255, 255], 255);
@@ -11502,9 +11502,9 @@ const Of = [
       const _ = await kg(x.id);
       return _.workflow ? (await window.app.loadGraphData(
         _.workflow
-      ), H.log("Workflow restored successfully from Meld"), !0) : (alert("No workflow information is saved for this image."), !1);
+      ), Q.log("Workflow restored successfully from Meld"), !0) : (alert("No workflow information is saved for this image."), !1);
     } catch (_) {
-      return H.error("Error restoring workflow:", _), alert("Failed to restore workflow."), !1;
+      return Q.error("Error restoring workflow:", _), alert("Failed to restore workflow."), !1;
     }
   }, []), a = h.useCallback(async (x) => {
     try {
@@ -11657,11 +11657,11 @@ const Of = [
   ), v = h.useCallback(
     async (x, _ = "run") => {
       var u;
-      H.log("handleRunWithMask called", x, _);
+      Q.log("handleRunWithMask called", x, _);
       const f = Array.isArray(x) ? x : [x];
       if (_ === "apply") {
         const p = window.app, g = ((u = p == null ? void 0 : p.graph) == null ? void 0 : u._nodes) || [];
-        H.log(
+        Q.log(
           "Current graph nodes:",
           g.map((b) => ({
             id: b.id,
@@ -11673,7 +11673,7 @@ const Of = [
         ), k = g.some(
           (b) => b.type === "MeldImageLoader" || b.type === "LoadImage" || b.type === "Load Image"
         );
-        if (H.log("Nodes found:", { hasMaskNode: j, hasLoaderNode: k }), !j || !k) {
+        if (Q.log("Nodes found:", { hasMaskNode: j, hasLoaderNode: k }), !j || !k) {
           const b = [];
           k || b.push("'Meld Image Loader'"), j || b.push("'Load Image (as Mask)'"), t({
             type: "OPEN_MODAL",
@@ -11714,7 +11714,7 @@ const Of = [
           return;
         }
       } catch (p) {
-        console.error("[Meld] Error checking workflows:", p);
+        Q.error("[Meld] Error checking workflows:", p);
       }
       t({
         type: "OPEN_MODAL",
@@ -12050,12 +12050,12 @@ const Of = [
           return r ? z === "loadimagemask" : z === "meldimageloader" || z === "loadimage";
         };
         if (N.nodes && Array.isArray(N.nodes)) {
-          H.log(
+          Q.log(
             "Extracting nodes from UI format workflow",
             N.nodes.length
           );
           for (const E of N.nodes)
-            F(E.type) && (H.log(
+            F(E.type) && (Q.log(
               "Found target node (UI):",
               E.id,
               E.type,
@@ -12066,10 +12066,10 @@ const Of = [
               title: E.title
             }));
         } else {
-          H.log("Extracting nodes from API format workflow");
+          Q.log("Extracting nodes from API format workflow");
           for (const E in N) {
             const z = N[E];
-            z && typeof z == "object" && F(z.class_type) && (H.log("Found target node (API):", E, z.class_type), T.push({
+            z && typeof z == "object" && F(z.class_type) && (Q.log("Found target node (API):", E, z.class_type), T.push({
               id: E,
               type: z.class_type || ""
             }));
@@ -13560,7 +13560,7 @@ const Ws = ({
         });
         break;
       default:
-        H.log(`Action ${e.type} executed on ${t.length} images`);
+        Q.log(`Action ${e.type} executed on ${t.length} images`);
         break;
     }
 }, Py = ({ config: e }) => {
@@ -14045,7 +14045,7 @@ const Ws = ({
         try {
           await Mc(p), await t();
         } catch (k) {
-          H.error("Failed to delete favorite", k);
+          Q.error("Failed to delete favorite", k);
         }
     },
     [t]
@@ -14063,7 +14063,7 @@ const Ws = ({
           y
         ), await t(), d(null);
       } catch (u) {
-        H.error("Failed to update favorite", u), a("Failed to update favorite."), i("error");
+        Q.error("Failed to update favorite", u), a("Failed to update favorite."), i("error");
       } finally {
         r(!1);
       }
@@ -14078,7 +14078,7 @@ const Ws = ({
         try {
           await Mc(p.id), await t();
         } catch (g) {
-          H.error("Failed to delete favorite:", g);
+          Q.error("Failed to delete favorite:", g);
         } finally {
           r(!1);
         }
@@ -14089,7 +14089,7 @@ const Ws = ({
     try {
       await Tg(e.searchQuery, e.searchQuery), await t();
     } catch (p) {
-      H.error("Failed to save favorite:", p);
+      Q.error("Failed to save favorite:", p);
     } finally {
       r(!1);
     }
@@ -14492,7 +14492,7 @@ const Ws = ({
   }, []);
   const M = h.useCallback(
     (D, L = !0) => {
-      p.current !== D && (H.log("SearchBar: triggering search", { query: D }), t({ type: "SET_SEARCH_QUERY", payload: D }), L && c(!1), p.current = D);
+      p.current !== D && (Q.log("SearchBar: triggering search", { query: D }), t({ type: "SET_SEARCH_QUERY", payload: D }), L && c(!1), p.current = D);
     },
     [t]
   );
@@ -16226,7 +16226,7 @@ const ov = ({
       _.length !== 0 && Promise.allSettled(_.map((f) => d(f))).then(
         (f) => {
           for (const u of f)
-            u.status === "rejected" && H.warn(
+            u.status === "rejected" && Q.warn(
               "Prefetching adjacent image details failed",
               u.reason
             );
@@ -16308,10 +16308,10 @@ const cv = ({
   const F = h.useMemo(() => {
     const be = e.searchQuery.trim() !== "";
     if (o === "lighttable" && e.viewerLightTableSlotId) {
-      const ot = se.getState(), gt = ot.buckets[e.viewerLightTableSlotId] || [], Lt = new Map(a.map((Q) => [Q.id, Q])), W = new Map(i.map((Q) => [Q.id, Q]));
-      return gt.map((Q) => {
-        const ee = Number.parseInt(Q, 10);
-        return Lt.get(ee) || W.get(ee) || ot.images[Q] || iv(ee);
+      const ot = se.getState(), gt = ot.buckets[e.viewerLightTableSlotId] || [], Lt = new Map(a.map((H) => [H.id, H])), W = new Map(i.map((H) => [H.id, H]));
+      return gt.map((H) => {
+        const ee = Number.parseInt(H, 10);
+        return Lt.get(ee) || W.get(ee) || ot.images[H] || iv(ee);
       });
     }
     return o === "lineage" ? i : a.filter(
@@ -16413,9 +16413,9 @@ const cv = ({
     const be = c["viewer.thumbnail_window_size"], ot = Math.floor(be / 2);
     let gt = Math.max(0, E - ot);
     const Lt = Math.min(F.length, gt + be);
-    return Lt === F.length && (gt = Math.max(0, Lt - be)), F.slice(gt, Lt).map((W, Q) => ({
+    return Lt === F.length && (gt = Math.max(0, Lt - be)), F.slice(gt, Lt).map((W, H) => ({
       img: W,
-      absIndex: gt + Q
+      absIndex: gt + H
     }));
   }, [F, E, c, B]), pr = h.useMemo(() => U ? j(U) : [], [j, U]);
   return h.useEffect(() => {
@@ -17205,7 +17205,7 @@ const hv = () => {
     d
   ]), x = w;
   return h.useEffect(() => {
-    !e.isLoading && e.pagination.hasMore && e.images.length > 0 && w.length === 0 && (H.log(
+    !e.isLoading && e.pagination.hasMore && e.images.length > 0 && w.length === 0 && (Q.log(
       "GalleryPanel: Auto-loading more because all loaded images are hidden"
     ), r());
   }, [
@@ -17228,18 +17228,18 @@ const hv = () => {
       (u) => {
         if (u[0].isIntersecting) {
           if (e.isLoading) {
-            H.log(
+            Q.log(
               "GalleryPanel: Intersection observed but already loading"
             );
             return;
           }
-          e.pagination.hasMore ? (H.log(
+          e.pagination.hasMore ? (Q.log(
             "GalleryPanel: Load more triggered via IntersectionObserver (fetching from server)",
             {
               offset: e.images.length,
               hasMore: e.pagination.hasMore
             }
-          ), r()) : H.log(
+          ), r()) : Q.log(
             "GalleryPanel: Intersection observed but no more to load",
             {
               localCount: w.length,
@@ -18829,7 +18829,7 @@ const Qc = ({ image: e }) => {
     isSearchActive: m,
     loadMoreRef: v
   } = hv(), y = se((b) => b.isOpen), S = se((b) => b.setIsOpen), w = se((b) => b.buckets), x = Object.values(w).some((b) => b && b.length > 0);
-  H.log("GalleryPanel: isLightTableOpen =", y);
+  Q.log("GalleryPanel: isLightTableOpen =", y);
   const [_, f] = h.useState(!1), [u, p] = h.useState(null), g = h.useRef(null), j = h.useCallback(() => {
     g.current && (p(
       g.current.getBoundingClientRect()
@@ -18840,7 +18840,7 @@ const Qc = ({ image: e }) => {
     },
     [t, i, a]
   );
-  return H.log("GalleryPanel: rendering", {
+  return Q.log("GalleryPanel: rendering", {
     imageCount: e.images.length,
     displayedCount: c.length,
     visibleCount: d.length,
@@ -18997,7 +18997,7 @@ const Qc = ({ image: e }) => {
               {
                 type: "button",
                 onClick: () => {
-                  H.log(
+                  Q.log(
                     "GalleryPanel: Toggle Light Table clicked, from",
                     y,
                     "to",
@@ -19231,9 +19231,9 @@ Hc.registerExtension({
     Ly();
     try {
       const n = await vf();
-      H.init(n.dev_mode), H.log("Settings received:", n);
+      Q.init(n.dev_mode), Q.log("Settings received:", n);
     } catch (n) {
-      console.error("[Meld] Failed to fetch settings", n), H.init(!1);
+      console.error("[Meld] Failed to fetch settings", n), Q.init(!1);
     }
     if ((t = e.extensionManager) != null && t.registerSidebarTab) {
       e.ui.meld = {
@@ -19263,7 +19263,7 @@ Hc.registerExtension({
         var r;
         window.dispatchEvent(
           new CustomEvent("meld-scan-finished", { detail: n.detail })
-        ), (r = e.ui.meld) == null || r.refresh(), H.log("Import completed.");
+        ), (r = e.ui.meld) == null || r.refresh(), Q.log("Import completed.");
       }), te.addEventListener(
         "executed",
         async ({
@@ -19298,7 +19298,7 @@ Hc.registerExtension({
           tooltip: "Meld Image Manager",
           type: "custom",
           render: (n) => {
-            H.log("render called", {
+            Q.log("render called", {
               el: n,
               galleryRoot: Ol,
               galleryContainer: it
@@ -19306,9 +19306,9 @@ Hc.registerExtension({
             let r = n.parentElement;
             for (; r && !r.classList.contains("sidebar-content-container"); )
               r.style.height = "100%", r.style.overflow = "hidden", r = r.parentElement;
-            r && (r.style.overflow = "hidden"), it || (H.log("galleryContainer not found, creating new one"), it = document.createElement("div"), it.id = "meld-gallery-container", it.style.height = "100%", it.style.width = "100%", it.style.display = "flex", it.style.flexDirection = "column", it.style.overflow = "hidden"), n.contains(it) || (H.log("Appending galleryContainer to el"), n.appendChild(it)), Ol ? H.log(
+            r && (r.style.overflow = "hidden"), it || (Q.log("galleryContainer not found, creating new one"), it = document.createElement("div"), it.id = "meld-gallery-container", it.style.height = "100%", it.style.width = "100%", it.style.display = "flex", it.style.flexDirection = "column", it.style.overflow = "hidden"), n.contains(it) || (Q.log("Appending galleryContainer to el"), n.appendChild(it)), Ol ? Q.log(
               "Gallery root already exists, React should handle re-render if needed"
-            ) : (H.log("Creating new gallery root"), Ol = rf(it), Ol.render(
+            ) : (Q.log("Creating new gallery root"), Ol = rf(it), Ol.render(
               Jt.createElement(
                 Qg,
                 null,
