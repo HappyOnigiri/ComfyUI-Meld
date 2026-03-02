@@ -68,29 +68,28 @@ export const imagesReducer: GallerySubReducer = (state, action) => {
 		}
 		case "SET_IMAGES": {
 			const { images, total, offset } = action.payload;
+			const dedupedImages = dedupeImagesById(images);
 			return {
 				...state,
-				images,
+				images: dedupedImages,
 				isLoading: false,
 				error: null,
 				pagination: {
 					total,
 					offset,
 					limit: state.pagination.limit,
-					hasMore: offset + images.length < total,
+					hasMore: offset + dedupedImages.length < total,
 				},
 			};
 		}
 		case "APPEND_IMAGES": {
 			const { images, total, offset } = action.payload;
 			const combinedImages = [...state.images, ...images];
-			const uniqueImages = Array.from(
-				new Map(combinedImages.map((img) => [img.id, img])).values(),
-			);
+			const dedupedImages = dedupeImagesById(combinedImages);
 
 			return {
 				...state,
-				images: uniqueImages,
+				images: dedupedImages,
 				isLoading: false,
 				error: null,
 				pagination: {
