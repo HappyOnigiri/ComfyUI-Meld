@@ -97,6 +97,22 @@
 	padding-bottom: 6px;
 }
 
+/*
+Raise the virtualized row while a card menu is open.
+Each virtual row uses transform-based positioning and becomes a stacking context,
+so without this the menu can render behind neighboring rows.
+*/
+.meld-gallery__virtual-row:has(.meld-image-card--menu-open),
+.meld-gallery__virtual-grid-row:has(.meld-image-card--menu-open) {
+	z-index: var(--meld-z-dropdown);
+}
+
+/* Fallback for environments without :has() support. */
+.meld-gallery__virtual-row:focus-within,
+.meld-gallery__virtual-grid-row:focus-within {
+	z-index: var(--meld-z-dropdown);
+}
+
 .meld-gallery__list--virtualized {
 	margin-top: 10px;
 }
