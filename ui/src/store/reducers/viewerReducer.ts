@@ -1,6 +1,7 @@
 import { useLightTableStore } from "../../features/light-table/store";
 import type { MeldImage } from "../../types";
 import type { GallerySubReducer } from "./types";
+import { resolveInitialMaskMode } from "./viewerModalHelpers";
 
 function getCurrentViewerList(
 	state: Parameters<GallerySubReducer>[0],
@@ -68,14 +69,7 @@ export const viewerReducer: GallerySubReducer = (state, action) => {
 				typeof payload !== "number" && payload.mode === "lighttable"
 					? payload.slotId
 					: null;
-			let initialMaskMode: "apply" | "run" | false = false;
-			if (typeof payload !== "number" && payload.initialMaskMode) {
-				if (typeof payload.initialMaskMode === "string") {
-					initialMaskMode = payload.initialMaskMode as "apply" | "run";
-				} else {
-					initialMaskMode = "run";
-				}
-			}
+			const initialMaskMode = resolveInitialMaskMode(payload);
 
 			if (initialMaskMode) {
 				return state;

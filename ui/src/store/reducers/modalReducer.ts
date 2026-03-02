@@ -1,4 +1,5 @@
 import type { GallerySubReducer } from "./types";
+import { resolveInitialMaskMode } from "./viewerModalHelpers";
 
 export const modalReducer: GallerySubReducer = (state, action) => {
 	switch (action.type) {
@@ -14,14 +15,7 @@ export const modalReducer: GallerySubReducer = (state, action) => {
 			};
 		case "OPEN_VIEWER": {
 			const payload = action.payload;
-			let initialMaskMode: "apply" | "run" | false = false;
-			if (typeof payload !== "number" && payload.initialMaskMode) {
-				if (typeof payload.initialMaskMode === "string") {
-					initialMaskMode = payload.initialMaskMode as "apply" | "run";
-				} else {
-					initialMaskMode = "run";
-				}
-			}
+			const initialMaskMode = resolveInitialMaskMode(payload);
 			if (!initialMaskMode) {
 				return state;
 			}
