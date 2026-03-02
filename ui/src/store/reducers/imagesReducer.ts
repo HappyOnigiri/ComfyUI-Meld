@@ -1,0 +1,110 @@
+import type { GallerySubReducer } from "./types";
+
+export const imagesReducer: GallerySubReducer = (state, action) => {
+	switch (action.type) {
+		case "SET_FAVORITES":
+			return {
+				...state,
+				favorites: action.payload,
+			};
+		case "REMOVE_IMAGES": {
+			const idsToRemove = new Set(action.payload);
+			const newImages = state.images.filter((img) => !idsToRemove.has(img.id));
+			const newLineageImages = state.lineageImages.filter(
+				(img) => !idsToRemove.has(img.id),
+			);
+			return {
+				...state,
+				images: newImages,
+				lineageImages: newLineageImages,
+				pagination: {
+					...state.pagination,
+					total: Math.max(0, state.pagination.total - action.payload.length),
+				},
+			};
+		}
+		case "ADD_IMAGES": {
+			const imagesToAdd = action.payload;
+			const newImages = [...state.images, ...imagesToAdd];
+			const uniqueImages = Array.from(
+				new Map(newImages.map((img) => [img.id, img])).values(),
+			).sort((a, b) => b.created_at - a.created_at);
+
+			return {
+				...state,
+				images: uniqueImages,
+				pagination: {
+					...state.pagination,
+					total: state.pagination.total + imagesToAdd.length,
+				},
+			};
+		}
+		case "UPDATE_IMAGE": {
+			const updatedImage = action.payload;
+			const newImages = state.images.map((img) =>
+				img.id === updatedImage.id ? updatedImage : img,
+			);
+			const newLineageImages = state.lineageImages.map((img) =>
+				img.id === updatedImage.id ? updatedImage : img,
+			);
+			return {
+				...state,
+				images: newImages,
+				lineageImages: newLineageImages,
+			};
+		}
+		case "SET_IMAGES": {
+			const { images, total, offset } = action.payload;
+			return {
+				...state,
+				images,
+				isLoading: false,
+				error: null,
+				pagination: {
+					total,
+					offset,
+					limit: state.pagination.limit,
+					hasMore: offset + images.length < total,
+				},
+			};
+		}
+		case "APPEND_IMAGES": {
+			const { images, total, offset } = action.payload;
+			const combinedImages = [...state.images, ...images];
+			const uniqueImages = Array.from(
+				new Map(combinedImages.map((img) => [img.id, img])).values(),
+			);
+
+			return {
+				...state,
+				images: uniqueImages,
+				isLoading: false,
+				error: null,
+				pagination: {
+					...state.pagination,
+					total,
+					offset,
+					hasMore: offset + images.length < total,
+				},
+			};
+		}
+		case "SET_LINEAGE":
+			return {
+				...state,
+				lineageImages: [...action.payload].reverse(),
+			};
+		case "SET_LOADING":
+			return {
+				...state,
+				isLoading: action.payload,
+			};
+		case "SET_ERROR":
+			return {
+				...state,
+				error: action.payload,
+				isLoading: false,
+			};
+		default:
+			return state;
+	}
+};
