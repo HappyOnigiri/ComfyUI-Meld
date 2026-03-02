@@ -86,7 +86,11 @@ export const useViewerActionsBridge = ({
 					return;
 				}
 
-				if (currentThumbnails.length > idsToDelete.size) {
+				const inViewDeleteCount = currentThumbnails.filter((thumb) =>
+					idsToDelete.has(thumb.id),
+				).length;
+
+				if (currentThumbnails.length > inViewDeleteCount) {
 					let found = false;
 					for (let i = currentIndex + 1; i < currentThumbnails.length; i++) {
 						if (!idsToDelete.has(currentThumbnails[i].id)) {
@@ -413,8 +417,12 @@ export const useViewerActionsBridge = ({
 						removeTags: [...addTags],
 					});
 					setLastDeletedImages(null);
-				} catch (err) {
+				} catch (err: unknown) {
 					console.error("Failed to update tags via shortcut:", err);
+					dispatch({
+						type: "SET_ERROR",
+						payload: err instanceof Error ? err.message : String(err),
+					});
 				}
 			}
 

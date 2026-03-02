@@ -42,7 +42,10 @@ export const useViewerKeyboardShortcuts = ({
 }: UseViewerKeyboardShortcutsParams) => {
 	const onKeyDown = useCallback(
 		(e: KeyboardEvent) => {
-			const target = e.target as HTMLElement;
+			if (!(e.target instanceof HTMLElement)) {
+				return;
+			}
+			const target = e.target;
 			const isTargetInput =
 				target.tagName === "INPUT" ||
 				target.tagName === "TEXTAREA" ||
