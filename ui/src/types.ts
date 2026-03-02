@@ -262,8 +262,14 @@ export type GalleryAction =
 				  };
 	  }
 	| { type: "CLOSE_VIEWER" }
-	| { type: "NEXT_IMAGE"; payload?: { isFullscreen: boolean } }
-	| { type: "PREVIOUS_IMAGE"; payload?: { isFullscreen: boolean } }
+	| {
+			type: "NEXT_IMAGE";
+			payload?: { isFullscreen: boolean; currentList?: MeldImage[] };
+	  }
+	| {
+			type: "PREVIOUS_IMAGE";
+			payload?: { isFullscreen: boolean; currentList?: MeldImage[] };
+	  }
 	| { type: "OPEN_MODAL"; payload: ActiveModal }
 	| { type: "CLOSE_MODAL" }
 	| { type: "SET_SCAN_STATUS"; payload: Partial<ScanStatus> }

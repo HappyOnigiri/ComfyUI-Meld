@@ -1,6 +1,11 @@
 import type React from "react";
 import { useCallback } from "react";
-import type { GalleryAction, GalleryState, Settings } from "../../../../types";
+import type {
+	GalleryAction,
+	GalleryState,
+	MeldImage,
+	Settings,
+} from "../../../../types";
 import * as imagesApi from "../../../images/api/imagesApi";
 import type { ViewerMountRefs } from "./types";
 
@@ -8,6 +13,7 @@ interface UseViewerNavigationParams {
 	dispatch: React.Dispatch<GalleryAction>;
 	isFullscreen: boolean;
 	settings: Settings;
+	currentThumbnails: MeldImage[];
 	currentIndex: number;
 	viewerMode: GalleryState["viewerMode"];
 	pagination: GalleryState["pagination"];
@@ -21,6 +27,7 @@ export const useViewerNavigation = ({
 	dispatch,
 	isFullscreen,
 	settings,
+	currentThumbnails,
 	currentIndex,
 	viewerMode,
 	pagination,
@@ -29,9 +36,15 @@ export const useViewerNavigation = ({
 	setIsJumping,
 	mountRefs,
 }: UseViewerNavigationParams) => {
+	const currentListPayload =
+		viewerMode === "lighttable" ? currentThumbnails : undefined;
+
 	const handleNext = useCallback(() => {
-		dispatch({ type: "NEXT_IMAGE", payload: { isFullscreen } });
-	}, [dispatch, isFullscreen]);
+		dispatch({
+			type: "NEXT_IMAGE",
+			payload: { isFullscreen, currentList: currentListPayload },
+		});
+	}, [currentListPayload, dispatch, isFullscreen]);
 
 	const handlePrevious = useCallback(async () => {
 		const loopEnabled = isFullscreen
@@ -74,9 +87,13 @@ export const useViewerNavigation = ({
 				setIsJumping(false);
 			}
 		} else {
-			dispatch({ type: "PREVIOUS_IMAGE", payload: { isFullscreen } });
+			dispatch({
+				type: "PREVIOUS_IMAGE",
+				payload: { isFullscreen, currentList: currentListPayload },
+			});
 		}
 	}, [
+		currentListPayload,
 		currentIndex,
 		dispatch,
 		isFullscreen,
