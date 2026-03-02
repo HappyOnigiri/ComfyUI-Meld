@@ -91,6 +91,7 @@
 	color: var(--meld-text-secondary);
 	/* Used by SVG icons to create a background-colored halo. */
 	--meld-icon-halo: var(--meld-card-content-bg);
+
 	width: 24px;
 	height: 24px;
 	border-radius: 4px;
@@ -300,7 +301,7 @@
 }
 
 .meld-image-card__notes-preview {
-	word-break: break-word;
+	overflow-wrap: anywhere;
 	line-height: 1.4;
 }
 

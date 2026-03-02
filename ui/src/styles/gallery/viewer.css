@@ -160,19 +160,6 @@
 	height: 100%;
 }
 
-.meld-viewer-content--fullscreen .meld-viewer-image {
-	max-height: 100%;
-	box-shadow: none;
-}
-
-.meld-viewer-content--fullscreen .meld-viewer-nav {
-	background: var(--comfy-menu-bg, rgba(0, 0, 0, 0.3));
-}
-
-.meld-viewer-content--fullscreen .meld-viewer-nav:hover {
-	background: var(--comfy-input-bg-active, rgba(68, 136, 255, 0.5));
-}
-
 .meld-viewer-nav {
 	position: absolute;
 	bottom: 15px;
@@ -219,6 +206,7 @@
 }
 
 .meld-viewer-content--fullscreen .meld-viewer-nav:hover {
+	background: var(--comfy-input-bg-active, rgba(68, 136, 255, 0.5));
 	transform: scale(1.05);
 }
 
