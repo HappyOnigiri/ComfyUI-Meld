@@ -15,6 +15,7 @@ Execute the following steps systematically:
 
 1.  **Examine Diffs:** Run `git status` and `git diff` to thoroughly review all changes, including untracked files, modifications, and deletions.
     - If there are no changes, report this to the user and terminate the process.
+    - **Note on Build Artifacts**: Do NOT attempt to read or analyze the content of build artifacts (e.g., files in `web/` or those listed in `.cursorignore`). If they are modified alongside their source files, assume they are updated correctly by the build process and stage them without inspection.
 2.  **CI Check:** Run `make ci` to check for any errors.
     - If errors occur, analyze them and fix them before proceeding.
 3.  **Determine Commit Units:** Analyze the changes and group related modifications into logical units (Atomic Commits).
