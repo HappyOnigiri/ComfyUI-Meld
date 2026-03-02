@@ -29,6 +29,7 @@ export const uploadImage = async (file: File): Promise<UploadImageResponse> => {
 		body: formData,
 	});
 
+	// /upload/image returns raw JSON (not ApiResponse-wrapped), so bypass unified parsing here.
 	const data = await parseJsonResponse<unknown>(res);
 	if (!isUploadImageResponse(data)) {
 		throw new Error("Invalid upload image response shape");
