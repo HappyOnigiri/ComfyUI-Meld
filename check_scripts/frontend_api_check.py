@@ -21,9 +21,18 @@ def get_files_to_check() -> list[str]:
         for p in base.rglob(ext):
             if p.name.endswith(".d.ts"):
                 continue
+            # Skip test files and mocks
+            posix = str(p).replace("\\", "/")
+            if (
+                "/test/" in posix
+                or "/__mocks__/" in posix
+                or p.name.endswith(".test.ts")
+                or p.name.endswith(".test.tsx")
+            ):
+                continue
             text = p.read_text(encoding="utf-8", errors="replace")
             if "api.fetchApi" in text or (".json()" in text and "api" in text):
-                files.append(str(p).replace("\\", "/"))
+                files.append(posix)
     return sorted(set(files))
 
 

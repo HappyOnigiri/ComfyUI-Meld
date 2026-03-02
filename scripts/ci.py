@@ -24,6 +24,7 @@ TASKS = [
     ("Check-Scripts", "make --no-print-directory check-scripts"),
     ("Local-Check-Scripts", "make --no-print-directory local-check-scripts"),
     ("Python-Tests", f"{sys.executable} -m unittest discover tests"),
+    ("UI-Tests", "npm --prefix ui run test"),
     ("Build-UI", "npm --prefix ui run build"),
 ]
 
