@@ -14,14 +14,27 @@ import os
 import re
 import sys
 
-# Matches: from "X" or import "X" where X contains scripts/api.js or scripts/app.js
-# Captures the import path (group 1)
-PATTERN = re.compile(r'(?:from|import)\s+[\'"]([^\'"]*scripts/(?:api|app)\.js)[\'"]')
+# Matches canonical ComfyUI script imports only:
+# - static: from "/scripts/api.js" / import "/scripts/app.js"
+# - dynamic: import("/scripts/api.js") / import("/scripts/app.js")
+# Captures the import path in group "specifier".
+PATTERN = re.compile(
+    r"""
+    (?:
+        (?:from|import)\s+['"](?P<static>/scripts/(?:api|app)\.js)['"]
+        |
+        import\(\s*['"](?P<dynamic>/scripts/(?:api|app)\.js)['"]\s*\)
+    )
+    """,
+    re.VERBOSE,
+)
+
+ALLOWED_SPECIFIERS = {"/scripts/api.js", "/scripts/app.js"}
 
 
 def is_relative(path: str) -> bool:
-    """Return True if path is relative (../ or ./)."""
-    return path.startswith("..") or path.startswith("./")
+    """Return True when specifier does not use absolute-leading slash."""
+    return not path.startswith("/")
 
 
 def check_file(filepath: str) -> tuple[list[tuple[int, str, str]], bool]:
@@ -31,14 +44,49 @@ def check_file(filepath: str) -> tuple[list[tuple[int, str, str]], bool]:
     try:
         with open(filepath, encoding="utf-8") as f:
             for i, line in enumerate(f, 1):
-                for match in PATTERN.finditer(line):
-                    path = match.group(1)
-                    if is_relative(path):
+                # Static import forms: from "..." / import "..."
+                for static_match in re.finditer(r'(?:from|import)\s+[\'"]([^\'"]+)[\'"]', line):
+                    specifier = static_match.group(1)
+                    if "scripts/" not in specifier:
+                        continue
+                    if is_relative(specifier):
                         errors.append(
                             (
                                 i,
                                 line.strip(),
-                                f'Use absolute path "/scripts/..." instead of relative "{path}"',
+                                f'Use absolute path "/scripts/..." instead of "{specifier}"',
+                            )
+                        )
+                        continue
+                    if specifier not in ALLOWED_SPECIFIERS:
+                        errors.append(
+                            (
+                                i,
+                                line.strip(),
+                                f'Only "/scripts/api.js" and "/scripts/app.js" are allowed, got "{specifier}"',
+                            )
+                        )
+
+                # Dynamic import form: import("...")
+                for dynamic_match in re.finditer(r'import\(\s*[\'"]([^\'"]+)[\'"]\s*\)', line):
+                    specifier = dynamic_match.group(1)
+                    if "scripts/" not in specifier:
+                        continue
+                    if is_relative(specifier):
+                        errors.append(
+                            (
+                                i,
+                                line.strip(),
+                                f'Use absolute path "/scripts/..." instead of "{specifier}"',
+                            )
+                        )
+                        continue
+                    if specifier not in ALLOWED_SPECIFIERS:
+                        errors.append(
+                            (
+                                i,
+                                line.strip(),
+                                f'Only "/scripts/api.js" and "/scripts/app.js" are allowed, got "{specifier}"',
                             )
                         )
     except Exception as e:
