@@ -70,10 +70,11 @@ export const useViewerActionsBridge = ({
 			try {
 				const isPermanent = state.viewScope === "trash";
 				const idsToDelete = new Set<number>([image.id]);
+				let lineageToDelete: MeldImage[] = [];
 
 				if (deleteMode === "lineage") {
-					const lineage = await imagesApi.fetchLineage(image.id);
-					for (const lineageImage of lineage) {
+					lineageToDelete = await imagesApi.fetchLineage(image.id);
+					for (const lineageImage of lineageToDelete) {
 						idsToDelete.add(lineageImage.id);
 					}
 				}
@@ -137,9 +138,33 @@ export const useViewerActionsBridge = ({
 					isPermanent,
 				);
 				if (!isPermanent) {
-					const deletedImages = currentThumbnails.filter((thumb) =>
-						idsToDelete.has(thumb.id),
-					);
+					const candidates = [
+						...currentThumbnails,
+						...lineageToDelete,
+						...lineageImages,
+						...images,
+					];
+					const byId = new Map<number, MeldImage>();
+					for (const candidate of candidates) {
+						byId.set(candidate.id, candidate);
+					}
+					const deletedImages = Array.from(idsToDelete).map((id) => {
+						const found = byId.get(id);
+						if (found) {
+							return found;
+						}
+						// Keep undo coverage complete even if metadata is not available locally.
+						return {
+							id,
+							filename: `deleted_${id}`,
+							subfolder: "",
+							type: "custom",
+							created_at: 0,
+							positive: "",
+							negative: "",
+							tags: [],
+						} satisfies MeldImage;
+					});
 					setLastDeletedImages(deletedImages);
 					setLastShortcutAction(null);
 				}
@@ -156,7 +181,9 @@ export const useViewerActionsBridge = ({
 			currentThumbnails,
 			dispatch,
 			image,
+			images,
 			isFullscreen,
+			lineageImages,
 			mountRefs,
 			state.settings,
 			state.viewScope,
@@ -253,7 +280,13 @@ export const useViewerActionsBridge = ({
 
 				dispatch({
 					type: "OPEN_VIEWER",
-					payload: { id: imageId, mode: viewerMode },
+					payload: {
+						id: imageId,
+						mode: viewerMode,
+						...(viewerMode === "lighttable" && state.viewerLightTableSlotId
+							? { slotId: state.viewerLightTableSlotId }
+							: {}),
+					},
 				});
 			}
 			setLastShortcutAction(null);
@@ -270,6 +303,7 @@ export const useViewerActionsBridge = ({
 		lastDeletedImages,
 		lastShortcutAction,
 		lineageImages,
+		state.viewerLightTableSlotId,
 		viewerMode,
 	]);
 
@@ -326,7 +360,14 @@ export const useViewerActionsBridge = ({
 							if (nextTargetId !== null) {
 								dispatch({
 									type: "OPEN_VIEWER",
-									payload: { id: nextTargetId, mode: viewerMode },
+									payload: {
+										id: nextTargetId,
+										mode: viewerMode,
+										...(viewerMode === "lighttable" &&
+										state.viewerLightTableSlotId
+											? { slotId: state.viewerLightTableSlotId }
+											: {}),
+									},
 								});
 							} else {
 								dispatch({ type: "CLOSE_VIEWER" });
@@ -393,6 +434,7 @@ export const useViewerActionsBridge = ({
 			handleNext,
 			handlePrevious,
 			image,
+			state.viewerLightTableSlotId,
 			viewerMode,
 		],
 	);
