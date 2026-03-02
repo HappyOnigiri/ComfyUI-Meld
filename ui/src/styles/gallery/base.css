@@ -418,11 +418,19 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	margin: 0;
 	cursor: pointer;
 	transition: all 0.2s ease;
-	outline: none;
 }
 
 .meld-lineage-badge__parent-thumb:hover {
 	border-color: var(--meld-accent-color);
+	transform: scale(1.15);
+	z-index: 1;
+	box-shadow: 0 2px 8px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.4));
+}
+
+.meld-lineage-badge__parent-thumb:focus-visible {
+	outline: 2px solid var(--comfy-focus, var(--meld-accent-color, #4488ff));
+	outline-offset: 2px;
+	border-color: var(--meld-accent-color, #4488ff);
 	transform: scale(1.15);
 	z-index: 1;
 	box-shadow: 0 2px 8px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.4));
@@ -1391,7 +1399,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	padding: 4px 8px;
 	font-size: 13px;
 	background: var(--comfy-input-bg);
-	color: var(--comfy-input-fg);
+	color: var(--comfy-input-fg, var(--meld-text-color, #eee));
 	border: 1px solid var(--meld-accent-color);
 	border-radius: 4px;
 	outline: none;
@@ -1491,8 +1499,8 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 }
 
 .meld-tag-suggestion-item {
-	background: var(--input-surface);
-	border: 1px solid var(--border-subtle);
+	background: var(--input-surface, var(--comfy-input-bg, #1a1a1a));
+	border: 1px solid var(--border-subtle, var(--comfy-menu-border, #333));
 	color: var(--meld-text-secondary);
 	padding: 4px 10px;
 	border-radius: 4px;
@@ -1783,13 +1791,17 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 .meld-workflow-item--expanded {
 	border-bottom-left-radius: 0;
 	border-bottom-right-radius: 0;
-	border-bottom: 1px solid var(--meld-border-color);
-	background-color: var(--meld-bg-secondary);
+	border-bottom: 1px solid
+		var(--meld-border-color, var(--comfy-menu-border, #444));
+	background-color: var(
+		--meld-bg-secondary,
+		var(--comfy-input-bg, rgba(255, 255, 255, 0.05))
+	);
 }
 
 .meld-workflow-item-container {
 	margin-bottom: 8px;
-	border: 1px solid var(--meld-border-color);
+	border: 1px solid var(--meld-border-color, var(--comfy-menu-border, #444));
 	border-radius: 8px;
 	overflow: visible;
 	display: flex;
@@ -1803,7 +1815,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 }
 
 .meld-workflow-node-picker {
-	background-color: var(--meld-bg-primary);
+	background-color: var(--meld-bg-primary, var(--comfy-menu-bg, #222));
 	padding: 12px;
 	border-top: none;
 }
@@ -1835,8 +1847,11 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	align-items: center;
 	justify-content: space-between;
 	padding: 8px 12px;
-	background-color: var(--meld-bg-secondary);
-	border: 1px solid var(--meld-border-color);
+	background-color: var(
+		--meld-bg-secondary,
+		var(--comfy-input-bg, rgba(255, 255, 255, 0.05))
+	);
+	border: 1px solid var(--meld-border-color, var(--comfy-menu-border, #444));
 	border-radius: 6px;
 	cursor: pointer;
 	transition: all 0.2s;
@@ -1845,8 +1860,14 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 }
 
 .meld-workflow-node-item:hover:not(:disabled) {
-	background-color: var(--meld-bg-hover);
-	border-color: var(--meld-accent-color);
+	background-color: var(
+		--meld-bg-hover,
+		var(--comfy-input-bg-active, rgba(255, 255, 255, 0.1))
+	);
+	border-color: var(
+		--meld-accent-color,
+		var(--comfy-input-text-active, #4488ff)
+	);
 }
 
 .meld-workflow-node-item:disabled {
@@ -1863,7 +1884,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 .meld-workflow-node-item__title {
 	font-size: 13px;
 	font-weight: 500;
-	color: var(--meld-text-primary);
+	color: var(--meld-text-primary, var(--meld-text-color, #eee));
 }
 
 .meld-workflow-node-item__id {
@@ -1964,7 +1985,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: var(--base-background);
+	background: var(--base-background, var(--comfy-menu-bg, #222));
 	border-radius: 4px;
 	overflow: hidden;
 }

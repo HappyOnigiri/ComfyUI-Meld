@@ -52,8 +52,11 @@
 	box-shadow: 0 0 20px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.5));
 	flex-shrink: 1;
 	transition: max-height 0.2s ease-out;
-	will-change: transform, max-height;
 	transform: translateZ(0);
+}
+
+.meld-viewer-image--interacting {
+	will-change: transform, max-height;
 }
 
 .meld-viewer-image--fit {
@@ -107,6 +110,11 @@
 	background: var(--comfy-input-bg-active, rgba(68, 136, 255, 0.7));
 	transform: scale(1.1);
 	border-color: var(--comfy-menu-border, rgba(255, 255, 255, 0.3));
+}
+
+.meld-viewer-action-btn:focus-visible {
+	outline: 2px solid var(--comfy-focus, var(--meld-accent-color));
+	outline-offset: 2px;
 }
 
 .meld-viewer-action-btn--active {
@@ -183,6 +191,11 @@
 .meld-viewer-nav:hover {
 	background: var(--comfy-input-bg-active, rgba(68, 136, 255, 0.7));
 	transform: scale(1.05);
+}
+
+.meld-viewer-nav:focus-visible {
+	outline: 2px solid var(--comfy-focus, var(--meld-accent-color));
+	outline-offset: 2px;
 }
 
 .meld-viewer-nav--prev {
@@ -390,6 +403,12 @@
 
 .meld-viewer-thumbnail:hover {
 	border-color: var(--comfy-menu-border);
+}
+
+.meld-viewer-thumbnail:focus-visible {
+	outline: 2px solid var(--comfy-focus, var(--meld-accent-color));
+	outline-offset: 2px;
+	border-color: var(--comfy-focus, var(--meld-accent-color));
 }
 
 .meld-viewer-thumbnail--active {
