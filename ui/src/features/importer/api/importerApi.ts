@@ -1,10 +1,26 @@
 // @ts-expect-error
 import { api } from "/scripts/api.js";
-import { handleResponse } from "../../../api";
+import { handleResponse, parseJsonResponse } from "../../../api";
 
-export const uploadImage = async (
-	file: File,
-): Promise<{ name: string; subfolder: string; type: string }> => {
+export type UploadImageResponse = {
+	name: string;
+	subfolder: string;
+	type: string;
+};
+
+const isUploadImageResponse = (obj: unknown): obj is UploadImageResponse => {
+	if (typeof obj !== "object" || obj === null) {
+		return false;
+	}
+	const value = obj as Record<string, unknown>;
+	return (
+		typeof value.name === "string" &&
+		typeof value.subfolder === "string" &&
+		typeof value.type === "string"
+	);
+};
+
+export const uploadImage = async (file: File): Promise<UploadImageResponse> => {
 	const formData = new FormData();
 	formData.append("image", file);
 
@@ -13,11 +29,12 @@ export const uploadImage = async (
 		body: formData,
 	});
 
-	if (!res.ok) {
-		throw new Error("Failed to upload image");
+	// /upload/image returns raw JSON (not ApiResponse-wrapped), so bypass unified parsing here.
+	const data = await parseJsonResponse<unknown>(res);
+	if (!isUploadImageResponse(data)) {
+		throw new Error("Invalid upload image response shape");
 	}
-
-	return await res.json();
+	return data;
 };
 
 export const fetchFolders = async (

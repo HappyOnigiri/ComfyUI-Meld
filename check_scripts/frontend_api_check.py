@@ -3,14 +3,10 @@ import os
 import sys
 from pathlib import Path
 
-# Files/lines allowed to use .json() without handleResponse (e.g. upload returns different format)
-UPLOAD_JSON_EXCEPTIONS = {
-    "ui/src/features/importer/api/importerApi.ts",
-    "ui/src/features/mask-editor/components/MaskEditorModal.tsx",
-}
-
-# Endpoints returning blob or non-JSON formats
-BLOB_ENDPOINTS = ("download", "/prompt", "/upload/image")
+# Endpoints returning binary (blob) instead of JSON. These cannot use handleResponse
+# or parseJsonResponse. Add path segment or exact path that matches api.fetchApi URL.
+# - "download": matches /meld/api/download/zip, /meld/api/download/raw (ZIP/image binary)
+BLOB_ENDPOINTS = ("download",)
 
 
 def get_files_to_check() -> list[str]:
@@ -52,30 +48,30 @@ def check_frontend_api_usage() -> int:
             if "frontend-api-check-ignore" in line:
                 continue
 
-            # Exclude handleResponse definition itself
-            if "handleResponse" in line and "export" in line:
-                # regex to match: export (const|let|var|function|default) ... handleResponse
+            # Exclude handleResponse/parseJsonResponse definition itself
+            if "export" in line:
                 import re
 
                 if re.search(r"\bexport\s+(const|let|var|function|default|type)\b.*\bhandleResponse\b", line):
                     continue
+                if re.search(r"\bexport\s+(const|let|var|function|default|type)\b.*\bparseJsonResponse\b", line):
+                    continue
 
             # Rule 1: Check .json() usage
             if ".json()" in line:
-                # In ui/src/api.ts, .json() is allowed as it's the implementation of handleResponse
+                # In ui/src/api.ts, .json() is allowed (implementation of handleResponse/parseJsonResponse)
                 if file_path.endswith("ui/src/api.ts"):
                     continue
 
-                if file_path in UPLOAD_JSON_EXCEPTIONS:
-                    continue
+                errors.append(
+                    f"{file_path}:{i + 1}: Forbidden direct .json() call. Use handleResponse(res) or parseJsonResponse(res) instead."
+                )
 
-                errors.append(f"{file_path}:{i + 1}: Forbidden direct .json() call. Use handleResponse(res) instead.")
-
-            # Rule 2: If api.fetchApi is used, handleResponse should likely be used
+            # Rule 2: If api.fetchApi is used, handleResponse or parseJsonResponse should be used
             if "api.fetchApi" in line:
                 found_handle = False
                 for j in range(i, min(i + 15, len(lines))):
-                    if "handleResponse" in lines[j]:
+                    if "handleResponse" in lines[j] or "parseJsonResponse" in lines[j]:
                         found_handle = True
                         break
 
@@ -98,11 +94,11 @@ def check_frontend_api_usage() -> int:
                     )
                     if is_meld:
                         errors.append(
-                            f"{file_path}:{i + 1}: api.fetchApi call to /meld/ should be wrapped with handleResponse(res)."
+                            f"{file_path}:{i + 1}: api.fetchApi call to /meld/ should use handleResponse(res) or parseJsonResponse(res)."
                         )
                     else:
                         errors.append(
-                            f"{file_path}:{i + 1}: api.fetchApi call should be wrapped with handleResponse, or added to exceptions."
+                            f"{file_path}:{i + 1}: api.fetchApi call should use handleResponse or parseJsonResponse, or add to BLOB_ENDPOINTS if binary."
                         )
 
     if errors:

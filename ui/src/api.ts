@@ -38,6 +38,48 @@ export async function handleResponse<T>(res: Response): Promise<T> {
 	return result.data as T;
 }
 
+const isObjectRecord = (value: unknown): value is Record<string, unknown> =>
+	typeof value === "object" && value !== null;
+
+const extractMessage = (value: unknown): string | undefined => {
+	if (typeof value === "string") {
+		return value;
+	}
+	if (isObjectRecord(value) && typeof value.message === "string") {
+		return value.message;
+	}
+	return undefined;
+};
+
+/**
+ * Helper for endpoints that return raw JSON (not ApiResponse format).
+ * Use for ComfyUI core endpoints like /upload/image, /prompt.
+ */
+export async function parseJsonResponse<T>(res: Response): Promise<T> {
+	let data: unknown;
+	try {
+		data = await res.json();
+	} catch (_e) {
+		if (!res.ok) {
+			throw new Error(`${res.status} ${res.statusText}`);
+		}
+		throw new Error("Failed to parse JSON response");
+	}
+
+	if (!res.ok) {
+		let msg = `${res.status} ${res.statusText}`;
+		if (isObjectRecord(data)) {
+			const err = "error" in data ? data.error : undefined;
+			const errMsg = extractMessage(err);
+			const message =
+				"message" in data ? extractMessage(data.message) : undefined;
+			msg = errMsg ?? message ?? msg;
+		}
+		throw new Error(msg);
+	}
+	return data as T;
+}
+
 export const fetchHomeDir = async (): Promise<string> => {
 	const res = await api.fetchApi("/meld/home-dir");
 	const data = await handleResponse<{ home: string }>(res);

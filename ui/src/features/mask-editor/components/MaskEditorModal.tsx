@@ -14,6 +14,7 @@ import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 // @ts-expect-error: ComfyUI scripts are not available in build time
 import { api } from "/scripts/api.js";
+import { parseJsonResponse } from "../../../api";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { useGallery } from "../../../store/GalleryContext";
 import type { MeldImage } from "../../../types";
@@ -722,11 +723,8 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 				body: formData,
 			});
 
-			if (response.ok) {
-				const data = await response.json();
-				return data.name;
-			}
-			return null;
+			const data = await parseJsonResponse<{ name?: string }>(response);
+			return data.name ?? null;
 		} catch (error) {
 			console.error("[Meld] Error uploading mask:", error);
 			return null;
