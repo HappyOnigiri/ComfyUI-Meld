@@ -22,6 +22,7 @@ export const initLogger = (devMode: boolean) => {
 
 /**
  * Log message if dev mode is enabled (Investigation logs).
+ * Public contract: callers must not prepend "[Meld]" because this logger adds it.
  */
 export const log = (...args: unknown[]) => {
 	if (isDevMode) {

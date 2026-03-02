@@ -8394,14 +8394,14 @@ const se = ay()(
 }, pi = () => ({ executeWorkflow: h.useCallback(
   async (t, n, r, l) => {
     var S, w, x, _, f, u, p;
-    H.log("[Meld] executeWorkflow called:", {
+    H.log("executeWorkflow called:", {
       workflowName: t,
       imageId: n.id,
       maskFilename: r,
       targetLoaderNodeId: l
     });
     const a = await Sf(t);
-    H.log("[Meld] Workflow fetched:", t);
+    H.log("Workflow fetched:", t);
     let o = l || null, i = null, c = !1;
     const d = (g) => {
       if (!g) return !1;
@@ -8437,7 +8437,7 @@ const se = ay()(
           break;
         }
     }
-    if (H.log("[Meld] Node IDs found:", {
+    if (H.log("Node IDs found:", {
       loaderNodeId: o,
       maskNodeId: i,
       isUIFormat: c
@@ -8465,13 +8465,13 @@ const se = ay()(
       }
       k || await g.loadGraphData(a, !0, !0, t), await new Promise((R) => setTimeout(R, 200));
       const M = g.graph._nodes;
-      H.log("[Meld] Active graph nodes count:", M.length);
+      H.log("Active graph nodes count:", M.length);
       const P = M.find(
         (R) => String(R.id) === o || d(R.type)
       );
       if (P) {
         const R = (_ = P.widgets) == null ? void 0 : _.find((I) => I.name === "image");
-        H.log("[Meld] Updating loader node widget:", {
+        H.log("Updating loader node widget:", {
           nodeId: P.id,
           type: P.type,
           imagePath: m
@@ -8487,7 +8487,7 @@ const se = ay()(
             return String(I.id) === i || ((A = I.type) == null ? void 0 : A.replace(/\s+/g, "")) === "LoadImageMask";
           }
         );
-        if (H.log("[Meld] Updating mask node widget:", {
+        if (H.log("Updating mask node widget:", {
           nodeId: R == null ? void 0 : R.id,
           maskFilename: r
         }), R) {
@@ -11657,12 +11657,12 @@ const Of = [
   ), v = h.useCallback(
     async (x, _ = "run") => {
       var u;
-      H.log("[Meld] handleRunWithMask called", x, _);
+      H.log("handleRunWithMask called", x, _);
       const f = Array.isArray(x) ? x : [x];
       if (_ === "apply") {
         const p = window.app, g = ((u = p == null ? void 0 : p.graph) == null ? void 0 : u._nodes) || [];
         H.log(
-          "[Meld] Current graph nodes:",
+          "Current graph nodes:",
           g.map((b) => ({
             id: b.id,
             type: b.type
@@ -11673,7 +11673,7 @@ const Of = [
         ), k = g.some(
           (b) => b.type === "MeldImageLoader" || b.type === "LoadImage" || b.type === "Load Image"
         );
-        if (H.log("[Meld] Nodes found:", { hasMaskNode: j, hasLoaderNode: k }), !j || !k) {
+        if (H.log("Nodes found:", { hasMaskNode: j, hasLoaderNode: k }), !j || !k) {
           const b = [];
           k || b.push("'Meld Image Loader'"), j || b.push("'Load Image (as Mask)'"), t({
             type: "OPEN_MODAL",
@@ -12051,12 +12051,12 @@ const Of = [
         };
         if (N.nodes && Array.isArray(N.nodes)) {
           H.log(
-            "[Meld] Extracting nodes from UI format workflow",
+            "Extracting nodes from UI format workflow",
             N.nodes.length
           );
           for (const E of N.nodes)
             F(E.type) && (H.log(
-              "[Meld] Found target node (UI):",
+              "Found target node (UI):",
               E.id,
               E.type,
               E.title
@@ -12066,14 +12066,10 @@ const Of = [
               title: E.title
             }));
         } else {
-          H.log("[Meld] Extracting nodes from API format workflow");
+          H.log("Extracting nodes from API format workflow");
           for (const E in N) {
             const z = N[E];
-            z && typeof z == "object" && F(z.class_type) && (H.log(
-              "[Meld] Found target node (API):",
-              E,
-              z.class_type
-            ), T.push({
+            z && typeof z == "object" && F(z.class_type) && (H.log("Found target node (API):", E, z.class_type), T.push({
               id: E,
               type: z.class_type || ""
             }));
@@ -19311,7 +19307,7 @@ Hc.registerExtension({
             for (; r && !r.classList.contains("sidebar-content-container"); )
               r.style.height = "100%", r.style.overflow = "hidden", r = r.parentElement;
             r && (r.style.overflow = "hidden"), it || (H.log("galleryContainer not found, creating new one"), it = document.createElement("div"), it.id = "meld-gallery-container", it.style.height = "100%", it.style.width = "100%", it.style.display = "flex", it.style.flexDirection = "column", it.style.overflow = "hidden"), n.contains(it) || (H.log("Appending galleryContainer to el"), n.appendChild(it)), Ol ? H.log(
-              "[Meld] Gallery root already exists, React should handle re-render if needed"
+              "Gallery root already exists, React should handle re-render if needed"
             ) : (H.log("Creating new gallery root"), Ol = rf(it), Ol.render(
               Jt.createElement(
                 Qg,

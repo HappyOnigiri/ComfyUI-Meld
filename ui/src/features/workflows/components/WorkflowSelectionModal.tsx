@@ -178,13 +178,13 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 			if (workflow.nodes && Array.isArray(workflow.nodes)) {
 				// UI Format
 				logger.log(
-					"[Meld] Extracting nodes from UI format workflow",
+					"Extracting nodes from UI format workflow",
 					workflow.nodes.length,
 				);
 				for (const node of workflow.nodes as WorkflowNode[]) {
 					if (isTargetNode(node.type)) {
 						logger.log(
-							"[Meld] Found target node (UI):",
+							"Found target node (UI):",
 							node.id,
 							node.type,
 							node.title,
@@ -198,7 +198,7 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 				}
 			} else {
 				// API Format
-				logger.log("[Meld] Extracting nodes from API format workflow");
+				logger.log("Extracting nodes from API format workflow");
 				for (const nodeId in workflow) {
 					const node = workflow[nodeId] as WorkflowNode;
 					if (
@@ -206,11 +206,7 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 						typeof node === "object" &&
 						isTargetNode(node.class_type)
 					) {
-						logger.log(
-							"[Meld] Found target node (API):",
-							nodeId,
-							node.class_type,
-						);
+						logger.log("Found target node (API):", nodeId, node.class_type);
 						loaders.push({
 							id: nodeId,
 							type: node.class_type || "",
