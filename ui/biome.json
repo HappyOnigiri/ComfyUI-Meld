@@ -18,7 +18,13 @@
                 "noExplicitAny": "error",
                 "noCommentText": "error",
                 "noTsIgnore": "error",
-                "noArrayIndexKey": "off"
+                "noArrayIndexKey": "off",
+                "noConsole": {
+                    "level": "error",
+                    "options": {
+                        "allow": ["warn", "error"]
+                    }
+                }
             },
             "complexity": {
                 "noImportantStyles": "error"
@@ -31,7 +37,7 @@
             "correctness": {
                 "noUnusedImports": "error",
                 "noUnusedVariables": "error",
-                "useExhaustiveDependencies": "warn"
+                "useExhaustiveDependencies": "error"
             }
         }
     }

@@ -276,7 +276,7 @@ export const useImageActions = (
 
 	const handleRunWithMask = useCallback(
 		async (images: MeldImage | MeldImage[], mode: "apply" | "run" = "run") => {
-			console.log("[Meld] handleRunWithMask called", images, mode);
+			logger.log("[Meld] handleRunWithMask called", images, mode);
 			const imageArray = Array.isArray(images) ? images : [images];
 
 			if (mode === "apply") {
@@ -284,7 +284,7 @@ export const useImageActions = (
 				// @ts-expect-error
 				const comfyApp = window.app;
 				const nodes = comfyApp?.graph?._nodes || [];
-				console.log(
+				logger.log(
 					"[Meld] Current graph nodes:",
 					nodes.map((n: { id: number; type: string }) => ({
 						id: n.id,
@@ -302,7 +302,7 @@ export const useImageActions = (
 						n.type === "Load Image",
 				);
 
-				console.log("[Meld] Nodes found:", { hasMaskNode, hasLoaderNode });
+				logger.log("[Meld] Nodes found:", { hasMaskNode, hasLoaderNode });
 
 				if (!hasMaskNode || !hasLoaderNode) {
 					const missing = [];
