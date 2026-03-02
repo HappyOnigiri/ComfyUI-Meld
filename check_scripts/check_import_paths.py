@@ -24,9 +24,10 @@ def is_relative(path: str) -> bool:
     return path.startswith("..") or path.startswith("./")
 
 
-def check_file(filepath: str) -> list[tuple[int, str, str]]:
-    """Check a single file for relative ComfyUI script imports. Return list of (line, content, message)."""
+def check_file(filepath: str) -> tuple[list[tuple[int, str, str]], bool]:
+    """Check a single file and return (lint_errors, had_read_error)."""
     errors: list[tuple[int, str, str]] = []
+    had_read_error = False
     try:
         with open(filepath, encoding="utf-8") as f:
             for i, line in enumerate(f, 1):
@@ -41,8 +42,9 @@ def check_file(filepath: str) -> list[tuple[int, str, str]]:
                             )
                         )
     except Exception as e:
+        had_read_error = True
         print(f"Error reading {filepath}: {e}")
-    return errors
+    return errors, had_read_error
 
 
 def main() -> None:
@@ -52,11 +54,12 @@ def main() -> None:
 
     if not os.path.exists(search_path):
         print(f"Directory not found: {search_path}")
-        sys.exit(0)
+        sys.exit(1)
 
     print(f"Checking ComfyUI script import paths in {target_dir}...")
 
     has_errors = False
+    read_error_count = 0
     ignore_files = {"types.d.ts"}
 
     for root, _, files in os.walk(search_path):
@@ -67,7 +70,9 @@ def main() -> None:
                 continue
             filepath = os.path.join(root, file)
             rel_path = os.path.relpath(filepath, base_dir)
-            errors = check_file(filepath)
+            errors, had_read_error = check_file(filepath)
+            if had_read_error:
+                read_error_count += 1
             if errors:
                 has_errors = True
                 print(f"\n[!] Relative ComfyUI script import in {rel_path}:")
@@ -75,6 +80,9 @@ def main() -> None:
                     print(f"  Line {line_num}: {line_content}")
                     print(f"    -> {reason}")
 
+    if read_error_count > 0:
+        print(f"\nError: Failed to read {read_error_count} file(s) during import path check.")
+        sys.exit(1)
     if has_errors:
         print("\nError: Use absolute paths for ComfyUI scripts.")
         print('  Allowed:  from "/scripts/api.js" or from "/scripts/app.js"')
