@@ -1,7 +1,6 @@
 import type React from "react";
 import { useCallback, useState } from "react";
 import type { GalleryAction, GalleryState, MeldImage } from "../../../../types";
-import * as imagesApi from "../../../images/api/imagesApi";
 import { deleteImagesAndSyncLightTable } from "../../../images/hooks/deleteHelpers";
 import { useLightTableStore } from "../../../light-table/store";
 import { parseShortcutCommand } from "../../../settings/utils/shortcutGrammar";
@@ -22,6 +21,13 @@ interface UseViewerActionsBridgeParams {
 	handlePrevious: () => Promise<void>;
 	handleEditTags: (image: MeldImage) => void;
 	handleRestore: (image: MeldImage) => Promise<void>;
+	fetchLineage: (imageId: number) => Promise<MeldImage[]>;
+	restoreImages: (ids: number[]) => Promise<{ restored_ids: number[] }>;
+	bulkUpdateImageTags: (
+		imageIds: number[],
+		addTags: string[],
+		removeTags: string[],
+	) => Promise<void>;
 }
 
 interface NavigateAfterRemovalParams {
@@ -94,6 +100,9 @@ export const useViewerActionsBridge = ({
 	handlePrevious,
 	handleEditTags,
 	handleRestore,
+	fetchLineage,
+	restoreImages,
+	bulkUpdateImageTags,
 }: UseViewerActionsBridgeParams) => {
 	const [lastDeletedImages, setLastDeletedImages] = useState<
 		MeldImage[] | null
@@ -128,7 +137,7 @@ export const useViewerActionsBridge = ({
 				let lineageToDelete: MeldImage[] = [];
 
 				if (deleteMode === "lineage") {
-					lineageToDelete = await imagesApi.fetchLineage(image.id);
+					lineageToDelete = await fetchLineage(image.id);
 					for (const lineageImage of lineageToDelete) {
 						idsToDelete.add(lineageImage.id);
 					}
@@ -141,6 +150,16 @@ export const useViewerActionsBridge = ({
 					return;
 				}
 
+				await deleteImagesAndSyncLightTable(
+					Array.from(idsToDelete),
+					isPermanent,
+				);
+				if (
+					!mountRefs.isMountedRef.current ||
+					mountRefs.viewerImageIdRef.current === null
+				) {
+					return;
+				}
 				navigateAfterItemRemoval({
 					currentThumbnails,
 					currentIndex,
@@ -148,12 +167,8 @@ export const useViewerActionsBridge = ({
 					viewerMode,
 					viewerLightTableSlotId: state.viewerLightTableSlotId,
 					dispatch,
+					removeImageIds: Array.from(idsToDelete),
 				});
-
-				await deleteImagesAndSyncLightTable(
-					Array.from(idsToDelete),
-					isPermanent,
-				);
 				if (!isPermanent) {
 					const candidates = [
 						...currentThumbnails,
@@ -185,7 +200,6 @@ export const useViewerActionsBridge = ({
 					setLastDeletedImages(deletedImages);
 					setLastShortcutAction(null);
 				}
-				dispatch({ type: "REMOVE_IMAGES", payload: Array.from(idsToDelete) });
 			} catch (err: unknown) {
 				dispatch({
 					type: "SET_ERROR",
@@ -198,6 +212,7 @@ export const useViewerActionsBridge = ({
 			currentThumbnails,
 			dispatch,
 			image,
+			fetchLineage,
 			images,
 			isFullscreen,
 			lineageImages,
@@ -229,7 +244,7 @@ export const useViewerActionsBridge = ({
 		const idsToRestore = lastDeletedImages.map((img) => img.id);
 
 		try {
-			const result = await imagesApi.restoreImages(idsToRestore);
+			const result = await restoreImages(idsToRestore);
 			if (!mountRefs.isMountedRef.current) return;
 			const restoredIds = result.restored_ids || idsToRestore;
 			const restoredIdSet = new Set(restoredIds);
@@ -270,6 +285,7 @@ export const useViewerActionsBridge = ({
 		dispatch,
 		lastDeletedImages,
 		mountRefs.isMountedRef,
+		restoreImages,
 		state.viewScope,
 		state.viewerLightTableSlotId,
 		viewerMode,
@@ -286,7 +302,7 @@ export const useViewerActionsBridge = ({
 
 		const { imageId, addTags, removeTags } = lastShortcutAction;
 		try {
-			await imagesApi.bulkUpdateImageTags([imageId], addTags, removeTags);
+			await bulkUpdateImageTags([imageId], addTags, removeTags);
 
 			const targetImage = (
 				viewerMode === "lineage" ? lineageImages : images
@@ -328,6 +344,7 @@ export const useViewerActionsBridge = ({
 		lastDeletedImages,
 		lastShortcutAction,
 		lineageImages,
+		bulkUpdateImageTags,
 		state.viewerLightTableSlotId,
 		viewerMode,
 	]);
@@ -384,11 +401,7 @@ export const useViewerActionsBridge = ({
 
 			if (addTags.length > 0 || removeTags.length > 0) {
 				try {
-					await imagesApi.bulkUpdateImageTags(
-						[currentImageId],
-						addTags,
-						removeTags,
-					);
+					await bulkUpdateImageTags([currentImageId], addTags, removeTags);
 					const newTags = [...currentImageTags];
 					for (const tag of addTags) {
 						if (!newTags.includes(tag)) newTags.push(tag);
@@ -427,6 +440,7 @@ export const useViewerActionsBridge = ({
 			currentIndex,
 			currentThumbnails,
 			dispatch,
+			bulkUpdateImageTags,
 			handleDelete,
 			handleNext,
 			handlePrevious,

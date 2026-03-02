@@ -29,6 +29,8 @@ export const useImageViewerLogic = ({
 	const { viewerImageId, images, viewerMode, lineageImages, settings } = state;
 
 	const {
+		restoreImages,
+		bulkUpdateImageTags,
 		handleEditTags,
 		handleEditNotes,
 		handleRestore,
@@ -40,7 +42,7 @@ export const useImageViewerLogic = ({
 		handleRunWithMask,
 		handleEditSource,
 	} = useImageActions(state, dispatch);
-	const { getParentChain } = useImageLineage(images, settings);
+	const { getParentChain, fetchLineage } = useImageLineage(images, settings);
 
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [showDetails, setShowDetails] = useState(
@@ -170,6 +172,9 @@ export const useImageViewerLogic = ({
 		handlePrevious,
 		handleEditTags,
 		handleRestore,
+		fetchLineage,
+		restoreImages,
+		bulkUpdateImageTags,
 	});
 
 	const { isLoadingLineage } = useViewerLineageLoader({
