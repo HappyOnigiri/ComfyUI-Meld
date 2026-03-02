@@ -1,26 +1,14 @@
-import { useLightTableStore } from "../../features/light-table/store";
 import type { MeldImage } from "../../types";
 import type { GallerySubReducer } from "./types";
 import { resolveInitialMaskMode } from "./viewerModalHelpers";
 
 function getCurrentViewerList(
 	state: Parameters<GallerySubReducer>[0],
+	currentListFromAction?: MeldImage[],
 ): MeldImage[] {
 	const isSearchActive = state.searchQuery.trim() !== "";
 	if (state.viewerMode === "lighttable" && state.viewerLightTableSlotId) {
-		const ltStore = useLightTableStore.getState();
-		const bucketIds = ltStore.buckets[state.viewerLightTableSlotId] || [];
-		return bucketIds
-			.map((idStr) => {
-				const idNum = Number.parseInt(idStr, 10);
-				return (
-					state.images.find((img) => img.id === idNum) ||
-					state.lineageImages.find((img) => img.id === idNum) ||
-					ltStore.images[idStr] ||
-					null
-				);
-			})
-			.filter((img): img is MeldImage => img !== null);
+		return currentListFromAction ?? [];
 	}
 	if (state.viewerMode === "lineage" && state.lineageImages.length > 0) {
 		return state.lineageImages;
@@ -100,7 +88,10 @@ export const viewerReducer: GallerySubReducer = (state, action) => {
 			const loopEnabled = isFullscreen
 				? state.settings["fullscreen.loop"]
 				: state.settings["viewer.loop"];
-			const currentList = getCurrentViewerList(state);
+			const currentList = getCurrentViewerList(
+				state,
+				action.payload?.currentList,
+			);
 			if (state.viewerImageId === null || currentList.length === 0)
 				return state;
 			const currentIndex = currentList.findIndex(
@@ -131,7 +122,10 @@ export const viewerReducer: GallerySubReducer = (state, action) => {
 			const loopEnabled = isFullscreen
 				? state.settings["fullscreen.loop"]
 				: state.settings["viewer.loop"];
-			const currentList = getCurrentViewerList(state);
+			const currentList = getCurrentViewerList(
+				state,
+				action.payload?.currentList,
+			);
 			if (state.viewerImageId === null || currentList.length === 0)
 				return state;
 			const currentIndex = currentList.findIndex(

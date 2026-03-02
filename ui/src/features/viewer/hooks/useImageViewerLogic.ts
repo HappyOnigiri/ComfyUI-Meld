@@ -140,6 +140,7 @@ export const useImageViewerLogic = ({
 		dispatch,
 		isFullscreen,
 		settings,
+		currentThumbnails,
 		currentIndex,
 		viewerMode,
 		pagination: state.pagination,
