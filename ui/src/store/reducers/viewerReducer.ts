@@ -16,6 +16,7 @@ function getCurrentViewerList(
 				return (
 					state.images.find((img) => img.id === idNum) ||
 					state.lineageImages.find((img) => img.id === idNum) ||
+					ltStore.images[idStr] ||
 					null
 				);
 			})
@@ -70,10 +71,6 @@ export const viewerReducer: GallerySubReducer = (state, action) => {
 					? payload.slotId
 					: null;
 			const initialMaskMode = resolveInitialMaskMode(payload);
-
-			if (initialMaskMode) {
-				return state;
-			}
 
 			const isSameLineage =
 				state.viewerMode === "lineage" &&
