@@ -2,6 +2,9 @@
  * Meld dedicated logger.
  * Investigation logs (log/warn) are only output when MELD_DEV=true (dev mode).
  * Error logs are output regardless of dev mode.
+ *
+ * This file is the canonical implementation of logging; biome-ignore is required
+ * because noConsole forbids console.log while this module must use it.
  */
 
 let isDevMode = false;
@@ -12,15 +15,18 @@ let isDevMode = false;
 export const initLogger = (devMode: boolean) => {
 	isDevMode = devMode;
 	if (isDevMode) {
+		// biome-ignore lint/suspicious/noConsole: Logger implementation
 		console.log("[Meld] Logger initialized in DEV mode (MELD_DEV=true).");
 	}
 };
 
 /**
  * Log message if dev mode is enabled (Investigation logs).
+ * Public contract: callers must not prepend "[Meld]" because this logger adds it.
  */
 export const log = (...args: unknown[]) => {
 	if (isDevMode) {
+		// biome-ignore lint/suspicious/noConsole: Logger implementation
 		console.log("[Meld]", ...args);
 	}
 };

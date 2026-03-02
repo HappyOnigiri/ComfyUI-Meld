@@ -10,6 +10,7 @@ import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
+import { logger } from "../../../logger";
 import { useGallery } from "../../../store/GalleryContext";
 import type { MeldImage } from "../../../types";
 import {
@@ -176,14 +177,14 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 
 			if (workflow.nodes && Array.isArray(workflow.nodes)) {
 				// UI Format
-				console.log(
-					"[Meld] Extracting nodes from UI format workflow",
+				logger.log(
+					"Extracting nodes from UI format workflow",
 					workflow.nodes.length,
 				);
 				for (const node of workflow.nodes as WorkflowNode[]) {
 					if (isTargetNode(node.type)) {
-						console.log(
-							"[Meld] Found target node (UI):",
+						logger.log(
+							"Found target node (UI):",
 							node.id,
 							node.type,
 							node.title,
@@ -197,7 +198,7 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 				}
 			} else {
 				// API Format
-				console.log("[Meld] Extracting nodes from API format workflow");
+				logger.log("Extracting nodes from API format workflow");
 				for (const nodeId in workflow) {
 					const node = workflow[nodeId] as WorkflowNode;
 					if (
@@ -205,11 +206,7 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 						typeof node === "object" &&
 						isTargetNode(node.class_type)
 					) {
-						console.log(
-							"[Meld] Found target node (API):",
-							nodeId,
-							node.class_type,
-						);
+						logger.log("Found target node (API):", nodeId, node.class_type);
 						loaders.push({
 							id: nodeId,
 							type: node.class_type || "",
