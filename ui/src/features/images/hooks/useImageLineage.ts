@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import type { MeldImage, Settings } from "../../../types";
 import { getThumbnailViewUrl } from "../../../utils/url";
+import * as imagesApi from "../api/imagesApi";
 
 /** Thumbnail size for lineage parent/child displays (small icons). */
 const LINEAGE_THUMBNAIL_SIZE = 56;
@@ -11,6 +12,10 @@ const LINEAGE_THUMBNAIL_SIZE = 56;
  * Centralizes the logic for calculating and fetching image relationships (parents/ancestors).
  */
 export const useImageLineage = (images: MeldImage[], settings: Settings) => {
+	const fetchLineage = useCallback(async (imageId: number) => {
+		return imagesApi.fetchLineage(imageId);
+	}, []);
+
 	const getParentChain = useCallback(
 		(img: MeldImage): { id: number | null; imgSrc: string | null }[] => {
 			const maxDepth = settings["gallery.lineage_max_depth"];
@@ -59,5 +64,5 @@ export const useImageLineage = (images: MeldImage[], settings: Settings) => {
 		[settings, images],
 	);
 
-	return { getParentChain };
+	return { getParentChain, fetchLineage };
 };

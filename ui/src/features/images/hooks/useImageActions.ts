@@ -25,6 +25,17 @@ export const useImageActions = (
 	_state: GalleryState,
 	dispatch: React.Dispatch<GalleryAction>,
 ) => {
+	const restoreImages = useCallback(async (ids: number[]) => {
+		return imagesApi.restoreImages(ids);
+	}, []);
+
+	const bulkUpdateImageTags = useCallback(
+		async (imageIds: number[], addTags: string[], removeTags: string[]) => {
+			await imagesApi.bulkUpdateImageTags(imageIds, addTags, removeTags);
+		},
+		[],
+	);
+
 	const handleRestoreWorkflow = useCallback(async (image: MeldImage) => {
 		try {
 			const data = await imagesApi.fetchImageWorkflow(image.id);
@@ -415,6 +426,8 @@ export const useImageActions = (
 	);
 
 	return {
+		restoreImages,
+		bulkUpdateImageTags,
 		handleRestoreWorkflow,
 		handleAddUnifiedLoader,
 		handleEditTags,
