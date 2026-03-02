@@ -108,4 +108,9 @@ repomix-%:
 
 sync-agent:
 	@$(PYTHON) scripts/sync_agent.py
+	@if [ -f .cursorignore ]; then cp .cursorignore .aiignore; fi
 	@echo ".cursor files have been synchronized to .agent."
+	@echo ".cursorignore has been copied to .aiignore."
+	@echo "Note: It is recommended to exclude the .agent directory and .aiignore via .git/info/exclude"
+	@echo "      rather than .gitignore. Excluding them in .gitignore may prevent"
+	@echo "      Antigravity from functioning correctly."
