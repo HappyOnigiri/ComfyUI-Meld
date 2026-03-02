@@ -2,7 +2,7 @@
 import { api } from "/scripts/api.js";
 import { handleResponse, parseJsonResponse } from "../../../api";
 
-type UploadImageResponse = {
+export type UploadImageResponse = {
 	name: string;
 	subfolder: string;
 	type: string;
