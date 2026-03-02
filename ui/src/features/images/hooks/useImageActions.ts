@@ -357,7 +357,7 @@ export const useImageActions = (
 					return;
 				}
 			} catch (err) {
-				console.error("[Meld] Error checking workflows:", err);
+				logger.error("[Meld] Error checking workflows:", err);
 				// Fallback: let them open the editor, they'll see errors later if no workflows exist
 			}
 
