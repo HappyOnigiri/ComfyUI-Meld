@@ -24,3 +24,8 @@ alwaysApply: true
 - Localized documentation must be identified by one of the following conventions:
   - **Filename convention**: `*.{lang}.md` (e.g., `README.ja.md`)
   - **Directory convention**: Path includes `{lang}` as a directory (e.g., `docs/ja/nodes.md`)
+
+## 3. Handling of Build Artifacts
+- Build artifacts (e.g., files in `web/` directory) MUST be included in Git commits when their corresponding source files (e.g., in `ui/`) are modified.
+- AI agents SHOULD NOT attempt to read or analyze the content of build artifacts (especially large minified files) during the commit process.
+- If source files are changed and `make ci` (which includes the build process) is executed, any resulting changes in build artifacts are assumed to be correct and should be staged without detailed inspection.

@@ -15,6 +15,21 @@ import { useViewerLineageLoader } from "./internal/useViewerLineageLoader";
 import { useViewerNavigation } from "./internal/useViewerNavigation";
 import { useViewerPrefetch } from "./internal/useViewerPrefetch";
 
+function createLightTablePlaceholderImage(id: number): MeldImage {
+	return {
+		id,
+		filename: `__missing_${id}__`,
+		subfolder: "",
+		type: "output",
+		created_at: 0,
+		positive: "",
+		negative: "",
+		tags: [],
+		exists: false,
+		is_minimal: true,
+	};
+}
+
 /**
  * NOTE: For image-specific data operations (deletion, tagging, lineage, etc.),
  * please use the shared logic in `features/images/hooks/useImageActions`.
@@ -81,16 +96,17 @@ export const useImageViewerLogic = ({
 		if (viewerMode === "lighttable" && state.viewerLightTableSlotId) {
 			const ltStore = useLightTableStore.getState();
 			const bucketIds = ltStore.buckets[state.viewerLightTableSlotId] || [];
-			return bucketIds
-				.map((idStr) => {
-					const idNum = Number.parseInt(idStr, 10);
-					return (
-						images.find((img) => img.id === idNum) ||
-						lineageImages.find((img) => img.id === idNum) ||
-						null
-					);
-				})
-				.filter((img): img is MeldImage => img !== null);
+			const imagesById = new Map(images.map((img) => [img.id, img]));
+			const lineageById = new Map(lineageImages.map((img) => [img.id, img]));
+			return bucketIds.map((idStr) => {
+				const idNum = Number.parseInt(idStr, 10);
+				return (
+					imagesById.get(idNum) ||
+					lineageById.get(idNum) ||
+					ltStore.images[idStr] ||
+					createLightTablePlaceholderImage(idNum)
+				);
+			});
 		}
 
 		return viewerMode === "lineage"
@@ -140,6 +156,7 @@ export const useImageViewerLogic = ({
 		dispatch,
 		isFullscreen,
 		settings,
+		currentThumbnails,
 		currentIndex,
 		viewerMode,
 		pagination: state.pagination,
