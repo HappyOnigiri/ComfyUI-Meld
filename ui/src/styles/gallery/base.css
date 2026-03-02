@@ -108,9 +108,11 @@ so without this the menu can render behind neighboring rows.
 }
 
 /* Fallback for environments without :has() support. */
-.meld-gallery__virtual-row:focus-within,
-.meld-gallery__virtual-grid-row:focus-within {
-	z-index: var(--meld-z-dropdown);
+@supports not selector(:has(*)) {
+	.meld-gallery__virtual-row:focus-within,
+	.meld-gallery__virtual-grid-row:focus-within {
+		z-index: var(--meld-z-dropdown);
+	}
 }
 
 .meld-gallery__list--virtualized {
