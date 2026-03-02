@@ -19,6 +19,8 @@ export const imagesReducer: GallerySubReducer = (state, action) => {
 			const newLineageImages = dedupeImagesById(
 				state.lineageImages.filter((img) => !idsToRemove.has(img.id)),
 			);
+			// Keep totals aligned to unique image count deltas, not raw payload size.
+			// Using payload.length would drift when duplicate ids are present.
 			const newTotal = Math.max(
 				0,
 				state.pagination.total + (newImages.length - state.images.length),
@@ -38,6 +40,8 @@ export const imagesReducer: GallerySubReducer = (state, action) => {
 			const uniqueImages = dedupeImagesById(mergedImages).sort(
 				(a, b) => b.created_at - a.created_at,
 			);
+			// Keep totals aligned to net unique items after dedupe.
+			// Raw payload length can overcount when incoming ids already exist.
 			const newTotal = Math.max(
 				0,
 				state.pagination.total + (uniqueImages.length - state.images.length),
@@ -78,6 +82,7 @@ export const imagesReducer: GallerySubReducer = (state, action) => {
 					total,
 					offset,
 					limit: state.pagination.limit,
+					// hasMore must use deduped length to preserve dedupe-aware pagination.
 					hasMore: offset + dedupedImages.length < total,
 				},
 			};
@@ -96,7 +101,8 @@ export const imagesReducer: GallerySubReducer = (state, action) => {
 					...state.pagination,
 					total,
 					offset,
-					hasMore: offset + images.length < total,
+					// hasMore must be based on total unique loaded items after merge.
+					hasMore: dedupedImages.length < total,
 				},
 			};
 		}
