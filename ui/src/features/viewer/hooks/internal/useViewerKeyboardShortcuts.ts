@@ -107,27 +107,36 @@ export const useViewerKeyboardShortcuts = ({
 				return;
 			}
 
-			if (e.key === "Escape") {
+			if (isEscapeKey) {
 				if (document.fullscreenElement) {
 					document.exitFullscreen();
 				} else {
 					dispatch({ type: "CLOSE_VIEWER" });
 				}
-			} else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-				handleNext();
-			} else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
-				handlePrevious();
-			} else if (e.key === "f" || e.key === "F" || e.key === "Enter") {
+			} else if (isNavigationKey) {
+				if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+					handleNext();
+				} else {
+					handlePrevious();
+				}
+			} else if (
+				isToggleKey &&
+				(e.key === "f" || e.key === "F" || e.key === "Enter")
+			) {
 				toggleFullscreen(e);
-			} else if (e.key === "i" || e.key === "I") {
+			} else if (isToggleKey && (e.key === "i" || e.key === "I")) {
 				setShowDetails((prev) => !prev);
-			} else if (e.key === "t" || e.key === "T") {
+			} else if (isToggleKey && (e.key === "t" || e.key === "T")) {
 				handleTagEditAction();
-			} else if ((e.key === "r" || e.key === "R") && viewScope === "trash") {
+			} else if (
+				isToggleKey &&
+				(e.key === "r" || e.key === "R") &&
+				viewScope === "trash"
+			) {
 				void handleRestoreAction();
-			} else if (e.key === "Delete") {
+			} else if (isDeleteKey) {
 				handleDelete();
-			} else if ((e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z")) {
+			} else if (isUndoKey) {
 				void handleUndo();
 			} else if (isShortcutKey && !isTargetInput) {
 				const key = `viewer.shortcut.${e.key}` as keyof Settings;
