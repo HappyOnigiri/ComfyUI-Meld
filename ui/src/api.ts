@@ -38,6 +38,25 @@ export async function handleResponse<T>(res: Response): Promise<T> {
 	return result.data as T;
 }
 
+/**
+ * Helper for endpoints that return raw JSON (not ApiResponse format).
+ * Use for ComfyUI core endpoints like /upload/image, /prompt.
+ */
+export async function parseJsonResponse<T>(res: Response): Promise<T> {
+	const data = (await res.json()) as Record<string, unknown>;
+	if (!res.ok) {
+		const err = data?.error as { message?: string } | string | undefined;
+		const msg =
+			typeof err === "object" && err?.message
+				? err.message
+				: typeof err === "string"
+					? err
+					: ((data?.message as string) ?? `${res.status} ${res.statusText}`);
+		throw new Error(msg);
+	}
+	return data as T;
+}
+
 export const fetchHomeDir = async (): Promise<string> => {
 	const res = await api.fetchApi("/meld/home-dir");
 	const data = await handleResponse<{ home: string }>(res);

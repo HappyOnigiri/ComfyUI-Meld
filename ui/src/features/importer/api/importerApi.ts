@@ -1,6 +1,6 @@
 // @ts-expect-error
 import { api } from "/scripts/api.js";
-import { handleResponse } from "../../../api";
+import { handleResponse, parseJsonResponse } from "../../../api";
 
 export const uploadImage = async (
 	file: File,
@@ -13,11 +13,9 @@ export const uploadImage = async (
 		body: formData,
 	});
 
-	if (!res.ok) {
-		throw new Error("Failed to upload image");
-	}
-
-	return await res.json();
+	return parseJsonResponse<{ name: string; subfolder: string; type: string }>(
+		res,
+	);
 };
 
 export const fetchFolders = async (

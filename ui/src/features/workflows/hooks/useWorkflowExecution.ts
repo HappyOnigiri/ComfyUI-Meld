@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 // @ts-expect-error: ComfyUI scripts are not available in build time
 import { api } from "/scripts/api.js";
+import { parseJsonResponse } from "../../../api";
 import type { MeldImage } from "../../../types";
 import { fetchWorkflowRaw } from "../api/workflowsApi";
 
@@ -240,12 +241,7 @@ export const useWorkflowExecution = () => {
 				}),
 			});
 
-			if (!res.ok) {
-				const errorData = await res.json(); // frontend-api-check-ignore: /prompt returns ComfyUI raw response format, safe to parse directly
-				throw new Error(errorData.error?.message || "Failed to queue workflow");
-			}
-
-			return await res.json(); // frontend-api-check-ignore: /prompt returns ComfyUI raw response format, safe to parse directly
+			return parseJsonResponse<{ prompt_id: string; number: number }>(res);
 		},
 		[],
 	);
