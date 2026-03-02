@@ -402,11 +402,19 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	margin: 0;
 	cursor: pointer;
 	transition: all 0.2s ease;
-	outline: none;
 }
 
 .meld-lineage-badge__parent-thumb:hover {
 	border-color: var(--meld-accent-color);
+	transform: scale(1.15);
+	z-index: 1;
+	box-shadow: 0 2px 8px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.4));
+}
+
+.meld-lineage-badge__parent-thumb:focus-visible {
+	outline: 2px solid var(--comfy-focus, var(--meld-accent-color, #4488ff));
+	outline-offset: 2px;
+	border-color: var(--meld-accent-color, #4488ff);
 	transform: scale(1.15);
 	z-index: 1;
 	box-shadow: 0 2px 8px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.4));
@@ -1475,8 +1483,8 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 }
 
 .meld-tag-suggestion-item {
-	background: var(--input-surface);
-	border: 1px solid var(--border-subtle);
+	background: var(--input-surface, var(--comfy-input-bg, #1a1a1a));
+	border: 1px solid var(--border-subtle, var(--comfy-menu-border, #333));
 	color: var(--meld-text-secondary);
 	padding: 4px 10px;
 	border-radius: 4px;
@@ -1961,7 +1969,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: var(--base-background);
+	background: var(--base-background, var(--comfy-menu-bg, #222));
 	border-radius: 4px;
 	overflow: hidden;
 }
