@@ -24,6 +24,61 @@ interface UseViewerActionsBridgeParams {
 	handleRestore: (image: MeldImage) => Promise<void>;
 }
 
+interface NavigateAfterRemovalParams {
+	currentThumbnails: MeldImage[];
+	currentIndex: number;
+	removedIds: Set<number>;
+	viewerMode: GalleryState["viewerMode"];
+	viewerLightTableSlotId?: string | null;
+	dispatch: React.Dispatch<GalleryAction>;
+	removeImageIds?: number[];
+}
+
+const navigateAfterItemRemoval = ({
+	currentThumbnails,
+	currentIndex,
+	removedIds,
+	viewerMode,
+	viewerLightTableSlotId,
+	dispatch,
+	removeImageIds,
+}: NavigateAfterRemovalParams) => {
+	let nextTargetId: number | null = null;
+	for (let i = currentIndex + 1; i < currentThumbnails.length; i++) {
+		if (!removedIds.has(currentThumbnails[i].id)) {
+			nextTargetId = currentThumbnails[i].id;
+			break;
+		}
+	}
+	if (nextTargetId === null) {
+		for (let i = currentIndex - 1; i >= 0; i--) {
+			if (!removedIds.has(currentThumbnails[i].id)) {
+				nextTargetId = currentThumbnails[i].id;
+				break;
+			}
+		}
+	}
+
+	if (nextTargetId !== null) {
+		dispatch({
+			type: "OPEN_VIEWER",
+			payload: {
+				id: nextTargetId,
+				mode: viewerMode,
+				...(viewerMode === "lighttable" && viewerLightTableSlotId
+					? { slotId: viewerLightTableSlotId }
+					: {}),
+			},
+		});
+	} else {
+		dispatch({ type: "CLOSE_VIEWER" });
+	}
+
+	if (removeImageIds && removeImageIds.length > 0) {
+		dispatch({ type: "REMOVE_IMAGES", payload: removeImageIds });
+	}
+};
+
 export const useViewerActionsBridge = ({
 	state,
 	dispatch,
@@ -86,56 +141,14 @@ export const useViewerActionsBridge = ({
 					return;
 				}
 
-				const inViewDeleteCount = currentThumbnails.filter((thumb) =>
-					idsToDelete.has(thumb.id),
-				).length;
-
-				if (currentThumbnails.length > inViewDeleteCount) {
-					let found = false;
-					for (let i = currentIndex + 1; i < currentThumbnails.length; i++) {
-						if (!idsToDelete.has(currentThumbnails[i].id)) {
-							dispatch({
-								type: "OPEN_VIEWER",
-								payload: {
-									id: currentThumbnails[i].id,
-									mode: viewerMode,
-									...(viewerMode === "lighttable" &&
-									state.viewerLightTableSlotId
-										? { slotId: state.viewerLightTableSlotId }
-										: {}),
-								},
-							});
-							found = true;
-							break;
-						}
-					}
-
-					if (!found) {
-						for (let i = currentIndex - 1; i >= 0; i--) {
-							if (!idsToDelete.has(currentThumbnails[i].id)) {
-								dispatch({
-									type: "OPEN_VIEWER",
-									payload: {
-										id: currentThumbnails[i].id,
-										mode: viewerMode,
-										...(viewerMode === "lighttable" &&
-										state.viewerLightTableSlotId
-											? { slotId: state.viewerLightTableSlotId }
-											: {}),
-									},
-								});
-								found = true;
-								break;
-							}
-						}
-					}
-
-					if (!found) {
-						dispatch({ type: "CLOSE_VIEWER" });
-					}
-				} else {
-					dispatch({ type: "CLOSE_VIEWER" });
-				}
+				navigateAfterItemRemoval({
+					currentThumbnails,
+					currentIndex,
+					removedIds: idsToDelete,
+					viewerMode,
+					viewerLightTableSlotId: state.viewerLightTableSlotId,
+					dispatch,
+				});
 
 				await deleteImagesAndSyncLightTable(
 					Array.from(idsToDelete),
@@ -348,47 +361,15 @@ export const useViewerActionsBridge = ({
 					store.showToast(`Sent to ${slot.label}`);
 
 					if (!isDeleted) {
-						if (currentThumbnails.length > 1) {
-							let nextTargetId: number | null = null;
-							for (
-								let i = currentIndex + 1;
-								i < currentThumbnails.length;
-								i++
-							) {
-								if (currentThumbnails[i].id !== currentImageId) {
-									nextTargetId = currentThumbnails[i].id;
-									break;
-								}
-							}
-							if (nextTargetId === null) {
-								for (let i = currentIndex - 1; i >= 0; i--) {
-									if (currentThumbnails[i].id !== currentImageId) {
-										nextTargetId = currentThumbnails[i].id;
-										break;
-									}
-								}
-							}
-
-							if (nextTargetId !== null) {
-								dispatch({
-									type: "OPEN_VIEWER",
-									payload: {
-										id: nextTargetId,
-										mode: viewerMode,
-										...(viewerMode === "lighttable" &&
-										state.viewerLightTableSlotId
-											? { slotId: state.viewerLightTableSlotId }
-											: {}),
-									},
-								});
-							} else {
-								dispatch({ type: "CLOSE_VIEWER" });
-							}
-						} else {
-							dispatch({ type: "CLOSE_VIEWER" });
-						}
-
-						dispatch({ type: "REMOVE_IMAGES", payload: [currentImageId] });
+						navigateAfterItemRemoval({
+							currentThumbnails,
+							currentIndex,
+							removedIds: new Set([currentImageId]),
+							viewerMode,
+							viewerLightTableSlotId: state.viewerLightTableSlotId,
+							dispatch,
+							removeImageIds: [currentImageId],
+						});
 					}
 				} else {
 					store.showToast(
