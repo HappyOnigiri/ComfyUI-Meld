@@ -1,5 +1,9 @@
 import type { GallerySubReducer } from "./types";
 
+function dedupeImagesById<T extends { id: number }>(images: T[]): T[] {
+	return Array.from(new Map(images.map((img) => [img.id, img])).values());
+}
+
 export const imagesReducer: GallerySubReducer = (state, action) => {
 	switch (action.type) {
 		case "SET_FAVORITES":
@@ -9,9 +13,15 @@ export const imagesReducer: GallerySubReducer = (state, action) => {
 			};
 		case "REMOVE_IMAGES": {
 			const idsToRemove = new Set(action.payload);
-			const newImages = state.images.filter((img) => !idsToRemove.has(img.id));
-			const newLineageImages = state.lineageImages.filter(
-				(img) => !idsToRemove.has(img.id),
+			const newImages = dedupeImagesById(
+				state.images.filter((img) => !idsToRemove.has(img.id)),
+			);
+			const newLineageImages = dedupeImagesById(
+				state.lineageImages.filter((img) => !idsToRemove.has(img.id)),
+			);
+			const newTotal = Math.max(
+				0,
+				state.pagination.total + (newImages.length - state.images.length),
 			);
 			return {
 				...state,
@@ -19,23 +29,26 @@ export const imagesReducer: GallerySubReducer = (state, action) => {
 				lineageImages: newLineageImages,
 				pagination: {
 					...state.pagination,
-					total: Math.max(0, state.pagination.total - action.payload.length),
+					total: newTotal,
 				},
 			};
 		}
 		case "ADD_IMAGES": {
-			const imagesToAdd = action.payload;
-			const newImages = [...state.images, ...imagesToAdd];
-			const uniqueImages = Array.from(
-				new Map(newImages.map((img) => [img.id, img])).values(),
-			).sort((a, b) => b.created_at - a.created_at);
+			const mergedImages = [...state.images, ...action.payload];
+			const uniqueImages = dedupeImagesById(mergedImages).sort(
+				(a, b) => b.created_at - a.created_at,
+			);
+			const newTotal = Math.max(
+				0,
+				state.pagination.total + (uniqueImages.length - state.images.length),
+			);
 
 			return {
 				...state,
 				images: uniqueImages,
 				pagination: {
 					...state.pagination,
-					total: state.pagination.total + imagesToAdd.length,
+					total: newTotal,
 				},
 			};
 		}
