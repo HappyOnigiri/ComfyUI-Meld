@@ -1,0 +1,68 @@
+/* Favorites Dropdown */
+.meld-favorites-dropdown {
+	display: none;
+}
+
+.meld-favorites-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 10px 14px;
+	font-size: 12px;
+	color: var(--meld-text-color);
+	cursor: pointer;
+	transition: background-color 0.2s;
+	gap: 10px;
+}
+
+.meld-favorites-item:hover {
+	background-color: var(--comfy-input-bg-active, rgba(255, 255, 255, 0.1));
+}
+
+.meld-favorites-item__name {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.meld-favorites-item__delete {
+	color: var(--meld-text-secondary);
+	display: flex;
+	align-items: center;
+	padding: 4px;
+	border-radius: 4px;
+	transition: all 0.2s;
+}
+
+.meld-favorites-item__delete:hover {
+	background-color: var(--error-color, rgba(255, 68, 68, 0.2));
+	color: var(--meld-danger-color);
+}
+
+.meld-favorites-empty {
+	padding: 20px;
+	color: var(--meld-text-secondary);
+	font-size: 12px;
+	text-align: center;
+}
+
+.meld-favorites-context-menu {
+	z-index: var(--meld-z-dropdown);
+}
+
+.meld-favorites-edit-modal-overlay {
+	z-index: var(--meld-z-modal-overlay);
+}
+
+.meld-search-suggestions {
+	z-index: var(--meld-z-popover);
+}
+
+.meld-search-toast {
+	z-index: var(--meld-z-dropdown);
+}
+
+.meld-search-edit-modal-overlay {
+	z-index: var(--meld-z-modal-overlay);
+}

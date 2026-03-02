@@ -1,0 +1,111 @@
+.meld-bulk-bar--trash {
+	border-top: 2px solid var(--meld-danger-color);
+}
+
+.meld-bulk-bar__button--restore {
+	background: var(--meld-success-color);
+	color: white;
+}
+
+/* BulkActionBar Styles */
+.meld-bulk-bar {
+	height: 36px;
+	background: var(--comfy-menu-bg, #222);
+	border-top: 1px solid var(--meld-border-color);
+	display: flex;
+	align-items: center;
+	padding: 0 20px;
+	gap: 15px;
+	pointer-events: auto;
+}
+
+.meld-bulk-bar__info {
+	color: var(--meld-text-color);
+	font-size: 13px;
+	font-weight: bold;
+}
+
+.meld-bulk-bar__button {
+	border: none;
+	padding: 6px 12px;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 13px;
+	font-weight: bold;
+	transition: background-color 0.2s;
+	display: flex;
+	align-items: center;
+}
+
+.meld-bulk-bar__button:hover {
+	background-color: var(--comfy-input-bg-active, rgba(255, 255, 255, 0.1));
+}
+
+.meld-bulk-bar__button--action {
+	background: var(--meld-accent-color);
+	color: white;
+}
+
+.meld-bulk-bar__button--cancel {
+	background: var(--comfy-input-bg, #444);
+	color: var(--meld-text-secondary);
+}
+
+/* BulkActionBar Context Menu */
+.meld-bulk-bar-menu__item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 12px;
+	font-size: 12px;
+	line-height: 1;
+	color: var(--meld-text-color);
+	cursor: pointer;
+	background: transparent;
+	border: none;
+	width: 100%;
+	text-align: left;
+	transition: background-color 0.2s;
+	outline: none;
+}
+
+.meld-bulk-bar-menu__item:disabled {
+	color: var(--meld-text-muted, #666);
+	cursor: not-allowed;
+	pointer-events: none;
+}
+
+.meld-bulk-bar-menu__item:hover {
+	background-color: var(--meld-accent-color);
+	color: white;
+}
+
+.meld-bulk-bar-menu__item--danger:hover {
+	background-color: var(--meld-danger-color);
+	color: white;
+}
+
+.meld-bulk-bar-menu__item--restore:hover {
+	background-color: var(--meld-success-color);
+	color: white;
+}
+
+.meld-bulk-bar-menu__divider {
+	height: 1px;
+	background-color: var(--comfy-menu-border, #444);
+	margin: 4px 0;
+}
+
+.meld-bulk-bar-menu {
+	position: fixed;
+	background-color: var(--comfy-menu-bg, #222);
+	border: 1px solid var(--comfy-menu-border, #444);
+	border-radius: 4px;
+	box-shadow: 0 -4px 12px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.5));
+	z-index: var(--meld-z-dropdown);
+	min-width: 180px;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	padding: 4px 0;
+}
