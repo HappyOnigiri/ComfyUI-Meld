@@ -63,7 +63,11 @@ def main() -> None:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(errors="replace")
 
-    print("Starting CI with Python script...")
+    # Enable ANSI escape sequences on Windows
+    if sys.platform == "win32":
+        os.system("")
+
+    print("Starting CI with Python script...", flush=True)
 
     os.makedirs(".logs", exist_ok=True)
 
@@ -103,7 +107,7 @@ def main() -> None:
 
     # Print results in original order
     failed_tasks = []
-    print("\n" + "-" * 60)
+    print("\n" + "-" * 60, flush=True)
     for name, _ in TASKS:
         success, output = results[name]
 
@@ -118,18 +122,18 @@ def main() -> None:
             failed_tasks.append((name, output))
 
         # Consistent layout
-        print(f"  {symbol} {name:<35} {status_text}")
-    print("-" * 60)
+        print(f"  {symbol} {name:<35} {status_text}", flush=True)
+    print("-" * 60, flush=True)
 
     if failed_tasks:
-        print(f"\n{COLOR_RED}CI FAILED ({len(failed_tasks)} tasks failed){COLOR_RESET}")
-        print("=" * 80)
+        print(f"\n{COLOR_RED}CI FAILED ({len(failed_tasks)} tasks failed){COLOR_RESET}", flush=True)
+        print("=" * 80, flush=True)
         for name, output in failed_tasks:
-            print(f"\n--- Detailed log for {name} ---")
-            print(output)
+            print(f"\n--- Detailed log for {name} ---", flush=True)
+            print(output, flush=True)
         sys.exit(1)
     else:
-        print(f"\n{COLOR_GREEN}CI SUCCESSFUL{COLOR_RESET}")
+        print(f"\n{COLOR_GREEN}CI SUCCESSFUL{COLOR_RESET}", flush=True)
         sys.exit(0)
 
 
