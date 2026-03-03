@@ -32,14 +32,12 @@ KEYDOWN_LISTENER_PATTERN = re.compile(
     """,
     re.VERBOSE | re.DOTALL,
 )
-    """,
-    re.VERBOSE | re.DOTALL,
-)
 
 # Patterns that indicate capture is used (third argument).
+# Uses word-boundary pattern to match "capture: true" anywhere in options object;
+# only accepts explicit true values (not shorthand { capture }).
 CAPTURE_OK_PATTERNS = [
-    re.compile(r"\{\s*capture\s*:\s*true\s*\}"),  # { capture: true }
-    re.compile(r"\{\s*capture\s*\}"),  # { capture } (variable, default true in hooks)
+    re.compile(r"\bcapture\s*:\s*true\b"),  # capture: true anywhere in object
     re.compile(r"^\s*true\s*$", re.MULTILINE),  # Legacy: true as useCapture
 ]
 
@@ -79,6 +77,7 @@ def check_file(filepath: str) -> list[tuple[int, str, str]]:
                     )
                 )
     except OSError as e:
+        errors.append((0, filepath, f"Error reading file: {e}"))
         print(f"Error reading {filepath}: {e}")
     return errors
 
