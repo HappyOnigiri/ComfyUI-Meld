@@ -1,0 +1,28 @@
+.meld-notes__placeholder {
+	color: var(--meld-text-secondary);
+	font-style: italic;
+}
+.meld-notes__edit-btn {
+	background: none;
+	border: none;
+	color: var(--meld-accent-color);
+	font-size: 9px;
+	padding: 0 4px;
+	cursor: pointer;
+	transition: opacity 0.2s;
+}
+.meld-notes__edit-btn:hover {
+	opacity: 1;
+	text-decoration: underline;
+}
+.meld-notes__status {
+	font-size: 9px;
+	color: var(--meld-text-secondary);
+	margin-left: 8px;
+	font-weight: normal;
+	text-transform: none;
+	font-style: italic;
+}
+.meld-notes__status--saved {
+	color: var(--meld-success-color);
+}
