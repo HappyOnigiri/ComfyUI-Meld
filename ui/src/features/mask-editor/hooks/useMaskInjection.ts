@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { logger } from "../../../logger";
 import { useGallery } from "../../../store/GalleryContext";
-import type { ComfyApp, MeldImage } from "../../../types";
+import { type ComfyApp, isComfyGraphNodeWithWidgets, type MeldImage } from "../../../types";
 import { injectImageToGraph } from "../../workflows/utils/injectImageToGraph";
 import { isMaskNodeType } from "../../workflows/utils/nodeTypePredicates";
 
@@ -18,6 +18,10 @@ export const useMaskInjection = () => {
 			const comfyApp = window.app as ComfyApp;
 			if (!comfyApp?.graph) {
 				logger.log("[Meld-Debug] injectMaskToGraph: No comfyApp.graph found");
+				return false;
+			}
+			if (!Array.isArray(comfyApp.graph._nodes)) {
+				logger.log("[Meld-Debug] injectMaskToGraph: comfyApp.graph._nodes is not an array");
 				return false;
 			}
 
@@ -38,7 +42,7 @@ export const useMaskInjection = () => {
 
 			// If multiple, use the first one
 			const node = maskNodes[0];
-			if (!Array.isArray(node.widgets)) {
+			if (!isComfyGraphNodeWithWidgets(node)) {
 				logger.log("[Meld-Debug] injectMaskToGraph: target mask node has no widgets", node.id);
 				return false;
 			}

@@ -16,6 +16,12 @@ interface ComfyNode {
 	}[];
 }
 
+const isGraphNodeArray = (value: unknown): value is ComfyNode[] =>
+	Array.isArray(value) &&
+	value.every(
+		(node) => typeof node === "object" && node !== null && "id" in node && "type" in node,
+	);
+
 export const useWorkflowExecution = () => {
 	const executeWorkflow = useCallback(
 		async (
@@ -102,8 +108,16 @@ export const useWorkflowExecution = () => {
 			}
 
 			if (isUIFormat) {
-				const comfyApp = window.app as ComfyApp;
-				if (!comfyApp.graph) {
+				const appCandidate: unknown = window.app;
+				if (
+					typeof appCandidate !== "object" ||
+					appCandidate === null ||
+					!("graph" in appCandidate)
+				) {
+					throw new Error("Active ComfyUI graph is not available. Please open a workflow first.");
+				}
+				const comfyApp = appCandidate as ComfyApp;
+				if (!comfyApp.graph || !isGraphNodeArray(comfyApp.graph._nodes)) {
 					throw new Error("Active ComfyUI graph is not available. Please open a workflow first.");
 				}
 
@@ -140,7 +154,7 @@ export const useWorkflowExecution = () => {
 				await new Promise((r) => setTimeout(r, 200));
 
 				// 3. Update the node in the NOW ACTIVE graph
-				const activeNodes = comfyApp.graph._nodes as ComfyNode[];
+				const activeNodes = comfyApp.graph._nodes;
 				logger.log("Active graph nodes count:", activeNodes.length);
 
 				const loaderNode = activeNodes.find(

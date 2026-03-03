@@ -300,11 +300,16 @@ export interface ComfyWidget {
 
 export interface ComfyGraphNode {
 	id: string | number;
-	type: string;
+	type?: string;
 	title?: string;
-	widgets: ComfyWidget[];
+	widgets?: ComfyWidget[];
 	pos?: [number, number] | number[];
 }
+
+export const isComfyGraphNodeWithWidgets = (
+	node: ComfyGraphNode | undefined,
+): node is ComfyGraphNode & { widgets: ComfyWidget[] } =>
+	Boolean(node && Array.isArray(node.widgets));
 
 export interface ComfyGraph {
 	_nodes: ComfyGraphNode[];

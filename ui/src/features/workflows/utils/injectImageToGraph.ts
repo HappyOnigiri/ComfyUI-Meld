@@ -1,4 +1,4 @@
-import type { ComfyApp, MeldImage } from "../../../types";
+import { type ComfyApp, isComfyGraphNodeWithWidgets, type MeldImage } from "../../../types";
 import { isLoaderNodeType } from "./nodeTypePredicates";
 
 export function buildComfyImagePath(image: MeldImage): string {
@@ -27,6 +27,9 @@ export function injectImageToGraph(
 	if (!comfyApp?.graph) {
 		return { ok: false, reason: "no_app_graph" };
 	}
+	if (!Array.isArray(comfyApp.graph._nodes)) {
+		return { ok: false, reason: "no_loader_node" };
+	}
 
 	const imagePath = buildComfyImagePath(image);
 
@@ -43,7 +46,7 @@ export function injectImageToGraph(
 			loaderNode = target;
 		}
 	}
-	if (!Array.isArray(loaderNode.widgets)) {
+	if (!isComfyGraphNodeWithWidgets(loaderNode)) {
 		return { ok: false, reason: "no_widgets" };
 	}
 	const loaderImageWidget = loaderNode.widgets.find((w) => w.name === "image");

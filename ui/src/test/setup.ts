@@ -14,9 +14,6 @@ declare global {
 	}
 }
 
-globalThis.api = {} as unknown;
-globalThis.app = {} as unknown;
-
 const testApi: ComfyApi = {
 	clientId: "vitest-client",
 	fetchApi: vi.fn(

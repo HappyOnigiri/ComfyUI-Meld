@@ -212,7 +212,7 @@ export const useImageActions = (_state: GalleryState, dispatch: React.Dispatch<G
 						image,
 						nodes: loaderNodes.map((n) => ({
 							id: String(n.id),
-							type: n.type,
+							type: n.type ?? "",
 							title: n.title,
 						})),
 						onSelect: (nodeId) => {
@@ -269,7 +269,7 @@ export const useImageActions = (_state: GalleryState, dispatch: React.Dispatch<G
 					"Current graph nodes:",
 					nodes.map((n) => ({
 						id: n.id,
-						type: n.type,
+						type: n.type ?? "",
 					})),
 				);
 
