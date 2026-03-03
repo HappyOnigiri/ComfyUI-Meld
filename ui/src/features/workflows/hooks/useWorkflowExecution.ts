@@ -98,8 +98,8 @@ export const useWorkflowExecution = () => {
 			}
 
 			if (maskFilename && !maskNodeId) {
-				console.warn(
-					"[Meld] Mask filename provided but no mask node found in workflow JSON",
+				logger.warn(
+					"Mask filename provided but no mask node found in workflow JSON",
 				);
 				throw new Error(
 					"Load Image (as Mask) node not found in the selected workflow, but a mask was provided.",
@@ -176,8 +176,8 @@ export const useWorkflowExecution = () => {
 						}
 					}
 				} else {
-					console.warn(
-						"[Meld] Loader node (MeldImageLoader/LoadImage) not found in active graph after loading",
+					logger.warn(
+						"Loader node (MeldImageLoader/LoadImage) not found in active graph after loading",
 					);
 				}
 
@@ -205,8 +205,8 @@ export const useWorkflowExecution = () => {
 							channelWidget.value = "red";
 						}
 					} else {
-						console.warn(
-							"[Meld] LoadImageMask not found in active graph after loading",
+						logger.warn(
+							"LoadImageMask not found in active graph after loading",
 						);
 					}
 				}
@@ -218,10 +218,8 @@ export const useWorkflowExecution = () => {
 					await comfyApp.queuePrompt(0);
 					return;
 				} catch (e) {
-					console.error("Failed to queue workflow:", e);
-					throw new Error(
-						"Failed to queue workflow. Check the console for details.",
-					);
+					logger.error("Failed to queue workflow:", e);
+					throw new Error("Failed to queue workflow. Check logs for details.");
 				}
 			}
 

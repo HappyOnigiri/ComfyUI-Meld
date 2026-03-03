@@ -1,5 +1,6 @@
 import type React from "react";
 import { useCallback, useState } from "react";
+import { logger } from "../../../../logger";
 import type { GalleryAction, GalleryState, MeldImage } from "../../../../types";
 import { deleteImagesAndSyncLightTable } from "../../../images/hooks/deleteHelpers";
 import { useLightTableStore } from "../../../light-table/store";
@@ -393,7 +394,7 @@ export const useViewerActionsBridge = ({
 						`Error: Light Table slot "${sendToLtSlot}" not found`,
 						"error",
 					);
-					console.warn(
+					logger.warn(
 						`Attempted to send to non-existent LT slot: ${sendToLtSlot}`,
 					);
 				}
@@ -420,7 +421,7 @@ export const useViewerActionsBridge = ({
 					});
 					setLastDeletedImages(null);
 				} catch (err: unknown) {
-					console.error("Failed to update tags via shortcut:", err);
+					logger.error("Failed to update tags via shortcut:", err);
 					dispatch({
 						type: "SET_ERROR",
 						payload: err instanceof Error ? err.message : String(err),

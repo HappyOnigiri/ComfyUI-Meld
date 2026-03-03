@@ -69,7 +69,7 @@ export const useImageActions = (
 
 			const node = liteGraph.createNode(nodeName);
 			if (!node) {
-				console.error(`Node type ${nodeName} not found.`);
+				logger.error(`Node type ${nodeName} not found.`);
 				alert(
 					`Node type ${nodeName} not found. Please make sure the Meld Unified Loader node is installed.`,
 				);
@@ -139,7 +139,7 @@ export const useImageActions = (
 			comfyApp.canvas.centerOnNode(node);
 			return true;
 		} catch (e) {
-			console.error("Error adding Unified Loader:", e);
+			logger.error("Error adding Unified Loader:", e);
 			alert("Failed to load settings.");
 			return false;
 		}
