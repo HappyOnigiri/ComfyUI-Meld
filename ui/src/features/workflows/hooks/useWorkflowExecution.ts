@@ -43,17 +43,13 @@ export const useWorkflowExecution = () => {
 				// UI Format (saved from ComfyUI web interface)
 				isUIFormat = true;
 				if (!loaderNodeId) {
-					const loaderNode = (workflow.nodes as ComfyNode[]).find((n) =>
-						isLoaderNodeType(n.type),
-					);
+					const loaderNode = (workflow.nodes as ComfyNode[]).find((n) => isLoaderNodeType(n.type));
 					if (loaderNode) {
 						loaderNodeId = String(loaderNode.id);
 					}
 				}
 
-				const maskNode = (workflow.nodes as ComfyNode[]).find((n) =>
-					isMaskNodeType(n.type),
-				);
+				const maskNode = (workflow.nodes as ComfyNode[]).find((n) => isMaskNodeType(n.type));
 				if (maskNode) {
 					maskNodeId = String(maskNode.id);
 				}
@@ -108,9 +104,7 @@ export const useWorkflowExecution = () => {
 			if (isUIFormat) {
 				const comfyApp = window.app as ComfyApp;
 				if (!comfyApp.graph) {
-					throw new Error(
-						"Active ComfyUI graph is not available. Please open a workflow first.",
-					);
+					throw new Error("Active ComfyUI graph is not available. Please open a workflow first.");
 				}
 
 				// 1. Try to find and switch to an existing tab first
@@ -230,19 +224,14 @@ export const useWorkflowExecution = () => {
 					}
 				).fetchApi === "function";
 			if (!hasValidFetchApi) {
-				throw new Error(
-					"ComfyUI API is not available. Please reload ComfyUI and try again.",
-				);
+				throw new Error("ComfyUI API is not available. Please reload ComfyUI and try again.");
 			}
 			const typedApi = comfyApi as ComfyApi;
 			const res = await typedApi.fetchApi("/prompt", {
 				method: "POST",
 				body: JSON.stringify({
 					prompt,
-					client_id:
-						typeof typedApi.clientId === "string"
-							? typedApi.clientId
-							: undefined,
+					client_id: typeof typedApi.clientId === "string" ? typedApi.clientId : undefined,
 				}),
 			});
 

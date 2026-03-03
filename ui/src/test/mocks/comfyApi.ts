@@ -11,8 +11,5 @@ export const api = {
 				headers: { "Content-Type": "application/json" },
 			},
 		),
-	addEventListener: (
-		_type: string,
-		_callback: (event: CustomEvent<unknown>) => void,
-	): void => {},
+	addEventListener: (_type: string, _callback: (event: CustomEvent<unknown>) => void): void => {},
 };

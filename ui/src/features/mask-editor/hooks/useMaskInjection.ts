@@ -22,9 +22,7 @@ export const useMaskInjection = () => {
 			}
 
 			// 2. Update LoadImageMask with the new mask
-			const maskNodes = comfyApp.graph._nodes.filter((n) =>
-				isMaskNodeType(n.type),
-			);
+			const maskNodes = comfyApp.graph._nodes.filter((n) => isMaskNodeType(n.type));
 
 			if (maskNodes.length === 0) {
 				logger.log("[Meld-Debug] injectMaskToGraph: No LoadImageMask nodes found in active graph");
@@ -41,10 +39,7 @@ export const useMaskInjection = () => {
 			// If multiple, use the first one
 			const node = maskNodes[0];
 			if (!Array.isArray(node.widgets)) {
-				logger.log(
-					"[Meld-Debug] injectMaskToGraph: target mask node has no widgets",
-					node.id,
-				);
+				logger.log("[Meld-Debug] injectMaskToGraph: target mask node has no widgets", node.id);
 				return false;
 			}
 			const imageWidget = node.widgets.find((w) => w.name === "image");

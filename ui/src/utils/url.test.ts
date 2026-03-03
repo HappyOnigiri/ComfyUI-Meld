@@ -28,9 +28,7 @@ describe("getImageViewUrl", () => {
 			subfolder: "custom/sub",
 			type: "custom",
 		});
-		expect(result).toBe(
-			"/api/meld/view-custom?filename=img.png&subfolder=custom%2Fsub",
-		);
+		expect(result).toBe("/api/meld/view-custom?filename=img.png&subfolder=custom%2Fsub");
 	});
 
 	it("returns trash endpoint for trash type", () => {
@@ -48,8 +46,6 @@ describe("getImageViewUrl", () => {
 			subfolder: "a/b",
 			type: "output",
 		});
-		expect(result).toBe(
-			"/api/view?filename=img.png&type=output&subfolder=a%2Fb",
-		);
+		expect(result).toBe("/api/view?filename=img.png&type=output&subfolder=a%2Fb");
 	});
 });

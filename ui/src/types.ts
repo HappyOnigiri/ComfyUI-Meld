@@ -349,10 +349,7 @@ export interface ComfyApp {
 export interface ComfyApi {
 	fetchApi(route: string, options?: RequestInit): Promise<Response>;
 	clientId?: string;
-	addEventListener(
-		type: string,
-		callback: (event: CustomEvent<unknown>) => void,
-	): void;
+	addEventListener(type: string, callback: (event: CustomEvent<unknown>) => void): void;
 	[key: string]: unknown;
 }
 

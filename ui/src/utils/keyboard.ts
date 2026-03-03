@@ -19,9 +19,5 @@ export const isEditableActiveElement = (): boolean => {
 	}
 
 	const tagName = el.tagName;
-	return (
-		tagName === "INPUT" ||
-		tagName === "TEXTAREA" ||
-		Boolean(el.isContentEditable)
-	);
+	return tagName === "INPUT" || tagName === "TEXTAREA" || Boolean(el.isContentEditable);
 };

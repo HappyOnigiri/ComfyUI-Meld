@@ -16,11 +16,7 @@ export type InjectImageToGraphResult =
 	| { ok: true }
 	| {
 			ok: false;
-			reason:
-				| "no_app_graph"
-				| "no_loader_node"
-				| "no_widgets"
-				| "no_image_widget";
+			reason: "no_app_graph" | "no_loader_node" | "no_widgets" | "no_image_widget";
 	  };
 
 export function injectImageToGraph(
@@ -34,9 +30,7 @@ export function injectImageToGraph(
 
 	const imagePath = buildComfyImagePath(image);
 
-	const loaderNodes = comfyApp.graph._nodes.filter((n) =>
-		isLoaderNodeType(n.type),
-	);
+	const loaderNodes = comfyApp.graph._nodes.filter((n) => isLoaderNodeType(n.type));
 
 	if (loaderNodes.length === 0) {
 		return { ok: false, reason: "no_loader_node" };

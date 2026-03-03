@@ -9,10 +9,7 @@ import type {
 } from "../../../types";
 import { fetchWorkflows } from "../../workflows/api/workflowsApi";
 import { injectImageToGraph } from "../../workflows/utils/injectImageToGraph";
-import {
-	isLoaderNodeType,
-	isMaskNodeType,
-} from "../../workflows/utils/nodeTypePredicates";
+import { isLoaderNodeType, isMaskNodeType } from "../../workflows/utils/nodeTypePredicates";
 import * as imagesApi from "../api/imagesApi";
 
 type SnapshotData = Awaited<ReturnType<typeof imagesApi.fetchSnapshotData>>;
@@ -62,12 +59,9 @@ export const useImageActions = (_state: GalleryState, dispatch: React.Dispatch<G
 	const handleAddUnifiedLoader = useCallback(async (image: MeldImage) => {
 		try {
 			const data = await imagesApi.fetchSnapshotData(image.id);
-			const nodeName = data.is_flux
-				? "MeldUnifiedFluxLoader"
-				: "MeldUnifiedLoader";
+			const nodeName = data.is_flux ? "MeldUnifiedFluxLoader" : "MeldUnifiedLoader";
 			const comfyApp = window.app as ComfyApp;
-			const liteGraph = (window as unknown as { LiteGraph?: LiteGraphGlobal })
-				.LiteGraph;
+			const liteGraph = (window as unknown as { LiteGraph?: LiteGraphGlobal }).LiteGraph;
 			if (!comfyApp.graph || !comfyApp.canvas || !liteGraph) {
 				alert("ComfyUI graph is not ready. Please open a workflow first.");
 				return false;
@@ -122,9 +116,7 @@ export const useImageActions = (_state: GalleryState, dispatch: React.Dispatch<G
 					}
 				}
 
-				const controlWidget = node.widgets.find(
-					(w) => w.name === "control_after_generate",
-				);
+				const controlWidget = node.widgets.find((w) => w.name === "control_after_generate");
 				if (controlWidget) {
 					controlWidget.value = "fixed";
 				}
@@ -198,9 +190,7 @@ export const useImageActions = (_state: GalleryState, dispatch: React.Dispatch<G
 				return false;
 			}
 
-			const loaderNodes = comfyApp.graph._nodes.filter((n) =>
-				isLoaderNodeType(n.type),
-			);
+			const loaderNodes = comfyApp.graph._nodes.filter((n) => isLoaderNodeType(n.type));
 
 			if (loaderNodes.length === 0) {
 				dispatch({
@@ -243,8 +233,7 @@ export const useImageActions = (_state: GalleryState, dispatch: React.Dispatch<G
 						message:
 							result.reason === "no_app_graph"
 								? "No active workflow graph found. Please open a workflow first."
-								: result.reason === "no_widgets" ||
-										result.reason === "no_image_widget"
+								: result.reason === "no_widgets" || result.reason === "no_image_widget"
 									? "The selected loader node does not expose an image widget."
 									: "No 'Meld Image Loader' or 'Load Image' node found in the current workflow.",
 					},
