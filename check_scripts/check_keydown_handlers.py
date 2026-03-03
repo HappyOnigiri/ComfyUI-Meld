@@ -2,10 +2,9 @@
 """
 Check that keydown event handlers follow the keybinding propagation policy.
 
-Enforces .cursor/rules/ui/keybinding-propagation-policy.mdc:
-- Global keydown listeners (window/document) MUST use { capture: true } to intercept
-  events before ComfyUI's handlers.
-- Handlers processing Escape, Ctrl+Enter, etc. SHOULD call stopImmediatePropagation.
+Flags global keydown listeners (window/document) that do not use { capture: true }.
+Does not validate stopImmediatePropagation (see .cursor/rules/ui/keybinding-propagation-policy.mdc
+for full policy).
 
 Scope: ui/src/**/*.{ts,tsx}
 Allowlist: useEscapeToClose.ts, useKeydownCapture.ts (reference implementations).
@@ -26,13 +25,13 @@ ALLOWLIST_FILES = {
 
 # Matches (window|document).addEventListener("keydown" or 'keydown', handler, ...)
 # Captures the third-argument region (optional) in group "options".
-# Handler group uses balanced-paren subpattern so inline handlers like
-# (e) => fn(a, b) or (e) => { ... } are not truncated at the first ).
+# Handler group uses non-greedy catch-all; the optional options group delimits
+# the handler for cases like (e) => onKey(fn(a, b)) with nested parens/commas.
 KEYDOWN_LISTENER_PATTERN = re.compile(
     r"""
     (?:window|document)\s*\.\s*addEventListener\s*\(\s*
     ["']keydown["']\s*,\s*
-    (?P<handler>(?:[^,)]|\([^)]*\))+)
+    (?P<handler>.*?)
     (?:\s*,\s*(?P<options>\{.*?\}|true|false))?
     \s*\)
     """,
@@ -92,8 +91,9 @@ def check_file(filepath: str) -> list[tuple[int, str, str]]:
 
 
 def main() -> None:
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    base_dir = os.path.dirname(script_dir)
     target_dir = os.path.join("ui", "src")
-    base_dir = os.getcwd()
     search_path = os.path.join(base_dir, target_dir)
 
     if not os.path.exists(search_path):
