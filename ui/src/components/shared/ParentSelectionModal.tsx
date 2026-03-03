@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import * as imagesApi from "../../features/images/api/imagesApi";
 import * as importerApi from "../../features/importer/api/importerApi";
 import { useEscapeToClose } from "../../hooks/useEscapeToClose";
+import { logger } from "../../logger";
 import { useGallery } from "../../store/GalleryContext";
 import { getThumbnailViewUrl } from "../../utils/url";
 
@@ -58,7 +59,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({ imag
 			const results = await imagesApi.suggestParents(imageId, threshold);
 			setSuggestions(results);
 		} catch (err) {
-			console.error("Failed to load suggestions:", err);
+			logger.error("Failed to load suggestions:", err);
 		} finally {
 			setIsLoading(false);
 		}
@@ -70,7 +71,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({ imag
 
 	const handleSelect = async (parentId: number) => {
 		if (parentId === undefined || parentId === null) {
-			console.error("handleSelect: parentId is undefined or null");
+			logger.error("handleSelect: parentId is undefined or null");
 			return;
 		}
 		if (!image || parentId === image.parent_id) {
@@ -88,7 +89,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({ imag
 			await refreshImages();
 			handleClose();
 		} catch (err) {
-			console.error("Failed to link parent:", err);
+			logger.error("Failed to link parent:", err);
 		}
 	};
 
@@ -101,7 +102,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({ imag
 			await refreshImages();
 			handleClose();
 		} catch (err) {
-			console.error("Failed to remove source:", err);
+			logger.error("Failed to remove source:", err);
 			alert("Failed to remove source image.");
 		}
 	};
@@ -124,7 +125,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({ imag
 			}
 			await handleSelect(id);
 		} catch (err) {
-			console.error("Failed to upload/register image:", err);
+			logger.error("Failed to upload/register image:", err);
 		} finally {
 			setIsLoading(false);
 		}

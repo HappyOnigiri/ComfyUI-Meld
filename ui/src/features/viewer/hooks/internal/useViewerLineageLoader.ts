@@ -1,5 +1,6 @@
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
+import { logger } from "../../../../logger";
 import type { GalleryAction, GalleryState } from "../../../../types";
 import * as imagesApi from "../../../images/api/imagesApi";
 
@@ -34,7 +35,7 @@ export const useViewerLineageLoader = ({
 					}
 				})
 				.catch((err) => {
-					console.error("Failed to fetch lineage:", err);
+					logger.error("Failed to fetch lineage:", err);
 				})
 				.finally(() => {
 					if (!cancelled && isMountedRef.current && requestId === latestRequestIdRef.current) {

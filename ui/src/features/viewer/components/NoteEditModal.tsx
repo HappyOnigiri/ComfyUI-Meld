@@ -3,6 +3,7 @@ import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
+import { logger } from "../../../logger";
 import { useGallery } from "../../../store/GalleryContext";
 import { useImageActions } from "../../images/hooks/useImageActions";
 
@@ -46,7 +47,7 @@ export const NoteEditModal: React.FC<NoteEditModalProps> = ({ imageId, initialNo
 			await handleUpdateUserNotes(imageId, notes);
 			onClose();
 		} catch (error) {
-			console.error("Failed to update notes:", error);
+			logger.error("Failed to update notes:", error);
 			alert("Failed to update notes.");
 		} finally {
 			setIsSaving(false);

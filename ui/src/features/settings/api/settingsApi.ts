@@ -1,6 +1,7 @@
 // @ts-expect-error
 import { api } from "/scripts/api.js";
 import { handleResponse } from "../../../api";
+import { logger } from "../../../logger";
 import type { Settings } from "../../../types";
 
 const DEFAULT_SETTINGS: Settings = {
@@ -85,7 +86,7 @@ export const fetchSettings = async (): Promise<Settings> => {
 		const res = await api.fetchApi("/meld/settings");
 		settings = await handleResponse<Settings>(res);
 	} catch (e) {
-		console.error("Failed to fetch settings, using defaults", e);
+		logger.error("Failed to fetch settings, using defaults", e);
 		return DEFAULT_SETTINGS;
 	}
 

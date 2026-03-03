@@ -16,6 +16,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "/scripts/api.js";
 import { parseJsonResponse } from "../../../api";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
+import { logger } from "../../../logger";
 import { useGallery } from "../../../store/GalleryContext";
 import type { MeldImage } from "../../../types";
 import { getImageViewUrl } from "../../../utils/url";
@@ -660,7 +661,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 			const data = await parseJsonResponse<{ name?: string }>(response);
 			return data.name ?? null;
 		} catch (error) {
-			console.error("[Meld] Error uploading mask:", error);
+			logger.error("Error uploading mask:", error);
 			return null;
 		} finally {
 			setIsUploading(false);

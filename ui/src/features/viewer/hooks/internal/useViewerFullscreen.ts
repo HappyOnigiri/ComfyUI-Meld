@@ -1,5 +1,6 @@
 import type React from "react";
 import { useCallback, useEffect, useState } from "react";
+import { logger } from "../../../../logger";
 import type { Settings } from "../../../../types";
 
 interface UseViewerFullscreenParams {
@@ -26,7 +27,7 @@ export const useViewerFullscreen = ({
 
 			if (!document.fullscreenElement) {
 				element.requestFullscreen().catch((err) => {
-					console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+					logger.error(`Error attempting to enable full-screen mode: ${err.message}`);
 				});
 			} else {
 				document.exitFullscreen();

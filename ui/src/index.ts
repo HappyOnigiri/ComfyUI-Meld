@@ -68,7 +68,7 @@ app.registerExtension({
 			logger.init(settings.dev_mode);
 			logger.log("Settings received:", settings);
 		} catch (e) {
-			console.error("[Meld] Failed to fetch settings", e);
+			logger.error("Failed to fetch settings", e);
 			logger.init(false);
 		}
 
@@ -91,7 +91,7 @@ app.registerExtension({
 				try {
 					app.extensionManager?.setSidebarTabActive("meld-gallery");
 				} catch (e) {
-					console.error("Error toggling sidebar:", e);
+					logger.error("Error toggling sidebar:", e);
 				}
 			},
 		};
@@ -132,7 +132,7 @@ app.registerExtension({
 									type: img.type,
 								});
 							} catch (e) {
-								console.error("Failed to auto-register image:", e);
+								logger.error("Failed to auto-register image:", e);
 							}
 						}
 					}
@@ -203,7 +203,7 @@ app.registerExtension({
 				},
 			});
 		} catch (e) {
-			console.error("Error during sidebar registration:", e);
+			logger.error("Error during sidebar registration:", e);
 		}
 	},
 });

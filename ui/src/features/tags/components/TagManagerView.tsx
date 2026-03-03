@@ -2,6 +2,7 @@ import { Check, Edit2, Plus, Search, Tag, Trash2, X } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { RESERVED_TAG_KEYWORD } from "../../../constants";
+import { logger } from "../../../logger";
 import type { Tag as TagType } from "../../../types";
 import * as tagsApi from "../api/tagsApi";
 
@@ -27,7 +28,7 @@ export const TagManagerView: React.FC<TagManagerViewProps> = ({ onClose, onSearc
 			const data = await tagsApi.fetchTags();
 			setTags(data);
 		} catch (error) {
-			console.error("Failed to fetch tags:", error);
+			logger.error("Failed to fetch tags:", error);
 		} finally {
 			setIsLoading(false);
 		}
@@ -66,7 +67,7 @@ export const TagManagerView: React.FC<TagManagerViewProps> = ({ onClose, onSearc
 			setNewTagName("");
 			await loadTags();
 		} catch (error) {
-			console.error("Failed to add tag:", error);
+			logger.error("Failed to add tag:", error);
 		} finally {
 			setIsAdding(false);
 		}
@@ -79,7 +80,7 @@ export const TagManagerView: React.FC<TagManagerViewProps> = ({ onClose, onSearc
 			await tagsApi.deleteTag(id);
 			await loadTags();
 		} catch (error) {
-			console.error("Failed to delete tag:", error);
+			logger.error("Failed to delete tag:", error);
 		}
 	};
 
@@ -121,7 +122,7 @@ export const TagManagerView: React.FC<TagManagerViewProps> = ({ onClose, onSearc
 			handleCancelRename();
 			await loadTags();
 		} catch (error) {
-			console.error("Failed to rename tag:", error);
+			logger.error("Failed to rename tag:", error);
 			alert(error instanceof Error ? error.message : "Failed to rename tag");
 		} finally {
 			setIsRenaming(false);

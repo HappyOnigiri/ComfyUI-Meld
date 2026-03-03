@@ -1,5 +1,6 @@
 import { CheckCircle, Square } from "lucide-react";
 import type React from "react";
+import { logger } from "../../../logger";
 import { useGallery } from "../../../store/GalleryContext";
 import * as importerApi from "../api/importerApi";
 
@@ -16,7 +17,7 @@ export const ImportProgress: React.FC = () => {
 			await importerApi.cancelScan();
 			dispatch({ type: "SET_SCAN_STATUS", payload: { shouldCancel: true } });
 		} catch (err) {
-			console.error("Failed to cancel scan:", err);
+			logger.error("Failed to cancel scan:", err);
 		}
 	};
 

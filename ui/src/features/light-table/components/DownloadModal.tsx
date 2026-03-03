@@ -3,6 +3,7 @@ import type React from "react";
 import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
+import { logger } from "../../../logger";
 import * as imagesApi from "../../images/api/imagesApi";
 
 interface DownloadModalProps {
@@ -52,7 +53,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 			onClose();
 			onSuccess?.();
 		} catch (error) {
-			console.error("Download failed:", error);
+			logger.error("Download failed:", error);
 			alert("Failed to download images.");
 		} finally {
 			setIsDownloading(false);
