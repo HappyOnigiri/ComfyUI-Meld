@@ -110,7 +110,7 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 			} else {
 				const singleImageId = imageIds[0];
 				if (singleImageId === undefined) {
-					return;
+					throw new Error("No image selected");
 				}
 				await imagesApi.updateImageTags(singleImageId, selectedTags);
 			}

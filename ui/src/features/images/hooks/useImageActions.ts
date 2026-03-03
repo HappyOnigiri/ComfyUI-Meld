@@ -307,6 +307,13 @@ export const useImageActions = (_state: GalleryState, dispatch: React.Dispatch<G
 
 				const firstImage = imageArray[0];
 				if (!firstImage) {
+					dispatch({
+						type: "OPEN_MODAL",
+						payload: {
+							type: "error",
+							message: "No images selected",
+						},
+					});
 					return;
 				}
 
