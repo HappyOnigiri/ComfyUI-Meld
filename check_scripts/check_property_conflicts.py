@@ -69,7 +69,7 @@ def parse_css_blocks(content: str) -> list[tuple[str, str, int]]:
     return blocks
 
 
-def check_file(filepath: str, base_dir: str) -> list:
+def check_file(filepath: str) -> list:
     errors = []
     try:
         with open(filepath, encoding="utf-8") as f:
@@ -136,7 +136,7 @@ def main() -> None:
         for file in files:
             if file.endswith(".css"):
                 filepath = os.path.join(root, file)
-                errors = check_file(filepath, base_dir)
+                errors = check_file(filepath)
                 if errors:
                     has_errors = True
                     rel_path = os.path.relpath(filepath, base_dir)

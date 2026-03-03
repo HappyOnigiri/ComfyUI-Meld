@@ -5,7 +5,7 @@ import sys
 
 def get_defined_classes(search_path: str) -> dict[str, str]:
     defined: dict[str, list[str]] = {}
-    ignored_classes: dict[str, int] = {}
+    ignored_classes: dict[str, set[int]] = {}
 
     for root, _, files in os.walk(search_path):
         for file in files:
@@ -34,7 +34,7 @@ def get_defined_classes(search_path: str) -> dict[str, str]:
                             elif token.startswith(".meld-"):
                                 class_name = token[1:]
                                 if ignore_next:
-                                    ignored_classes[class_name] = ignored_classes.get(class_name, 0) + 1
+                                    ignored_classes.setdefault(class_name, set()).add(len(defined.get(class_name, [])))
                                     # Do not reset ignore_next so grouped selectors all get ignored
                                 defined.setdefault(class_name, []).append(filepath)
                 except OSError as e:
@@ -43,8 +43,8 @@ def get_defined_classes(search_path: str) -> dict[str, str]:
 
     final_defined: dict[str, str] = {}
     for c, occurrences in defined.items():
-        ignore_count = ignored_classes.get(c, 0)
-        unignored = occurrences[ignore_count:]
+        ignored_indices = ignored_classes.get(c, set())
+        unignored = [occ for i, occ in enumerate(occurrences) if i not in ignored_indices]
         if unignored:
             final_defined[c] = unignored[0]
 
