@@ -50,8 +50,9 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({ message, onConfirm, 
 				);
 				if (focusableElements.length === 0) return;
 
-				const firstElement = focusableElements[0];
-				const lastElement = focusableElements[focusableElements.length - 1];
+				const firstElement = focusableElements.item(0);
+				const lastElement = focusableElements.item(focusableElements.length - 1);
+				if (!firstElement || !lastElement) return;
 
 				if (e.shiftKey) {
 					// Shift + Tab: Wrap from first to last

@@ -52,15 +52,17 @@ const navigateAfterItemRemoval = ({
 }: NavigateAfterRemovalParams) => {
 	let nextTargetId: number | null = null;
 	for (let i = currentIndex + 1; i < currentThumbnails.length; i++) {
-		if (!removedIds.has(currentThumbnails[i].id)) {
-			nextTargetId = currentThumbnails[i].id;
+		const candidate = currentThumbnails[i];
+		if (candidate && !removedIds.has(candidate.id)) {
+			nextTargetId = candidate.id;
 			break;
 		}
 	}
 	if (nextTargetId === null) {
 		for (let i = currentIndex - 1; i >= 0; i--) {
-			if (!removedIds.has(currentThumbnails[i].id)) {
-				nextTargetId = currentThumbnails[i].id;
+			const candidate = currentThumbnails[i];
+			if (candidate && !removedIds.has(candidate.id)) {
+				nextTargetId = candidate.id;
 				break;
 			}
 		}

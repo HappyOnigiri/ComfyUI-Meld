@@ -108,7 +108,11 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 
 				await imagesApi.bulkUpdateImageTags(imageIds, tagsToAdd, tagsToRemove);
 			} else {
-				await imagesApi.updateImageTags(imageIds[0], selectedTags);
+				const singleImageId = imageIds[0];
+				if (singleImageId === undefined) {
+					throw new Error("No image selected");
+				}
+				await imagesApi.updateImageTags(singleImageId, selectedTags);
 			}
 			await refreshImages();
 			dispatch({ type: "CLEAR_SELECTION" });

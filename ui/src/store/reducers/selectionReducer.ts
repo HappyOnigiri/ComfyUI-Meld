@@ -54,12 +54,14 @@ export const selectionReducer: GallerySubReducer = (state, action) => {
 				lastSelectedId: action.payload,
 			};
 		}
-		case "SELECT_ALL":
+		case "SELECT_ALL": {
+			const firstImage = state.images[0];
 			return {
 				...state,
 				selectedIds: new Set<number>(state.images.map((img) => img.id)),
-				lastSelectedId: state.images.length > 0 ? state.images[0].id : null,
+				lastSelectedId: firstImage ? firstImage.id : null,
 			};
+		}
 		case "CLEAR_SELECTION":
 			return {
 				...state,

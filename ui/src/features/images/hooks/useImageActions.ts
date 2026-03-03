@@ -305,9 +305,21 @@ export const useImageActions = (_state: GalleryState, dispatch: React.Dispatch<G
 					return;
 				}
 
+				const firstImage = imageArray[0];
+				if (!firstImage) {
+					dispatch({
+						type: "OPEN_MODAL",
+						payload: {
+							type: "error",
+							message: "No images selected",
+						},
+					});
+					return;
+				}
+
 				dispatch({
 					type: "OPEN_MODAL",
-					payload: { type: "mask_editor", imageId: imageArray[0].id, mode },
+					payload: { type: "mask_editor", imageId: firstImage.id, mode },
 				});
 				return;
 			}
