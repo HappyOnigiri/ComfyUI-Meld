@@ -15,9 +15,10 @@ import os
 import re
 import sys
 
-# Match z-index: <value> or zIndex: <value>
+# Match z-index: <value> or zIndex: <value> (standalone CSS/JS property only)
+# Lookbehind ensures we don't match suffixes like "--my-z-index"; fixed-width alternation required
 # Captures the value (trailing comma and !important accepted, stripped in normalization)
-ZINDEX_PATTERN = re.compile(r"(?:z-index|zIndex)\s*:\s*(?P<value>[^;}\n]+)")
+ZINDEX_PATTERN = re.compile(r"(?:(?<=^)|(?<=[\s{;.]))(?:z-index|zIndex)(?=\s*:)\s*:\s*(?P<value>[^;}\n]+)")
 
 # Allowed: var(--meld-z-*) token exactly; if quoted, opening and closing quote must match
 VAR_TOKEN_PATTERN = re.compile(r"^(?:var\(--meld-z-[A-Za-z0-9-]+\)|(['\"])var\(--meld-z-[A-Za-z0-9-]+\)\1)$")
@@ -26,6 +27,99 @@ VAR_TOKEN_PATTERN = re.compile(r"^(?:var\(--meld-z-[A-Za-z0-9-]+\)|(['\"])var\(-
 ALLOWED_LOCAL = {1, 2, 3}
 
 IGNORE_MARKER = "z-index-check-ignore"
+
+
+def _is_within_string(s: str, pos: int) -> bool:
+    """Return True if position pos in s is inside a single- or double-quoted string."""
+    if pos <= 0 or pos >= len(s):
+        return False
+    i = 0
+    in_double = False
+    in_single = False
+    escape_next = False
+    while i < pos:
+        c = s[i]
+        if escape_next:
+            escape_next = False
+            i += 1
+            continue
+        if c == "\\":
+            escape_next = True
+            i += 1
+            continue
+        if in_double:
+            if c == '"':
+                in_double = False
+            i += 1
+            continue
+        if in_single:
+            if c == "'":
+                in_single = False
+            i += 1
+            continue
+        if c == '"':
+            in_double = True
+            i += 1
+            continue
+        if c == "'":
+            in_single = True
+            i += 1
+            continue
+        i += 1
+    return in_double or in_single
+
+
+def _find_string_end(s: str, pos: int) -> int:
+    """Given we're inside a string at pos, return the position after the closing quote."""
+    in_double = False
+    in_single = False
+    escape_next = False
+    i = 0
+    while i < pos:
+        c = s[i]
+        if escape_next:
+            escape_next = False
+            i += 1
+            continue
+        if c == "\\":
+            escape_next = True
+            i += 1
+            continue
+        if in_double:
+            if c == '"':
+                in_double = False
+            i += 1
+            continue
+        if in_single:
+            if c == "'":
+                in_single = False
+            i += 1
+            continue
+        if c == '"':
+            in_double = True
+            i += 1
+            continue
+        if c == "'":
+            in_single = True
+            i += 1
+            continue
+        i += 1
+    target = '"' if in_double else "'"
+    escape_next = False
+    while i < len(s):
+        c = s[i]
+        if escape_next:
+            escape_next = False
+            i += 1
+            continue
+        if c == "\\":
+            escape_next = True
+            i += 1
+            continue
+        if c == target:
+            return i + 1
+        i += 1
+    return len(s)
 
 
 def check_file(filepath: str) -> list[tuple[int, str, str]]:
@@ -86,8 +180,14 @@ def check_file(filepath: str) -> list[tuple[int, str, str]]:
                             idx = len(remaining)
                             in_block_comment = True
                     elif slash_start != -1:
-                        code_part += remaining[idx:slash_start]
-                        idx = len(remaining)
+                        if _is_within_string(remaining, slash_start):
+                            # // is inside a string (e.g. "http://..."), include the whole string
+                            string_end = _find_string_end(remaining, slash_start)
+                            code_part += remaining[idx:string_end]
+                            idx = string_end
+                        else:
+                            code_part += remaining[idx:slash_start]
+                            idx = len(remaining)
                     else:
                         code_part += remaining[idx:]
                         idx = len(remaining)
