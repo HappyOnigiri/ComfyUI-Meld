@@ -21,7 +21,8 @@
                 "noCommentText": "error",
                 "noTsIgnore": "error",
                 "noArrayIndexKey": "off",
-                "noConsole": "error"
+                "noConsole": "error",
+                "noDuplicateProperties": "error"
             },
             "complexity": {
                 "noImportantStyles": "error"
@@ -34,7 +35,8 @@
             "correctness": {
                 "noUnusedImports": "error",
                 "noUnusedVariables": "error",
-                "useExhaustiveDependencies": "error"
+                "useExhaustiveDependencies": "error",
+                "noUnknownUnit": "error"
             }
         }
     }
