@@ -103,7 +103,7 @@
 .meld-import-container {
 	display: flex;
 	gap: 20px;
-	height: 600px;
+	height: min(600px, 80vh);
 }
 
 .meld-import-sidebar {
@@ -240,7 +240,7 @@
 	right: 0;
 	bottom: 0;
 	background: transparent;
-	z-index: var(--meld-z-import-preview);
+	z-index: var(--meld-z-import-preview, 1000);
 	border-radius: 0;
 }
 
@@ -291,7 +291,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	z-index: var(--meld-z-import-preview-close);
+	z-index: var(--meld-z-import-preview-close, 1010);
 	transition: background 0.2s;
 }
 

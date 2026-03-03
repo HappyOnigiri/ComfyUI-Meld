@@ -1,5 +1,5 @@
 /* Prompt Popup Styles */
-.meld-prompt-popup-overlay {
+.meld-prompt-popup__overlay {
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -14,7 +14,7 @@
 	cursor: default;
 }
 
-.meld-prompt-popup-content {
+.meld-prompt-popup__content {
 	background: var(--comfy-menu-bg, #222);
 	border: 1px solid var(--meld-border-color);
 	padding: 20px;
@@ -23,7 +23,8 @@
 	max-height: 80%;
 	overflow-y: auto;
 	white-space: pre-wrap;
-	word-break: break-all;
+	overflow-wrap: break-word;
+	word-break: normal;
 	font-size: 13px;
 	line-height: 1.5;
 	color: var(--meld-text-color);
@@ -32,7 +33,7 @@
 	min-width: 300px;
 }
 
-.meld-prompt-popup-header {
+.meld-prompt-popup__header {
 	font-weight: bold;
 	margin-bottom: 15px;
 	padding-bottom: 10px;
@@ -43,26 +44,40 @@
 	align-items: center;
 }
 
-.meld-prompt-popup-close {
+.meld-prompt-popup__close {
 	cursor: pointer;
 	color: var(--meld-text-secondary);
-	transition: color 0.2s;
+	transition:
+		color 0.2s,
+		outline 0.2s;
 }
 
-.meld-prompt-popup-copy {
+.meld-prompt-popup__copy {
 	cursor: pointer;
 	color: var(--meld-text-secondary);
-	transition: color 0.2s;
+	transition:
+		color 0.2s,
+		outline 0.2s;
 }
 
-.meld-prompt-popup-close:hover,
-.meld-prompt-popup-close:focus-visible {
+.meld-prompt-popup__close:hover {
 	color: var(--meld-text-color);
-	outline: none;
 }
 
-.meld-prompt-popup-copy:hover,
-.meld-prompt-popup-copy:focus-visible {
+.meld-prompt-popup__close:focus-visible {
+	color: var(--meld-text-color);
+	outline: 2px solid var(--meld-accent-color, #4488ff);
+	outline-offset: 2px;
+	border-radius: 2px;
+}
+
+.meld-prompt-popup__copy:hover {
 	color: var(--meld-accent-color);
-	outline: none;
+}
+
+.meld-prompt-popup__copy:focus-visible {
+	color: var(--meld-accent-color);
+	outline: 2px solid var(--meld-accent-color, #4488ff);
+	outline-offset: 2px;
+	border-radius: 2px;
 }
