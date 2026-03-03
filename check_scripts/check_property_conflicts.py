@@ -107,7 +107,7 @@ def check_file(filepath: str, base_dir: str) -> list:
                                 "longhands": sorted(list(conflicting)),
                             }
                         )
-    except Exception as e:
+    except OSError as e:
         print(f"Error reading {filepath}: {e}")
         sys.exit(1)
 

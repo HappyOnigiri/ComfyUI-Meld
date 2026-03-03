@@ -37,7 +37,7 @@ def get_defined_classes(search_path: str) -> dict[str, str]:
                                     ignored_classes[class_name] = ignored_classes.get(class_name, 0) + 1
                                     # Do not reset ignore_next so grouped selectors all get ignored
                                 defined.setdefault(class_name, []).append(filepath)
-                except Exception as e:
+                except OSError as e:
                     print(f"Error reading {filepath}: {e}")
                     sys.exit(1)
 
@@ -90,7 +90,7 @@ def get_referenced_classes(search_path: str) -> set[str]:
                         for match in re.finditer(r"\b(meld-[a-zA-Z0-9_-]+)\b", content):
                             references.add(match.group(1))
 
-                except Exception as e:
+                except OSError as e:
                     print(f"Error reading {filepath}: {e}")
                     sys.exit(1)
     return references
