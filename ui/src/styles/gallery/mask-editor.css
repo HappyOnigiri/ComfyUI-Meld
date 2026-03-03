@@ -6,6 +6,7 @@
 	max-height: 90vh;
 	user-select: none;
 }
+
 .meld-mask-editor-tool-selector {
 	display: flex;
 	justify-content: center;
@@ -17,6 +18,7 @@
 	width: fit-content;
 	align-self: center;
 }
+
 .meld-mask-tool-btn {
 	display: flex;
 	align-items: center;
@@ -30,15 +32,18 @@
 	font-size: 13px;
 	transition: all 0.2s;
 }
+
 .meld-mask-tool-btn:hover {
 	color: var(--meld-text-color);
 	background: var(--comfy-input-bg, rgba(255, 255, 255, 0.05));
 }
-.meld-mask-tool-btn.active {
+
+.meld-mask-tool-btn--active {
+	background: var(--comfy-input-bg-active, rgba(68, 136, 255, 0.2));
 	color: var(--meld-accent-color);
-	background: var(--comfy-input-bg-active, rgba(68, 136, 255, 0.15));
 	border-color: var(--meld-accent-color);
 }
+
 .meld-mask-editor-canvas-container {
 	position: relative;
 	width: 100%;
@@ -52,6 +57,7 @@
 	border-radius: 4px;
 	overflow: hidden;
 }
+
 .meld-mask-editor-image {
 	max-width: 100%;
 	max-height: 100%;
@@ -59,6 +65,7 @@
 	user-select: none;
 	pointer-events: none;
 }
+
 .meld-mask-editor-canvas {
 	position: absolute;
 	top: 0;
@@ -67,6 +74,7 @@
 	height: 100%;
 	pointer-events: none;
 }
+
 .meld-mask-toolbar-btn {
 	display: flex;
 	align-items: center;
@@ -81,31 +89,39 @@
 	font-weight: bold;
 	transition: all 0.2s;
 }
+
 .meld-mask-toolbar-btn:hover:not(:disabled) {
 	background: var(--comfy-input-bg-active, #444);
 	border-color: var(--meld-accent-color);
 }
+
 .meld-mask-toolbar-btn:disabled {
 	color: var(--meld-text-secondary);
 	cursor: not-allowed;
 }
+
 .meld-mask-toolbar-btn--inject {
 	color: var(--meld-success-color);
 }
+
 .meld-mask-toolbar-btn--run {
 	color: var(--meld-accent-color);
 }
+
 .meld-mask-toolbar-btn--undo {
 	background: var(--comfy-input-bg);
 	color: var(--meld-text-color);
 }
+
 .meld-mask-toolbar-btn--cancel {
 	padding: 6px;
 	color: var(--meld-text-secondary);
 }
+
 .meld-mask-toolbar-btn--cancel:hover {
 	color: var(--meld-danger-color);
 }
+
 .meld-mask-editor-footer {
 	margin-top: 15px;
 	display: flex;
@@ -115,10 +131,12 @@
 	padding-top: 15px;
 	border-top: 1px solid var(--meld-border-subtle);
 }
+
 .meld-mask-editor-actions {
 	display: flex;
 	gap: 10px;
 }
+
 .meld-mask-editor-hint {
 	color: var(--meld-text-secondary);
 	font-size: 13px;
