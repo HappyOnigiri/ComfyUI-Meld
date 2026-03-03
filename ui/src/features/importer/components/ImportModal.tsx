@@ -111,6 +111,7 @@ export const ImportModal: React.FC = () => {
 				setFolders([]);
 				setImages([]);
 				setCurrentPathImageCount(0);
+				setIsLoadingFolders(false);
 				return;
 			}
 
