@@ -16,9 +16,9 @@ import re
 import sys
 
 # Match z-index: <value> or zIndex: <value> (standalone CSS/JS property only)
-# Lookbehind ensures we don't match suffixes like "--my-z-index"; fixed-width alternation required
+# Lookbehind ensures we don't match suffixes like "--my-z-index"; includes comma for compact literals
 # Captures the value; stops at comma, semicolon, brace, or newline so object literals work
-ZINDEX_PATTERN = re.compile(r"(?:(?<=^)|(?<=[\s{;.]))(?:z-index|zIndex)(?=\s*:)\s*:\s*(?P<value>[^,;}\n]+)")
+ZINDEX_PATTERN = re.compile(r"(?:(?<=^)|(?<=[\s{;.,]))(?:z-index|zIndex)(?=\s*:)\s*:\s*(?P<value>[^,;}\n]+)")
 
 # Allowed: var(--meld-z-*) token exactly; if quoted, opening and closing quote must match
 VAR_TOKEN_PATTERN = re.compile(r"^(?:var\(--meld-z-[A-Za-z0-9-]+\)|(['\"])var\(--meld-z-[A-Za-z0-9-]+\)\1)$")
