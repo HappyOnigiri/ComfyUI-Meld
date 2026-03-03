@@ -2,6 +2,7 @@ import { Check, Edit2, Plus, Search, Tag, Trash2, X } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { RESERVED_TAG_KEYWORD } from "../../../constants";
+import { logger } from "../../../logger";
 import type { Tag as TagType } from "../../../types";
 import * as tagsApi from "../api/tagsApi";
 
@@ -10,10 +11,7 @@ interface TagManagerViewProps {
 	onSearch: (query: string) => void;
 }
 
-export const TagManagerView: React.FC<TagManagerViewProps> = ({
-	onClose,
-	onSearch,
-}) => {
+export const TagManagerView: React.FC<TagManagerViewProps> = ({ onClose, onSearch }) => {
 	const [tags, setTags] = useState<TagType[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [searchQuery, setSearchQuery] = useState("");
@@ -30,7 +28,7 @@ export const TagManagerView: React.FC<TagManagerViewProps> = ({
 			const data = await tagsApi.fetchTags();
 			setTags(data);
 		} catch (error) {
-			console.error("Failed to fetch tags:", error);
+			logger.error("Failed to fetch tags:", error);
 		} finally {
 			setIsLoading(false);
 		}
@@ -53,9 +51,7 @@ export const TagManagerView: React.FC<TagManagerViewProps> = ({
 		if (!name || isAdding) return;
 
 		if (name.toLowerCase() === RESERVED_TAG_KEYWORD) {
-			alert(
-				`Tag name '${RESERVED_TAG_KEYWORD}' is reserved for search and cannot be used.`,
-			);
+			alert(`Tag name '${RESERVED_TAG_KEYWORD}' is reserved for search and cannot be used.`);
 			return;
 		}
 
@@ -71,7 +67,7 @@ export const TagManagerView: React.FC<TagManagerViewProps> = ({
 			setNewTagName("");
 			await loadTags();
 		} catch (error) {
-			console.error("Failed to add tag:", error);
+			logger.error("Failed to add tag:", error);
 		} finally {
 			setIsAdding(false);
 		}
@@ -84,7 +80,7 @@ export const TagManagerView: React.FC<TagManagerViewProps> = ({
 			await tagsApi.deleteTag(id);
 			await loadTags();
 		} catch (error) {
-			console.error("Failed to delete tag:", error);
+			logger.error("Failed to delete tag:", error);
 		}
 	};
 
@@ -104,9 +100,7 @@ export const TagManagerView: React.FC<TagManagerViewProps> = ({
 		if (!name || editingTagId === null || isRenaming) return;
 
 		if (name.toLowerCase() === RESERVED_TAG_KEYWORD) {
-			alert(
-				`Tag name '${RESERVED_TAG_KEYWORD}' is reserved for search and cannot be used.`,
-			);
+			alert(`Tag name '${RESERVED_TAG_KEYWORD}' is reserved for search and cannot be used.`);
 			return;
 		}
 
@@ -117,12 +111,7 @@ export const TagManagerView: React.FC<TagManagerViewProps> = ({
 		}
 
 		// Client side duplicate check
-		if (
-			tags.some(
-				(t) =>
-					t.id !== editingTagId && t.name.toLowerCase() === name.toLowerCase(),
-			)
-		) {
+		if (tags.some((t) => t.id !== editingTagId && t.name.toLowerCase() === name.toLowerCase())) {
 			alert(`Tag "${name}" already exists.`);
 			return;
 		}
@@ -133,7 +122,7 @@ export const TagManagerView: React.FC<TagManagerViewProps> = ({
 			handleCancelRename();
 			await loadTags();
 		} catch (error) {
-			console.error("Failed to rename tag:", error);
+			logger.error("Failed to rename tag:", error);
 			alert(error instanceof Error ? error.message : "Failed to rename tag");
 		} finally {
 			setIsRenaming(false);
@@ -145,9 +134,7 @@ export const TagManagerView: React.FC<TagManagerViewProps> = ({
 	};
 
 	const filteredTags = useMemo(() => {
-		return tags.filter((tag) =>
-			tag.name.toLowerCase().includes(searchQuery.toLowerCase()),
-		);
+		return tags.filter((tag) => tag.name.toLowerCase().includes(searchQuery.toLowerCase()));
 	}, [tags, searchQuery]);
 
 	return (
@@ -208,19 +195,14 @@ export const TagManagerView: React.FC<TagManagerViewProps> = ({
 							filteredTags.map((tag) => (
 								<div key={tag.id} className="meld-tag-item">
 									{editingTagId === tag.id ? (
-										<form
-											className="meld-tag-rename-form"
-											onSubmit={handleRenameTag}
-										>
+										<form className="meld-tag-rename-form" onSubmit={handleRenameTag}>
 											<input
 												type="text"
 												ref={renameInputRef}
 												className="meld-tag-rename-input"
 												value={editingTagName}
 												onChange={(e) => setEditingTagName(e.target.value)}
-												onKeyDown={(e) =>
-													e.key === "Escape" && handleCancelRename()
-												}
+												onKeyDown={(e) => e.key === "Escape" && handleCancelRename()}
 											/>
 											<button
 												type="submit"

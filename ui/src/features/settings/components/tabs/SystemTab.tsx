@@ -4,12 +4,7 @@ import { SettingItem } from "../SettingItem";
 
 interface SystemTabProps {
 	localSettings: Settings;
-	handleNumberChange: (
-		key: keyof Settings,
-		value: string,
-		min?: number,
-		max?: number,
-	) => void;
+	handleNumberChange: (key: keyof Settings, value: string, min?: number, max?: number) => void;
 	handleNumberBlur: (config: { key: keyof Settings }) => void;
 	handleToggle: (key: keyof Settings, currentValue: boolean) => void;
 	setLocalSettings: React.Dispatch<React.SetStateAction<Settings>>;
@@ -71,16 +66,9 @@ export const SystemTab: React.FC<SystemTabProps> = ({
 						min={0}
 						max={100}
 						onChange={(e) =>
-							handleNumberChange(
-								"gallery.auto_link_phash_threshold",
-								e.target.value,
-								0,
-								100,
-							)
+							handleNumberChange("gallery.auto_link_phash_threshold", e.target.value, 0, 100)
 						}
-						onBlur={() =>
-							handleNumberBlur({ key: "gallery.auto_link_phash_threshold" })
-						}
+						onBlur={() => handleNumberBlur({ key: "gallery.auto_link_phash_threshold" })}
 					/>
 				</SettingItem>
 
@@ -95,16 +83,9 @@ export const SystemTab: React.FC<SystemTabProps> = ({
 						min={0}
 						max={100}
 						onChange={(e) =>
-							handleNumberChange(
-								"gallery.suggest_phash_threshold",
-								e.target.value,
-								0,
-								100,
-							)
+							handleNumberChange("gallery.suggest_phash_threshold", e.target.value, 0, 100)
 						}
-						onBlur={() =>
-							handleNumberBlur({ key: "gallery.suggest_phash_threshold" })
-						}
+						onBlur={() => handleNumberBlur({ key: "gallery.suggest_phash_threshold" })}
 					/>
 				</SettingItem>
 
@@ -117,10 +98,7 @@ export const SystemTab: React.FC<SystemTabProps> = ({
 							type="checkbox"
 							checked={localSettings["gallery.inherit_tags"]}
 							onChange={() =>
-								handleToggle(
-									"gallery.inherit_tags",
-									localSettings["gallery.inherit_tags"],
-								)
+								handleToggle("gallery.inherit_tags", localSettings["gallery.inherit_tags"])
 							}
 						/>
 						<span className="meld-switch__slider" />
@@ -140,17 +118,8 @@ export const SystemTab: React.FC<SystemTabProps> = ({
 						value={lineageMaxDepthInput}
 						min={1}
 						max={10}
-						onChange={(e) =>
-							handleNumberChange(
-								"gallery.lineage_max_depth",
-								e.target.value,
-								1,
-								10,
-							)
-						}
-						onBlur={() =>
-							handleNumberBlur({ key: "gallery.lineage_max_depth" })
-						}
+						onChange={(e) => handleNumberChange("gallery.lineage_max_depth", e.target.value, 1, 10)}
+						onBlur={() => handleNumberBlur({ key: "gallery.lineage_max_depth" })}
 					/>
 				</SettingItem>
 			</div>
@@ -184,16 +153,9 @@ export const SystemTab: React.FC<SystemTabProps> = ({
 						min={0}
 						max={365}
 						onChange={(e) =>
-							handleNumberChange(
-								"gallery.trash_retention_days",
-								e.target.value,
-								0,
-								365,
-							)
+							handleNumberChange("gallery.trash_retention_days", e.target.value, 0, 365)
 						}
-						onBlur={() =>
-							handleNumberBlur({ key: "gallery.trash_retention_days" })
-						}
+						onBlur={() => handleNumberBlur({ key: "gallery.trash_retention_days" })}
 					/>
 				</SettingItem>
 

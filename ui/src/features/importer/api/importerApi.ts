@@ -1,6 +1,7 @@
 // @ts-expect-error
 import { api } from "/scripts/api.js";
 import { handleResponse, parseJsonResponse } from "../../../api";
+import { logger } from "../../../logger";
 
 export type UploadImageResponse = {
 	name: string;
@@ -58,7 +59,7 @@ export const fetchFolders = async (
 	try {
 		return await handleResponse(res);
 	} catch (e) {
-		console.error("Failed to fetch folders", e);
+		logger.error("Failed to fetch folders", e);
 		return { folders: [], images: [], image_count: 0 };
 	}
 };
@@ -85,7 +86,7 @@ export const fetchFolderMetadata = async (
 	try {
 		return await handleResponse(res);
 	} catch (e) {
-		console.error("Failed to fetch folder metadata", e);
+		logger.error("Failed to fetch folder metadata", e);
 		return {};
 	}
 };

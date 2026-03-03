@@ -6,12 +6,7 @@ interface ViewTabProps {
 	localSettings: Settings;
 	setLocalSettings: React.Dispatch<React.SetStateAction<Settings>>;
 	handleToggle: (key: keyof Settings, currentValue: boolean) => void;
-	handleNumberChange: (
-		key: keyof Settings,
-		value: string,
-		min?: number,
-		max?: number,
-	) => void;
+	handleNumberChange: (key: keyof Settings, value: string, min?: number, max?: number) => void;
 	handleNumberBlur: (config: { key: keyof Settings }) => void;
 	// Input states
 	thumbnailWindowSizeInput: string;
@@ -41,9 +36,7 @@ export const ViewTab: React.FC<ViewTabProps> = ({
 						<input
 							type="checkbox"
 							checked={localSettings["viewer.loop"]}
-							onChange={() =>
-								handleToggle("viewer.loop", localSettings["viewer.loop"])
-							}
+							onChange={() => handleToggle("viewer.loop", localSettings["viewer.loop"])}
 						/>
 						<span className="meld-switch__slider" />
 					</label>
@@ -59,8 +52,7 @@ export const ViewTab: React.FC<ViewTabProps> = ({
 						onChange={(e) =>
 							setLocalSettings((prev) => ({
 								...prev,
-								"viewer.small_image_mode": e.target
-									.value as Settings["viewer.small_image_mode"],
+								"viewer.small_image_mode": e.target.value as Settings["viewer.small_image_mode"],
 							}))
 						}
 					>
@@ -77,12 +69,7 @@ export const ViewTab: React.FC<ViewTabProps> = ({
 						<input
 							type="checkbox"
 							checked={localSettings["viewer.show_icons"]}
-							onChange={() =>
-								handleToggle(
-									"viewer.show_icons",
-									localSettings["viewer.show_icons"],
-								)
-							}
+							onChange={() => handleToggle("viewer.show_icons", localSettings["viewer.show_icons"])}
 						/>
 						<span className="meld-switch__slider" />
 					</label>
@@ -97,10 +84,7 @@ export const ViewTab: React.FC<ViewTabProps> = ({
 							type="checkbox"
 							checked={localSettings["viewer.show_thumbnails"]}
 							onChange={() =>
-								handleToggle(
-									"viewer.show_thumbnails",
-									localSettings["viewer.show_thumbnails"],
-								)
+								handleToggle("viewer.show_thumbnails", localSettings["viewer.show_thumbnails"])
 							}
 						/>
 						<span className="meld-switch__slider" />
@@ -118,31 +102,20 @@ export const ViewTab: React.FC<ViewTabProps> = ({
 						min={1}
 						max={10000}
 						onChange={(e) =>
-							handleNumberChange(
-								"viewer.thumbnail_window_size",
-								e.target.value,
-								1,
-								10000,
-							)
+							handleNumberChange("viewer.thumbnail_window_size", e.target.value, 1, 10000)
 						}
-						onBlur={() =>
-							handleNumberBlur({ key: "viewer.thumbnail_window_size" })
-						}
+						onBlur={() => handleNumberBlur({ key: "viewer.thumbnail_window_size" })}
 					/>
 				</SettingItem>
 
-				<SettingItem
-					label="Delete Mode"
-					description="Choose how images are deleted in view mode."
-				>
+				<SettingItem label="Delete Mode" description="Choose how images are deleted in view mode.">
 					<select
 						className="meld-select"
 						value={localSettings["viewer.delete_mode"]}
 						onChange={(e) =>
 							setLocalSettings((prev) => ({
 								...prev,
-								"viewer.delete_mode": e.target
-									.value as Settings["viewer.delete_mode"],
+								"viewer.delete_mode": e.target.value as Settings["viewer.delete_mode"],
 							}))
 						}
 					>
@@ -195,10 +168,7 @@ export const ViewTab: React.FC<ViewTabProps> = ({
 					</select>
 				</SettingItem>
 
-				<SettingItem
-					label="Show Dimensions"
-					description="Display dimensions in the details panel."
-				>
+				<SettingItem label="Show Dimensions" description="Display dimensions in the details panel.">
 					<label className="meld-switch">
 						<input
 							type="checkbox"
@@ -252,10 +222,7 @@ export const ViewTab: React.FC<ViewTabProps> = ({
 					</label>
 				</SettingItem>
 
-				<SettingItem
-					label="Show Model"
-					description="Display model name in the details panel."
-				>
+				<SettingItem label="Show Model" description="Display model name in the details panel.">
 					<label className="meld-switch">
 						<input
 							type="checkbox"
@@ -301,12 +268,7 @@ export const ViewTab: React.FC<ViewTabProps> = ({
 						min={1}
 						max={100}
 						onChange={(e) =>
-							handleNumberChange(
-								"viewer.details.max_positive_prompt_lines",
-								e.target.value,
-								1,
-								100,
-							)
+							handleNumberChange("viewer.details.max_positive_prompt_lines", e.target.value, 1, 100)
 						}
 						onBlur={() =>
 							handleNumberBlur({
@@ -335,10 +297,7 @@ export const ViewTab: React.FC<ViewTabProps> = ({
 					</label>
 				</SettingItem>
 
-				<SettingItem
-					label="Show User Notes"
-					description="Display user notes in the details panel."
-				>
+				<SettingItem label="Show User Notes" description="Display user notes in the details panel.">
 					<select
 						className="meld-select"
 						value={localSettings["viewer.details.show_user_notes"]}
@@ -367,12 +326,7 @@ export const ViewTab: React.FC<ViewTabProps> = ({
 						min={1}
 						max={100}
 						onChange={(e) =>
-							handleNumberChange(
-								"viewer.details.max_negative_prompt_lines",
-								e.target.value,
-								1,
-								100,
-							)
+							handleNumberChange("viewer.details.max_negative_prompt_lines", e.target.value, 1, 100)
 						}
 						onBlur={() =>
 							handleNumberBlur({
@@ -382,19 +336,13 @@ export const ViewTab: React.FC<ViewTabProps> = ({
 					/>
 				</SettingItem>
 
-				<SettingItem
-					label="Show Tags"
-					description="Display tags in the details panel."
-				>
+				<SettingItem label="Show Tags" description="Display tags in the details panel.">
 					<label className="meld-switch">
 						<input
 							type="checkbox"
 							checked={localSettings["viewer.details.show_tags"]}
 							onChange={() =>
-								handleToggle(
-									"viewer.details.show_tags",
-									localSettings["viewer.details.show_tags"],
-								)
+								handleToggle("viewer.details.show_tags", localSettings["viewer.details.show_tags"])
 							}
 						/>
 						<span className="meld-switch__slider" />

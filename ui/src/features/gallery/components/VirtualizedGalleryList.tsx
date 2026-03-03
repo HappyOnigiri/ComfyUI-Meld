@@ -50,10 +50,7 @@ export const VirtualizedGalleryList: React.FC<VirtualizedGalleryListProps> = ({
 	const columnCount = isGridOnly
 		? Math.max(
 				1,
-				Math.floor(
-					(containerWidth - LIST_MARGIN * 2 + GRID_GAP) /
-						(cardFullWidth + GRID_GAP),
-				),
+				Math.floor((containerWidth - LIST_MARGIN * 2 + GRID_GAP) / (cardFullWidth + GRID_GAP)),
 			)
 		: 1;
 	const rowCount = isGridOnly
@@ -68,9 +65,7 @@ export const VirtualizedGalleryList: React.FC<VirtualizedGalleryListProps> = ({
 		estimateSize: () => rowHeightEstimate,
 		overscan: 5,
 		getItemKey: (index: number) =>
-			isGridOnly
-				? `row-${index}-${columnCount}`
-				: (visibleImages[index]?.id ?? index),
+			isGridOnly ? `row-${index}-${columnCount}` : (visibleImages[index]?.id ?? index),
 	});
 
 	// Scroll to image when ImageViewer opens
@@ -109,10 +104,7 @@ export const VirtualizedGalleryList: React.FC<VirtualizedGalleryListProps> = ({
 				{virtualItems.map((virtualRow: VirtualItem) => {
 					if (isGridOnly) {
 						const startIdx = virtualRow.index * columnCount;
-						const endIdx = Math.min(
-							startIdx + columnCount,
-							visibleImages.length,
-						);
+						const endIdx = Math.min(startIdx + columnCount, visibleImages.length);
 						const rowImages = visibleImages.slice(startIdx, endIdx);
 
 						return (
@@ -147,10 +139,7 @@ export const VirtualizedGalleryList: React.FC<VirtualizedGalleryListProps> = ({
 											style={{
 												width:
 													image.width && image.height
-														? Math.min(
-																thumbSize,
-																(thumbSize * image.width) / image.height,
-															) + 10
+														? Math.min(thumbSize, (thumbSize * image.width) / image.height) + 10
 														: thumbSize + 10,
 												minWidth: thumbSize + 10,
 											}}
@@ -195,9 +184,7 @@ export const VirtualizedGalleryList: React.FC<VirtualizedGalleryListProps> = ({
 					textAlign: "center",
 				}}
 			>
-				{isLoading && (
-					<div className="meld-gallery__loading">Loading more...</div>
-				)}
+				{isLoading && <div className="meld-gallery__loading">Loading more...</div>}
 				{!isLoading && !hasMore && visibleImages.length > 0 && (
 					<div className="meld-gallery__end">End of gallery</div>
 				)}

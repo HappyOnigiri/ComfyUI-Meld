@@ -1,5 +1,6 @@
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
+import { logger } from "../../../../logger";
 import type { GalleryAction, GalleryState } from "../../../../types";
 import * as imagesApi from "../../../images/api/imagesApi";
 
@@ -23,33 +24,21 @@ export const useViewerLineageLoader = ({
 
 	useEffect(() => {
 		let cancelled = false;
-		if (
-			viewerMode === "lineage" &&
-			viewerImageId !== null &&
-			lineageLength === 0
-		) {
+		if (viewerMode === "lineage" && viewerImageId !== null && lineageLength === 0) {
 			const requestId = ++latestRequestIdRef.current;
 			setIsLoadingLineage(true);
 			imagesApi
 				.fetchLineage(viewerImageId)
 				.then((results) => {
-					if (
-						!cancelled &&
-						isMountedRef.current &&
-						requestId === latestRequestIdRef.current
-					) {
+					if (!cancelled && isMountedRef.current && requestId === latestRequestIdRef.current) {
 						dispatch({ type: "SET_LINEAGE", payload: results });
 					}
 				})
 				.catch((err) => {
-					console.error("Failed to fetch lineage:", err);
+					logger.error("Failed to fetch lineage:", err);
 				})
 				.finally(() => {
-					if (
-						!cancelled &&
-						isMountedRef.current &&
-						requestId === latestRequestIdRef.current
-					) {
+					if (!cancelled && isMountedRef.current && requestId === latestRequestIdRef.current) {
 						setIsLoadingLineage(false);
 					}
 				});

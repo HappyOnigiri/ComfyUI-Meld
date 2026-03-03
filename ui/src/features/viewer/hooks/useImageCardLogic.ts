@@ -2,6 +2,7 @@ import type React from "react";
 import { useCallback, useRef, useState } from "react";
 import { useKeydownCapture } from "../../../hooks/useKeydownCapture";
 import { useOnPointerDownOutside } from "../../../hooks/useOnPointerDownOutside";
+import { logger } from "../../../logger";
 import { useGallery } from "../../../store/GalleryContext";
 import type { MeldImage } from "../../../types";
 import { stopKeyboardEvent } from "../../../utils/keyboard";
@@ -60,7 +61,7 @@ export const useImageCardLogic = (image: MeldImage) => {
 				setTimeout(() => setCopiedLabel(null), 2000);
 			}
 		} catch (err) {
-			console.error("Failed to copy text: ", err);
+			logger.error("Failed to copy text: ", err);
 		}
 	};
 
@@ -99,10 +100,7 @@ export const useImageCardLogic = (image: MeldImage) => {
 			: image.filename;
 
 	const thumbSize = state.settings["sidebar.thumbnail_size"] || 100;
-	const imgSrc = getThumbnailViewUrl(
-		image,
-		Math.min(400, Math.round(thumbSize * 1.5)),
-	);
+	const imgSrc = getThumbnailViewUrl(image, Math.min(400, Math.round(thumbSize * 1.5)));
 
 	const handleClick = (e: React.MouseEvent) => {
 		if (e.shiftKey) {
@@ -140,9 +138,7 @@ export const useImageCardLogic = (image: MeldImage) => {
 		// To ensure smooth D&D operation, avoid unnecessary preventDefault in mousedown of MeldImageCard root or thumbnail.
 		// Exclude interactive UI elements (textarea, input, button, etc.)
 		if (
-			(e.target as HTMLElement).closest(
-				"textarea, input, button, .meld-image-card__meta-content",
-			)
+			(e.target as HTMLElement).closest("textarea, input, button, .meld-image-card__meta-content")
 		) {
 			return;
 		}
@@ -250,10 +246,8 @@ export const useImageCardLogic = (image: MeldImage) => {
 		handleRestore: handleRestoreAction,
 		handleDelete: handleDeleteAction,
 		handleRunWithWorkflow: handleRunWithWorkflowAction,
-		handleRunWithMask: (mode: "apply" | "run" = "run") =>
-			handleRunWithMask(image, mode),
-		handleUpdateUserNotes: (notes: string) =>
-			handleUpdateUserNotes(image.id, notes),
+		handleRunWithMask: (mode: "apply" | "run" = "run") => handleRunWithMask(image, mode),
+		handleUpdateUserNotes: (notes: string) => handleUpdateUserNotes(image.id, notes),
 		fetchFullImageDetails,
 	};
 };

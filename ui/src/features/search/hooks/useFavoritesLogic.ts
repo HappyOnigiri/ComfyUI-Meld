@@ -38,31 +38,19 @@ export const useFavoritesLogic = () => {
 		[refreshFavorites],
 	);
 
-	const handleEditFavorite = useCallback(
-		(e: React.MouseEvent, fav: Favorite) => {
-			e.stopPropagation();
-			setEditingFavorite(fav);
-			setEditFavoriteName(fav.name);
-			setEditFavoriteQuery(fav.query);
-		},
-		[],
-	);
+	const handleEditFavorite = useCallback((e: React.MouseEvent, fav: Favorite) => {
+		e.stopPropagation();
+		setEditingFavorite(fav);
+		setEditFavoriteName(fav.name);
+		setEditFavoriteQuery(fav.query);
+	}, []);
 
 	const handleSaveEditFavorite = useCallback(async () => {
-		if (
-			!editingFavorite ||
-			!editFavoriteName.trim() ||
-			!editFavoriteQuery.trim()
-		)
-			return;
+		if (!editingFavorite || !editFavoriteName.trim() || !editFavoriteQuery.trim()) return;
 
 		try {
 			setIsSaving(true);
-			await searchApi.updateFavorite(
-				editingFavorite.id,
-				editFavoriteName,
-				editFavoriteQuery,
-			);
+			await searchApi.updateFavorite(editingFavorite.id, editFavoriteName, editFavoriteQuery);
 			await refreshFavorites();
 			setEditingFavorite(null);
 		} catch (err) {
@@ -74,12 +62,10 @@ export const useFavoritesLogic = () => {
 		}
 	}, [editingFavorite, editFavoriteName, editFavoriteQuery, refreshFavorites]);
 
-	const handleSaveFavorite = useCallback(async () => {
-		if (!state.searchQuery || isSaving) return;
+	const handleSaveFavorite = useCallback(async (): Promise<boolean> => {
+		if (!state.searchQuery || isSaving) return false;
 
-		const isAlreadyFavorite = state.favorites.some(
-			(f) => f.query === state.searchQuery,
-		);
+		const isAlreadyFavorite = state.favorites.some((f) => f.query === state.searchQuery);
 		if (isAlreadyFavorite) {
 			const fav = state.favorites.find((f) => f.query === state.searchQuery);
 			if (fav) {
@@ -87,21 +73,25 @@ export const useFavoritesLogic = () => {
 				try {
 					await searchApi.deleteFavorite(fav.id);
 					await refreshFavorites();
+					return true;
 				} catch (err) {
 					logger.error("Failed to delete favorite:", err);
+					return false;
 				} finally {
 					setIsSaving(false);
 				}
 			}
-			return;
+			return false;
 		}
 
 		setIsSaving(true);
 		try {
 			await searchApi.saveFavorite(state.searchQuery, state.searchQuery);
 			await refreshFavorites();
+			return true;
 		} catch (err) {
 			logger.error("Failed to save favorite:", err);
+			return false;
 		} finally {
 			setIsSaving(false);
 		}

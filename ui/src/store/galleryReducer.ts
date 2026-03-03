@@ -112,9 +112,6 @@ export const initialState: GalleryState = {
 	confirmModal: null,
 };
 
-export function galleryReducer(
-	state: GalleryState,
-	action: GalleryAction,
-): GalleryState {
+export function galleryReducer(state: GalleryState, action: GalleryAction): GalleryState {
 	return composeGalleryReducer(state, action);
 }

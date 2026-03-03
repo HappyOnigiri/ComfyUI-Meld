@@ -3,6 +3,7 @@ import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
+import { logger } from "../../../logger";
 import { useGallery } from "../../../store/GalleryContext";
 import { useImageActions } from "../../images/hooks/useImageActions";
 
@@ -12,11 +13,7 @@ interface NoteEditModalProps {
 	onClose: () => void;
 }
 
-export const NoteEditModal: React.FC<NoteEditModalProps> = ({
-	imageId,
-	initialNotes,
-	onClose,
-}) => {
+export const NoteEditModal: React.FC<NoteEditModalProps> = ({ imageId, initialNotes, onClose }) => {
 	const { state, dispatch } = useGallery();
 	const { handleUpdateUserNotes } = useImageActions(state, dispatch);
 	const [notes, setNotes] = useState(initialNotes);
@@ -50,7 +47,7 @@ export const NoteEditModal: React.FC<NoteEditModalProps> = ({
 			await handleUpdateUserNotes(imageId, notes);
 			onClose();
 		} catch (error) {
-			console.error("Failed to update notes:", error);
+			logger.error("Failed to update notes:", error);
 			alert("Failed to update notes.");
 		} finally {
 			setIsSaving(false);
@@ -131,11 +128,7 @@ export const NoteEditModal: React.FC<NoteEditModalProps> = ({
 				</div>
 
 				<div className="meld-modal-footer">
-					<button
-						type="button"
-						className="meld-btn meld-btn-secondary"
-						onClick={onClose}
-					>
+					<button type="button" className="meld-btn meld-btn-secondary" onClick={onClose}>
 						Cancel
 					</button>
 					<button

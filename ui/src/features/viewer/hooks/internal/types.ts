@@ -25,18 +25,14 @@ export interface UseImageViewerLogicResult {
 	showDetails: boolean;
 	setShowDetails: React.Dispatch<React.SetStateAction<boolean>>;
 	showThumbnails: boolean;
-	setShowThumbnailsOverride: React.Dispatch<
-		React.SetStateAction<boolean | null>
-	>;
+	setShowThumbnailsOverride: React.Dispatch<React.SetStateAction<boolean | null>>;
 	isLoadingLineage: boolean;
 	isJumping: boolean;
 	isMenuOpen: boolean;
 	setIsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
 	activeShortcutKey: string | null;
 	lastDeletedImages: MeldImage[] | null;
-	setLastDeletedImages: React.Dispatch<
-		React.SetStateAction<MeldImage[] | null>
-	>;
+	setLastDeletedImages: React.Dispatch<React.SetStateAction<MeldImage[] | null>>;
 	overlayRef: React.MutableRefObject<HTMLDivElement | null>;
 	handleNext: () => void;
 	handlePrevious: () => void;

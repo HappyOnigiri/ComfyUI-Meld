@@ -23,11 +23,8 @@ const ThumbnailItem = memo(
 	}) => {
 		const isCurrent = thumb.id === viewerImageId;
 		const isParent =
-			typeof currentImage.parent_id === "number" &&
-			currentImage.parent_id === thumb.id;
-		const isChild =
-			typeof thumb.parent_id === "number" &&
-			thumb.parent_id === currentImage.id;
+			typeof currentImage.parent_id === "number" && currentImage.parent_id === thumb.id;
+		const isChild = typeof thumb.parent_id === "number" && thumb.parent_id === currentImage.id;
 
 		const thumbSrc = getThumbnailViewUrl(thumb, 64);
 

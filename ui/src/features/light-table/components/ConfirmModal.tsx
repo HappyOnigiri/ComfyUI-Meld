@@ -16,11 +16,7 @@ interface ConfirmModalProps {
  * Confirmation modal component for Light Table.
  * Can be cancelled with ESC key or overlay click.
  */
-export const ConfirmModal: React.FC<ConfirmModalProps> = ({
-	message,
-	onConfirm,
-	onCancel,
-}) => {
+export const ConfirmModal: React.FC<ConfirmModalProps> = ({ message, onConfirm, onCancel }) => {
 	useEscapeToClose({ onEscape: onCancel });
 
 	return (

@@ -18,9 +18,7 @@ import "./meld_unified_loader_ui";
 // IMPORTANT:
 // Do not hardcode `/extensions/<name>/...` because the actual extension mount path
 // depends on the custom_nodes folder name (and can differ between WebUI and Desktop builds).
-const existingStyle = document.getElementById(
-	"meld-gallery-style",
-) as HTMLLinkElement | null;
+const existingStyle = document.getElementById("meld-gallery-style") as HTMLLinkElement | null;
 
 if (!existingStyle) {
 	const style = document.createElement("link");
@@ -29,10 +27,7 @@ if (!existingStyle) {
 	style.type = "text/css";
 	try {
 		// Vite warns that the file may not exist at build time; it is resolved at runtime.
-		style.href = new URL(
-			/* @vite-ignore */ "./style.css",
-			import.meta.url,
-		).toString();
+		style.href = new URL(/* @vite-ignore */ "./style.css", import.meta.url).toString();
 	} catch {
 		// Fallback (legacy). Keep for safety if `import.meta.url` is unavailable for some reason.
 		style.href = "/extensions/ComfyUI-Meld/js/style.css";
@@ -46,15 +41,10 @@ let galleryContainer: HTMLDivElement | null = null;
 app.registerExtension({
 	name: "ComfyUI.Meld",
 
-	async beforeRegisterNodeDef(
-		nodeType: unknown,
-		nodeData: { name: string },
-		app: ComfyApp,
-	) {
+	async beforeRegisterNodeDef(nodeType: unknown, nodeData: { name: string }, app: ComfyApp) {
 		if (nodeData.name === "MeldSaveImage") {
-			const onExecuted = (
-				nodeType as { prototype: { onExecuted: (...args: unknown[]) => void } }
-			).prototype.onExecuted;
+			const onExecuted = (nodeType as { prototype: { onExecuted: (...args: unknown[]) => void } })
+				.prototype.onExecuted;
 			(
 				nodeType as { prototype: { onExecuted: (...args: unknown[]) => void } }
 			).prototype.onExecuted = function (...args: unknown[]) {
@@ -78,7 +68,7 @@ app.registerExtension({
 			logger.init(settings.dev_mode);
 			logger.log("Settings received:", settings);
 		} catch (e) {
-			console.error("[Meld] Failed to fetch settings", e);
+			logger.error("Failed to fetch settings", e);
 			logger.init(false);
 		}
 
@@ -101,7 +91,7 @@ app.registerExtension({
 				try {
 					app.extensionManager?.setSidebarTabActive("meld-gallery");
 				} catch (e) {
-					console.error("Error toggling sidebar:", e);
+					logger.error("Error toggling sidebar:", e);
 				}
 			},
 		};
@@ -112,15 +102,11 @@ app.registerExtension({
 		});
 
 		api.addEventListener("meld-scan-progress", (e: CustomEvent) => {
-			window.dispatchEvent(
-				new CustomEvent("meld-scan-progress", { detail: e.detail }),
-			);
+			window.dispatchEvent(new CustomEvent("meld-scan-progress", { detail: e.detail }));
 		});
 
 		api.addEventListener("meld-scan-finished", (e: CustomEvent) => {
-			window.dispatchEvent(
-				new CustomEvent("meld-scan-finished", { detail: e.detail }),
-			);
+			window.dispatchEvent(new CustomEvent("meld-scan-finished", { detail: e.detail }));
 			app.ui.meld?.refresh();
 			// Show toast if available (ComfyUI doesn't have a standard toast API easily accessible, but we can alert or log)
 			logger.log("Import completed.");
@@ -146,7 +132,7 @@ app.registerExtension({
 									type: img.type,
 								});
 							} catch (e) {
-								console.error("Failed to auto-register image:", e);
+								logger.error("Failed to auto-register image:", e);
 							}
 						}
 					}
@@ -179,10 +165,7 @@ app.registerExtension({
 					el.style.height = "100%";
 					el.style.overflow = "hidden";
 					let parent = el.parentElement;
-					while (
-						parent &&
-						!parent.classList.contains("sidebar-content-container")
-					) {
+					while (parent && !parent.classList.contains("sidebar-content-container")) {
 						parent.style.height = "100%";
 						parent.style.overflow = "hidden";
 						parent = parent.parentElement;
@@ -212,21 +195,15 @@ app.registerExtension({
 						logger.log("Creating new gallery root");
 						galleryRoot = createRoot(galleryContainer);
 						galleryRoot.render(
-							React.createElement(
-								GalleryProvider,
-								null,
-								React.createElement(GalleryPanel),
-							),
+							React.createElement(GalleryProvider, null, React.createElement(GalleryPanel)),
 						);
 					} else {
-						logger.log(
-							"Gallery root already exists, React should handle re-render if needed",
-						);
+						logger.log("Gallery root already exists, React should handle re-render if needed");
 					}
 				},
 			});
 		} catch (e) {
-			console.error("Error during sidebar registration:", e);
+			logger.error("Error during sidebar registration:", e);
 		}
 	},
 });

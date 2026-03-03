@@ -51,14 +51,14 @@ export const SearchBar: React.FC = () => {
 	} = useFavoritesLogic();
 
 	const handleSaveFavorite = async () => {
-		const isAlreadyFavorite = state.favorites.some(
-			(f) => f.query === state.searchQuery,
-		);
-		if (isAlreadyFavorite) {
-			setToastMessage("This query is already in your favorites.", "error");
-			return;
+		const isAlreadyFavorite = state.favorites.some((f) => f.query === state.searchQuery);
+		const success = await handleSaveFavoriteLogic();
+		if (success) {
+			setToastMessage(
+				isAlreadyFavorite ? "Removed from favorites." : "Added to favorites.",
+				"info",
+			);
 		}
-		await handleSaveFavoriteLogic();
 	};
 
 	useEscapeToClose({
@@ -93,10 +93,7 @@ export const SearchBar: React.FC = () => {
 			className="meld-search-container"
 			style={{ display: "flex", flexDirection: "column", gap: "8px", flex: 1 }}
 		>
-			<div
-				className="meld-search-bar-wrapper"
-				style={{ position: "relative", width: "100%" }}
-			>
+			<div className="meld-search-bar-wrapper" style={{ position: "relative", width: "100%" }}>
 				{toastMessage && (
 					<div
 						className="meld-search-toast"
@@ -137,8 +134,7 @@ export const SearchBar: React.FC = () => {
 						padding: "6px 12px",
 						border: "1px solid var(--comfy-menu-border, #333)",
 						transition: "border-color 0.2s",
-						boxShadow:
-							"inset 0 1px 3px var(--comfy-input-shadow, rgba(0,0,0,0.2))",
+						boxShadow: "inset 0 1px 3px var(--comfy-input-shadow, rgba(0,0,0,0.2))",
 					}}
 				>
 					<button
@@ -197,11 +193,7 @@ export const SearchBar: React.FC = () => {
 					>
 						<Search
 							size={16}
-							color={
-								isQueryChanged
-									? "var(--meld-text-color, #fff)"
-									: "var(--meld-text-secondary)"
-							}
+							color={isQueryChanged ? "var(--meld-text-color, #fff)" : "var(--meld-text-secondary)"}
 							style={{
 								transition: "color 0.2s",
 								filter: isQueryChanged
@@ -216,8 +208,7 @@ export const SearchBar: React.FC = () => {
 									fontSize: "12px",
 									fontWeight: "bold",
 									marginLeft: "6px",
-									textShadow:
-										"0 1px 2px var(--meld-shadow-color, rgba(0,0,0,0.2))",
+									textShadow: "0 1px 2px var(--meld-shadow-color, rgba(0,0,0,0.2))",
 								}}
 							>
 								Search
@@ -333,9 +324,7 @@ export const SearchBar: React.FC = () => {
 							onClick={(e) => e.stopPropagation()}
 						>
 							<div className="meld-modal-header">
-								<h2
-									style={{ display: "flex", alignItems: "center", gap: "10px" }}
-								>
+								<h2 style={{ display: "flex", alignItems: "center", gap: "10px" }}>
 									<Star size={20} color="var(--meld-accent-color)" />
 									Edit Favorite
 								</h2>
@@ -463,11 +452,7 @@ export const SearchBar: React.FC = () => {
 									type="button"
 									className="meld-btn meld-btn-primary"
 									onClick={handleSaveEditFavorite}
-									disabled={
-										isSaving ||
-										!editFavoriteName.trim() ||
-										!editFavoriteQuery.trim()
-									}
+									disabled={isSaving || !editFavoriteName.trim() || !editFavoriteQuery.trim()}
 								>
 									{isSaving ? "Saving..." : "Save Changes"}
 								</button>

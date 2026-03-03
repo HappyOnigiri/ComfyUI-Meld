@@ -149,17 +149,10 @@ export const SettingsModal: React.FC = () => {
 			onMouseDown={handleOverlayMouseDown}
 			onMouseUp={handleOverlayMouseUp}
 		>
-			<div
-				className="meld-modal-content meld-settings-modal"
-				onClick={(e) => e.stopPropagation()}
-			>
+			<div className="meld-modal-content meld-settings-modal" onClick={(e) => e.stopPropagation()}>
 				<div className="meld-modal-header">
 					<h2>Settings</h2>
-					<button
-						type="button"
-						className="meld-modal-close"
-						onClick={handleClose}
-					>
+					<button type="button" className="meld-modal-close" onClick={handleClose}>
 						<X size={20} />
 					</button>
 				</div>

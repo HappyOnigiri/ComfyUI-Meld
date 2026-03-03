@@ -1,13 +1,4 @@
-import {
-	Download,
-	FileJson,
-	Menu,
-	RefreshCw,
-	ScanLine,
-	Tag,
-	Trash2,
-	X,
-} from "lucide-react";
+import { Download, FileJson, Menu, RefreshCw, ScanLine, Tag, Trash2, X } from "lucide-react";
 import type React from "react";
 import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -19,10 +10,7 @@ import { useImageActions } from "../../images/hooks/useImageActions";
 
 export const BulkActionBar: React.FC = () => {
 	const { state, dispatch, deleteSelected, restoreSelected } = useGallery();
-	const { handleRunWithWorkflow, handleRunWithMask } = useImageActions(
-		state,
-		dispatch,
-	);
+	const { handleRunWithWorkflow, handleRunWithMask } = useImageActions(state, dispatch);
 	const count = state.selectedIds.size;
 
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -111,9 +99,7 @@ export const BulkActionBar: React.FC = () => {
 	};
 
 	const bulkBarJSX = (
-		<div
-			className={`meld-bulk-bar ${isTrashMode ? "meld-bulk-bar--trash" : ""}`}
-		>
+		<div className={`meld-bulk-bar ${isTrashMode ? "meld-bulk-bar--trash" : ""}`}>
 			<span className="meld-bulk-bar__info">{count} items selected</span>
 
 			<button
@@ -122,10 +108,7 @@ export const BulkActionBar: React.FC = () => {
 				className="meld-bulk-bar__button meld-bulk-bar__button--action"
 				onClick={handleActionClick}
 			>
-				<Menu
-					size={16}
-					style={{ marginRight: "8px", verticalAlign: "middle" }}
-				/>
+				<Menu size={16} style={{ marginRight: "8px", verticalAlign: "middle" }} />
 				Action
 			</button>
 

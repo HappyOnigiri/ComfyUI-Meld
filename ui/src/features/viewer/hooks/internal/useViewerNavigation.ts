@@ -1,11 +1,7 @@
 import type React from "react";
 import { useCallback } from "react";
-import type {
-	GalleryAction,
-	GalleryState,
-	MeldImage,
-	Settings,
-} from "../../../../types";
+import { logger } from "../../../../logger";
+import type { GalleryAction, GalleryState, MeldImage, Settings } from "../../../../types";
 import * as imagesApi from "../../../images/api/imagesApi";
 import type { ViewerMountRefs } from "./types";
 
@@ -36,8 +32,7 @@ export const useViewerNavigation = ({
 	setIsJumping,
 	mountRefs,
 }: UseViewerNavigationParams) => {
-	const currentListPayload =
-		viewerMode === "lighttable" ? currentThumbnails : undefined;
+	const currentListPayload = viewerMode === "lighttable" ? currentThumbnails : undefined;
 
 	const handleNext = useCallback(() => {
 		dispatch({
@@ -47,9 +42,7 @@ export const useViewerNavigation = ({
 	}, [currentListPayload, dispatch, isFullscreen]);
 
 	const handlePrevious = useCallback(async () => {
-		const loopEnabled = isFullscreen
-			? settings["fullscreen.loop"]
-			: settings["viewer.loop"];
+		const loopEnabled = isFullscreen ? settings["fullscreen.loop"] : settings["viewer.loop"];
 
 		if (
 			currentIndex === 0 &&
@@ -64,11 +57,7 @@ export const useViewerNavigation = ({
 				const total = pagination.total;
 				const lastOffset = Math.max(0, total - pageSize);
 
-				const result = await imagesApi.fetchImages(
-					lastOffset,
-					pageSize,
-					searchQuery,
-				);
+				const result = await imagesApi.fetchImages(lastOffset, pageSize, searchQuery);
 				if (!mountRefs.isMountedRef.current) return;
 				dispatch({ type: "APPEND_IMAGES", payload: result });
 
@@ -82,7 +71,7 @@ export const useViewerNavigation = ({
 					});
 				}
 			} catch (err) {
-				console.error("Failed to jump to end:", err);
+				logger.error("Failed to jump to end:", err);
 			} finally {
 				setIsJumping(false);
 			}

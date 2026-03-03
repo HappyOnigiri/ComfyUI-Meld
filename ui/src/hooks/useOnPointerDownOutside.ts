@@ -44,8 +44,7 @@ export const useOnPointerDownOutside = ({
 		const handlePointerDown = (event: PointerEvent) => {
 			if (
 				ignoreNonPrimary &&
-				((event.pointerType === "mouse" && event.button !== 0) ||
-					!event.isPrimary)
+				((event.pointerType === "mouse" && event.button !== 0) || !event.isPrimary)
 			) {
 				return;
 			}

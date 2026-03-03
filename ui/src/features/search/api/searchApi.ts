@@ -54,10 +54,7 @@ export const fetchFavorites = async (): Promise<Favorite[]> => {
 	return handleResponse(res);
 };
 
-export const saveFavorite = async (
-	name: string,
-	query: string,
-): Promise<void> => {
+export const saveFavorite = async (name: string, query: string): Promise<void> => {
 	const res = await api.fetchApi("/meld/favorites", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
@@ -75,11 +72,7 @@ export const deleteFavorite = async (id: number): Promise<void> => {
 	await handleResponse(res);
 };
 
-export const updateFavorite = async (
-	id: number,
-	name: string,
-	query?: string,
-): Promise<void> => {
+export const updateFavorite = async (id: number, name: string, query?: string): Promise<void> => {
 	const res = await api.fetchApi("/meld/favorites/update", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },

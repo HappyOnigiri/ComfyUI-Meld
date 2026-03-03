@@ -1,6 +1,8 @@
 {
     "formatter": {
-        "enabled": true
+        "enabled": true,
+        "indentStyle": "tab",
+        "lineWidth": 100
     },
     "css": {
         "formatter": {
@@ -19,12 +21,7 @@
                 "noCommentText": "error",
                 "noTsIgnore": "error",
                 "noArrayIndexKey": "off",
-                "noConsole": {
-                    "level": "error",
-                    "options": {
-                        "allow": ["warn", "error"]
-                    }
-                }
+                "noConsole": "error"
             },
             "complexity": {
                 "noImportantStyles": "error"

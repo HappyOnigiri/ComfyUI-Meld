@@ -29,10 +29,7 @@ type LiteGraphGlobal = {
  * If you need to add a new image-related action (e.g., bulk editing, exporting),
  * implement it here instead of within individual feature hooks.
  */
-export const useImageActions = (
-	_state: GalleryState,
-	dispatch: React.Dispatch<GalleryAction>,
-) => {
+export const useImageActions = (_state: GalleryState, dispatch: React.Dispatch<GalleryAction>) => {
 	const restoreImages = useCallback(async (ids: number[]) => {
 		return imagesApi.restoreImages(ids);
 	}, []);
@@ -52,9 +49,7 @@ export const useImageActions = (
 				return false;
 			}
 
-			await (window as unknown as { app: ComfyApp }).app.loadGraphData(
-				data.workflow,
-			);
+			await (window as unknown as { app: ComfyApp }).app.loadGraphData(data.workflow);
 			logger.log("Workflow restored successfully from Meld");
 			return true;
 		} catch (error) {
@@ -80,42 +75,41 @@ export const useImageActions = (
 
 			const node = liteGraph.createNode(nodeName);
 			if (!node) {
-				console.error(`Node type ${nodeName} not found.`);
+				logger.error(`Node type ${nodeName} not found.`);
 				alert(
 					`Node type ${nodeName} not found. Please make sure the Meld Unified Loader node is installed.`,
 				);
 				return false;
 			}
 
-			const widgetMap: Partial<Record<keyof SnapshotData, string>> =
-				data.is_flux
-					? {
-							model_name: "model_name",
-							clip_name1: "clip_name1",
-							clip_name2: "clip_name2",
-							clip_type: "clip_type",
-							clip_device: "clip_device",
-							positive: "positive",
-							seed: "seed",
-							steps: "steps",
-							guidance: "guidance",
-							sampler_name: "sampler_name",
-							scheduler: "scheduler",
-							width: "width",
-							height: "height",
-						}
-					: {
-							model_name: "model_name",
-							positive: "positive",
-							negative: "negative",
-							seed: "seed",
-							steps: "steps",
-							cfg: "cfg",
-							sampler_name: "sampler_name",
-							scheduler: "scheduler",
-							width: "width",
-							height: "height",
-						};
+			const widgetMap: Partial<Record<keyof SnapshotData, string>> = data.is_flux
+				? {
+						model_name: "model_name",
+						clip_name1: "clip_name1",
+						clip_name2: "clip_name2",
+						clip_type: "clip_type",
+						clip_device: "clip_device",
+						positive: "positive",
+						seed: "seed",
+						steps: "steps",
+						guidance: "guidance",
+						sampler_name: "sampler_name",
+						scheduler: "scheduler",
+						width: "width",
+						height: "height",
+					}
+				: {
+						model_name: "model_name",
+						positive: "positive",
+						negative: "negative",
+						seed: "seed",
+						steps: "steps",
+						cfg: "cfg",
+						sampler_name: "sampler_name",
+						scheduler: "scheduler",
+						width: "width",
+						height: "height",
+					};
 
 			if (node.widgets) {
 				for (const [dataKey, widgetName] of Object.entries(widgetMap)) {
@@ -146,7 +140,7 @@ export const useImageActions = (
 			comfyApp.canvas.centerOnNode(node);
 			return true;
 		} catch (e) {
-			console.error("Error adding Unified Loader:", e);
+			logger.error("Error adding Unified Loader:", e);
 			alert("Failed to load settings.");
 			return false;
 		}
@@ -198,8 +192,7 @@ export const useImageActions = (
 					type: "OPEN_MODAL",
 					payload: {
 						type: "error",
-						message:
-							"No active workflow graph found. Please open a workflow first.",
+						message: "No active workflow graph found. Please open a workflow first.",
 					},
 				});
 				return false;
@@ -214,8 +207,7 @@ export const useImageActions = (
 					type: "OPEN_MODAL",
 					payload: {
 						type: "error",
-						message:
-							"No 'Meld Image Loader' or 'Load Image' node found in the current workflow.",
+						message: "No 'Meld Image Loader' or 'Load Image' node found in the current workflow.",
 					},
 				});
 				return false;
@@ -318,8 +310,7 @@ export const useImageActions = (
 						type: "OPEN_MODAL",
 						payload: {
 							type: "error",
-							message:
-								"'Apply' mode without queueing only supports single image selection.",
+							message: "'Apply' mode without queueing only supports single image selection.",
 						},
 					});
 					return;
@@ -335,9 +326,7 @@ export const useImageActions = (
 			// For "run" mode, check if there's any workflow that supports masks
 			try {
 				const workflows = await fetchWorkflows();
-				const hasCompatibleWorkflow = workflows.some(
-					(wf) => wf.valid && wf.mask_count >= 1,
-				);
+				const hasCompatibleWorkflow = workflows.some((wf) => wf.valid && wf.mask_count >= 1);
 				if (!hasCompatibleWorkflow) {
 					dispatch({
 						type: "OPEN_MODAL",
@@ -403,10 +392,7 @@ export const useImageActions = (
 	const handleUpdateUserNotes = useCallback(
 		async (imageId: number, userNotes: string) => {
 			try {
-				const updatedImage = await imagesApi.updateImageNotes(
-					imageId,
-					userNotes,
-				);
+				const updatedImage = await imagesApi.updateImageNotes(imageId, userNotes);
 				dispatch({ type: "UPDATE_IMAGE", payload: updatedImage });
 			} catch (err: unknown) {
 				dispatch({

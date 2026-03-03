@@ -27,15 +27,12 @@ export const useMaskInjection = () => {
 			);
 
 			if (maskNodes.length === 0) {
-				logger.log(
-					"[Meld-Debug] injectMaskToGraph: No LoadImageMask nodes found in active graph",
-				);
+				logger.log("[Meld-Debug] injectMaskToGraph: No LoadImageMask nodes found in active graph");
 				dispatch({
 					type: "OPEN_MODAL",
 					payload: {
 						type: "error",
-						message:
-							"No 'Load Image (as Mask)' node found in the current workflow.",
+						message: "No 'Load Image (as Mask)' node found in the current workflow.",
 					},
 				});
 				return false;

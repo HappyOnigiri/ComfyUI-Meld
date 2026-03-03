@@ -13,8 +13,7 @@ export type SidebarView = "gallery" | "search" | "tags";
  * DO NOT implement duplicate image manipulation logic here.
  */
 export const useGalleryLogic = () => {
-	const { state, dispatch, refreshImages, loadMoreImages, updateSetting } =
-		useGallery();
+	const { state, dispatch, refreshImages, loadMoreImages, updateSetting } = useGallery();
 
 	const [viewMode, setViewMode] = useState<SidebarView>("gallery");
 	const [lastSearchQuery, setLastSearchQuery] = useState("");
@@ -41,24 +40,14 @@ export const useGalleryLogic = () => {
 			}
 
 			if (state.viewScope === "trash") {
-				return (
-					img.exists !== false || state.settings["gallery.trash.show_missing"]
-				);
+				return img.exists !== false || state.settings["gallery.trash.show_missing"];
 			}
 			return (
 				img.exists !== false &&
-				(state.settings["gallery.show_parent_images"] ||
-					isSearchActive ||
-					!img.has_children)
+				(state.settings["gallery.show_parent_images"] || isSearchActive || !img.has_children)
 			);
 		});
-	}, [
-		state.images,
-		state.settings,
-		state.viewScope,
-		hiddenImageIds,
-		isSearchActive,
-	]);
+	}, [state.images, state.settings, state.viewScope, hiddenImageIds, isSearchActive]);
 
 	const visibleImages = displayedImages;
 
@@ -70,9 +59,7 @@ export const useGalleryLogic = () => {
 			state.images.length > 0 &&
 			displayedImages.length === 0
 		) {
-			logger.log(
-				"GalleryPanel: Auto-loading more because all loaded images are hidden",
-			);
+			logger.log("GalleryPanel: Auto-loading more because all loaded images are hidden");
 			loadMoreImages();
 		}
 	}, [
@@ -112,9 +99,7 @@ export const useGalleryLogic = () => {
 			(entries) => {
 				if (entries[0].isIntersecting) {
 					if (state.isLoading) {
-						logger.log(
-							"GalleryPanel: Intersection observed but already loading",
-						);
+						logger.log("GalleryPanel: Intersection observed but already loading");
 						return;
 					}
 
@@ -129,13 +114,10 @@ export const useGalleryLogic = () => {
 						);
 						loadMoreImages();
 					} else {
-						logger.log(
-							"GalleryPanel: Intersection observed but no more to load",
-							{
-								localCount: displayedImages.length,
-								serverHasMore: state.pagination.hasMore,
-							},
-						);
+						logger.log("GalleryPanel: Intersection observed but no more to load", {
+							localCount: displayedImages.length,
+							serverHasMore: state.pagination.hasMore,
+						});
 					}
 				}
 			},

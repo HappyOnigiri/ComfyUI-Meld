@@ -74,12 +74,8 @@ export const LightTable: React.FC = () => {
 								imageIds.forEach((id) => {
 									if (id) {
 										const imageIdStr = id.trim();
-										const image = galleryState.images.find(
-											(img) => String(img.id) === imageIdStr,
-										);
-										useLightTableStore
-											.getState()
-											.addToBucket(slot.id, imageIdStr, image);
+										const image = galleryState.images.find((img) => String(img.id) === imageIdStr);
+										useLightTableStore.getState().addToBucket(slot.id, imageIdStr, image);
 									}
 								});
 							}

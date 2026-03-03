@@ -156,10 +156,7 @@ export const FavoritesContextMenu: React.FC<FavoritesContextMenuProps> = ({
 						<div className="meld-modal-body">
 							<div className={styles.form}>
 								<div className={styles.fieldGroup}>
-									<label
-										htmlFor="edit-favorite-name-ctx"
-										className={styles.label}
-									>
+									<label htmlFor="edit-favorite-name-ctx" className={styles.label}>
 										Name
 									</label>
 									<input
@@ -183,10 +180,7 @@ export const FavoritesContextMenu: React.FC<FavoritesContextMenuProps> = ({
 									/>
 								</div>
 								<div className={styles.fieldGroup}>
-									<label
-										htmlFor="edit-favorite-query-ctx"
-										className={styles.label}
-									>
+									<label htmlFor="edit-favorite-query-ctx" className={styles.label}>
 										Search Query
 									</label>
 									<textarea
@@ -223,11 +217,7 @@ export const FavoritesContextMenu: React.FC<FavoritesContextMenuProps> = ({
 								type="button"
 								className="meld-btn meld-btn-primary"
 								onClick={handleSaveEditFavorite}
-								disabled={
-									isSaving ||
-									!editFavoriteName.trim() ||
-									!editFavoriteQuery.trim()
-								}
+								disabled={isSaving || !editFavoriteName.trim() || !editFavoriteQuery.trim()}
 							>
 								{isSaving ? "Saving..." : "Save Changes"}
 							</button>

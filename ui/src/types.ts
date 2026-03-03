@@ -95,10 +95,7 @@ export interface Settings {
 	"viewer.small_image_mode": "original" | "fit";
 	"fullscreen.delete_mode": "confirm" | "target_only" | "lineage";
 	"fullscreen.small_image_mode": "original" | "fit";
-	"gallery.matching_strategy":
-		| "filename_phash"
-		| "phash_created"
-		| "phash_only";
+	"gallery.matching_strategy": "filename_phash" | "phash_created" | "phash_only";
 	"gallery.lineage_max_depth": number;
 	"gallery.trash_retention_days": number;
 	"gallery.trash.show_missing": boolean;

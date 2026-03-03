@@ -53,7 +53,7 @@ export const executeSlotAction = (
 
 		case "move_folder":
 			// Future implementation for moving folders
-			console.warn("move_folder action is not yet implemented");
+			logger.warn("move_folder action is not yet implemented");
 			onSuccess?.();
 			break;
 

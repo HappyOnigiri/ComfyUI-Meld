@@ -50,10 +50,7 @@ export const validateShortcutCommand = (command: string): boolean => {
  *                     If not provided, toggles are returned as a list of tags.
  * @returns A structured result of the parsed command.
  */
-export const parseShortcutCommand = (
-	command: string,
-	currentImage?: MeldImage,
-): CommandResult => {
+export const parseShortcutCommand = (command: string, currentImage?: MeldImage): CommandResult => {
 	const parts = getCommandTokens(command);
 	const result: CommandResult = {
 		addTags: [],

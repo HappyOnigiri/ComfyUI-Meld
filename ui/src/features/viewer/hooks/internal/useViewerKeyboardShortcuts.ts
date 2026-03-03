@@ -47,9 +47,7 @@ export const useViewerKeyboardShortcuts = ({
 			}
 			const target = e.target;
 			const isTargetInput =
-				target.tagName === "INPUT" ||
-				target.tagName === "TEXTAREA" ||
-				target.isContentEditable;
+				target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable;
 
 			if (isTargetInput && e.key !== "Escape") {
 				if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
@@ -71,27 +69,12 @@ export const useViewerKeyboardShortcuts = ({
 				e.key === "ArrowLeft" ||
 				e.key === "ArrowDown" ||
 				e.key === "ArrowUp";
-			const isToggleKey = [
-				"f",
-				"F",
-				"i",
-				"I",
-				"t",
-				"T",
-				"r",
-				"R",
-				"Enter",
-			].includes(e.key);
+			const isToggleKey = ["f", "F", "i", "I", "t", "T", "r", "R", "Enter"].includes(e.key);
 			const isEscapeKey = e.key === "Escape";
 			const isUndoKey =
-				(e.ctrlKey || e.metaKey) &&
-				(e.key === "z" || e.key === "Z" || e.code === "KeyZ");
+				(e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z" || e.code === "KeyZ");
 			const isShortcutKey =
-				/^[0-9]$/.test(e.key) &&
-				!e.ctrlKey &&
-				!e.metaKey &&
-				!e.altKey &&
-				e.code !== "KeyZ";
+				/^[0-9]$/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey && e.code !== "KeyZ";
 
 			if (
 				isDeleteKey ||
@@ -122,20 +105,13 @@ export const useViewerKeyboardShortcuts = ({
 				} else {
 					handlePrevious();
 				}
-			} else if (
-				isToggleKey &&
-				(e.key === "f" || e.key === "F" || e.key === "Enter")
-			) {
+			} else if (isToggleKey && (e.key === "f" || e.key === "F" || e.key === "Enter")) {
 				toggleFullscreen(e);
 			} else if (isToggleKey && (e.key === "i" || e.key === "I")) {
 				setShowDetails((prev) => !prev);
 			} else if (isToggleKey && (e.key === "t" || e.key === "T")) {
 				handleTagEditAction();
-			} else if (
-				isToggleKey &&
-				(e.key === "r" || e.key === "R") &&
-				viewScope === "trash"
-			) {
+			} else if (isToggleKey && (e.key === "r" || e.key === "R") && viewScope === "trash") {
 				void handleRestoreAction();
 			} else if (isDeleteKey) {
 				handleDelete();
