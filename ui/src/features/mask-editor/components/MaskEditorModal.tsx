@@ -233,11 +233,16 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 				const centerY = y + h / 2;
 				ctx.ellipse(centerX, centerY, w / 2, h / 2, 0, 0, 2 * Math.PI);
 			} else if (activeTool === "lasso" && lassoPath.length > 1) {
-				ctx.moveTo(lassoPath[0].x, lassoPath[0].y);
-				for (let i = 1; i < lassoPath.length; i++) {
-					ctx.lineTo(lassoPath[i].x, lassoPath[i].y);
+				const firstPoint = lassoPath[0];
+				if (firstPoint) {
+					ctx.moveTo(firstPoint.x, firstPoint.y);
+					for (let i = 1; i < lassoPath.length; i++) {
+						const point = lassoPath[i];
+						if (!point) continue;
+						ctx.lineTo(point.x, point.y);
+					}
+					ctx.closePath();
 				}
-				ctx.closePath();
 			}
 
 			ctx.fill();
@@ -506,15 +511,15 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 						} else if (activeTool === "lasso") {
 							if (lassoPath.length > 2) {
 								const startPoint = lassoPath[0];
+								if (!startPoint) return;
 								ctx.moveTo(
 									(startPoint.x - bounds.left) * scaleX,
 									(startPoint.y - bounds.top) * scaleY,
 								);
 								for (let i = 1; i < lassoPath.length; i++) {
-									ctx.lineTo(
-										(lassoPath[i].x - bounds.left) * scaleX,
-										(lassoPath[i].y - bounds.top) * scaleY,
-									);
+									const point = lassoPath[i];
+									if (!point) continue;
+									ctx.lineTo((point.x - bounds.left) * scaleX, (point.y - bounds.top) * scaleY);
 								}
 								ctx.closePath();
 							}

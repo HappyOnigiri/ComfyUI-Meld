@@ -13,37 +13,20 @@ declare global {
 
 declare const __APP_VERSION__: string;
 
-// Declare to resolve any path format imports
+// ComfyUI script modules. Vite externals resolve these at build time.
+// Absolute paths (/scripts/...) are required per .cursor/rules/web.mdc.
+declare module "/scripts/app.js" {
+	export const app: ComfyApp;
+}
+declare module "/scripts/api.js" {
+	export const api: ComfyApi;
+}
+
+// Glob patterns for alternative path formats (e.g. tsc resolution from different depths).
 declare module "*/scripts/app.js" {
 	export const app: ComfyApp;
 }
-
 declare module "*/scripts/api.js" {
-	export const api: ComfyApi;
-}
-
-// Declare relative paths individually (match tsc resolution rules)
-declare module "../../scripts/app.js" {
-	export const app: ComfyApp;
-}
-
-declare module "../../scripts/api.js" {
-	export const api: ComfyApi;
-}
-
-declare module "/scripts/app.js" {
-	export const app: ComfyApp;
-}
-
-declare module "/scripts/api.js" {
-	export const api: ComfyApi;
-}
-
-declare module "/scripts/app.js" {
-	export const app: ComfyApp;
-}
-
-declare module "/scripts/api.js" {
 	export const api: ComfyApi;
 }
 

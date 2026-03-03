@@ -21,7 +21,9 @@ export const LazyRender: React.FC<LazyRenderProps> = ({
 
 	useEffect(() => {
 		const observer = new IntersectionObserver(
-			([entry]) => {
+			(entries) => {
+				const entry = entries[0];
+				if (!entry) return;
 				if (entry.isIntersecting) {
 					setIsVisible(true);
 				}

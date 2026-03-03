@@ -126,11 +126,12 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 			let found = false;
 			// Search forward first (without wrapping)
 			for (let i = currentIndex + 1; i < currentList.length; i++) {
-				if (!idsToDelete.has(currentList[i].id)) {
+				const candidate = currentList[i];
+				if (candidate && !idsToDelete.has(candidate.id)) {
 					dispatch({
 						type: "OPEN_VIEWER",
 						payload: {
-							id: currentList[i].id,
+							id: candidate.id,
 							mode: state.viewerMode,
 							// Preserve slotId in lighttable mode to stay within the slot
 							...(state.viewerMode === "lighttable" && state.viewerLightTableSlotId
@@ -146,11 +147,12 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 			// If not found forward, search backward
 			if (!found) {
 				for (let i = currentIndex - 1; i >= 0; i--) {
-					if (!idsToDelete.has(currentList[i].id)) {
+					const candidate = currentList[i];
+					if (candidate && !idsToDelete.has(candidate.id)) {
 						dispatch({
 							type: "OPEN_VIEWER",
 							payload: {
-								id: currentList[i].id,
+								id: candidate.id,
 								mode: state.viewerMode,
 								// Preserve slotId in lighttable mode to stay within the slot
 								...(state.viewerMode === "lighttable" && state.viewerLightTableSlotId

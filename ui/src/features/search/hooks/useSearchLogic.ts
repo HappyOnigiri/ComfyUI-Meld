@@ -143,8 +143,14 @@ export const useSearchLogic = () => {
 			if (lastWord) {
 				const match = lastWord.match(searchPrefixRegex);
 				if (match) {
-					const prefix = match[1].toLowerCase();
+					const prefix = match[1];
 					let subQuery = match[2];
+					if (!prefix || subQuery === undefined) {
+						setSuggestions([]);
+						setShowSuggestions(false);
+						return;
+					}
+					const normalizedPrefix = prefix.toLowerCase();
 
 					if (subQuery.startsWith('"')) {
 						subQuery = subQuery.substring(1);
@@ -153,7 +159,7 @@ export const useSearchLogic = () => {
 						subQuery = subQuery.substring(0, subQuery.length - 1);
 					}
 
-					const results = await searchApi.fetchSuggestions(subQuery, prefix);
+					const results = await searchApi.fetchSuggestions(subQuery, normalizedPrefix);
 					setSuggestions(results);
 					setShowSuggestions(results.length > 0);
 					setSelectedIndex(-1);
@@ -221,7 +227,10 @@ export const useSearchLogic = () => {
 		if (e.key === "Enter") {
 			stopReactKeyboardEvent(e);
 			if (showSuggestions && selectedIndex >= 0) {
-				applySuggestion(suggestions[selectedIndex]);
+				const selectedSuggestion = suggestions[selectedIndex];
+				if (selectedSuggestion) {
+					applySuggestion(selectedSuggestion);
+				}
 			} else {
 				handleSearch(inputValue);
 			}
@@ -229,7 +238,10 @@ export const useSearchLogic = () => {
 			if (showSuggestions && suggestions.length > 0) {
 				stopReactKeyboardEvent(e);
 				const indexToApply = selectedIndex >= 0 ? selectedIndex : 0;
-				applySuggestion(suggestions[indexToApply]);
+				const selectedSuggestion = suggestions[indexToApply];
+				if (selectedSuggestion) {
+					applySuggestion(selectedSuggestion);
+				}
 			}
 		} else if (e.key === "ArrowDown") {
 			if (showSuggestions) {
