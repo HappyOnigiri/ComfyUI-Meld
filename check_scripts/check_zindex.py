@@ -17,8 +17,8 @@ import sys
 
 # Match z-index: <value> or zIndex: <value> (standalone CSS/JS property only)
 # Lookbehind ensures we don't match suffixes like "--my-z-index"; fixed-width alternation required
-# Captures the value (trailing comma and !important accepted, stripped in normalization)
-ZINDEX_PATTERN = re.compile(r"(?:(?<=^)|(?<=[\s{;.]))(?:z-index|zIndex)(?=\s*:)\s*:\s*(?P<value>[^;}\n]+)")
+# Captures the value; stops at comma, semicolon, brace, or newline so object literals work
+ZINDEX_PATTERN = re.compile(r"(?:(?<=^)|(?<=[\s{;.]))(?:z-index|zIndex)(?=\s*:)\s*:\s*(?P<value>[^,;}\n]+)")
 
 # Allowed: var(--meld-z-*) token exactly; if quoted, opening and closing quote must match
 VAR_TOKEN_PATTERN = re.compile(r"^(?:var\(--meld-z-[A-Za-z0-9-]+\)|(['\"])var\(--meld-z-[A-Za-z0-9-]+\)\1)$")
@@ -28,11 +28,10 @@ ALLOWED_LOCAL = {1, 2, 3}
 
 IGNORE_MARKER = "z-index-check-ignore"
 
-# Regex to test if a line is "standalone" ignore (line is only the marker or comment-wrapped)
+# Regex to test if a line is "standalone" ignore (line is only comment-wrapped marker, no bare marker)
 _STANDALONE_IGNORE_PATTERN = re.compile(
     rf"^\s*(?:/\*\s*{re.escape(IGNORE_MARKER)}\s*\*/"
-    rf"|//\s*{re.escape(IGNORE_MARKER)}\s*"
-    rf"|{re.escape(IGNORE_MARKER)})\s*$"
+    rf"|//\s*{re.escape(IGNORE_MARKER)}\s*)\s*$"
 )
 
 
@@ -115,8 +114,7 @@ def _marker_in_comment(line: str) -> bool:
                 in_line_comment = True
                 i += 2
                 continue
-        if s[i : i + len(IGNORE_MARKER)] == IGNORE_MARKER:
-            return True
+        # In code: marker outside comment is ignored; only advance
         i += 1
 
     return False
