@@ -68,12 +68,13 @@ export const GalleryModals: React.FC = () => {
 					}}
 				/>
 			)}
-			{state.activeModal.type === "parent_selection" &&
-				createPortal(<ParentSelectionModal imageId={state.activeModal.imageId} />, document.body)}
+			{state.activeModal.type === "parent_selection" && (
+				<ParentSelectionModal imageId={state.activeModal.imageId} />
+			)}
 
-			{state.activeModal.type === "import" && createPortal(<ImportModal />, document.body)}
+			{state.activeModal.type === "import" && <ImportModal />}
 
-			{state.activeModal.type === "settings" && createPortal(<SettingsModal />, document.body)}
+			{state.activeModal.type === "settings" && <SettingsModal />}
 
 			{state.activeModal.type === "tag_edit" &&
 				createPortal(
