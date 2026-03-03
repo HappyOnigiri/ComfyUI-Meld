@@ -52,11 +52,13 @@ export const SearchBar: React.FC = () => {
 
 	const handleSaveFavorite = async () => {
 		const isAlreadyFavorite = state.favorites.some((f) => f.query === state.searchQuery);
-		if (isAlreadyFavorite) {
-			setToastMessage("This query is already in your favorites.", "error");
-			return;
+		const success = await handleSaveFavoriteLogic();
+		if (success) {
+			setToastMessage(
+				isAlreadyFavorite ? "Removed from favorites." : "Added to favorites.",
+				"info",
+			);
 		}
-		await handleSaveFavoriteLogic();
 	};
 
 	useEscapeToClose({

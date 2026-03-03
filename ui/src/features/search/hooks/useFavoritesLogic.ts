@@ -62,8 +62,8 @@ export const useFavoritesLogic = () => {
 		}
 	}, [editingFavorite, editFavoriteName, editFavoriteQuery, refreshFavorites]);
 
-	const handleSaveFavorite = useCallback(async () => {
-		if (!state.searchQuery || isSaving) return;
+	const handleSaveFavorite = useCallback(async (): Promise<boolean> => {
+		if (!state.searchQuery || isSaving) return false;
 
 		const isAlreadyFavorite = state.favorites.some((f) => f.query === state.searchQuery);
 		if (isAlreadyFavorite) {
@@ -73,21 +73,25 @@ export const useFavoritesLogic = () => {
 				try {
 					await searchApi.deleteFavorite(fav.id);
 					await refreshFavorites();
+					return true;
 				} catch (err) {
 					logger.error("Failed to delete favorite:", err);
+					return false;
 				} finally {
 					setIsSaving(false);
 				}
 			}
-			return;
+			return false;
 		}
 
 		setIsSaving(true);
 		try {
 			await searchApi.saveFavorite(state.searchQuery, state.searchQuery);
 			await refreshFavorites();
+			return true;
 		} catch (err) {
 			logger.error("Failed to save favorite:", err);
+			return false;
 		} finally {
 			setIsSaving(false);
 		}
