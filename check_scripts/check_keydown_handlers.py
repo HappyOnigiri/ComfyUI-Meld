@@ -26,9 +26,12 @@ KEYDOWN_LISTENER_PATTERN = re.compile(
     r"""
     (?:window|document)\s*\.\s*addEventListener\s*\(\s*
     ["']keydown["']\s*,\s*
-    [^,]+
-    (?:\s*,\s*(?P<options>.+?))?
+    (?P<handler>.+?)
+    (?:\s*,\s*(?P<options>\{.*?\}|true|false))?
     \s*\)
+    """,
+    re.VERBOSE | re.DOTALL,
+)
     """,
     re.VERBOSE | re.DOTALL,
 )
