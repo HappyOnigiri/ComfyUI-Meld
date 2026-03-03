@@ -19,8 +19,8 @@ import sys
 # Captures the value (trailing comma and !important accepted, stripped in normalization)
 ZINDEX_PATTERN = re.compile(r"(?:z-index|zIndex)\s*:\s*(?P<value>[^;}\n]+)")
 
-# Allowed: var(--meld-z-*) token exactly
-VAR_TOKEN_PATTERN = re.compile(r"^['\"]?var\(--meld-z-[A-Za-z0-9-]+\)['\"]?$")
+# Allowed: var(--meld-z-*) token exactly; if quoted, opening and closing quote must match
+VAR_TOKEN_PATTERN = re.compile(r"^(?:var\(--meld-z-[A-Za-z0-9-]+\)|(['\"])var\(--meld-z-[A-Za-z0-9-]+\)\1)$")
 
 # Policy: component-scoped local stacking values (1, 2, 3) are allowed
 ALLOWED_LOCAL = {1, 2, 3}
