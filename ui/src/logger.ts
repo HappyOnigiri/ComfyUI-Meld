@@ -36,6 +36,7 @@ export const log = (...args: unknown[]) => {
  */
 export const warn = (...args: unknown[]) => {
 	if (isDevMode) {
+		// biome-ignore lint/suspicious/noConsole: Logger implementation
 		console.warn("[Meld]", ...args);
 	}
 };
@@ -45,6 +46,7 @@ export const warn = (...args: unknown[]) => {
  * Error logs are output regardless of dev mode (MELD_DEV status).
  */
 export const error = (...args: unknown[]) => {
+	// biome-ignore lint/suspicious/noConsole: Logger implementation
 	console.error("[Meld]", ...args);
 };
 
