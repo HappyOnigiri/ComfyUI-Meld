@@ -28,14 +28,108 @@ ALLOWED_LOCAL = {1, 2, 3}
 
 IGNORE_MARKER = "z-index-check-ignore"
 
+# Regex to test if a line is "standalone" ignore (line is only the marker or comment-wrapped)
+_STANDALONE_IGNORE_PATTERN = re.compile(
+    rf"^\s*(?:/\*\s*{re.escape(IGNORE_MARKER)}\s*\*/"
+    rf"|//\s*{re.escape(IGNORE_MARKER)}\s*"
+    rf"|{re.escape(IGNORE_MARKER)})\s*$"
+)
+
+
+def _marker_in_comment(line: str) -> bool:
+    """Return True if IGNORE_MARKER appears inside a comment (not in a string)."""
+    s = line
+    i = 0
+    in_single = False
+    in_double = False
+    in_backtick = False
+    in_block_comment = False
+    in_line_comment = False
+    escape_next = False
+
+    while i < len(s):
+        c = s[i]
+        if escape_next:
+            escape_next = False
+            i += 1
+            continue
+        if c == "\\" and (in_single or in_double):
+            escape_next = True
+            i += 1
+            continue
+        if in_backtick:
+            if c == "`":
+                in_backtick = False
+            elif c == "\\":
+                escape_next = True
+            i += 1
+            continue
+        if in_single:
+            if c == "'":
+                in_single = False
+            i += 1
+            continue
+        if in_double:
+            if c == '"':
+                in_double = False
+            i += 1
+            continue
+        if in_block_comment:
+            if s[i : i + len(IGNORE_MARKER)] == IGNORE_MARKER:
+                return True
+            if c == "*" and i + 1 < len(s) and s[i + 1] == "/":
+                in_block_comment = False
+                i += 2
+                continue
+            i += 1
+            continue
+        if in_line_comment:
+            if c == "\n":
+                in_line_comment = False
+            else:
+                if s[i : i + len(IGNORE_MARKER)] == IGNORE_MARKER:
+                    return True
+                i += 1
+            continue
+
+        # In code - check for string/comment starters
+        if c == "`":
+            in_backtick = True
+            i += 1
+            continue
+        if c == "'":
+            in_single = True
+            i += 1
+            continue
+        if c == '"':
+            in_double = True
+            i += 1
+            continue
+        if c == "/" and i + 1 < len(s):
+            n = s[i + 1]
+            if n == "*":
+                in_block_comment = True
+                i += 2
+                continue
+            if n == "/":
+                in_line_comment = True
+                i += 2
+                continue
+        if s[i : i + len(IGNORE_MARKER)] == IGNORE_MARKER:
+            return True
+        i += 1
+
+    return False
+
 
 def _is_within_string(s: str, pos: int) -> bool:
-    """Return True if position pos in s is inside a single- or double-quoted string."""
+    """Return True if position pos in s is inside a single-, double-, or backtick-quoted string."""
     if pos <= 0 or pos >= len(s):
         return False
     i = 0
     in_double = False
     in_single = False
+    in_backtick = False
     escape_next = False
     while i < pos:
         c = s[i]
@@ -57,6 +151,11 @@ def _is_within_string(s: str, pos: int) -> bool:
                 in_single = False
             i += 1
             continue
+        if in_backtick:
+            if c == "`":
+                in_backtick = False
+            i += 1
+            continue
         if c == '"':
             in_double = True
             i += 1
@@ -65,14 +164,19 @@ def _is_within_string(s: str, pos: int) -> bool:
             in_single = True
             i += 1
             continue
+        if c == "`":
+            in_backtick = True
+            i += 1
+            continue
         i += 1
-    return in_double or in_single
+    return in_double or in_single or in_backtick
 
 
 def _find_string_end(s: str, pos: int) -> int:
     """Given we're inside a string at pos, return the position after the closing quote."""
     in_double = False
     in_single = False
+    in_backtick = False
     escape_next = False
     i = 0
     while i < pos:
@@ -95,6 +199,11 @@ def _find_string_end(s: str, pos: int) -> int:
                 in_single = False
             i += 1
             continue
+        if in_backtick:
+            if c == "`":
+                in_backtick = False
+            i += 1
+            continue
         if c == '"':
             in_double = True
             i += 1
@@ -103,8 +212,12 @@ def _find_string_end(s: str, pos: int) -> int:
             in_single = True
             i += 1
             continue
+        if c == "`":
+            in_backtick = True
+            i += 1
+            continue
         i += 1
-    target = '"' if in_double else "'"
+    target = '"' if in_double else ("'" if in_single else "`")
     escape_next = False
     while i < len(s):
         c = s[i]
@@ -129,30 +242,23 @@ def check_file(filepath: str) -> list[tuple[int, str, str]]:
         with open(filepath, encoding="utf-8") as f:
             lines = f.readlines()
 
-        prev_line = ""
+        prev_was_standalone_ignore = False
         in_block_comment = False
         for i, line in enumerate(lines, 1):
             stripped = line.strip()
 
             # Inline vs standalone ignore marker:
             # - Inline: marker appears alongside other code (e.g. zIndex: 2, /* z-index-check-ignore */)
-            #   -> skip only the current line, do NOT set prev_line
-            # - Standalone: line is only the marker or comment-wrapped marker -> set prev_line so next line is skipped
-            if IGNORE_MARKER in stripped:
-                is_standalone = bool(
-                    re.match(
-                        rf"^\s*(?:/\*\s*{re.escape(IGNORE_MARKER)}\s*\*/"
-                        rf"|//\s*{re.escape(IGNORE_MARKER)}\s*"
-                        rf"|{re.escape(IGNORE_MARKER)})\s*$",
-                        stripped,
-                    )
-                )
-                if is_standalone:
-                    prev_line = stripped
+            #   -> skip only the current line, do NOT set prev_was_standalone_ignore
+            # - Standalone: line is only the marker or comment-wrapped marker -> next line is skipped
+            # - Only accept marker when it appears inside a comment (not in strings like "z-index-check-ignore")
+            if _marker_in_comment(line):
+                is_standalone = bool(_STANDALONE_IGNORE_PATTERN.match(stripped))
+                prev_was_standalone_ignore = is_standalone
                 continue
 
-            if IGNORE_MARKER in prev_line:
-                prev_line = stripped
+            if prev_was_standalone_ignore:
+                prev_was_standalone_ignore = False
                 continue
 
             # Multi-line block comment handling: track state across lines
@@ -172,13 +278,19 @@ def check_file(filepath: str) -> list[tuple[int, str, str]]:
                     block_start = remaining.find("/*", idx)
                     slash_start = remaining.find("//", idx)
                     if block_start != -1 and (slash_start == -1 or block_start < slash_start):
-                        code_part += remaining[idx:block_start]
-                        end_idx = remaining.find("*/", block_start + 2)
-                        if end_idx != -1:
-                            idx = end_idx + 2
+                        if _is_within_string(remaining, block_start):
+                            # /* is inside a string (e.g. template literal), skip the string
+                            string_end = _find_string_end(remaining, block_start)
+                            code_part += remaining[idx:string_end]
+                            idx = string_end
                         else:
-                            idx = len(remaining)
-                            in_block_comment = True
+                            code_part += remaining[idx:block_start]
+                            end_idx = remaining.find("*/", block_start + 2)
+                            if end_idx != -1:
+                                idx = end_idx + 2
+                            else:
+                                idx = len(remaining)
+                                in_block_comment = True
                     elif slash_start != -1:
                         if _is_within_string(remaining, slash_start):
                             # // is inside a string (e.g. "http://..."), include the whole string
@@ -192,7 +304,7 @@ def check_file(filepath: str) -> list[tuple[int, str, str]]:
                         code_part += remaining[idx:]
                         idx = len(remaining)
 
-            prev_line = stripped
+            prev_was_standalone_ignore = False
 
             for match in ZINDEX_PATTERN.finditer(code_part):
                 value = match.group("value").strip().rstrip(",")
