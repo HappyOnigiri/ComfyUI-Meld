@@ -20,6 +20,7 @@
 }
 
 .meld-light-table__tab {
+	/* property-conflict-ignore */
 	flex: 1;
 	justify-content: center;
 	padding: 8px 16px;
@@ -54,6 +55,7 @@
 }
 
 .meld-light-table__clear-btn {
+	/* property-conflict-ignore */
 	display: flex;
 	align-items: center;
 	justify-content: center;

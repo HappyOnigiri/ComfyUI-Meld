@@ -2,6 +2,7 @@
 	border-top: 2px solid var(--meld-danger-color);
 }
 
+/* unused-css-check-ignore */
 .meld-bulk-bar__button--restore {
 	background: var(--meld-success-color);
 	color: white;

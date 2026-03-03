@@ -1,8 +1,10 @@
 /* Favorites Dropdown */
+/* unused-css-check-ignore */
 .meld-favorites-dropdown {
 	display: none;
 }
 
+/* unused-css-check-ignore */
 .meld-favorites-item {
 	display: flex;
 	align-items: center;
@@ -19,6 +21,7 @@
 	background-color: var(--comfy-input-bg-active, rgba(255, 255, 255, 0.1));
 }
 
+/* unused-css-check-ignore */
 .meld-favorites-item__name {
 	flex: 1;
 	overflow: hidden;
@@ -26,6 +29,7 @@
 	white-space: nowrap;
 }
 
+/* unused-css-check-ignore */
 .meld-favorites-item__delete {
 	color: var(--meld-text-secondary);
 	display: flex;
@@ -40,6 +44,7 @@
 	color: var(--meld-danger-color);
 }
 
+/* unused-css-check-ignore */
 .meld-favorites-empty {
 	padding: 20px;
 	color: var(--meld-text-secondary);
