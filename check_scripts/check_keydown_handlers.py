@@ -26,11 +26,13 @@ ALLOWLIST_FILES = {
 
 # Matches (window|document).addEventListener("keydown" or 'keydown', handler, ...)
 # Captures the third-argument region (optional) in group "options".
+# Handler group uses balanced-paren subpattern so inline handlers like
+# (e) => fn(a, b) or (e) => { ... } are not truncated at the first ).
 KEYDOWN_LISTENER_PATTERN = re.compile(
     r"""
     (?:window|document)\s*\.\s*addEventListener\s*\(\s*
     ["']keydown["']\s*,\s*
-    (?P<handler>.+?)
+    (?P<handler>(?:[^,)]|\([^)]*\))+)
     (?:\s*,\s*(?P<options>\{.*?\}|true|false))?
     \s*\)
     """,
@@ -42,7 +44,9 @@ KEYDOWN_LISTENER_PATTERN = re.compile(
 # "capture: true"); use (?:^|\{|,)\s* to assert we are at object start or after
 # a property delimiter.
 CAPTURE_OK_PATTERNS = [
-    re.compile(r"(?:^|\{|,)\s*capture\s*:\s*true\b"),  # unquoted capture: true
+    re.compile(
+        r'(?:^|\{|,)\s*(?:"capture"|\'capture\'|capture)\s*:\s*true\b'
+    ),  # capture: true (quoted or unquoted key)
     re.compile(r"^\s*true\s*$", re.MULTILINE),  # Legacy: true as useCapture
 ]
 
