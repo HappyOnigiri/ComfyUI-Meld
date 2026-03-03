@@ -1078,9 +1078,10 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 }
 
 /* Settings Modal */
-.meld-settings-modal {
-	height: 80vh;
-	width: 800px;
+.meld-modal-content.meld-settings-modal {
+	height: 85vh;
+	width: 90vw;
+	max-width: 900px;
 }
 
 .meld-settings-layout {
