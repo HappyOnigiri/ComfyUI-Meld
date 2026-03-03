@@ -1,9 +1,7 @@
 import { useCallback } from "react";
-// @ts-expect-error: ComfyUI scripts are not available in build time
-import { api } from "/scripts/api.js";
 import { parseJsonResponse } from "../../../api";
 import { logger } from "../../../logger";
-import type { MeldImage } from "../../../types";
+import type { ComfyApi, ComfyApp, MeldImage } from "../../../types";
 import { fetchWorkflowRaw } from "../api/workflowsApi";
 
 interface ComfyNode {
@@ -117,8 +115,12 @@ export const useWorkflowExecution = () => {
 			}
 
 			if (isUIFormat) {
-				// @ts-expect-error
-				const comfyApp = window.app;
+				const comfyApp = window.app as ComfyApp;
+				if (!comfyApp.graph) {
+					throw new Error(
+						"Active ComfyUI graph is not available. Please open a workflow first.",
+					);
+				}
 
 				// 1. Try to find and switch to an existing tab first
 				const baseName = workflowName.replace(/\.json$/i, "");
@@ -215,6 +217,9 @@ export const useWorkflowExecution = () => {
 
 				// 4. Run the workflow
 				try {
+					if (typeof comfyApp.queuePrompt !== "function") {
+						throw new Error("queuePrompt is not available.");
+					}
 					await comfyApp.queuePrompt(0);
 					return;
 				} catch (e) {
@@ -234,11 +239,12 @@ export const useWorkflowExecution = () => {
 			}
 
 			// 4. Send to /prompt
-			const res = await api.fetchApi("/prompt", {
+			const comfyApi = window.api as ComfyApi;
+			const res = await comfyApi.fetchApi("/prompt", {
 				method: "POST",
 				body: JSON.stringify({
 					prompt,
-					client_id: api.clientId,
+					client_id: comfyApi.clientId,
 				}),
 			});
 

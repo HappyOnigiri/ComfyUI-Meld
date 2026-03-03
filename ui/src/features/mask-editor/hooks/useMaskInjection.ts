@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { logger } from "../../../logger";
 import { useGallery } from "../../../store/GalleryContext";
-import type { MeldImage } from "../../../types";
+import type { ComfyApp, MeldImage } from "../../../types";
 import { injectImageToGraph } from "../../workflows/utils/injectImageToGraph";
 
 export const useMaskInjection = () => {
@@ -14,8 +14,7 @@ export const useMaskInjection = () => {
 			// 1. Update loader node with the source image (best effort)
 			injectImageToGraph(image);
 
-			// @ts-expect-error: ComfyUI global
-			const comfyApp = window.app;
+			const comfyApp = window.app as ComfyApp;
 			if (!comfyApp?.graph) {
 				logger.log("[Meld-Debug] injectMaskToGraph: No comfyApp.graph found");
 				return false;
@@ -23,7 +22,7 @@ export const useMaskInjection = () => {
 
 			// 2. Update LoadImageMask with the new mask
 			const maskNodes = comfyApp.graph._nodes.filter(
-				(n: { type: string }) => n.type === "LoadImageMask",
+				(n) => n.type === "LoadImageMask",
 			);
 
 			if (maskNodes.length === 0) {
@@ -43,9 +42,7 @@ export const useMaskInjection = () => {
 
 			// If multiple, use the first one
 			const node = maskNodes[0];
-			const imageWidget = node.widgets.find(
-				(w: { name: string }) => w.name === "image",
-			);
+			const imageWidget = node.widgets.find((w) => w.name === "image");
 			const fullMaskPath = `${maskFilename} [temp]`;
 			logger.log(
 				"[Meld-Debug] injectMaskToGraph: Updating node",
@@ -60,9 +57,7 @@ export const useMaskInjection = () => {
 				}
 			}
 
-			const channelWidget = node.widgets.find(
-				(w: { name: string }) => w.name === "channel",
-			);
+			const channelWidget = node.widgets.find((w) => w.name === "channel");
 			if (channelWidget) {
 				channelWidget.value = "red";
 				if (typeof channelWidget.callback === "function") {

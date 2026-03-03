@@ -1,4 +1,4 @@
-import type { MeldImage } from "../../../types";
+import type { ComfyApp, MeldImage } from "../../../types";
 
 export function buildComfyImagePath(image: MeldImage): string {
 	let imagePath = image.filename;
@@ -19,8 +19,7 @@ export function injectImageToGraph(
 	image: MeldImage,
 	targetNodeId?: string,
 ): InjectImageToGraphResult {
-	// @ts-expect-error: ComfyUI global
-	const comfyApp = window.app;
+	const comfyApp = window.app as ComfyApp;
 	if (!comfyApp?.graph) {
 		return { ok: false, reason: "no_app_graph" };
 	}
@@ -33,9 +32,7 @@ export function injectImageToGraph(
 		return t === "meldimageloader" || t === "loadimage";
 	};
 
-	const loaderNodes = comfyApp.graph._nodes.filter((n: { type: string }) =>
-		isLoaderNode(n.type),
-	);
+	const loaderNodes = comfyApp.graph._nodes.filter((n) => isLoaderNode(n.type));
 
 	if (loaderNodes.length === 0) {
 		return { ok: false, reason: "no_loader_node" };
@@ -43,16 +40,12 @@ export function injectImageToGraph(
 
 	let loaderNode = loaderNodes[0];
 	if (targetNodeId) {
-		const target = loaderNodes.find(
-			(n: { id: string | number }) => String(n.id) === targetNodeId,
-		);
+		const target = loaderNodes.find((n) => String(n.id) === targetNodeId);
 		if (target) {
 			loaderNode = target;
 		}
 	}
-	const loaderImageWidget = loaderNode.widgets.find(
-		(w: { name: string }) => w.name === "image",
-	);
+	const loaderImageWidget = loaderNode.widgets.find((w) => w.name === "image");
 
 	if (loaderImageWidget) {
 		loaderImageWidget.value = imagePath;

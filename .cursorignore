@@ -17,3 +17,6 @@ Thumbs.db
 # Build artifacts
 web/js/style.css
 web/js/gallery_extension.js
+
+# UI coverage
+ui/coverage/

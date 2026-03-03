@@ -55,6 +55,7 @@ Desktop.ini
 *.cover
 .hypothesis/
 htmlcov/
+ui/coverage/
 
 # Local configuration / Logs
 *.log
