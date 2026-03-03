@@ -2,6 +2,7 @@ import { Plus, Trash, X } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
 import { createPortal } from "react-dom";
+import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { getPortalRoot } from "../../../portals/portalRoots";
 import { useGallery } from "../../../store/GalleryContext";
 import { useLightTableKeys } from "../hooks/useLightTableKeys";
@@ -20,9 +21,14 @@ import "./LightTable.css";
 export const LightTable: React.FC = () => {
 	useLightTableKeys();
 	const isOpen = useLightTableStore((s) => s.isOpen);
+	const setIsOpen = useLightTableStore((s) => s.setIsOpen);
+
+	useEscapeToClose({
+		onEscape: () => setIsOpen(false),
+		enabled: isOpen,
+	});
 	const slots = useLightTableStore((s) => s.slots);
 	const buckets = useLightTableStore((s) => s.buckets);
-	const setIsOpen = useLightTableStore((s) => s.setIsOpen);
 	const { state: galleryState } = useGallery();
 	const [activeTabId, setActiveTabId] = useState(slots[0]?.id || "keep");
 	const portalRoot = getPortalRoot("lightTable");
