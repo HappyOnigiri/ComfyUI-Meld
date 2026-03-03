@@ -357,7 +357,7 @@ export const ImportModal: React.FC = () => {
 								</div>
 							</div>
 
-							<div className="meld-form-group checkbox">
+							<div className="meld-form-group--checkbox">
 								<label>
 									<input
 										type="checkbox"
