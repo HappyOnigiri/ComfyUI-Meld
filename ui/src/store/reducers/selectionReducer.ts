@@ -31,21 +31,14 @@ export const selectionReducer: GallerySubReducer = (state, action) => {
 				};
 			}
 
-			const startIndex = state.images.findIndex(
-				(img) => img.id === state.lastSelectedId,
-			);
-			const endIndex = state.images.findIndex(
-				(img) => img.id === action.payload,
-			);
+			const startIndex = state.images.findIndex((img) => img.id === state.lastSelectedId);
+			const endIndex = state.images.findIndex((img) => img.id === action.payload);
 
 			if (startIndex === -1 || endIndex === -1) {
 				return state;
 			}
 
-			const [minIdx, maxIdx] = [
-				Math.min(startIndex, endIndex),
-				Math.max(startIndex, endIndex),
-			];
+			const [minIdx, maxIdx] = [Math.min(startIndex, endIndex), Math.max(startIndex, endIndex)];
 			const newSelectedIds = new Set<number>(state.selectedIds);
 
 			for (let i = minIdx; i <= maxIdx; i++) {

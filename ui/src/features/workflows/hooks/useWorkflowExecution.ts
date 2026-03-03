@@ -50,9 +50,7 @@ export const useWorkflowExecution = () => {
 				// UI Format (saved from ComfyUI web interface)
 				isUIFormat = true;
 				if (!loaderNodeId) {
-					const loaderNode = (workflow.nodes as ComfyNode[]).find((n) =>
-						isLoaderNode(n.type),
-					);
+					const loaderNode = (workflow.nodes as ComfyNode[]).find((n) => isLoaderNode(n.type));
 					if (loaderNode) {
 						loaderNodeId = String(loaderNode.id);
 					}
@@ -92,15 +90,11 @@ export const useWorkflowExecution = () => {
 			});
 
 			if (!loaderNodeId) {
-				throw new Error(
-					"Meld Image Loader or Load Image node not found in the selected workflow.",
-				);
+				throw new Error("Meld Image Loader or Load Image node not found in the selected workflow.");
 			}
 
 			if (maskFilename && !maskNodeId) {
-				console.warn(
-					"[Meld] Mask filename provided but no mask node found in workflow JSON",
-				);
+				console.warn("[Meld] Mask filename provided but no mask node found in workflow JSON");
 				throw new Error(
 					"Load Image (as Mask) node not found in the selected workflow, but a mask was provided.",
 				);
@@ -128,8 +122,7 @@ export const useWorkflowExecution = () => {
 				const tabs = document.querySelectorAll(".workflow-tab");
 				for (const tab of Array.from(tabs)) {
 					const label = tab.querySelector(".workflow-label");
-					const labelText =
-						label?.textContent?.trim() || tab.textContent?.trim() || "";
+					const labelText = label?.textContent?.trim() || tab.textContent?.trim() || "";
 
 					// Match exact name, name with .json, or name with status dot (e.g. "resample-image \u2022")
 					if (
@@ -183,31 +176,23 @@ export const useWorkflowExecution = () => {
 
 				if (maskFilename) {
 					const maskNode = activeNodes.find(
-						(n) =>
-							String(n.id) === maskNodeId ||
-							n.type?.replace(/\s+/g, "") === "LoadImageMask",
+						(n) => String(n.id) === maskNodeId || n.type?.replace(/\s+/g, "") === "LoadImageMask",
 					);
 					logger.log("Updating mask node widget:", {
 						nodeId: maskNode?.id,
 						maskFilename,
 					});
 					if (maskNode) {
-						const imageWidget = maskNode.widgets?.find(
-							(w) => w.name === "image",
-						);
+						const imageWidget = maskNode.widgets?.find((w) => w.name === "image");
 						if (imageWidget) {
 							imageWidget.value = `${maskFilename} [temp]`;
 						}
-						const channelWidget = maskNode.widgets?.find(
-							(w) => w.name === "channel",
-						);
+						const channelWidget = maskNode.widgets?.find((w) => w.name === "channel");
 						if (channelWidget) {
 							channelWidget.value = "red";
 						}
 					} else {
-						console.warn(
-							"[Meld] LoadImageMask not found in active graph after loading",
-						);
+						console.warn("[Meld] LoadImageMask not found in active graph after loading");
 					}
 				}
 
@@ -219,9 +204,7 @@ export const useWorkflowExecution = () => {
 					return;
 				} catch (e) {
 					console.error("Failed to queue workflow:", e);
-					throw new Error(
-						"Failed to queue workflow. Check the console for details.",
-					);
+					throw new Error("Failed to queue workflow. Check the console for details.");
 				}
 			}
 

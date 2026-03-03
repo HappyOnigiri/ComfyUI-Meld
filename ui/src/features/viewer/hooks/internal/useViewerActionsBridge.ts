@@ -104,11 +104,10 @@ export const useViewerActionsBridge = ({
 	restoreImages,
 	bulkUpdateImageTags,
 }: UseViewerActionsBridgeParams) => {
-	const [lastDeletedImages, setLastDeletedImages] = useState<
-		MeldImage[] | null
-	>(null);
-	const [lastShortcutAction, setLastShortcutAction] =
-		useState<ViewerShortcutUndoAction | null>(null);
+	const [lastDeletedImages, setLastDeletedImages] = useState<MeldImage[] | null>(null);
+	const [lastShortcutAction, setLastShortcutAction] = useState<ViewerShortcutUndoAction | null>(
+		null,
+	);
 
 	const handleDelete = useCallback(
 		async (forceNoConfirm = false) => {
@@ -143,21 +142,12 @@ export const useViewerActionsBridge = ({
 					}
 				}
 
-				if (
-					!mountRefs.isMountedRef.current ||
-					mountRefs.viewerImageIdRef.current === null
-				) {
+				if (!mountRefs.isMountedRef.current || mountRefs.viewerImageIdRef.current === null) {
 					return;
 				}
 
-				await deleteImagesAndSyncLightTable(
-					Array.from(idsToDelete),
-					isPermanent,
-				);
-				if (
-					!mountRefs.isMountedRef.current ||
-					mountRefs.viewerImageIdRef.current === null
-				) {
+				await deleteImagesAndSyncLightTable(Array.from(idsToDelete), isPermanent);
+				if (!mountRefs.isMountedRef.current || mountRefs.viewerImageIdRef.current === null) {
 					return;
 				}
 				navigateAfterItemRemoval({
@@ -248,9 +238,7 @@ export const useViewerActionsBridge = ({
 			if (!mountRefs.isMountedRef.current) return;
 			const restoredIds = result.restored_ids || idsToRestore;
 			const restoredIdSet = new Set(restoredIds);
-			const restoredImages = lastDeletedImages.filter((img) =>
-				restoredIdSet.has(img.id),
-			);
+			const restoredImages = lastDeletedImages.filter((img) => restoredIdSet.has(img.id));
 			if (restoredImages.length > 0) {
 				dispatch({ type: "ADD_IMAGES", payload: restoredImages });
 			}
@@ -304,9 +292,9 @@ export const useViewerActionsBridge = ({
 		try {
 			await bulkUpdateImageTags([imageId], addTags, removeTags);
 
-			const targetImage = (
-				viewerMode === "lineage" ? lineageImages : images
-			).find((img) => img.id === imageId);
+			const targetImage = (viewerMode === "lineage" ? lineageImages : images).find(
+				(img) => img.id === imageId,
+			);
 
 			if (targetImage) {
 				const newTags = [...targetImage.tags];
@@ -356,14 +344,7 @@ export const useViewerActionsBridge = ({
 			const currentImageId = image.id;
 			const currentImageTags = [...image.tags];
 			const result = parseShortcutCommand(command, image);
-			const {
-				addTags,
-				removeTags,
-				isDeleted,
-				moveNext,
-				movePrev,
-				sendToLtSlot,
-			} = result;
+			const { addTags, removeTags, isDeleted, moveNext, movePrev, sendToLtSlot } = result;
 
 			if (sendToLtSlot) {
 				const store = useLightTableStore.getState();
@@ -389,13 +370,8 @@ export const useViewerActionsBridge = ({
 						});
 					}
 				} else {
-					store.showToast(
-						`Error: Light Table slot "${sendToLtSlot}" not found`,
-						"error",
-					);
-					console.warn(
-						`Attempted to send to non-existent LT slot: ${sendToLtSlot}`,
-					);
+					store.showToast(`Error: Light Table slot "${sendToLtSlot}" not found`, "error");
+					console.warn(`Attempted to send to non-existent LT slot: ${sendToLtSlot}`);
 				}
 			}
 

@@ -84,9 +84,7 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 	const handleAddTag = (tagName: string) => {
 		const trimmed = tagName.trim();
 		if (trimmed.toLowerCase() === RESERVED_TAG_KEYWORD) {
-			alert(
-				`Tag name '${RESERVED_TAG_KEYWORD}' is reserved for search and cannot be used.`,
-			);
+			alert(`Tag name '${RESERVED_TAG_KEYWORD}' is reserved for search and cannot be used.`);
 			return;
 		}
 		if (trimmed && !selectedTags.includes(trimmed)) {
@@ -105,9 +103,7 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 			if (isBulk) {
 				// Calculate diff
 				const tagsToAdd = selectedTags.filter((t) => !initialTags.includes(t));
-				const tagsToRemove = initialTags.filter(
-					(t) => !selectedTags.includes(t),
-				);
+				const tagsToRemove = initialTags.filter((t) => !selectedTags.includes(t));
 
 				await imagesApi.bulkUpdateImageTags(imageIds, tagsToAdd, tagsToRemove);
 			} else {
@@ -163,8 +159,8 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 								borderRadius: "4px",
 							}}
 						>
-							Adding tags will apply them to all selected images. Removing tags
-							will remove them only from images that currently have them.
+							Adding tags will apply them to all selected images. Removing tags will remove them
+							only from images that currently have them.
 						</div>
 					)}
 					<div className="meld-tag-edit-section">
@@ -204,17 +200,16 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 								onChange={(e) => setSearchQuery(e.target.value)}
 								onKeyDown={handleKeyDown}
 							/>
-							{searchQuery.trim() &&
-								!selectedTags.includes(searchQuery.trim()) && (
-									<button
-										type="button"
-										className="meld-tag-add-btn"
-										onClick={() => handleAddTag(searchQuery)}
-									>
-										<Plus size={14} />
-										Create
-									</button>
-								)}
+							{searchQuery.trim() && !selectedTags.includes(searchQuery.trim()) && (
+								<button
+									type="button"
+									className="meld-tag-add-btn"
+									onClick={() => handleAddTag(searchQuery)}
+								>
+									<Plus size={14} />
+									Create
+								</button>
+							)}
 						</div>
 
 						<div className="meld-tag-suggestions">
@@ -226,9 +221,7 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 										No existing tags match. Press Enter to create.
 									</div>
 								) : (
-									<div className="meld-tag-suggestions-empty">
-										No more tags available.
-									</div>
+									<div className="meld-tag-suggestions-empty">No more tags available.</div>
 								)
 							) : (
 								filteredTags.map((tag) => (
@@ -247,11 +240,7 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 				</div>
 
 				<div className="meld-modal-footer">
-					<button
-						type="button"
-						className="meld-btn meld-btn-secondary"
-						onClick={onClose}
-					>
+					<button type="button" className="meld-btn meld-btn-secondary" onClick={onClose}>
 						Cancel
 					</button>
 					<button

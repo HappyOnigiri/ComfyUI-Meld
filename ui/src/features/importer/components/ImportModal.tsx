@@ -1,12 +1,4 @@
-import {
-	ChevronLeft,
-	ChevronRight,
-	Folder,
-	Play,
-	Plus,
-	Search,
-	X,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Folder, Play, Plus, Search, X } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -64,12 +56,8 @@ export const ImportModal: React.FC = () => {
 			preview?: { filename: string; subfolder: string; type: string };
 		}[]
 	>([]);
-	const [images, setImages] = useState<
-		{ filename: string; subfolder: string; type: string }[]
-	>([]);
-	const [currentPathImageCount, setCurrentPathImageCount] = useState<
-		number | null
-	>(0);
+	const [images, setImages] = useState<{ filename: string; subfolder: string; type: string }[]>([]);
+	const [currentPathImageCount, setCurrentPathImageCount] = useState<number | null>(0);
 	const [isLoadingFolders, setIsLoadingFolders] = useState(false);
 	const [allTags, setAllTags] = useState<TagType[]>([]);
 	const [tagSearchQuery, setTagSearchQuery] = useState("");
@@ -115,11 +103,8 @@ export const ImportModal: React.FC = () => {
 		const controller = new AbortController();
 
 		const loadFolders = async () => {
-			const path =
-				config.type === "custom" ? config.custom_path : config.subfolder;
-			logger.log(
-				`loadFolders started. Path: "${path}", Type: "${config.type}"`,
-			);
+			const path = config.type === "custom" ? config.custom_path : config.subfolder;
+			logger.log(`loadFolders started. Path: "${path}", Type: "${config.type}"`);
 
 			if (config.type === "custom" && !path) {
 				logger.log("Custom path is empty, skipping load.");
@@ -136,12 +121,7 @@ export const ImportModal: React.FC = () => {
 			try {
 				// Step 1: Fast load (Folders and Images in current dir)
 				logger.log("Step 1: Fast load starting...");
-				const result = await importerApi.fetchFolders(
-					config.type,
-					path,
-					true,
-					controller.signal,
-				);
+				const result = await importerApi.fetchFolders(config.type, path, true, controller.signal);
 				if (controller.signal.aborted) {
 					logger.log("Step 1: Aborted.");
 					return;
@@ -156,16 +136,9 @@ export const ImportModal: React.FC = () => {
 				// Step 2: Fetch folder metadata (counts and previews)
 				const folderNames = result.folders.map((f) => f.name);
 				if (folderNames.length > 0) {
-					logger.log(
-						`Step 2: Metadata fetch starting for ${folderNames.length} folders...`,
-					);
+					logger.log(`Step 2: Metadata fetch starting for ${folderNames.length} folders...`);
 					importerApi
-						.fetchFolderMetadata(
-							currentType,
-							currentPath,
-							folderNames,
-							controller.signal,
-						)
+						.fetchFolderMetadata(currentType, currentPath, folderNames, controller.signal)
 						.then((metadata) => {
 							if (controller.signal.aborted) {
 								logger.log("Step 2: Aborted.");
@@ -376,9 +349,7 @@ export const ImportModal: React.FC = () => {
 								<span className="meld-form-label">Images Found</span>
 								<div className="meld-path-count">
 									{currentPathImageCount === null ? (
-										<span className="meld-path-count--loading">
-											Scanning...
-										</span>
+										<span className="meld-path-count--loading">Scanning...</span>
 									) : (
 										`${currentPathImageCount} images`
 									)}
@@ -390,9 +361,7 @@ export const ImportModal: React.FC = () => {
 									<input
 										type="checkbox"
 										checked={config.recursive}
-										onChange={(e) =>
-											setConfig({ ...config, recursive: e.target.checked })
-										}
+										onChange={(e) => setConfig({ ...config, recursive: e.target.checked })}
 									/>
 									Recursive Scan
 								</label>
@@ -406,10 +375,7 @@ export const ImportModal: React.FC = () => {
 									onChange={(e) =>
 										setConfig({
 											...config,
-											link_strategy: e.target.value as
-												| "none"
-												| "new_only"
-												| "all",
+											link_strategy: e.target.value as "none" | "new_only" | "all",
 											auto_link_parent: e.target.value !== "none",
 										})
 									}
@@ -424,9 +390,7 @@ export const ImportModal: React.FC = () => {
 								<label htmlFor="import-tags">Tags to Add</label>
 								<div className="meld-tag-edit-selected">
 									{config.tags.length === 0 ? (
-										<span className="meld-tag-edit-empty">
-											No tags selected
-										</span>
+										<span className="meld-tag-edit-empty">No tags selected</span>
 									) : (
 										config.tags.map((tag) => (
 											<span key={tag} className="meld-tag-edit-badge">
@@ -454,28 +418,23 @@ export const ImportModal: React.FC = () => {
 										onChange={(e) => setTagSearchQuery(e.target.value)}
 										onKeyDown={handleTagKeyDown}
 									/>
-									{tagSearchQuery.trim() &&
-										!config.tags.includes(tagSearchQuery.trim()) && (
-											<button
-												type="button"
-												className="meld-tag-add-btn"
-												onClick={() => handleAddTag(tagSearchQuery)}
-											>
-												<Plus size={14} />
-											</button>
-										)}
+									{tagSearchQuery.trim() && !config.tags.includes(tagSearchQuery.trim()) && (
+										<button
+											type="button"
+											className="meld-tag-add-btn"
+											onClick={() => handleAddTag(tagSearchQuery)}
+										>
+											<Plus size={14} />
+										</button>
+									)}
 								</div>
 
 								<div className="meld-tag-suggestions">
 									{isLoadingTags ? (
-										<div className="meld-tag-suggestions-loading">
-											Loading...
-										</div>
+										<div className="meld-tag-suggestions-loading">Loading...</div>
 									) : filteredTags.length === 0 ? (
 										tagSearchQuery && (
-											<div className="meld-tag-suggestions-empty">
-												New tag: {tagSearchQuery}
-											</div>
+											<div className="meld-tag-suggestions-empty">New tag: {tagSearchQuery}</div>
 										)
 									) : (
 										filteredTags.map((tag) => (
@@ -513,8 +472,7 @@ export const ImportModal: React.FC = () => {
 									disabled={
 										config.type === "custom"
 											? config.custom_path === "/" ||
-												(!config.custom_path.includes("/") &&
-													!config.custom_path.includes("\\"))
+												(!config.custom_path.includes("/") && !config.custom_path.includes("\\"))
 											: !config.subfolder
 									}
 									onClick={goUp}
@@ -528,16 +486,12 @@ export const ImportModal: React.FC = () => {
 											type="text"
 											className="meld-browser-path-input"
 											value={config.custom_path}
-											onChange={(e) =>
-												setConfig({ ...config, custom_path: e.target.value })
-											}
+											onChange={(e) => setConfig({ ...config, custom_path: e.target.value })}
 											placeholder="Enter absolute path..."
 										/>
 									) : (
 										<div className="meld-browser-path-display">
-											<span className="meld-browser-path-type">
-												{config.type}/
-											</span>
+											<span className="meld-browser-path-type">{config.type}/</span>
 											{config.subfolder}
 										</div>
 									)}
@@ -613,10 +567,7 @@ export const ImportModal: React.FC = () => {
 						setPreviewImage(null);
 					}}
 				>
-					<div
-						className="meld-import-preview-content"
-						onClick={(e) => e.stopPropagation()}
-					>
+					<div className="meld-import-preview-content" onClick={(e) => e.stopPropagation()}>
 						<div className="meld-import-preview-image-wrapper">
 							<button
 								type="button"
@@ -625,14 +576,9 @@ export const ImportModal: React.FC = () => {
 							>
 								<X size={24} />
 							</button>
-							<img
-								src={getThumbnailViewUrl(previewImage, 400)}
-								alt={previewImage.filename}
-							/>
+							<img src={getThumbnailViewUrl(previewImage, 400)} alt={previewImage.filename} />
 						</div>
-						<div className="meld-import-preview-info">
-							{previewImage.filename}
-						</div>
+						<div className="meld-import-preview-info">{previewImage.filename}</div>
 					</div>
 				</div>
 			)}

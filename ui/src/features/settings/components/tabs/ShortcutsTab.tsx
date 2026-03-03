@@ -6,9 +6,7 @@ interface ShortcutsTabProps {
 	localSettings: Settings;
 	setLocalSettings: React.Dispatch<React.SetStateAction<Settings>>;
 	shortcutErrors: Record<string, boolean>;
-	setShortcutErrors: React.Dispatch<
-		React.SetStateAction<Record<string, boolean>>
-	>;
+	setShortcutErrors: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
 	validateShortcut: (command: string) => boolean;
 	handleToggle: (key: keyof Settings, currentValue: boolean) => void;
 	handleResetShortcuts: () => void;
@@ -60,9 +58,8 @@ export const ShortcutsTab: React.FC<ShortcutsTabProps> = ({
 							<code>tag-toggle:NAME</code> - Toggle a tag
 						</li>
 						<li>
-							<code>lt:SLOT_ID</code> - Send to Light Table (Example:{" "}
-							<code>lt:keep</code>, <code>lt:refine</code>,{" "}
-							<code>lt:trash</code>)
+							<code>lt:SLOT_ID</code> - Send to Light Table (Example: <code>lt:keep</code>,{" "}
+							<code>lt:refine</code>, <code>lt:trash</code>)
 						</li>
 						<li>
 							<code>next</code> / <code>prev</code> - Navigate images
@@ -92,9 +89,7 @@ export const ShortcutsTab: React.FC<ShortcutsTabProps> = ({
 								}));
 							}}
 							onBlur={() => {
-								const isValid = validateShortcut(
-									(localSettings[key] as string) || "",
-								);
+								const isValid = validateShortcut((localSettings[key] as string) || "");
 								setShortcutErrors((prev) => ({
 									...prev,
 									[key]: !isValid,

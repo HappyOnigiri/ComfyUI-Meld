@@ -25,27 +25,15 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({ message }) => {
 						<AlertCircle size={20} color="var(--meld-danger-color)" />
 						<h2>Error</h2>
 					</div>
-					<button
-						className="meld-modal-close"
-						onClick={handleClose}
-						type="button"
-					>
+					<button className="meld-modal-close" onClick={handleClose} type="button">
 						<X size={20} />
 					</button>
 				</div>
 				<div className="meld-modal-body">
-					<div
-						style={{ padding: "20px 0", textAlign: "center", fontSize: "14px" }}
-					>
-						{message}
-					</div>
+					<div style={{ padding: "20px 0", textAlign: "center", fontSize: "14px" }}>{message}</div>
 				</div>
 				<div className="meld-modal-footer">
-					<button
-						className="meld-btn meld-btn-primary"
-						onClick={handleClose}
-						type="button"
-					>
+					<button className="meld-btn meld-btn-primary" onClick={handleClose} type="button">
 						OK
 					</button>
 				</div>

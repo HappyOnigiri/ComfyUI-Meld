@@ -8,9 +8,7 @@ export const InformationTab: React.FC = () => {
 				<div className="meld-settings-item">
 					<div className="meld-settings-item__info">
 						<div className="meld-settings-item__label">Version</div>
-						<div className="meld-settings-item__description">
-							{__APP_VERSION__}
-						</div>
+						<div className="meld-settings-item__description">{__APP_VERSION__}</div>
 					</div>
 				</div>
 			</div>
@@ -37,9 +35,7 @@ export const InformationTab: React.FC = () => {
 						>
 							GitHub Repository
 						</div>
-						<div className="meld-settings-item__description">
-							Star the project or fork it
-						</div>
+						<div className="meld-settings-item__description">Star the project or fork it</div>
 					</div>
 				</a>
 				<a
@@ -56,9 +52,7 @@ export const InformationTab: React.FC = () => {
 						>
 							Bug Tracker
 						</div>
-						<div className="meld-settings-item__description">
-							Report issues or suggest features
-						</div>
+						<div className="meld-settings-item__description">Report issues or suggest features</div>
 					</div>
 				</a>
 				<a
@@ -75,9 +69,7 @@ export const InformationTab: React.FC = () => {
 						>
 							X (Twitter)
 						</div>
-						<div className="meld-settings-item__description">
-							Follow for updates and news
-						</div>
+						<div className="meld-settings-item__description">Follow for updates and news</div>
 					</div>
 				</a>
 			</div>

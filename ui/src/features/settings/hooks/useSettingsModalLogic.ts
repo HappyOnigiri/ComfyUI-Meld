@@ -4,13 +4,7 @@ import type { Settings } from "../../../types";
 import * as settingsApi from "../api/settingsApi";
 import { validateShortcutCommand } from "../utils/shortcutGrammar";
 
-export type Category =
-	| "Gallery"
-	| "View"
-	| "Full Screen"
-	| "Shortcuts"
-	| "System"
-	| "Information";
+export type Category = "Gallery" | "View" | "Full Screen" | "Shortcuts" | "System" | "Information";
 
 export const useSettingsModalLogic = () => {
 	const { state, dispatch, updateSetting } = useGallery();
@@ -18,9 +12,7 @@ export const useSettingsModalLogic = () => {
 	const [localSettings, setLocalSettings] = useState<Settings>({
 		...state.settings,
 	});
-	const [shortcutErrors, setShortcutErrors] = useState<Record<string, boolean>>(
-		{},
-	);
+	const [shortcutErrors, setShortcutErrors] = useState<Record<string, boolean>>({});
 
 	// Input states for numbers
 	const [initialLoadCountInput, setInitialLoadCountInput] = useState<string>(
@@ -32,38 +24,28 @@ export const useSettingsModalLogic = () => {
 	const [lineageMaxDepthInput, setLineageMaxDepthInput] = useState<string>(
 		state.settings["gallery.lineage_max_depth"].toString(),
 	);
-	const [thumbnailWindowSizeInput, setThumbnailWindowSizeInput] =
-		useState<string>(state.settings["viewer.thumbnail_window_size"].toString());
-	const [trashRetentionDaysInput, setTrashRetentionDaysInput] =
-		useState<string>(state.settings["gallery.trash_retention_days"].toString());
-	const [autoLinkPhashThresholdInput, setAutoLinkPhashThresholdInput] =
-		useState<string>(
-			state.settings["gallery.auto_link_phash_threshold"].toString(),
-		);
-	const [suggestPhashThresholdInput, setSuggestPhashThresholdInput] =
-		useState<string>(
-			state.settings["gallery.suggest_phash_threshold"].toString(),
-		);
-	const [maxPositivePromptLinesInput, setMaxPositivePromptLinesInput] =
-		useState<string>(
-			state.settings["viewer.details.max_positive_prompt_lines"].toString(),
-		);
-	const [maxNegativePromptLinesInput, setMaxNegativePromptLinesInput] =
-		useState<string>(
-			state.settings["viewer.details.max_negative_prompt_lines"].toString(),
-		);
-	const [
-		fullscreenMaxPositivePromptLinesInput,
-		setFullscreenMaxPositivePromptLinesInput,
-	] = useState<string>(
-		state.settings["fullscreen.details.max_positive_prompt_lines"].toString(),
+	const [thumbnailWindowSizeInput, setThumbnailWindowSizeInput] = useState<string>(
+		state.settings["viewer.thumbnail_window_size"].toString(),
 	);
-	const [
-		fullscreenMaxNegativePromptLinesInput,
-		setFullscreenMaxNegativePromptLinesInput,
-	] = useState<string>(
-		state.settings["fullscreen.details.max_negative_prompt_lines"].toString(),
+	const [trashRetentionDaysInput, setTrashRetentionDaysInput] = useState<string>(
+		state.settings["gallery.trash_retention_days"].toString(),
 	);
+	const [autoLinkPhashThresholdInput, setAutoLinkPhashThresholdInput] = useState<string>(
+		state.settings["gallery.auto_link_phash_threshold"].toString(),
+	);
+	const [suggestPhashThresholdInput, setSuggestPhashThresholdInput] = useState<string>(
+		state.settings["gallery.suggest_phash_threshold"].toString(),
+	);
+	const [maxPositivePromptLinesInput, setMaxPositivePromptLinesInput] = useState<string>(
+		state.settings["viewer.details.max_positive_prompt_lines"].toString(),
+	);
+	const [maxNegativePromptLinesInput, setMaxNegativePromptLinesInput] = useState<string>(
+		state.settings["viewer.details.max_negative_prompt_lines"].toString(),
+	);
+	const [fullscreenMaxPositivePromptLinesInput, setFullscreenMaxPositivePromptLinesInput] =
+		useState<string>(state.settings["fullscreen.details.max_positive_prompt_lines"].toString());
+	const [fullscreenMaxNegativePromptLinesInput, setFullscreenMaxNegativePromptLinesInput] =
+		useState<string>(state.settings["fullscreen.details.max_negative_prompt_lines"].toString());
 	const [thumbnailSizeInput, setThumbnailSizeInput] = useState<string>(
 		state.settings["sidebar.thumbnail_size"].toString(),
 	);
@@ -71,11 +53,8 @@ export const useSettingsModalLogic = () => {
 	const handleClose = async () => {
 		// Identify changed settings
 		// Only save keys that don't have validation errors
-		const changedKeys = (
-			Object.keys(localSettings) as (keyof Settings)[]
-		).filter(
-			(key) =>
-				localSettings[key] !== state.settings[key] && !shortcutErrors[key],
+		const changedKeys = (Object.keys(localSettings) as (keyof Settings)[]).filter(
+			(key) => localSettings[key] !== state.settings[key] && !shortcutErrors[key],
 		);
 
 		if (changedKeys.length > 0) {
@@ -100,12 +79,7 @@ export const useSettingsModalLogic = () => {
 		return validateShortcutCommand(command);
 	};
 
-	const handleNumberChange = (
-		key: keyof Settings,
-		value: string,
-		min?: number,
-		max?: number,
-	) => {
+	const handleNumberChange = (key: keyof Settings, value: string, min?: number, max?: number) => {
 		if (key === "gallery.initial_load_count") {
 			setInitialLoadCountInput(value);
 		} else if (key === "gallery.max_load_count") {
@@ -146,31 +120,19 @@ export const useSettingsModalLogic = () => {
 
 	const handleNumberBlur = (config: { key: keyof Settings }) => {
 		if (config.key === "gallery.initial_load_count") {
-			setInitialLoadCountInput(
-				localSettings["gallery.initial_load_count"].toString(),
-			);
+			setInitialLoadCountInput(localSettings["gallery.initial_load_count"].toString());
 		} else if (config.key === "gallery.max_load_count") {
 			setMaxLoadCountInput(localSettings["gallery.max_load_count"].toString());
 		} else if (config.key === "gallery.lineage_max_depth") {
-			setLineageMaxDepthInput(
-				localSettings["gallery.lineage_max_depth"].toString(),
-			);
+			setLineageMaxDepthInput(localSettings["gallery.lineage_max_depth"].toString());
 		} else if (config.key === "viewer.thumbnail_window_size") {
-			setThumbnailWindowSizeInput(
-				localSettings["viewer.thumbnail_window_size"].toString(),
-			);
+			setThumbnailWindowSizeInput(localSettings["viewer.thumbnail_window_size"].toString());
 		} else if (config.key === "gallery.trash_retention_days") {
-			setTrashRetentionDaysInput(
-				localSettings["gallery.trash_retention_days"].toString(),
-			);
+			setTrashRetentionDaysInput(localSettings["gallery.trash_retention_days"].toString());
 		} else if (config.key === "gallery.auto_link_phash_threshold") {
-			setAutoLinkPhashThresholdInput(
-				localSettings["gallery.auto_link_phash_threshold"].toString(),
-			);
+			setAutoLinkPhashThresholdInput(localSettings["gallery.auto_link_phash_threshold"].toString());
 		} else if (config.key === "gallery.suggest_phash_threshold") {
-			setSuggestPhashThresholdInput(
-				localSettings["gallery.suggest_phash_threshold"].toString(),
-			);
+			setSuggestPhashThresholdInput(localSettings["gallery.suggest_phash_threshold"].toString());
 		} else if (config.key === "viewer.details.max_positive_prompt_lines") {
 			setMaxPositivePromptLinesInput(
 				localSettings["viewer.details.max_positive_prompt_lines"].toString(),
@@ -181,15 +143,11 @@ export const useSettingsModalLogic = () => {
 			);
 		} else if (config.key === "fullscreen.details.max_positive_prompt_lines") {
 			setFullscreenMaxPositivePromptLinesInput(
-				localSettings[
-					"fullscreen.details.max_positive_prompt_lines"
-				].toString(),
+				localSettings["fullscreen.details.max_positive_prompt_lines"].toString(),
 			);
 		} else if (config.key === "fullscreen.details.max_negative_prompt_lines") {
 			setFullscreenMaxNegativePromptLinesInput(
-				localSettings[
-					"fullscreen.details.max_negative_prompt_lines"
-				].toString(),
+				localSettings["fullscreen.details.max_negative_prompt_lines"].toString(),
 			);
 		} else if (config.key === "sidebar.thumbnail_size") {
 			setThumbnailSizeInput(localSettings["sidebar.thumbnail_size"].toString());

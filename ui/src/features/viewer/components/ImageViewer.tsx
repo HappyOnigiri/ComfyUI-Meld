@@ -31,8 +31,7 @@ import { ViewerInfoPanel } from "./ViewerInfoPanel";
 import { ViewerThumbnailStrip } from "./ViewerThumbnailStrip";
 
 export function ImageViewer() {
-	const { state, dispatch, loadMoreImages, fetchFullImageDetails } =
-		useGallery();
+	const { state, dispatch, loadMoreImages, fetchFullImageDetails } = useGallery();
 
 	const {
 		isFullscreen,
@@ -138,11 +137,7 @@ export function ImageViewer() {
 							className="meld-viewer-action-btn"
 							onClick={toggleFullscreen}
 							type="button"
-							title={
-								isFullscreen
-									? "Exit Fullscreen (F/Enter)"
-									: "Fullscreen (F/Enter)"
-							}
+							title={isFullscreen ? "Exit Fullscreen (F/Enter)" : "Fullscreen (F/Enter)"}
 						>
 							{isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
 						</button>
@@ -227,35 +222,27 @@ export function ImageViewer() {
 					/>
 				)}
 
-				{!isFullscreen &&
-					showThumbnails &&
-					state.settings["viewer.thumbnail_window_size"] > 1 && (
-						<ViewerThumbnailStrip
-							windowedThumbnails={windowedThumbnails}
-							viewerImageId={viewerImageId}
-							currentImage={image}
-							dispatch={dispatch}
-							isLoadingLineage={isLoadingLineage}
-							isLoading={state.isLoading}
-							viewerMode={viewerMode}
-							lightTableSlotId={state.viewerLightTableSlotId}
-						/>
-					)}
+				{!isFullscreen && showThumbnails && state.settings["viewer.thumbnail_window_size"] > 1 && (
+					<ViewerThumbnailStrip
+						windowedThumbnails={windowedThumbnails}
+						viewerImageId={viewerImageId}
+						currentImage={image}
+						dispatch={dispatch}
+						isLoadingLineage={isLoadingLineage}
+						isLoading={state.isLoading}
+						viewerMode={viewerMode}
+						lightTableSlotId={state.viewerLightTableSlotId}
+					/>
+				)}
 
-				<ViewerCheatSheet
-					settings={state.settings}
-					activeShortcutKey={activeShortcutKey}
-				/>
+				<ViewerCheatSheet settings={state.settings} activeShortcutKey={activeShortcutKey} />
 			</div>
 
 			{/* Render modals inside viewer to ensure visibility in fullscreen */}
 			{state.activeModal.type === "workflow_selection" && (
 				<WorkflowSelectionModal
 					images={state.activeModal.images}
-					isMaskMode={
-						!!state.activeModal.maskFilename ||
-						!!state.activeModal.isMaskSequence
-					}
+					isMaskMode={!!state.activeModal.maskFilename || !!state.activeModal.isMaskSequence}
 					onExecute={async (workflowName, targetLoaderNodeId) => {
 						if (state.activeModal.type === "workflow_selection") {
 							if (state.activeModal.isMaskSequence) {
@@ -274,12 +261,7 @@ export function ImageViewer() {
 
 							const maskFilename = state.activeModal.maskFilename;
 							for (const img of state.activeModal.images) {
-								await executeWorkflow(
-									workflowName,
-									img,
-									maskFilename,
-									targetLoaderNodeId,
-								);
+								await executeWorkflow(workflowName, img, maskFilename, targetLoaderNodeId);
 							}
 							dispatch({ type: "CLOSE_MODAL" });
 							dispatch({ type: "CLOSE_VIEWER" });
@@ -298,9 +280,7 @@ export function ImageViewer() {
 					}}
 				/>
 			)}
-			{state.activeModal.type === "error" && (
-				<ErrorModal message={state.activeModal.message} />
-			)}
+			{state.activeModal.type === "error" && <ErrorModal message={state.activeModal.message} />}
 			{state.activeModal.type === "delete_confirm" && (
 				<DeleteConfirmModal
 					imageIds={state.activeModal.imageIds}

@@ -33,9 +33,7 @@ export function injectImageToGraph(
 		return t === "meldimageloader" || t === "loadimage";
 	};
 
-	const loaderNodes = comfyApp.graph._nodes.filter((n: { type: string }) =>
-		isLoaderNode(n.type),
-	);
+	const loaderNodes = comfyApp.graph._nodes.filter((n: { type: string }) => isLoaderNode(n.type));
 
 	if (loaderNodes.length === 0) {
 		return { ok: false, reason: "no_loader_node" };
@@ -43,16 +41,12 @@ export function injectImageToGraph(
 
 	let loaderNode = loaderNodes[0];
 	if (targetNodeId) {
-		const target = loaderNodes.find(
-			(n: { id: string | number }) => String(n.id) === targetNodeId,
-		);
+		const target = loaderNodes.find((n: { id: string | number }) => String(n.id) === targetNodeId);
 		if (target) {
 			loaderNode = target;
 		}
 	}
-	const loaderImageWidget = loaderNode.widgets.find(
-		(w: { name: string }) => w.name === "image",
-	);
+	const loaderImageWidget = loaderNode.widgets.find((w: { name: string }) => w.name === "image");
 
 	if (loaderImageWidget) {
 		loaderImageWidget.value = imagePath;

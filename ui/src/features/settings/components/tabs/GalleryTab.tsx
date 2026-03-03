@@ -7,12 +7,7 @@ interface GalleryTabProps {
 	localSettings: Settings;
 	setLocalSettings: React.Dispatch<React.SetStateAction<Settings>>;
 	handleToggle: (key: keyof Settings, currentValue: boolean) => void;
-	handleNumberChange: (
-		key: keyof Settings,
-		value: string,
-		min?: number,
-		max?: number,
-	) => void;
+	handleNumberChange: (key: keyof Settings, value: string, min?: number, max?: number) => void;
 	handleNumberBlur: (config: { key: keyof Settings }) => void;
 	thumbnailSizeInput: string;
 	initialLoadCountInput: string;
@@ -43,14 +38,7 @@ export const GalleryTab: React.FC<GalleryTabProps> = ({
 						value={thumbnailSizeInput}
 						min={50}
 						max={500}
-						onChange={(e) =>
-							handleNumberChange(
-								"sidebar.thumbnail_size",
-								e.target.value,
-								50,
-								500,
-							)
-						}
+						onChange={(e) => handleNumberChange("sidebar.thumbnail_size", e.target.value, 50, 500)}
 						onBlur={() => handleNumberBlur({ key: "sidebar.thumbnail_size" })}
 					/>
 				</SettingItem>
@@ -65,8 +53,7 @@ export const GalleryTab: React.FC<GalleryTabProps> = ({
 						onChange={(e) =>
 							setLocalSettings((prev) => ({
 								...prev,
-								"sidebar.show_filename": e.target
-									.value as Settings["sidebar.show_filename"],
+								"sidebar.show_filename": e.target.value as Settings["sidebar.show_filename"],
 							}))
 						}
 					>
@@ -85,10 +72,7 @@ export const GalleryTab: React.FC<GalleryTabProps> = ({
 							type="checkbox"
 							checked={localSettings["sidebar.show_dimensions"]}
 							onChange={() =>
-								handleToggle(
-									"sidebar.show_dimensions",
-									localSettings["sidebar.show_dimensions"],
-								)
+								handleToggle("sidebar.show_dimensions", localSettings["sidebar.show_dimensions"])
 							}
 						/>
 						<span className="meld-switch__slider" />
@@ -104,10 +88,7 @@ export const GalleryTab: React.FC<GalleryTabProps> = ({
 							type="checkbox"
 							checked={localSettings["sidebar.show_created_at"]}
 							onChange={() =>
-								handleToggle(
-									"sidebar.show_created_at",
-									localSettings["sidebar.show_created_at"],
-								)
+								handleToggle("sidebar.show_created_at", localSettings["sidebar.show_created_at"])
 							}
 						/>
 						<span className="meld-switch__slider" />
@@ -152,29 +133,20 @@ export const GalleryTab: React.FC<GalleryTabProps> = ({
 					</label>
 				</SettingItem>
 
-				<SettingItem
-					label="Show Model"
-					description="Display the model name on the card."
-				>
+				<SettingItem label="Show Model" description="Display the model name on the card.">
 					<label className="meld-switch">
 						<input
 							type="checkbox"
 							checked={localSettings["sidebar.show_model_name"]}
 							onChange={() =>
-								handleToggle(
-									"sidebar.show_model_name",
-									localSettings["sidebar.show_model_name"],
-								)
+								handleToggle("sidebar.show_model_name", localSettings["sidebar.show_model_name"])
 							}
 						/>
 						<span className="meld-switch__slider" />
 					</label>
 				</SettingItem>
 
-				<SettingItem
-					label="Show Positive"
-					description="Display the positive prompt on the card."
-				>
+				<SettingItem label="Show Positive" description="Display the positive prompt on the card.">
 					<label className="meld-switch">
 						<input
 							type="checkbox"
@@ -190,10 +162,7 @@ export const GalleryTab: React.FC<GalleryTabProps> = ({
 					</label>
 				</SettingItem>
 
-				<SettingItem
-					label="Show Negative"
-					description="Display the negative prompt on the card."
-				>
+				<SettingItem label="Show Negative" description="Display the negative prompt on the card.">
 					<label className="meld-switch">
 						<input
 							type="checkbox"
@@ -209,18 +178,14 @@ export const GalleryTab: React.FC<GalleryTabProps> = ({
 					</label>
 				</SettingItem>
 
-				<SettingItem
-					label="Show User Notes"
-					description="Display user notes on the card."
-				>
+				<SettingItem label="Show User Notes" description="Display user notes on the card.">
 					<select
 						className="meld-select"
 						value={localSettings["sidebar.show_user_notes"]}
 						onChange={(e) =>
 							setLocalSettings((prev) => ({
 								...prev,
-								"sidebar.show_user_notes": e.target
-									.value as Settings["sidebar.show_user_notes"],
+								"sidebar.show_user_notes": e.target.value as Settings["sidebar.show_user_notes"],
 							}))
 						}
 					>
@@ -235,12 +200,7 @@ export const GalleryTab: React.FC<GalleryTabProps> = ({
 						<input
 							type="checkbox"
 							checked={localSettings["sidebar.show_tags"]}
-							onChange={() =>
-								handleToggle(
-									"sidebar.show_tags",
-									localSettings["sidebar.show_tags"],
-								)
-							}
+							onChange={() => handleToggle("sidebar.show_tags", localSettings["sidebar.show_tags"])}
 						/>
 						<span className="meld-switch__slider" />
 					</label>
@@ -258,10 +218,7 @@ export const GalleryTab: React.FC<GalleryTabProps> = ({
 							type="checkbox"
 							checked={localSettings["search.quick_suggestions"]}
 							onChange={() =>
-								handleToggle(
-									"search.quick_suggestions",
-									localSettings["search.quick_suggestions"],
-								)
+								handleToggle("search.quick_suggestions", localSettings["search.quick_suggestions"])
 							}
 						/>
 						<span className="meld-switch__slider" />
@@ -277,10 +234,7 @@ export const GalleryTab: React.FC<GalleryTabProps> = ({
 							type="checkbox"
 							checked={localSettings["search.input_suggest"]}
 							onChange={() =>
-								handleToggle(
-									"search.input_suggest",
-									localSettings["search.input_suggest"],
-								)
+								handleToggle("search.input_suggest", localSettings["search.input_suggest"])
 							}
 						/>
 						<span className="meld-switch__slider" />
@@ -301,16 +255,9 @@ export const GalleryTab: React.FC<GalleryTabProps> = ({
 						min={10}
 						max={1000}
 						onChange={(e) =>
-							handleNumberChange(
-								"gallery.initial_load_count",
-								e.target.value,
-								10,
-								1000,
-							)
+							handleNumberChange("gallery.initial_load_count", e.target.value, 10, 1000)
 						}
-						onBlur={() =>
-							handleNumberBlur({ key: "gallery.initial_load_count" })
-						}
+						onBlur={() => handleNumberBlur({ key: "gallery.initial_load_count" })}
 					/>
 				</SettingItem>
 
@@ -325,12 +272,7 @@ export const GalleryTab: React.FC<GalleryTabProps> = ({
 						min={10}
 						max={1000000}
 						onChange={(e) =>
-							handleNumberChange(
-								"gallery.max_load_count",
-								e.target.value,
-								10,
-								1000000,
-							)
+							handleNumberChange("gallery.max_load_count", e.target.value, 10, 1000000)
 						}
 						onBlur={() => handleNumberBlur({ key: "gallery.max_load_count" })}
 					/>
@@ -347,11 +289,7 @@ export const GalleryTab: React.FC<GalleryTabProps> = ({
 					>
 						<select
 							className="meld-select"
-							value={
-								localSettings[
-									`gallery.quick_shortcut.${slot}` as keyof Settings
-								] as string
-							}
+							value={localSettings[`gallery.quick_shortcut.${slot}` as keyof Settings] as string}
 							onChange={(e) =>
 								setLocalSettings((prev) => ({
 									...prev,

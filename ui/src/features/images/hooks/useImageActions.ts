@@ -1,11 +1,6 @@
 import { useCallback } from "react";
 import { logger } from "../../../logger";
-import type {
-	ComfyApp,
-	GalleryAction,
-	GalleryState,
-	MeldImage,
-} from "../../../types";
+import type { ComfyApp, GalleryAction, GalleryState, MeldImage } from "../../../types";
 import { fetchWorkflows } from "../../workflows/api/workflowsApi";
 import { injectImageToGraph } from "../../workflows/utils/injectImageToGraph";
 import * as imagesApi from "../api/imagesApi";
@@ -21,10 +16,7 @@ type SnapshotData = Awaited<ReturnType<typeof imagesApi.fetchSnapshotData>>;
  * If you need to add a new image-related action (e.g., bulk editing, exporting),
  * implement it here instead of within individual feature hooks.
  */
-export const useImageActions = (
-	_state: GalleryState,
-	dispatch: React.Dispatch<GalleryAction>,
-) => {
+export const useImageActions = (_state: GalleryState, dispatch: React.Dispatch<GalleryAction>) => {
 	const restoreImages = useCallback(async (ids: number[]) => {
 		return imagesApi.restoreImages(ids);
 	}, []);
@@ -44,9 +36,7 @@ export const useImageActions = (
 				return false;
 			}
 
-			await (window as unknown as { app: ComfyApp }).app.loadGraphData(
-				data.workflow,
-			);
+			await (window as unknown as { app: ComfyApp }).app.loadGraphData(data.workflow);
 			logger.log("Workflow restored successfully from Meld");
 			return true;
 		} catch (error) {
@@ -59,9 +49,7 @@ export const useImageActions = (
 	const handleAddUnifiedLoader = useCallback(async (image: MeldImage) => {
 		try {
 			const data = await imagesApi.fetchSnapshotData(image.id);
-			const nodeName = data.is_flux
-				? "MeldUnifiedFluxLoader"
-				: "MeldUnifiedLoader";
+			const nodeName = data.is_flux ? "MeldUnifiedFluxLoader" : "MeldUnifiedLoader";
 			// @ts-expect-error
 			const comfyApp = window.app;
 			// @ts-expect-error
@@ -76,43 +64,41 @@ export const useImageActions = (
 				return false;
 			}
 
-			const widgetMap: Partial<Record<keyof SnapshotData, string>> =
-				data.is_flux
-					? {
-							model_name: "model_name",
-							clip_name1: "clip_name1",
-							clip_name2: "clip_name2",
-							clip_type: "clip_type",
-							clip_device: "clip_device",
-							positive: "positive",
-							seed: "seed",
-							steps: "steps",
-							guidance: "guidance",
-							sampler_name: "sampler_name",
-							scheduler: "scheduler",
-							width: "width",
-							height: "height",
-						}
-					: {
-							model_name: "model_name",
-							positive: "positive",
-							negative: "negative",
-							seed: "seed",
-							steps: "steps",
-							cfg: "cfg",
-							sampler_name: "sampler_name",
-							scheduler: "scheduler",
-							width: "width",
-							height: "height",
-						};
+			const widgetMap: Partial<Record<keyof SnapshotData, string>> = data.is_flux
+				? {
+						model_name: "model_name",
+						clip_name1: "clip_name1",
+						clip_name2: "clip_name2",
+						clip_type: "clip_type",
+						clip_device: "clip_device",
+						positive: "positive",
+						seed: "seed",
+						steps: "steps",
+						guidance: "guidance",
+						sampler_name: "sampler_name",
+						scheduler: "scheduler",
+						width: "width",
+						height: "height",
+					}
+				: {
+						model_name: "model_name",
+						positive: "positive",
+						negative: "negative",
+						seed: "seed",
+						steps: "steps",
+						cfg: "cfg",
+						sampler_name: "sampler_name",
+						scheduler: "scheduler",
+						width: "width",
+						height: "height",
+					};
 
 			if (node.widgets) {
 				for (const [dataKey, widgetName] of Object.entries(widgetMap)) {
 					const val = data[dataKey as keyof SnapshotData];
 					if (val !== undefined && val !== null && val !== "") {
 						const widget = node.widgets.find(
-							(w: { name: string; value: string | number }) =>
-								w.name === widgetName,
+							(w: { name: string; value: string | number }) => w.name === widgetName,
 						);
 						if (widget) {
 							widget.value = val;
@@ -121,8 +107,7 @@ export const useImageActions = (
 				}
 
 				const controlWidget = node.widgets.find(
-					(w: { name: string; value: string }) =>
-						w.name === "control_after_generate",
+					(w: { name: string; value: string }) => w.name === "control_after_generate",
 				);
 				if (controlWidget) {
 					controlWidget.value = "fixed";
@@ -192,8 +177,7 @@ export const useImageActions = (
 					type: "OPEN_MODAL",
 					payload: {
 						type: "error",
-						message:
-							"No active workflow graph found. Please open a workflow first.",
+						message: "No active workflow graph found. Please open a workflow first.",
 					},
 				});
 				return false;
@@ -214,8 +198,7 @@ export const useImageActions = (
 					type: "OPEN_MODAL",
 					payload: {
 						type: "error",
-						message:
-							"No 'Meld Image Loader' or 'Load Image' node found in the current workflow.",
+						message: "No 'Meld Image Loader' or 'Load Image' node found in the current workflow.",
 					},
 				});
 				return false;
@@ -228,13 +211,11 @@ export const useImageActions = (
 					payload: {
 						type: "node_selection",
 						image,
-						nodes: loaderNodes.map(
-							(n: { id: string | number; type: string; title?: string }) => ({
-								id: String(n.id),
-								type: n.type,
-								title: n.title,
-							}),
-						),
+						nodes: loaderNodes.map((n: { id: string | number; type: string; title?: string }) => ({
+							id: String(n.id),
+							type: n.type,
+							title: n.title,
+						})),
 						onSelect: (nodeId) => {
 							injectImageToGraph(image, nodeId);
 						},
@@ -292,14 +273,10 @@ export const useImageActions = (
 					})),
 				);
 
-				const hasMaskNode = nodes.some(
-					(n: { type: string }) => n.type === "LoadImageMask",
-				);
+				const hasMaskNode = nodes.some((n: { type: string }) => n.type === "LoadImageMask");
 				const hasLoaderNode = nodes.some(
 					(n: { type: string }) =>
-						n.type === "MeldImageLoader" ||
-						n.type === "LoadImage" ||
-						n.type === "Load Image",
+						n.type === "MeldImageLoader" || n.type === "LoadImage" || n.type === "Load Image",
 				);
 
 				logger.log("Nodes found:", { hasMaskNode, hasLoaderNode });
@@ -325,8 +302,7 @@ export const useImageActions = (
 						type: "OPEN_MODAL",
 						payload: {
 							type: "error",
-							message:
-								"'Apply' mode without queueing only supports single image selection.",
+							message: "'Apply' mode without queueing only supports single image selection.",
 						},
 					});
 					return;
@@ -342,9 +318,7 @@ export const useImageActions = (
 			// For "run" mode, check if there's any workflow that supports masks
 			try {
 				const workflows = await fetchWorkflows();
-				const hasCompatibleWorkflow = workflows.some(
-					(wf) => wf.valid && wf.mask_count >= 1,
-				);
+				const hasCompatibleWorkflow = workflows.some((wf) => wf.valid && wf.mask_count >= 1);
 				if (!hasCompatibleWorkflow) {
 					dispatch({
 						type: "OPEN_MODAL",
@@ -410,10 +384,7 @@ export const useImageActions = (
 	const handleUpdateUserNotes = useCallback(
 		async (imageId: number, userNotes: string) => {
 			try {
-				const updatedImage = await imagesApi.updateImageNotes(
-					imageId,
-					userNotes,
-				);
+				const updatedImage = await imagesApi.updateImageNotes(imageId, userNotes);
 				dispatch({ type: "UPDATE_IMAGE", payload: updatedImage });
 			} catch (err: unknown) {
 				dispatch({

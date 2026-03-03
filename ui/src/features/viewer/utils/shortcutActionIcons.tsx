@@ -1,9 +1,6 @@
 import type React from "react";
 
-export type ShortcutActionIconProps = Omit<
-	React.SVGProps<SVGSVGElement>,
-	"color" | "children"
-> & {
+export type ShortcutActionIconProps = Omit<React.SVGProps<SVGSVGElement>, "color" | "children"> & {
 	size?: number | string;
 	color?: string;
 };
@@ -12,12 +9,7 @@ type IconBaseProps = ShortcutActionIconProps & {
 	children?: React.ReactNode;
 };
 
-function IconBase({
-	size = 24,
-	color,
-	children,
-	...svgProps
-}: IconBaseProps): React.JSX.Element {
+function IconBase({ size = 24, color, children, ...svgProps }: IconBaseProps): React.JSX.Element {
 	return (
 		<svg
 			{...svgProps}
@@ -44,25 +36,15 @@ function PlusBadge(): React.JSX.Element {
 	return (
 		<>
 			{/* Unframed plus mark with a background-colored halo for legibility */}
-			<path
-				d="M18 16.6v2.8"
-				stroke="var(--meld-icon-halo, transparent)"
-				strokeWidth={4}
-			/>
-			<path
-				d="M16.6 18h2.8"
-				stroke="var(--meld-icon-halo, transparent)"
-				strokeWidth={4}
-			/>
+			<path d="M18 16.6v2.8" stroke="var(--meld-icon-halo, transparent)" strokeWidth={4} />
+			<path d="M16.6 18h2.8" stroke="var(--meld-icon-halo, transparent)" strokeWidth={4} />
 			<path d="M18 16.6v2.8" />
 			<path d="M16.6 18h2.8" />
 		</>
 	);
 }
 
-export function AddUnifiedLoaderIcon(
-	props: ShortcutActionIconProps,
-): React.JSX.Element {
+export function AddUnifiedLoaderIcon(props: ShortcutActionIconProps): React.JSX.Element {
 	return (
 		<IconBase {...props}>
 			{/* Simple right arrow */}
@@ -72,9 +54,7 @@ export function AddUnifiedLoaderIcon(
 	);
 }
 
-export function RestoreFullWorkflowIcon(
-	props: ShortcutActionIconProps,
-): React.JSX.Element {
+export function RestoreFullWorkflowIcon(props: ShortcutActionIconProps): React.JSX.Element {
 	return (
 		<IconBase {...props}>
 			<path d="M4.5 5.5h7l2 2h6v11a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2z" />
@@ -86,9 +66,7 @@ export function RestoreFullWorkflowIcon(
 	);
 }
 
-export function QueueWorkflowIcon(
-	props: ShortcutActionIconProps,
-): React.JSX.Element {
+export function QueueWorkflowIcon(props: ShortcutActionIconProps): React.JSX.Element {
 	return (
 		<IconBase {...props}>
 			{/* "Fancy" right arrow: shaft + double chevrons */}
@@ -99,9 +77,7 @@ export function QueueWorkflowIcon(
 	);
 }
 
-export function QueueWorkflowMaskIcon(
-	props: ShortcutActionIconProps,
-): React.JSX.Element {
+export function QueueWorkflowMaskIcon(props: ShortcutActionIconProps): React.JSX.Element {
 	return (
 		<IconBase {...props}>
 			{/* "Fancy" right arrow with plus badge */}
@@ -113,9 +89,7 @@ export function QueueWorkflowMaskIcon(
 	);
 }
 
-export function SendToWorkflowIcon(
-	props: ShortcutActionIconProps,
-): React.JSX.Element {
+export function SendToWorkflowIcon(props: ShortcutActionIconProps): React.JSX.Element {
 	return (
 		<IconBase {...props}>
 			{/* Square with a right arrow inside */}
@@ -126,9 +100,7 @@ export function SendToWorkflowIcon(
 	);
 }
 
-export function SendToWorkflowMaskIcon(
-	props: ShortcutActionIconProps,
-): React.JSX.Element {
+export function SendToWorkflowMaskIcon(props: ShortcutActionIconProps): React.JSX.Element {
 	return (
 		<IconBase {...props}>
 			{/* Square with a right arrow inside + plus badge */}
@@ -140,9 +112,7 @@ export function SendToWorkflowMaskIcon(
 	);
 }
 
-export function EditSourceImageIcon(
-	props: ShortcutActionIconProps,
-): React.JSX.Element {
+export function EditSourceImageIcon(props: ShortcutActionIconProps): React.JSX.Element {
 	return (
 		<IconBase {...props}>
 			<rect x="4.5" y="6" width="12.5" height="10.5" rx="2" />
@@ -153,9 +123,7 @@ export function EditSourceImageIcon(
 	);
 }
 
-export function EditTagsIcon(
-	props: ShortcutActionIconProps,
-): React.JSX.Element {
+export function EditTagsIcon(props: ShortcutActionIconProps): React.JSX.Element {
 	return (
 		<IconBase {...props}>
 			<path d="M20 12l-8 8-9-9v-5a2 2 0 0 1 2-2h5z" />
@@ -164,9 +132,7 @@ export function EditTagsIcon(
 	);
 }
 
-export function EditNotesIcon(
-	props: ShortcutActionIconProps,
-): React.JSX.Element {
+export function EditNotesIcon(props: ShortcutActionIconProps): React.JSX.Element {
 	return (
 		<IconBase {...props}>
 			<path d="M15.5 4.5h-8a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-9l-3-4z" />
@@ -177,9 +143,7 @@ export function EditNotesIcon(
 	);
 }
 
-export function RestoreImageIcon(
-	props: ShortcutActionIconProps,
-): React.JSX.Element {
+export function RestoreImageIcon(props: ShortcutActionIconProps): React.JSX.Element {
 	return (
 		<IconBase {...props}>
 			<path d="M7 7h10" />
@@ -191,9 +155,7 @@ export function RestoreImageIcon(
 	);
 }
 
-export function DeleteOrTrashIcon(
-	props: ShortcutActionIconProps,
-): React.JSX.Element {
+export function DeleteOrTrashIcon(props: ShortcutActionIconProps): React.JSX.Element {
 	return (
 		<IconBase {...props}>
 			<path d="M7 7h10" />

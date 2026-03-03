@@ -13,9 +13,7 @@ export const imagesReducer: GallerySubReducer = (state, action) => {
 			};
 		case "REMOVE_IMAGES": {
 			const idsToRemove = new Set(action.payload);
-			const newImages = dedupeImagesById(
-				state.images.filter((img) => !idsToRemove.has(img.id)),
-			);
+			const newImages = dedupeImagesById(state.images.filter((img) => !idsToRemove.has(img.id)));
 			const newLineageImages = dedupeImagesById(
 				state.lineageImages.filter((img) => !idsToRemove.has(img.id)),
 			);

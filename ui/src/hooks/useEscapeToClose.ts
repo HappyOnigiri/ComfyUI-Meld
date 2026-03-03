@@ -31,7 +31,6 @@ export const useEscapeToClose = ({
 		};
 
 		window.addEventListener("keydown", handleKeyDown, { capture });
-		return () =>
-			window.removeEventListener("keydown", handleKeyDown, { capture });
+		return () => window.removeEventListener("keydown", handleKeyDown, { capture });
 	}, [onEscape, enabled, capture]);
 };

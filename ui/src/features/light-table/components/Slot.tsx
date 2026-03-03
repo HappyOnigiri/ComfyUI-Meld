@@ -86,9 +86,7 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 		});
 	}, [bucketItems]);
 
-	const validSelectedIds = selectedIds.filter((id) =>
-		bucketItems.includes(String(id)),
-	);
+	const validSelectedIds = selectedIds.filter((id) => bucketItems.includes(String(id)));
 	const hasSelection = validSelectedIds.length > 0;
 
 	const handleDragOver = (e: React.DragEvent) => {
@@ -115,13 +113,9 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 					const imgIdNum = Number(imageIdStr);
 					let image = galleryState.images.find((img) => img.id === imgIdNum);
 					if (!image) {
-						image = galleryState.lineageImages.find(
-							(img) => img.id === imgIdNum,
-						);
+						image = galleryState.lineageImages.find((img) => img.id === imgIdNum);
 					}
-					useLightTableStore
-						.getState()
-						.addToBucket(config.id, imageIdStr, image);
+					useLightTableStore.getState().addToBucket(config.id, imageIdStr, image);
 				}
 			});
 		}
@@ -143,9 +137,7 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 
 	const handleImageDragEnd = (e: React.DragEvent, imgId: number) => {
 		if (e.dataTransfer.dropEffect === "none") {
-			const idsToRemove = validSelectedIds.includes(imgId)
-				? validSelectedIds
-				: [imgId];
+			const idsToRemove = validSelectedIds.includes(imgId) ? validSelectedIds : [imgId];
 			idsToRemove.forEach((id) => {
 				useLightTableStore.getState().removeFromBucket(config.id, String(id));
 			});
@@ -180,18 +172,10 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 		};
 
 		const onSuccess = () => {
-			useLightTableStore
-				.getState()
-				.showToast(actionLabelMap[actionType] ?? "Done");
+			useLightTableStore.getState().showToast(actionLabelMap[actionType] ?? "Done");
 		};
 
-		executeSlotAction(
-			actionToExecute,
-			targetIds,
-			targetImages,
-			galleryDispatch,
-			onSuccess,
-		);
+		executeSlotAction(actionToExecute, targetIds, targetImages, galleryDispatch, onSuccess);
 	};
 
 	const handleClearBucket = () => {
@@ -218,9 +202,7 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 			{/* Images area */}
 			<div className="meld-lt-slot-panel__images">
 				{itemCount === 0 ? (
-					<div className="meld-lt-slot-panel__empty">
-						Drag &amp; Drop images here
-					</div>
+					<div className="meld-lt-slot-panel__empty">Drag &amp; Drop images here</div>
 				) : (
 					bucketImages.map((img) => {
 						const imgSrc = getThumbnailViewUrl(img);
@@ -240,21 +222,13 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 										setLastSelectedId(img.id);
 									} else if (e.shiftKey && lastSelectedId !== null) {
 										// Range selection
-										const currentIndex = bucketImages.findIndex(
-											(i) => i.id === img.id,
-										);
-										const lastIndex = bucketImages.findIndex(
-											(i) => i.id === lastSelectedId,
-										);
+										const currentIndex = bucketImages.findIndex((i) => i.id === img.id);
+										const lastIndex = bucketImages.findIndex((i) => i.id === lastSelectedId);
 										if (currentIndex !== -1 && lastIndex !== -1) {
 											const start = Math.min(currentIndex, lastIndex);
 											const end = Math.max(currentIndex, lastIndex);
-											const rangeIds = bucketImages
-												.slice(start, end + 1)
-												.map((i) => i.id);
-											setSelectedIds((prev) =>
-												Array.from(new Set([...prev, ...rangeIds])),
-											);
+											const rangeIds = bucketImages.slice(start, end + 1).map((i) => i.id);
+											setSelectedIds((prev) => Array.from(new Set([...prev, ...rangeIds])));
 										}
 										setLastSelectedId(img.id);
 									} else {
@@ -390,9 +364,7 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 										type="color"
 										value={
 											editColor.startsWith("var")
-												? (editColor.match(
-														/#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})/,
-													)?.[0] ?? "#9ca3af") // color-check-ignore
+												? (editColor.match(/#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})/)?.[0] ?? "#9ca3af") // color-check-ignore
 												: /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/i.test(editColor)
 													? editColor
 													: "#9ca3af" // color-check-ignore
@@ -417,10 +389,7 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 									const trimmedLabel = editLabel.trim();
 
 									if (!trimmedLabel) {
-										store.showToast(
-											"Error: Tab label cannot be empty",
-											"error",
-										);
+										store.showToast("Error: Tab label cannot be empty", "error");
 										return;
 									}
 
@@ -433,10 +402,7 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 									);
 
 									if (isDuplicate) {
-										store.showToast(
-											`Error: "${trimmedLabel}" is already in use`,
-											"error",
-										);
+										store.showToast(`Error: "${trimmedLabel}" is already in use`, "error");
 										return;
 									}
 

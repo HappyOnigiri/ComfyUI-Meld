@@ -38,31 +38,19 @@ export const useFavoritesLogic = () => {
 		[refreshFavorites],
 	);
 
-	const handleEditFavorite = useCallback(
-		(e: React.MouseEvent, fav: Favorite) => {
-			e.stopPropagation();
-			setEditingFavorite(fav);
-			setEditFavoriteName(fav.name);
-			setEditFavoriteQuery(fav.query);
-		},
-		[],
-	);
+	const handleEditFavorite = useCallback((e: React.MouseEvent, fav: Favorite) => {
+		e.stopPropagation();
+		setEditingFavorite(fav);
+		setEditFavoriteName(fav.name);
+		setEditFavoriteQuery(fav.query);
+	}, []);
 
 	const handleSaveEditFavorite = useCallback(async () => {
-		if (
-			!editingFavorite ||
-			!editFavoriteName.trim() ||
-			!editFavoriteQuery.trim()
-		)
-			return;
+		if (!editingFavorite || !editFavoriteName.trim() || !editFavoriteQuery.trim()) return;
 
 		try {
 			setIsSaving(true);
-			await searchApi.updateFavorite(
-				editingFavorite.id,
-				editFavoriteName,
-				editFavoriteQuery,
-			);
+			await searchApi.updateFavorite(editingFavorite.id, editFavoriteName, editFavoriteQuery);
 			await refreshFavorites();
 			setEditingFavorite(null);
 		} catch (err) {
@@ -77,9 +65,7 @@ export const useFavoritesLogic = () => {
 	const handleSaveFavorite = useCallback(async () => {
 		if (!state.searchQuery || isSaving) return;
 
-		const isAlreadyFavorite = state.favorites.some(
-			(f) => f.query === state.searchQuery,
-		);
+		const isAlreadyFavorite = state.favorites.some((f) => f.query === state.searchQuery);
 		if (isAlreadyFavorite) {
 			const fav = state.favorites.find((f) => f.query === state.searchQuery);
 			if (fav) {

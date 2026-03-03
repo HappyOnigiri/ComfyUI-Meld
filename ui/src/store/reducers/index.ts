@@ -14,10 +14,7 @@ const reducers: GallerySubReducer[] = [
 	uiMetaReducer,
 ];
 
-export function composeGalleryReducer(
-	state: GalleryState,
-	action: GalleryAction,
-): GalleryState {
+export function composeGalleryReducer(state: GalleryState, action: GalleryAction): GalleryState {
 	if (action.type === "REFRESH") {
 		return state;
 	}

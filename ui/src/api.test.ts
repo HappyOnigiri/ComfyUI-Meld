@@ -38,10 +38,7 @@ describe("handleResponse", () => {
 	});
 
 	it("throws with status text when res.ok=false and body has error", async () => {
-		const res = jsonResponse(
-			{ error: "Forbidden" },
-			{ status: 403, statusText: "Forbidden" },
-		);
+		const res = jsonResponse({ error: "Forbidden" }, { status: 403, statusText: "Forbidden" });
 		await expect(handleResponse(res)).rejects.toThrow("Forbidden");
 	});
 
@@ -50,18 +47,11 @@ describe("handleResponse", () => {
 			status: 500,
 			statusText: "Internal Server Error",
 		});
-		await expect(handleResponse(res)).rejects.toThrow(
-			"API error: 500 Internal Server Error",
-		);
+		await expect(handleResponse(res)).rejects.toThrow("API error: 500 Internal Server Error");
 	});
 
 	it("throws generic message when res.ok=false and body JSON lacks error field", async () => {
-		const res = jsonResponse(
-			{ detail: "some detail" },
-			{ status: 400, statusText: "Bad Request" },
-		);
-		await expect(handleResponse(res)).rejects.toThrow(
-			"API error: 400 Bad Request",
-		);
+		const res = jsonResponse({ detail: "some detail" }, { status: 400, statusText: "Bad Request" });
+		await expect(handleResponse(res)).rejects.toThrow("API error: 400 Bad Request");
 	});
 });
