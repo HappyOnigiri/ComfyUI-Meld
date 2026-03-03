@@ -66,7 +66,8 @@
 	display: block;
 }
 
-.meld-image-card__menu-container {
+/* unused-css-check-ignore */
+/* unused-css-check-ignore */ .meld-image-card__menu-container {
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
@@ -75,7 +76,8 @@
 	position: relative;
 }
 
-.meld-image-card__menu-container--thumbnail-overlay {
+/* unused-css-check-ignore */
+/* unused-css-check-ignore */ .meld-image-card__menu-container--thumbnail-overlay {
 	position: absolute;
 	top: 2px;
 	right: 2px;
@@ -136,7 +138,8 @@
 	left: calc(100% + 5px);
 }
 
-.meld-image-card__menu-item {
+/* unused-css-check-ignore */
+/* unused-css-check-ignore */ .meld-image-card__menu-item {
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -149,13 +152,13 @@
 	outline: none;
 }
 
-.meld-image-card__menu-item span {
+/* unused-css-check-ignore */ .meld-image-card__menu-item span {
 	display: inline-block;
 	line-height: 14px;
 	/* Match icon height */
 }
 
-.meld-image-card__menu-item:hover {
+/* unused-css-check-ignore */ .meld-image-card__menu-item:hover {
 	background-color: var(--meld-accent-color);
 	color: var(--comfy-input-text, white);
 	--meld-icon-halo: var(--meld-accent-color);

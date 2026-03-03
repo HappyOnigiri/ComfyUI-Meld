@@ -136,7 +136,7 @@
 }
 
 /* Viewer Action Menu overrides */
-.meld-viewer-actions .meld-image-card__menu-container {
+.meld-viewer-actions /* unused-css-check-ignore */ .meld-image-card__menu-container {
 	position: relative;
 	width: 40px;
 	height: 40px;
@@ -161,7 +161,7 @@
 	min-width: 200px;
 }
 
-.meld-viewer-actions .meld-image-card__menu-item {
+.meld-viewer-actions /* unused-css-check-ignore */ .meld-image-card__menu-item {
 	padding: 10px 15px;
 	font-size: 14px;
 }

@@ -86,9 +86,16 @@ def get_referenced_classes(search_path: str) -> set[str]:
                                 for cls in val_clean.split():
                                     references.add(cls)
 
-                        # 4. Fallback: extract any meld-* word from file
-                        for match in re.finditer(r"\b(meld-[a-zA-Z0-9_-]+)\b", content):
-                            references.add(match.group(1))
+                        # 4. Targeted extraction: search inside className usages
+                        # to properly handle class names inside complex template literals or conditionals
+                        for chunk_idx, chunk in enumerate(content.split("className")):
+                            if chunk_idx == 0:
+                                continue
+                            window = chunk[:300]
+                            for str_match in re.finditer(r'(["\'`])(.*?)\1', window, re.DOTALL):
+                                val = str_match.group(2)
+                                for cls in re.finditer(r'\b(meld-[a-zA-Z0-9_-]+)\b', val):
+                                    references.add(cls.group(1))
 
                 except OSError as e:
                     print(f"Error reading {filepath}: {e}")

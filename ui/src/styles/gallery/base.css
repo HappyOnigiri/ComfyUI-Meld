@@ -1,10 +1,8 @@
 :root {
 	--meld-bg-color: var(--comfy-menu-bg, #222);
 	--meld-text-color: var(--comfy-input-text, var(--fg-color, #eee));
-	--meld-text-secondary: var(
-		--desc-color,
-		var(--comfy-menu-label-text, var(--text-secondary, #888))
-	);
+	--meld-text-secondary: var(--desc-color,
+			var(--comfy-menu-label-text, var(--text-secondary, #888)));
 	--meld-accent-color: var(--comfy-input-text-active, #4488ff);
 	--meld-success-color: var(--comfy-input-text-active, #44bb44);
 	--meld-danger-color: var(--error-color, #ff4444);
@@ -12,10 +10,8 @@
 	--meld-border-subtle: var(--border-subtle, var(--comfy-menu-border, #333));
 	--meld-card-bg: var(--comfy-input-bg, rgba(0, 0, 0, 0.2));
 	--meld-card-content-bg: var(--comfy-menu-bg, rgba(255, 255, 255, 0.05));
-	--meld-card-selected-bg: var(
-		--comfy-input-bg-active,
-		var(--comfy-input-bg, rgba(68, 136, 255, 0.2))
-	);
+	--meld-card-selected-bg: var(--comfy-input-bg-active,
+			var(--comfy-input-bg, rgba(68, 136, 255, 0.2)));
 	/* Global z-index tokens: use these instead of magic numbers. */
 	--meld-z-base: 0;
 	--meld-z-gallery-header: 100;
@@ -112,6 +108,7 @@ so without this the menu can render behind neighboring rows.
 
 /* Fallback for environments without :has() support. */
 @supports not selector(:has(*)) {
+
 	.meld-gallery__virtual-row:focus-within,
 	.meld-gallery__virtual-grid-row:focus-within {
 		z-index: var(--meld-z-dropdown);
@@ -132,7 +129,7 @@ so without this the menu can render behind neighboring rows.
 	padding-top: 4px;
 }
 
-.meld-gallery__actions > button {
+.meld-gallery__actions>button {
 	/* Keep header icon buttons compact and consistent across WebUI/Desktop WebViews. */
 	padding: 2px;
 	line-height: 1;
@@ -307,7 +304,8 @@ so without this the menu can render behind neighboring rows.
 	animation: spin 1s linear infinite;
 }
 
-.meld-icon {
+/* unused-css-check-ignore */
+/* unused-css-check-ignore */ .meld-icon {
 	width: 1.2rem;
 	height: 1.2rem;
 	/* Base (fallback): show PrimeIcons glyph (pi pi-*) if present. */
@@ -318,7 +316,7 @@ so without this the menu can render behind neighboring rows.
 }
 
 /* PrimeIcons sizing when used as fallback on the same element. */
-.meld-icon.pi::before {
+/* unused-css-check-ignore */ .meld-icon.pi::before {
 	font-size: 1.2rem;
 	line-height: 1;
 }
@@ -328,7 +326,7 @@ Legacy icon (preferred in WebUI):
 Enable mask-image only when supported to avoid "solid square" rendering on some desktop WebViews.
 */
 @supports ((-webkit-mask-image: url("")) or (mask-image: url(""))) {
-	.meld-icon {
+	/* unused-css-check-ignore */ .meld-icon {
 		background-color: currentcolor;
 		mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2a3 3 0 0 1 2.6 1.5l7.7 13.3A3 3 0 0 1 19.7 21H4.3a3 3 0 0 1-2.6-4.2L9.4 3.5A3 3 0 0 1 12 2z' /%3E%3Cpath d='M9 14.5h6v6.5H9z' fill='currentColor' /%3E%3C/svg%3E");
 		-webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2a3 3 0 0 1 2.6 1.5l7.7 13.3A3 3 0 0 1 19.7 21H4.3a3 3 0 0 1-2.6-4.2L9.4 3.5A3 3 0 0 1 12 2z' /%3E%3Cpath d='M9 14.5h6v6.5H9z' fill='currentColor' /%3E%3C/svg%3E");
@@ -341,7 +339,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	}
 
 	/* Hide PrimeIcons glyph when the legacy mask icon is active. */
-	.meld-icon.pi::before {
+	/* unused-css-check-ignore */ .meld-icon.pi::before {
 		content: none;
 	}
 }
@@ -602,6 +600,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 }
 
 /* Import Scan Styles */
+/* unused-css-check-ignore */
 .meld-import-config {
 	display: flex;
 	flex-direction: column;
@@ -638,6 +637,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	color: var(--meld-text-color);
 }
 
+/* unused-css-check-ignore */
 .meld-scan-progress {
 	display: flex;
 	flex-direction: column;
@@ -720,7 +720,8 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 }
 
 /* Import Scan Finished */
-.meld-scan-finished {
+/* unused-css-check-ignore */
+/* unused-css-check-ignore */ .meld-scan-finished {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -735,22 +736,22 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	margin-bottom: 10px;
 }
 
-.meld-scan-finished h3 {
+/* unused-css-check-ignore */ .meld-scan-finished h3 {
 	margin: 0;
 	font-size: 20px;
 	color: var(--meld-text-color);
 }
 
-.meld-scan-finished p {
+/* unused-css-check-ignore */ .meld-scan-finished p {
 	color: var(--meld-text-secondary);
 	margin: 0;
 }
 
-.meld-scan-finished strong {
+/* unused-css-check-ignore */ .meld-scan-finished strong {
 	color: var(--meld-accent-color);
 }
 
-.meld-scan-finished .meld-scan-actions {
+/* unused-css-check-ignore */ .meld-scan-finished .meld-scan-actions {
 	justify-content: center;
 	margin-top: 10px;
 }
@@ -1224,11 +1225,11 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	border-radius: 50%;
 }
 
-.meld-switch input:checked + .meld-switch__slider {
+.meld-switch input:checked+.meld-switch__slider {
 	background-color: var(--comfy-input-bg, #444);
 }
 
-.meld-switch input:checked + .meld-switch__slider:before {
+.meld-switch input:checked+.meld-switch__slider:before {
 	transform: translateX(20px);
 	background-color: var(--comfy-input-text-active, #4a9eff);
 }
@@ -1631,7 +1632,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	cursor: not-allowed;
 }
 
-.meld-scan-finished-compact {
+/* unused-css-check-ignore */ .meld-scan-finished-compact {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;

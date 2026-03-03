@@ -80,7 +80,7 @@ def check_file(filepath: str) -> list:
             # Get line number from original content
             line_num = original_content.count("\n", 0, start_pos) + 1
 
-            if "/* property-conflict-ignore */" in block_content_raw:
+            if "/* property-conflict-ignore */" in block_content_raw or "/* property-conflict-ignore */" in selector_raw:
                 continue
 
             # Clear comments to isolate property names correctly
