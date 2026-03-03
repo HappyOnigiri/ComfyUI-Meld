@@ -181,7 +181,11 @@
 .meld-folder-item:focus-visible {
 	background: var(--comfy-input-bg-active, rgba(68, 136, 255, 0.1));
 	color: var(--meld-accent-color);
-	outline: none;
+}
+
+.meld-folder-item:focus-visible {
+	outline: 2px solid var(--meld-focus-color, #48f);
+	outline-offset: -2px;
 }
 
 .meld-folder-icon-wrapper {
@@ -223,7 +227,11 @@
 .meld-browser-image-item:hover,
 .meld-browser-image-item:focus-visible {
 	border-color: var(--meld-accent-color);
-	outline: none;
+}
+
+.meld-browser-image-item:focus-visible {
+	outline: 2px solid var(--meld-focus-color, #48f);
+	outline-offset: 2px;
 }
 
 .meld-browser-image-item img {
@@ -474,7 +482,8 @@
 	overflow: hidden;
 }
 
-.meld-btn--stop--compact {
+.meld-btn--stop--compact,
+.meld-btn--stop.meld-btn--compact {
 	position: absolute;
 	right: -4px;
 	top: 50%;
@@ -491,12 +500,20 @@
 }
 
 .meld-btn--stop--compact:hover:not(:disabled),
-.meld-btn--stop--compact:focus-visible {
+.meld-btn--stop.meld-btn--compact:hover:not(:disabled),
+.meld-btn--stop--compact:focus-visible,
+.meld-btn--stop.meld-btn--compact:focus-visible {
 	color: var(--meld-danger-color, #ff4444);
-	outline: none;
 }
 
-.meld-btn--stop--compact:disabled {
+.meld-btn--stop--compact:focus-visible,
+.meld-btn--stop.meld-btn--compact:focus-visible {
+	outline: 2px solid var(--meld-focus-color, #48f);
+	outline-offset: 2px;
+}
+
+.meld-btn--stop--compact:disabled,
+.meld-btn--stop.meld-btn--compact:disabled {
 	color: var(--meld-text-secondary);
 	cursor: not-allowed;
 }
@@ -508,7 +525,8 @@
 	gap: 8px;
 }
 
-.meld-btn--ok--compact {
+.meld-btn--ok--compact,
+.meld-btn--ok.meld-btn--compact {
 	background: var(--meld-accent-color);
 	color: white;
 	border: none;
@@ -521,7 +539,14 @@
 }
 
 .meld-btn--ok--compact:hover,
-.meld-btn--ok--compact:focus-visible {
+.meld-btn--ok.meld-btn--compact:hover,
+.meld-btn--ok--compact:focus-visible,
+.meld-btn--ok.meld-btn--compact:focus-visible {
 	background: var(--meld-accent-color-hover, #5599ff);
-	outline: none;
+}
+
+.meld-btn--ok--compact:focus-visible,
+.meld-btn--ok.meld-btn--compact:focus-visible {
+	outline: 2px solid var(--meld-focus-color, #48f);
+	outline-offset: 2px;
 }
