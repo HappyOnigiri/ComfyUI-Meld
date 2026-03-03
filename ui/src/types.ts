@@ -292,8 +292,44 @@ export type GalleryAction =
 	  }
 	| { type: "CLOSE_CONFIRM_MODAL" };
 
+export interface ComfyWidget {
+	name: string;
+	value: unknown;
+	callback?: (value: unknown) => void;
+}
+
+export interface ComfyGraphNode {
+	id: string | number;
+	type?: string;
+	title?: string;
+	widgets?: ComfyWidget[];
+	pos?: [number, number] | number[];
+}
+
+export const isComfyGraphNodeWithWidgets = (
+	node: ComfyGraphNode | undefined,
+): node is ComfyGraphNode & { widgets: ComfyWidget[] } =>
+	Boolean(node && Array.isArray(node.widgets));
+
+export interface ComfyGraph {
+	_nodes: ComfyGraphNode[];
+	add: (node: ComfyGraphNode) => void;
+	afterChange?: () => void;
+	setDirtyCanvas: (fg: boolean, bg: boolean) => void;
+}
+
 export interface ComfyApp {
 	registerExtension(extension: ComfyExtension): void;
+	graph?: ComfyGraph;
+	canvas?: {
+		ds: {
+			offset: [number, number];
+			scale: number;
+		};
+		selectNode: (node: ComfyGraphNode) => void;
+		centerOnNode: (node: ComfyGraphNode) => void;
+	};
+	queuePrompt?: (index?: number) => Promise<void>;
 	ui: {
 		meld?: {
 			refresh: () => void;
@@ -302,7 +338,12 @@ export interface ComfyApp {
 		};
 		[key: string]: unknown;
 	};
-	loadGraphData(data: unknown): Promise<void>;
+	loadGraphData(
+		data: unknown,
+		clean?: boolean,
+		restoreView?: boolean,
+		workflowName?: string,
+	): Promise<void>;
 	extensionManager?: {
 		registerSidebarTab(tab: unknown): void;
 		setSidebarTabActive(id: string): void;
@@ -312,6 +353,7 @@ export interface ComfyApp {
 
 export interface ComfyApi {
 	fetchApi(route: string, options?: RequestInit): Promise<Response>;
+	clientId?: string;
 	addEventListener(type: string, callback: (event: CustomEvent<unknown>) => void): void;
 	[key: string]: unknown;
 }

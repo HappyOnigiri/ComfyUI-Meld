@@ -1,11 +1,21 @@
 import { useCallback } from "react";
 import { logger } from "../../../logger";
-import type { ComfyApp, GalleryAction, GalleryState, MeldImage } from "../../../types";
+import type {
+	ComfyApp,
+	ComfyGraphNode,
+	GalleryAction,
+	GalleryState,
+	MeldImage,
+} from "../../../types";
 import { fetchWorkflows } from "../../workflows/api/workflowsApi";
 import { injectImageToGraph } from "../../workflows/utils/injectImageToGraph";
+import { isLoaderNodeType, isMaskNodeType } from "../../workflows/utils/nodeTypePredicates";
 import * as imagesApi from "../api/imagesApi";
 
 type SnapshotData = Awaited<ReturnType<typeof imagesApi.fetchSnapshotData>>;
+type LiteGraphGlobal = {
+	createNode: (type: string) => ComfyGraphNode | null;
+};
 
 /**
  * Shared Image Actions Hook
@@ -50,10 +60,12 @@ export const useImageActions = (_state: GalleryState, dispatch: React.Dispatch<G
 		try {
 			const data = await imagesApi.fetchSnapshotData(image.id);
 			const nodeName = data.is_flux ? "MeldUnifiedFluxLoader" : "MeldUnifiedLoader";
-			// @ts-expect-error
-			const comfyApp = window.app;
-			// @ts-expect-error
-			const liteGraph = window.LiteGraph;
+			const comfyApp = window.app as ComfyApp;
+			const liteGraph = (window as unknown as { LiteGraph?: LiteGraphGlobal }).LiteGraph;
+			if (!comfyApp.graph || !comfyApp.canvas || !liteGraph) {
+				alert("ComfyUI graph is not ready. Please open a workflow first.");
+				return false;
+			}
 
 			const node = liteGraph.createNode(nodeName);
 			if (!node) {
@@ -97,18 +109,14 @@ export const useImageActions = (_state: GalleryState, dispatch: React.Dispatch<G
 				for (const [dataKey, widgetName] of Object.entries(widgetMap)) {
 					const val = data[dataKey as keyof SnapshotData];
 					if (val !== undefined && val !== null && val !== "") {
-						const widget = node.widgets.find(
-							(w: { name: string; value: string | number }) => w.name === widgetName,
-						);
+						const widget = node.widgets.find((w) => w.name === widgetName);
 						if (widget) {
 							widget.value = val;
 						}
 					}
 				}
 
-				const controlWidget = node.widgets.find(
-					(w: { name: string; value: string }) => w.name === "control_after_generate",
-				);
+				const controlWidget = node.widgets.find((w) => w.name === "control_after_generate");
 				if (controlWidget) {
 					controlWidget.value = "fixed";
 				}
@@ -170,8 +178,7 @@ export const useImageActions = (_state: GalleryState, dispatch: React.Dispatch<G
 
 	const handleSendToWorkflow = useCallback(
 		(image: MeldImage) => {
-			// @ts-expect-error
-			const comfyApp = window.app;
+			const comfyApp = window.app as ComfyApp;
 			if (!comfyApp?.graph) {
 				dispatch({
 					type: "OPEN_MODAL",
@@ -183,15 +190,7 @@ export const useImageActions = (_state: GalleryState, dispatch: React.Dispatch<G
 				return false;
 			}
 
-			const isLoaderNode = (type: string | undefined) => {
-				if (!type) return false;
-				const t = type.replace(/\s+/g, "").toLowerCase();
-				return t === "meldimageloader" || t === "loadimage";
-			};
-
-			const loaderNodes = comfyApp.graph._nodes.filter((n: { type: string }) =>
-				isLoaderNode(n.type),
-			);
+			const loaderNodes = comfyApp.graph._nodes.filter((n) => isLoaderNodeType(n.type));
 
 			if (loaderNodes.length === 0) {
 				dispatch({
@@ -211,9 +210,9 @@ export const useImageActions = (_state: GalleryState, dispatch: React.Dispatch<G
 					payload: {
 						type: "node_selection",
 						image,
-						nodes: loaderNodes.map((n: { id: string | number; type: string; title?: string }) => ({
+						nodes: loaderNodes.map((n) => ({
 							id: String(n.id),
-							type: n.type,
+							type: n.type ?? "",
 							title: n.title,
 						})),
 						onSelect: (nodeId) => {
@@ -234,7 +233,9 @@ export const useImageActions = (_state: GalleryState, dispatch: React.Dispatch<G
 						message:
 							result.reason === "no_app_graph"
 								? "No active workflow graph found. Please open a workflow first."
-								: "No 'Meld Image Loader' or 'Load Image' node found in the current workflow.",
+								: result.reason === "no_widgets" || result.reason === "no_image_widget"
+									? "The selected loader node does not expose an image widget."
+									: "No 'Meld Image Loader' or 'Load Image' node found in the current workflow.",
 					},
 				});
 				return false;
@@ -262,22 +263,18 @@ export const useImageActions = (_state: GalleryState, dispatch: React.Dispatch<G
 
 			if (mode === "apply") {
 				// Check if the current workflow has the required nodes
-				// @ts-expect-error
-				const comfyApp = window.app;
+				const comfyApp = window.app as ComfyApp;
 				const nodes = comfyApp?.graph?._nodes || [];
 				logger.log(
 					"Current graph nodes:",
-					nodes.map((n: { id: number; type: string }) => ({
+					nodes.map((n) => ({
 						id: n.id,
-						type: n.type,
+						type: n.type ?? "",
 					})),
 				);
 
-				const hasMaskNode = nodes.some((n: { type: string }) => n.type === "LoadImageMask");
-				const hasLoaderNode = nodes.some(
-					(n: { type: string }) =>
-						n.type === "MeldImageLoader" || n.type === "LoadImage" || n.type === "Load Image",
-				);
+				const hasMaskNode = nodes.some((n) => isMaskNodeType(n.type));
+				const hasLoaderNode = nodes.some((n) => isLoaderNodeType(n.type));
 
 				logger.log("Nodes found:", { hasMaskNode, hasLoaderNode });
 

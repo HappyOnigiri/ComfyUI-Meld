@@ -5,6 +5,9 @@ declare global {
 	interface Window {
 		app: ComfyApp;
 		api: ComfyApi;
+		LiteGraph?: {
+			createNode: (type: string) => import("./types").ComfyGraphNode | null;
+		};
 	}
 }
 
