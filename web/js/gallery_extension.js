@@ -17533,19 +17533,19 @@ const im = (e) => {
   /* @__PURE__ */ s.jsx(
     "div",
     {
-      className: "meld-prompt-popup-overlay",
+      className: "meld-prompt-popup__overlay",
       onClick: (a) => {
         a.stopPropagation(), n();
       },
-      children: /* @__PURE__ */ s.jsxs("div", { className: "meld-prompt-popup-content", onClick: (a) => a.stopPropagation(), children: [
-        /* @__PURE__ */ s.jsxs("div", { className: "meld-prompt-popup-header", children: [
+      children: /* @__PURE__ */ s.jsxs("div", { className: "meld-prompt-popup__content", onClick: (a) => a.stopPropagation(), children: [
+        /* @__PURE__ */ s.jsxs("div", { className: "meld-prompt-popup__header", children: [
           /* @__PURE__ */ s.jsx("span", { children: e }),
           /* @__PURE__ */ s.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "10px" }, children: [
-            l ? /* @__PURE__ */ s.jsx(di, { size: 18, style: { color: "var(--meld-success-color)" } }) : /* @__PURE__ */ s.jsx(Zp, { className: "meld-prompt-popup-copy", size: 18, onClick: () => r(t) }),
-            /* @__PURE__ */ s.jsx(pe, { className: "meld-prompt-popup-close", size: 18, onClick: n })
+            l ? /* @__PURE__ */ s.jsx(di, { size: 18, style: { color: "var(--meld-success-color)" } }) : /* @__PURE__ */ s.jsx(Zp, { className: "meld-prompt-popup__copy", size: 18, onClick: () => r(t) }),
+            /* @__PURE__ */ s.jsx(pe, { className: "meld-prompt-popup__close", size: 18, onClick: n })
           ] })
         ] }),
-        /* @__PURE__ */ s.jsx("div", { className: "meld-prompt-popup-text", children: t })
+        /* @__PURE__ */ s.jsx("div", { className: "meld-prompt-popup__text", children: t })
       ] })
     }
   ),
