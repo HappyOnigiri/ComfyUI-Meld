@@ -1,5 +1,6 @@
 import type React from "react";
 import { useEffect } from "react";
+import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { MaskEditorModal } from "./MaskEditorModal";
 
 export interface MaskSequenceModalProps {
@@ -24,6 +25,7 @@ export const MaskSequenceModal: React.FC<MaskSequenceModalProps> = ({
 	onSuccess,
 	onClose,
 }) => {
+	useEscapeToClose({ onEscape: onClose });
 	const currentImage = images[currentIndex];
 
 	// When currentImage is missing (e.g. out-of-bounds), close modal and reset

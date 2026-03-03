@@ -2886,7 +2886,7 @@ function Ho() {
   for (var e = 0; e < oa.length; e++) oa[e]._workInProgressVersionPrimary = null;
   oa.length = 0;
 }
-var Hl = Vt.ReactCurrentDispatcher, ia = Vt.ReactCurrentBatchConfig, Mn = 0, Se = null, Ie = null, Re = null, gs = !1, Ar = !1, tl = 0, sp = 0;
+var Hl = Vt.ReactCurrentDispatcher, ia = Vt.ReactCurrentBatchConfig, Mn = 0, Se = null, Ie = null, De = null, gs = !1, Ar = !1, tl = 0, sp = 0;
 function We() {
   throw Error(V(321));
 }
@@ -2900,10 +2900,10 @@ function Go(e, t, n, r, l, a) {
     a = 0;
     do {
       if (Ar = !1, tl = 0, 25 <= a) throw Error(V(301));
-      a += 1, Re = Ie = null, t.updateQueue = null, Hl.current = up, e = n(r, l);
+      a += 1, De = Ie = null, t.updateQueue = null, Hl.current = up, e = n(r, l);
     } while (Ar);
   }
-  if (Hl.current = ys, t = Ie !== null && Ie.next !== null, Mn = 0, Re = Ie = Se = null, gs = !1, t) throw Error(V(300));
+  if (Hl.current = ys, t = Ie !== null && Ie.next !== null, Mn = 0, De = Ie = Se = null, gs = !1, t) throw Error(V(300));
   return e;
 }
 function qo() {
@@ -2912,20 +2912,20 @@ function qo() {
 }
 function Et() {
   var e = { memoizedState: null, baseState: null, baseQueue: null, queue: null, next: null };
-  return Re === null ? Se.memoizedState = Re = e : Re = Re.next = e, Re;
+  return De === null ? Se.memoizedState = De = e : De = De.next = e, De;
 }
 function pt() {
   if (Ie === null) {
     var e = Se.alternate;
     e = e !== null ? e.memoizedState : null;
   } else e = Ie.next;
-  var t = Re === null ? Se.memoizedState : Re.next;
-  if (t !== null) Re = t, Ie = e;
+  var t = De === null ? Se.memoizedState : De.next;
+  if (t !== null) De = t, Ie = e;
   else {
     if (e === null) throw Error(V(310));
-    Ie = e, e = { memoizedState: Ie.memoizedState, baseState: Ie.baseState, baseQueue: Ie.baseQueue, queue: Ie.queue, next: null }, Re === null ? Se.memoizedState = Re = e : Re = Re.next = e;
+    Ie = e, e = { memoizedState: Ie.memoizedState, baseState: Ie.baseState, baseQueue: Ie.baseQueue, queue: Ie.queue, next: null }, De === null ? Se.memoizedState = De = e : De = De.next = e;
   }
-  return Re;
+  return De;
 }
 function nl(e, t) {
   return typeof t == "function" ? t(e) : t;
@@ -2989,8 +2989,8 @@ function mu() {
 }
 function hu(e, t) {
   var n = Se, r = pt(), l = t(), a = !jt(r.memoizedState, l);
-  if (a && (r.memoizedState = l, Xe = !0), r = r.queue, Yo(yu.bind(null, n, r, e), [e]), r.getSnapshot !== t || a || Re !== null && Re.memoizedState.tag & 1) {
-    if (n.flags |= 2048, rl(9, gu.bind(null, n, r, l, t), void 0, null), De === null) throw Error(V(349));
+  if (a && (r.memoizedState = l, Xe = !0), r = r.queue, Yo(yu.bind(null, n, r, e), [e]), r.getSnapshot !== t || a || De !== null && De.memoizedState.tag & 1) {
+    if (n.flags |= 2048, rl(9, gu.bind(null, n, r, l, t), void 0, null), Pe === null) throw Error(V(349));
     Mn & 30 || pu(n, t, l);
   }
   return l;
@@ -3176,7 +3176,7 @@ var ys = { readContext: ht, useCallback: We, useContext: We, useEffect: We, useI
     if (n === void 0) throw Error(V(407));
     n = n();
   } else {
-    if (n = t(), De === null) throw Error(V(349));
+    if (n = t(), Pe === null) throw Error(V(349));
     Mn & 30 || pu(r, t, n);
   }
   l.memoizedState = n;
@@ -3188,7 +3188,7 @@ var ys = { readContext: ht, useCallback: We, useContext: We, useEffect: We, useI
     e
   ), [e]), r.flags |= 2048, rl(9, gu.bind(null, r, a, n, t), void 0, null), n;
 }, useId: function() {
-  var e = Et(), t = De.identifierPrefix;
+  var e = Et(), t = Pe.identifierPrefix;
   if (xe) {
     var n = Ot, r = Pt;
     n = (r & ~(1 << 32 - kt(r) - 1)).toString(32) + n, t = ":" + t + "R" + n, n = tl++, 0 < n && (t += "H" + n.toString(32)), t += ":";
@@ -3460,7 +3460,7 @@ function hp(e, t, n, r, l, a, o) {
     return r = i, a = Error(V(419)), r = ua(a, r, void 0), Tl(e, t, o, r);
   }
   if (i = (o & e.childLanes) !== 0, Xe || i) {
-    if (r = De, r !== null) {
+    if (r = Pe, r !== null) {
       switch (o & -o) {
         case 4:
           l = 2;
@@ -4600,7 +4600,7 @@ function jc(e) {
     G = t.return;
   }
 }
-var _p = Math.ceil, vs = Vt.ReactCurrentDispatcher, Jo = Vt.ReactCurrentOwner, ft = Vt.ReactCurrentBatchConfig, ae = 0, De = null, Me = null, Ae = 0, tt = 0, Xn = pn(0), Te = 0, ll = null, In = 0, Rs = 0, ei = 0, Fr = null, qe = null, ti = 0, ur = 1 / 0, Rt = null, ws = !1, oo = null, cn = null, Rl = !1, nn = null, xs = 0, Wr = 0, io = null, ql = -1, Yl = 0;
+var _p = Math.ceil, vs = Vt.ReactCurrentDispatcher, Jo = Vt.ReactCurrentOwner, ft = Vt.ReactCurrentBatchConfig, ae = 0, Pe = null, Me = null, Ae = 0, tt = 0, Xn = pn(0), Te = 0, ll = null, In = 0, Rs = 0, ei = 0, Fr = null, qe = null, ti = 0, ur = 1 / 0, Rt = null, ws = !1, oo = null, cn = null, Rl = !1, nn = null, xs = 0, Wr = 0, io = null, ql = -1, Yl = 0;
 function Qe() {
   return ae & 6 ? Ce() : ql !== -1 ? ql : ql = Ce();
 }
@@ -4609,12 +4609,12 @@ function dn(e) {
 }
 function St(e, t, n, r) {
   if (50 < Wr) throw Wr = 0, io = null, Error(V(185));
-  fl(e, n, r), (!(ae & 2) || e !== De) && (e === De && (!(ae & 2) && (Rs |= n), Te === 4 && Jt(e, Ae)), et(e, r), n === 1 && ae === 0 && !(t.mode & 1) && (ur = Ce() + 500, Ms && gn()));
+  fl(e, n, r), (!(ae & 2) || e !== Pe) && (e === Pe && (!(ae & 2) && (Rs |= n), Te === 4 && Jt(e, Ae)), et(e, r), n === 1 && ae === 0 && !(t.mode & 1) && (ur = Ce() + 500, Ms && gn()));
 }
 function et(e, t) {
   var n = e.callbackNode;
   lh(e, t);
-  var r = rs(e, e === De ? Ae : 0);
+  var r = rs(e, e === Pe ? Ae : 0);
   if (r === 0) n !== null && Ri(n), e.callbackNode = null, e.callbackPriority = 0;
   else if (t = r & -r, e.callbackPriority !== t) {
     if (n != null && Ri(n), t === 1) e.tag === 0 ? rp(bc.bind(null, e)) : lu(bc.bind(null, e)), Jh(function() {
@@ -4646,7 +4646,7 @@ function qu(e, t) {
   if (ql = -1, Yl = 0, ae & 6) throw Error(V(327));
   var n = e.callbackNode;
   if (rr() && e.callbackNode !== n) return null;
-  var r = rs(e, e === De ? Ae : 0);
+  var r = rs(e, e === Pe ? Ae : 0);
   if (r === 0) return null;
   if (r & 30 || r & e.expiredLanes || t) t = _s(e, r);
   else {
@@ -4654,7 +4654,7 @@ function qu(e, t) {
     var l = ae;
     ae |= 2;
     var a = Xu();
-    (De !== e || Ae !== t) && (Rt = null, ur = Ce() + 500, bn(e, t));
+    (Pe !== e || Ae !== t) && (Rt = null, ur = Ce() + 500, bn(e, t));
     do
       try {
         jp();
@@ -4663,7 +4663,7 @@ function qu(e, t) {
         Yu(e, i);
       }
     while (!0);
-    Wo(), vs.current = a, ae = l, Me !== null ? t = 0 : (De = null, Ae = 0, t = Te);
+    Wo(), vs.current = a, ae = l, Me !== null ? t = 0 : (Pe = null, Ae = 0, t = Te);
   }
   if (t !== 0) {
     if (t === 2 && (l = Pa(e), l !== 0 && (r = l, t = co(e, l))), t === 1) throw n = ll, bn(e, 0), Jt(e, r), et(e, Ce()), n;
@@ -4820,7 +4820,7 @@ function bn(e, t) {
     }
     n = n.return;
   }
-  if (De = e, Me = e = un(e.current, null), Ae = tt = t, Te = 0, ll = null, ei = Rs = In = 0, qe = Fr = null, Sn !== null) {
+  if (Pe = e, Me = e = un(e.current, null), Ae = tt = t, Te = 0, ll = null, ei = Rs = In = 0, qe = Fr = null, Sn !== null) {
     for (t = 0; t < Sn.length; t++) if (n = Sn[t], r = n.interleaved, r !== null) {
       n.interleaved = null;
       var l = r.next, a = n.pending;
@@ -4845,7 +4845,7 @@ function Yu(e, t) {
         }
         gs = !1;
       }
-      if (Mn = 0, Re = Ie = Se = null, Ar = !1, tl = 0, Jo.current = null, n === null || n.return === null) {
+      if (Mn = 0, De = Ie = Se = null, Ar = !1, tl = 0, Jo.current = null, n === null || n.return === null) {
         Te = 1, ll = t, Me = null;
         break;
       }
@@ -4914,13 +4914,13 @@ function Xu() {
   return vs.current = ys, e === null ? ys : e;
 }
 function li() {
-  (Te === 0 || Te === 3 || Te === 2) && (Te = 4), De === null || !(In & 268435455) && !(Rs & 268435455) || Jt(De, Ae);
+  (Te === 0 || Te === 3 || Te === 2) && (Te = 4), Pe === null || !(In & 268435455) && !(Rs & 268435455) || Jt(Pe, Ae);
 }
 function _s(e, t) {
   var n = ae;
   ae |= 2;
   var r = Xu();
-  (De !== e || Ae !== t) && (Rt = null, bn(e, t));
+  (Pe !== e || Ae !== t) && (Rt = null, bn(e, t));
   do
     try {
       Sp();
@@ -4930,7 +4930,7 @@ function _s(e, t) {
     }
   while (!0);
   if (Wo(), ae = n, vs.current = r, Me !== null) throw Error(V(261));
-  return De = null, Ae = 0, Te;
+  return Pe = null, Ae = 0, Te;
 }
 function Sp() {
   for (; Me !== null; ) Zu(Me);
@@ -4988,7 +4988,7 @@ function bp(e, t, n, r) {
   if (e.finishedWork = null, e.finishedLanes = 0, n === e.current) throw Error(V(177));
   e.callbackNode = null, e.callbackPriority = 0;
   var a = n.lanes | n.childLanes;
-  if (sh(e, a), e === De && (Me = De = null, Ae = 0), !(n.subtreeFlags & 2064) && !(n.flags & 2064) || Rl || (Rl = !0, nf(ns, function() {
+  if (sh(e, a), e === Pe && (Me = Pe = null, Ae = 0), !(n.subtreeFlags & 2064) && !(n.flags & 2064) || Rl || (Rl = !0, nf(ns, function() {
     return rr(), null;
   })), a = (n.flags & 15990) !== 0, n.subtreeFlags & 15990 || a) {
     a = ft.transition, ft.transition = null;
@@ -5133,7 +5133,7 @@ function Ee(e, t, n) {
 }
 function Ep(e, t, n) {
   var r = e.pingCache;
-  r !== null && r.delete(t), t = Qe(), e.pingedLanes |= e.suspendedLanes & n, De === e && (Ae & n) === n && (Te === 4 || Te === 3 && (Ae & 130023424) === Ae && 500 > Ce() - ti ? bn(e, 0) : ei |= n), et(e, t);
+  r !== null && r.delete(t), t = Qe(), e.pingedLanes |= e.suspendedLanes & n, Pe === e && (Ae & n) === n && (Te === 4 || Te === 3 && (Ae & 130023424) === Ae && 500 > Ce() - ti ? bn(e, 0) : ei |= n), et(e, t);
 }
 function ef(e, t) {
   t === 0 && (e.mode & 1 ? (t = Sl, Sl <<= 1, !(Sl & 130023424) && (Sl = 4194304)) : t = 1);
@@ -6393,7 +6393,7 @@ async function mi(e) {
 const _g = async () => {
   const e = await te.fetchApi("/meld/home-dir");
   return (await le(e)).home;
-}, Pe = ({
+}, Le = ({
   onEscape: e,
   enabled: t = !0,
   capture: n = !0
@@ -7574,7 +7574,7 @@ const bf = h.createContext(void 0), Jg = ({ children: e }) => {
   }, []);
   h.useEffect(() => {
     S();
-  }, [S]), Pe({
+  }, [S]), Le({
     onEscape: h.useCallback(() => {
       f ? u(null) : e({ type: "CLOSE_MODAL" });
     }, [f, e])
@@ -7890,7 +7890,7 @@ const bf = h.createContext(void 0), Jg = ({ children: e }) => {
   }, v = (k) => {
     k.target === k.currentTarget && d.current && (i || n()), d.current = !1;
   };
-  Pe({
+  Le({
     onEscape: () => {
       i || n();
     }
@@ -8584,7 +8584,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
   const { state: a, dispatch: o } = ge(), i = h.useMemo(() => a.images.find(($) => $.id === e) ?? a.lineageImages.find(($) => $.id === e) ?? se.getState().images[String(e)], [a.images, a.lineageImages, e]), c = h.useRef(void 0);
   i && (c.current = i);
   const d = i ?? c.current, { injectMaskToGraph: p } = ky(), { executeWorkflow: v } = yi();
-  Pe({ onEscape: l });
+  Le({ onEscape: l });
   const g = h.useRef(null), k = h.useRef(null), w = h.useRef(null), x = h.useRef(null), [_, f] = h.useState(!1), [u, m] = h.useState(() => {
     const $ = localStorage.getItem("meld-mask-tool");
     return Oc($) ? $ : "rect";
@@ -8658,16 +8658,16 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
       }
       H.fill(), H.globalAlpha = 1, H.stroke(), H.restore();
     }
-  }, [_, y, S, u, I, U]), [de, Le] = h.useState([]), ue = h.useMemo(() => de.length > 0 ? de[de.length - 1] : w.current ? Ol(w.current.naturalWidth, w.current.naturalHeight) : null, [de]);
+  }, [_, y, S, u, I, U]), [de, Re] = h.useState([]), ue = h.useMemo(() => de.length > 0 ? de[de.length - 1] : w.current ? Ol(w.current.naturalWidth, w.current.naturalHeight) : null, [de]);
   h.useEffect(() => {
     var $;
-    ($ = w.current) != null && $.naturalWidth && de.length === 0 && Le([
+    ($ = w.current) != null && $.naturalWidth && de.length === 0 && Re([
       Ol(w.current.naturalWidth, w.current.naturalHeight)
     ]);
   }, [de.length]);
   const Tt = h.useCallback(() => {
     var $;
-    ($ = w.current) != null && $.naturalWidth && de.length === 0 && Le([
+    ($ = w.current) != null && $.naturalWidth && de.length === 0 && Re([
       Ol(w.current.naturalWidth, w.current.naturalHeight)
     ]);
   }, [de.length]), Z = h.useRef(!1), Bt = h.useRef(0), Qt = ($) => {
@@ -8794,7 +8794,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
               yn.closePath();
             }
           });
-          Le((yn) => [...yn, hm]);
+          Re((yn) => [...yn, hm]);
         }
       }
       Bt.current = Date.now(), f(!1), D([]);
@@ -8815,7 +8815,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
     C
   ]);
   const yr = h.useCallback(() => {
-    de.length > 1 && Le(($) => $.slice(0, -1));
+    de.length > 1 && Re(($) => $.slice(0, -1));
   }, [de.length]);
   h.useEffect(() => {
     const $ = (q) => {
@@ -8838,7 +8838,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
         w.current.naturalWidth,
         w.current.naturalHeight
       );
-      Le((H) => [...H, $]);
+      Re((H) => [...H, $]);
     }
   }, be = async () => {
     if (!ue || !w.current) return null;
@@ -9125,6 +9125,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
   onSuccess: l,
   onClose: a
 }) => {
+  Le({ onEscape: a });
   const o = e[t];
   return h.useEffect(() => {
     o || a();
@@ -9226,9 +9227,9 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
     },
     handleNumberChange: (K, X, oe, de) => {
       K === "gallery.initial_load_count" ? p(X) : K === "gallery.max_load_count" ? g(X) : K === "gallery.lineage_max_depth" ? w(X) : K === "viewer.thumbnail_window_size" ? _(X) : K === "gallery.trash_retention_days" ? u(X) : K === "gallery.auto_link_phash_threshold" ? y(X) : K === "gallery.suggest_phash_threshold" ? S(X) : K === "viewer.details.max_positive_prompt_lines" ? I(X) : K === "viewer.details.max_negative_prompt_lines" ? A(X) : K === "fullscreen.details.max_positive_prompt_lines" ? z(X) : K === "fullscreen.details.max_negative_prompt_lines" ? C(X) : K === "sidebar.thumbnail_size" && R(X);
-      const Le = Number.parseInt(X, 10);
-      if (!Number.isNaN(Le)) {
-        let ue = Le;
+      const Re = Number.parseInt(X, 10);
+      if (!Number.isNaN(Re)) {
+        let ue = Re;
         oe !== void 0 && ue < oe && (ue = oe), de !== void 0 && ue > de && (ue = de), o((Tt) => ({
           ...Tt,
           [K]: ue
@@ -10893,7 +10894,7 @@ const Bf = [
     fullscreenMaxNegativePromptLinesInput: I,
     thumbnailSizeInput: D
   } = Cy();
-  Pe({ onEscape: o });
+  Le({ onEscape: o });
   const A = h.useRef(!1), M = (Q) => {
     Q.target === Q.currentTarget && (A.current = !0);
   }, z = (Q) => {
@@ -11049,7 +11050,7 @@ const Bf = [
     j();
   }, [j]), h.useEffect(() => {
     _.current && _.current.focus();
-  }, []), Pe({ onEscape: n });
+  }, []), Le({ onEscape: n });
   const S = h.useMemo(() => o.filter(
     (M) => M.name.toLowerCase().includes(p.toLowerCase()) && !c.includes(M.name)
   ), [o, p, c]), b = (M) => {
@@ -11498,7 +11499,7 @@ const Bf = [
         capture: !0
       });
     };
-  }, [w]), Pe({ onEscape: n }), me.createPortal(
+  }, [w]), Le({ onEscape: n }), me.createPortal(
     /* @__PURE__ */ s.jsx(
       "div",
       {
@@ -11574,7 +11575,7 @@ const Bf = [
   const { dispatch: r } = ge(), l = h.useCallback(() => {
     r({ type: "CLOSE_MODAL" });
   }, [r]);
-  Pe({ onEscape: l });
+  Le({ onEscape: l });
   const a = h.useRef(!1), o = h.useCallback((c) => {
     c.target === c.currentTarget && (a.current = !0);
   }, []), i = h.useCallback(
@@ -11680,7 +11681,7 @@ const Bf = [
   const D = h.useCallback(() => {
     l({ type: "CLOSE_MODAL" });
   }, [l]);
-  Pe({ onEscape: D });
+  Le({ onEscape: D });
   const A = h.useRef(!1), M = h.useCallback((L) => {
     L.target === L.currentTarget && (A.current = !0);
   }, []), z = h.useCallback(
@@ -11950,7 +11951,7 @@ const Bf = [
   );
 }, Py = ({ message: e, onConfirm: t, onCancel: n }) => {
   const r = h.useRef(null), l = h.useRef(null);
-  return Pe({ onEscape: n }), h.useEffect(() => {
+  return Le({ onEscape: n }), h.useEffect(() => {
     if (l.current = document.activeElement, r.current) {
       const o = r.current.querySelectorAll(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -12054,7 +12055,7 @@ const Bf = [
   const v = h.useCallback(() => {
     a({ type: "CLOSE_MODAL" });
   }, [a]);
-  Pe({ onEscape: v });
+  Le({ onEscape: v });
   const g = h.useRef(!1), k = h.useCallback((u) => {
     u.target === u.currentTarget && (g.current = !0);
   }, []), w = h.useCallback(
@@ -12272,7 +12273,7 @@ const Bf = [
   const { dispatch: t } = ge(), n = h.useCallback(() => {
     t({ type: "CLOSE_MODAL" });
   }, [t]);
-  return Pe({ onEscape: n }), /* @__PURE__ */ s.jsx("div", { className: "meld-modal-overlay", onClick: n, children: /* @__PURE__ */ s.jsxs("div", { className: "meld-modal-content", onClick: (r) => r.stopPropagation(), children: [
+  return Le({ onEscape: n }), /* @__PURE__ */ s.jsx("div", { className: "meld-modal-overlay", onClick: n, children: /* @__PURE__ */ s.jsxs("div", { className: "meld-modal-content", onClick: (r) => r.stopPropagation(), children: [
     /* @__PURE__ */ s.jsxs("div", { className: "meld-modal-header", children: [
       /* @__PURE__ */ s.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
         /* @__PURE__ */ s.jsx(uf, { size: 20, color: "var(--meld-danger-color)" }),
@@ -12287,7 +12288,7 @@ const Bf = [
   const { state: t, dispatch: n, refreshImages: r } = ge(), [l, a] = h.useState([]), [o, i] = h.useState(!0), [c, d] = h.useState(!1), p = h.useCallback(() => {
     n({ type: "CLOSE_MODAL" });
   }, [n]);
-  Pe({ onEscape: p });
+  Le({ onEscape: p });
   const v = h.useRef(!1), g = (S) => {
     S.target === S.currentTarget && (v.current = !0);
   }, k = (S) => {
@@ -12947,7 +12948,7 @@ const Us = ({
     [t, n, e.selectedIds]
   );
   Us({ onKeyDown: l, enabled: r });
-}, nm = ({ message: e, onConfirm: t, onCancel: n }) => (Pe({ onEscape: n }), /* @__PURE__ */ s.jsx(
+}, nm = ({ message: e, onConfirm: t, onCancel: n }) => (Le({ onEscape: n }), /* @__PURE__ */ s.jsx(
   "div",
   {
     className: "meld-confirm-modal__overlay",
@@ -13179,8 +13180,8 @@ const Us = ({
                 else if (U.shiftKey && m !== null) {
                   const O = D.findIndex((X) => X.id === E.id), K = D.findIndex((X) => X.id === m);
                   if (O !== -1 && K !== -1) {
-                    const X = Math.min(O, K), oe = Math.max(O, K), de = D.slice(X, oe + 1).map((Le) => Le.id);
-                    u((Le) => Array.from(/* @__PURE__ */ new Set([...Le, ...de])));
+                    const X = Math.min(O, K), oe = Math.max(O, K), de = D.slice(X, oe + 1).map((Re) => Re.id);
+                    u((Re) => Array.from(/* @__PURE__ */ new Set([...Re, ...de])));
                   }
                   y(E.id);
                 } else
@@ -13403,7 +13404,7 @@ const Us = ({
   var k;
   Vy();
   const e = se((w) => w.isOpen), t = se((w) => w.setIsOpen), [n, r] = h.useState(!1);
-  Pe({
+  Le({
     onEscape: () => t(!1),
     enabled: e && !n
   }), h.useEffect(() => {
@@ -13761,7 +13762,7 @@ const Us = ({
     handleEditFavorite: k,
     handleSaveEditFavorite: w
   } = rm(), [x, _] = h.useState({ top: 0, left: 0 }), f = h.useRef(null), u = h.useRef(null);
-  return Pe({
+  return Le({
     onEscape: () => {
       o ? i(null) : t();
     },
@@ -14055,8 +14056,8 @@ const Us = ({
         l(Tt), (ue = u.current) == null || ue.focus();
         return;
       }
-      const oe = ((_ == null ? void 0 : _.no_quote_prefixes) || []).includes(R) ? L : `"${L}"`, de = `${O}${R}:${oe}`, Le = [...T, de].filter(Boolean).join(" ");
-      l(Le), I(Le);
+      const oe = ((_ == null ? void 0 : _.no_quote_prefixes) || []).includes(R) ? L : `"${L}"`, de = `${O}${R}:${oe}`, Re = [...T, de].filter(Boolean).join(" ");
+      l(Re), I(Re);
     },
     [r, I, _]
   ), B = h.useCallback(
@@ -14506,7 +14507,7 @@ const Us = ({
       "info"
     );
   };
-  Pe({
+  Le({
     onEscape: () => D(null),
     enabled: !!I
   });
@@ -15745,7 +15746,7 @@ const wv = ({
     mountRefs: T
   }), {
     lastDeletedImages: de,
-    setLastDeletedImages: Le,
+    setLastDeletedImages: Re,
     handleDelete: ue,
     handleTagEditAction: Tt,
     handleRestoreAction: Z,
@@ -15846,7 +15847,7 @@ const wv = ({
     setIsMenuOpen: I,
     activeShortcutKey: R,
     lastDeletedImages: de,
-    setLastDeletedImages: Le,
+    setLastDeletedImages: Re,
     overlayRef: N,
     handleNext: X,
     handlePrevious: oe,
@@ -16652,7 +16653,7 @@ const jv = () => {
   };
 }, bv = () => {
   const { state: e, dispatch: t, deleteSelected: n, restoreSelected: r } = ge(), { handleRunWithWorkflow: l, handleRunWithMask: a } = $s(e, t), o = e.selectedIds.size, [i, c] = h.useState(!1), [d, p] = h.useState(null), v = h.useRef(null), g = h.useRef(null), k = tm("bulkActionBar");
-  if (Pe({
+  if (Le({
     onEscape: () => c(!1),
     enabled: i
   }), dl({
@@ -17528,7 +17529,7 @@ const im = (e) => {
   onClose: n,
   onCopy: r,
   isCopied: l
-}) => (Pe({ onEscape: n }), me.createPortal(
+}) => (Le({ onEscape: n }), me.createPortal(
   /* @__PURE__ */ s.jsx(
     "div",
     {
