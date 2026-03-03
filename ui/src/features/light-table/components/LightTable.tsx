@@ -1,6 +1,6 @@
 import { Plus, Trash, X } from "lucide-react";
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { getPortalRoot } from "../../../portals/portalRoots";
@@ -31,6 +31,14 @@ export const LightTable: React.FC = () => {
 		onEscape: () => setIsOpen(false),
 		enabled: isOpen && !showClearAllConfirm,
 	});
+
+	// Reset confirm modal flag when LightTable closes to avoid stale state on reopen
+	useEffect(() => {
+		if (!isOpen) {
+			setShowClearAllConfirm(false);
+		}
+	}, [isOpen]);
+
 	const slots = useLightTableStore((s) => s.slots);
 	const buckets = useLightTableStore((s) => s.buckets);
 	const { state: galleryState } = useGallery();

@@ -13350,7 +13350,9 @@ const Vs = ({
   Pe({
     onEscape: () => t(!1),
     enabled: e && !n
-  });
+  }), h.useEffect(() => {
+    e || r(!1);
+  }, [e]);
   const l = se((w) => w.slots), a = se((w) => w.buckets), { state: o } = ge(), [i, c] = h.useState(((S = l[0]) == null ? void 0 : S.id) || "keep"), d = em("lightTable");
   if (!e) return null;
   const p = () => {
