@@ -94,7 +94,7 @@ def get_referenced_classes(search_path: str) -> set[str]:
                             window = chunk[:300]
                             for str_match in re.finditer(r'(["\'`])(.*?)\1', window, re.DOTALL):
                                 val = str_match.group(2)
-                                for cls in re.finditer(r'\b(meld-[a-zA-Z0-9_-]+)\b', val):
+                                for cls in re.finditer(r"\b(meld-[a-zA-Z0-9_-]+)\b", val):
                                     references.add(cls.group(1))
 
                 except OSError as e:
