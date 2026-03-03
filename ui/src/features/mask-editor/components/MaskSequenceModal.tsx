@@ -1,4 +1,5 @@
 import type React from "react";
+import { useEffect } from "react";
 import { MaskEditorModal } from "./MaskEditorModal";
 
 export interface MaskSequenceModalProps {
@@ -24,6 +25,15 @@ export const MaskSequenceModal: React.FC<MaskSequenceModalProps> = ({
 	onClose,
 }) => {
 	const currentImage = images[currentIndex];
+
+	// When currentImage is missing (e.g. out-of-bounds), close modal and reset
+	// parent state to avoid inconsistent sequence/modal state.
+	useEffect(() => {
+		if (!currentImage) {
+			onClose();
+		}
+	}, [currentImage, onClose]);
+
 	if (!currentImage) return null;
 
 	return (
