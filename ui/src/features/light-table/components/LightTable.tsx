@@ -23,18 +23,19 @@ export const LightTable: React.FC = () => {
 	const isOpen = useLightTableStore((s) => s.isOpen);
 	const setIsOpen = useLightTableStore((s) => s.setIsOpen);
 
+	/** Show/hide flag for Clear All confirm modal (must be before useEscapeToClose for enabled logic) */
+	const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
+
+	// Disable when confirm modal is open so ConfirmModal can receive Escape and close itself first
 	useEscapeToClose({
 		onEscape: () => setIsOpen(false),
-		enabled: isOpen,
+		enabled: isOpen && !showClearAllConfirm,
 	});
 	const slots = useLightTableStore((s) => s.slots);
 	const buckets = useLightTableStore((s) => s.buckets);
 	const { state: galleryState } = useGallery();
 	const [activeTabId, setActiveTabId] = useState(slots[0]?.id || "keep");
 	const portalRoot = getPortalRoot("lightTable");
-
-	/** Show/hide flag for Clear All confirm modal */
-	const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
 
 	if (!isOpen) return null;
 

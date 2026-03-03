@@ -13346,45 +13346,45 @@ const Vs = ({
 }, Hy = () => {
   var S;
   Uy();
-  const e = se((w) => w.isOpen), t = se((w) => w.setIsOpen);
+  const e = se((w) => w.isOpen), t = se((w) => w.setIsOpen), [n, r] = h.useState(!1);
   Pe({
     onEscape: () => t(!1),
-    enabled: e
+    enabled: e && !n
   });
-  const n = se((w) => w.slots), r = se((w) => w.buckets), { state: l } = ge(), [a, o] = h.useState(((S = n[0]) == null ? void 0 : S.id) || "keep"), i = em("lightTable"), [c, d] = h.useState(!1);
+  const l = se((w) => w.slots), a = se((w) => w.buckets), { state: o } = ge(), [i, c] = h.useState(((S = l[0]) == null ? void 0 : S.id) || "keep"), d = em("lightTable");
   if (!e) return null;
   const p = () => {
     const w = `slot_${Date.now().toString(36)}`;
     se.getState().addSlot({
       id: w,
-      label: `Tab ${n.length + 1}`,
+      label: `Tab ${l.length + 1}`,
       color: "var(--meld-text-secondary, #9ca3af)",
       shortcutKey: ""
-    }), o(w);
+    }), c(w);
   }, v = () => {
-    n.forEach((w) => {
+    l.forEach((w) => {
       se.getState().clearBucket(w.id);
-    }), se.getState().showToast("All tabs cleared"), d(!1);
+    }), se.getState().showToast("All tabs cleared"), r(!1);
   }, g = /* @__PURE__ */ s.jsxs("div", { className: "meld-light-table", children: [
     /* @__PURE__ */ s.jsxs("div", { className: "meld-light-table__tabs", children: [
-      n.map((w) => {
+      l.map((w) => {
         var x;
         return /* @__PURE__ */ s.jsxs(
           "button",
           {
             type: "button",
-            className: `meld-light-table__tab ${a === w.id ? "meld-light-table__tab--active" : ""}`,
-            onClick: () => o(w.id),
+            className: `meld-light-table__tab ${i === w.id ? "meld-light-table__tab--active" : ""}`,
+            onClick: () => c(w.id),
             style: { "--tab-color": w.color },
             onDragOver: (_) => {
-              _.preventDefault(), o(w.id);
+              _.preventDefault(), c(w.id);
             },
             onDrop: (_) => {
               _.preventDefault();
               const f = _.dataTransfer.getData("text/plain");
               f && f.split(",").forEach((m) => {
                 if (m) {
-                  const y = m.trim(), j = l.images.find((k) => String(k.id) === y);
+                  const y = m.trim(), j = o.images.find((k) => String(k.id) === y);
                   se.getState().addToBucket(w.id, y, j);
                 }
               });
@@ -13392,7 +13392,7 @@ const Vs = ({
             children: [
               w.label,
               "  (",
-              ((x = r[w.id]) == null ? void 0 : x.length) || 0,
+              ((x = a[w.id]) == null ? void 0 : x.length) || 0,
               ")"
             ]
           },
@@ -13424,7 +13424,7 @@ const Vs = ({
         {
           type: "button",
           className: "meld-light-table__clear-btn",
-          onClick: () => d(!0),
+          onClick: () => r(!0),
           title: "Clear All Tabs",
           children: [
             /* @__PURE__ */ s.jsx(mg, { size: 14 }),
@@ -13453,26 +13453,26 @@ const Vs = ({
         }
       )
     ] }),
-    /* @__PURE__ */ s.jsx("div", { className: "meld-light-table__content", children: n.map((w) => /* @__PURE__ */ s.jsx(
+    /* @__PURE__ */ s.jsx("div", { className: "meld-light-table__content", children: l.map((w) => /* @__PURE__ */ s.jsx(
       "div",
       {
         className: "meld-light-table__tab-panel",
-        style: { display: a === w.id ? "block" : "none" },
+        style: { display: i === w.id ? "block" : "none" },
         children: /* @__PURE__ */ s.jsx(By, { config: w })
       },
       w.id
     )) }),
-    c && /* @__PURE__ */ s.jsx(
+    n && /* @__PURE__ */ s.jsx(
       tm,
       {
         message: "Are you sure you want to clear all items in all tabs?",
         onConfirm: v,
-        onCancel: () => d(!1)
+        onCancel: () => r(!1)
       }
     ),
     /* @__PURE__ */ s.jsx(Qy, {})
   ] });
-  return me.createPortal(g, i);
+  return me.createPortal(g, d);
 }, nm = () => {
   const { state: e, refreshFavorites: t } = ge(), [n, r] = h.useState(!1), [l, a] = h.useState(null), [o, i] = h.useState("info"), [c, d] = h.useState(null), [p, v] = h.useState(""), [g, S] = h.useState("");
   h.useEffect(() => {
