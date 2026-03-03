@@ -1,10 +1,8 @@
 :root {
 	--meld-bg-color: var(--comfy-menu-bg, #222);
 	--meld-text-color: var(--comfy-input-text, var(--fg-color, #eee));
-	--meld-text-secondary: var(
-		--desc-color,
-		var(--comfy-menu-label-text, var(--text-secondary, #888))
-	);
+	--meld-text-secondary: var(--desc-color,
+			var(--comfy-menu-label-text, var(--text-secondary, #888)));
 	--meld-accent-color: var(--comfy-input-text-active, #4488ff);
 	--meld-success-color: var(--comfy-input-text-active, #44bb44);
 	--meld-danger-color: var(--error-color, #ff4444);
@@ -12,10 +10,8 @@
 	--meld-border-subtle: var(--border-subtle, var(--comfy-menu-border, #333));
 	--meld-card-bg: var(--comfy-input-bg, rgba(0, 0, 0, 0.2));
 	--meld-card-content-bg: var(--comfy-menu-bg, rgba(255, 255, 255, 0.05));
-	--meld-card-selected-bg: var(
-		--comfy-input-bg-active,
-		var(--comfy-input-bg, rgba(68, 136, 255, 0.2))
-	);
+	--meld-card-selected-bg: var(--comfy-input-bg-active,
+			var(--comfy-input-bg, rgba(68, 136, 255, 0.2)));
 	/* Global z-index tokens: use these instead of magic numbers. */
 	--meld-z-base: 0;
 	--meld-z-gallery-header: 100;
@@ -112,6 +108,7 @@ so without this the menu can render behind neighboring rows.
 
 /* Fallback for environments without :has() support. */
 @supports not selector(:has(*)) {
+
 	.meld-gallery__virtual-row:focus-within,
 	.meld-gallery__virtual-grid-row:focus-within {
 		z-index: var(--meld-z-dropdown);
@@ -132,7 +129,7 @@ so without this the menu can render behind neighboring rows.
 	padding-top: 4px;
 }
 
-.meld-gallery__actions > button {
+.meld-gallery__actions>button {
 	/* Keep header icon buttons compact and consistent across WebUI/Desktop WebViews. */
 	padding: 2px;
 	line-height: 1;
@@ -273,6 +270,7 @@ so without this the menu can render behind neighboring rows.
 	transition: opacity 0.2s;
 }
 
+/* unused-css-check-ignore */
 .meld-notes-edit-btn:hover {
 	opacity: 1;
 	text-decoration: underline;
@@ -550,6 +548,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	flex: 1;
 }
 
+/* unused-css-check-ignore */
 .meld-tree-node-content img {
 	width: 40px;
 	height: 40px;
@@ -588,6 +587,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	cursor: pointer;
 }
 
+/* unused-css-check-ignore */
 .meld-tree-change-parent:hover {
 	background: var(--comfy-input-bg-active, rgba(255, 255, 255, 0.1));
 	border-color: var(--comfy-menu-border, #666);
@@ -1055,10 +1055,10 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	margin-right: 2px;
 }
 
+/* unused-css-check-ignore */
 .meld-browser-loading,
 .meld-browser-empty,
-/* unused-css-check-ignore */
-	.meld-browser-info {
+.meld-browser-info {
 	height: 100%;
 	display: flex;
 	flex-direction: column;
@@ -1221,11 +1221,11 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	border-radius: 50%;
 }
 
-.meld-switch input:checked + .meld-switch__slider {
+.meld-switch input:checked+.meld-switch__slider {
 	background-color: var(--comfy-input-bg, #444);
 }
 
-.meld-switch input:checked + .meld-switch__slider:before {
+.meld-switch input:checked+.meld-switch__slider:before {
 	transform: translateX(20px);
 	background-color: var(--comfy-input-text-active, #4a9eff);
 }

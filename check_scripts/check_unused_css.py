@@ -4,8 +4,8 @@ import sys
 
 
 def get_defined_classes(search_path: str) -> dict[str, str]:
-    defined: dict[str, str] = {}
-    ignored_classes: set[str] = set()
+    defined: dict[str, list[str]] = {}
+    ignored_classes: dict[str, int] = {}
 
     for root, _, files in os.walk(search_path):
         for file in files:
@@ -24,27 +24,31 @@ def get_defined_classes(search_path: str) -> dict[str, str]:
 
                         ignore_next = False
                         for match in re.finditer(
-                            r"(/[*]\s*unused-css-check-ignore\s*[*]/|\.meld-[a-zA-Z0-9_-]+)", clean_content
+                            r"(/[*]\s*unused-css-check-ignore\s*[*]/|\.meld-[a-zA-Z0-9_-]+|[{};])", clean_content
                         ):
                             token = match.group(1)
                             if "unused-css-check-ignore" in token:
                                 ignore_next = True
+                            elif token in ("{", "}", ";"):
+                                ignore_next = False
                             elif token.startswith(".meld-"):
                                 class_name = token[1:]
                                 if ignore_next:
-                                    ignored_classes.add(class_name)
-                                    ignore_next = False
-                                else:
-                                    if class_name not in defined:
-                                        defined[class_name] = filepath
+                                    ignored_classes[class_name] = ignored_classes.get(class_name, 0) + 1
+                                    # Do not reset ignore_next so grouped selectors all get ignored
+                                defined.setdefault(class_name, []).append(filepath)
                 except Exception as e:
                     print(f"Error reading {filepath}: {e}")
+                    sys.exit(1)
 
-    for c in ignored_classes:
-        if c in defined:
-            del defined[c]
+    final_defined: dict[str, str] = {}
+    for c, occurrences in defined.items():
+        ignore_count = ignored_classes.get(c, 0)
+        unignored = occurrences[ignore_count:]
+        if unignored:
+            final_defined[c] = unignored[0]
 
-    return defined
+    return final_defined
 
 
 def get_referenced_classes(search_path: str) -> set[str]:
@@ -88,6 +92,7 @@ def get_referenced_classes(search_path: str) -> set[str]:
 
                 except Exception as e:
                     print(f"Error reading {filepath}: {e}")
+                    sys.exit(1)
     return references
 
 
@@ -99,9 +104,12 @@ def main() -> None:
     if not os.path.exists(search_path):
         if os.path.basename(base_dir) == "ui":
             search_path = os.path.join(base_dir, "src")
+            if not os.path.exists(search_path):
+                print(f"Directory not found: {search_path}")
+                sys.exit(1)
         else:
             print(f"Directory not found: {search_path}")
-            return
+            sys.exit(1)
 
     print(f"Checking for unused CSS classes in {target_dir}...")
 

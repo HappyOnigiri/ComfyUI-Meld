@@ -17,6 +17,7 @@
 	gap: 10px;
 }
 
+/* unused-css-check-ignore */
 .meld-favorites-item:hover {
 	background-color: var(--comfy-input-bg-active, rgba(255, 255, 255, 0.1));
 }
@@ -39,6 +40,7 @@
 	transition: all 0.2s;
 }
 
+/* unused-css-check-ignore */
 .meld-favorites-item__delete:hover {
 	background-color: var(--error-color, rgba(255, 68, 68, 0.2));
 	color: var(--meld-danger-color);

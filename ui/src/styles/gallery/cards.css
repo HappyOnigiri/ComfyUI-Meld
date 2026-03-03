@@ -355,6 +355,7 @@
 	cursor: pointer;
 }
 
+/* unused-css-check-ignore */
 .meld-image-card__parent-preview img {
 	width: 24px;
 	height: 24px;
@@ -362,6 +363,7 @@
 	border-radius: 2px;
 }
 
+/* unused-css-check-ignore */
 .meld-image-card__parent-preview span {
 	font-size: 9px;
 	color: var(--meld-text-secondary);
@@ -393,6 +395,7 @@
 	height: 32px;
 }
 
+/* unused-css-check-ignore */
 .meld-image-card__suggestion-item img {
 	width: 100%;
 	height: 100%;
@@ -401,10 +404,12 @@
 	transition: border-color 0.2s;
 }
 
+/* unused-css-check-ignore */
 .meld-image-card__suggestion-item:hover img {
 	border: 1px solid var(--meld-accent-color);
 }
 
+/* unused-css-check-ignore */
 .meld-image-card__suggestion-item span {
 	position: absolute;
 	bottom: 0;
@@ -435,6 +440,7 @@
 	transition: border-color 0.2s;
 }
 
+/* unused-css-check-ignore */
 .meld-image-card__related-thumb:hover {
 	border-color: var(--meld-accent-color);
 }

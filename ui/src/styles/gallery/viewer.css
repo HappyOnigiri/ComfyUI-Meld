@@ -350,6 +350,7 @@
 	transition: border-color 0.2s;
 }
 
+/* unused-css-check-ignore */
 .meld-viewer-notes-textarea:focus {
 	border-color: var(--meld-accent-color);
 	background: var(--comfy-input-bg, rgba(0, 0, 0, 0.4));

@@ -19,8 +19,53 @@ CONFLICT_RULES = {
     "flex": {"flex-grow", "flex-shrink", "flex-basis"},
 }
 
-CSS_BLOCK_REGEX = re.compile(r"([^{}]+)\s*\{([^}]*)\}")
+def parse_css_blocks(content: str) -> list[tuple[str, str, int]]:
+    stack = []
+    blocks = []
+    in_comment = False
+    in_string = False
+    str_char = ""
+    i = 0
+    n = len(content)
 
+    while i < n:
+        if in_comment:
+            if content[i:i+2] == "*/":
+                in_comment = False
+                i += 2
+            else:
+                i += 1
+            continue
+
+        if not in_string and content[i:i+2] == "/*":
+            in_comment = True
+            i += 2
+            continue
+
+        char = content[i]
+        if in_string:
+            if char == "\\":
+                i += 2
+                continue
+            if char == str_char:
+                in_string = False
+        elif char in ('"', "'"):
+            in_string = True
+            str_char = char
+        elif char == "{":
+            stack.append(i)
+        elif char == "}":
+            if stack:
+                start = stack.pop()
+                prev = start - 1
+                while prev >= 0 and content[prev] not in "{}":
+                    prev -= 1
+                selector = content[prev+1:start].strip()
+                block_content = content[start+1:i]
+                blocks.append((selector, block_content, start))
+        i += 1
+
+    return blocks
 
 def check_file(filepath: str, base_dir: str) -> list:
     errors = []
@@ -29,12 +74,8 @@ def check_file(filepath: str, base_dir: str) -> list:
             original_content = f.read()
 
         # Iterate through all matches in the original content to get accurate line numbers and check for ignore comments
-        for match in CSS_BLOCK_REGEX.finditer(original_content):
-            selector_raw = match.group(1)
-            block_content_raw = match.group(2)
-
+        for selector_raw, block_content_raw, start_pos in parse_css_blocks(original_content):
             # Get line number from original content
-            start_pos = match.start()
             line_num = original_content.count("\n", 0, start_pos) + 1
 
             if "/* property-conflict-ignore */" in block_content_raw:
@@ -66,6 +107,7 @@ def check_file(filepath: str, base_dir: str) -> list:
                         )
     except Exception as e:
         print(f"Error reading {filepath}: {e}")
+        sys.exit(1)
 
     return errors
 
@@ -78,9 +120,12 @@ def main() -> None:
     if not os.path.exists(search_path):
         if os.path.basename(base_dir) == "ui":
             search_path = os.path.join(base_dir, "src")
+            if not os.path.exists(search_path):
+                print(f"Directory not found: {search_path}")
+                sys.exit(1)
         else:
             print(f"Directory not found: {search_path}")
-            return
+            sys.exit(1)
 
     print(f"Checking for CSS property conflicts in {target_dir}...")
 
