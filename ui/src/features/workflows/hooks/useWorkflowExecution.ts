@@ -219,9 +219,7 @@ export const useWorkflowExecution = () => {
 					return;
 				} catch (e) {
 					logger.error("Failed to queue workflow:", e);
-					throw new Error(
-						"Failed to queue workflow. Check the console for details.",
-					);
+					throw new Error("Failed to queue workflow. Check logs for details.");
 				}
 			}
 
