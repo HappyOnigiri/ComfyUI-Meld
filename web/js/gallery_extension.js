@@ -11911,8 +11911,8 @@ const Vf = [
         o.shiftKey ? document.activeElement === c && (d.focus(), o.preventDefault()) : document.activeElement === d && (c.focus(), o.preventDefault());
       }
     };
-    return document.addEventListener("keydown", a), () => {
-      document.removeEventListener("keydown", a), l.current && typeof l.current.focus == "function" && l.current.focus();
+    return document.addEventListener("keydown", a, { capture: !0 }), () => {
+      document.removeEventListener("keydown", a, { capture: !0 }), l.current && typeof l.current.focus == "function" && l.current.focus();
     };
   }, []), /* @__PURE__ */ s.jsx(
     "div",
