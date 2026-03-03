@@ -6,12 +6,12 @@ import {
 } from "../../../test/helpers/renderWithGallery";
 import { SearchBar } from "./SearchBar";
 
-// useGallery をモック
+// Mock useGallery
 vi.mock("../../../store/GalleryContext", () => ({
 	useGallery: vi.fn(),
 }));
 
-// useSearchLogic のモック（戻り値の全プロパティを網羅）
+// Mock useSearchLogic (covering all properties of the return value)
 const mockSearchLogic = {
 	inputValue: "",
 	setInputValue: vi.fn(),
@@ -39,7 +39,7 @@ vi.mock("../hooks/useSearchLogic", () => ({
 	useSearchLogic: vi.fn(() => mockSearchLogic),
 }));
 
-// useFavoritesLogic のモック
+// Mock useFavoritesLogic
 const mockFavoritesLogic = {
 	favorites: [],
 	editingFavorite: null,
@@ -55,7 +55,7 @@ vi.mock("../hooks/useFavoritesLogic", () => ({
 	useFavoritesLogic: vi.fn(() => mockFavoritesLogic),
 }));
 
-// サポートフックのモック
+// Mock support hooks
 vi.mock("../../../hooks/useEscapeToClose", () => ({
 	useEscapeToClose: vi.fn(),
 }));
@@ -63,7 +63,7 @@ vi.mock("../../../hooks/useOnPointerDownOutside", () => ({
 	useOnPointerDownOutside: vi.fn(),
 }));
 
-// SearchSuggestions のモック
+// Mock SearchSuggestions
 vi.mock("./SearchSuggestions", () => ({
 	SearchSuggestions: () => <div data-testid="search-suggestions" />,
 }));
@@ -115,7 +115,7 @@ describe("SearchBar", () => {
 		});
 
 		render(<SearchBar />);
-		// クリアボタンが表示されていること
+		// Check if clear button is displayed
 		const buttons = document.querySelectorAll("button");
 		expect(buttons.length).toBeGreaterThan(0);
 	});
