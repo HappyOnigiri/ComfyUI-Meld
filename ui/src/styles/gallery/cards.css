@@ -79,7 +79,7 @@
 	position: absolute;
 	top: 2px;
 	right: 2px;
-	z-index: 11;
+	z-index: var(--meld-z-card-thumbnail-overlay);
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
@@ -189,7 +189,7 @@
 	align-items: center;
 	justify-content: center;
 	cursor: pointer;
-	z-index: 10;
+	z-index: var(--meld-z-card-checkbox);
 	padding: 0;
 	color: var(--meld-accent-color);
 	transition: all 0.2s;
