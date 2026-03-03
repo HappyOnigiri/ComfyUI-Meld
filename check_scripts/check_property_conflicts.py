@@ -19,6 +19,7 @@ CONFLICT_RULES = {
     "flex": {"flex-grow", "flex-shrink", "flex-basis"},
 }
 
+
 def parse_css_blocks(content: str) -> list[tuple[str, str, int]]:
     stack = []
     blocks = []
@@ -30,14 +31,14 @@ def parse_css_blocks(content: str) -> list[tuple[str, str, int]]:
 
     while i < n:
         if in_comment:
-            if content[i:i+2] == "*/":
+            if content[i : i + 2] == "*/":
                 in_comment = False
                 i += 2
             else:
                 i += 1
             continue
 
-        if not in_string and content[i:i+2] == "/*":
+        if not in_string and content[i : i + 2] == "/*":
             in_comment = True
             i += 2
             continue
@@ -60,12 +61,13 @@ def parse_css_blocks(content: str) -> list[tuple[str, str, int]]:
                 prev = start - 1
                 while prev >= 0 and content[prev] not in "{}":
                     prev -= 1
-                selector = content[prev+1:start].strip()
-                block_content = content[start+1:i]
+                selector = content[prev + 1 : start].strip()
+                block_content = content[start + 1 : i]
                 blocks.append((selector, block_content, start))
         i += 1
 
     return blocks
+
 
 def check_file(filepath: str, base_dir: str) -> list:
     errors = []
