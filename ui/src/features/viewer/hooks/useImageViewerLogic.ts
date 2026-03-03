@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { logger } from "../../../logger";
 import type { MeldImage } from "../../../types";
 import { useImageActions } from "../../images/hooks/useImageActions";
 import { useImageLineage } from "../../images/hooks/useImageLineage";
@@ -227,7 +228,7 @@ export const useImageViewerLogic = ({
 	useEffect(() => {
 		if (viewerImageId !== null) {
 			fetchFullImageDetails(viewerImageId).catch((err) => {
-				console.error("Failed to fetch full image details for viewer:", err);
+				logger.error("Failed to fetch full image details for viewer:", err);
 			});
 		}
 	}, [fetchFullImageDetails, viewerImageId]);

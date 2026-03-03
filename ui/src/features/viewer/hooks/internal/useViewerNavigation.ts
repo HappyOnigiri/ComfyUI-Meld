@@ -1,5 +1,6 @@
 import type React from "react";
 import { useCallback } from "react";
+import { logger } from "../../../../logger";
 import type {
 	GalleryAction,
 	GalleryState,
@@ -82,7 +83,7 @@ export const useViewerNavigation = ({
 					});
 				}
 			} catch (err) {
-				console.error("Failed to jump to end:", err);
+				logger.error("Failed to jump to end:", err);
 			} finally {
 				setIsJumping(false);
 			}

@@ -216,14 +216,12 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 			}
 
 			if (loaders.length === 0) {
-				console.warn(
-					"[Meld] No loader nodes found in workflow JSON despite count > 0",
-				);
+				logger.warn("No loader nodes found in workflow JSON despite count > 0");
 			}
 
 			setWorkflowNodes((prev) => ({ ...prev, [workflowName]: loaders }));
 		} catch (err) {
-			console.error("Failed to fetch workflow nodes:", err);
+			logger.error("Failed to fetch workflow nodes:", err);
 		} finally {
 			setLoadingNodes((prev) => ({ ...prev, [workflowName]: false }));
 		}

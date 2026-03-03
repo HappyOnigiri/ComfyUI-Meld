@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { RESERVED_TAG_KEYWORD } from "../../../constants";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
+import { logger } from "../../../logger";
 import { useGallery } from "../../../store/GalleryContext";
 import type { Tag as TagType } from "../../../types";
 import { stopReactKeyboardEvent } from "../../../utils/keyboard";
@@ -54,7 +55,7 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 			const data = await tagsApi.fetchTags();
 			setAllTags(data);
 		} catch (error) {
-			console.error("Failed to fetch tags:", error);
+			logger.error("Failed to fetch tags:", error);
 		} finally {
 			setIsLoading(false);
 		}
@@ -118,7 +119,7 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 			onSuccess?.();
 			onClose();
 		} catch (error) {
-			console.error("Failed to update tags:", error);
+			logger.error("Failed to update tags:", error);
 			alert("Failed to update tags.");
 		} finally {
 			setIsSaving(false);

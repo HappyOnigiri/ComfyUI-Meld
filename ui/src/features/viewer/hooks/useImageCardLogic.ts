@@ -2,6 +2,7 @@ import type React from "react";
 import { useCallback, useRef, useState } from "react";
 import { useKeydownCapture } from "../../../hooks/useKeydownCapture";
 import { useOnPointerDownOutside } from "../../../hooks/useOnPointerDownOutside";
+import { logger } from "../../../logger";
 import { useGallery } from "../../../store/GalleryContext";
 import type { MeldImage } from "../../../types";
 import { stopKeyboardEvent } from "../../../utils/keyboard";
@@ -60,7 +61,7 @@ export const useImageCardLogic = (image: MeldImage) => {
 				setTimeout(() => setCopiedLabel(null), 2000);
 			}
 		} catch (err) {
-			console.error("Failed to copy text: ", err);
+			logger.error("Failed to copy text: ", err);
 		}
 	};
 

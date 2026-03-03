@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { logger } from "../../../logger";
 import { useGallery } from "../../../store/GalleryContext";
 import type { Settings } from "../../../types";
 import * as settingsApi from "../api/settingsApi";
@@ -231,7 +232,7 @@ export const useSettingsModalLogic = () => {
 							payload: "Thumbnail cache cleared",
 						});
 					} catch (e) {
-						console.error("Failed to clear thumbnail cache:", e);
+						logger.error("Failed to clear thumbnail cache:", e);
 						dispatch({
 							type: "SET_ERROR",
 							payload: "Failed to clear thumbnail cache",
