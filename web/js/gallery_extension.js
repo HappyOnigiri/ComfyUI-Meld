@@ -7676,7 +7676,7 @@ const bf = h.createContext(void 0), Jg = ({ children: e }) => {
                       /* @__PURE__ */ s.jsx("span", { className: "meld-form-label", children: "Images Found" }),
                       /* @__PURE__ */ s.jsx("div", { className: "meld-path-count", children: i === null ? /* @__PURE__ */ s.jsx("span", { className: "meld-path-count--loading", children: "Scanning..." }) : `${i} images` })
                     ] }),
-                    /* @__PURE__ */ s.jsx("div", { className: "meld-form-group checkbox", children: /* @__PURE__ */ s.jsxs("label", { children: [
+                    /* @__PURE__ */ s.jsx("div", { className: "meld-form-group--checkbox", children: /* @__PURE__ */ s.jsxs("label", { children: [
                       /* @__PURE__ */ s.jsx(
                         "input",
                         {
@@ -8910,7 +8910,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
                 /* @__PURE__ */ s.jsxs(
                   "button",
                   {
-                    className: `meld-mask-tool-btn ${u === "rect" ? "active" : ""}`,
+                    className: `meld-mask-tool-btn ${u === "rect" ? "meld-mask-tool-btn--active" : ""}`,
                     onClick: () => m("rect"),
                     type: "button",
                     title: "Rectangle Tool",
@@ -8923,7 +8923,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
                 /* @__PURE__ */ s.jsxs(
                   "button",
                   {
-                    className: `meld-mask-tool-btn ${u === "ellipse" ? "active" : ""}`,
+                    className: `meld-mask-tool-btn ${u === "ellipse" ? "meld-mask-tool-btn--active" : ""}`,
                     onClick: () => m("ellipse"),
                     type: "button",
                     title: "Ellipse Tool",
@@ -8936,7 +8936,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
                 /* @__PURE__ */ s.jsxs(
                   "button",
                   {
-                    className: `meld-mask-tool-btn ${u === "lasso" ? "active" : ""}`,
+                    className: `meld-mask-tool-btn ${u === "lasso" ? "meld-mask-tool-btn--active" : ""}`,
                     onClick: () => m("lasso"),
                     type: "button",
                     title: "Lasso Tool",
@@ -12819,28 +12819,28 @@ const Bf = [
       payload: { isFinished: !1, isRunning: !1 }
     });
   }, a = n.progress.phase === "linking", { current: o, total: i } = n.progress, c = i > 0 ? o / i : 0, d = a ? 50 + Math.round(c * 50) : Math.round(c * 50);
-  return /* @__PURE__ */ s.jsx("div", { className: "meld-import-progress-sidebar", children: n.isRunning ? /* @__PURE__ */ s.jsxs("div", { className: "meld-scan-progress-compact", children: [
+  return /* @__PURE__ */ s.jsx("div", { className: "meld-import-progress-sidebar", children: n.isRunning ? /* @__PURE__ */ s.jsxs("div", { className: "meld-scan-progress--compact", children: [
     /* @__PURE__ */ s.jsxs("div", { className: "meld-scan-info", children: [
-      /* @__PURE__ */ s.jsx("div", { className: "meld-scan__status-text-compact", children: n.shouldCancel ? /* @__PURE__ */ s.jsx("span", { className: "meld-status-cancelling", children: "Cancelling..." }) : a ? /* @__PURE__ */ s.jsx("span", { children: "Linking..." }) : /* @__PURE__ */ s.jsx("span", { children: "Scanning..." }) }),
-      /* @__PURE__ */ s.jsxs("div", { className: "meld-progress-stats-compact", children: [
+      /* @__PURE__ */ s.jsx("div", { className: "meld-scan__status-text--compact", children: n.shouldCancel ? /* @__PURE__ */ s.jsx("span", { className: "meld-scan__status--cancelling", children: "Cancelling..." }) : a ? /* @__PURE__ */ s.jsx("span", { children: "Linking..." }) : /* @__PURE__ */ s.jsx("span", { children: "Scanning..." }) }),
+      /* @__PURE__ */ s.jsxs("div", { className: "meld-progress-stats--compact", children: [
         n.progress.current,
         " / ",
         n.progress.total
       ] })
     ] }),
-    /* @__PURE__ */ s.jsx("div", { className: "meld-progress-container-compact", children: /* @__PURE__ */ s.jsx("div", { className: "meld-progress-bar", style: { width: `${d}%` } }) }),
+    /* @__PURE__ */ s.jsx("div", { className: "meld-progress-container--compact", children: /* @__PURE__ */ s.jsx("div", { className: "meld-progress-bar", style: { width: `${d}%` } }) }),
     /* @__PURE__ */ s.jsx(
       "button",
       {
         type: "button",
-        className: "meld-btn--stop-compact",
+        className: "meld-btn--stop--compact",
         disabled: n.shouldCancel,
         onClick: r,
         title: "Stop Scan",
         children: /* @__PURE__ */ s.jsx(vf, { size: 12, fill: "currentColor" })
       }
     )
-  ] }) : /* @__PURE__ */ s.jsxs("div", { className: "meld-scan-finished-compact", children: [
+  ] }) : /* @__PURE__ */ s.jsxs("div", { className: "meld-scan-finished--compact", children: [
     /* @__PURE__ */ s.jsxs("div", { className: "meld-finished-info", children: [
       /* @__PURE__ */ s.jsx(qp, { size: 14, className: "meld-success-icon" }),
       /* @__PURE__ */ s.jsxs("span", { className: "meld-finished-text", children: [
@@ -12851,7 +12851,7 @@ const Bf = [
         " updated"
       ] })
     ] }),
-    /* @__PURE__ */ s.jsx("button", { type: "button", className: "meld-btn--ok-compact", onClick: l, children: "OK" })
+    /* @__PURE__ */ s.jsx("button", { type: "button", className: "meld-btn--ok--compact", onClick: l, children: "OK" })
   ] }) });
 }, wi = {
   lightTable: {
