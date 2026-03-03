@@ -274,9 +274,9 @@ var ld = { exports: {} }, lt = {}, sd = { exports: {} }, ad = {};
     if (F !== T) {
       N[0] = F;
       e: for (var E = 0, A = N.length, U = A >>> 1; E < U; ) {
-        var O = 2 * (E + 1) - 1, K = N[O], J = O + 1, oe = N[J];
-        if (0 > l(K, F)) J < A && 0 > l(oe, K) ? (N[E] = oe, N[J] = F, E = J) : (N[E] = K, N[O] = F, E = O);
-        else if (J < A && 0 > l(oe, F)) N[E] = oe, N[J] = F, E = J;
+        var O = 2 * (E + 1) - 1, K = N[O], X = O + 1, oe = N[X];
+        if (0 > l(K, F)) X < A && 0 > l(oe, K) ? (N[E] = oe, N[X] = F, E = X) : (N[E] = K, N[O] = F, E = O);
+        else if (X < A && 0 > l(oe, F)) N[E] = oe, N[X] = F, E = X;
         else break e;
       }
     }
@@ -1336,7 +1336,7 @@ function Co(e, t) {
     l & t | e[r] & t && (e[r] |= t), n &= ~l;
   }
 }
-var de = 0;
+var ce = 0;
 function Td(e) {
   return e &= -e, 1 < e ? 4 < e ? e & 268435455 ? 16 : 536870912 : 4 : 1;
 }
@@ -1441,21 +1441,21 @@ function Vr(e) {
 }
 var Jn = Vt.ReactCurrentBatchConfig, ns = !0;
 function lh(e, t, n, r) {
-  var l = de, a = Jn.transition;
+  var l = ce, a = Jn.transition;
   Jn.transition = null;
   try {
-    de = 1, Mo(e, t, n, r);
+    ce = 1, Mo(e, t, n, r);
   } finally {
-    de = l, Jn.transition = a;
+    ce = l, Jn.transition = a;
   }
 }
 function sh(e, t, n, r) {
-  var l = de, a = Jn.transition;
+  var l = ce, a = Jn.transition;
   Jn.transition = null;
   try {
-    de = 4, Mo(e, t, n, r);
+    ce = 4, Mo(e, t, n, r);
   } finally {
-    de = l, Jn.transition = a;
+    ce = l, Jn.transition = a;
   }
 }
 function Mo(e, t, n, r) {
@@ -2343,10 +2343,10 @@ function Zh(e) {
 function pn() {
   if (!sa && Dt !== null) {
     sa = !0;
-    var e = 0, t = de;
+    var e = 0, t = ce;
     try {
       var n = Dt;
-      for (de = 1; e < n.length; e++) {
+      for (ce = 1; e < n.length; e++) {
         var r = n[e];
         do
           r = r(!0);
@@ -2356,7 +2356,7 @@ function pn() {
     } catch (l) {
       throw Dt !== null && (Dt = Dt.slice(e + 1)), Cd(Eo, pn), l;
     } finally {
-      de = t, sa = !1;
+      ce = t, sa = !1;
     }
   }
   return null;
@@ -3088,14 +3088,14 @@ function bu(e, t, n) {
   return En & 21 ? (jt(n, t) || (n = Id(), Se.lanes |= n, Cn |= n, e.baseState = !0), t) : (e.baseState && (e.baseState = !1, Ye = !0), e.memoizedState = n);
 }
 function tp(e, t) {
-  var n = de;
-  de = n !== 0 && 4 > n ? n : 4, e(!0);
+  var n = ce;
+  ce = n !== 0 && 4 > n ? n : 4, e(!0);
   var r = oa.transition;
   oa.transition = {};
   try {
     e(!1), t();
   } finally {
-    de = n, oa.transition = r;
+    ce = n, oa.transition = r;
   }
 }
 function Eu() {
@@ -4605,7 +4605,7 @@ function Be() {
   return ae & 6 ? Ce() : Kl !== -1 ? Kl : Kl = Ce();
 }
 function cn(e) {
-  return e.mode & 1 ? ae & 2 && Oe !== 0 ? Oe & -Oe : Jh.transition !== null ? (Gl === 0 && (Gl = Id()), Gl) : (e = de, e !== 0 || (e = window.event, e = e === void 0 ? 16 : Ad(e.type)), e) : 1;
+  return e.mode & 1 ? ae & 2 && Oe !== 0 ? Oe & -Oe : Jh.transition !== null ? (Gl === 0 && (Gl = Id()), Gl) : (e = ce, e !== 0 || (e = window.event, e = e === void 0 ? 16 : Ad(e.type)), e) : 1;
 }
 function St(e, t, n, r) {
   if (50 < Ar) throw Ar = 0, oo = null, Error($(185));
@@ -4777,11 +4777,11 @@ function Nn(e) {
   tn !== null && tn.tag === 0 && !(ae & 6) && tr();
   var t = ae;
   ae |= 1;
-  var n = ft.transition, r = de;
+  var n = ft.transition, r = ce;
   try {
-    if (ft.transition = null, de = 1, e) return e();
+    if (ft.transition = null, ce = 1, e) return e();
   } finally {
-    de = r, ft.transition = n, ae = t, !(ae & 6) && pn();
+    ce = r, ft.transition = n, ae = t, !(ae & 6) && pn();
   }
 }
 function ni() {
@@ -4969,11 +4969,11 @@ function Xu(e) {
   Te === 0 && (Te = 5);
 }
 function vn(e, t, n) {
-  var r = de, l = ft.transition;
+  var r = ce, l = ft.transition;
   try {
-    ft.transition = null, de = 1, xp(e, t, n, r);
+    ft.transition = null, ce = 1, xp(e, t, n, r);
   } finally {
-    ft.transition = l, de = r;
+    ft.transition = l, ce = r;
   }
   return null;
 }
@@ -4992,10 +4992,10 @@ function xp(e, t, n, r) {
     return tr(), null;
   })), a = (n.flags & 15990) !== 0, n.subtreeFlags & 15990 || a) {
     a = ft.transition, ft.transition = null;
-    var o = de;
-    de = 1;
+    var o = ce;
+    ce = 1;
     var i = ae;
-    ae |= 4, Zo.current = null, hp(e, n), Qu(n, e), Wh(Wa), ns = !!Fa, Wa = Fa = null, e.current = n, pp(n), Qm(), ae = i, de = o, ft.transition = a;
+    ae |= 4, Zo.current = null, hp(e, n), Qu(n, e), Wh(Wa), ns = !!Fa, Wa = Fa = null, e.current = n, pp(n), Qm(), ae = i, ce = o, ft.transition = a;
   } else e.current = n;
   if (Tl && (Tl = !1, tn = e, vs = l), a = e.pendingLanes, a === 0 && (on = null), Gm(n.stateNode), Je(e, Ce()), t !== null) for (r = e.onRecoverableError, n = 0; n < t.length; n++) l = t[n], r(l.value, { componentStack: l.stack, digest: l.digest });
   if (ys) throw ys = !1, e = ao, ao = null, e;
@@ -5003,9 +5003,9 @@ function xp(e, t, n, r) {
 }
 function tr() {
   if (tn !== null) {
-    var e = Td(vs), t = ft.transition, n = de;
+    var e = Td(vs), t = ft.transition, n = ce;
     try {
-      if (ft.transition = null, de = 16 > e ? 16 : e, tn === null) var r = !1;
+      if (ft.transition = null, ce = 16 > e ? 16 : e, tn === null) var r = !1;
       else {
         if (e = tn, tn = null, vs = 0, ae & 6) throw Error($(331));
         var l = ae;
@@ -5107,7 +5107,7 @@ function tr() {
       }
       return r;
     } finally {
-      de = n, ft.transition = t;
+      ce = n, ft.transition = t;
     }
   }
   return !1;
@@ -5570,14 +5570,14 @@ Rd = function(e) {
   }
 };
 Dd = function() {
-  return de;
+  return ce;
 };
 Pd = function(e, t) {
-  var n = de;
+  var n = ce;
   try {
-    return de = e, t();
+    return ce = e, t();
   } finally {
-    de = n;
+    ce = n;
   }
 };
 Ta = function(e, t, n) {
@@ -5677,7 +5677,7 @@ function lf() {
     }
 }
 lf(), ld.exports = lt;
-var ce = ld.exports, sf, Cc = ce;
+var me = ld.exports, sf, Cc = me;
 sf = Cc.createRoot, Cc.hydrateRoot;
 var af = { exports: {} }, zs = {};
 /**
@@ -5725,7 +5725,7 @@ var zp = {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Fp = (e) => e.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase().trim(), Z = (e, t) => {
+const Fp = (e) => e.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase().trim(), J = (e, t) => {
   const n = p.forwardRef(
     ({
       color: r = "currentColor",
@@ -5761,7 +5761,7 @@ const Fp = (e) => e.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase().trim(),
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const cf = Z("AlertCircle", [
+const cf = J("AlertCircle", [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
   ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
@@ -5772,7 +5772,7 @@ const cf = Z("AlertCircle", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Wp = Z("AlertTriangle", [
+const Wp = J("AlertTriangle", [
   [
     "path",
     {
@@ -5789,7 +5789,7 @@ const Wp = Z("AlertTriangle", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const df = Z("ArrowDown", [
+const df = J("ArrowDown", [
   ["path", { d: "M12 5v14", key: "s699le" }],
   ["path", { d: "m19 12-7 7-7-7", key: "1idqje" }]
 ]);
@@ -5799,7 +5799,7 @@ const df = Z("ArrowDown", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const $p = Z("ArrowUpDown", [
+const $p = J("ArrowUpDown", [
   ["path", { d: "m21 16-4 4-4-4", key: "f6ql7i" }],
   ["path", { d: "M17 20V4", key: "1ejh1v" }],
   ["path", { d: "m3 8 4-4 4 4", key: "11wl7u" }],
@@ -5811,7 +5811,7 @@ const $p = Z("ArrowUpDown", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const uf = Z("ArrowUp", [
+const uf = J("ArrowUp", [
   ["path", { d: "m5 12 7-7 7 7", key: "hav0vg" }],
   ["path", { d: "M12 19V5", key: "x0mq9r" }]
 ]);
@@ -5821,7 +5821,7 @@ const uf = Z("ArrowUp", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Up = Z("Box", [
+const Up = J("Box", [
   [
     "path",
     {
@@ -5838,7 +5838,7 @@ const Up = Z("Box", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Vp = Z("Calendar", [
+const Vp = J("Calendar", [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
@@ -5850,7 +5850,7 @@ const Vp = Z("Calendar", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Bp = Z("CheckCircle", [
+const Bp = J("CheckCircle", [
   ["path", { d: "M22 11.08V12a10 10 0 1 1-5.93-9.14", key: "g774vq" }],
   ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
 ]);
@@ -5860,14 +5860,14 @@ const Bp = Z("CheckCircle", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const ci = Z("Check", [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]]);
+const ci = J("Check", [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]]);
 /**
  * @license lucide-react v0.344.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Qp = Z("ChevronDown", [
+const Qp = J("ChevronDown", [
   ["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]
 ]);
 /**
@@ -5876,7 +5876,7 @@ const Qp = Z("ChevronDown", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const ff = Z("ChevronLeft", [
+const ff = J("ChevronLeft", [
   ["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]
 ]);
 /**
@@ -5885,7 +5885,7 @@ const ff = Z("ChevronLeft", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const di = Z("ChevronRight", [
+const di = J("ChevronRight", [
   ["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]
 ]);
 /**
@@ -5894,7 +5894,7 @@ const di = Z("ChevronRight", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Hp = Z("Circle", [
+const Hp = J("Circle", [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]
 ]);
 /**
@@ -5903,7 +5903,7 @@ const Hp = Z("Circle", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Kp = Z("Copy", [
+const Kp = J("Copy", [
   ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
   ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
 ]);
@@ -5913,7 +5913,7 @@ const Kp = Z("Copy", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const tl = Z("Download", [
+const tl = J("Download", [
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
   ["polyline", { points: "7 10 12 15 17 10", key: "2ggqvy" }],
   ["line", { x1: "12", x2: "12", y1: "15", y2: "3", key: "1vk2je" }]
@@ -5924,7 +5924,7 @@ const tl = Z("Download", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Gp = Z("Eraser", [
+const Gp = J("Eraser", [
   [
     "path",
     {
@@ -5941,7 +5941,7 @@ const Gp = Z("Eraser", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const ui = Z("FileJson", [
+const ui = J("FileJson", [
   ["path", { d: "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z", key: "1rqfz7" }],
   ["path", { d: "M14 2v4a2 2 0 0 0 2 2h4", key: "tnqrlb" }],
   [
@@ -5959,7 +5959,7 @@ const ui = Z("FileJson", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const qp = Z("FileText", [
+const qp = J("FileText", [
   ["path", { d: "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z", key: "1rqfz7" }],
   ["path", { d: "M14 2v4a2 2 0 0 0 2 2h4", key: "tnqrlb" }],
   ["path", { d: "M10 9H8", key: "b1mrlr" }],
@@ -5972,7 +5972,7 @@ const qp = Z("FileText", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Yp = Z("Folder", [
+const Yp = J("Folder", [
   [
     "path",
     {
@@ -5987,7 +5987,7 @@ const Yp = Z("Folder", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Xp = Z("Info", [
+const Xp = J("Info", [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 16v-4", key: "1dtifu" }],
   ["path", { d: "M12 8h.01", key: "e9boi3" }]
@@ -5998,7 +5998,7 @@ const Xp = Z("Info", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Zp = Z("Lasso", [
+const Zp = J("Lasso", [
   ["path", { d: "M7 22a5 5 0 0 1-2-4", key: "umushi" }],
   [
     "path",
@@ -6015,7 +6015,7 @@ const Zp = Z("Lasso", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const mf = Z("LayoutGrid", [
+const mf = J("LayoutGrid", [
   ["rect", { width: "7", height: "7", x: "3", y: "3", rx: "1", key: "1g98yp" }],
   ["rect", { width: "7", height: "7", x: "14", y: "3", rx: "1", key: "6d4xhi" }],
   ["rect", { width: "7", height: "7", x: "14", y: "14", rx: "1", key: "nxv5o0" }],
@@ -6027,7 +6027,7 @@ const mf = Z("LayoutGrid", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Jp = Z("LayoutList", [
+const Jp = J("LayoutList", [
   ["rect", { width: "7", height: "7", x: "3", y: "3", rx: "1", key: "1g98yp" }],
   ["rect", { width: "7", height: "7", x: "3", y: "14", rx: "1", key: "1bb6yr" }],
   ["path", { d: "M14 4h7", key: "3xa0d5" }],
@@ -6041,7 +6041,7 @@ const Jp = Z("LayoutList", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const eg = Z("Link2Off", [
+const eg = J("Link2Off", [
   ["path", { d: "M9 17H7A5 5 0 0 1 7 7", key: "10o201" }],
   ["path", { d: "M15 7h2a5 5 0 0 1 4 8", key: "1d3206" }],
   ["line", { x1: "8", x2: "12", y1: "12", y2: "12", key: "rvw6j4" }],
@@ -6053,7 +6053,7 @@ const eg = Z("Link2Off", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const tg = Z("Link", [
+const tg = J("Link", [
   ["path", { d: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71", key: "1cjeqo" }],
   ["path", { d: "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71", key: "19qd67" }]
 ]);
@@ -6063,7 +6063,7 @@ const tg = Z("Link", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Nc = Z("Loader2", [
+const Nc = J("Loader2", [
   ["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]
 ]);
 /**
@@ -6072,7 +6072,7 @@ const Nc = Z("Loader2", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const ng = Z("Maximize", [
+const ng = J("Maximize", [
   ["path", { d: "M8 3H5a2 2 0 0 0-2 2v3", key: "1dcmit" }],
   ["path", { d: "M21 8V5a2 2 0 0 0-2-2h-3", key: "1e4gt3" }],
   ["path", { d: "M3 16v3a2 2 0 0 0 2 2h3", key: "wsl5sc" }],
@@ -6084,7 +6084,7 @@ const ng = Z("Maximize", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const rg = Z("Menu", [
+const rg = J("Menu", [
   ["line", { x1: "4", x2: "20", y1: "12", y2: "12", key: "1e0a9i" }],
   ["line", { x1: "4", x2: "20", y1: "6", y2: "6", key: "1owob3" }],
   ["line", { x1: "4", x2: "20", y1: "18", y2: "18", key: "yk5zj1" }]
@@ -6095,7 +6095,7 @@ const rg = Z("Menu", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const lg = Z("Minimize", [
+const lg = J("Minimize", [
   ["path", { d: "M8 3v3a2 2 0 0 1-2 2H3", key: "hohbtr" }],
   ["path", { d: "M21 8h-3a2 2 0 0 1-2-2V3", key: "5jw1f3" }],
   ["path", { d: "M3 16h3a2 2 0 0 1 2 2v3", key: "198tvr" }],
@@ -6107,7 +6107,7 @@ const lg = Z("Minimize", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const sg = Z("MoreVertical", [
+const sg = J("MoreVertical", [
   ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
   ["circle", { cx: "12", cy: "5", r: "1", key: "gxeob9" }],
   ["circle", { cx: "12", cy: "19", r: "1", key: "lyex9k" }]
@@ -6118,7 +6118,7 @@ const sg = Z("MoreVertical", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const ag = Z("PanelBottom", [
+const ag = J("PanelBottom", [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
   ["path", { d: "M3 15h18", key: "5xshup" }]
 ]);
@@ -6128,7 +6128,7 @@ const ag = Z("PanelBottom", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const hf = Z("Pen", [
+const hf = J("Pen", [
   ["path", { d: "M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z", key: "5qss01" }]
 ]);
 /**
@@ -6137,7 +6137,7 @@ const hf = Z("Pen", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const nl = Z("Play", [
+const nl = J("Play", [
   ["polygon", { points: "5 3 19 12 5 21 5 3", key: "191637" }]
 ]);
 /**
@@ -6146,7 +6146,7 @@ const nl = Z("Play", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Fs = Z("Plus", [
+const Fs = J("Plus", [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "M12 5v14", key: "s699le" }]
 ]);
@@ -6156,7 +6156,7 @@ const Fs = Z("Plus", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const rl = Z("RefreshCw", [
+const rl = J("RefreshCw", [
   ["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }],
   ["path", { d: "M21 3v5h-5", key: "1q7to0" }],
   ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }],
@@ -6168,7 +6168,7 @@ const rl = Z("RefreshCw", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const og = Z("ScanLine", [
+const og = J("ScanLine", [
   ["path", { d: "M3 7V5a2 2 0 0 1 2-2h2", key: "aa7l1z" }],
   ["path", { d: "M17 3h2a2 2 0 0 1 2 2v2", key: "4qcy5o" }],
   ["path", { d: "M21 17v2a2 2 0 0 1-2 2h-2", key: "6vwrx8" }],
@@ -6181,7 +6181,7 @@ const og = Z("ScanLine", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Mn = Z("Search", [
+const Mn = J("Search", [
   ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }],
   ["path", { d: "m21 21-4.3-4.3", key: "1qie3q" }]
 ]);
@@ -6191,7 +6191,7 @@ const Mn = Z("Search", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const pf = Z("Settings", [
+const pf = J("Settings", [
   [
     "path",
     {
@@ -6207,7 +6207,7 @@ const pf = Z("Settings", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const gf = Z("Square", [
+const gf = J("Square", [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }]
 ]);
 /**
@@ -6216,7 +6216,7 @@ const gf = Z("Square", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const cr = Z("Star", [
+const cr = J("Star", [
   [
     "polygon",
     {
@@ -6231,7 +6231,7 @@ const cr = Z("Star", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const ig = Z("StickyNote", [
+const ig = J("StickyNote", [
   ["path", { d: "M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8Z", key: "qazsjp" }],
   ["path", { d: "M15 3v4a2 2 0 0 0 2 2h4", key: "40519r" }]
 ]);
@@ -6241,7 +6241,7 @@ const ig = Z("StickyNote", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const mr = Z("Tag", [
+const mr = J("Tag", [
   [
     "path",
     {
@@ -6257,7 +6257,7 @@ const mr = Z("Tag", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Ut = Z("Trash2", [
+const Ut = J("Trash2", [
   ["path", { d: "M3 6h18", key: "d0wm0j" }],
   ["path", { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6", key: "4alrt4" }],
   ["path", { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2", key: "v07s0e" }],
@@ -6270,7 +6270,7 @@ const Ut = Z("Trash2", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const cg = Z("Trash", [
+const cg = J("Trash", [
   ["path", { d: "M3 6h18", key: "d0wm0j" }],
   ["path", { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6", key: "4alrt4" }],
   ["path", { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2", key: "v07s0e" }]
@@ -6281,7 +6281,7 @@ const cg = Z("Trash", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const dg = Z("Type", [
+const dg = J("Type", [
   ["polyline", { points: "4 7 4 4 20 4 20 7", key: "1nosan" }],
   ["line", { x1: "9", x2: "15", y1: "20", y2: "20", key: "swin9y" }],
   ["line", { x1: "12", x2: "12", y1: "4", y2: "20", key: "1tx1rr" }]
@@ -6292,7 +6292,7 @@ const dg = Z("Type", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const ug = Z("Undo2", [
+const ug = J("Undo2", [
   ["path", { d: "M9 14 4 9l5-5", key: "102s5s" }],
   ["path", { d: "M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11", key: "llx8ln" }]
 ]);
@@ -6302,7 +6302,7 @@ const ug = Z("Undo2", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const fg = Z("Upload", [
+const fg = J("Upload", [
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
   ["polyline", { points: "17 8 12 3 7 8", key: "t8dd8p" }],
   ["line", { x1: "12", x2: "12", y1: "3", y2: "15", key: "widbto" }]
@@ -6313,7 +6313,7 @@ const fg = Z("Upload", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const mg = Z("Workflow", [
+const mg = J("Workflow", [
   ["rect", { width: "8", height: "8", x: "3", y: "3", rx: "2", key: "by2w9f" }],
   ["path", { d: "M7 11v4a2 2 0 0 0 2 2h4", key: "xkn7yn" }],
   ["rect", { width: "8", height: "8", x: "13", y: "13", rx: "2", key: "1cgmvn" }]
@@ -6324,7 +6324,7 @@ const mg = Z("Workflow", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const pe = Z("X", [
+const pe = J("X", [
   ["path", { d: "M18 6 6 18", key: "1bl5f8" }],
   ["path", { d: "m6 6 12 12", key: "d8bk6v" }]
 ]);
@@ -6334,7 +6334,7 @@ const pe = Z("X", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const hg = Z("ZoomIn", [
+const hg = J("ZoomIn", [
   ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }],
   ["line", { x1: "21", x2: "16.65", y1: "21", y2: "16.65", key: "13gj7c" }],
   ["line", { x1: "11", x2: "11", y1: "8", y2: "14", key: "1vmskp" }],
@@ -6346,7 +6346,7 @@ const hg = Z("ZoomIn", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const pg = Z("ZoomOut", [
+const pg = J("ZoomOut", [
   ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }],
   ["line", { x1: "21", x2: "16.65", y1: "21", y2: "16.65", key: "13gj7c" }],
   ["line", { x1: "8", x2: "14", y1: "11", y2: "11", key: "durymu" }]
@@ -7508,7 +7508,7 @@ const Sf = p.createContext(void 0), Gg = ({ children: e }) => {
     return (async () => {
       const D = t.type === "custom" ? t.custom_path : t.subfolder;
       if (Q.log(`loadFolders started. Path: "${D}", Type: "${t.type}"`), t.type === "custom" && !D) {
-        Q.log("Custom path is empty, skipping load."), l([]), o([]), c(0);
+        Q.log("Custom path is empty, skipping load."), l([]), o([]), c(0), h(!1);
         return;
       }
       h(!0);
@@ -7622,7 +7622,7 @@ const Sf = p.createContext(void 0), Gg = ({ children: e }) => {
       C.pop(), n({ ...t, subfolder: C.join("/") });
     }
   };
-  return ce.createPortal(
+  return me.createPortal(
     /* @__PURE__ */ s.jsxs(
       "div",
       {
@@ -7908,7 +7908,7 @@ const Sf = p.createContext(void 0), Gg = ({ children: e }) => {
       c(!1);
     }
   };
-  return ce.createPortal(
+  return me.createPortal(
     /* @__PURE__ */ s.jsx(
       "div",
       {
@@ -8580,21 +8580,21 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
     const ee = H.getBoundingClientRect(), q = W.naturalWidth, ne = W.naturalHeight;
     if (!q || !ne) return null;
     const ie = q / ne, Ne = ee.width / ee.height;
-    let me, _e, ye = 0, ot = 0;
-    return ie > Ne ? (me = ee.width, _e = ee.width / ie, ot = (ee.height - _e) / 2) : (_e = ee.height, me = ee.height * ie, ye = (ee.width - me) / 2), {
+    let fe, _e, ye = 0, ot = 0;
+    return ie > Ne ? (fe = ee.width, _e = ee.width / ie, ot = (ee.height - _e) / 2) : (_e = ee.height, fe = ee.height * ie, ye = (ee.width - fe) / 2), {
       left: ye,
       top: ot,
-      width: me,
+      width: fe,
       height: _e
     };
   }, []), O = p.useCallback(
     (W, H, ee, q) => {
       if (!W) return H;
-      const ne = W.getBoundingClientRect(), ie = ne.width / 2, Ne = ne.height / 2, me = {
+      const ne = W.getBoundingClientRect(), ie = ne.width / 2, Ne = ne.height / 2, fe = {
         x: (ie - H.x) / ee,
         y: (Ne - H.y) / ee
       };
-      return { x: ie - me.x * q, y: Ne - me.y * q };
+      return { x: ie - fe.x * q, y: Ne - fe.y * q };
     },
     []
   ), K = p.useCallback(() => {
@@ -8602,7 +8602,7 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
       const H = Math.min(W * 1.2, 20);
       return R((ee) => O(k.current, ee, W, H)), H;
     });
-  }, [O]), J = p.useCallback(() => {
+  }, [O]), X = p.useCallback(() => {
     V((W) => {
       const H = Math.max(0.1, W / 1.2);
       return R((ee) => O(k.current, ee, W, H)), H;
@@ -8621,12 +8621,12 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
       ne.width,
       ne.height
     ), H.restore()), _) {
-      const ie = Math.min(g.x, S.x), Ne = Math.min(g.y, S.y), me = Math.abs(g.x - S.x), _e = Math.abs(g.y - S.y);
+      const ie = Math.min(g.x, S.x), Ne = Math.min(g.y, S.y), fe = Math.abs(g.x - S.x), _e = Math.abs(g.y - S.y);
       if (H.save(), H.globalAlpha = 0.3, H.fillStyle = q, H.strokeStyle = "white", H.lineWidth = 2, H.setLineDash([5, 5]), H.beginPath(), u === "rect")
-        H.rect(ie, Ne, me, _e);
+        H.rect(ie, Ne, fe, _e);
       else if (u === "ellipse") {
-        const ye = ie + me / 2, ot = Ne + _e / 2;
-        H.ellipse(ye, ot, me / 2, _e / 2, 0, 0, 2 * Math.PI);
+        const ye = ie + fe / 2, ot = Ne + _e / 2;
+        H.ellipse(ye, ot, fe / 2, _e / 2, 0, 0, 2 * Math.PI);
       } else if (u === "lasso" && M.length > 1) {
         H.moveTo(M[0].x, M[0].y);
         for (let ye = 1; ye < M.length; ye++)
@@ -8635,33 +8635,33 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
       }
       H.fill(), H.globalAlpha = 1, H.stroke(), H.restore();
     }
-  }, [_, g, S, u, M, U]), [ue, Le] = p.useState([]), fe = p.useMemo(() => ue.length > 0 ? ue[ue.length - 1] : w.current ? Dl(w.current.naturalWidth, w.current.naturalHeight) : null, [ue]);
+  }, [_, g, S, u, M, U]), [de, Le] = p.useState([]), ue = p.useMemo(() => de.length > 0 ? de[de.length - 1] : w.current ? Dl(w.current.naturalWidth, w.current.naturalHeight) : null, [de]);
   p.useEffect(() => {
     var W;
-    (W = w.current) != null && W.naturalWidth && ue.length === 0 && Le([
+    (W = w.current) != null && W.naturalWidth && de.length === 0 && Le([
       Dl(w.current.naturalWidth, w.current.naturalHeight)
     ]);
-  }, [ue.length]);
+  }, [de.length]);
   const Tt = p.useCallback(() => {
     var W;
-    (W = w.current) != null && W.naturalWidth && ue.length === 0 && Le([
+    (W = w.current) != null && W.naturalWidth && de.length === 0 && Le([
       Dl(w.current.naturalWidth, w.current.naturalHeight)
     ]);
-  }, [ue.length]), X = p.useRef(!1), Bt = p.useRef(0), Qt = (W) => {
-    W.target === W.currentTarget && (X.current = !0);
+  }, [de.length]), Z = p.useRef(!1), Bt = p.useRef(0), Qt = (W) => {
+    W.target === W.currentTarget && (Z.current = !0);
   }, Ht = (W) => {
-    W.target === W.currentTarget && X.current && !_ && l(), X.current = !1;
+    W.target === W.currentTarget && Z.current && !_ && l(), Z.current = !1;
   };
   p.useEffect(() => {
-    if (!fe) return;
+    if (!ue) return;
     x.current || (x.current = document.createElement("canvas"));
     const W = x.current;
-    W.width = fe.width, W.height = fe.height;
+    W.width = ue.width, W.height = ue.height;
     const H = W.getContext("2d");
     if (!H) return;
-    const ee = mo(fe, [255, 255, 255], 255);
+    const ee = mo(ue, [255, 255, 255], 255);
     H.putImageData(ee, 0, 0), oe();
-  }, [fe, oe]), p.useEffect(() => {
+  }, [ue, oe]), p.useEffect(() => {
     _ && oe();
   }, [_, oe]), p.useEffect(() => {
     const W = k.current;
@@ -8672,7 +8672,7 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
       V((ne) => {
         const ie = Math.min(Math.max(0.1, ne * q), 20);
         return R((Ne) => {
-          const me = W.getBoundingClientRect(), _e = ee.clientX - me.left, ye = ee.clientY - me.top, ot = {
+          const fe = W.getBoundingClientRect(), _e = ee.clientX - fe.left, ye = ee.clientY - fe.top, ot = {
             x: (_e - Ne.x) / ne,
             y: (ye - Ne.y) / ne
           };
@@ -8727,8 +8727,8 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
     const Ne = {
       x: (W.clientX - ie.left - D.x) / C,
       y: (W.clientY - ie.top - D.y) / C
-    }, me = Math.max(ne.left, Math.min(Ne.x, ne.left + ne.width)), _e = Math.max(ne.top, Math.min(Ne.y, ne.top + ne.height));
-    b({ x: me, y: _e }), j({ x: me, y: _e }), L(u === "lasso" ? [{ x: me, y: _e }] : []), I(null);
+    }, fe = Math.max(ne.left, Math.min(Ne.x, ne.left + ne.width)), _e = Math.max(ne.top, Math.min(Ne.y, ne.top + ne.height));
+    b({ x: fe, y: _e }), j({ x: fe, y: _e }), L(u === "lasso" ? [{ x: fe, y: _e }] : []), I(null);
   };
   p.useEffect(() => {
     if (!_) return;
@@ -8739,18 +8739,18 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
       const ie = {
         x: (ee.clientX - ne.left - D.x) / C,
         y: (ee.clientY - ne.top - D.y) / C
-      }, Ne = Math.max(q.left, Math.min(ie.x, q.left + q.width)), me = Math.max(q.top, Math.min(ie.y, q.top + q.height));
-      j({ x: Ne, y: me }), u === "lasso" && L((ye) => [...ye, { x: Ne, y: me }]);
+      }, Ne = Math.max(q.left, Math.min(ie.x, q.left + q.width)), fe = Math.max(q.top, Math.min(ie.y, q.top + q.height));
+      j({ x: Ne, y: fe }), u === "lasso" && L((ye) => [...ye, { x: Ne, y: fe }]);
     }, H = (ee) => {
       var ie;
       const q = U(), ne = (ie = k.current) == null ? void 0 : ie.getBoundingClientRect();
-      if (q && ne && fe && w.current) {
+      if (q && ne && ue && w.current) {
         const Ne = {
           x: (ee.clientX - ne.left - D.x) / C,
           y: (ee.clientY - ne.top - D.y) / C
-        }, me = Math.max(q.left, Math.min(Ne.x, q.left + q.width)), _e = Math.max(q.top, Math.min(Ne.y, q.top + q.height)), ye = Math.min(g.x, me), ot = Math.min(g.y, _e), ml = Math.abs(g.x - me), pr = Math.abs(g.y - _e), am = u === "lasso";
+        }, fe = Math.max(q.left, Math.min(Ne.x, q.left + q.width)), _e = Math.max(q.top, Math.min(Ne.y, q.top + q.height)), ye = Math.min(g.x, fe), ot = Math.min(g.y, _e), ml = Math.abs(g.x - fe), pr = Math.abs(g.y - _e), am = u === "lasso";
         if (ml > 5 || pr > 5 || am && M.length > 2) {
-          const om = w.current.naturalWidth, im = w.current.naturalHeight, Rn = om / q.width, Dn = im / q.height, cm = yy(fe, (gn) => {
+          const om = w.current.naturalWidth, im = w.current.naturalHeight, Rn = om / q.width, Dn = im / q.height, cm = yy(ue, (gn) => {
             if (u === "rect") {
               const Pn = (ye - q.left) * Rn, Kt = (ot - q.top) * Dn, hl = ml * Rn, pl = pr * Dn;
               gn.rect(Pn, Kt, hl, pl);
@@ -8784,7 +8784,7 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
     g.x,
     g.y,
     U,
-    fe,
+    ue,
     u,
     M,
     D.x,
@@ -8792,8 +8792,8 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
     C
   ]);
   const hr = p.useCallback(() => {
-    ue.length > 1 && Le((W) => W.slice(0, -1));
-  }, [ue.length]);
+    de.length > 1 && Le((W) => W.slice(0, -1));
+  }, [de.length]);
   p.useEffect(() => {
     const W = (q) => {
       if (!q) return !1;
@@ -8818,20 +8818,20 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
       Le((H) => [...H, W]);
     }
   }, be = async () => {
-    if (!fe || !w.current) return null;
+    if (!ue || !w.current) return null;
     B(!0);
     try {
-      const { width: W, height: H } = fe, ee = document.createElement("canvas");
+      const { width: W, height: H } = ue, ee = document.createElement("canvas");
       ee.width = W, ee.height = H;
       const q = ee.getContext("2d");
       if (!q) return null;
-      const ne = mo(fe, [255, 255, 255], 255);
+      const ne = mo(ue, [255, 255, 255], 255);
       q.putImageData(ne, 0, 0);
       const ie = await new Promise(
         (pr) => ee.toBlob(pr, "image/png")
       );
       if (!ie) return null;
-      const me = `meld_mask_${Date.now()}.png`, _e = new File([ie], me, { type: "image/png" }), ye = new FormData();
+      const fe = `meld_mask_${Date.now()}.png`, _e = new File([ie], fe, { type: "image/png" }), ye = new FormData();
       ye.append("image", _e), ye.append("type", "temp"), ye.append("overwrite", "true");
       const ot = await te.fetchApi("/upload/image", {
         method: "POST",
@@ -8864,7 +8864,7 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
         onSuccess: r
       }
     }));
-  }, Lt = p.useMemo(() => fe && !vy(fe), [fe]);
+  }, Lt = p.useMemo(() => ue && !vy(ue), [ue]);
   return d ? /* @__PURE__ */ s.jsx(
     "div",
     {
@@ -8937,7 +8937,7 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
                   "button",
                   {
                     className: "meld-mask-tool-btn",
-                    onClick: J,
+                    onClick: X,
                     type: "button",
                     title: "Zoom Out",
                     "aria-label": "Zoom Out",
@@ -9063,7 +9063,7 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
                     {
                       className: "meld-mask-toolbar-btn meld-mask-toolbar-btn--undo",
                       onClick: hr,
-                      disabled: ue.length <= 1 || z,
+                      disabled: de.length <= 1 || z,
                       type: "button",
                       title: "Undo last area",
                       children: [
@@ -9161,27 +9161,27 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
     setShortcutErrors: c,
     handleClose: async () => {
       const K = Object.keys(a).filter(
-        (J) => a[J] !== e.settings[J] && !i[J]
+        (X) => a[X] !== e.settings[X] && !i[X]
       );
       if (K.length > 0)
-        for (const J of K)
-          await n(J, a[J]);
+        for (const X of K)
+          await n(X, a[X]);
       t({ type: "CLOSE_MODAL" });
     },
-    handleToggle: (K, J) => {
+    handleToggle: (K, X) => {
       o((oe) => ({
         ...oe,
-        [K]: !J
+        [K]: !X
       }));
     },
-    handleNumberChange: (K, J, oe, ue) => {
-      K === "gallery.initial_load_count" ? h(J) : K === "gallery.max_load_count" ? y(J) : K === "gallery.lineage_max_depth" ? w(J) : K === "viewer.thumbnail_window_size" ? _(J) : K === "gallery.trash_retention_days" ? u(J) : K === "gallery.auto_link_phash_threshold" ? g(J) : K === "gallery.suggest_phash_threshold" ? S(J) : K === "viewer.details.max_positive_prompt_lines" ? M(J) : K === "viewer.details.max_negative_prompt_lines" ? P(J) : K === "fullscreen.details.max_positive_prompt_lines" ? z(J) : K === "fullscreen.details.max_negative_prompt_lines" ? C(J) : K === "sidebar.thumbnail_size" && D(J);
-      const Le = Number.parseInt(J, 10);
+    handleNumberChange: (K, X, oe, de) => {
+      K === "gallery.initial_load_count" ? h(X) : K === "gallery.max_load_count" ? y(X) : K === "gallery.lineage_max_depth" ? w(X) : K === "viewer.thumbnail_window_size" ? _(X) : K === "gallery.trash_retention_days" ? u(X) : K === "gallery.auto_link_phash_threshold" ? g(X) : K === "gallery.suggest_phash_threshold" ? S(X) : K === "viewer.details.max_positive_prompt_lines" ? M(X) : K === "viewer.details.max_negative_prompt_lines" ? P(X) : K === "fullscreen.details.max_positive_prompt_lines" ? z(X) : K === "fullscreen.details.max_negative_prompt_lines" ? C(X) : K === "sidebar.thumbnail_size" && D(X);
+      const Le = Number.parseInt(X, 10);
       if (!Number.isNaN(Le)) {
-        let fe = Le;
-        oe !== void 0 && fe < oe && (fe = oe), ue !== void 0 && fe > ue && (fe = ue), o((Tt) => ({
+        let ue = Le;
+        oe !== void 0 && ue < oe && (ue = oe), de !== void 0 && ue > de && (ue = de), o((Tt) => ({
           ...Tt,
-          [K]: fe
+          [K]: ue
         }));
       }
     },
@@ -9226,7 +9226,7 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
                 payload: "Thumbnail cache cleared"
               });
             } catch (K) {
-              console.error("Failed to clear thumbnail cache:", K), t({
+              Q.error("Failed to clear thumbnail cache:", K), t({
                 type: "SET_ERROR",
                 payload: "Failed to clear thumbnail cache"
               });
@@ -10934,7 +10934,7 @@ const Ff = [
         return null;
     }
   };
-  return ce.createPortal(
+  return me.createPortal(
     /* @__PURE__ */ s.jsx(
       "div",
       {
@@ -11028,7 +11028,7 @@ const Ff = [
   }, P = (I) => {
     I.key === "Enter" && h.trim() && (qe(I), j(h.trim()));
   };
-  return ce.createPortal(
+  return me.createPortal(
     /* @__PURE__ */ s.jsx(
       "div",
       {
@@ -11442,7 +11442,7 @@ const Ff = [
         capture: !0
       });
     };
-  }, [w]), Ue({ onEscape: n }), ce.createPortal(
+  }, [w]), Ue({ onEscape: n }), me.createPortal(
     /* @__PURE__ */ s.jsx(
       "div",
       {
@@ -11527,7 +11527,7 @@ const Ff = [
     },
     [l]
   );
-  return ce.createPortal(
+  return me.createPortal(
     /* @__PURE__ */ s.jsx(
       "div",
       {
@@ -11668,9 +11668,9 @@ const Ff = [
             }));
           }
         }
-        T.length === 0 && console.warn("[Meld] No loader nodes found in workflow JSON despite count > 0"), _((E) => ({ ...E, [R]: T }));
+        T.length === 0 && Q.warn("No loader nodes found in workflow JSON despite count > 0"), _((E) => ({ ...E, [R]: T }));
       } catch (N) {
-        console.error("Failed to fetch workflow nodes:", N);
+        Q.error("Failed to fetch workflow nodes:", N);
       } finally {
         u((N) => ({ ...N, [R]: !1 }));
       }
@@ -11682,7 +11682,7 @@ const Ff = [
     }
     k === R.name ? w(null) : (w(R.name), C(R.name));
   };
-  return ce.createPortal(
+  return me.createPortal(
     /* @__PURE__ */ s.jsx(
       "div",
       {
@@ -12088,7 +12088,7 @@ const Ff = [
       a({ type: "SET_LOADING", payload: !1 });
     }
   };
-  return ce.createPortal(
+  return me.createPortal(
     /* @__PURE__ */ s.jsx(
       "div",
       {
@@ -12289,7 +12289,7 @@ const Ff = [
   };
   if (!w) return null;
   const g = l.filter((S) => S.is_source_match), b = l.filter((S) => !S.is_source_match);
-  return ce.createPortal(
+  return me.createPortal(
     /* @__PURE__ */ s.jsx(
       "div",
       {
@@ -12633,10 +12633,10 @@ const Ff = [
         }
       }
     ),
-    e.activeModal.type === "parent_selection" && ce.createPortal(/* @__PURE__ */ s.jsx(Kf, { imageId: e.activeModal.imageId }), document.body),
-    e.activeModal.type === "import" && ce.createPortal(/* @__PURE__ */ s.jsx(jf, {}), document.body),
-    e.activeModal.type === "settings" && ce.createPortal(/* @__PURE__ */ s.jsx(Wf, {}), document.body),
-    e.activeModal.type === "tag_edit" && ce.createPortal(
+    e.activeModal.type === "parent_selection" && /* @__PURE__ */ s.jsx(Kf, { imageId: e.activeModal.imageId }),
+    e.activeModal.type === "import" && /* @__PURE__ */ s.jsx(jf, {}),
+    e.activeModal.type === "settings" && /* @__PURE__ */ s.jsx(Wf, {}),
+    e.activeModal.type === "tag_edit" && me.createPortal(
       /* @__PURE__ */ s.jsx(
         $f,
         {
@@ -12648,8 +12648,8 @@ const Ff = [
       ),
       document.body
     ),
-    e.activeModal.type === "error" && ce.createPortal(/* @__PURE__ */ s.jsx(Hf, { message: e.activeModal.message }), document.body),
-    e.activeModal.type === "delete_confirm" && ce.createPortal(
+    e.activeModal.type === "error" && me.createPortal(/* @__PURE__ */ s.jsx(Hf, { message: e.activeModal.message }), document.body),
+    e.activeModal.type === "delete_confirm" && me.createPortal(
       /* @__PURE__ */ s.jsx(
         Qf,
         {
@@ -12664,7 +12664,7 @@ const Ff = [
       ),
       document.body
     ),
-    e.activeModal.type === "mask_editor" && ce.createPortal(
+    e.activeModal.type === "mask_editor" && me.createPortal(
       /* @__PURE__ */ s.jsx(
         ks,
         {
@@ -12676,7 +12676,7 @@ const Ff = [
       ),
       document.body
     ),
-    e.activeModal.type === "mask_sequence_step" && ce.createPortal(
+    e.activeModal.type === "mask_sequence_step" && me.createPortal(
       /* @__PURE__ */ s.jsx(
         ks,
         {
@@ -12706,7 +12706,7 @@ const Ff = [
       ),
       document.body
     ),
-    e.activeModal.type === "note_edit" && ce.createPortal(
+    e.activeModal.type === "note_edit" && me.createPortal(
       /* @__PURE__ */ s.jsx(
         Uf,
         {
@@ -12717,7 +12717,7 @@ const Ff = [
       ),
       document.body
     ),
-    e.activeModal.type === "download_options" && ce.createPortal(
+    e.activeModal.type === "download_options" && me.createPortal(
       /* @__PURE__ */ s.jsx(
         sy,
         {
@@ -12728,7 +12728,7 @@ const Ff = [
       ),
       document.body
     ),
-    e.confirmModal && ce.createPortal(
+    e.confirmModal && me.createPortal(
       /* @__PURE__ */ s.jsx(
         My,
         {
@@ -12745,7 +12745,7 @@ const Ff = [
       ),
       document.body
     ),
-    e.toastMessage && ce.createPortal(/* @__PURE__ */ s.jsx(Iy, {}), document.body)
+    e.toastMessage && me.createPortal(/* @__PURE__ */ s.jsx(Iy, {}), document.body)
   ] });
 }, Ly = () => {
   const { state: e, dispatch: t } = ge(), { scanStatus: n } = e;
@@ -13061,9 +13061,9 @@ const $s = ({
     const A = E.dataTransfer.getData("text/plain");
     A && A.split(",").forEach((O) => {
       if (O) {
-        const K = O.trim(), J = Number(K);
-        let oe = a.images.find((ue) => ue.id === J);
-        oe || (oe = a.lineageImages.find((ue) => ue.id === J)), se.getState().addToBucket(e.id, K, oe);
+        const K = O.trim(), X = Number(K);
+        let oe = a.images.find((de) => de.id === X);
+        oe || (oe = a.lineageImages.find((de) => de.id === X)), se.getState().addToBucket(e.id, K, oe);
       }
     });
   }, V = (E, A) => {
@@ -13083,7 +13083,7 @@ const $s = ({
       type: E
     }, U = I ? P : j.map(Number);
     if (U.length === 0) return;
-    const O = U.map((oe) => L.find((ue) => ue.id === oe)).filter(Boolean), K = {
+    const O = U.map((oe) => L.find((de) => de.id === oe)).filter(Boolean), K = {
       edit_tags: "Tags updated",
       delete: "Delete initiated",
       move_folder: "Moved to folder",
@@ -13122,10 +13122,10 @@ const $s = ({
                     (O) => O.includes(E.id) ? O.filter((K) => K !== E.id) : [...O, E.id]
                   ), g(E.id);
                 else if (U.shiftKey && m !== null) {
-                  const O = L.findIndex((J) => J.id === E.id), K = L.findIndex((J) => J.id === m);
+                  const O = L.findIndex((X) => X.id === E.id), K = L.findIndex((X) => X.id === m);
                   if (O !== -1 && K !== -1) {
-                    const J = Math.min(O, K), oe = Math.max(O, K), ue = L.slice(J, oe + 1).map((Le) => Le.id);
-                    u((Le) => Array.from(/* @__PURE__ */ new Set([...Le, ...ue])));
+                    const X = Math.min(O, K), oe = Math.max(O, K), de = L.slice(X, oe + 1).map((Le) => Le.id);
+                    u((Le) => Array.from(/* @__PURE__ */ new Set([...Le, ...de])));
                   }
                   g(E.id);
                 } else
@@ -13468,7 +13468,7 @@ const $s = ({
     ),
     /* @__PURE__ */ s.jsx(Wy, {})
   ] });
-  return ce.createPortal(y, i);
+  return me.createPortal(y, i);
 }, Zf = () => {
   const { state: e, refreshFavorites: t } = ge(), [n, r] = p.useState(!1), [l, a] = p.useState(null), [o, i] = p.useState("info"), [c, d] = p.useState(null), [h, v] = p.useState(""), [y, k] = p.useState("");
   p.useEffect(() => {
@@ -13501,26 +13501,26 @@ const $s = ({
         r(!1);
       }
   }, [c, h, y, t]), f = p.useCallback(async () => {
-    if (!e.searchQuery || n) return;
+    if (!e.searchQuery || n) return !1;
     if (e.favorites.some((m) => m.query === e.searchQuery)) {
       const m = e.favorites.find((g) => g.query === e.searchQuery);
       if (m) {
         r(!0);
         try {
-          await Tc(m.id), await t();
+          return await Tc(m.id), await t(), !0;
         } catch (g) {
-          Q.error("Failed to delete favorite:", g);
+          return Q.error("Failed to delete favorite:", g), !1;
         } finally {
           r(!1);
         }
       }
-      return;
+      return !1;
     }
     r(!0);
     try {
-      await Dg(e.searchQuery, e.searchQuery), await t();
+      return await Dg(e.searchQuery, e.searchQuery), await t(), !0;
     } catch (m) {
-      Q.error("Failed to save favorite:", m);
+      return Q.error("Failed to save favorite:", m), !1;
     } finally {
       r(!1);
     }
@@ -13716,7 +13716,7 @@ const $s = ({
     }
   }, [e]), p.useEffect(() => {
     o && u.current && u.current.focus();
-  }, [o]), e ? ce.createPortal(
+  }, [o]), e ? me.createPortal(
     /* @__PURE__ */ s.jsxs(s.Fragment, { children: [
       /* @__PURE__ */ s.jsxs(
         "div",
@@ -13973,7 +13973,7 @@ const $s = ({
     l(""), M("");
   }, [M]), z = p.useCallback(
     (D, R, N = !1) => {
-      var fe;
+      var ue;
       const T = Ol(r), F = T[T.length - 1] || "";
       let E = !1;
       const A = F.replace(/^([-!])/, "").toLowerCase();
@@ -13981,10 +13981,10 @@ const $s = ({
       const U = F.match(/^([-!])/), O = E && U ? U[1] : "";
       if (E && T.pop(), N) {
         const Tt = [...T, `${O}${D}:`].filter(Boolean).join(" ");
-        l(Tt), (fe = u.current) == null || fe.focus();
+        l(Tt), (ue = u.current) == null || ue.focus();
         return;
       }
-      const oe = ((_ == null ? void 0 : _.no_quote_prefixes) || []).includes(D) ? R : `"${R}"`, ue = `${O}${D}:${oe}`, Le = [...T, ue].filter(Boolean).join(" ");
+      const oe = ((_ == null ? void 0 : _.no_quote_prefixes) || []).includes(D) ? R : `"${R}"`, de = `${O}${D}:${oe}`, Le = [...T, de].filter(Boolean).join(" ");
       l(Le), M(Le);
     },
     [r, M, _]
@@ -14089,7 +14089,7 @@ const $s = ({
         j.currentTarget.style.backgroundColor = "var(--comfy-menu-bg, #333)", j.currentTarget.style.borderColor = "var(--comfy-menu-border, #444)", j.currentTarget.style.color = "var(--meld-text-color)";
       },
       onMouseLeave: (j) => {
-        j.currentTarget.style.backgroundColor = "var(--comfy-input-bg, #2a2a2a)", j.currentTarget.style.borderColor = "var(--comfy-input-bg, #333)", j.currentTarget.style.color = "var(--meld-text-color)";
+        j.currentTarget.style.backgroundColor = "var(--comfy-input-bg, #2a2a2a)", j.currentTarget.style.borderColor = "var(--comfy-menu-border, #333)", j.currentTarget.style.color = "var(--meld-text-color)";
       },
       children: [
         /* @__PURE__ */ s.jsx(
@@ -14429,11 +14429,11 @@ const $s = ({
     handleSaveFavorite: R,
     setToastMessage: N
   } = Zf(), T = async () => {
-    if (e.favorites.some((K) => K.query === e.searchQuery)) {
-      N("This query is already in your favorites.", "error");
-      return;
-    }
-    await R();
+    const O = e.favorites.some((X) => X.query === e.searchQuery);
+    await R() && N(
+      O ? "Removed from favorites." : "Added to favorites.",
+      "info"
+    );
   };
   Ue({
     onEscape: () => L(null),
@@ -14650,7 +14650,7 @@ const $s = ({
             }
           )
         ] }),
-        M && ce.createPortal(
+        M && me.createPortal(
           /* @__PURE__ */ s.jsx(
             "div",
             {
@@ -15654,7 +15654,7 @@ const mv = ({
     overlayRef: N,
     settings: c,
     setShowDetails: P
-  }), { handleNext: J, handlePrevious: oe } = cv({
+  }), { handleNext: X, handlePrevious: oe } = cv({
     dispatch: t,
     isFullscreen: O,
     settings: c,
@@ -15667,11 +15667,11 @@ const mv = ({
     setIsJumping: V,
     mountRefs: T
   }), {
-    lastDeletedImages: ue,
+    lastDeletedImages: de,
     setLastDeletedImages: Le,
-    handleDelete: fe,
+    handleDelete: ue,
     handleTagEditAction: Tt,
-    handleRestoreAction: X,
+    handleRestoreAction: Z,
     handleUndo: Bt,
     executeCommand: Qt
   } = sv({
@@ -15685,7 +15685,7 @@ const mv = ({
     lineageImages: i,
     images: a,
     mountRefs: T,
-    handleNext: J,
+    handleNext: X,
     handlePrevious: oe,
     handleEditTags: v,
     handleRestore: k,
@@ -15707,14 +15707,14 @@ const mv = ({
     dispatch: t,
     isMountedRef: T.isMountedRef,
     toggleFullscreen: K,
-    handleNext: J,
+    handleNext: X,
     handlePrevious: oe,
     handleDelete: () => {
-      fe();
+      ue();
     },
     handleUndo: Bt,
     handleTagEditAction: Tt,
-    handleRestoreAction: X,
+    handleRestoreAction: Z,
     executeCommand: Qt,
     setShowDetails: P,
     setActiveShortcutKey: R
@@ -15768,16 +15768,16 @@ const mv = ({
     isMenuOpen: j,
     setIsMenuOpen: M,
     activeShortcutKey: D,
-    lastDeletedImages: ue,
+    lastDeletedImages: de,
     setLastDeletedImages: Le,
     overlayRef: N,
-    handleNext: J,
+    handleNext: X,
     handlePrevious: oe,
-    handleDelete: fe,
+    handleDelete: ue,
     handleUpdateUserNotes: w,
     handleEditNotes: () => U && y(U),
     handleTagEdit: Tt,
-    handleRestore: X,
+    handleRestore: Z,
     handleUndo: Bt,
     handleRestoreWorkflow: async () => {
       if (!U) return;
@@ -16242,7 +16242,7 @@ function yv() {
   }), D = p.useRef(null), R = p.useRef(null), { executeWorkflow: N } = gi(), T = p.useMemo(() => e.viewScope === "trash" ? "Delete Permanently" : "Move to Trash", [e.viewScope]);
   if (!B) return null;
   const { viewerImageId: F, viewerMode: E } = e, A = l ? e.settings["fullscreen.show_icons"] : e.settings["viewer.show_icons"];
-  return ce.createPortal(
+  return me.createPortal(
     /* @__PURE__ */ s.jsxs(
       "div",
       {
@@ -16416,8 +16416,8 @@ function yv() {
                       }
                     }), !1;
                   const K = e.activeModal.maskFilename;
-                  for (const J of e.activeModal.images)
-                    await N(U, J, K, O);
+                  for (const X of e.activeModal.images)
+                    await N(U, X, K, O);
                   t({ type: "CLOSE_MODAL" }), t({ type: "CLOSE_VIEWER" });
                 }
               }
@@ -16753,7 +16753,7 @@ const vv = () => {
       }
     )
   ] });
-  return ce.createPortal(S, k);
+  return me.createPortal(S, k);
 };
 function An(e, t, n) {
   let r = n.initialDeps ?? [], l, a = !0;
@@ -17329,7 +17329,7 @@ function Iv({
     ...t,
     onChange: (a, o) => {
       var i;
-      e && o ? ce.flushSync(n) : n(), (i = t.onChange) == null || i.call(t, a, o);
+      e && o ? me.flushSync(n) : n(), (i = t.onChange) == null || i.call(t, a, o);
     }
   }, [l] = p.useState(
     () => new Nv(r)
@@ -17363,20 +17363,20 @@ const rm = (e) => {
     insideRefs: [P],
     onOutside: () => b(!1)
   });
-  const I = async (X, Bt, Qt = !1) => {
+  const I = async (Z, Bt, Qt = !1) => {
     try {
-      await navigator.clipboard.writeText(X), Qt ? (L(!0), setTimeout(() => L(!1), 2e3)) : (j(Bt), setTimeout(() => j(null), 2e3));
+      await navigator.clipboard.writeText(Z), Qt ? (L(!0), setTimeout(() => L(!1), 2e3)) : (j(Bt), setTimeout(() => j(null), 2e3));
     } catch (Ht) {
       console.error("Failed to copy text: ", Ht);
     }
   }, z = p.useCallback(
-    (X) => {
-      if (X.key === "Escape") {
+    (Z) => {
+      if (Z.key === "Escape") {
         if (u) {
-          sl(X), m(null);
+          sl(Z), m(null);
           return;
         }
-        g && (sl(X), b(!1));
+        g && (sl(Z), b(!1));
       }
     },
     [u, g]
@@ -17402,21 +17402,21 @@ const rm = (e) => {
     displayFilename: V,
     imgSrc: R,
     handleCopy: I,
-    handleClick: (X) => {
-      X.shiftKey ? (X.preventDefault(), X.stopPropagation(), n({ type: "SELECT_RANGE", payload: e.id })) : X.ctrlKey || X.metaKey || t.selectedIds.size > 0 ? (X.preventDefault(), X.stopPropagation(), n({ type: "TOGGLE_SELECT", payload: e.id })) : n({ type: "OPEN_VIEWER", payload: e.id });
+    handleClick: (Z) => {
+      Z.shiftKey ? (Z.preventDefault(), Z.stopPropagation(), n({ type: "SELECT_RANGE", payload: e.id })) : Z.ctrlKey || Z.metaKey || t.selectedIds.size > 0 ? (Z.preventDefault(), Z.stopPropagation(), n({ type: "TOGGLE_SELECT", payload: e.id })) : n({ type: "OPEN_VIEWER", payload: e.id });
     },
-    handleSelectToggle: (X) => {
-      X.preventDefault(), X.stopPropagation(), X.shiftKey ? n({ type: "SELECT_RANGE", payload: e.id }) : n({ type: "TOGGLE_SELECT", payload: e.id });
+    handleSelectToggle: (Z) => {
+      Z.preventDefault(), Z.stopPropagation(), Z.shiftKey ? n({ type: "SELECT_RANGE", payload: e.id }) : n({ type: "TOGGLE_SELECT", payload: e.id });
     },
-    handleContainerClick: (X) => {
-      X.shiftKey ? (X.preventDefault(), X.stopPropagation(), n({ type: "SELECT_RANGE", payload: e.id })) : X.ctrlKey || X.metaKey || t.selectedIds.size > 0 ? (X.preventDefault(), X.stopPropagation(), n({ type: "TOGGLE_SELECT", payload: e.id })) : (X.preventDefault(), X.stopPropagation(), n({ type: "TOGGLE_SELECT", payload: e.id }));
+    handleContainerClick: (Z) => {
+      Z.shiftKey ? (Z.preventDefault(), Z.stopPropagation(), n({ type: "SELECT_RANGE", payload: e.id })) : Z.ctrlKey || Z.metaKey || t.selectedIds.size > 0 ? (Z.preventDefault(), Z.stopPropagation(), n({ type: "TOGGLE_SELECT", payload: e.id })) : (Z.preventDefault(), Z.stopPropagation(), n({ type: "TOGGLE_SELECT", payload: e.id }));
     },
-    handleMouseDown: (X) => {
-      X.target.closest("textarea, input, button, .meld-image-card__meta-content") || !X.shiftKey && !X.ctrlKey && !X.metaKey && l || (X.shiftKey || X.ctrlKey || X.metaKey || t.selectedIds.size > 0) && X.preventDefault();
+    handleMouseDown: (Z) => {
+      Z.target.closest("textarea, input, button, .meld-image-card__meta-content") || !Z.shiftKey && !Z.ctrlKey && !Z.metaKey && l || (Z.shiftKey || Z.ctrlKey || Z.metaKey || t.selectedIds.size > 0) && Z.preventDefault();
     },
-    handleKeyDown: (X) => {
+    handleKeyDown: (Z) => {
       var Qt, Ht, Ln;
-      ((Qt = document.activeElement) == null ? void 0 : Qt.tagName) === "INPUT" || ((Ht = document.activeElement) == null ? void 0 : Ht.tagName) === "TEXTAREA" || (Ln = document.activeElement) != null && Ln.isContentEditable || (X.key === "Enter" || X.key === " ") && (X.preventDefault(), n({ type: "TOGGLE_SELECT", payload: e.id }));
+      ((Qt = document.activeElement) == null ? void 0 : Qt.tagName) === "INPUT" || ((Ht = document.activeElement) == null ? void 0 : Ht.tagName) === "TEXTAREA" || (Ln = document.activeElement) != null && Ln.isContentEditable || (Z.key === "Enter" || Z.key === " ") && (Z.preventDefault(), n({ type: "TOGGLE_SELECT", payload: e.id }));
     },
     handleRestoreWorkflow: async () => {
       await o(e);
@@ -17445,8 +17445,8 @@ const rm = (e) => {
     handleRunWithWorkflow: () => {
       v(e);
     },
-    handleRunWithMask: (X = "run") => y(e, X),
-    handleUpdateUserNotes: (X) => _(e.id, X),
+    handleRunWithMask: (Z = "run") => y(e, Z),
+    handleUpdateUserNotes: (Z) => _(e.id, Z),
     fetchFullImageDetails: r
   };
 }, Lv = ({
@@ -17455,7 +17455,7 @@ const rm = (e) => {
   onClose: n,
   onCopy: r,
   isCopied: l
-}) => ce.createPortal(
+}) => me.createPortal(
   /* @__PURE__ */ s.jsx(
     "div",
     {
@@ -17716,7 +17716,7 @@ const rm = (e) => {
               },
               children: [
                 /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__meta-label", children: "Tags" }),
-                /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__tags", children: e.tags && e.tags.length > 0 ? e.tags.map((N, T) => /* @__PURE__ */ s.jsx("span", { className: "meld-image-card__tag", children: N }, `${N}-${T}`)) : /* @__PURE__ */ s.jsx(
+                /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__tags", children: e.tags && e.tags.length > 0 ? e.tags.map((N) => /* @__PURE__ */ s.jsx("span", { className: "meld-image-card__tag", children: N }, N)) : /* @__PURE__ */ s.jsx(
                   "span",
                   {
                     style: {
