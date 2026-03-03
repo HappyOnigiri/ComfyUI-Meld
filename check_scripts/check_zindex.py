@@ -35,202 +35,168 @@ _STANDALONE_IGNORE_PATTERN = re.compile(
 )
 
 
+class _JsScanner:
+    """
+    Scans JavaScript/TypeScript/CSS source for strings and comments.
+    Tracks state for single/double/backtick strings, block/line comments, and escapes.
+    """
+
+    def __init__(self, s: str) -> None:
+        self.s = s
+        self.i = 0
+        self.in_single = False
+        self.in_double = False
+        self.in_backtick = False
+        self.in_block_comment = False
+        self.in_line_comment = False
+        self.escape_next = False
+
+    def _reset(self) -> None:
+        """Reset position and state."""
+        self.i = 0
+        self.in_single = False
+        self.in_double = False
+        self.in_backtick = False
+        self.in_block_comment = False
+        self.in_line_comment = False
+        self.escape_next = False
+
+    def _advance_one(self, *, escape_in_code: bool = True) -> bool:
+        """
+        Advance one character, update state. Returns False if at end.
+        escape_in_code: when True, treat \\ as escape in code; when False, only in strings.
+        """
+        if self.i >= len(self.s):
+            return False
+        c = self.s[self.i]
+        if self.escape_next:
+            self.escape_next = False
+            self.i += 1
+            return True
+        if c == "\\":
+            if escape_in_code or self.in_single or self.in_double or self.in_backtick:
+                self.escape_next = True
+            self.i += 1
+            return True
+        if self.in_backtick:
+            if c == "`":
+                self.in_backtick = False
+            self.i += 1
+            return True
+        if self.in_single:
+            if c == "'":
+                self.in_single = False
+            self.i += 1
+            return True
+        if self.in_double:
+            if c == '"':
+                self.in_double = False
+            self.i += 1
+            return True
+        if self.in_block_comment:
+            if c == "*" and self.i + 1 < len(self.s) and self.s[self.i + 1] == "/":
+                self.in_block_comment = False
+                self.i += 2
+            else:
+                self.i += 1
+            return True
+        if self.in_line_comment:
+            if c == "\n":
+                self.in_line_comment = False
+            self.i += 1
+            return True
+
+        # In code: check for string/comment starters
+        if c == "`":
+            self.in_backtick = True
+            self.i += 1
+            return True
+        if c == "'":
+            self.in_single = True
+            self.i += 1
+            return True
+        if c == '"':
+            self.in_double = True
+            self.i += 1
+            return True
+        if c == "/" and self.i + 1 < len(self.s):
+            n = self.s[self.i + 1]
+            if n == "*":
+                self.in_block_comment = True
+                self.i += 2
+                return True
+            if n == "/":
+                self.in_line_comment = True
+                self.i += 2
+                return True
+        self.i += 1
+        return True
+
+    def advance_until(self, pos: int, *, escape_in_code: bool = True) -> None:
+        """Advance from current position to pos (exclusive), updating state."""
+        while self.i < pos and self.i < len(self.s):
+            self._advance_one(escape_in_code=escape_in_code)
+
+    def is_pos_within_string(self, pos: int) -> bool:
+        """Return True if position pos is inside a string."""
+        if pos <= 0 or pos >= len(self.s):
+            return False
+        self._reset()
+        self.advance_until(pos)
+        return self.in_double or self.in_single or self.in_backtick
+
+    def find_string_end_from(self, pos: int) -> int:
+        """
+        Given we're inside a string at pos, return the position after the closing quote.
+        Assumes advance_until(pos) has been called (or will scan from 0 to pos first).
+        """
+        self._reset()
+        self.advance_until(pos)
+        target = '"' if self.in_double else ("'" if self.in_single else "`")
+        self.escape_next = False
+        while self.i < len(self.s):
+            c = self.s[self.i]
+            if self.escape_next:
+                self.escape_next = False
+                self.i += 1
+                continue
+            if c == "\\":
+                self.escape_next = True
+                self.i += 1
+                continue
+            if c == target:
+                return self.i + 1
+            self.i += 1
+        return len(self.s)
+
+    def search_marker_within_comments(self, marker: str) -> bool:
+        """Return True if marker appears anywhere inside a comment (block or line)."""
+        self._reset()
+        while self.i < len(self.s):
+            if self.in_block_comment or self.in_line_comment:
+                if self.s[self.i : self.i + len(marker)] == marker:
+                    return True
+            if not self._advance_one(escape_in_code=False):
+                break
+        return False
+
+
 def _marker_in_comment(line: str) -> bool:
     """Return True if IGNORE_MARKER appears inside a comment (not in a string)."""
-    s = line
-    i = 0
-    in_single = False
-    in_double = False
-    in_backtick = False
-    in_block_comment = False
-    in_line_comment = False
-    escape_next = False
-
-    while i < len(s):
-        c = s[i]
-        if escape_next:
-            escape_next = False
-            i += 1
-            continue
-        if c == "\\" and (in_single or in_double):
-            escape_next = True
-            i += 1
-            continue
-        if in_backtick:
-            if c == "`":
-                in_backtick = False
-            elif c == "\\":
-                escape_next = True
-            i += 1
-            continue
-        if in_single:
-            if c == "'":
-                in_single = False
-            i += 1
-            continue
-        if in_double:
-            if c == '"':
-                in_double = False
-            i += 1
-            continue
-        if in_block_comment:
-            if s[i : i + len(IGNORE_MARKER)] == IGNORE_MARKER:
-                return True
-            if c == "*" and i + 1 < len(s) and s[i + 1] == "/":
-                in_block_comment = False
-                i += 2
-                continue
-            i += 1
-            continue
-        if in_line_comment:
-            if c == "\n":
-                in_line_comment = False
-            else:
-                if s[i : i + len(IGNORE_MARKER)] == IGNORE_MARKER:
-                    return True
-                i += 1
-            continue
-
-        # In code - check for string/comment starters
-        if c == "`":
-            in_backtick = True
-            i += 1
-            continue
-        if c == "'":
-            in_single = True
-            i += 1
-            continue
-        if c == '"':
-            in_double = True
-            i += 1
-            continue
-        if c == "/" and i + 1 < len(s):
-            n = s[i + 1]
-            if n == "*":
-                in_block_comment = True
-                i += 2
-                continue
-            if n == "/":
-                in_line_comment = True
-                i += 2
-                continue
-        # In code: marker outside comment is ignored; only advance
-        i += 1
-
-    return False
+    scanner = _JsScanner(line)
+    return scanner.search_marker_within_comments(IGNORE_MARKER)
 
 
 def _is_within_string(s: str, pos: int) -> bool:
     """Return True if position pos in s is inside a single-, double-, or backtick-quoted string."""
-    if pos <= 0 or pos >= len(s):
-        return False
-    i = 0
-    in_double = False
-    in_single = False
-    in_backtick = False
-    escape_next = False
-    while i < pos:
-        c = s[i]
-        if escape_next:
-            escape_next = False
-            i += 1
-            continue
-        if c == "\\":
-            escape_next = True
-            i += 1
-            continue
-        if in_double:
-            if c == '"':
-                in_double = False
-            i += 1
-            continue
-        if in_single:
-            if c == "'":
-                in_single = False
-            i += 1
-            continue
-        if in_backtick:
-            if c == "`":
-                in_backtick = False
-            i += 1
-            continue
-        if c == '"':
-            in_double = True
-            i += 1
-            continue
-        if c == "'":
-            in_single = True
-            i += 1
-            continue
-        if c == "`":
-            in_backtick = True
-            i += 1
-            continue
-        i += 1
-    return in_double or in_single or in_backtick
+    scanner = _JsScanner(s)
+    return scanner.is_pos_within_string(pos)
 
 
 def _find_string_end(s: str, pos: int) -> int:
     """Given we're inside a string at pos, return the position after the closing quote."""
-    in_double = False
-    in_single = False
-    in_backtick = False
-    escape_next = False
-    i = 0
-    while i < pos:
-        c = s[i]
-        if escape_next:
-            escape_next = False
-            i += 1
-            continue
-        if c == "\\":
-            escape_next = True
-            i += 1
-            continue
-        if in_double:
-            if c == '"':
-                in_double = False
-            i += 1
-            continue
-        if in_single:
-            if c == "'":
-                in_single = False
-            i += 1
-            continue
-        if in_backtick:
-            if c == "`":
-                in_backtick = False
-            i += 1
-            continue
-        if c == '"':
-            in_double = True
-            i += 1
-            continue
-        if c == "'":
-            in_single = True
-            i += 1
-            continue
-        if c == "`":
-            in_backtick = True
-            i += 1
-            continue
-        i += 1
-    target = '"' if in_double else ("'" if in_single else "`")
-    escape_next = False
-    while i < len(s):
-        c = s[i]
-        if escape_next:
-            escape_next = False
-            i += 1
-            continue
-        if c == "\\":
-            escape_next = True
-            i += 1
-            continue
-        if c == target:
-            return i + 1
-        i += 1
-    return len(s)
+    scanner = _JsScanner(s)
+    return scanner.find_string_end_from(pos)
 
 
 def check_file(filepath: str) -> list[tuple[int, str, str]]:
