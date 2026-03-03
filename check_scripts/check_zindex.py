@@ -16,7 +16,7 @@ import re
 import sys
 
 # Match z-index: <value> or zIndex: <value>
-# Captures the entire value; validation enforces explicit whitelist below
+# Captures the value (trailing comma and !important accepted, stripped in normalization)
 ZINDEX_PATTERN = re.compile(r"(?:z-index|zIndex)\s*:\s*(?P<value>[^;}\n]+)")
 
 # Allowed: var(--meld-z-*) token exactly
@@ -36,20 +36,67 @@ def check_file(filepath: str) -> list[tuple[int, str, str]]:
             lines = f.readlines()
 
         prev_line = ""
+        in_block_comment = False
         for i, line in enumerate(lines, 1):
             stripped = line.strip()
 
-            # Skip if current or previous line has ignore marker
-            if IGNORE_MARKER in stripped or IGNORE_MARKER in prev_line:
+            # Inline vs standalone ignore marker:
+            # - Inline: marker appears alongside other code (e.g. zIndex: 2, /* z-index-check-ignore */)
+            #   -> skip only the current line, do NOT set prev_line
+            # - Standalone: line is only the marker or comment-wrapped marker -> set prev_line so next line is skipped
+            if IGNORE_MARKER in stripped:
+                is_standalone = bool(
+                    re.match(
+                        rf"^\s*(?:/\*\s*{re.escape(IGNORE_MARKER)}\s*\*/"
+                        rf"|//\s*{re.escape(IGNORE_MARKER)}\s*"
+                        rf"|{re.escape(IGNORE_MARKER)})\s*$",
+                        stripped,
+                    )
+                )
+                if is_standalone:
+                    prev_line = stripped
+                continue
+
+            if IGNORE_MARKER in prev_line:
                 prev_line = stripped
                 continue
 
-            # Remove inline comments for pattern matching (preserve original for report)
-            code_part = re.sub(r"/\*.*?\*/", "", line)
-            code_part = re.sub(r"//.*", "", code_part)
+            # Multi-line block comment handling: track state across lines
+            code_part = ""
+            idx = 0
+            remaining = line
+            while idx < len(remaining):
+                if in_block_comment:
+                    end_idx = remaining.find("*/", idx)
+                    if end_idx != -1:
+                        idx = end_idx + 2
+                        in_block_comment = False
+                    else:
+                        idx = len(remaining)
+                else:
+                    # Check for block start before single-line comment (/* can appear in // line)
+                    block_start = remaining.find("/*", idx)
+                    slash_start = remaining.find("//", idx)
+                    if block_start != -1 and (slash_start == -1 or block_start < slash_start):
+                        code_part += remaining[idx:block_start]
+                        end_idx = remaining.find("*/", block_start + 2)
+                        if end_idx != -1:
+                            idx = end_idx + 2
+                        else:
+                            idx = len(remaining)
+                            in_block_comment = True
+                    elif slash_start != -1:
+                        code_part += remaining[idx:slash_start]
+                        idx = len(remaining)
+                    else:
+                        code_part += remaining[idx:]
+                        idx = len(remaining)
+
+            prev_line = stripped
 
             for match in ZINDEX_PATTERN.finditer(code_part):
-                value = match.group("value").strip()
+                value = match.group("value").strip().rstrip(",")
+                value = re.sub(r"\s*!important\s*$", "", value).strip()
 
                 # Allow: var(--meld-z-*) token exactly
                 if VAR_TOKEN_PATTERN.fullmatch(value):
@@ -77,8 +124,6 @@ def check_file(filepath: str) -> list[tuple[int, str, str]]:
                         f"Invalid z-index value: {value!r} (use var(--meld-z-*) or local 1/2/3 only)",
                     )
                 )
-
-            prev_line = stripped
 
     except Exception as e:
         errors.append(
