@@ -8537,9 +8537,7 @@ const se = dy()(
         await m.queuePrompt(0);
         return;
       } catch (L) {
-        throw O.error("Failed to queue workflow:", L), new Error(
-          "Failed to queue workflow. Check the console for details."
-        );
+        throw O.error("Failed to queue workflow:", L), new Error("Failed to queue workflow. Check logs for details.");
       }
     }
     const v = JSON.parse(JSON.stringify(a));
