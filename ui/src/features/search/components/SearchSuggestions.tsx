@@ -107,7 +107,7 @@ export const SearchSuggestions = ({
 			}}
 			onMouseLeave={(e) => {
 				e.currentTarget.style.backgroundColor = "var(--comfy-input-bg, #2a2a2a)";
-				e.currentTarget.style.borderColor = "var(--comfy-input-bg, #333)";
+				e.currentTarget.style.borderColor = "var(--comfy-menu-border, #333)";
 				e.currentTarget.style.color = "var(--meld-text-color)";
 			}}
 		>
