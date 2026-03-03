@@ -30,6 +30,9 @@
 	--meld-z-modal-overlay: 11000;
 	--meld-z-toast: 11500;
 	--meld-z-import-preview: 20000;
+	--meld-z-import-preview-close: 1001;
+	--meld-z-card-thumbnail-overlay: 11;
+	--meld-z-card-checkbox: 10;
 }
 
 .meld-gallery {
@@ -922,7 +925,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	z-index: 1001;
+	z-index: var(--meld-z-import-preview-close);
 	transition: background 0.2s;
 }
 
