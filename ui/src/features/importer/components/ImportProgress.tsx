@@ -39,29 +39,29 @@ export const ImportProgress: React.FC = () => {
 	return (
 		<div className="meld-import-progress-sidebar">
 			{scanStatus.isRunning ? (
-				<div className="meld-scan-progress-compact">
+				<div className="meld-scan-progress--compact">
 					<div className="meld-scan-info">
-						<div className="meld-scan__status-text-compact">
+						<div className="meld-scan__status-text--compact">
 							{scanStatus.shouldCancel ? (
-								<span className="meld-status-cancelling">Cancelling...</span>
+								<span className="meld-scan__status--cancelling">Cancelling...</span>
 							) : isLinking ? (
 								<span>Linking...</span>
 							) : (
 								<span>Scanning...</span>
 							)}
 						</div>
-						<div className="meld-progress-stats-compact">
+						<div className="meld-progress-stats--compact">
 							{scanStatus.progress.current} / {scanStatus.progress.total}
 						</div>
 					</div>
 
-					<div className="meld-progress-container-compact">
+					<div className="meld-progress-container--compact">
 						<div className="meld-progress-bar" style={{ width: `${progressPercent}%` }} />
 					</div>
 
 					<button
 						type="button"
-						className="meld-btn--stop-compact"
+						className="meld-btn--stop--compact"
 						disabled={scanStatus.shouldCancel}
 						onClick={handleCancel}
 						title="Stop Scan"
@@ -70,14 +70,14 @@ export const ImportProgress: React.FC = () => {
 					</button>
 				</div>
 			) : (
-				<div className="meld-scan-finished-compact">
+				<div className="meld-scan-finished--compact">
 					<div className="meld-finished-info">
 						<CheckCircle size={14} className="meld-success-icon" />
 						<span className="meld-finished-text">
 							Done! {scanStatus.newCount} new, {scanStatus.updatedCount} updated
 						</span>
 					</div>
-					<button type="button" className="meld-btn--ok-compact" onClick={handleDismiss}>
+					<button type="button" className="meld-btn--ok--compact" onClick={handleDismiss}>
 						OK
 					</button>
 				</div>
