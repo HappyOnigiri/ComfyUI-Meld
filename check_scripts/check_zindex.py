@@ -16,14 +16,11 @@ import re
 import sys
 
 # Match z-index: <value> or zIndex: <value>
-# Captures numeric value when it is a raw number (not var(--meld-z-*))
-ZINDEX_PATTERN = re.compile(
-    r"(?:z-index|zIndex)\s*:\s*(?:"
-    r"var\(--meld-z-[a-zA-Z0-9-]+\)|"
-    r'["\']?var\(--meld-z-[a-zA-Z0-9-]+\)["\']?|'
-    r"(?P<num>\d+)"
-    r")"
-)
+# Captures the entire value; validation enforces explicit whitelist below
+ZINDEX_PATTERN = re.compile(r"(?:z-index|zIndex)\s*:\s*(?P<value>[^;}\n]+)")
+
+# Allowed: var(--meld-z-*) token exactly
+VAR_TOKEN_PATTERN = re.compile(r"^['\"]?var\(--meld-z-[A-Za-z0-9-]+\)['\"]?$")
 
 # Policy: component-scoped local stacking values (1, 2, 3) are allowed
 ALLOWED_LOCAL = {1, 2, 3}
@@ -52,27 +49,41 @@ def check_file(filepath: str) -> list[tuple[int, str, str]]:
             code_part = re.sub(r"//.*", "", code_part)
 
             for match in ZINDEX_PATTERN.finditer(code_part):
-                num_str = match.group("num")
-                if num_str is None:
-                    # var(--meld-z-*) usage - allowed
+                value = match.group("value").strip()
+
+                # Allow: var(--meld-z-*) token exactly
+                if VAR_TOKEN_PATTERN.fullmatch(value):
                     continue
 
-                num = int(num_str)
-                if num in ALLOWED_LOCAL:
+                # Allow: non-negative integer in ALLOWED_LOCAL (1, 2, 3)
+                if value.isdigit():
+                    num = int(value)
+                    if num in ALLOWED_LOCAL:
+                        continue
+                    errors.append(
+                        (
+                            i,
+                            stripped,
+                            f"Magic number z-index: {num} (use var(--meld-z-*) or local 1/2/3 only)",
+                        )
+                    )
                     continue
 
+                # Reject: auto, inherit, negative numbers, calc(...), var(--other), etc.
                 errors.append(
                     (
                         i,
                         stripped,
-                        f"Magic number z-index: {num} (use var(--meld-z-*) or local 1/2/3 only)",
+                        f"Invalid z-index value: {value!r} (use var(--meld-z-*) or local 1/2/3 only)",
                     )
                 )
 
             prev_line = stripped
 
     except Exception as e:
-        print(f"Error reading {filepath}: {e}")
+        errors.append(
+            (0, filepath, f"Error reading file: {e}"),
+        )
     return errors
 
 
@@ -102,7 +113,10 @@ def main() -> None:
                     has_errors = True
                     print(f"\n[!] Z-index policy violation in {rel_path}:")
                     for line_num, line_content, reason in errors:
-                        print(f"  Line {line_num}: {line_content}")
+                        if line_num == 0:
+                            print(f"  File read error: {line_content}")
+                        else:
+                            print(f"  Line {line_num}: {line_content}")
                         print(f"    -> {reason}")
 
     if has_errors:
