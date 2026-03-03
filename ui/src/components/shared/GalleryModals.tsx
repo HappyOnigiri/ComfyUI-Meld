@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { ImportModal } from "../../features/importer/components/ImportModal";
 import { DownloadModal } from "../../features/light-table/components/DownloadModal";
 import { MaskEditorModal } from "../../features/mask-editor/components/MaskEditorModal";
+import { MaskSequenceModal } from "../../features/mask-editor/components/MaskSequenceModal";
 import { SettingsModal } from "../../features/settings/components/SettingsModal";
 import { TagEditModal } from "../../features/tags/components/TagEditModal";
 import { NoteEditModal } from "../../features/viewer/components/NoteEditModal";
@@ -118,40 +119,29 @@ export const GalleryModals: React.FC = () => {
 
 			{state.activeModal.type === "mask_sequence_step" &&
 				createPortal(
-					(() => {
-						const currentImage = state.activeModal.images[state.activeModal.currentIndex];
-						if (!currentImage) return null;
-						return (
-							<MaskEditorModal
-								key={currentImage.id}
-								imageId={currentImage.id}
-								mode="run_sequence"
-								sequenceData={{
-									workflowName: state.activeModal.workflowName,
-									targetLoaderNodeId: state.activeModal.targetLoaderNodeId,
-									currentIndex: state.activeModal.currentIndex,
-									totalCount: state.activeModal.images.length,
-								}}
-								onSuccess={() => {
-									if (state.activeModal.type === "mask_sequence_step") {
-										const nextIndex = state.activeModal.currentIndex + 1;
-										if (nextIndex < state.activeModal.images.length) {
-											dispatch({
-												type: "OPEN_MODAL",
-												payload: {
-													...state.activeModal,
-													currentIndex: nextIndex,
-												},
-											});
-										} else {
-											dispatch({ type: "CLOSE_MODAL" });
-										}
-									}
-								}}
-								onClose={() => dispatch({ type: "CLOSE_MODAL" })}
-							/>
-						);
-					})(),
+					<MaskSequenceModal
+						images={state.activeModal.images}
+						currentIndex={state.activeModal.currentIndex}
+						workflowName={state.activeModal.workflowName}
+						targetLoaderNodeId={state.activeModal.targetLoaderNodeId}
+						onSuccess={() => {
+							if (state.activeModal.type === "mask_sequence_step") {
+								const nextIndex = state.activeModal.currentIndex + 1;
+								if (nextIndex < state.activeModal.images.length) {
+									dispatch({
+										type: "OPEN_MODAL",
+										payload: {
+											...state.activeModal,
+											currentIndex: nextIndex,
+										},
+									});
+								} else {
+									dispatch({ type: "CLOSE_MODAL" });
+								}
+							}
+						}}
+						onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+					/>,
 					document.body,
 				)}
 
