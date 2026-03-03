@@ -18,7 +18,11 @@ import re
 import sys
 
 # Files that implement the policy correctly; no need to check them.
-ALLOWLIST_FILES = {"useEscapeToClose.ts", "useKeydownCapture.ts"}
+# Use normalized relative paths (forward slashes) from repo root.
+ALLOWLIST_FILES = {
+    "ui/src/hooks/useEscapeToClose.ts",
+    "ui/src/hooks/useKeydownCapture.ts",
+}
 
 # Matches (window|document).addEventListener("keydown" or 'keydown', handler, ...)
 # Captures the third-argument region (optional) in group "options".
@@ -34,10 +38,11 @@ KEYDOWN_LISTENER_PATTERN = re.compile(
 )
 
 # Patterns that indicate capture is used (third argument).
-# Uses word-boundary pattern to match "capture: true" anywhere in options object;
-# only accepts explicit true values (not shorthand { capture }).
+# Requires capture to be an actual property (not inside a string literal like
+# "capture: true"); use (?:^|\{|,)\s* to assert we are at object start or after
+# a property delimiter.
 CAPTURE_OK_PATTERNS = [
-    re.compile(r"\bcapture\s*:\s*true\b"),  # capture: true anywhere in object
+    re.compile(r"(?:^|\{|,)\s*capture\s*:\s*true\b"),  # unquoted capture: true
     re.compile(r"^\s*true\s*$", re.MULTILINE),  # Legacy: true as useCapture
 ]
 
@@ -98,10 +103,11 @@ def main() -> None:
         for file in files:
             if not (file.endswith(".ts") or file.endswith(".tsx")):
                 continue
-            if file in ALLOWLIST_FILES:
-                continue
             filepath = os.path.join(root, file)
             rel_path = os.path.relpath(filepath, base_dir)
+            rel_path_normalized = rel_path.replace("\\", "/")
+            if rel_path_normalized in ALLOWLIST_FILES:
+                continue
             errors = check_file(filepath)
             if errors:
                 has_errors = True
