@@ -234,14 +234,15 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 				ctx.ellipse(centerX, centerY, w / 2, h / 2, 0, 0, 2 * Math.PI);
 			} else if (activeTool === "lasso" && lassoPath.length > 1) {
 				const firstPoint = lassoPath[0];
-				if (!firstPoint) return;
-				ctx.moveTo(firstPoint.x, firstPoint.y);
-				for (let i = 1; i < lassoPath.length; i++) {
-					const point = lassoPath[i];
-					if (!point) continue;
-					ctx.lineTo(point.x, point.y);
+				if (firstPoint) {
+					ctx.moveTo(firstPoint.x, firstPoint.y);
+					for (let i = 1; i < lassoPath.length; i++) {
+						const point = lassoPath[i];
+						if (!point) continue;
+						ctx.lineTo(point.x, point.y);
+					}
+					ctx.closePath();
 				}
-				ctx.closePath();
 			}
 
 			ctx.fill();
