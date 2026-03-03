@@ -225,11 +225,13 @@
 	color: var(--comfy-input-fg, var(--meld-text-color, #eee));
 	border: 1px solid var(--meld-accent-color);
 	border-radius: 4px;
-	outline: none;
+	outline: 2px solid transparent;
 }
 
 .meld-tag-rename-input:focus {
 	border-color: var(--meld-accent-color);
+	outline: 2px solid var(--meld-accent-color);
+	outline-offset: 1px;
 }
 
 /* Tag Edit Modal Styles */
