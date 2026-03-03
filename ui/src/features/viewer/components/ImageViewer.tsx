@@ -308,37 +308,42 @@ export function ImageViewer() {
 					onClose={() => dispatch({ type: "CLOSE_MODAL" })}
 				/>
 			)}
-			{state.activeModal.type === "mask_sequence_step" && (
-				<MaskEditorModal
-					key={state.activeModal.images[state.activeModal.currentIndex].id}
-					imageId={state.activeModal.images[state.activeModal.currentIndex].id}
-					mode="run_sequence"
-					sequenceData={{
-						workflowName: state.activeModal.workflowName,
-						targetLoaderNodeId: state.activeModal.targetLoaderNodeId,
-						currentIndex: state.activeModal.currentIndex,
-						totalCount: state.activeModal.images.length,
-					}}
-					onSuccess={() => {
-						if (state.activeModal.type === "mask_sequence_step") {
-							const nextIndex = state.activeModal.currentIndex + 1;
-							if (nextIndex < state.activeModal.images.length) {
-								dispatch({
-									type: "OPEN_MODAL",
-									payload: {
-										...state.activeModal,
-										currentIndex: nextIndex,
-									},
-								});
-							} else {
-								dispatch({ type: "CLOSE_MODAL" });
-								dispatch({ type: "CLOSE_VIEWER" });
-							}
-						}
-					}}
-					onClose={() => dispatch({ type: "CLOSE_MODAL" })}
-				/>
-			)}
+			{state.activeModal.type === "mask_sequence_step" &&
+				(() => {
+					const currentImage = state.activeModal.images[state.activeModal.currentIndex];
+					if (!currentImage) return null;
+					return (
+						<MaskEditorModal
+							key={currentImage.id}
+							imageId={currentImage.id}
+							mode="run_sequence"
+							sequenceData={{
+								workflowName: state.activeModal.workflowName,
+								targetLoaderNodeId: state.activeModal.targetLoaderNodeId,
+								currentIndex: state.activeModal.currentIndex,
+								totalCount: state.activeModal.images.length,
+							}}
+							onSuccess={() => {
+								if (state.activeModal.type === "mask_sequence_step") {
+									const nextIndex = state.activeModal.currentIndex + 1;
+									if (nextIndex < state.activeModal.images.length) {
+										dispatch({
+											type: "OPEN_MODAL",
+											payload: {
+												...state.activeModal,
+												currentIndex: nextIndex,
+											},
+										});
+									} else {
+										dispatch({ type: "CLOSE_MODAL" });
+										dispatch({ type: "CLOSE_VIEWER" });
+									}
+								}
+							}}
+							onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+						/>
+					);
+				})()}
 			{state.activeModal.type === "note_edit" && (
 				<NoteEditModal
 					imageId={state.activeModal.imageId}

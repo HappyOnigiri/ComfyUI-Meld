@@ -34,7 +34,8 @@ const PREFERRED_PARENT_SELECTOR = ".comfyui-body-bottom";
 function nodeListContainsRelevantNode(list: NodeList): boolean {
 	const portalSelector = `[${PORTAL_ROOT_ATTR}]`;
 	for (let i = 0; i < list.length; i++) {
-		const node = list[i];
+		const node = list.item(i);
+		if (!node) continue;
 		if (node.nodeType !== Node.ELEMENT_NODE) continue;
 		const el = node as Element;
 		if (el.hasAttribute?.(PORTAL_ROOT_ATTR)) return true;

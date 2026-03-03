@@ -118,34 +118,40 @@ export const GalleryModals: React.FC = () => {
 
 			{state.activeModal.type === "mask_sequence_step" &&
 				createPortal(
-					<MaskEditorModal
-						key={state.activeModal.images[state.activeModal.currentIndex].id}
-						imageId={state.activeModal.images[state.activeModal.currentIndex].id}
-						mode="run_sequence"
-						sequenceData={{
-							workflowName: state.activeModal.workflowName,
-							targetLoaderNodeId: state.activeModal.targetLoaderNodeId,
-							currentIndex: state.activeModal.currentIndex,
-							totalCount: state.activeModal.images.length,
-						}}
-						onSuccess={() => {
-							if (state.activeModal.type === "mask_sequence_step") {
-								const nextIndex = state.activeModal.currentIndex + 1;
-								if (nextIndex < state.activeModal.images.length) {
-									dispatch({
-										type: "OPEN_MODAL",
-										payload: {
-											...state.activeModal,
-											currentIndex: nextIndex,
-										},
-									});
-								} else {
-									dispatch({ type: "CLOSE_MODAL" });
-								}
-							}
-						}}
-						onClose={() => dispatch({ type: "CLOSE_MODAL" })}
-					/>,
+					(() => {
+						const currentImage = state.activeModal.images[state.activeModal.currentIndex];
+						if (!currentImage) return null;
+						return (
+							<MaskEditorModal
+								key={currentImage.id}
+								imageId={currentImage.id}
+								mode="run_sequence"
+								sequenceData={{
+									workflowName: state.activeModal.workflowName,
+									targetLoaderNodeId: state.activeModal.targetLoaderNodeId,
+									currentIndex: state.activeModal.currentIndex,
+									totalCount: state.activeModal.images.length,
+								}}
+								onSuccess={() => {
+									if (state.activeModal.type === "mask_sequence_step") {
+										const nextIndex = state.activeModal.currentIndex + 1;
+										if (nextIndex < state.activeModal.images.length) {
+											dispatch({
+												type: "OPEN_MODAL",
+												payload: {
+													...state.activeModal,
+													currentIndex: nextIndex,
+												},
+											});
+										} else {
+											dispatch({ type: "CLOSE_MODAL" });
+										}
+									}
+								}}
+								onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+							/>
+						);
+					})(),
 					document.body,
 				)}
 
