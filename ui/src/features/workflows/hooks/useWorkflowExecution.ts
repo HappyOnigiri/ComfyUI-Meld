@@ -3,6 +3,7 @@ import { parseJsonResponse } from "../../../api";
 import { logger } from "../../../logger";
 import type { ComfyApi, ComfyApp, MeldImage } from "../../../types";
 import { fetchWorkflowRaw } from "../api/workflowsApi";
+import { isLoaderNodeType, isMaskNodeType } from "../utils/nodeTypePredicates";
 
 interface ComfyNode {
 	id: string | number;
@@ -38,26 +39,20 @@ export const useWorkflowExecution = () => {
 			let maskNodeId: string | null = null;
 			let isUIFormat = false;
 
-			const isLoaderNode = (type: string | undefined) => {
-				if (!type) return false;
-				const t = type.replace(/\s+/g, "");
-				return t === "MeldImageLoader" || t === "LoadImage";
-			};
-
 			if (workflow.nodes && Array.isArray(workflow.nodes)) {
 				// UI Format (saved from ComfyUI web interface)
 				isUIFormat = true;
 				if (!loaderNodeId) {
 					const loaderNode = (workflow.nodes as ComfyNode[]).find((n) =>
-						isLoaderNode(n.type),
+						isLoaderNodeType(n.type),
 					);
 					if (loaderNode) {
 						loaderNodeId = String(loaderNode.id);
 					}
 				}
 
-				const maskNode = (workflow.nodes as ComfyNode[]).find(
-					(n) => n.type?.replace(/\s+/g, "") === "LoadImageMask",
+				const maskNode = (workflow.nodes as ComfyNode[]).find((n) =>
+					isMaskNodeType(n.type),
 				);
 				if (maskNode) {
 					maskNodeId = String(maskNode.id);
@@ -67,7 +62,7 @@ export const useWorkflowExecution = () => {
 				if (!loaderNodeId) {
 					for (const nodeId in workflow) {
 						const node = workflow[nodeId] as ComfyNode;
-						if (isLoaderNode(node.class_type)) {
+						if (isLoaderNodeType(node.class_type)) {
 							loaderNodeId = nodeId;
 							break;
 						}
@@ -76,7 +71,7 @@ export const useWorkflowExecution = () => {
 
 				for (const nodeId in workflow) {
 					const node = workflow[nodeId] as ComfyNode;
-					if (node.class_type?.replace(/\s+/g, "") === "LoadImageMask") {
+					if (isMaskNodeType(node.class_type)) {
 						maskNodeId = nodeId;
 						break;
 					}
@@ -160,7 +155,7 @@ export const useWorkflowExecution = () => {
 				logger.log("Active graph nodes count:", activeNodes.length);
 
 				const loaderNode = activeNodes.find(
-					(n) => String(n.id) === loaderNodeId || isLoaderNode(n.type),
+					(n) => String(n.id) === loaderNodeId || isLoaderNodeType(n.type),
 				);
 
 				if (loaderNode) {
@@ -185,9 +180,7 @@ export const useWorkflowExecution = () => {
 
 				if (maskFilename) {
 					const maskNode = activeNodes.find(
-						(n) =>
-							String(n.id) === maskNodeId ||
-							n.type?.replace(/\s+/g, "") === "LoadImageMask",
+						(n) => String(n.id) === maskNodeId || isMaskNodeType(n.type),
 					);
 					logger.log("Updating mask node widget:", {
 						nodeId: maskNode?.id,
@@ -239,12 +232,30 @@ export const useWorkflowExecution = () => {
 			}
 
 			// 4. Send to /prompt
-			const comfyApi = window.api as ComfyApi;
-			const res = await comfyApi.fetchApi("/prompt", {
+			const comfyApi: unknown = window.api;
+			const hasValidFetchApi =
+				typeof comfyApi === "object" &&
+				comfyApi !== null &&
+				"fetchApi" in comfyApi &&
+				typeof (
+					comfyApi as {
+						fetchApi?: unknown;
+					}
+				).fetchApi === "function";
+			if (!hasValidFetchApi) {
+				throw new Error(
+					"ComfyUI API is not available. Please reload ComfyUI and try again.",
+				);
+			}
+			const typedApi = comfyApi as ComfyApi;
+			const res = await typedApi.fetchApi("/prompt", {
 				method: "POST",
 				body: JSON.stringify({
 					prompt,
-					client_id: comfyApi.clientId,
+					client_id:
+						typeof typedApi.clientId === "string"
+							? typedApi.clientId
+							: undefined,
 				}),
 			});
 

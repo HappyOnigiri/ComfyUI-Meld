@@ -3,6 +3,7 @@ import { logger } from "../../../logger";
 import { useGallery } from "../../../store/GalleryContext";
 import type { ComfyApp, MeldImage } from "../../../types";
 import { injectImageToGraph } from "../../workflows/utils/injectImageToGraph";
+import { isMaskNodeType } from "../../workflows/utils/nodeTypePredicates";
 
 export const useMaskInjection = () => {
 	const { dispatch } = useGallery();
@@ -21,8 +22,8 @@ export const useMaskInjection = () => {
 			}
 
 			// 2. Update LoadImageMask with the new mask
-			const maskNodes = comfyApp.graph._nodes.filter(
-				(n) => n.type === "LoadImageMask",
+			const maskNodes = comfyApp.graph._nodes.filter((n) =>
+				isMaskNodeType(n.type),
 			);
 
 			if (maskNodes.length === 0) {
@@ -42,6 +43,13 @@ export const useMaskInjection = () => {
 
 			// If multiple, use the first one
 			const node = maskNodes[0];
+			if (!Array.isArray(node.widgets)) {
+				logger.log(
+					"[Meld-Debug] injectMaskToGraph: target mask node has no widgets",
+					node.id,
+				);
+				return false;
+			}
 			const imageWidget = node.widgets.find((w) => w.name === "image");
 			const fullMaskPath = `${maskFilename} [temp]`;
 			logger.log(

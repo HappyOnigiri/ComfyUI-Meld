@@ -1,4 +1,5 @@
 import type { ComfyApp, MeldImage } from "../../../types";
+import { isLoaderNodeType } from "./nodeTypePredicates";
 
 export function buildComfyImagePath(image: MeldImage): string {
 	let imagePath = image.filename;
@@ -13,7 +14,14 @@ export function buildComfyImagePath(image: MeldImage): string {
 
 export type InjectImageToGraphResult =
 	| { ok: true }
-	| { ok: false; reason: "no_app_graph" | "no_loader_node" };
+	| {
+			ok: false;
+			reason:
+				| "no_app_graph"
+				| "no_loader_node"
+				| "no_widgets"
+				| "no_image_widget";
+	  };
 
 export function injectImageToGraph(
 	image: MeldImage,
@@ -26,13 +34,9 @@ export function injectImageToGraph(
 
 	const imagePath = buildComfyImagePath(image);
 
-	const isLoaderNode = (type: string | undefined) => {
-		if (!type) return false;
-		const t = type.replace(/\s+/g, "").toLowerCase();
-		return t === "meldimageloader" || t === "loadimage";
-	};
-
-	const loaderNodes = comfyApp.graph._nodes.filter((n) => isLoaderNode(n.type));
+	const loaderNodes = comfyApp.graph._nodes.filter((n) =>
+		isLoaderNodeType(n.type),
+	);
 
 	if (loaderNodes.length === 0) {
 		return { ok: false, reason: "no_loader_node" };
@@ -45,13 +49,17 @@ export function injectImageToGraph(
 			loaderNode = target;
 		}
 	}
+	if (!Array.isArray(loaderNode.widgets)) {
+		return { ok: false, reason: "no_widgets" };
+	}
 	const loaderImageWidget = loaderNode.widgets.find((w) => w.name === "image");
+	if (!loaderImageWidget) {
+		return { ok: false, reason: "no_image_widget" };
+	}
 
-	if (loaderImageWidget) {
-		loaderImageWidget.value = imagePath;
-		if (typeof loaderImageWidget.callback === "function") {
-			loaderImageWidget.callback(imagePath);
-		}
+	loaderImageWidget.value = imagePath;
+	if (typeof loaderImageWidget.callback === "function") {
+		loaderImageWidget.callback(imagePath);
 	}
 
 	comfyApp.graph.afterChange?.();

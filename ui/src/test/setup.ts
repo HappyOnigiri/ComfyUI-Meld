@@ -1,4 +1,6 @@
 import "@testing-library/jest-dom/vitest";
+import { vi } from "vitest";
+import type { ComfyApi, ComfyApp } from "../types";
 
 declare global {
 	// Test environment shims for ComfyUI globals.
@@ -14,5 +16,47 @@ declare global {
 
 globalThis.api = {} as unknown;
 globalThis.app = {} as unknown;
-window.api = globalThis.api;
-window.app = globalThis.app;
+
+const testApi: ComfyApi = {
+	clientId: "vitest-client",
+	fetchApi: vi.fn(
+		async () =>
+			new Response(
+				JSON.stringify({
+					success: true,
+					data: {},
+				}),
+				{
+					status: 200,
+					headers: { "Content-Type": "application/json" },
+				},
+			),
+	),
+	addEventListener: vi.fn(),
+};
+
+const testApp: ComfyApp = {
+	registerExtension: vi.fn(),
+	graph: {
+		_nodes: [],
+		add: vi.fn(),
+		afterChange: vi.fn(),
+		setDirtyCanvas: vi.fn(),
+	},
+	canvas: {
+		ds: {
+			offset: [0, 0],
+			scale: 1,
+		},
+		selectNode: vi.fn(),
+		centerOnNode: vi.fn(),
+	},
+	loadGraphData: vi.fn().mockResolvedValue(undefined),
+	queuePrompt: vi.fn().mockResolvedValue(undefined),
+	ui: {},
+};
+
+globalThis.api = testApi;
+globalThis.app = testApp;
+window.api = testApi;
+window.app = testApp;

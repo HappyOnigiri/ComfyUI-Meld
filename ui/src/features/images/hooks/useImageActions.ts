@@ -9,6 +9,10 @@ import type {
 } from "../../../types";
 import { fetchWorkflows } from "../../workflows/api/workflowsApi";
 import { injectImageToGraph } from "../../workflows/utils/injectImageToGraph";
+import {
+	isLoaderNodeType,
+	isMaskNodeType,
+} from "../../workflows/utils/nodeTypePredicates";
 import * as imagesApi from "../api/imagesApi";
 
 type SnapshotData = Awaited<ReturnType<typeof imagesApi.fetchSnapshotData>>;
@@ -201,14 +205,8 @@ export const useImageActions = (
 				return false;
 			}
 
-			const isLoaderNode = (type: string | undefined) => {
-				if (!type) return false;
-				const t = type.replace(/\s+/g, "").toLowerCase();
-				return t === "meldimageloader" || t === "loadimage";
-			};
-
 			const loaderNodes = comfyApp.graph._nodes.filter((n) =>
-				isLoaderNode(n.type),
+				isLoaderNodeType(n.type),
 			);
 
 			if (loaderNodes.length === 0) {
@@ -253,7 +251,10 @@ export const useImageActions = (
 						message:
 							result.reason === "no_app_graph"
 								? "No active workflow graph found. Please open a workflow first."
-								: "No 'Meld Image Loader' or 'Load Image' node found in the current workflow.",
+								: result.reason === "no_widgets" ||
+										result.reason === "no_image_widget"
+									? "The selected loader node does not expose an image widget."
+									: "No 'Meld Image Loader' or 'Load Image' node found in the current workflow.",
 					},
 				});
 				return false;
@@ -291,13 +292,8 @@ export const useImageActions = (
 					})),
 				);
 
-				const hasMaskNode = nodes.some((n) => n.type === "LoadImageMask");
-				const hasLoaderNode = nodes.some(
-					(n) =>
-						n.type === "MeldImageLoader" ||
-						n.type === "LoadImage" ||
-						n.type === "Load Image",
-				);
+				const hasMaskNode = nodes.some((n) => isMaskNodeType(n.type));
+				const hasLoaderNode = nodes.some((n) => isLoaderNodeType(n.type));
 
 				logger.log("Nodes found:", { hasMaskNode, hasLoaderNode });
 

@@ -23,17 +23,31 @@ describe("stopKeyboardEvent", () => {
 describe("isEditableActiveElement", () => {
 	it("returns true when input is active", () => {
 		const input = document.createElement("input");
-		document.body.appendChild(input);
-		input.focus();
-		expect(isEditableActiveElement()).toBe(true);
-		input.remove();
+		try {
+			document.body.appendChild(input);
+			input.focus();
+			expect(isEditableActiveElement()).toBe(true);
+		} finally {
+			input.remove();
+			if (document.activeElement instanceof HTMLElement) {
+				document.activeElement.blur();
+			}
+			document.body.focus();
+		}
 	});
 
 	it("returns false when non-editable element is active", () => {
 		const button = document.createElement("button");
-		document.body.appendChild(button);
-		button.focus();
-		expect(isEditableActiveElement()).toBe(false);
-		button.remove();
+		try {
+			document.body.appendChild(button);
+			button.focus();
+			expect(isEditableActiveElement()).toBe(false);
+		} finally {
+			button.remove();
+			if (document.activeElement instanceof HTMLElement) {
+				document.activeElement.blur();
+			}
+			document.body.focus();
+		}
 	});
 });
