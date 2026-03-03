@@ -1,6 +1,7 @@
 import { Check, Copy, X } from "lucide-react";
 import type React from "react";
 import { createPortal } from "react-dom";
+import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 
 interface PromptPopupProps {
 	title: string;
@@ -17,6 +18,8 @@ export const PromptPopup: React.FC<PromptPopupProps> = ({
 	onCopy,
 	isCopied,
 }) => {
+	useEscapeToClose({ onEscape: onClose });
+
 	return createPortal(
 		<div
 			className="meld-prompt-popup-overlay"
