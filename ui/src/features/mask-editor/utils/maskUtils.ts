@@ -45,7 +45,8 @@ export function stampShape(
 
 	for (let i = 0; i < width * height; i++) {
 		// Use Red channel (255 if white) to determine mask value
-		newData[i] = newImageData.data[i * 4] > 128 ? 255 : 0;
+		const red = newImageData.data[i * 4] ?? 0;
+		newData[i] = red > 128 ? 255 : 0;
 	}
 
 	return { ...mask, data: newData };
@@ -96,7 +97,7 @@ export function maskToImageData(
 	const pixels = imageData.data;
 
 	for (let i = 0; i < data.length; i++) {
-		const val = data[i];
+		const val = data[i] ?? 0;
 		const offset = i * 4;
 		if (val > 0) {
 			pixels[offset] = color[0];

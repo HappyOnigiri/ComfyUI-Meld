@@ -97,7 +97,9 @@ export const useGalleryLogic = () => {
 	useEffect(() => {
 		const observer = new IntersectionObserver(
 			(entries) => {
-				if (entries[0].isIntersecting) {
+				const entry = entries[0];
+				if (!entry) return;
+				if (entry.isIntersecting) {
 					if (state.isLoading) {
 						logger.log("GalleryPanel: Intersection observed but already loading");
 						return;

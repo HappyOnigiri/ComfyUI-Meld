@@ -17,8 +17,16 @@ function getAdjacentIds(params: {
 	const atStart = index === 0;
 	const atEnd = index === ids.length - 1;
 
-	const nextId = atEnd ? (hasMore || !loopEnabled ? null : ids[0]) : ids[index + 1];
-	const prevId = atStart ? (hasMore || !loopEnabled ? null : ids[ids.length - 1]) : ids[index - 1];
+	const nextId = atEnd
+		? hasMore || !loopEnabled
+			? null
+			: (ids[0] ?? null)
+		: (ids[index + 1] ?? null);
+	const prevId = atStart
+		? hasMore || !loopEnabled
+			? null
+			: (ids[ids.length - 1] ?? null)
+		: (ids[index - 1] ?? null);
 
 	return { prevId, nextId };
 }
@@ -124,6 +132,7 @@ export const useViewerPrefetch = ({
 			for (const idx of indicesToPreload) {
 				if (idx >= 0 && idx < currentThumbnails.length) {
 					const img = currentThumbnails[idx];
+					if (!img) continue;
 					const preloader = new Image();
 					preloader.src = getImageViewUrl(img);
 				}

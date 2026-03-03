@@ -64,7 +64,8 @@ export const useViewerNavigation = ({
 				if (mountRefs.viewerImageIdRef.current === null) return;
 
 				if (result.images.length > 0) {
-					const lastImg = result.images[result.images.length - 1];
+					const lastImg = result.images.at(-1);
+					if (!lastImg) return;
 					dispatch({
 						type: "OPEN_VIEWER",
 						payload: { id: lastImg.id, mode: "gallery" },

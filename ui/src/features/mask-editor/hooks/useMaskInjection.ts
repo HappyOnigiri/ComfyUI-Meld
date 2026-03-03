@@ -42,6 +42,9 @@ export const useMaskInjection = () => {
 
 			// If multiple, use the first one
 			const node = maskNodes[0];
+			if (!node) {
+				return false;
+			}
 			if (!isComfyGraphNodeWithWidgets(node)) {
 				logger.log("[Meld-Debug] injectMaskToGraph: target mask node has no widgets", node.id);
 				return false;

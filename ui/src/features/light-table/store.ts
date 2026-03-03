@@ -43,7 +43,8 @@ export const useLightTableStore = create<TrayState>()(
 					// Remove from other buckets to avoid duplicates
 					const newBuckets = { ...state.buckets };
 					for (const key in newBuckets) {
-						newBuckets[key] = newBuckets[key].filter((id) => id !== imageId);
+						const bucket = newBuckets[key] ?? [];
+						newBuckets[key] = bucket.filter((id) => id !== imageId);
 					}
 
 					if (!newBuckets[slotId]) {
@@ -51,8 +52,9 @@ export const useLightTableStore = create<TrayState>()(
 					}
 
 					// Add to target bucket if not already there
-					if (!newBuckets[slotId].includes(imageId)) {
-						newBuckets[slotId] = [...newBuckets[slotId], imageId];
+					const targetBucket = newBuckets[slotId] ?? [];
+					if (!targetBucket.includes(imageId)) {
+						newBuckets[slotId] = [...targetBucket, imageId];
 					}
 
 					const newImages = { ...state.images };
