@@ -13,6 +13,7 @@
 	z-index: var(--meld-z-prompt-popup);
 	cursor: default;
 }
+
 .meld-prompt-popup-content {
 	background: var(--comfy-menu-bg, #222);
 	border: 1px solid var(--meld-border-color);
@@ -30,6 +31,7 @@
 	position: relative;
 	min-width: 300px;
 }
+
 .meld-prompt-popup-header {
 	font-weight: bold;
 	margin-bottom: 15px;
@@ -40,19 +42,27 @@
 	justify-content: space-between;
 	align-items: center;
 }
+
 .meld-prompt-popup-close {
 	cursor: pointer;
 	color: var(--meld-text-secondary);
 	transition: color 0.2s;
 }
+
 .meld-prompt-popup-copy {
 	cursor: pointer;
 	color: var(--meld-text-secondary);
 	transition: color 0.2s;
 }
-.meld-prompt-popup-close:hover {
+
+.meld-prompt-popup-close:hover,
+.meld-prompt-popup-close:focus-visible {
 	color: var(--meld-text-color);
+	outline: none;
 }
-.meld-prompt-popup-copy:hover {
+
+.meld-prompt-popup-copy:hover,
+.meld-prompt-popup-copy:focus-visible {
 	color: var(--meld-accent-color);
+	outline: none;
 }
