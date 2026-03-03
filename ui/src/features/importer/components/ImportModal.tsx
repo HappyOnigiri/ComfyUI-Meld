@@ -455,7 +455,7 @@ export const ImportModal: React.FC = () => {
 							<div className="meld-scan-actions">
 								<button
 									type="button"
-									className="meld-btn meld-btn-primary"
+									className="meld-btn meld-btn--primary"
 									onClick={handleStart}
 									style={{ width: "100%" }}
 								>

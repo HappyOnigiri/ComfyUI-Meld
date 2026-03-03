@@ -41,7 +41,7 @@ export const ImportProgress: React.FC = () => {
 			{scanStatus.isRunning ? (
 				<div className="meld-scan-progress-compact">
 					<div className="meld-scan-info">
-						<div className="meld-scan-status-text-compact">
+						<div className="meld-scan__status-text-compact">
 							{scanStatus.shouldCancel ? (
 								<span className="meld-status-cancelling">Cancelling...</span>
 							) : isLinking ? (
@@ -61,7 +61,7 @@ export const ImportProgress: React.FC = () => {
 
 					<button
 						type="button"
-						className="meld-btn-stop-compact"
+						className="meld-btn--stop-compact"
 						disabled={scanStatus.shouldCancel}
 						onClick={handleCancel}
 						title="Stop Scan"
@@ -77,7 +77,7 @@ export const ImportProgress: React.FC = () => {
 							Done! {scanStatus.newCount} new, {scanStatus.updatedCount} updated
 						</span>
 					</div>
-					<button type="button" className="meld-btn-ok-compact" onClick={handleDismiss}>
+					<button type="button" className="meld-btn--ok-compact" onClick={handleDismiss}>
 						OK
 					</button>
 				</div>
