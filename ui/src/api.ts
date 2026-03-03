@@ -71,8 +71,7 @@ export async function parseJsonResponse<T>(res: Response): Promise<T> {
 		if (isObjectRecord(data)) {
 			const err = "error" in data ? data.error : undefined;
 			const errMsg = extractMessage(err);
-			const message =
-				"message" in data ? extractMessage(data.message) : undefined;
+			const message = "message" in data ? extractMessage(data.message) : undefined;
 			msg = errMsg ?? message ?? msg;
 		}
 		throw new Error(msg);

@@ -10,12 +10,7 @@ interface FavoriteItemProps {
 	onDelete: (e: React.MouseEvent, id: number, name: string) => void;
 }
 
-export const FavoriteItem: React.FC<FavoriteItemProps> = ({
-	fav,
-	onSelect,
-	onEdit,
-	onDelete,
-}) => {
+export const FavoriteItem: React.FC<FavoriteItemProps> = ({ fav, onSelect, onEdit, onDelete }) => {
 	const [isHovered, setIsHovered] = useState(false);
 	const [isEditHovered, setIsEditHovered] = useState(false);
 	const [isDeleteHovered, setIsDeleteHovered] = useState(false);
@@ -30,9 +25,7 @@ export const FavoriteItem: React.FC<FavoriteItemProps> = ({
 					? "var(--comfy-menu-bg, #333)"
 					: "var(--comfy-input-bg, #2a2a2a)",
 				border: "1px solid",
-				borderColor: isHovered
-					? "var(--meld-accent-color)"
-					: "var(--comfy-menu-border, #333)",
+				borderColor: isHovered ? "var(--meld-accent-color)" : "var(--comfy-menu-border, #333)",
 				borderRadius: "6px",
 				padding: "8px 12px",
 				cursor: "pointer",
@@ -92,9 +85,7 @@ export const FavoriteItem: React.FC<FavoriteItemProps> = ({
 					style={{
 						background: "none",
 						border: "none",
-						color: isEditHovered
-							? "var(--meld-accent-color)"
-							: "var(--meld-text-secondary)",
+						color: isEditHovered ? "var(--meld-accent-color)" : "var(--meld-text-secondary)",
 						backgroundColor: isEditHovered
 							? "var(--comfy-input-bg-active, rgba(68, 136, 255, 0.1))"
 							: "transparent",
@@ -117,9 +108,7 @@ export const FavoriteItem: React.FC<FavoriteItemProps> = ({
 					style={{
 						background: "none",
 						border: "none",
-						color: isDeleteHovered
-							? "var(--meld-danger-color)"
-							: "var(--meld-text-secondary)",
+						color: isDeleteHovered ? "var(--meld-danger-color)" : "var(--meld-text-secondary)",
 						backgroundColor: isDeleteHovered
 							? "var(--comfy-input-bg-active, rgba(255,0,0,0.1))"
 							: "transparent",

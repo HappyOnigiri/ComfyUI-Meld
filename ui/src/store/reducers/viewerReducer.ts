@@ -16,9 +16,7 @@ function getCurrentViewerList(
 	return state.images.filter(
 		(img) =>
 			img.exists !== false &&
-			(state.settings["gallery.show_parent_images"] ||
-				isSearchActive ||
-				!img.has_children),
+			(state.settings["gallery.show_parent_images"] || isSearchActive || !img.has_children),
 	);
 }
 
@@ -35,9 +33,7 @@ export const viewerReducer: GallerySubReducer = (state, action) => {
 			) {
 				const existingImage =
 					state.images.find((img) => img.id === newViewerId) ||
-					(state.viewerFallbackImage?.id === newViewerId
-						? state.viewerFallbackImage
-						: undefined);
+					(state.viewerFallbackImage?.id === newViewerId ? state.viewerFallbackImage : undefined);
 				if (existingImage) {
 					viewerFallbackImage = existingImage;
 				} else {
@@ -55,9 +51,7 @@ export const viewerReducer: GallerySubReducer = (state, action) => {
 			const newId = typeof payload === "number" ? payload : payload.id;
 			const newMode = typeof payload === "number" ? "gallery" : payload.mode;
 			const slotId =
-				typeof payload !== "number" && payload.mode === "lighttable"
-					? payload.slotId
-					: null;
+				typeof payload !== "number" && payload.mode === "lighttable" ? payload.slotId : null;
 			const initialMaskMode = resolveInitialMaskMode(payload);
 
 			const isSameLineage =
@@ -88,15 +82,9 @@ export const viewerReducer: GallerySubReducer = (state, action) => {
 			const loopEnabled = isFullscreen
 				? state.settings["fullscreen.loop"]
 				: state.settings["viewer.loop"];
-			const currentList = getCurrentViewerList(
-				state,
-				action.payload?.currentList,
-			);
-			if (state.viewerImageId === null || currentList.length === 0)
-				return state;
-			const currentIndex = currentList.findIndex(
-				(img) => img.id === state.viewerImageId,
-			);
+			const currentList = getCurrentViewerList(state, action.payload?.currentList);
+			if (state.viewerImageId === null || currentList.length === 0) return state;
+			const currentIndex = currentList.findIndex((img) => img.id === state.viewerImageId);
 			if (currentIndex === -1) return state;
 			if (
 				currentIndex === currentList.length - 1 &&
@@ -122,28 +110,17 @@ export const viewerReducer: GallerySubReducer = (state, action) => {
 			const loopEnabled = isFullscreen
 				? state.settings["fullscreen.loop"]
 				: state.settings["viewer.loop"];
-			const currentList = getCurrentViewerList(
-				state,
-				action.payload?.currentList,
-			);
-			if (state.viewerImageId === null || currentList.length === 0)
-				return state;
-			const currentIndex = currentList.findIndex(
-				(img) => img.id === state.viewerImageId,
-			);
+			const currentList = getCurrentViewerList(state, action.payload?.currentList);
+			if (state.viewerImageId === null || currentList.length === 0) return state;
+			const currentIndex = currentList.findIndex((img) => img.id === state.viewerImageId);
 			if (currentIndex === -1) return state;
-			if (
-				currentIndex === 0 &&
-				state.viewerMode === "gallery" &&
-				state.pagination.hasMore
-			) {
+			if (currentIndex === 0 && state.viewerMode === "gallery" && state.pagination.hasMore) {
 				return state;
 			}
 			if (currentIndex === 0 && !loopEnabled) {
 				return state;
 			}
-			const prevIndex =
-				(currentIndex - 1 + currentList.length) % currentList.length;
+			const prevIndex = (currentIndex - 1 + currentList.length) % currentList.length;
 			const prevImage = currentList[prevIndex];
 			return prevImage
 				? {

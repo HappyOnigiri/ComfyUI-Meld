@@ -17,16 +17,8 @@ function getAdjacentIds(params: {
 	const atStart = index === 0;
 	const atEnd = index === ids.length - 1;
 
-	const nextId = atEnd
-		? hasMore || !loopEnabled
-			? null
-			: ids[0]
-		: ids[index + 1];
-	const prevId = atStart
-		? hasMore || !loopEnabled
-			? null
-			: ids[ids.length - 1]
-		: ids[index - 1];
+	const nextId = atEnd ? (hasMore || !loopEnabled ? null : ids[0]) : ids[index + 1];
+	const prevId = atStart ? (hasMore || !loopEnabled ? null : ids[ids.length - 1]) : ids[index - 1];
 
 	return { prevId, nextId };
 }
@@ -87,9 +79,7 @@ export const useViewerPrefetch = ({
 		const index = ids.indexOf(viewerImageId);
 		if (index === -1) return;
 
-		const loopEnabled = isFullscreen
-			? settings["fullscreen.loop"]
-			: settings["viewer.loop"];
+		const loopEnabled = isFullscreen ? settings["fullscreen.loop"] : settings["viewer.loop"];
 
 		const { prevId, nextId } = getAdjacentIds({
 			ids,
@@ -105,18 +95,13 @@ export const useViewerPrefetch = ({
 
 			if (toFetch.length === 0) return;
 
-			Promise.allSettled(toFetch.map((id) => fetchFullImageDetails(id))).then(
-				(results) => {
-					for (const res of results) {
-						if (res.status === "rejected") {
-							logger.warn(
-								"Prefetching adjacent image details failed",
-								res.reason,
-							);
-						}
+			Promise.allSettled(toFetch.map((id) => fetchFullImageDetails(id))).then((results) => {
+				for (const res of results) {
+					if (res.status === "rejected") {
+						logger.warn("Prefetching adjacent image details failed", res.reason);
 					}
-				},
-			);
+				}
+			});
 		}, 50);
 
 		return () => clearTimeout(timer);
@@ -134,11 +119,7 @@ export const useViewerPrefetch = ({
 		if (viewerImageId === null || currentThumbnails.length === 0) return;
 		if (currentIndex === -1) return;
 
-		const indicesToPreload = [
-			currentIndex + 1,
-			currentIndex + 2,
-			currentIndex - 1,
-		];
+		const indicesToPreload = [currentIndex + 1, currentIndex + 2, currentIndex - 1];
 		const timer = setTimeout(() => {
 			for (const idx of indicesToPreload) {
 				if (idx >= 0 && idx < currentThumbnails.length) {

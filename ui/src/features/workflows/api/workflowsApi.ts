@@ -16,11 +16,7 @@ export const fetchWorkflows = async (): Promise<WorkflowInfo[]> => {
 	return handleResponse(res);
 };
 
-export const fetchWorkflowRaw = async (
-	name: string,
-): Promise<Record<string, unknown>> => {
-	const res = await api.fetchApi(
-		`/meld/workflow/raw?name=${encodeURIComponent(name)}`,
-	);
+export const fetchWorkflowRaw = async (name: string): Promise<Record<string, unknown>> => {
+	const res = await api.fetchApi(`/meld/workflow/raw?name=${encodeURIComponent(name)}`);
 	return handleResponse(res);
 };

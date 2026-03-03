@@ -27,19 +27,11 @@ export interface SearchSuggestionsProps {
 	allKeywords: { type: string; value: string }[];
 	showAllKeywords: boolean;
 	toggleShowAllKeywords: () => void;
-	applySearchSuggestion: (
-		type: string,
-		value: string,
-		onlyPrefix?: boolean,
-	) => void;
+	applySearchSuggestion: (type: string, value: string, onlyPrefix?: boolean) => void;
 	favorites: Favorite[];
 	onSelectFavorite: (query: string) => void;
 	onEditFavorite: (e: React.MouseEvent, fav: Favorite) => void;
-	onDeleteFavorite: (
-		e: React.MouseEvent,
-		id: number,
-		name: string,
-	) => void | Promise<void>;
+	onDeleteFavorite: (e: React.MouseEvent, id: number, name: string) => void | Promise<void>;
 }
 
 const getIcon = (type: string) => {
@@ -94,9 +86,7 @@ export const SearchSuggestions = ({
 		<button
 			key={`${keyPrefix}-${s.type}:${s.value}:${idx}`}
 			type="button"
-			onClick={() =>
-				applySearchSuggestion(s.type, s.value, keyPrefix === "all")
-			}
+			onClick={() => applySearchSuggestion(s.type, s.value, keyPrefix === "all")}
 			style={{
 				display: "flex",
 				alignItems: "center",
@@ -116,9 +106,8 @@ export const SearchSuggestions = ({
 				e.currentTarget.style.color = "var(--meld-text-color)";
 			}}
 			onMouseLeave={(e) => {
-				e.currentTarget.style.backgroundColor =
-					"var(--comfy-input-bg, #2a2a2a)";
-				e.currentTarget.style.borderColor = "var(--comfy-input-bg, #333)";
+				e.currentTarget.style.backgroundColor = "var(--comfy-input-bg, #2a2a2a)";
+				e.currentTarget.style.borderColor = "var(--comfy-menu-border, #333)";
 				e.currentTarget.style.color = "var(--meld-text-color)";
 			}}
 		>
@@ -241,8 +230,7 @@ export const SearchSuggestions = ({
 											? "var(--meld-accent-color, #3b82f6)"
 											: "var(--meld-text-color)",
 									fontSize: "14px",
-									fontWeight:
-										s.value === RESERVED_TAG_KEYWORD ? "bold" : "normal",
+									fontWeight: s.value === RESERVED_TAG_KEYWORD ? "bold" : "normal",
 								}}
 							>
 								{s.value === RESERVED_TAG_KEYWORD
@@ -259,11 +247,7 @@ export const SearchSuggestions = ({
 	};
 
 	const renderQuickSuggestions = () => {
-		if (
-			searchSuggestions.length === 0 ||
-			(inputValue && inputValue === searchQuery)
-		)
-			return null;
+		if (searchSuggestions.length === 0 || (inputValue && inputValue === searchQuery)) return null;
 
 		return (
 			<div
@@ -283,9 +267,7 @@ export const SearchSuggestions = ({
 						padding: "0 4px",
 					}}
 				>
-					{searchSuggestions.map((s, idx) =>
-						renderKeywordButton(s, idx, "quick"),
-					)}
+					{searchSuggestions.map((s, idx) => renderKeywordButton(s, idx, "quick"))}
 				</div>
 
 				<div
@@ -344,9 +326,8 @@ export const SearchSuggestions = ({
 								overflowY: "auto",
 							}}
 						>
-							{Array.from(new Set(allKeywords.map((s) => s.type))).map(
-								(type, idx) =>
-									renderKeywordButton({ type, value: "" }, idx, "all"),
+							{Array.from(new Set(allKeywords.map((s) => s.type))).map((type, idx) =>
+								renderKeywordButton({ type, value: "" }, idx, "all"),
 							)}
 						</div>
 					)}
@@ -356,8 +337,7 @@ export const SearchSuggestions = ({
 	};
 
 	const renderFavorites = () => {
-		if (favorites.length === 0 || (inputValue && inputValue === searchQuery))
-			return null;
+		if (favorites.length === 0 || (inputValue && inputValue === searchQuery)) return null;
 
 		return (
 			<div

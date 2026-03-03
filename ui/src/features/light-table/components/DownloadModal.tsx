@@ -12,11 +12,7 @@ interface DownloadModalProps {
 	onClose: () => void;
 }
 
-export const DownloadModal: React.FC<DownloadModalProps> = ({
-	imageIds,
-	onSuccess,
-	onClose,
-}) => {
+export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSuccess, onClose }) => {
 	const [format, setFormat] = useState<"zip" | "raw">("zip");
 	const [removeMetadata, setRemoveMetadata] = useState(false);
 	const [isDownloading, setIsDownloading] = useState(false);

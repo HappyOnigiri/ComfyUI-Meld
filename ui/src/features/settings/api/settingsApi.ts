@@ -92,40 +92,33 @@ export const fetchSettings = async (): Promise<Settings> => {
 
 	// Migration: Convert boolean sidebar.show_filename to string
 	if (
-		typeof (settings as unknown as Record<string, unknown>)[
-			"sidebar.show_filename"
-		] === "boolean"
+		typeof (settings as unknown as Record<string, unknown>)["sidebar.show_filename"] === "boolean"
 	) {
-		(settings as unknown as Record<string, unknown>)["sidebar.show_filename"] =
-			(settings as unknown as Record<string, unknown>)["sidebar.show_filename"]
-				? "filename"
-				: "none";
+		(settings as unknown as Record<string, unknown>)["sidebar.show_filename"] = (
+			settings as unknown as Record<string, unknown>
+		)["sidebar.show_filename"]
+			? "filename"
+			: "none";
 	}
 
 	// Migration: Convert boolean viewer.details.show_filename and fullscreen.details.show_filename to string
 	if (
-		typeof (settings as unknown as Record<string, unknown>)[
-			"viewer.details.show_filename"
-		] === "boolean"
+		typeof (settings as unknown as Record<string, unknown>)["viewer.details.show_filename"] ===
+		"boolean"
 	) {
-		(settings as unknown as Record<string, unknown>)[
-			"viewer.details.show_filename"
-		] = (settings as unknown as Record<string, unknown>)[
-			"viewer.details.show_filename"
-		]
+		(settings as unknown as Record<string, unknown>)["viewer.details.show_filename"] = (
+			settings as unknown as Record<string, unknown>
+		)["viewer.details.show_filename"]
 			? "filename"
 			: "none";
 	}
 	if (
-		typeof (settings as unknown as Record<string, unknown>)[
-			"fullscreen.details.show_filename"
-		] === "boolean"
+		typeof (settings as unknown as Record<string, unknown>)["fullscreen.details.show_filename"] ===
+		"boolean"
 	) {
-		(settings as unknown as Record<string, unknown>)[
-			"fullscreen.details.show_filename"
-		] = (settings as unknown as Record<string, unknown>)[
-			"fullscreen.details.show_filename"
-		]
+		(settings as unknown as Record<string, unknown>)["fullscreen.details.show_filename"] = (
+			settings as unknown as Record<string, unknown>
+		)["fullscreen.details.show_filename"]
 			? "filename"
 			: "none";
 	}

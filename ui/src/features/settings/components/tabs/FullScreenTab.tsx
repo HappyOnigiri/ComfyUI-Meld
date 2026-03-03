@@ -6,12 +6,7 @@ interface FullScreenTabProps {
 	localSettings: Settings;
 	setLocalSettings: React.Dispatch<React.SetStateAction<Settings>>;
 	handleToggle: (key: keyof Settings, currentValue: boolean) => void;
-	handleNumberChange: (
-		key: keyof Settings,
-		value: string,
-		min?: number,
-		max?: number,
-	) => void;
+	handleNumberChange: (key: keyof Settings, value: string, min?: number, max?: number) => void;
 	handleNumberBlur: (config: { key: keyof Settings }) => void;
 	// Input states
 	maxPositivePromptLinesInput: string;
@@ -40,10 +35,7 @@ export const FullScreenTab: React.FC<FullScreenTabProps> = ({
 							type="checkbox"
 							checked={localSettings["fullscreen.show_icons"]}
 							onChange={() =>
-								handleToggle(
-									"fullscreen.show_icons",
-									localSettings["fullscreen.show_icons"],
-								)
+								handleToggle("fullscreen.show_icons", localSettings["fullscreen.show_icons"])
 							}
 						/>
 						<span className="meld-switch__slider" />
@@ -60,8 +52,7 @@ export const FullScreenTab: React.FC<FullScreenTabProps> = ({
 						onChange={(e) =>
 							setLocalSettings((prev) => ({
 								...prev,
-								"fullscreen.delete_mode": e.target
-									.value as Settings["fullscreen.delete_mode"],
+								"fullscreen.delete_mode": e.target.value as Settings["fullscreen.delete_mode"],
 							}))
 						}
 					>
@@ -79,12 +70,7 @@ export const FullScreenTab: React.FC<FullScreenTabProps> = ({
 						<input
 							type="checkbox"
 							checked={localSettings["fullscreen.loop"]}
-							onChange={() =>
-								handleToggle(
-									"fullscreen.loop",
-									localSettings["fullscreen.loop"],
-								)
-							}
+							onChange={() => handleToggle("fullscreen.loop", localSettings["fullscreen.loop"])}
 						/>
 						<span className="meld-switch__slider" />
 					</label>
@@ -210,10 +196,7 @@ export const FullScreenTab: React.FC<FullScreenTabProps> = ({
 					</label>
 				</SettingItem>
 
-				<SettingItem
-					label="Show Model"
-					description="Display model name in fullscreen details."
-				>
+				<SettingItem label="Show Model" description="Display model name in fullscreen details.">
 					<label className="meld-switch">
 						<input
 							type="checkbox"
@@ -340,10 +323,7 @@ export const FullScreenTab: React.FC<FullScreenTabProps> = ({
 					/>
 				</SettingItem>
 
-				<SettingItem
-					label="Show Tags"
-					description="Display tags in fullscreen details."
-				>
+				<SettingItem label="Show Tags" description="Display tags in fullscreen details.">
 					<label className="meld-switch">
 						<input
 							type="checkbox"

@@ -32,8 +32,7 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 		? settings["fullscreen.details.show_user_notes"]
 		: settings["viewer.details.show_user_notes"];
 	const shouldShowNotes =
-		showNotesSetting === "always" ||
-		(showNotesSetting === "if_present" && image.user_notes);
+		showNotesSetting === "always" || (showNotesSetting === "if_present" && image.user_notes);
 
 	return (
 		<div
@@ -211,9 +210,7 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 				<div className="meld-viewer-details-item meld-viewer-details-item--notes">
 					<div className="meld-viewer-details-label">
 						Notes
-						{saveStatus === "saving" && (
-							<span className="meld-notes-status">Saving...</span>
-						)}
+						{saveStatus === "saving" && <span className="meld-notes-status">Saving...</span>}
 					</div>
 					<div
 						className="meld-viewer-notes-preview"
@@ -232,9 +229,7 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 						}}
 					>
 						{image.user_notes || (
-							<span style={{ color: "var(--meld-text-secondary)" }}>
-								Add notes...
-							</span>
+							<span style={{ color: "var(--meld-text-secondary)" }}>Add notes...</span>
 						)}
 					</div>
 				</div>

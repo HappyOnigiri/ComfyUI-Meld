@@ -24,21 +24,13 @@ export const useViewerLineageLoader = ({
 
 	useEffect(() => {
 		let cancelled = false;
-		if (
-			viewerMode === "lineage" &&
-			viewerImageId !== null &&
-			lineageLength === 0
-		) {
+		if (viewerMode === "lineage" && viewerImageId !== null && lineageLength === 0) {
 			const requestId = ++latestRequestIdRef.current;
 			setIsLoadingLineage(true);
 			imagesApi
 				.fetchLineage(viewerImageId)
 				.then((results) => {
-					if (
-						!cancelled &&
-						isMountedRef.current &&
-						requestId === latestRequestIdRef.current
-					) {
+					if (!cancelled && isMountedRef.current && requestId === latestRequestIdRef.current) {
 						dispatch({ type: "SET_LINEAGE", payload: results });
 					}
 				})
@@ -46,11 +38,7 @@ export const useViewerLineageLoader = ({
 					logger.error("Failed to fetch lineage:", err);
 				})
 				.finally(() => {
-					if (
-						!cancelled &&
-						isMountedRef.current &&
-						requestId === latestRequestIdRef.current
-					) {
+					if (!cancelled && isMountedRef.current && requestId === latestRequestIdRef.current) {
 						setIsLoadingLineage(false);
 					}
 				});

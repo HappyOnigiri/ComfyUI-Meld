@@ -19,11 +19,7 @@ interface ConfirmModalProps {
  * Can be cancelled with ESC key or overlay click.
  * Implements focus management for accessibility.
  */
-export const ConfirmModal: React.FC<ConfirmModalProps> = ({
-	message,
-	onConfirm,
-	onCancel,
-}) => {
+export const ConfirmModal: React.FC<ConfirmModalProps> = ({ message, onConfirm, onCancel }) => {
 	const dialogRef = useRef<HTMLDivElement>(null);
 	const previousFocusRef = useRef<Element | null>(null);
 	useEscapeToClose({ onEscape: onCancel });
@@ -49,10 +45,9 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 			if (e.key === "Tab") {
 				if (!dialogRef.current) return;
 
-				const focusableElements =
-					dialogRef.current.querySelectorAll<HTMLElement>(
-						'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-					);
+				const focusableElements = dialogRef.current.querySelectorAll<HTMLElement>(
+					'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+				);
 				if (focusableElements.length === 0) return;
 
 				const firstElement = focusableElements[0];

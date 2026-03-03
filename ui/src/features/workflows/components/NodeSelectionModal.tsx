@@ -55,11 +55,7 @@ export const NodeSelectionModal: React.FC<NodeSelectionModalProps> = ({
 			>
 				<div className="meld-modal-header">
 					<h2>Select Target Node</h2>
-					<button
-						type="button"
-						className="meld-modal-close"
-						onClick={handleClose}
-					>
+					<button type="button" className="meld-modal-close" onClick={handleClose}>
 						<X size={20} />
 					</button>
 				</div>
@@ -72,8 +68,8 @@ export const NodeSelectionModal: React.FC<NodeSelectionModalProps> = ({
 							color: "var(--meld-text-secondary)",
 						}}
 					>
-						Multiple loader nodes found in the current workflow. Select which
-						one to use for <strong>{image.filename}</strong>:
+						Multiple loader nodes found in the current workflow. Select which one to use for{" "}
+						<strong>{image.filename}</strong>:
 					</div>
 
 					<div className="meld-workflow-node-picker__list">
@@ -88,12 +84,8 @@ export const NodeSelectionModal: React.FC<NodeSelectionModalProps> = ({
 								}}
 							>
 								<div className="meld-workflow-node-item__info">
-									<span className="meld-workflow-node-item__title">
-										{node.title || node.type}
-									</span>
-									<span className="meld-workflow-node-item__id">
-										#{node.id}
-									</span>
+									<span className="meld-workflow-node-item__title">{node.title || node.type}</span>
+									<span className="meld-workflow-node-item__id">#{node.id}</span>
 								</div>
 								<Play size={12} />
 							</button>
@@ -102,11 +94,7 @@ export const NodeSelectionModal: React.FC<NodeSelectionModalProps> = ({
 				</div>
 
 				<div className="meld-modal-footer">
-					<button
-						type="button"
-						className="meld-btn meld-btn-secondary"
-						onClick={handleClose}
-					>
+					<button type="button" className="meld-btn meld-btn-secondary" onClick={handleClose}>
 						Cancel
 					</button>
 				</div>

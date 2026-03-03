@@ -67,13 +67,10 @@ export const useLightTableStore = create<TrayState>()(
 				set((state: TrayState) => {
 					const newBuckets = {
 						...state.buckets,
-						[slotId]:
-							state.buckets[slotId]?.filter((id) => id !== imageId) || [],
+						[slotId]: state.buckets[slotId]?.filter((id) => id !== imageId) || [],
 					};
 
-					const stillInUse = Object.values(newBuckets).some((bucket) =>
-						bucket.includes(imageId),
-					);
+					const stillInUse = Object.values(newBuckets).some((bucket) => bucket.includes(imageId));
 					const newImages = { ...state.images };
 					if (!stillInUse) {
 						delete newImages[imageId];
@@ -102,9 +99,7 @@ export const useLightTableStore = create<TrayState>()(
 
 			updateSlot: (slotId: string, config: Partial<SlotConfig>) =>
 				set((state: TrayState) => ({
-					slots: state.slots.map((slot) =>
-						slot.id === slotId ? { ...slot, ...config } : slot,
-					),
+					slots: state.slots.map((slot) => (slot.id === slotId ? { ...slot, ...config } : slot)),
 				})),
 
 			addSlot: (config: SlotConfig) =>

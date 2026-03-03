@@ -23,9 +23,7 @@ interface ParentSelectionModalProps {
 	imageId: number;
 }
 
-export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
-	imageId,
-}) => {
+export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({ imageId }) => {
 	const { state, dispatch, refreshImages } = useGallery();
 	const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
@@ -80,10 +78,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 			return;
 		}
 
-		if (
-			image.parent_id &&
-			!confirm("Are you sure you want to change the source image?")
-		) {
+		if (image.parent_id && !confirm("Are you sure you want to change the source image?")) {
 			return;
 		}
 
@@ -99,9 +94,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 	};
 
 	const handleRemove = async () => {
-		if (
-			!confirm("Are you sure you want to remove the source image relationship?")
-		) {
+		if (!confirm("Are you sure you want to remove the source image relationship?")) {
 			return;
 		}
 		try {
@@ -127,9 +120,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 			});
 			// 3. Link it immediately as the parent
 			if (id === imageId) {
-				alert(
-					"Uploaded image is identical to the current image. Cannot set as source.",
-				);
+				alert("Uploaded image is identical to the current image. Cannot set as source.");
 				return;
 			}
 			await handleSelect(id);
@@ -164,11 +155,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 			<div className="meld-modal-content" onClick={(e) => e.stopPropagation()}>
 				<div className="meld-modal-header">
 					<h2>Select Source for #{image.id}</h2>
-					<button
-						type="button"
-						className="meld-modal-close"
-						onClick={handleClose}
-					>
+					<button type="button" className="meld-modal-close" onClick={handleClose}>
 						<X size={20} />
 					</button>
 				</div>
@@ -336,20 +323,14 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 														...(isCurrent
 															? {
 																	borderColor: "var(--meld-accent-color)",
-																	boxShadow:
-																		"0 0 0 2px var(--meld-accent-color)",
+																	boxShadow: "0 0 0 2px var(--meld-accent-color)",
 																}
 															: {}),
 													}}
 												>
-													<img
-														src={getThumbnailViewUrl(sug, 64)}
-														alt={sug.filename}
-													/>
+													<img src={getThumbnailViewUrl(sug, 64)} alt={sug.filename} />
 													<div className="meld-suggestion-info">
-														<span className="meld-suggestion-filename">
-															{sug.filename}
-														</span>
+														<span className="meld-suggestion-filename">{sug.filename}</span>
 														{isCurrent && (
 															<span
 																style={{
@@ -386,20 +367,14 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 														...(isCurrent
 															? {
 																	borderColor: "var(--meld-accent-color)",
-																	boxShadow:
-																		"0 0 0 2px var(--meld-accent-color)",
+																	boxShadow: "0 0 0 2px var(--meld-accent-color)",
 																}
 															: {}),
 													}}
 												>
-													<img
-														src={getThumbnailViewUrl(sug, 64)}
-														alt={sug.filename}
-													/>
+													<img src={getThumbnailViewUrl(sug, 64)} alt={sug.filename} />
 													<div className="meld-suggestion-info">
-														<span className="meld-suggestion-filename">
-															{sug.filename}
-														</span>
+														<span className="meld-suggestion-filename">{sug.filename}</span>
 														<div
 															style={{
 																display: "flex",
@@ -409,8 +384,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 															}}
 														>
 															<span className="meld-suggestion-distance">
-																Match:{" "}
-																{Math.round(((64 - sug.distance) / 64) * 100)}%
+																Match: {Math.round(((64 - sug.distance) / 64) * 100)}%
 															</span>
 															{isCurrent && (
 																<span
@@ -430,9 +404,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({
 										})}
 									</div>
 								) : (
-									<p className="meld-no-suggestions">
-										No visual matches found.
-									</p>
+									<p className="meld-no-suggestions">No visual matches found.</p>
 								)}
 							</section>
 						</div>

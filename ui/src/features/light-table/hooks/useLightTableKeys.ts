@@ -1,10 +1,7 @@
 import { useCallback } from "react";
 import { useKeydownCapture } from "../../../hooks/useKeydownCapture";
 import { useGallery } from "../../../store/GalleryContext";
-import {
-	isEditableActiveElement,
-	stopKeyboardEvent,
-} from "../../../utils/keyboard";
+import { isEditableActiveElement, stopKeyboardEvent } from "../../../utils/keyboard";
 import { useLightTableStore } from "../store";
 
 export const useLightTableKeys = () => {
@@ -27,9 +24,7 @@ export const useLightTableKeys = () => {
 			}
 
 			// Look for a slot with a matching shortcut key
-			const slot = slots.find(
-				(s) => s.shortcutKey.toLowerCase() === e.key.toLowerCase(),
-			);
+			const slot = slots.find((s) => s.shortcutKey.toLowerCase() === e.key.toLowerCase());
 
 			if (!slot) {
 				return;

@@ -274,9 +274,9 @@ var ld = { exports: {} }, lt = {}, sd = { exports: {} }, ad = {};
     if (W !== T) {
       N[0] = W;
       e: for (var E = 0, z = N.length, V = z >>> 1; E < V; ) {
-        var A = 2 * (E + 1) - 1, K = N[A], J = A + 1, oe = N[J];
-        if (0 > l(K, W)) J < z && 0 > l(oe, K) ? (N[E] = oe, N[J] = W, E = J) : (N[E] = K, N[A] = W, E = A);
-        else if (J < z && 0 > l(oe, W)) N[E] = oe, N[J] = W, E = J;
+        var A = 2 * (E + 1) - 1, K = N[A], X = A + 1, oe = N[X];
+        if (0 > l(K, W)) X < z && 0 > l(oe, K) ? (N[E] = oe, N[X] = W, E = X) : (N[E] = K, N[A] = W, E = A);
+        else if (X < z && 0 > l(oe, W)) N[E] = oe, N[X] = W, E = X;
         else break e;
       }
     }
@@ -1336,7 +1336,7 @@ function Co(e, t) {
     l & t | e[r] & t && (e[r] |= t), n &= ~l;
   }
 }
-var de = 0;
+var ce = 0;
 function Td(e) {
   return e &= -e, 1 < e ? 4 < e ? e & 268435455 ? 16 : 536870912 : 4 : 1;
 }
@@ -1441,21 +1441,21 @@ function Vr(e) {
 }
 var Jn = Vt.ReactCurrentBatchConfig, ns = !0;
 function lh(e, t, n, r) {
-  var l = de, a = Jn.transition;
+  var l = ce, a = Jn.transition;
   Jn.transition = null;
   try {
-    de = 1, Mo(e, t, n, r);
+    ce = 1, Mo(e, t, n, r);
   } finally {
-    de = l, Jn.transition = a;
+    ce = l, Jn.transition = a;
   }
 }
 function sh(e, t, n, r) {
-  var l = de, a = Jn.transition;
+  var l = ce, a = Jn.transition;
   Jn.transition = null;
   try {
-    de = 4, Mo(e, t, n, r);
+    ce = 4, Mo(e, t, n, r);
   } finally {
-    de = l, Jn.transition = a;
+    ce = l, Jn.transition = a;
   }
 }
 function Mo(e, t, n, r) {
@@ -2343,10 +2343,10 @@ function Zh(e) {
 function pn() {
   if (!sa && Dt !== null) {
     sa = !0;
-    var e = 0, t = de;
+    var e = 0, t = ce;
     try {
       var n = Dt;
-      for (de = 1; e < n.length; e++) {
+      for (ce = 1; e < n.length; e++) {
         var r = n[e];
         do
           r = r(!0);
@@ -2356,7 +2356,7 @@ function pn() {
     } catch (l) {
       throw Dt !== null && (Dt = Dt.slice(e + 1)), Cd(Eo, pn), l;
     } finally {
-      de = t, sa = !1;
+      ce = t, sa = !1;
     }
   }
   return null;
@@ -3088,14 +3088,14 @@ function bu(e, t, n) {
   return En & 21 ? (jt(n, t) || (n = Id(), Se.lanes |= n, Cn |= n, e.baseState = !0), t) : (e.baseState && (e.baseState = !1, Ye = !0), e.memoizedState = n);
 }
 function tp(e, t) {
-  var n = de;
-  de = n !== 0 && 4 > n ? n : 4, e(!0);
+  var n = ce;
+  ce = n !== 0 && 4 > n ? n : 4, e(!0);
   var r = oa.transition;
   oa.transition = {};
   try {
     e(!1), t();
   } finally {
-    de = n, oa.transition = r;
+    ce = n, oa.transition = r;
   }
 }
 function Eu() {
@@ -4605,7 +4605,7 @@ function Be() {
   return ae & 6 ? Ce() : Kl !== -1 ? Kl : Kl = Ce();
 }
 function cn(e) {
-  return e.mode & 1 ? ae & 2 && Oe !== 0 ? Oe & -Oe : Jh.transition !== null ? (Gl === 0 && (Gl = Id()), Gl) : (e = de, e !== 0 || (e = window.event, e = e === void 0 ? 16 : Ad(e.type)), e) : 1;
+  return e.mode & 1 ? ae & 2 && Oe !== 0 ? Oe & -Oe : Jh.transition !== null ? (Gl === 0 && (Gl = Id()), Gl) : (e = ce, e !== 0 || (e = window.event, e = e === void 0 ? 16 : Ad(e.type)), e) : 1;
 }
 function St(e, t, n, r) {
   if (50 < Ar) throw Ar = 0, oo = null, Error(U(185));
@@ -4777,11 +4777,11 @@ function Nn(e) {
   tn !== null && tn.tag === 0 && !(ae & 6) && tr();
   var t = ae;
   ae |= 1;
-  var n = ft.transition, r = de;
+  var n = ft.transition, r = ce;
   try {
-    if (ft.transition = null, de = 1, e) return e();
+    if (ft.transition = null, ce = 1, e) return e();
   } finally {
-    de = r, ft.transition = n, ae = t, !(ae & 6) && pn();
+    ce = r, ft.transition = n, ae = t, !(ae & 6) && pn();
   }
 }
 function ni() {
@@ -4969,11 +4969,11 @@ function Xu(e) {
   Te === 0 && (Te = 5);
 }
 function vn(e, t, n) {
-  var r = de, l = ft.transition;
+  var r = ce, l = ft.transition;
   try {
-    ft.transition = null, de = 1, xp(e, t, n, r);
+    ft.transition = null, ce = 1, xp(e, t, n, r);
   } finally {
-    ft.transition = l, de = r;
+    ft.transition = l, ce = r;
   }
   return null;
 }
@@ -4992,10 +4992,10 @@ function xp(e, t, n, r) {
     return tr(), null;
   })), a = (n.flags & 15990) !== 0, n.subtreeFlags & 15990 || a) {
     a = ft.transition, ft.transition = null;
-    var o = de;
-    de = 1;
+    var o = ce;
+    ce = 1;
     var i = ae;
-    ae |= 4, Zo.current = null, hp(e, n), Qu(n, e), Wh(Wa), ns = !!Fa, Wa = Fa = null, e.current = n, pp(n), Qm(), ae = i, de = o, ft.transition = a;
+    ae |= 4, Zo.current = null, hp(e, n), Qu(n, e), Wh(Wa), ns = !!Fa, Wa = Fa = null, e.current = n, pp(n), Qm(), ae = i, ce = o, ft.transition = a;
   } else e.current = n;
   if (Tl && (Tl = !1, tn = e, vs = l), a = e.pendingLanes, a === 0 && (on = null), Gm(n.stateNode), Je(e, Ce()), t !== null) for (r = e.onRecoverableError, n = 0; n < t.length; n++) l = t[n], r(l.value, { componentStack: l.stack, digest: l.digest });
   if (ys) throw ys = !1, e = ao, ao = null, e;
@@ -5003,9 +5003,9 @@ function xp(e, t, n, r) {
 }
 function tr() {
   if (tn !== null) {
-    var e = Td(vs), t = ft.transition, n = de;
+    var e = Td(vs), t = ft.transition, n = ce;
     try {
-      if (ft.transition = null, de = 16 > e ? 16 : e, tn === null) var r = !1;
+      if (ft.transition = null, ce = 16 > e ? 16 : e, tn === null) var r = !1;
       else {
         if (e = tn, tn = null, vs = 0, ae & 6) throw Error(U(331));
         var l = ae;
@@ -5107,7 +5107,7 @@ function tr() {
       }
       return r;
     } finally {
-      de = n, ft.transition = t;
+      ce = n, ft.transition = t;
     }
   }
   return !1;
@@ -5570,14 +5570,14 @@ Rd = function(e) {
   }
 };
 Dd = function() {
-  return de;
+  return ce;
 };
 Pd = function(e, t) {
-  var n = de;
+  var n = ce;
   try {
-    return de = e, t();
+    return ce = e, t();
   } finally {
-    de = n;
+    ce = n;
   }
 };
 Ta = function(e, t, n) {
@@ -5677,7 +5677,7 @@ function lf() {
     }
 }
 lf(), ld.exports = lt;
-var ce = ld.exports, sf, Cc = ce;
+var me = ld.exports, sf, Cc = me;
 sf = Cc.createRoot, Cc.hydrateRoot;
 var af = { exports: {} }, zs = {};
 /**
@@ -5725,7 +5725,7 @@ var zp = {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Fp = (e) => e.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase().trim(), Z = (e, t) => {
+const Fp = (e) => e.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase().trim(), J = (e, t) => {
   const n = p.forwardRef(
     ({
       color: r = "currentColor",
@@ -5761,7 +5761,7 @@ const Fp = (e) => e.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase().trim(),
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const cf = Z("AlertCircle", [
+const cf = J("AlertCircle", [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
   ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
@@ -5772,7 +5772,7 @@ const cf = Z("AlertCircle", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Wp = Z("AlertTriangle", [
+const Wp = J("AlertTriangle", [
   [
     "path",
     {
@@ -5789,7 +5789,7 @@ const Wp = Z("AlertTriangle", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const df = Z("ArrowDown", [
+const df = J("ArrowDown", [
   ["path", { d: "M12 5v14", key: "s699le" }],
   ["path", { d: "m19 12-7 7-7-7", key: "1idqje" }]
 ]);
@@ -5799,7 +5799,7 @@ const df = Z("ArrowDown", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const $p = Z("ArrowUpDown", [
+const $p = J("ArrowUpDown", [
   ["path", { d: "m21 16-4 4-4-4", key: "f6ql7i" }],
   ["path", { d: "M17 20V4", key: "1ejh1v" }],
   ["path", { d: "m3 8 4-4 4 4", key: "11wl7u" }],
@@ -5811,7 +5811,7 @@ const $p = Z("ArrowUpDown", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const uf = Z("ArrowUp", [
+const uf = J("ArrowUp", [
   ["path", { d: "m5 12 7-7 7 7", key: "hav0vg" }],
   ["path", { d: "M12 19V5", key: "x0mq9r" }]
 ]);
@@ -5821,7 +5821,7 @@ const uf = Z("ArrowUp", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Up = Z("Box", [
+const Up = J("Box", [
   [
     "path",
     {
@@ -5838,7 +5838,7 @@ const Up = Z("Box", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Vp = Z("Calendar", [
+const Vp = J("Calendar", [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
@@ -5850,7 +5850,7 @@ const Vp = Z("Calendar", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Bp = Z("CheckCircle", [
+const Bp = J("CheckCircle", [
   ["path", { d: "M22 11.08V12a10 10 0 1 1-5.93-9.14", key: "g774vq" }],
   ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
 ]);
@@ -5860,14 +5860,14 @@ const Bp = Z("CheckCircle", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const ci = Z("Check", [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]]);
+const ci = J("Check", [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]]);
 /**
  * @license lucide-react v0.344.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Qp = Z("ChevronDown", [
+const Qp = J("ChevronDown", [
   ["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]
 ]);
 /**
@@ -5876,7 +5876,7 @@ const Qp = Z("ChevronDown", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const ff = Z("ChevronLeft", [
+const ff = J("ChevronLeft", [
   ["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]
 ]);
 /**
@@ -5885,7 +5885,7 @@ const ff = Z("ChevronLeft", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const di = Z("ChevronRight", [
+const di = J("ChevronRight", [
   ["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]
 ]);
 /**
@@ -5894,7 +5894,7 @@ const di = Z("ChevronRight", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Hp = Z("Circle", [
+const Hp = J("Circle", [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]
 ]);
 /**
@@ -5903,7 +5903,7 @@ const Hp = Z("Circle", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Kp = Z("Copy", [
+const Kp = J("Copy", [
   ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
   ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
 ]);
@@ -5913,7 +5913,7 @@ const Kp = Z("Copy", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const tl = Z("Download", [
+const tl = J("Download", [
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
   ["polyline", { points: "7 10 12 15 17 10", key: "2ggqvy" }],
   ["line", { x1: "12", x2: "12", y1: "15", y2: "3", key: "1vk2je" }]
@@ -5924,7 +5924,7 @@ const tl = Z("Download", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Gp = Z("Eraser", [
+const Gp = J("Eraser", [
   [
     "path",
     {
@@ -5941,7 +5941,7 @@ const Gp = Z("Eraser", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const ui = Z("FileJson", [
+const ui = J("FileJson", [
   ["path", { d: "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z", key: "1rqfz7" }],
   ["path", { d: "M14 2v4a2 2 0 0 0 2 2h4", key: "tnqrlb" }],
   [
@@ -5959,7 +5959,7 @@ const ui = Z("FileJson", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const qp = Z("FileText", [
+const qp = J("FileText", [
   ["path", { d: "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z", key: "1rqfz7" }],
   ["path", { d: "M14 2v4a2 2 0 0 0 2 2h4", key: "tnqrlb" }],
   ["path", { d: "M10 9H8", key: "b1mrlr" }],
@@ -5972,7 +5972,7 @@ const qp = Z("FileText", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Yp = Z("Folder", [
+const Yp = J("Folder", [
   [
     "path",
     {
@@ -5987,7 +5987,7 @@ const Yp = Z("Folder", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Xp = Z("Info", [
+const Xp = J("Info", [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 16v-4", key: "1dtifu" }],
   ["path", { d: "M12 8h.01", key: "e9boi3" }]
@@ -5998,7 +5998,7 @@ const Xp = Z("Info", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Zp = Z("Lasso", [
+const Zp = J("Lasso", [
   ["path", { d: "M7 22a5 5 0 0 1-2-4", key: "umushi" }],
   [
     "path",
@@ -6015,7 +6015,7 @@ const Zp = Z("Lasso", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const mf = Z("LayoutGrid", [
+const mf = J("LayoutGrid", [
   ["rect", { width: "7", height: "7", x: "3", y: "3", rx: "1", key: "1g98yp" }],
   ["rect", { width: "7", height: "7", x: "14", y: "3", rx: "1", key: "6d4xhi" }],
   ["rect", { width: "7", height: "7", x: "14", y: "14", rx: "1", key: "nxv5o0" }],
@@ -6027,7 +6027,7 @@ const mf = Z("LayoutGrid", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Jp = Z("LayoutList", [
+const Jp = J("LayoutList", [
   ["rect", { width: "7", height: "7", x: "3", y: "3", rx: "1", key: "1g98yp" }],
   ["rect", { width: "7", height: "7", x: "3", y: "14", rx: "1", key: "1bb6yr" }],
   ["path", { d: "M14 4h7", key: "3xa0d5" }],
@@ -6041,7 +6041,7 @@ const Jp = Z("LayoutList", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const eg = Z("Link2Off", [
+const eg = J("Link2Off", [
   ["path", { d: "M9 17H7A5 5 0 0 1 7 7", key: "10o201" }],
   ["path", { d: "M15 7h2a5 5 0 0 1 4 8", key: "1d3206" }],
   ["line", { x1: "8", x2: "12", y1: "12", y2: "12", key: "rvw6j4" }],
@@ -6053,7 +6053,7 @@ const eg = Z("Link2Off", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const tg = Z("Link", [
+const tg = J("Link", [
   ["path", { d: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71", key: "1cjeqo" }],
   ["path", { d: "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71", key: "19qd67" }]
 ]);
@@ -6063,7 +6063,7 @@ const tg = Z("Link", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Nc = Z("Loader2", [
+const Nc = J("Loader2", [
   ["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]
 ]);
 /**
@@ -6072,7 +6072,7 @@ const Nc = Z("Loader2", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const ng = Z("Maximize", [
+const ng = J("Maximize", [
   ["path", { d: "M8 3H5a2 2 0 0 0-2 2v3", key: "1dcmit" }],
   ["path", { d: "M21 8V5a2 2 0 0 0-2-2h-3", key: "1e4gt3" }],
   ["path", { d: "M3 16v3a2 2 0 0 0 2 2h3", key: "wsl5sc" }],
@@ -6084,7 +6084,7 @@ const ng = Z("Maximize", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const rg = Z("Menu", [
+const rg = J("Menu", [
   ["line", { x1: "4", x2: "20", y1: "12", y2: "12", key: "1e0a9i" }],
   ["line", { x1: "4", x2: "20", y1: "6", y2: "6", key: "1owob3" }],
   ["line", { x1: "4", x2: "20", y1: "18", y2: "18", key: "yk5zj1" }]
@@ -6095,7 +6095,7 @@ const rg = Z("Menu", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const lg = Z("Minimize", [
+const lg = J("Minimize", [
   ["path", { d: "M8 3v3a2 2 0 0 1-2 2H3", key: "hohbtr" }],
   ["path", { d: "M21 8h-3a2 2 0 0 1-2-2V3", key: "5jw1f3" }],
   ["path", { d: "M3 16h3a2 2 0 0 1 2 2v3", key: "198tvr" }],
@@ -6107,7 +6107,7 @@ const lg = Z("Minimize", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const sg = Z("MoreVertical", [
+const sg = J("MoreVertical", [
   ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
   ["circle", { cx: "12", cy: "5", r: "1", key: "gxeob9" }],
   ["circle", { cx: "12", cy: "19", r: "1", key: "lyex9k" }]
@@ -6118,7 +6118,7 @@ const sg = Z("MoreVertical", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const ag = Z("PanelBottom", [
+const ag = J("PanelBottom", [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
   ["path", { d: "M3 15h18", key: "5xshup" }]
 ]);
@@ -6128,7 +6128,7 @@ const ag = Z("PanelBottom", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const hf = Z("Pen", [
+const hf = J("Pen", [
   ["path", { d: "M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z", key: "5qss01" }]
 ]);
 /**
@@ -6137,7 +6137,7 @@ const hf = Z("Pen", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const nl = Z("Play", [
+const nl = J("Play", [
   ["polygon", { points: "5 3 19 12 5 21 5 3", key: "191637" }]
 ]);
 /**
@@ -6146,7 +6146,7 @@ const nl = Z("Play", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Fs = Z("Plus", [
+const Fs = J("Plus", [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "M12 5v14", key: "s699le" }]
 ]);
@@ -6156,7 +6156,7 @@ const Fs = Z("Plus", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const rl = Z("RefreshCw", [
+const rl = J("RefreshCw", [
   ["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }],
   ["path", { d: "M21 3v5h-5", key: "1q7to0" }],
   ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }],
@@ -6168,7 +6168,7 @@ const rl = Z("RefreshCw", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const og = Z("ScanLine", [
+const og = J("ScanLine", [
   ["path", { d: "M3 7V5a2 2 0 0 1 2-2h2", key: "aa7l1z" }],
   ["path", { d: "M17 3h2a2 2 0 0 1 2 2v2", key: "4qcy5o" }],
   ["path", { d: "M21 17v2a2 2 0 0 1-2 2h-2", key: "6vwrx8" }],
@@ -6181,7 +6181,7 @@ const og = Z("ScanLine", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Mn = Z("Search", [
+const Mn = J("Search", [
   ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }],
   ["path", { d: "m21 21-4.3-4.3", key: "1qie3q" }]
 ]);
@@ -6191,7 +6191,7 @@ const Mn = Z("Search", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const pf = Z("Settings", [
+const pf = J("Settings", [
   [
     "path",
     {
@@ -6207,7 +6207,7 @@ const pf = Z("Settings", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const gf = Z("Square", [
+const gf = J("Square", [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }]
 ]);
 /**
@@ -6216,7 +6216,7 @@ const gf = Z("Square", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const cr = Z("Star", [
+const cr = J("Star", [
   [
     "polygon",
     {
@@ -6231,7 +6231,7 @@ const cr = Z("Star", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const ig = Z("StickyNote", [
+const ig = J("StickyNote", [
   ["path", { d: "M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8Z", key: "qazsjp" }],
   ["path", { d: "M15 3v4a2 2 0 0 0 2 2h4", key: "40519r" }]
 ]);
@@ -6241,7 +6241,7 @@ const ig = Z("StickyNote", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const mr = Z("Tag", [
+const mr = J("Tag", [
   [
     "path",
     {
@@ -6257,7 +6257,7 @@ const mr = Z("Tag", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Ut = Z("Trash2", [
+const Ut = J("Trash2", [
   ["path", { d: "M3 6h18", key: "d0wm0j" }],
   ["path", { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6", key: "4alrt4" }],
   ["path", { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2", key: "v07s0e" }],
@@ -6270,7 +6270,7 @@ const Ut = Z("Trash2", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const cg = Z("Trash", [
+const cg = J("Trash", [
   ["path", { d: "M3 6h18", key: "d0wm0j" }],
   ["path", { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6", key: "4alrt4" }],
   ["path", { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2", key: "v07s0e" }]
@@ -6281,7 +6281,7 @@ const cg = Z("Trash", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const dg = Z("Type", [
+const dg = J("Type", [
   ["polyline", { points: "4 7 4 4 20 4 20 7", key: "1nosan" }],
   ["line", { x1: "9", x2: "15", y1: "20", y2: "20", key: "swin9y" }],
   ["line", { x1: "12", x2: "12", y1: "4", y2: "20", key: "1tx1rr" }]
@@ -6292,7 +6292,7 @@ const dg = Z("Type", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const ug = Z("Undo2", [
+const ug = J("Undo2", [
   ["path", { d: "M9 14 4 9l5-5", key: "102s5s" }],
   ["path", { d: "M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11", key: "llx8ln" }]
 ]);
@@ -6302,7 +6302,7 @@ const ug = Z("Undo2", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const fg = Z("Upload", [
+const fg = J("Upload", [
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
   ["polyline", { points: "17 8 12 3 7 8", key: "t8dd8p" }],
   ["line", { x1: "12", x2: "12", y1: "3", y2: "15", key: "widbto" }]
@@ -6313,7 +6313,7 @@ const fg = Z("Upload", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const mg = Z("Workflow", [
+const mg = J("Workflow", [
   ["rect", { width: "8", height: "8", x: "3", y: "3", rx: "2", key: "by2w9f" }],
   ["path", { d: "M7 11v4a2 2 0 0 0 2 2h4", key: "xkn7yn" }],
   ["rect", { width: "8", height: "8", x: "13", y: "13", rx: "2", key: "1cgmvn" }]
@@ -6324,7 +6324,7 @@ const mg = Z("Workflow", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const pe = Z("X", [
+const pe = J("X", [
   ["path", { d: "M18 6 6 18", key: "1bl5f8" }],
   ["path", { d: "m6 6 12 12", key: "d8bk6v" }]
 ]);
@@ -6334,7 +6334,7 @@ const pe = Z("X", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const hg = Z("ZoomIn", [
+const hg = J("ZoomIn", [
   ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }],
   ["line", { x1: "21", x2: "16.65", y1: "21", y2: "16.65", key: "13gj7c" }],
   ["line", { x1: "11", x2: "11", y1: "8", y2: "14", key: "1vmskp" }],
@@ -6346,7 +6346,7 @@ const hg = Z("ZoomIn", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const pg = Z("ZoomOut", [
+const pg = J("ZoomOut", [
   ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }],
   ["line", { x1: "21", x2: "16.65", y1: "21", y2: "16.65", key: "13gj7c" }],
   ["line", { x1: "8", x2: "14", y1: "11", y2: "11", key: "durymu" }]
@@ -6460,9 +6460,7 @@ const yg = (e) => {
   });
   await le(n);
 }, kg = async (e, t) => {
-  const n = t !== void 0 ? `&threshold=${t}` : "", r = await te.fetchApi(
-    `/meld/suggest-parents?id=${e}${n}`
-  );
+  const n = t !== void 0 ? `&threshold=${t}` : "", r = await te.fetchApi(`/meld/suggest-parents?id=${e}${n}`);
   try {
     return await le(r);
   } catch {
@@ -6671,9 +6669,7 @@ const Fg = (e, t) => {
         favorites: t.payload
       };
     case "REMOVE_IMAGES": {
-      const n = new Set(t.payload), r = jr(
-        e.images.filter((o) => !n.has(o.id))
-      ), l = jr(
+      const n = new Set(t.payload), r = jr(e.images.filter((o) => !n.has(o.id))), l = jr(
         e.lineageImages.filter((o) => !n.has(o.id))
       ), a = Math.max(
         0,
@@ -6834,17 +6830,10 @@ const Wg = (e, t) => {
           lastSelectedId: t.payload
         };
       }
-      const n = e.images.findIndex(
-        (i) => i.id === e.lastSelectedId
-      ), r = e.images.findIndex(
-        (i) => i.id === t.payload
-      );
+      const n = e.images.findIndex((i) => i.id === e.lastSelectedId), r = e.images.findIndex((i) => i.id === t.payload);
       if (n === -1 || r === -1)
         return e;
-      const [l, a] = [
-        Math.min(n, r),
-        Math.max(n, r)
-      ], o = new Set(e.selectedIds);
+      const [l, a] = [Math.min(n, r), Math.max(n, r)], o = new Set(e.selectedIds);
       for (let i = l; i <= a; i++) {
         const c = e.images[i];
         c && o.add(c.id);
@@ -6985,15 +6974,9 @@ const Vg = (e, t) => {
         lineageImages: []
       };
     case "NEXT_IMAGE": {
-      const c = ((r = t.payload) == null ? void 0 : r.isFullscreen) ?? !1 ? e.settings["fullscreen.loop"] : e.settings["viewer.loop"], d = Lc(
-        e,
-        (l = t.payload) == null ? void 0 : l.currentList
-      );
-      if (e.viewerImageId === null || d.length === 0)
-        return e;
-      const h = d.findIndex(
-        (k) => k.id === e.viewerImageId
-      );
+      const c = ((r = t.payload) == null ? void 0 : r.isFullscreen) ?? !1 ? e.settings["fullscreen.loop"] : e.settings["viewer.loop"], d = Lc(e, (l = t.payload) == null ? void 0 : l.currentList);
+      if (e.viewerImageId === null || d.length === 0) return e;
+      const h = d.findIndex((k) => k.id === e.viewerImageId);
       if (h === -1 || h === d.length - 1 && e.viewerMode === "gallery" && e.pagination.hasMore || h === d.length - 1 && !c)
         return e;
       const v = (h + 1) % d.length, y = d[v];
@@ -7003,15 +6986,9 @@ const Vg = (e, t) => {
       } : e;
     }
     case "PREVIOUS_IMAGE": {
-      const c = ((a = t.payload) == null ? void 0 : a.isFullscreen) ?? !1 ? e.settings["fullscreen.loop"] : e.settings["viewer.loop"], d = Lc(
-        e,
-        (o = t.payload) == null ? void 0 : o.currentList
-      );
-      if (e.viewerImageId === null || d.length === 0)
-        return e;
-      const h = d.findIndex(
-        (k) => k.id === e.viewerImageId
-      );
+      const c = ((a = t.payload) == null ? void 0 : a.isFullscreen) ?? !1 ? e.settings["fullscreen.loop"] : e.settings["viewer.loop"], d = Lc(e, (o = t.payload) == null ? void 0 : o.currentList);
+      if (e.viewerImageId === null || d.length === 0) return e;
+      const h = d.findIndex((k) => k.id === e.viewerImageId);
       if (h === -1 || h === 0 && e.viewerMode === "gallery" && e.pagination.hasMore || h === 0 && !c)
         return e;
       const v = (h - 1 + d.length) % d.length, y = d[v];
@@ -7158,9 +7135,7 @@ const Hg = {
 function Kg(e, t) {
   return Qg(e, t);
 }
-const Sf = p.createContext(void 0), Gg = ({
-  children: e
-}) => {
+const Sf = p.createContext(void 0), Gg = ({ children: e }) => {
   const [t, n] = p.useReducer(Kg, Hg), r = p.useRef(t.images.length), l = p.useRef(0), a = p.useRef(/* @__PURE__ */ new Map());
   p.useEffect(() => {
     r.current = t.images.length;
@@ -7184,8 +7159,7 @@ const Sf = p.createContext(void 0), Gg = ({
             !0
             // minimal mode
           );
-          if (_ !== l.current || (n({ type: "APPEND_IMAGES", payload: b }), m += b.images.length, b.images.length === 0 || m >= b.total))
-            break;
+          if (_ !== l.current || (n({ type: "APPEND_IMAGES", payload: b }), m += b.images.length, b.images.length === 0 || m >= b.total)) break;
           await new Promise((S) => setTimeout(S, 300));
         } catch (g) {
           O.error("Background fetch failed", g);
@@ -7224,12 +7198,7 @@ const Sf = p.createContext(void 0), Gg = ({
         payload: _ instanceof Error ? _.message : String(_)
       });
     }
-  }, [
-    t.searchQuery,
-    t.viewScope,
-    t.settings,
-    o
-  ]), c = p.useCallback(async () => {
+  }, [t.searchQuery, t.viewScope, t.settings, o]), c = p.useCallback(async () => {
     if (t.isLoading || !t.pagination.hasMore) return;
     n({ type: "SET_LOADING", payload: !0 });
     const w = performance.now();
@@ -7275,11 +7244,7 @@ const Sf = p.createContext(void 0), Gg = ({
     }
   }, []), h = p.useCallback(async () => {
     if (t.selectedIds.size === 0) return;
-    const w = Array.from(t.selectedIds), _ = t.images.filter(
-      (f) => t.selectedIds.has(f.id)
-    ).some(
-      (f) => f.parent_id || f.has_children
-    );
+    const w = Array.from(t.selectedIds), _ = t.images.filter((f) => t.selectedIds.has(f.id)).some((f) => f.parent_id || f.has_children);
     n({
       type: "OPEN_MODAL",
       payload: {
@@ -7542,22 +7507,15 @@ const Sf = p.createContext(void 0), Gg = ({
     const C = new AbortController();
     return (async () => {
       const D = t.type === "custom" ? t.custom_path : t.subfolder;
-      if (O.log(
-        `loadFolders started. Path: "${D}", Type: "${t.type}"`
-      ), t.type === "custom" && !D) {
-        O.log("Custom path is empty, skipping load."), l([]), o([]), c(0);
+      if (O.log(`loadFolders started. Path: "${D}", Type: "${t.type}"`), t.type === "custom" && !D) {
+        O.log("Custom path is empty, skipping load."), l([]), o([]), c(0), h(!1);
         return;
       }
       h(!0);
       const R = D, N = t.type;
       try {
         O.log("Step 1: Fast load starting...");
-        const T = await ey(
-          t.type,
-          D,
-          !0,
-          C.signal
-        );
+        const T = await ey(t.type, D, !0, C.signal);
         if (C.signal.aborted) {
           O.log("Step 1: Aborted.");
           return;
@@ -7566,14 +7524,7 @@ const Sf = p.createContext(void 0), Gg = ({
           `Step 1 complete. Found ${T.folders.length} folders, ${T.images.length} images.`
         ), l(T.folders), o(T.images), c(null);
         const W = T.folders.map((E) => E.name);
-        W.length > 0 && (O.log(
-          `Step 2: Metadata fetch starting for ${W.length} folders...`
-        ), ty(
-          N,
-          R,
-          W,
-          C.signal
-        ).then((E) => {
+        W.length > 0 && (O.log(`Step 2: Metadata fetch starting for ${W.length} folders...`), ty(N, R, W, C.signal).then((E) => {
           if (C.signal.aborted) {
             O.log("Step 2: Aborted.");
             return;
@@ -7671,7 +7622,7 @@ const Sf = p.createContext(void 0), Gg = ({
       C.pop(), n({ ...t, subfolder: C.join("/") });
     }
   };
-  return ce.createPortal(
+  return me.createPortal(
     /* @__PURE__ */ s.jsxs(
       "div",
       {
@@ -7909,34 +7860,21 @@ const Sf = p.createContext(void 0), Gg = ({
               onClick: (C) => {
                 C.stopPropagation(), u(null);
               },
-              children: /* @__PURE__ */ s.jsxs(
-                "div",
-                {
-                  className: "meld-import-preview-content",
-                  onClick: (C) => C.stopPropagation(),
-                  children: [
-                    /* @__PURE__ */ s.jsxs("div", { className: "meld-import-preview-image-wrapper", children: [
-                      /* @__PURE__ */ s.jsx(
-                        "button",
-                        {
-                          type: "button",
-                          className: "meld-import-preview-close",
-                          onClick: () => u(null),
-                          children: /* @__PURE__ */ s.jsx(pe, { size: 24 })
-                        }
-                      ),
-                      /* @__PURE__ */ s.jsx(
-                        "img",
-                        {
-                          src: mt(f, 400),
-                          alt: f.filename
-                        }
-                      )
-                    ] }),
-                    /* @__PURE__ */ s.jsx("div", { className: "meld-import-preview-info", children: f.filename })
-                  ]
-                }
-              )
+              children: /* @__PURE__ */ s.jsxs("div", { className: "meld-import-preview-content", onClick: (C) => C.stopPropagation(), children: [
+                /* @__PURE__ */ s.jsxs("div", { className: "meld-import-preview-image-wrapper", children: [
+                  /* @__PURE__ */ s.jsx(
+                    "button",
+                    {
+                      type: "button",
+                      className: "meld-import-preview-close",
+                      onClick: () => u(null),
+                      children: /* @__PURE__ */ s.jsx(pe, { size: 24 })
+                    }
+                  ),
+                  /* @__PURE__ */ s.jsx("img", { src: mt(f, 400), alt: f.filename })
+                ] }),
+                /* @__PURE__ */ s.jsx("div", { className: "meld-import-preview-info", children: f.filename })
+              ] })
             }
           )
         ]
@@ -7944,11 +7882,7 @@ const Sf = p.createContext(void 0), Gg = ({
     ),
     document.fullscreenElement || document.body
   );
-}, sy = ({
-  imageIds: e,
-  onSuccess: t,
-  onClose: n
-}) => {
+}, sy = ({ imageIds: e, onSuccess: t, onClose: n }) => {
   const [r, l] = p.useState("zip"), [a, o] = p.useState(!1), [i, c] = p.useState(!1), d = p.useRef(!1), h = (k) => {
     k.target === k.currentTarget && (d.current = !0);
   }, v = (k) => {
@@ -7974,7 +7908,7 @@ const Sf = p.createContext(void 0), Gg = ({
       c(!1);
     }
   };
-  return ce.createPortal(
+  return me.createPortal(
     /* @__PURE__ */ s.jsx(
       "div",
       {
@@ -8344,9 +8278,7 @@ const se = dy()(
         const l = {
           ...r.buckets,
           [t]: ((i = r.buckets[t]) == null ? void 0 : i.filter((c) => c !== n)) || []
-        }, a = Object.values(l).some(
-          (c) => c.includes(n)
-        ), o = { ...r.images };
+        }, a = Object.values(l).some((c) => c.includes(n)), o = { ...r.images };
         return a || delete o[n], { buckets: l, images: o };
       }),
       clearBucket: (t) => e((n) => {
@@ -8359,9 +8291,7 @@ const se = dy()(
         return { buckets: r, images: a };
       }),
       updateSlot: (t, n) => e((r) => ({
-        slots: r.slots.map(
-          (l) => l.id === t ? { ...l, ...n } : l
-        )
+        slots: r.slots.map((l) => l.id === t ? { ...l, ...n } : l)
       })),
       addSlot: (t) => e((n) => ({
         slots: [...n.slots, t]
@@ -8415,9 +8345,7 @@ const se = dy()(
   const e = await te.fetchApi("/meld/workflows");
   return le(e);
 }, Ef = async (e) => {
-  const t = await te.fetchApi(
-    `/meld/workflow/raw?name=${encodeURIComponent(e)}`
-  );
+  const t = await te.fetchApi(`/meld/workflow/raw?name=${encodeURIComponent(e)}`);
   return le(t);
 }, gi = () => ({ executeWorkflow: p.useCallback(
   async (t, n, r, l) => {
@@ -8438,9 +8366,7 @@ const se = dy()(
     };
     if (a.nodes && Array.isArray(a.nodes)) {
       if (c = !0, !o) {
-        const g = a.nodes.find(
-          (b) => d(b.type)
-        );
+        const g = a.nodes.find((b) => d(b.type));
         g && (o = String(g.id));
       }
       const m = a.nodes.find(
@@ -8470,13 +8396,9 @@ const se = dy()(
       maskNodeId: i,
       isUIFormat: c
     }), !o)
-      throw new Error(
-        "Meld Image Loader or Load Image node not found in the selected workflow."
-      );
+      throw new Error("Meld Image Loader or Load Image node not found in the selected workflow.");
     if (r && !i)
-      throw O.warn(
-        "Mask filename provided but no mask node found in workflow JSON"
-      ), new Error(
+      throw O.warn("Mask filename provided but no mask node found in workflow JSON"), new Error(
         "Load Image (as Mask) node not found in the selected workflow, but a mask was provided."
       );
     let h = n.filename;
@@ -8519,18 +8441,12 @@ const se = dy()(
           nodeId: L == null ? void 0 : L.id,
           maskFilename: r
         }), L) {
-          const P = (f = L.widgets) == null ? void 0 : f.find(
-            (F) => F.name === "image"
-          );
+          const P = (f = L.widgets) == null ? void 0 : f.find((F) => F.name === "image");
           P && (P.value = `${r} [temp]`);
-          const I = (u = L.widgets) == null ? void 0 : u.find(
-            (F) => F.name === "channel"
-          );
+          const I = (u = L.widgets) == null ? void 0 : u.find((F) => F.name === "channel");
           I && (I.value = "red");
         } else
-          O.warn(
-            "LoadImageMask not found in active graph after loading"
-          );
+          O.warn("LoadImageMask not found in active graph after loading");
       }
       m.graph.setDirtyCanvas(!0, !0);
       try {
@@ -8566,21 +8482,15 @@ function ll(e, t) {
     if (!h) return !1;
     const v = h.replace(/\s+/g, "").toLowerCase();
     return v === "meldimageloader" || v === "loadimage";
-  }, a = n.graph._nodes.filter(
-    (h) => l(h.type)
-  );
+  }, a = n.graph._nodes.filter((h) => l(h.type));
   if (a.length === 0)
     return { ok: !1, reason: "no_loader_node" };
   let o = a[0];
   if (t) {
-    const h = a.find(
-      (v) => String(v.id) === t
-    );
+    const h = a.find((v) => String(v.id) === t);
     h && (o = h);
   }
-  const i = o.widgets.find(
-    (h) => h.name === "image"
-  );
+  const i = o.widgets.find((h) => h.name === "image");
   return i && (i.value = r, typeof i.callback == "function" && i.callback(r)), (d = (c = n.graph).afterChange) == null || d.call(c), n.graph.setDirtyCanvas(!0, !0), { ok: !0 };
 }
 const gy = () => {
@@ -8596,27 +8506,21 @@ const gy = () => {
         (y) => y.type === "LoadImageMask"
       );
       if (a.length === 0)
-        return O.log(
-          "[Meld-Debug] injectMaskToGraph: No LoadImageMask nodes found in active graph"
-        ), e({
+        return O.log("[Meld-Debug] injectMaskToGraph: No LoadImageMask nodes found in active graph"), e({
           type: "OPEN_MODAL",
           payload: {
             type: "error",
             message: "No 'Load Image (as Mask)' node found in the current workflow."
           }
         }), !1;
-      const o = a[0], i = o.widgets.find(
-        (y) => y.name === "image"
-      ), c = `${r} [temp]`;
+      const o = a[0], i = o.widgets.find((y) => y.name === "image"), c = `${r} [temp]`;
       O.log(
         "[Meld-Debug] injectMaskToGraph: Updating node",
         o.id,
         "widget 'image' with",
         c
       ), i && (i.value = c, typeof i.callback == "function" && i.callback(c));
-      const d = o.widgets.find(
-        (y) => y.name === "channel"
-      );
+      const d = o.widgets.find((y) => y.name === "channel");
       return d && (d.value = "red", typeof d.callback == "function" && d.callback("red")), (v = (h = l.graph).afterChange) == null || v.call(h), l.graph.setDirtyCanvas(!0, !0), !0;
     },
     [e]
@@ -8676,36 +8580,32 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
     const ee = H.getBoundingClientRect(), q = $.naturalWidth, ne = $.naturalHeight;
     if (!q || !ne) return null;
     const ie = q / ne, Ne = ee.width / ee.height;
-    let me, _e, ye = 0, ot = 0;
-    return ie > Ne ? (me = ee.width, _e = ee.width / ie, ot = (ee.height - _e) / 2) : (_e = ee.height, me = ee.height * ie, ye = (ee.width - me) / 2), {
+    let fe, _e, ye = 0, ot = 0;
+    return ie > Ne ? (fe = ee.width, _e = ee.width / ie, ot = (ee.height - _e) / 2) : (_e = ee.height, fe = ee.height * ie, ye = (ee.width - fe) / 2), {
       left: ye,
       top: ot,
-      width: me,
+      width: fe,
       height: _e
     };
   }, []), A = p.useCallback(
     ($, H, ee, q) => {
       if (!$) return H;
-      const ne = $.getBoundingClientRect(), ie = ne.width / 2, Ne = ne.height / 2, me = {
+      const ne = $.getBoundingClientRect(), ie = ne.width / 2, Ne = ne.height / 2, fe = {
         x: (ie - H.x) / ee,
         y: (Ne - H.y) / ee
       };
-      return { x: ie - me.x * q, y: Ne - me.y * q };
+      return { x: ie - fe.x * q, y: Ne - fe.y * q };
     },
     []
   ), K = p.useCallback(() => {
     B(($) => {
       const H = Math.min($ * 1.2, 20);
-      return R(
-        (ee) => A(k.current, ee, $, H)
-      ), H;
+      return R((ee) => A(k.current, ee, $, H)), H;
     });
-  }, [A]), J = p.useCallback(() => {
+  }, [A]), X = p.useCallback(() => {
     B(($) => {
       const H = Math.max(0.1, $ / 1.2);
-      return R(
-        (ee) => A(k.current, ee, $, H)
-      ), H;
+      return R((ee) => A(k.current, ee, $, H)), H;
     });
   }, [A]), oe = p.useCallback(() => {
     const $ = y.current;
@@ -8721,12 +8621,12 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
       ne.width,
       ne.height
     ), H.restore()), _) {
-      const ie = Math.min(g.x, S.x), Ne = Math.min(g.y, S.y), me = Math.abs(g.x - S.x), _e = Math.abs(g.y - S.y);
+      const ie = Math.min(g.x, S.x), Ne = Math.min(g.y, S.y), fe = Math.abs(g.x - S.x), _e = Math.abs(g.y - S.y);
       if (H.save(), H.globalAlpha = 0.3, H.fillStyle = q, H.strokeStyle = "white", H.lineWidth = 2, H.setLineDash([5, 5]), H.beginPath(), u === "rect")
-        H.rect(ie, Ne, me, _e);
+        H.rect(ie, Ne, fe, _e);
       else if (u === "ellipse") {
-        const ye = ie + me / 2, ot = Ne + _e / 2;
-        H.ellipse(ye, ot, me / 2, _e / 2, 0, 0, 2 * Math.PI);
+        const ye = ie + fe / 2, ot = Ne + _e / 2;
+        H.ellipse(ye, ot, fe / 2, _e / 2, 0, 0, 2 * Math.PI);
       } else if (u === "lasso" && M.length > 1) {
         H.moveTo(M[0].x, M[0].y);
         for (let ye = 1; ye < M.length; ye++)
@@ -8735,49 +8635,33 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
       }
       H.fill(), H.globalAlpha = 1, H.stroke(), H.restore();
     }
-  }, [
-    _,
-    g,
-    S,
-    u,
-    M,
-    V
-  ]), [ue, Le] = p.useState([]), fe = p.useMemo(() => ue.length > 0 ? ue[ue.length - 1] : w.current ? Dl(
-    w.current.naturalWidth,
-    w.current.naturalHeight
-  ) : null, [ue]);
+  }, [_, g, S, u, M, V]), [de, Le] = p.useState([]), ue = p.useMemo(() => de.length > 0 ? de[de.length - 1] : w.current ? Dl(w.current.naturalWidth, w.current.naturalHeight) : null, [de]);
   p.useEffect(() => {
     var $;
-    ($ = w.current) != null && $.naturalWidth && ue.length === 0 && Le([
-      Dl(
-        w.current.naturalWidth,
-        w.current.naturalHeight
-      )
+    ($ = w.current) != null && $.naturalWidth && de.length === 0 && Le([
+      Dl(w.current.naturalWidth, w.current.naturalHeight)
     ]);
-  }, [ue.length]);
+  }, [de.length]);
   const Tt = p.useCallback(() => {
     var $;
-    ($ = w.current) != null && $.naturalWidth && ue.length === 0 && Le([
-      Dl(
-        w.current.naturalWidth,
-        w.current.naturalHeight
-      )
+    ($ = w.current) != null && $.naturalWidth && de.length === 0 && Le([
+      Dl(w.current.naturalWidth, w.current.naturalHeight)
     ]);
-  }, [ue.length]), X = p.useRef(!1), Bt = p.useRef(0), Qt = ($) => {
-    $.target === $.currentTarget && (X.current = !0);
+  }, [de.length]), Z = p.useRef(!1), Bt = p.useRef(0), Qt = ($) => {
+    $.target === $.currentTarget && (Z.current = !0);
   }, Ht = ($) => {
-    $.target === $.currentTarget && X.current && !_ && l(), X.current = !1;
+    $.target === $.currentTarget && Z.current && !_ && l(), Z.current = !1;
   };
   p.useEffect(() => {
-    if (!fe) return;
+    if (!ue) return;
     x.current || (x.current = document.createElement("canvas"));
     const $ = x.current;
-    $.width = fe.width, $.height = fe.height;
+    $.width = ue.width, $.height = ue.height;
     const H = $.getContext("2d");
     if (!H) return;
-    const ee = mo(fe, [255, 255, 255], 255);
+    const ee = mo(ue, [255, 255, 255], 255);
     H.putImageData(ee, 0, 0), oe();
-  }, [fe, oe]), p.useEffect(() => {
+  }, [ue, oe]), p.useEffect(() => {
     _ && oe();
   }, [_, oe]), p.useEffect(() => {
     const $ = k.current;
@@ -8788,7 +8672,7 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
       B((ne) => {
         const ie = Math.min(Math.max(0.1, ne * q), 20);
         return R((Ne) => {
-          const me = $.getBoundingClientRect(), _e = ee.clientX - me.left, ye = ee.clientY - me.top, ot = {
+          const fe = $.getBoundingClientRect(), _e = ee.clientX - fe.left, ye = ee.clientY - fe.top, ot = {
             x: (_e - Ne.x) / ne,
             y: (ye - Ne.y) / ne
           };
@@ -8843,14 +8727,8 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
     const Ne = {
       x: ($.clientX - ie.left - D.x) / C,
       y: ($.clientY - ie.top - D.y) / C
-    }, me = Math.max(
-      ne.left,
-      Math.min(Ne.x, ne.left + ne.width)
-    ), _e = Math.max(
-      ne.top,
-      Math.min(Ne.y, ne.top + ne.height)
-    );
-    b({ x: me, y: _e }), j({ x: me, y: _e }), L(u === "lasso" ? [{ x: me, y: _e }] : []), I(null);
+    }, fe = Math.max(ne.left, Math.min(Ne.x, ne.left + ne.width)), _e = Math.max(ne.top, Math.min(Ne.y, ne.top + ne.height));
+    b({ x: fe, y: _e }), j({ x: fe, y: _e }), L(u === "lasso" ? [{ x: fe, y: _e }] : []), I(null);
   };
   p.useEffect(() => {
     if (!_) return;
@@ -8861,44 +8739,24 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
       const ie = {
         x: (ee.clientX - ne.left - D.x) / C,
         y: (ee.clientY - ne.top - D.y) / C
-      }, Ne = Math.max(
-        q.left,
-        Math.min(ie.x, q.left + q.width)
-      ), me = Math.max(
-        q.top,
-        Math.min(ie.y, q.top + q.height)
-      );
-      j({ x: Ne, y: me }), u === "lasso" && L((ye) => [...ye, { x: Ne, y: me }]);
+      }, Ne = Math.max(q.left, Math.min(ie.x, q.left + q.width)), fe = Math.max(q.top, Math.min(ie.y, q.top + q.height));
+      j({ x: Ne, y: fe }), u === "lasso" && L((ye) => [...ye, { x: Ne, y: fe }]);
     }, H = (ee) => {
       var ie;
       const q = V(), ne = (ie = k.current) == null ? void 0 : ie.getBoundingClientRect();
-      if (q && ne && fe && w.current) {
+      if (q && ne && ue && w.current) {
         const Ne = {
           x: (ee.clientX - ne.left - D.x) / C,
           y: (ee.clientY - ne.top - D.y) / C
-        }, me = Math.max(
-          q.left,
-          Math.min(Ne.x, q.left + q.width)
-        ), _e = Math.max(
-          q.top,
-          Math.min(Ne.y, q.top + q.height)
-        ), ye = Math.min(g.x, me), ot = Math.min(g.y, _e), ml = Math.abs(g.x - me), pr = Math.abs(g.y - _e), am = u === "lasso";
+        }, fe = Math.max(q.left, Math.min(Ne.x, q.left + q.width)), _e = Math.max(q.top, Math.min(Ne.y, q.top + q.height)), ye = Math.min(g.x, fe), ot = Math.min(g.y, _e), ml = Math.abs(g.x - fe), pr = Math.abs(g.y - _e), am = u === "lasso";
         if (ml > 5 || pr > 5 || am && M.length > 2) {
-          const om = w.current.naturalWidth, im = w.current.naturalHeight, Rn = om / q.width, Dn = im / q.height, cm = yy(fe, (gn) => {
+          const om = w.current.naturalWidth, im = w.current.naturalHeight, Rn = om / q.width, Dn = im / q.height, cm = yy(ue, (gn) => {
             if (u === "rect") {
               const Pn = (ye - q.left) * Rn, Kt = (ot - q.top) * Dn, hl = ml * Rn, pl = pr * Dn;
               gn.rect(Pn, Kt, hl, pl);
             } else if (u === "ellipse") {
               const Pn = (ye - q.left) * Rn, Kt = (ot - q.top) * Dn, hl = ml * Rn, pl = pr * Dn, dm = Pn + hl / 2, um = Kt + pl / 2;
-              gn.ellipse(
-                dm,
-                um,
-                hl / 2,
-                pl / 2,
-                0,
-                0,
-                2 * Math.PI
-              );
+              gn.ellipse(dm, um, hl / 2, pl / 2, 0, 0, 2 * Math.PI);
             } else if (u === "lasso" && M.length > 2) {
               const Pn = M[0];
               gn.moveTo(
@@ -8926,7 +8784,7 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
     g.x,
     g.y,
     V,
-    fe,
+    ue,
     u,
     M,
     D.x,
@@ -8934,8 +8792,8 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
     C
   ]);
   const hr = p.useCallback(() => {
-    ue.length > 1 && Le(($) => $.slice(0, -1));
-  }, [ue.length]);
+    de.length > 1 && Le(($) => $.slice(0, -1));
+  }, [de.length]);
   p.useEffect(() => {
     const $ = (q) => {
       if (!q) return !1;
@@ -8960,20 +8818,20 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
       Le((H) => [...H, $]);
     }
   }, be = async () => {
-    if (!fe || !w.current) return null;
+    if (!ue || !w.current) return null;
     Q(!0);
     try {
-      const { width: $, height: H } = fe, ee = document.createElement("canvas");
+      const { width: $, height: H } = ue, ee = document.createElement("canvas");
       ee.width = $, ee.height = H;
       const q = ee.getContext("2d");
       if (!q) return null;
-      const ne = mo(fe, [255, 255, 255], 255);
+      const ne = mo(ue, [255, 255, 255], 255);
       q.putImageData(ne, 0, 0);
       const ie = await new Promise(
         (pr) => ee.toBlob(pr, "image/png")
       );
       if (!ie) return null;
-      const me = `meld_mask_${Date.now()}.png`, _e = new File([ie], me, { type: "image/png" }), ye = new FormData();
+      const fe = `meld_mask_${Date.now()}.png`, _e = new File([ie], fe, { type: "image/png" }), ye = new FormData();
       ye.append("image", _e), ye.append("type", "temp"), ye.append("overwrite", "true");
       const ot = await te.fetchApi("/upload/image", {
         method: "POST",
@@ -9006,10 +8864,7 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
         onSuccess: r
       }
     }));
-  }, Lt = p.useMemo(
-    () => fe && !vy(fe),
-    [fe]
-  );
+  }, Lt = p.useMemo(() => ue && !vy(ue), [ue]);
   return d ? /* @__PURE__ */ s.jsx(
     "div",
     {
@@ -9082,7 +8937,7 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
                   "button",
                   {
                     className: "meld-mask-tool-btn",
-                    onClick: J,
+                    onClick: X,
                     type: "button",
                     title: "Zoom Out",
                     "aria-label": "Zoom Out",
@@ -9208,7 +9063,7 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
                     {
                       className: "meld-mask-toolbar-btn meld-mask-toolbar-btn--undo",
                       onClick: hr,
-                      disabled: ue.length <= 1 || F,
+                      disabled: de.length <= 1 || F,
                       type: "button",
                       title: "Undo last area",
                       children: [
@@ -9276,15 +9131,17 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
 }, _y = () => {
   const { state: e, dispatch: t, updateSetting: n } = ge(), [r, l] = p.useState("Gallery"), [a, o] = p.useState({
     ...e.settings
-  }), [i, c] = p.useState(
-    {}
-  ), [d, h] = p.useState(
+  }), [i, c] = p.useState({}), [d, h] = p.useState(
     e.settings["gallery.initial_load_count"].toString()
   ), [v, y] = p.useState(
     e.settings["gallery.max_load_count"].toString()
   ), [k, w] = p.useState(
     e.settings["gallery.lineage_max_depth"].toString()
-  ), [x, _] = p.useState(e.settings["viewer.thumbnail_window_size"].toString()), [f, u] = p.useState(e.settings["gallery.trash_retention_days"].toString()), [m, g] = p.useState(
+  ), [x, _] = p.useState(
+    e.settings["viewer.thumbnail_window_size"].toString()
+  ), [f, u] = p.useState(
+    e.settings["gallery.trash_retention_days"].toString()
+  ), [m, g] = p.useState(
     e.settings["gallery.auto_link_phash_threshold"].toString()
   ), [b, S] = p.useState(
     e.settings["gallery.suggest_phash_threshold"].toString()
@@ -9292,17 +9149,7 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
     e.settings["viewer.details.max_positive_prompt_lines"].toString()
   ), [L, P] = p.useState(
     e.settings["viewer.details.max_negative_prompt_lines"].toString()
-  ), [
-    I,
-    F
-  ] = p.useState(
-    e.settings["fullscreen.details.max_positive_prompt_lines"].toString()
-  ), [
-    Q,
-    C
-  ] = p.useState(
-    e.settings["fullscreen.details.max_negative_prompt_lines"].toString()
-  ), [B, D] = p.useState(
+  ), [I, F] = p.useState(e.settings["fullscreen.details.max_positive_prompt_lines"].toString()), [Q, C] = p.useState(e.settings["fullscreen.details.max_negative_prompt_lines"].toString()), [B, D] = p.useState(
     e.settings["sidebar.thumbnail_size"].toString()
   );
   return {
@@ -9314,44 +9161,32 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
     setShortcutErrors: c,
     handleClose: async () => {
       const K = Object.keys(a).filter(
-        (J) => a[J] !== e.settings[J] && !i[J]
+        (X) => a[X] !== e.settings[X] && !i[X]
       );
       if (K.length > 0)
-        for (const J of K)
-          await n(J, a[J]);
+        for (const X of K)
+          await n(X, a[X]);
       t({ type: "CLOSE_MODAL" });
     },
-    handleToggle: (K, J) => {
+    handleToggle: (K, X) => {
       o((oe) => ({
         ...oe,
-        [K]: !J
+        [K]: !X
       }));
     },
-    handleNumberChange: (K, J, oe, ue) => {
-      K === "gallery.initial_load_count" ? h(J) : K === "gallery.max_load_count" ? y(J) : K === "gallery.lineage_max_depth" ? w(J) : K === "viewer.thumbnail_window_size" ? _(J) : K === "gallery.trash_retention_days" ? u(J) : K === "gallery.auto_link_phash_threshold" ? g(J) : K === "gallery.suggest_phash_threshold" ? S(J) : K === "viewer.details.max_positive_prompt_lines" ? M(J) : K === "viewer.details.max_negative_prompt_lines" ? P(J) : K === "fullscreen.details.max_positive_prompt_lines" ? F(J) : K === "fullscreen.details.max_negative_prompt_lines" ? C(J) : K === "sidebar.thumbnail_size" && D(J);
-      const Le = Number.parseInt(J, 10);
+    handleNumberChange: (K, X, oe, de) => {
+      K === "gallery.initial_load_count" ? h(X) : K === "gallery.max_load_count" ? y(X) : K === "gallery.lineage_max_depth" ? w(X) : K === "viewer.thumbnail_window_size" ? _(X) : K === "gallery.trash_retention_days" ? u(X) : K === "gallery.auto_link_phash_threshold" ? g(X) : K === "gallery.suggest_phash_threshold" ? S(X) : K === "viewer.details.max_positive_prompt_lines" ? M(X) : K === "viewer.details.max_negative_prompt_lines" ? P(X) : K === "fullscreen.details.max_positive_prompt_lines" ? F(X) : K === "fullscreen.details.max_negative_prompt_lines" ? C(X) : K === "sidebar.thumbnail_size" && D(X);
+      const Le = Number.parseInt(X, 10);
       if (!Number.isNaN(Le)) {
-        let fe = Le;
-        oe !== void 0 && fe < oe && (fe = oe), ue !== void 0 && fe > ue && (fe = ue), o((Tt) => ({
+        let ue = Le;
+        oe !== void 0 && ue < oe && (ue = oe), de !== void 0 && ue > de && (ue = de), o((Tt) => ({
           ...Tt,
-          [K]: fe
+          [K]: ue
         }));
       }
     },
     handleNumberBlur: (K) => {
-      K.key === "gallery.initial_load_count" ? h(
-        a["gallery.initial_load_count"].toString()
-      ) : K.key === "gallery.max_load_count" ? y(a["gallery.max_load_count"].toString()) : K.key === "gallery.lineage_max_depth" ? w(
-        a["gallery.lineage_max_depth"].toString()
-      ) : K.key === "viewer.thumbnail_window_size" ? _(
-        a["viewer.thumbnail_window_size"].toString()
-      ) : K.key === "gallery.trash_retention_days" ? u(
-        a["gallery.trash_retention_days"].toString()
-      ) : K.key === "gallery.auto_link_phash_threshold" ? g(
-        a["gallery.auto_link_phash_threshold"].toString()
-      ) : K.key === "gallery.suggest_phash_threshold" ? S(
-        a["gallery.suggest_phash_threshold"].toString()
-      ) : K.key === "viewer.details.max_positive_prompt_lines" ? M(
+      K.key === "gallery.initial_load_count" ? h(a["gallery.initial_load_count"].toString()) : K.key === "gallery.max_load_count" ? y(a["gallery.max_load_count"].toString()) : K.key === "gallery.lineage_max_depth" ? w(a["gallery.lineage_max_depth"].toString()) : K.key === "viewer.thumbnail_window_size" ? _(a["viewer.thumbnail_window_size"].toString()) : K.key === "gallery.trash_retention_days" ? u(a["gallery.trash_retention_days"].toString()) : K.key === "gallery.auto_link_phash_threshold" ? g(a["gallery.auto_link_phash_threshold"].toString()) : K.key === "gallery.suggest_phash_threshold" ? S(a["gallery.suggest_phash_threshold"].toString()) : K.key === "viewer.details.max_positive_prompt_lines" ? M(
         a["viewer.details.max_positive_prompt_lines"].toString()
       ) : K.key === "viewer.details.max_negative_prompt_lines" ? P(
         a["viewer.details.max_negative_prompt_lines"].toString()
@@ -9415,11 +9250,7 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
     fullscreenMaxNegativePromptLinesInput: Q,
     thumbnailSizeInput: B
   };
-}, Y = ({
-  label: e,
-  description: t,
-  children: n
-}) => /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-item", children: [
+}, Y = ({ label: e, description: t, children: n }) => /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-item", children: [
   /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-item__info", children: [
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-item__label", children: e }),
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-item__description", children: t })
@@ -9447,10 +9278,7 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
             {
               type: "checkbox",
               checked: e["fullscreen.show_icons"],
-              onChange: () => n(
-                "fullscreen.show_icons",
-                e["fullscreen.show_icons"]
-              )
+              onChange: () => n("fullscreen.show_icons", e["fullscreen.show_icons"])
             }
           ),
           /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
@@ -9491,10 +9319,7 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
             {
               type: "checkbox",
               checked: e["fullscreen.loop"],
-              onChange: () => n(
-                "fullscreen.loop",
-                e["fullscreen.loop"]
-              )
+              onChange: () => n("fullscreen.loop", e["fullscreen.loop"])
             }
           ),
           /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
@@ -9633,27 +9458,20 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
         ] })
       }
     ),
-    /* @__PURE__ */ s.jsx(
-      Y,
-      {
-        label: "Show Model",
-        description: "Display model name in fullscreen details.",
-        children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
-          /* @__PURE__ */ s.jsx(
-            "input",
-            {
-              type: "checkbox",
-              checked: e["fullscreen.details.show_model_name"],
-              onChange: () => n(
-                "fullscreen.details.show_model_name",
-                e["fullscreen.details.show_model_name"]
-              )
-            }
-          ),
-          /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
-        ] })
-      }
-    ),
+    /* @__PURE__ */ s.jsx(Y, { label: "Show Model", description: "Display model name in fullscreen details.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
+      /* @__PURE__ */ s.jsx(
+        "input",
+        {
+          type: "checkbox",
+          checked: e["fullscreen.details.show_model_name"],
+          onChange: () => n(
+            "fullscreen.details.show_model_name",
+            e["fullscreen.details.show_model_name"]
+          )
+        }
+      ),
+      /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
+    ] }) }),
     /* @__PURE__ */ s.jsx(
       Y,
       {
@@ -9771,35 +9589,23 @@ const Dc = (e) => e === "rect" || e === "ellipse" || e === "lasso", ks = ({
         )
       }
     ),
-    /* @__PURE__ */ s.jsx(
-      Y,
-      {
-        label: "Show Tags",
-        description: "Display tags in fullscreen details.",
-        children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
-          /* @__PURE__ */ s.jsx(
-            "input",
-            {
-              type: "checkbox",
-              checked: e["fullscreen.details.show_tags"],
-              onChange: () => n(
-                "fullscreen.details.show_tags",
-                e["fullscreen.details.show_tags"]
-              )
-            }
-          ),
-          /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
-        ] })
-      }
-    )
+    /* @__PURE__ */ s.jsx(Y, { label: "Show Tags", description: "Display tags in fullscreen details.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
+      /* @__PURE__ */ s.jsx(
+        "input",
+        {
+          type: "checkbox",
+          checked: e["fullscreen.details.show_tags"],
+          onChange: () => n(
+            "fullscreen.details.show_tags",
+            e["fullscreen.details.show_tags"]
+          )
+        }
+      ),
+      /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
+    ] }) })
   ] })
 ] });
-function It({
-  size: e = 24,
-  color: t,
-  children: n,
-  ...r
-}) {
+function It({ size: e = 24, color: t, children: n, ...r }) {
   return /* @__PURE__ */ s.jsx(
     "svg",
     {
@@ -9820,22 +9626,8 @@ function It({
 }
 function Nf() {
   return /* @__PURE__ */ s.jsxs(s.Fragment, { children: [
-    /* @__PURE__ */ s.jsx(
-      "path",
-      {
-        d: "M18 16.6v2.8",
-        stroke: "var(--meld-icon-halo, transparent)",
-        strokeWidth: 4
-      }
-    ),
-    /* @__PURE__ */ s.jsx(
-      "path",
-      {
-        d: "M16.6 18h2.8",
-        stroke: "var(--meld-icon-halo, transparent)",
-        strokeWidth: 4
-      }
-    ),
+    /* @__PURE__ */ s.jsx("path", { d: "M18 16.6v2.8", stroke: "var(--meld-icon-halo, transparent)", strokeWidth: 4 }),
+    /* @__PURE__ */ s.jsx("path", { d: "M16.6 18h2.8", stroke: "var(--meld-icon-halo, transparent)", strokeWidth: 4 }),
     /* @__PURE__ */ s.jsx("path", { d: "M18 16.6v2.8" }),
     /* @__PURE__ */ s.jsx("path", { d: "M16.6 18h2.8" })
   ] });
@@ -9982,12 +9774,7 @@ const Ff = [
             value: a,
             min: 50,
             max: 500,
-            onChange: (c) => r(
-              "sidebar.thumbnail_size",
-              c.target.value,
-              50,
-              500
-            ),
+            onChange: (c) => r("sidebar.thumbnail_size", c.target.value, 50, 500),
             onBlur: () => l({ key: "sidebar.thumbnail_size" })
           }
         )
@@ -10027,10 +9814,7 @@ const Ff = [
             {
               type: "checkbox",
               checked: e["sidebar.show_dimensions"],
-              onChange: () => n(
-                "sidebar.show_dimensions",
-                e["sidebar.show_dimensions"]
-              )
+              onChange: () => n("sidebar.show_dimensions", e["sidebar.show_dimensions"])
             }
           ),
           /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
@@ -10048,10 +9832,7 @@ const Ff = [
             {
               type: "checkbox",
               checked: e["sidebar.show_created_at"],
-              onChange: () => n(
-                "sidebar.show_created_at",
-                e["sidebar.show_created_at"]
-              )
+              onChange: () => n("sidebar.show_created_at", e["sidebar.show_created_at"])
             }
           ),
           /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
@@ -10100,102 +9881,68 @@ const Ff = [
         ] })
       }
     ),
-    /* @__PURE__ */ s.jsx(
-      Y,
+    /* @__PURE__ */ s.jsx(Y, { label: "Show Model", description: "Display the model name on the card.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
+      /* @__PURE__ */ s.jsx(
+        "input",
+        {
+          type: "checkbox",
+          checked: e["sidebar.show_model_name"],
+          onChange: () => n("sidebar.show_model_name", e["sidebar.show_model_name"])
+        }
+      ),
+      /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
+    ] }) }),
+    /* @__PURE__ */ s.jsx(Y, { label: "Show Positive", description: "Display the positive prompt on the card.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
+      /* @__PURE__ */ s.jsx(
+        "input",
+        {
+          type: "checkbox",
+          checked: e["sidebar.show_positive_prompt"],
+          onChange: () => n(
+            "sidebar.show_positive_prompt",
+            e["sidebar.show_positive_prompt"]
+          )
+        }
+      ),
+      /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
+    ] }) }),
+    /* @__PURE__ */ s.jsx(Y, { label: "Show Negative", description: "Display the negative prompt on the card.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
+      /* @__PURE__ */ s.jsx(
+        "input",
+        {
+          type: "checkbox",
+          checked: e["sidebar.show_negative_prompt"],
+          onChange: () => n(
+            "sidebar.show_negative_prompt",
+            e["sidebar.show_negative_prompt"]
+          )
+        }
+      ),
+      /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
+    ] }) }),
+    /* @__PURE__ */ s.jsx(Y, { label: "Show User Notes", description: "Display user notes on the card.", children: /* @__PURE__ */ s.jsxs(
+      "select",
       {
-        label: "Show Model",
-        description: "Display the model name on the card.",
-        children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
-          /* @__PURE__ */ s.jsx(
-            "input",
-            {
-              type: "checkbox",
-              checked: e["sidebar.show_model_name"],
-              onChange: () => n(
-                "sidebar.show_model_name",
-                e["sidebar.show_model_name"]
-              )
-            }
-          ),
-          /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
-        ] })
+        className: "meld-select",
+        value: e["sidebar.show_user_notes"],
+        onChange: (c) => t((d) => ({
+          ...d,
+          "sidebar.show_user_notes": c.target.value
+        })),
+        children: [
+          /* @__PURE__ */ s.jsx("option", { value: "always", children: "Always show" }),
+          /* @__PURE__ */ s.jsx("option", { value: "if_present", children: "Show only when present" }),
+          /* @__PURE__ */ s.jsx("option", { value: "hidden", children: "Always hide" })
+        ]
       }
-    ),
-    /* @__PURE__ */ s.jsx(
-      Y,
-      {
-        label: "Show Positive",
-        description: "Display the positive prompt on the card.",
-        children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
-          /* @__PURE__ */ s.jsx(
-            "input",
-            {
-              type: "checkbox",
-              checked: e["sidebar.show_positive_prompt"],
-              onChange: () => n(
-                "sidebar.show_positive_prompt",
-                e["sidebar.show_positive_prompt"]
-              )
-            }
-          ),
-          /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
-        ] })
-      }
-    ),
-    /* @__PURE__ */ s.jsx(
-      Y,
-      {
-        label: "Show Negative",
-        description: "Display the negative prompt on the card.",
-        children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
-          /* @__PURE__ */ s.jsx(
-            "input",
-            {
-              type: "checkbox",
-              checked: e["sidebar.show_negative_prompt"],
-              onChange: () => n(
-                "sidebar.show_negative_prompt",
-                e["sidebar.show_negative_prompt"]
-              )
-            }
-          ),
-          /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
-        ] })
-      }
-    ),
-    /* @__PURE__ */ s.jsx(
-      Y,
-      {
-        label: "Show User Notes",
-        description: "Display user notes on the card.",
-        children: /* @__PURE__ */ s.jsxs(
-          "select",
-          {
-            className: "meld-select",
-            value: e["sidebar.show_user_notes"],
-            onChange: (c) => t((d) => ({
-              ...d,
-              "sidebar.show_user_notes": c.target.value
-            })),
-            children: [
-              /* @__PURE__ */ s.jsx("option", { value: "always", children: "Always show" }),
-              /* @__PURE__ */ s.jsx("option", { value: "if_present", children: "Show only when present" }),
-              /* @__PURE__ */ s.jsx("option", { value: "hidden", children: "Always hide" })
-            ]
-          }
-        )
-      }
-    ),
+    ) }),
     /* @__PURE__ */ s.jsx(Y, { label: "Show Tags", description: "Display tags on the card.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
       /* @__PURE__ */ s.jsx(
         "input",
         {
           type: "checkbox",
           checked: e["sidebar.show_tags"],
-          onChange: () => n(
-            "sidebar.show_tags",
-            e["sidebar.show_tags"]
-          )
+          onChange: () => n("sidebar.show_tags", e["sidebar.show_tags"])
         }
       ),
       /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
@@ -10214,10 +9961,7 @@ const Ff = [
             {
               type: "checkbox",
               checked: e["search.quick_suggestions"],
-              onChange: () => n(
-                "search.quick_suggestions",
-                e["search.quick_suggestions"]
-              )
+              onChange: () => n("search.quick_suggestions", e["search.quick_suggestions"])
             }
           ),
           /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
@@ -10235,10 +9979,7 @@ const Ff = [
             {
               type: "checkbox",
               checked: e["search.input_suggest"],
-              onChange: () => n(
-                "search.input_suggest",
-                e["search.input_suggest"]
-              )
+              onChange: () => n("search.input_suggest", e["search.input_suggest"])
             }
           ),
           /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
@@ -10261,12 +10002,7 @@ const Ff = [
             value: o,
             min: 10,
             max: 1e3,
-            onChange: (c) => r(
-              "gallery.initial_load_count",
-              c.target.value,
-              10,
-              1e3
-            ),
+            onChange: (c) => r("gallery.initial_load_count", c.target.value, 10, 1e3),
             onBlur: () => l({ key: "gallery.initial_load_count" })
           }
         )
@@ -10285,12 +10021,7 @@ const Ff = [
             value: i,
             min: 10,
             max: 1e6,
-            onChange: (c) => r(
-              "gallery.max_load_count",
-              c.target.value,
-              10,
-              1e6
-            ),
+            onChange: (c) => r("gallery.max_load_count", c.target.value, 10, 1e6),
             onBlur: () => l({ key: "gallery.max_load_count" })
           }
         )
@@ -10465,13 +10196,12 @@ const Ff = [
           ] }),
           /* @__PURE__ */ s.jsxs("li", { children: [
             /* @__PURE__ */ s.jsx("code", { children: "lt:SLOT_ID" }),
-            " - Send to Light Table (Example:",
-            " ",
+            " - Send to Light Table (Example: ",
             /* @__PURE__ */ s.jsx("code", { children: "lt:keep" }),
-            ", ",
-            /* @__PURE__ */ s.jsx("code", { children: "lt:refine" }),
             ",",
             " ",
+            /* @__PURE__ */ s.jsx("code", { children: "lt:refine" }),
+            ", ",
             /* @__PURE__ */ s.jsx("code", { children: "lt:trash" }),
             ")"
           ] }),
@@ -10507,9 +10237,7 @@ const Ff = [
                 }));
               },
               onBlur: () => {
-                const h = l(
-                  e[c] || ""
-                );
+                const h = l(e[c] || "");
                 r((v) => ({
                   ...v,
                   [c]: !h
@@ -10610,12 +10338,7 @@ const Ff = [
             value: d,
             min: 0,
             max: 100,
-            onChange: (v) => t(
-              "gallery.auto_link_phash_threshold",
-              v.target.value,
-              0,
-              100
-            ),
+            onChange: (v) => t("gallery.auto_link_phash_threshold", v.target.value, 0, 100),
             onBlur: () => n({ key: "gallery.auto_link_phash_threshold" })
           }
         )
@@ -10634,12 +10357,7 @@ const Ff = [
             value: h,
             min: 0,
             max: 100,
-            onChange: (v) => t(
-              "gallery.suggest_phash_threshold",
-              v.target.value,
-              0,
-              100
-            ),
+            onChange: (v) => t("gallery.suggest_phash_threshold", v.target.value, 0, 100),
             onBlur: () => n({ key: "gallery.suggest_phash_threshold" })
           }
         )
@@ -10656,10 +10374,7 @@ const Ff = [
             {
               type: "checkbox",
               checked: e["gallery.inherit_tags"],
-              onChange: () => r(
-                "gallery.inherit_tags",
-                e["gallery.inherit_tags"]
-              )
+              onChange: () => r("gallery.inherit_tags", e["gallery.inherit_tags"])
             }
           ),
           /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
@@ -10682,12 +10397,7 @@ const Ff = [
             value: i,
             min: 1,
             max: 10,
-            onChange: (v) => t(
-              "gallery.lineage_max_depth",
-              v.target.value,
-              1,
-              10
-            ),
+            onChange: (v) => t("gallery.lineage_max_depth", v.target.value, 1, 10),
             onBlur: () => n({ key: "gallery.lineage_max_depth" })
           }
         )
@@ -10728,12 +10438,7 @@ const Ff = [
             value: c,
             min: 0,
             max: 365,
-            onChange: (v) => t(
-              "gallery.trash_retention_days",
-              v.target.value,
-              0,
-              365
-            ),
+            onChange: (v) => t("gallery.trash_retention_days", v.target.value, 0, 365),
             onBlur: () => n({ key: "gallery.trash_retention_days" })
           }
         )
@@ -10819,10 +10524,7 @@ const Ff = [
             {
               type: "checkbox",
               checked: e["viewer.show_icons"],
-              onChange: () => n(
-                "viewer.show_icons",
-                e["viewer.show_icons"]
-              )
+              onChange: () => n("viewer.show_icons", e["viewer.show_icons"])
             }
           ),
           /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
@@ -10840,10 +10542,7 @@ const Ff = [
             {
               type: "checkbox",
               checked: e["viewer.show_thumbnails"],
-              onChange: () => n(
-                "viewer.show_thumbnails",
-                e["viewer.show_thumbnails"]
-              )
+              onChange: () => n("viewer.show_thumbnails", e["viewer.show_thumbnails"])
             }
           ),
           /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
@@ -10863,40 +10562,28 @@ const Ff = [
             value: a,
             min: 1,
             max: 1e4,
-            onChange: (c) => r(
-              "viewer.thumbnail_window_size",
-              c.target.value,
-              1,
-              1e4
-            ),
+            onChange: (c) => r("viewer.thumbnail_window_size", c.target.value, 1, 1e4),
             onBlur: () => l({ key: "viewer.thumbnail_window_size" })
           }
         )
       }
     ),
-    /* @__PURE__ */ s.jsx(
-      Y,
+    /* @__PURE__ */ s.jsx(Y, { label: "Delete Mode", description: "Choose how images are deleted in view mode.", children: /* @__PURE__ */ s.jsxs(
+      "select",
       {
-        label: "Delete Mode",
-        description: "Choose how images are deleted in view mode.",
-        children: /* @__PURE__ */ s.jsxs(
-          "select",
-          {
-            className: "meld-select",
-            value: e["viewer.delete_mode"],
-            onChange: (c) => t((d) => ({
-              ...d,
-              "viewer.delete_mode": c.target.value
-            })),
-            children: [
-              /* @__PURE__ */ s.jsx("option", { value: "confirm", children: "Confirmed" }),
-              /* @__PURE__ */ s.jsx("option", { value: "target_only", children: "Unconfirmed (Target Only)" }),
-              /* @__PURE__ */ s.jsx("option", { value: "lineage", children: "Unconfirmed (Include Lineage)" })
-            ]
-          }
-        )
+        className: "meld-select",
+        value: e["viewer.delete_mode"],
+        onChange: (c) => t((d) => ({
+          ...d,
+          "viewer.delete_mode": c.target.value
+        })),
+        children: [
+          /* @__PURE__ */ s.jsx("option", { value: "confirm", children: "Confirmed" }),
+          /* @__PURE__ */ s.jsx("option", { value: "target_only", children: "Unconfirmed (Target Only)" }),
+          /* @__PURE__ */ s.jsx("option", { value: "lineage", children: "Unconfirmed (Include Lineage)" })
+        ]
       }
-    )
+    ) })
   ] }),
   /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-group", children: [
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-group-title", children: "Details Panel" }),
@@ -10944,27 +10631,20 @@ const Ff = [
         )
       }
     ),
-    /* @__PURE__ */ s.jsx(
-      Y,
-      {
-        label: "Show Dimensions",
-        description: "Display dimensions in the details panel.",
-        children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
-          /* @__PURE__ */ s.jsx(
-            "input",
-            {
-              type: "checkbox",
-              checked: e["viewer.details.show_dimensions"],
-              onChange: () => n(
-                "viewer.details.show_dimensions",
-                e["viewer.details.show_dimensions"]
-              )
-            }
-          ),
-          /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
-        ] })
-      }
-    ),
+    /* @__PURE__ */ s.jsx(Y, { label: "Show Dimensions", description: "Display dimensions in the details panel.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
+      /* @__PURE__ */ s.jsx(
+        "input",
+        {
+          type: "checkbox",
+          checked: e["viewer.details.show_dimensions"],
+          onChange: () => n(
+            "viewer.details.show_dimensions",
+            e["viewer.details.show_dimensions"]
+          )
+        }
+      ),
+      /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
+    ] }) }),
     /* @__PURE__ */ s.jsx(
       Y,
       {
@@ -11007,27 +10687,20 @@ const Ff = [
         ] })
       }
     ),
-    /* @__PURE__ */ s.jsx(
-      Y,
-      {
-        label: "Show Model",
-        description: "Display model name in the details panel.",
-        children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
-          /* @__PURE__ */ s.jsx(
-            "input",
-            {
-              type: "checkbox",
-              checked: e["viewer.details.show_model_name"],
-              onChange: () => n(
-                "viewer.details.show_model_name",
-                e["viewer.details.show_model_name"]
-              )
-            }
-          ),
-          /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
-        ] })
-      }
-    ),
+    /* @__PURE__ */ s.jsx(Y, { label: "Show Model", description: "Display model name in the details panel.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
+      /* @__PURE__ */ s.jsx(
+        "input",
+        {
+          type: "checkbox",
+          checked: e["viewer.details.show_model_name"],
+          onChange: () => n(
+            "viewer.details.show_model_name",
+            e["viewer.details.show_model_name"]
+          )
+        }
+      ),
+      /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
+    ] }) }),
     /* @__PURE__ */ s.jsx(
       Y,
       {
@@ -11062,12 +10735,7 @@ const Ff = [
             value: o,
             min: 1,
             max: 100,
-            onChange: (c) => r(
-              "viewer.details.max_positive_prompt_lines",
-              c.target.value,
-              1,
-              100
-            ),
+            onChange: (c) => r("viewer.details.max_positive_prompt_lines", c.target.value, 1, 100),
             onBlur: () => l({
               key: "viewer.details.max_positive_prompt_lines"
             })
@@ -11096,29 +10764,22 @@ const Ff = [
         ] })
       }
     ),
-    /* @__PURE__ */ s.jsx(
-      Y,
+    /* @__PURE__ */ s.jsx(Y, { label: "Show User Notes", description: "Display user notes in the details panel.", children: /* @__PURE__ */ s.jsxs(
+      "select",
       {
-        label: "Show User Notes",
-        description: "Display user notes in the details panel.",
-        children: /* @__PURE__ */ s.jsxs(
-          "select",
-          {
-            className: "meld-select",
-            value: e["viewer.details.show_user_notes"],
-            onChange: (c) => t((d) => ({
-              ...d,
-              "viewer.details.show_user_notes": c.target.value
-            })),
-            children: [
-              /* @__PURE__ */ s.jsx("option", { value: "always", children: "Always show" }),
-              /* @__PURE__ */ s.jsx("option", { value: "if_present", children: "Show only when present" }),
-              /* @__PURE__ */ s.jsx("option", { value: "hidden", children: "Always hide" })
-            ]
-          }
-        )
+        className: "meld-select",
+        value: e["viewer.details.show_user_notes"],
+        onChange: (c) => t((d) => ({
+          ...d,
+          "viewer.details.show_user_notes": c.target.value
+        })),
+        children: [
+          /* @__PURE__ */ s.jsx("option", { value: "always", children: "Always show" }),
+          /* @__PURE__ */ s.jsx("option", { value: "if_present", children: "Show only when present" }),
+          /* @__PURE__ */ s.jsx("option", { value: "hidden", children: "Always hide" })
+        ]
       }
-    ),
+    ) }),
     /* @__PURE__ */ s.jsx(
       Y,
       {
@@ -11132,12 +10793,7 @@ const Ff = [
             value: i,
             min: 1,
             max: 100,
-            onChange: (c) => r(
-              "viewer.details.max_negative_prompt_lines",
-              c.target.value,
-              1,
-              100
-            ),
+            onChange: (c) => r("viewer.details.max_negative_prompt_lines", c.target.value, 1, 100),
             onBlur: () => l({
               key: "viewer.details.max_negative_prompt_lines"
             })
@@ -11145,27 +10801,17 @@ const Ff = [
         )
       }
     ),
-    /* @__PURE__ */ s.jsx(
-      Y,
-      {
-        label: "Show Tags",
-        description: "Display tags in the details panel.",
-        children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
-          /* @__PURE__ */ s.jsx(
-            "input",
-            {
-              type: "checkbox",
-              checked: e["viewer.details.show_tags"],
-              onChange: () => n(
-                "viewer.details.show_tags",
-                e["viewer.details.show_tags"]
-              )
-            }
-          ),
-          /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
-        ] })
-      }
-    )
+    /* @__PURE__ */ s.jsx(Y, { label: "Show Tags", description: "Display tags in the details panel.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
+      /* @__PURE__ */ s.jsx(
+        "input",
+        {
+          type: "checkbox",
+          checked: e["viewer.details.show_tags"],
+          onChange: () => n("viewer.details.show_tags", e["viewer.details.show_tags"])
+        }
+      ),
+      /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
+    ] }) })
   ] })
 ] }), Wf = () => {
   const {
@@ -11288,47 +10934,32 @@ const Ff = [
         return null;
     }
   };
-  return ce.createPortal(
+  return me.createPortal(
     /* @__PURE__ */ s.jsx(
       "div",
       {
         className: "meld-modal-overlay",
         onMouseDown: I,
         onMouseUp: F,
-        children: /* @__PURE__ */ s.jsxs(
-          "div",
-          {
-            className: "meld-modal-content meld-settings-modal",
-            onClick: (B) => B.stopPropagation(),
-            children: [
-              /* @__PURE__ */ s.jsxs("div", { className: "meld-modal-header", children: [
-                /* @__PURE__ */ s.jsx("h2", { children: "Settings" }),
-                /* @__PURE__ */ s.jsx(
-                  "button",
-                  {
-                    type: "button",
-                    className: "meld-modal-close",
-                    onClick: o,
-                    children: /* @__PURE__ */ s.jsx(pe, { size: 20 })
-                  }
-                )
-              ] }),
-              /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-layout", children: [
-                /* @__PURE__ */ s.jsx("div", { className: "meld-settings-sidebar", children: /* @__PURE__ */ s.jsx("div", { className: "meld-tabs", children: Q.map((B) => /* @__PURE__ */ s.jsx(
-                  "button",
-                  {
-                    type: "button",
-                    className: `meld-tab ${e === B.id ? "active" : ""}`,
-                    onClick: () => t(B.id),
-                    children: B.label
-                  },
-                  B.id
-                )) }) }),
-                /* @__PURE__ */ s.jsx("div", { className: "meld-modal-body", children: C() })
-              ] })
-            ]
-          }
-        )
+        children: /* @__PURE__ */ s.jsxs("div", { className: "meld-modal-content meld-settings-modal", onClick: (B) => B.stopPropagation(), children: [
+          /* @__PURE__ */ s.jsxs("div", { className: "meld-modal-header", children: [
+            /* @__PURE__ */ s.jsx("h2", { children: "Settings" }),
+            /* @__PURE__ */ s.jsx("button", { type: "button", className: "meld-modal-close", onClick: o, children: /* @__PURE__ */ s.jsx(pe, { size: 20 }) })
+          ] }),
+          /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-layout", children: [
+            /* @__PURE__ */ s.jsx("div", { className: "meld-settings-sidebar", children: /* @__PURE__ */ s.jsx("div", { className: "meld-tabs", children: Q.map((B) => /* @__PURE__ */ s.jsx(
+              "button",
+              {
+                type: "button",
+                className: `meld-tab ${e === B.id ? "active" : ""}`,
+                onClick: () => t(B.id),
+                children: B.label
+              },
+              B.id
+            )) }) }),
+            /* @__PURE__ */ s.jsx("div", { className: "meld-modal-body", children: C() })
+          ] })
+        ] })
       }
     ),
     document.fullscreenElement || document.body
@@ -11374,9 +11005,7 @@ const Ff = [
   ), [o, h, c]), j = (I) => {
     const F = I.trim();
     if (F.toLowerCase() === _t) {
-      alert(
-        `Tag name '${_t}' is reserved for search and cannot be used.`
-      );
+      alert(`Tag name '${_t}' is reserved for search and cannot be used.`);
       return;
     }
     F && !c.includes(F) && (d([...c, F]), v(""));
@@ -11386,9 +11015,7 @@ const Ff = [
     x(!0);
     try {
       if (f) {
-        const I = c.filter((Q) => !t.includes(Q)), F = t.filter(
-          (Q) => !c.includes(Q)
-        );
+        const I = c.filter((Q) => !t.includes(Q)), F = t.filter((Q) => !c.includes(Q));
         await xf(e, I, F);
       } else
         await Sg(e[0], c);
@@ -11401,7 +11028,7 @@ const Ff = [
   }, P = (I) => {
     I.key === "Enter" && h.trim() && (qe(I), j(h.trim()));
   };
-  return ce.createPortal(
+  return me.createPortal(
     /* @__PURE__ */ s.jsx(
       "div",
       {
@@ -11488,15 +11115,7 @@ const Ff = [
             ] })
           ] }),
           /* @__PURE__ */ s.jsxs("div", { className: "meld-modal-footer", children: [
-            /* @__PURE__ */ s.jsx(
-              "button",
-              {
-                type: "button",
-                className: "meld-btn meld-btn-secondary",
-                onClick: n,
-                children: "Cancel"
-              }
-            ),
+            /* @__PURE__ */ s.jsx("button", { type: "button", className: "meld-btn meld-btn-secondary", onClick: n, children: "Cancel" }),
             /* @__PURE__ */ s.jsx(
               "button",
               {
@@ -11522,9 +11141,7 @@ const Ff = [
   ), l = p.useCallback(async (x) => {
     try {
       const _ = await bg(x.id);
-      return _.workflow ? (await window.app.loadGraphData(
-        _.workflow
-      ), O.log("Workflow restored successfully from Meld"), !0) : (alert("No workflow information is saved for this image."), !1);
+      return _.workflow ? (await window.app.loadGraphData(_.workflow), O.log("Workflow restored successfully from Meld"), !0) : (alert("No workflow information is saved for this image."), !1);
     } catch (_) {
       return O.error("Error restoring workflow:", _), alert("Failed to restore workflow."), !1;
     }
@@ -11645,13 +11262,11 @@ const Ff = [
           payload: {
             type: "node_selection",
             image: x,
-            nodes: u.map(
-              (g) => ({
-                id: String(g.id),
-                type: g.type,
-                title: g.title
-              })
-            ),
+            nodes: u.map((g) => ({
+              id: String(g.id),
+              type: g.type,
+              title: g.title
+            })),
             onSelect: (g) => {
               ll(x, g);
             }
@@ -11690,9 +11305,7 @@ const Ff = [
             type: j.type
           }))
         );
-        const b = g.some(
-          (j) => j.type === "LoadImageMask"
-        ), S = g.some(
+        const b = g.some((j) => j.type === "LoadImageMask"), S = g.some(
           (j) => j.type === "MeldImageLoader" || j.type === "LoadImage" || j.type === "Load Image"
         );
         if (O.log("Nodes found:", { hasMaskNode: b, hasLoaderNode: S }), !b || !S) {
@@ -11723,9 +11336,7 @@ const Ff = [
         return;
       }
       try {
-        if (!(await bf()).some(
-          (b) => b.valid && b.mask_count >= 1
-        )) {
+        if (!(await bf()).some((b) => b.valid && b.mask_count >= 1)) {
           t({
             type: "OPEN_MODAL",
             payload: {
@@ -11777,10 +11388,7 @@ const Ff = [
   ), w = p.useCallback(
     async (x, _) => {
       try {
-        const f = await jg(
-          x,
-          _
-        );
+        const f = await jg(x, _);
         t({ type: "UPDATE_IMAGE", payload: f });
       } catch (f) {
         t({
@@ -11806,11 +11414,7 @@ const Ff = [
     handleEditNotes: i,
     handleUpdateUserNotes: w
   };
-}, Uf = ({
-  imageId: e,
-  initialNotes: t,
-  onClose: n
-}) => {
+}, Uf = ({ imageId: e, initialNotes: t, onClose: n }) => {
   const { state: r, dispatch: l } = ge(), { handleUpdateUserNotes: a } = Ws(r, l), [o, i] = p.useState(t), [c, d] = p.useState(!1), h = p.useRef(null), v = p.useRef(!1), y = (x) => {
     x.target === x.currentTarget && (v.current = !0);
   }, k = (x) => {
@@ -11838,7 +11442,7 @@ const Ff = [
         capture: !0
       });
     };
-  }, [w]), Ue({ onEscape: n }), ce.createPortal(
+  }, [w]), Ue({ onEscape: n }), me.createPortal(
     /* @__PURE__ */ s.jsx(
       "div",
       {
@@ -11889,15 +11493,7 @@ const Ff = [
             )
           ] }) }),
           /* @__PURE__ */ s.jsxs("div", { className: "meld-modal-footer", children: [
-            /* @__PURE__ */ s.jsx(
-              "button",
-              {
-                type: "button",
-                className: "meld-btn meld-btn-secondary",
-                onClick: n,
-                children: "Cancel"
-              }
-            ),
+            /* @__PURE__ */ s.jsx("button", { type: "button", className: "meld-btn meld-btn-secondary", onClick: n, children: "Cancel" }),
             /* @__PURE__ */ s.jsx(
               "button",
               {
@@ -11931,7 +11527,7 @@ const Ff = [
     },
     [l]
   );
-  return ce.createPortal(
+  return me.createPortal(
     /* @__PURE__ */ s.jsx(
       "div",
       {
@@ -11946,15 +11542,7 @@ const Ff = [
             children: [
               /* @__PURE__ */ s.jsxs("div", { className: "meld-modal-header", children: [
                 /* @__PURE__ */ s.jsx("h2", { children: "Select Target Node" }),
-                /* @__PURE__ */ s.jsx(
-                  "button",
-                  {
-                    type: "button",
-                    className: "meld-modal-close",
-                    onClick: l,
-                    children: /* @__PURE__ */ s.jsx(pe, { size: 20 })
-                  }
-                )
+                /* @__PURE__ */ s.jsx("button", { type: "button", className: "meld-modal-close", onClick: l, children: /* @__PURE__ */ s.jsx(pe, { size: 20 }) })
               ] }),
               /* @__PURE__ */ s.jsxs("div", { className: "meld-modal-body", children: [
                 /* @__PURE__ */ s.jsxs(
@@ -11966,7 +11554,8 @@ const Ff = [
                       color: "var(--meld-text-secondary)"
                     },
                     children: [
-                      "Multiple loader nodes found in the current workflow. Select which one to use for ",
+                      "Multiple loader nodes found in the current workflow. Select which one to use for",
+                      " ",
                       /* @__PURE__ */ s.jsx("strong", { children: e.filename }),
                       ":"
                     ]
@@ -11994,15 +11583,7 @@ const Ff = [
                   c.id
                 )) })
               ] }),
-              /* @__PURE__ */ s.jsx("div", { className: "meld-modal-footer", children: /* @__PURE__ */ s.jsx(
-                "button",
-                {
-                  type: "button",
-                  className: "meld-btn meld-btn-secondary",
-                  onClick: l,
-                  children: "Cancel"
-                }
-              ) })
+              /* @__PURE__ */ s.jsx("div", { className: "meld-modal-footer", children: /* @__PURE__ */ s.jsx("button", { type: "button", className: "meld-btn meld-btn-secondary", onClick: l, children: "Cancel" }) })
             ]
           }
         )
@@ -12023,9 +11604,7 @@ const Ff = [
   }).sort((R, N) => R.valid !== N.valid ? R.valid ? -1 : 1 : R.name.localeCompare(N.name)), [a, r]), j = p.useMemo(() => {
     if (!m.trim()) return S;
     const R = m.toLowerCase();
-    return S.filter(
-      (N) => N.name.toLowerCase().includes(R)
-    );
+    return S.filter((N) => N.name.toLowerCase().includes(R));
   }, [S, m]), M = p.useCallback(async () => {
     try {
       c(!0);
@@ -12072,17 +11651,9 @@ const Ff = [
           return r ? z === "loadimagemask" : z === "meldimageloader" || z === "loadimage";
         };
         if (N.nodes && Array.isArray(N.nodes)) {
-          O.log(
-            "Extracting nodes from UI format workflow",
-            N.nodes.length
-          );
+          O.log("Extracting nodes from UI format workflow", N.nodes.length);
           for (const E of N.nodes)
-            W(E.type) && (O.log(
-              "Found target node (UI):",
-              E.id,
-              E.type,
-              E.title
-            ), T.push({
+            W(E.type) && (O.log("Found target node (UI):", E.id, E.type, E.title), T.push({
               id: String(E.id),
               type: E.type || "",
               title: E.title
@@ -12111,7 +11682,7 @@ const Ff = [
     }
     k === R.name ? w(null) : (w(R.name), C(R.name));
   };
-  return ce.createPortal(
+  return me.createPortal(
     /* @__PURE__ */ s.jsx(
       "div",
       {
@@ -12129,15 +11700,7 @@ const Ff = [
                   /* @__PURE__ */ s.jsx(ui, { size: 20, color: "var(--meld-accent-color)" }),
                   "Queue via Workflow"
                 ] }),
-                /* @__PURE__ */ s.jsx(
-                  "button",
-                  {
-                    type: "button",
-                    className: "meld-modal-close",
-                    onClick: L,
-                    children: /* @__PURE__ */ s.jsx(pe, { size: 20 })
-                  }
-                )
+                /* @__PURE__ */ s.jsx("button", { type: "button", className: "meld-modal-close", onClick: L, children: /* @__PURE__ */ s.jsx(pe, { size: 20 }) })
               ] }),
               /* @__PURE__ */ s.jsx("div", { className: "meld-modal-body", style: { minHeight: "300px" }, children: i ? /* @__PURE__ */ s.jsxs("div", { className: "meld-loading-container", children: [
                 /* @__PURE__ */ s.jsx("div", { className: "meld-loading-spinner" }),
@@ -12168,8 +11731,7 @@ const Ff = [
                       "Select a workflow to process",
                       " ",
                       /* @__PURE__ */ s.jsx("strong", { children: e.length > 1 ? `${e.length} images` : (D = e[0]) == null ? void 0 : D.filename }),
-                      ". Workflows must have at least one",
-                      " ",
+                      ". Workflows must have at least one ",
                       /* @__PURE__ */ s.jsx("strong", { children: "Meld Image Loader" }),
                       " or",
                       " ",
@@ -12185,40 +11747,33 @@ const Ff = [
                     ]
                   }
                 ),
-                /* @__PURE__ */ s.jsxs(
-                  "div",
-                  {
-                    className: "meld-tag-search-container",
-                    style: { marginBottom: "12px" },
-                    children: [
-                      /* @__PURE__ */ s.jsx(Mn, { className: "meld-tag-search-icon", size: 16 }),
-                      /* @__PURE__ */ s.jsx(
-                        "input",
-                        {
-                          ref: b,
-                          type: "text",
-                          className: "meld-tag-search-input",
-                          placeholder: "Search workflows...",
-                          value: m,
-                          onChange: (R) => g(R.target.value)
-                        }
-                      ),
-                      m && /* @__PURE__ */ s.jsx(
-                        "button",
-                        {
-                          type: "button",
-                          className: "meld-tag-item__btn",
-                          onClick: () => {
-                            var R;
-                            g(""), (R = b.current) == null || R.focus();
-                          },
-                          style: { padding: "4px" },
-                          children: /* @__PURE__ */ s.jsx(pe, { size: 14 })
-                        }
-                      )
-                    ]
-                  }
-                ),
+                /* @__PURE__ */ s.jsxs("div", { className: "meld-tag-search-container", style: { marginBottom: "12px" }, children: [
+                  /* @__PURE__ */ s.jsx(Mn, { className: "meld-tag-search-icon", size: 16 }),
+                  /* @__PURE__ */ s.jsx(
+                    "input",
+                    {
+                      ref: b,
+                      type: "text",
+                      className: "meld-tag-search-input",
+                      placeholder: "Search workflows...",
+                      value: m,
+                      onChange: (R) => g(R.target.value)
+                    }
+                  ),
+                  m && /* @__PURE__ */ s.jsx(
+                    "button",
+                    {
+                      type: "button",
+                      className: "meld-tag-item__btn",
+                      onClick: () => {
+                        var R;
+                        g(""), (R = b.current) == null || R.focus();
+                      },
+                      style: { padding: "4px" },
+                      children: /* @__PURE__ */ s.jsx(pe, { size: 14 })
+                    }
+                  )
+                ] }),
                 j.length === 0 ? /* @__PURE__ */ s.jsx(
                   "div",
                   {
@@ -12337,11 +11892,7 @@ const Ff = [
     ),
     document.fullscreenElement || document.body
   );
-}, My = ({
-  message: e,
-  onConfirm: t,
-  onCancel: n
-}) => {
+}, My = ({ message: e, onConfirm: t, onCancel: n }) => {
   const r = p.useRef(null), l = p.useRef(null);
   return Ue({ onEscape: n }), p.useEffect(() => {
     if (l.current = document.activeElement, r.current) {
@@ -12426,10 +11977,7 @@ const Ff = [
   const i = p.useMemo(
     () => l.searchQuery.toLowerCase().includes("has_derivatives:yes") || l.searchQuery.toLowerCase().includes("has_derivatives:true") || l.searchQuery.toLowerCase().includes("has_derivatives:1"),
     [l.searchQuery]
-  ), c = p.useMemo(
-    () => l.searchQuery.trim() !== "",
-    [l.searchQuery]
-  ), d = p.useMemo(() => l.viewerMode === "lighttable" && l.viewerLightTableSlotId ? (se.getState().buckets[l.viewerLightTableSlotId] || []).map((g) => {
+  ), c = p.useMemo(() => l.searchQuery.trim() !== "", [l.searchQuery]), d = p.useMemo(() => l.viewerMode === "lighttable" && l.viewerLightTableSlotId ? (se.getState().buckets[l.viewerLightTableSlotId] || []).map((g) => {
     const b = Number.parseInt(g, 10);
     return l.images.find((S) => S.id === b) || l.lineageImages.find((S) => S.id === b) || null;
   }).filter((g) => g !== null) : l.viewerMode === "lineage" && l.lineageImages.length > 0 ? l.lineageImages : l.images.filter(
@@ -12503,9 +12051,7 @@ const Ff = [
     var u, m;
     try {
       a({ type: "SET_LOADING", payload: !0 });
-      const g = new Set(e), b = d.filter(
-        (S) => g.has(S.id)
-      );
+      const g = new Set(e), b = d.filter((S) => g.has(S.id));
       if (x(g), await ho(e, n), !o.current) return;
       l.activeModal.type === "delete_confirm" && ((m = (u = l.activeModal).onSuccess) == null || m.call(u)), !n && r && r(b), a({ type: "REMOVE_IMAGES", payload: e }), a({ type: "CLEAR_SELECTION" }), a({ type: "CLOSE_MODAL" });
     } catch (g) {
@@ -12527,13 +12073,8 @@ const Ff = [
         for (const M of j)
           g.add(M.id);
       }
-      const b = d.filter(
-        (S) => g.has(S.id)
-      );
-      if (x(g), await ho(
-        Array.from(g),
-        n
-      ), !o.current) return;
+      const b = d.filter((S) => g.has(S.id));
+      if (x(g), await ho(Array.from(g), n), !o.current) return;
       l.activeModal.type === "delete_confirm" && ((m = (u = l.activeModal).onSuccess) == null || m.call(u)), !n && r && r(b), a({
         type: "REMOVE_IMAGES",
         payload: Array.from(g)
@@ -12547,7 +12088,7 @@ const Ff = [
       a({ type: "SET_LOADING", payload: !1 });
     }
   };
-  return ce.createPortal(
+  return me.createPortal(
     /* @__PURE__ */ s.jsx(
       "div",
       {
@@ -12565,15 +12106,7 @@ const Ff = [
                   /* @__PURE__ */ s.jsx(Ut, { size: 20, color: "var(--meld-danger-color)" }),
                   n ? "Permanent Deletion" : "Move to Trash"
                 ] }),
-                /* @__PURE__ */ s.jsx(
-                  "button",
-                  {
-                    type: "button",
-                    className: "meld-modal-close",
-                    onClick: v,
-                    children: /* @__PURE__ */ s.jsx(pe, { size: 20 })
-                  }
-                )
+                /* @__PURE__ */ s.jsx("button", { type: "button", className: "meld-modal-close", onClick: v, children: /* @__PURE__ */ s.jsx(pe, { size: 20 }) })
               ] }),
               /* @__PURE__ */ s.jsx("div", { className: "meld-modal-body", children: /* @__PURE__ */ s.jsxs(
                 "div",
@@ -12586,8 +12119,7 @@ const Ff = [
                   },
                   children: [
                     /* @__PURE__ */ s.jsxs("p", { children: [
-                      "Are you sure you want to",
-                      " ",
+                      "Are you sure you want to ",
                       n ? "permanently delete" : "move to trash",
                       " ",
                       /* @__PURE__ */ s.jsx("strong", { children: e.length }),
@@ -12646,15 +12178,7 @@ const Ff = [
                 }
               ) }),
               /* @__PURE__ */ s.jsxs("div", { className: "meld-modal-footer", children: [
-                /* @__PURE__ */ s.jsx(
-                  "button",
-                  {
-                    type: "button",
-                    className: "meld-btn meld-btn-secondary",
-                    onClick: v,
-                    children: "Cancel"
-                  }
-                ),
+                /* @__PURE__ */ s.jsx("button", { type: "button", className: "meld-btn meld-btn-secondary", onClick: v, children: "Cancel" }),
                 /* @__PURE__ */ s.jsxs("div", { style: { display: "flex", gap: "10px" }, children: [
                   /* @__PURE__ */ s.jsx(
                     "button",
@@ -12694,36 +12218,12 @@ const Ff = [
         /* @__PURE__ */ s.jsx(cf, { size: 20, color: "var(--meld-danger-color)" }),
         /* @__PURE__ */ s.jsx("h2", { children: "Error" })
       ] }),
-      /* @__PURE__ */ s.jsx(
-        "button",
-        {
-          className: "meld-modal-close",
-          onClick: n,
-          type: "button",
-          children: /* @__PURE__ */ s.jsx(pe, { size: 20 })
-        }
-      )
+      /* @__PURE__ */ s.jsx("button", { className: "meld-modal-close", onClick: n, type: "button", children: /* @__PURE__ */ s.jsx(pe, { size: 20 }) })
     ] }),
-    /* @__PURE__ */ s.jsx("div", { className: "meld-modal-body", children: /* @__PURE__ */ s.jsx(
-      "div",
-      {
-        style: { padding: "20px 0", textAlign: "center", fontSize: "14px" },
-        children: e
-      }
-    ) }),
-    /* @__PURE__ */ s.jsx("div", { className: "meld-modal-footer", children: /* @__PURE__ */ s.jsx(
-      "button",
-      {
-        className: "meld-btn meld-btn-primary",
-        onClick: n,
-        type: "button",
-        children: "OK"
-      }
-    ) })
+    /* @__PURE__ */ s.jsx("div", { className: "meld-modal-body", children: /* @__PURE__ */ s.jsx("div", { style: { padding: "20px 0", textAlign: "center", fontSize: "14px" }, children: e }) }),
+    /* @__PURE__ */ s.jsx("div", { className: "meld-modal-footer", children: /* @__PURE__ */ s.jsx("button", { className: "meld-btn meld-btn-primary", onClick: n, type: "button", children: "OK" }) })
   ] }) });
-}, Kf = ({
-  imageId: e
-}) => {
+}, Kf = ({ imageId: e }) => {
   const { state: t, dispatch: n, refreshImages: r } = ge(), [l, a] = p.useState([]), [o, i] = p.useState(!0), [c, d] = p.useState(!1), h = p.useCallback(() => {
     n({ type: "CLOSE_MODAL" });
   }, [n]);
@@ -12773,9 +12273,7 @@ const Ff = [
         type: j.type || "input"
       });
       if (M === e) {
-        alert(
-          "Uploaded image is identical to the current image. Cannot set as source."
-        );
+        alert("Uploaded image is identical to the current image. Cannot set as source.");
         return;
       }
       await _(M);
@@ -12791,7 +12289,7 @@ const Ff = [
   };
   if (!w) return null;
   const g = l.filter((S) => S.is_source_match), b = l.filter((S) => !S.is_source_match);
-  return ce.createPortal(
+  return me.createPortal(
     /* @__PURE__ */ s.jsx(
       "div",
       {
@@ -12804,15 +12302,7 @@ const Ff = [
               "Select Source for #",
               w.id
             ] }),
-            /* @__PURE__ */ s.jsx(
-              "button",
-              {
-                type: "button",
-                className: "meld-modal-close",
-                onClick: h,
-                children: /* @__PURE__ */ s.jsx(pe, { size: 20 })
-              }
-            )
+            /* @__PURE__ */ s.jsx("button", { type: "button", className: "meld-modal-close", onClick: h, children: /* @__PURE__ */ s.jsx(pe, { size: 20 }) })
           ] }),
           /* @__PURE__ */ s.jsxs("div", { className: "meld-modal-body", children: [
             w.parent_id && /* @__PURE__ */ s.jsxs(
@@ -13001,13 +12491,7 @@ const Ff = [
                         } : {}
                       },
                       children: [
-                        /* @__PURE__ */ s.jsx(
-                          "img",
-                          {
-                            src: mt(S, 64),
-                            alt: S.filename
-                          }
-                        ),
+                        /* @__PURE__ */ s.jsx("img", { src: mt(S, 64), alt: S.filename }),
                         /* @__PURE__ */ s.jsxs("div", { className: "meld-suggestion-info", children: [
                           /* @__PURE__ */ s.jsx("span", { className: "meld-suggestion-filename", children: S.filename }),
                           j && /* @__PURE__ */ s.jsx(
@@ -13046,13 +12530,7 @@ const Ff = [
                         } : {}
                       },
                       children: [
-                        /* @__PURE__ */ s.jsx(
-                          "img",
-                          {
-                            src: mt(S, 64),
-                            alt: S.filename
-                          }
-                        ),
+                        /* @__PURE__ */ s.jsx("img", { src: mt(S, 64), alt: S.filename }),
                         /* @__PURE__ */ s.jsxs("div", { className: "meld-suggestion-info", children: [
                           /* @__PURE__ */ s.jsx("span", { className: "meld-suggestion-filename", children: S.filename }),
                           /* @__PURE__ */ s.jsxs(
@@ -13066,8 +12544,7 @@ const Ff = [
                               },
                               children: [
                                 /* @__PURE__ */ s.jsxs("span", { className: "meld-suggestion-distance", children: [
-                                  "Match:",
-                                  " ",
+                                  "Match: ",
                                   Math.round((64 - S.distance) / 64 * 100),
                                   "%"
                                 ] }),
@@ -13140,12 +12617,7 @@ const Ff = [
               }), !1;
             const a = e.activeModal.maskFilename, o = e.activeModal.onSuccess;
             for (const i of e.activeModal.images)
-              await n(
-                r,
-                i,
-                a,
-                l
-              );
+              await n(r, i, a, l);
             o == null || o();
           }
         }
@@ -13161,13 +12633,10 @@ const Ff = [
         }
       }
     ),
-    e.activeModal.type === "parent_selection" && ce.createPortal(
-      /* @__PURE__ */ s.jsx(Kf, { imageId: e.activeModal.imageId }),
-      document.body
-    ),
-    e.activeModal.type === "import" && ce.createPortal(/* @__PURE__ */ s.jsx(jf, {}), document.body),
-    e.activeModal.type === "settings" && ce.createPortal(/* @__PURE__ */ s.jsx(Wf, {}), document.body),
-    e.activeModal.type === "tag_edit" && ce.createPortal(
+    e.activeModal.type === "parent_selection" && /* @__PURE__ */ s.jsx(Kf, { imageId: e.activeModal.imageId }),
+    e.activeModal.type === "import" && /* @__PURE__ */ s.jsx(jf, {}),
+    e.activeModal.type === "settings" && /* @__PURE__ */ s.jsx(Wf, {}),
+    e.activeModal.type === "tag_edit" && me.createPortal(
       /* @__PURE__ */ s.jsx(
         $f,
         {
@@ -13179,11 +12648,8 @@ const Ff = [
       ),
       document.body
     ),
-    e.activeModal.type === "error" && ce.createPortal(
-      /* @__PURE__ */ s.jsx(Hf, { message: e.activeModal.message }),
-      document.body
-    ),
-    e.activeModal.type === "delete_confirm" && ce.createPortal(
+    e.activeModal.type === "error" && me.createPortal(/* @__PURE__ */ s.jsx(Hf, { message: e.activeModal.message }), document.body),
+    e.activeModal.type === "delete_confirm" && me.createPortal(
       /* @__PURE__ */ s.jsx(
         Qf,
         {
@@ -13198,7 +12664,7 @@ const Ff = [
       ),
       document.body
     ),
-    e.activeModal.type === "mask_editor" && ce.createPortal(
+    e.activeModal.type === "mask_editor" && me.createPortal(
       /* @__PURE__ */ s.jsx(
         ks,
         {
@@ -13210,7 +12676,7 @@ const Ff = [
       ),
       document.body
     ),
-    e.activeModal.type === "mask_sequence_step" && ce.createPortal(
+    e.activeModal.type === "mask_sequence_step" && me.createPortal(
       /* @__PURE__ */ s.jsx(
         ks,
         {
@@ -13240,7 +12706,7 @@ const Ff = [
       ),
       document.body
     ),
-    e.activeModal.type === "note_edit" && ce.createPortal(
+    e.activeModal.type === "note_edit" && me.createPortal(
       /* @__PURE__ */ s.jsx(
         Uf,
         {
@@ -13251,7 +12717,7 @@ const Ff = [
       ),
       document.body
     ),
-    e.activeModal.type === "download_options" && ce.createPortal(
+    e.activeModal.type === "download_options" && me.createPortal(
       /* @__PURE__ */ s.jsx(
         sy,
         {
@@ -13262,7 +12728,7 @@ const Ff = [
       ),
       document.body
     ),
-    e.confirmModal && ce.createPortal(
+    e.confirmModal && me.createPortal(
       /* @__PURE__ */ s.jsx(
         My,
         {
@@ -13279,7 +12745,7 @@ const Ff = [
       ),
       document.body
     ),
-    e.toastMessage && ce.createPortal(/* @__PURE__ */ s.jsx(Iy, {}), document.body)
+    e.toastMessage && me.createPortal(/* @__PURE__ */ s.jsx(Iy, {}), document.body)
   ] });
 }, Ly = () => {
   const { state: e, dispatch: t } = ge(), { scanStatus: n } = e;
@@ -13306,13 +12772,7 @@ const Ff = [
         n.progress.total
       ] })
     ] }),
-    /* @__PURE__ */ s.jsx("div", { className: "meld-progress-container-compact", children: /* @__PURE__ */ s.jsx(
-      "div",
-      {
-        className: "meld-progress-bar",
-        style: { width: `${d}%` }
-      }
-    ) }),
+    /* @__PURE__ */ s.jsx("div", { className: "meld-progress-container-compact", children: /* @__PURE__ */ s.jsx("div", { className: "meld-progress-bar", style: { width: `${d}%` } }) }),
     /* @__PURE__ */ s.jsx(
       "button",
       {
@@ -13335,15 +12795,7 @@ const Ff = [
         " updated"
       ] })
     ] }),
-    /* @__PURE__ */ s.jsx(
-      "button",
-      {
-        type: "button",
-        className: "meld-btn-ok-compact",
-        onClick: l,
-        children: "OK"
-      }
-    )
+    /* @__PURE__ */ s.jsx("button", { type: "button", className: "meld-btn-ok-compact", onClick: l, children: "OK" })
   ] }) });
 }, yi = {
   lightTable: {
@@ -13432,9 +12884,7 @@ const $s = ({
       const o = e.selectedIds;
       if (!o || o.size === 0)
         return;
-      const i = t.find(
-        (c) => c.shortcutKey.toLowerCase() === a.key.toLowerCase()
-      );
+      const i = t.find((c) => c.shortcutKey.toLowerCase() === a.key.toLowerCase());
       i && (sl(a), o.forEach((c) => {
         n(i.id, String(c));
       }));
@@ -13442,11 +12892,7 @@ const $s = ({
     [t, n, e.selectedIds]
   );
   $s({ onKeyDown: l, enabled: r });
-}, Xf = ({
-  message: e,
-  onConfirm: t,
-  onCancel: n
-}) => (Ue({ onEscape: n }), /* @__PURE__ */ s.jsx(
+}, Xf = ({ message: e, onConfirm: t, onCancel: n }) => (Ue({ onEscape: n }), /* @__PURE__ */ s.jsx(
   "div",
   {
     className: "meld-confirm-modal__overlay",
@@ -13606,9 +13052,7 @@ const $s = ({
       return z.length !== E.length ? z : E;
     });
   }, [j]);
-  const P = f.filter(
-    (E) => j.includes(String(E))
-  ), I = P.length > 0, F = (E) => {
+  const P = f.filter((E) => j.includes(String(E))), I = P.length > 0, F = (E) => {
     E.preventDefault(), E.stopPropagation(), E.currentTarget.classList.add("drag-over");
   }, Q = (E) => {
     E.currentTarget.classList.remove("drag-over");
@@ -13617,11 +13061,9 @@ const $s = ({
     const z = E.dataTransfer.getData("text/plain");
     z && z.split(",").forEach((A) => {
       if (A) {
-        const K = A.trim(), J = Number(K);
-        let oe = a.images.find((ue) => ue.id === J);
-        oe || (oe = a.lineageImages.find(
-          (ue) => ue.id === J
-        )), se.getState().addToBucket(e.id, K, oe);
+        const K = A.trim(), X = Number(K);
+        let oe = a.images.find((de) => de.id === X);
+        oe || (oe = a.lineageImages.find((de) => de.id === X)), se.getState().addToBucket(e.id, K, oe);
       }
     });
   }, B = (E, z) => {
@@ -13641,7 +13083,7 @@ const $s = ({
       type: E
     }, V = I ? P : j.map(Number);
     if (V.length === 0) return;
-    const A = V.map((oe) => L.find((ue) => ue.id === oe)).filter(Boolean), K = {
+    const A = V.map((oe) => L.find((de) => de.id === oe)).filter(Boolean), K = {
       edit_tags: "Tags updated",
       delete: "Delete initiated",
       move_folder: "Moved to folder",
@@ -13649,15 +13091,9 @@ const $s = ({
       run_with_mask: "Opened Mask Editor",
       download: "Opened Download Options"
     };
-    zy(
-      z,
-      V,
-      A,
-      o,
-      () => {
-        se.getState().showToast(K[E] ?? "Done");
-      }
-    );
+    zy(z, V, A, o, () => {
+      se.getState().showToast(K[E] ?? "Done");
+    });
   }, N = () => {
     se.getState().clearBucket(e.id), se.getState().showToast(`Tab "${e.label}" cleared`), h(!1);
   }, T = () => {
@@ -13686,16 +13122,10 @@ const $s = ({
                     (A) => A.includes(E.id) ? A.filter((K) => K !== E.id) : [...A, E.id]
                   ), g(E.id);
                 else if (V.shiftKey && m !== null) {
-                  const A = L.findIndex(
-                    (J) => J.id === E.id
-                  ), K = L.findIndex(
-                    (J) => J.id === m
-                  );
+                  const A = L.findIndex((X) => X.id === E.id), K = L.findIndex((X) => X.id === m);
                   if (A !== -1 && K !== -1) {
-                    const J = Math.min(A, K), oe = Math.max(A, K), ue = L.slice(J, oe + 1).map((Le) => Le.id);
-                    u(
-                      (Le) => Array.from(/* @__PURE__ */ new Set([...Le, ...ue]))
-                    );
+                    const X = Math.min(A, K), oe = Math.max(A, K), de = L.slice(X, oe + 1).map((Le) => Le.id);
+                    u((Le) => Array.from(/* @__PURE__ */ new Set([...Le, ...de])));
                   }
                   g(E.id);
                 } else
@@ -13826,9 +13256,7 @@ const $s = ({
                         {
                           id: `slot-color-${e.id}`,
                           type: "color",
-                          value: x.startsWith("var") ? ((W = x.match(
-                            /#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})/
-                          )) == null ? void 0 : W[0]) ?? "#9ca3af" : /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/i.test(x) ? x : "#9ca3af",
+                          value: x.startsWith("var") ? ((W = x.match(/#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})/)) == null ? void 0 : W[0]) ?? "#9ca3af" : /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/i.test(x) ? x : "#9ca3af",
                           onChange: (E) => _(E.target.value),
                           style: { flexShrink: 0 }
                         }
@@ -13854,19 +13282,13 @@ const $s = ({
                   onClick: () => {
                     const E = se.getState(), z = k.trim();
                     if (!z) {
-                      E.showToast(
-                        "Error: Tab label cannot be empty",
-                        "error"
-                      );
+                      E.showToast("Error: Tab label cannot be empty", "error");
                       return;
                     }
                     if (E.slots.some(
                       (A) => A.id !== e.id && (A.label.toLowerCase() === z.toLowerCase() || A.id.toLowerCase() === z.toLowerCase())
                     )) {
-                      E.showToast(
-                        `Error: "${z}" is already in use`,
-                        "error"
-                      );
+                      E.showToast(`Error: "${z}" is already in use`, "error");
                       return;
                     }
                     E.updateSlot(e.id, {
@@ -13958,9 +13380,7 @@ const $s = ({
               const f = _.dataTransfer.getData("text/plain");
               f && f.split(",").forEach((m) => {
                 if (m) {
-                  const g = m.trim(), b = l.images.find(
-                    (S) => String(S.id) === g
-                  );
+                  const g = m.trim(), b = l.images.find((S) => String(S.id) === g);
                   se.getState().addToBucket(w.id, g, b);
                 }
               });
@@ -14048,7 +13468,7 @@ const $s = ({
     ),
     /* @__PURE__ */ s.jsx(Wy, {})
   ] });
-  return ce.createPortal(y, i);
+  return me.createPortal(y, i);
 }, Zf = () => {
   const { state: e, refreshFavorites: t } = ge(), [n, r] = p.useState(!1), [l, a] = p.useState(null), [o, i] = p.useState("info"), [c, d] = p.useState(null), [h, v] = p.useState(""), [y, k] = p.useState("");
   p.useEffect(() => {
@@ -14069,47 +13489,38 @@ const $s = ({
         }
     },
     [t]
-  ), x = p.useCallback(
-    (u, m) => {
-      u.stopPropagation(), d(m), v(m.name), k(m.query);
-    },
-    []
-  ), _ = p.useCallback(async () => {
+  ), x = p.useCallback((u, m) => {
+    u.stopPropagation(), d(m), v(m.name), k(m.query);
+  }, []), _ = p.useCallback(async () => {
     if (!(!c || !h.trim() || !y.trim()))
       try {
-        r(!0), await Pg(
-          c.id,
-          h,
-          y
-        ), await t(), d(null);
+        r(!0), await Pg(c.id, h, y), await t(), d(null);
       } catch (u) {
         O.error("Failed to update favorite", u), a("Failed to update favorite."), i("error");
       } finally {
         r(!1);
       }
   }, [c, h, y, t]), f = p.useCallback(async () => {
-    if (!e.searchQuery || n) return;
-    if (e.favorites.some(
-      (m) => m.query === e.searchQuery
-    )) {
+    if (!e.searchQuery || n) return !1;
+    if (e.favorites.some((m) => m.query === e.searchQuery)) {
       const m = e.favorites.find((g) => g.query === e.searchQuery);
       if (m) {
         r(!0);
         try {
-          await Tc(m.id), await t();
+          return await Tc(m.id), await t(), !0;
         } catch (g) {
-          O.error("Failed to delete favorite:", g);
+          return O.error("Failed to delete favorite:", g), !1;
         } finally {
           r(!1);
         }
       }
-      return;
+      return !1;
     }
     r(!0);
     try {
-      await Dg(e.searchQuery, e.searchQuery), await t();
+      return await Dg(e.searchQuery, e.searchQuery), await t(), !0;
     } catch (m) {
-      O.error("Failed to save favorite:", m);
+      return O.error("Failed to save favorite:", m), !1;
     } finally {
       r(!1);
     }
@@ -14132,12 +13543,7 @@ const $s = ({
       a(u), i(m);
     }
   };
-}, Jf = ({
-  fav: e,
-  onSelect: t,
-  onEdit: n,
-  onDelete: r
-}) => {
+}, Jf = ({ fav: e, onSelect: t, onEdit: n, onDelete: r }) => {
   const [l, a] = p.useState(!1), [o, i] = p.useState(!1), [c, d] = p.useState(!1);
   return /* @__PURE__ */ s.jsxs(
     "div",
@@ -14310,7 +13716,7 @@ const $s = ({
     }
   }, [e]), p.useEffect(() => {
     o && u.current && u.current.focus();
-  }, [o]), e ? ce.createPortal(
+  }, [o]), e ? me.createPortal(
     /* @__PURE__ */ s.jsxs(s.Fragment, { children: [
       /* @__PURE__ */ s.jsxs(
         "div",
@@ -14385,14 +13791,7 @@ const $s = ({
                 ] }),
                 /* @__PURE__ */ s.jsx("div", { className: "meld-modal-body", children: /* @__PURE__ */ s.jsxs("div", { className: Ke.form, children: [
                   /* @__PURE__ */ s.jsxs("div", { className: Ke.fieldGroup, children: [
-                    /* @__PURE__ */ s.jsx(
-                      "label",
-                      {
-                        htmlFor: "edit-favorite-name-ctx",
-                        className: Ke.label,
-                        children: "Name"
-                      }
-                    ),
+                    /* @__PURE__ */ s.jsx("label", { htmlFor: "edit-favorite-name-ctx", className: Ke.label, children: "Name" }),
                     /* @__PURE__ */ s.jsx(
                       "input",
                       {
@@ -14410,14 +13809,7 @@ const $s = ({
                     )
                   ] }),
                   /* @__PURE__ */ s.jsxs("div", { className: Ke.fieldGroup, children: [
-                    /* @__PURE__ */ s.jsx(
-                      "label",
-                      {
-                        htmlFor: "edit-favorite-query-ctx",
-                        className: Ke.label,
-                        children: "Search Query"
-                      }
-                    ),
+                    /* @__PURE__ */ s.jsx("label", { htmlFor: "edit-favorite-query-ctx", className: Ke.label, children: "Search Query" }),
                     /* @__PURE__ */ s.jsx(
                       "textarea",
                       {
@@ -14552,12 +13944,7 @@ const $s = ({
         o([]), c(!1);
     }, 300);
     return () => clearTimeout(D);
-  }, [
-    r,
-    e.settings["search.input_suggest"],
-    b,
-    _
-  ]);
+  }, [r, e.settings["search.input_suggest"], b, _]);
   const L = p.useCallback(
     (D) => {
       var V;
@@ -14566,10 +13953,7 @@ const $s = ({
         const A = `${[...R, `${W}${D.type}:`].join(" ").trim()}`;
         l(A);
       } else {
-        const A = z ? D.value : `"${D.value}"`, K = `${[
-          ...R,
-          `${W}${D.type}:${A}`
-        ].join(" ").trim()} `;
+        const A = z ? D.value : `"${D.value}"`, K = `${[...R, `${W}${D.type}:${A}`].join(" ").trim()} `;
         l(K), o([]), c(!1);
       }
       (V = u.current) == null || V.focus();
@@ -14589,7 +13973,7 @@ const $s = ({
     l(""), M("");
   }, [M]), F = p.useCallback(
     (D, R, N = !1) => {
-      var fe;
+      var ue;
       const T = Ol(r), W = T[T.length - 1] || "";
       let E = !1;
       const z = W.replace(/^([-!])/, "").toLowerCase();
@@ -14597,10 +13981,10 @@ const $s = ({
       const V = W.match(/^([-!])/), A = E && V ? V[1] : "";
       if (E && T.pop(), N) {
         const Tt = [...T, `${A}${D}:`].filter(Boolean).join(" ");
-        l(Tt), (fe = u.current) == null || fe.focus();
+        l(Tt), (ue = u.current) == null || ue.focus();
         return;
       }
-      const oe = ((_ == null ? void 0 : _.no_quote_prefixes) || []).includes(D) ? R : `"${R}"`, ue = `${A}${D}:${oe}`, Le = [...T, ue].filter(Boolean).join(" ");
+      const oe = ((_ == null ? void 0 : _.no_quote_prefixes) || []).includes(D) ? R : `"${R}"`, de = `${A}${D}:${oe}`, Le = [...T, de].filter(Boolean).join(" ");
       l(Le), M(Le);
     },
     [r, M, _]
@@ -14610,8 +13994,7 @@ const $s = ({
     },
     [M]
   ), C = p.useCallback(() => {
-    if (r === m.current || !b)
-      return;
+    if (r === m.current || !b) return;
     const D = Ol(r), R = D[D.length - 1];
     if (!R) return;
     const N = !!R.match(b), T = R.replace(/^([-!])/, "").toLowerCase(), W = T && (_ == null ? void 0 : _.all_prefixes.some((E) => E.startsWith(T)));
@@ -14706,7 +14089,7 @@ const $s = ({
         j.currentTarget.style.backgroundColor = "var(--comfy-menu-bg, #333)", j.currentTarget.style.borderColor = "var(--comfy-menu-border, #444)", j.currentTarget.style.color = "var(--meld-text-color)";
       },
       onMouseLeave: (j) => {
-        j.currentTarget.style.backgroundColor = "var(--comfy-input-bg, #2a2a2a)", j.currentTarget.style.borderColor = "var(--comfy-input-bg, #333)", j.currentTarget.style.color = "var(--meld-text-color)";
+        j.currentTarget.style.backgroundColor = "var(--comfy-input-bg, #2a2a2a)", j.currentTarget.style.borderColor = "var(--comfy-menu-border, #333)", j.currentTarget.style.color = "var(--meld-text-color)";
       },
       children: [
         /* @__PURE__ */ s.jsx(
@@ -14858,9 +14241,7 @@ const $s = ({
               gap: "8px",
               padding: "0 4px"
             },
-            children: i.map(
-              (g, b) => _(g, b, "quick")
-            )
+            children: i.map((g, b) => _(g, b, "quick"))
           }
         ),
         /* @__PURE__ */ s.jsxs(
@@ -15048,13 +14429,11 @@ const $s = ({
     handleSaveFavorite: R,
     setToastMessage: N
   } = Zf(), T = async () => {
-    if (e.favorites.some(
-      (K) => K.query === e.searchQuery
-    )) {
-      N("This query is already in your favorites.", "error");
-      return;
-    }
-    await R();
+    const A = e.favorites.some((X) => X.query === e.searchQuery);
+    await R() && N(
+      A ? "Removed from favorites." : "Added to favorites.",
+      "info"
+    );
   };
   Ue({
     onEscape: () => L(null),
@@ -15075,210 +14454,203 @@ const $s = ({
       className: "meld-search-container",
       style: { display: "flex", flexDirection: "column", gap: "8px", flex: 1 },
       children: [
-        /* @__PURE__ */ s.jsxs(
-          "div",
-          {
-            className: "meld-search-bar-wrapper",
-            style: { position: "relative", width: "100%" },
-            children: [
-              S && /* @__PURE__ */ s.jsx(
-                "div",
-                {
-                  className: "meld-search-toast",
-                  style: {
-                    position: "absolute",
-                    top: "calc(100% + 8px)",
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    backgroundColor: "var(--comfy-menu-bg, #333)",
-                    color: "var(--meld-text-color)",
-                    padding: "8px 16px",
-                    borderRadius: "4px",
-                    fontSize: "12px",
-                    whiteSpace: "pre-wrap",
-                    textAlign: "center",
-                    boxShadow: "0 4px 12px var(--comfy-menu-shadow, rgba(0,0,0,0.5))",
-                    pointerEvents: "none",
-                    fontWeight: "bold",
-                    border: j === "error" ? "1px solid var(--brand-red, #ff4c4c)" : "1px solid var(--comfy-menu-border, #444)",
-                    animation: "meld-fade-in-down 0.3s ease-out",
-                    width: "max-content",
-                    maxWidth: "300px"
-                  },
-                  children: S
-                }
-              ),
-              /* @__PURE__ */ s.jsxs(
-                "div",
-                {
-                  className: "meld-search-bar",
-                  style: {
-                    display: "flex",
-                    alignItems: "center",
-                    backgroundColor: "var(--comfy-input-bg, #1a1a1a)",
-                    borderRadius: "6px",
-                    padding: "6px 12px",
-                    border: "1px solid var(--comfy-menu-border, #333)",
-                    transition: "border-color 0.2s",
-                    boxShadow: "inset 0 1px 3px var(--comfy-input-shadow, rgba(0,0,0,0.2))"
-                  },
-                  children: [
-                    /* @__PURE__ */ s.jsxs(
-                      "button",
-                      {
-                        type: "button",
-                        onClick: () => k(t),
-                        style: {
-                          background: y ? "var(--meld-accent-color, #3b82f6)" : "var(--comfy-input-bg-active, rgba(255,255,255,0.03))",
-                          border: y ? "1px solid var(--meld-border-color, rgba(255,255,255,0.2))" : "1px solid transparent",
-                          cursor: "pointer",
-                          padding: "6px 10px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          marginRight: "10px",
-                          flexShrink: 0,
-                          borderRadius: "4px",
-                          transition: "all 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
-                          boxShadow: y ? "0 2px 8px var(--meld-accent-glow, rgba(59, 130, 246, 0.4)), inset 0 1px 0 var(--meld-border-color, rgba(255,255,255,0.2))" : "none"
-                        },
-                        onMouseEnter: (A) => {
-                          A.currentTarget.style.transform = "translateY(-1px)", y ? (A.currentTarget.style.filter = "brightness(1.15)", A.currentTarget.style.boxShadow = "0 4px 12px var(--meld-accent-glow-hover, rgba(59, 130, 246, 0.5)), inset 0 1px 0 var(--meld-border-color, rgba(255,255,255,0.2))") : A.currentTarget.style.backgroundColor = "var(--comfy-input-bg-active, rgba(255,255,255,0.08))";
-                        },
-                        onMouseLeave: (A) => {
-                          A.currentTarget.style.transform = "none", y ? (A.currentTarget.style.filter = "none", A.currentTarget.style.boxShadow = "0 2px 8px var(--meld-accent-glow, rgba(59, 130, 246, 0.4)), inset 0 1px 0 var(--meld-border-color, rgba(255,255,255,0.2))") : A.currentTarget.style.backgroundColor = "var(--comfy-input-bg-active, rgba(255,255,255,0.03))";
-                        },
-                        onMouseDown: (A) => {
-                          A.currentTarget.style.transform = "translateY(1px)", A.currentTarget.style.boxShadow = "none";
-                        },
-                        onMouseUp: (A) => {
-                          A.currentTarget.style.transform = "translateY(-1px)";
-                        },
-                        title: "Search (Enter)",
-                        children: [
-                          /* @__PURE__ */ s.jsx(
-                            Mn,
-                            {
-                              size: 16,
-                              color: y ? "var(--meld-text-color, #fff)" : "var(--meld-text-secondary)",
-                              style: {
-                                transition: "color 0.2s",
-                                filter: y ? "drop-shadow(0 1px 2px var(--meld-shadow-color, rgba(0,0,0,0.2)))" : "none"
-                              }
-                            }
-                          ),
-                          y && /* @__PURE__ */ s.jsx(
-                            "span",
-                            {
-                              style: {
-                                color: "var(--meld-text-color, #fff)",
-                                fontSize: "12px",
-                                fontWeight: "bold",
-                                marginLeft: "6px",
-                                textShadow: "0 1px 2px var(--meld-shadow-color, rgba(0,0,0,0.2))"
-                              },
-                              children: "Search"
-                            }
-                          )
-                        ]
-                      }
-                    ),
-                    /* @__PURE__ */ s.jsx(
-                      "input",
-                      {
-                        ref: v,
-                        type: "text",
-                        value: t,
-                        onChange: (A) => u(A.target.value),
-                        onKeyDown: w,
-                        onBlur: g,
-                        onFocus: m,
-                        placeholder: "Search anything: prompts, tags, models, dates, or free keywords...",
-                        style: {
-                          flex: 1,
-                          background: "none",
-                          border: "none",
-                          color: "var(--meld-text-color)",
-                          outline: "none",
-                          fontSize: "14px",
-                          padding: "4px 0"
-                        }
-                      }
-                    ),
-                    e.searchQuery && /* @__PURE__ */ s.jsx(
-                      "button",
-                      {
-                        type: "button",
-                        onClick: T,
-                        disabled: b,
-                        title: e.favorites.some((A) => A.query === e.searchQuery) ? "Remove from Favorites" : "Add to Favorites",
-                        style: {
-                          background: "none",
-                          border: "none",
-                          cursor: "pointer",
-                          padding: "2px",
-                          display: "flex",
-                          alignItems: "center",
-                          flexShrink: 0,
-                          marginRight: "4px"
-                        },
-                        children: /* @__PURE__ */ s.jsx(
-                          cr,
-                          {
-                            size: 16,
-                            color: e.favorites.some((A) => A.query === e.searchQuery) ? "var(--brand-yellow, #ffd700)" : "var(--meld-text-secondary)",
-                            fill: e.favorites.some((A) => A.query === e.searchQuery) ? "var(--brand-yellow, #ffd700)" : "none"
+        /* @__PURE__ */ s.jsxs("div", { className: "meld-search-bar-wrapper", style: { position: "relative", width: "100%" }, children: [
+          S && /* @__PURE__ */ s.jsx(
+            "div",
+            {
+              className: "meld-search-toast",
+              style: {
+                position: "absolute",
+                top: "calc(100% + 8px)",
+                left: "50%",
+                transform: "translateX(-50%)",
+                backgroundColor: "var(--comfy-menu-bg, #333)",
+                color: "var(--meld-text-color)",
+                padding: "8px 16px",
+                borderRadius: "4px",
+                fontSize: "12px",
+                whiteSpace: "pre-wrap",
+                textAlign: "center",
+                boxShadow: "0 4px 12px var(--comfy-menu-shadow, rgba(0,0,0,0.5))",
+                pointerEvents: "none",
+                fontWeight: "bold",
+                border: j === "error" ? "1px solid var(--brand-red, #ff4c4c)" : "1px solid var(--comfy-menu-border, #444)",
+                animation: "meld-fade-in-down 0.3s ease-out",
+                width: "max-content",
+                maxWidth: "300px"
+              },
+              children: S
+            }
+          ),
+          /* @__PURE__ */ s.jsxs(
+            "div",
+            {
+              className: "meld-search-bar",
+              style: {
+                display: "flex",
+                alignItems: "center",
+                backgroundColor: "var(--comfy-input-bg, #1a1a1a)",
+                borderRadius: "6px",
+                padding: "6px 12px",
+                border: "1px solid var(--comfy-menu-border, #333)",
+                transition: "border-color 0.2s",
+                boxShadow: "inset 0 1px 3px var(--comfy-input-shadow, rgba(0,0,0,0.2))"
+              },
+              children: [
+                /* @__PURE__ */ s.jsxs(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: () => k(t),
+                    style: {
+                      background: y ? "var(--meld-accent-color, #3b82f6)" : "var(--comfy-input-bg-active, rgba(255,255,255,0.03))",
+                      border: y ? "1px solid var(--meld-border-color, rgba(255,255,255,0.2))" : "1px solid transparent",
+                      cursor: "pointer",
+                      padding: "6px 10px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginRight: "10px",
+                      flexShrink: 0,
+                      borderRadius: "4px",
+                      transition: "all 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
+                      boxShadow: y ? "0 2px 8px var(--meld-accent-glow, rgba(59, 130, 246, 0.4)), inset 0 1px 0 var(--meld-border-color, rgba(255,255,255,0.2))" : "none"
+                    },
+                    onMouseEnter: (A) => {
+                      A.currentTarget.style.transform = "translateY(-1px)", y ? (A.currentTarget.style.filter = "brightness(1.15)", A.currentTarget.style.boxShadow = "0 4px 12px var(--meld-accent-glow-hover, rgba(59, 130, 246, 0.5)), inset 0 1px 0 var(--meld-border-color, rgba(255,255,255,0.2))") : A.currentTarget.style.backgroundColor = "var(--comfy-input-bg-active, rgba(255,255,255,0.08))";
+                    },
+                    onMouseLeave: (A) => {
+                      A.currentTarget.style.transform = "none", y ? (A.currentTarget.style.filter = "none", A.currentTarget.style.boxShadow = "0 2px 8px var(--meld-accent-glow, rgba(59, 130, 246, 0.4)), inset 0 1px 0 var(--meld-border-color, rgba(255,255,255,0.2))") : A.currentTarget.style.backgroundColor = "var(--comfy-input-bg-active, rgba(255,255,255,0.03))";
+                    },
+                    onMouseDown: (A) => {
+                      A.currentTarget.style.transform = "translateY(1px)", A.currentTarget.style.boxShadow = "none";
+                    },
+                    onMouseUp: (A) => {
+                      A.currentTarget.style.transform = "translateY(-1px)";
+                    },
+                    title: "Search (Enter)",
+                    children: [
+                      /* @__PURE__ */ s.jsx(
+                        Mn,
+                        {
+                          size: 16,
+                          color: y ? "var(--meld-text-color, #fff)" : "var(--meld-text-secondary)",
+                          style: {
+                            transition: "color 0.2s",
+                            filter: y ? "drop-shadow(0 1px 2px var(--meld-shadow-color, rgba(0,0,0,0.2)))" : "none"
                           }
-                        )
-                      }
-                    ),
-                    t && /* @__PURE__ */ s.jsx(
-                      "button",
+                        }
+                      ),
+                      y && /* @__PURE__ */ s.jsx(
+                        "span",
+                        {
+                          style: {
+                            color: "var(--meld-text-color, #fff)",
+                            fontSize: "12px",
+                            fontWeight: "bold",
+                            marginLeft: "6px",
+                            textShadow: "0 1px 2px var(--meld-shadow-color, rgba(0,0,0,0.2))"
+                          },
+                          children: "Search"
+                        }
+                      )
+                    ]
+                  }
+                ),
+                /* @__PURE__ */ s.jsx(
+                  "input",
+                  {
+                    ref: v,
+                    type: "text",
+                    value: t,
+                    onChange: (A) => u(A.target.value),
+                    onKeyDown: w,
+                    onBlur: g,
+                    onFocus: m,
+                    placeholder: "Search anything: prompts, tags, models, dates, or free keywords...",
+                    style: {
+                      flex: 1,
+                      background: "none",
+                      border: "none",
+                      color: "var(--meld-text-color)",
+                      outline: "none",
+                      fontSize: "14px",
+                      padding: "4px 0"
+                    }
+                  }
+                ),
+                e.searchQuery && /* @__PURE__ */ s.jsx(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: T,
+                    disabled: b,
+                    title: e.favorites.some((A) => A.query === e.searchQuery) ? "Remove from Favorites" : "Add to Favorites",
+                    style: {
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      padding: "2px",
+                      display: "flex",
+                      alignItems: "center",
+                      flexShrink: 0,
+                      marginRight: "4px"
+                    },
+                    children: /* @__PURE__ */ s.jsx(
+                      cr,
                       {
-                        type: "button",
-                        onClick: _,
-                        style: {
-                          background: "none",
-                          border: "none",
-                          cursor: "pointer",
-                          padding: "2px",
-                          display: "flex",
-                          alignItems: "center",
-                          flexShrink: 0
-                        },
-                        children: /* @__PURE__ */ s.jsx(pe, { size: 16, color: "var(--meld-text-secondary)" })
+                        size: 16,
+                        color: e.favorites.some((A) => A.query === e.searchQuery) ? "var(--brand-yellow, #ffd700)" : "var(--meld-text-secondary)",
+                        fill: e.favorites.some((A) => A.query === e.searchQuery) ? "var(--brand-yellow, #ffd700)" : "none"
                       }
                     )
-                  ]
-                }
-              ),
-              /* @__PURE__ */ s.jsx(
-                nv,
-                {
-                  showSuggestions: l,
-                  suggestions: r,
-                  selectedIndex: d,
-                  setSelectedIndex: h,
-                  applySuggestion: x,
-                  inputValue: t,
-                  searchQuery: e.searchQuery,
-                  searchSuggestions: a,
-                  allKeywords: o,
-                  showAllKeywords: i,
-                  toggleShowAllKeywords: c,
-                  applySearchSuggestion: f,
-                  favorites: e.favorites,
-                  onSelectFavorite: (A) => {
-                    n(A), k(A);
-                  },
-                  onEditFavorite: B,
-                  onDeleteFavorite: C
-                }
-              )
-            ]
-          }
-        ),
-        M && ce.createPortal(
+                  }
+                ),
+                t && /* @__PURE__ */ s.jsx(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: _,
+                    style: {
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      padding: "2px",
+                      display: "flex",
+                      alignItems: "center",
+                      flexShrink: 0
+                    },
+                    children: /* @__PURE__ */ s.jsx(pe, { size: 16, color: "var(--meld-text-secondary)" })
+                  }
+                )
+              ]
+            }
+          ),
+          /* @__PURE__ */ s.jsx(
+            nv,
+            {
+              showSuggestions: l,
+              suggestions: r,
+              selectedIndex: d,
+              setSelectedIndex: h,
+              applySuggestion: x,
+              inputValue: t,
+              searchQuery: e.searchQuery,
+              searchSuggestions: a,
+              allKeywords: o,
+              showAllKeywords: i,
+              toggleShowAllKeywords: c,
+              applySearchSuggestion: f,
+              favorites: e.favorites,
+              onSelectFavorite: (A) => {
+                n(A), k(A);
+              },
+              onEditFavorite: B,
+              onDeleteFavorite: C
+            }
+          )
+        ] }),
+        M && me.createPortal(
           /* @__PURE__ */ s.jsx(
             "div",
             {
@@ -15292,16 +14664,10 @@ const $s = ({
                   onClick: (A) => A.stopPropagation(),
                   children: [
                     /* @__PURE__ */ s.jsxs("div", { className: "meld-modal-header", children: [
-                      /* @__PURE__ */ s.jsxs(
-                        "h2",
-                        {
-                          style: { display: "flex", alignItems: "center", gap: "10px" },
-                          children: [
-                            /* @__PURE__ */ s.jsx(cr, { size: 20, color: "var(--meld-accent-color)" }),
-                            "Edit Favorite"
-                          ]
-                        }
-                      ),
+                      /* @__PURE__ */ s.jsxs("h2", { style: { display: "flex", alignItems: "center", gap: "10px" }, children: [
+                        /* @__PURE__ */ s.jsx(cr, { size: 20, color: "var(--meld-accent-color)" }),
+                        "Edit Favorite"
+                      ] }),
                       /* @__PURE__ */ s.jsx(
                         "button",
                         {
@@ -15451,10 +14817,7 @@ const $s = ({
       ]
     }
   );
-}, lv = ({
-  onClose: e,
-  onSearch: t
-}) => {
+}, lv = ({ onClose: e, onSearch: t }) => {
   const [n, r] = p.useState([]), [l, a] = p.useState(!0), [o, i] = p.useState(""), [c, d] = p.useState(""), [h, v] = p.useState(!1), [y, k] = p.useState(null), [w, x] = p.useState(""), [_, f] = p.useState(!1), u = p.useRef(null), m = p.useCallback(async () => {
     a(!0);
     try {
@@ -15476,9 +14839,7 @@ const $s = ({
     const F = c.trim();
     if (!(!F || h)) {
       if (F.toLowerCase() === _t) {
-        alert(
-          `Tag name '${_t}' is reserved for search and cannot be used.`
-        );
+        alert(`Tag name '${_t}' is reserved for search and cannot be used.`);
         return;
       }
       if (n.some((Q) => Q.name.toLowerCase() === F.toLowerCase())) {
@@ -15510,9 +14871,7 @@ const $s = ({
     const F = w.trim();
     if (!F || y === null || _) return;
     if (F.toLowerCase() === _t) {
-      alert(
-        `Tag name '${_t}' is reserved for search and cannot be used.`
-      );
+      alert(`Tag name '${_t}' is reserved for search and cannot be used.`);
       return;
     }
     const Q = n.find((C) => C.id === y);
@@ -15520,9 +14879,7 @@ const $s = ({
       j();
       return;
     }
-    if (n.some(
-      (C) => C.id !== y && C.name.toLowerCase() === F.toLowerCase()
-    )) {
+    if (n.some((C) => C.id !== y && C.name.toLowerCase() === F.toLowerCase())) {
       alert(`Tag "${F}" already exists.`);
       return;
     }
@@ -15536,9 +14893,7 @@ const $s = ({
     }
   }, L = (I) => {
     t(`tag:${I}`);
-  }, P = p.useMemo(() => n.filter(
-    (I) => I.name.toLowerCase().includes(o.toLowerCase())
-  ), [n, o]);
+  }, P = p.useMemo(() => n.filter((I) => I.name.toLowerCase().includes(o.toLowerCase())), [n, o]);
   return /* @__PURE__ */ s.jsxs("div", { className: "meld-tag-manager-view", children: [
     /* @__PURE__ */ s.jsxs("div", { className: "meld-tag-manager-header", children: [
       /* @__PURE__ */ s.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
@@ -15595,47 +14950,40 @@ const $s = ({
           }
         )
       ] }),
-      l ? /* @__PURE__ */ s.jsx("div", { className: "meld-gallery__loading", children: "Loading tags..." }) : /* @__PURE__ */ s.jsx("div", { className: "meld-tag-list", children: P.length === 0 ? /* @__PURE__ */ s.jsx("div", { className: "meld-gallery__empty", children: "No tags found." }) : P.map((I) => /* @__PURE__ */ s.jsx("div", { className: "meld-tag-item", children: y === I.id ? /* @__PURE__ */ s.jsxs(
-        "form",
-        {
-          className: "meld-tag-rename-form",
-          onSubmit: M,
-          children: [
-            /* @__PURE__ */ s.jsx(
-              "input",
-              {
-                type: "text",
-                ref: u,
-                className: "meld-tag-rename-input",
-                value: w,
-                onChange: (F) => x(F.target.value),
-                onKeyDown: (F) => F.key === "Escape" && j()
-              }
-            ),
-            /* @__PURE__ */ s.jsx(
-              "button",
-              {
-                type: "submit",
-                className: "meld-tag-item__btn meld-tag-item__btn--save",
-                title: "Save",
-                disabled: _ || !w.trim(),
-                children: /* @__PURE__ */ s.jsx(ci, { size: 14 })
-              }
-            ),
-            /* @__PURE__ */ s.jsx(
-              "button",
-              {
-                type: "button",
-                className: "meld-tag-item__btn",
-                title: "Cancel",
-                onClick: j,
-                disabled: _,
-                children: /* @__PURE__ */ s.jsx(pe, { size: 14 })
-              }
-            )
-          ]
-        }
-      ) : /* @__PURE__ */ s.jsxs(s.Fragment, { children: [
+      l ? /* @__PURE__ */ s.jsx("div", { className: "meld-gallery__loading", children: "Loading tags..." }) : /* @__PURE__ */ s.jsx("div", { className: "meld-tag-list", children: P.length === 0 ? /* @__PURE__ */ s.jsx("div", { className: "meld-gallery__empty", children: "No tags found." }) : P.map((I) => /* @__PURE__ */ s.jsx("div", { className: "meld-tag-item", children: y === I.id ? /* @__PURE__ */ s.jsxs("form", { className: "meld-tag-rename-form", onSubmit: M, children: [
+        /* @__PURE__ */ s.jsx(
+          "input",
+          {
+            type: "text",
+            ref: u,
+            className: "meld-tag-rename-input",
+            value: w,
+            onChange: (F) => x(F.target.value),
+            onKeyDown: (F) => F.key === "Escape" && j()
+          }
+        ),
+        /* @__PURE__ */ s.jsx(
+          "button",
+          {
+            type: "submit",
+            className: "meld-tag-item__btn meld-tag-item__btn--save",
+            title: "Save",
+            disabled: _ || !w.trim(),
+            children: /* @__PURE__ */ s.jsx(ci, { size: 14 })
+          }
+        ),
+        /* @__PURE__ */ s.jsx(
+          "button",
+          {
+            type: "button",
+            className: "meld-tag-item__btn",
+            title: "Cancel",
+            onClick: j,
+            disabled: _,
+            children: /* @__PURE__ */ s.jsx(pe, { size: 14 })
+          }
+        )
+      ] }) : /* @__PURE__ */ s.jsxs(s.Fragment, { children: [
         /* @__PURE__ */ s.jsx("span", { className: "meld-tag-item__name", children: I.name }),
         /* @__PURE__ */ s.jsxs("div", { className: "meld-tag-item__actions", children: [
           /* @__PURE__ */ s.jsx(
@@ -15756,7 +15104,9 @@ const $s = ({
   restoreImages: x,
   bulkUpdateImageTags: _
 }) => {
-  const [f, u] = p.useState(null), [m, g] = p.useState(null), b = p.useCallback(
+  const [f, u] = p.useState(null), [m, g] = p.useState(
+    null
+  ), b = p.useCallback(
     async (I = !1) => {
       if (!n) return;
       const F = r ? e.settings["fullscreen.delete_mode"] : e.settings["viewer.delete_mode"];
@@ -15780,10 +15130,7 @@ const $s = ({
           for (const D of B)
             C.add(D.id);
         }
-        if (!d.isMountedRef.current || d.viewerImageIdRef.current === null || (await ho(
-          Array.from(C),
-          Q
-        ), !d.isMountedRef.current || d.viewerImageIdRef.current === null))
+        if (!d.isMountedRef.current || d.viewerImageIdRef.current === null || (await ho(Array.from(C), Q), !d.isMountedRef.current || d.viewerImageIdRef.current === null))
           return;
         if ($c({
           currentThumbnails: l,
@@ -15849,9 +15196,7 @@ const $s = ({
     try {
       const F = await x(I);
       if (!d.isMountedRef.current) return;
-      const Q = F.restored_ids || I, C = new Set(Q), B = f.filter(
-        (R) => C.has(R.id)
-      );
+      const Q = F.restored_ids || I, C = new Set(Q), B = f.filter((R) => C.has(R.id));
       if (B.length > 0 && t({ type: "ADD_IMAGES", payload: B }), e.viewScope === "trash" && t({ type: "REMOVE_IMAGES", payload: Q }), u(null), !d.isMountedRef.current) return;
       const D = Q[0];
       D !== void 0 && t({
@@ -15886,7 +15231,9 @@ const $s = ({
     const { imageId: I, addTags: F, removeTags: Q } = m;
     try {
       await _([I], F, Q);
-      const C = (o === "lineage" ? i : c).find((B) => B.id === I);
+      const C = (o === "lineage" ? i : c).find(
+        (B) => B.id === I
+      );
       if (C) {
         const B = [...C.tags];
         for (const R of F)
@@ -15924,14 +15271,7 @@ const $s = ({
   ]), P = p.useCallback(
     async (I) => {
       if (!I || !n) return;
-      const F = n.id, Q = [...n.tags], C = xy(I, n), {
-        addTags: B,
-        removeTags: D,
-        isDeleted: R,
-        moveNext: N,
-        movePrev: T,
-        sendToLtSlot: W
-      } = C;
+      const F = n.id, Q = [...n.tags], C = xy(I, n), { addTags: B, removeTags: D, isDeleted: R, moveNext: N, movePrev: T, sendToLtSlot: W } = C;
       if (W) {
         const E = se.getState(), z = E.slots.find(
           (V) => V.id.toLowerCase() === W.toLowerCase() || V.label.toLowerCase() === W.toLowerCase()
@@ -15944,12 +15284,7 @@ const $s = ({
           viewerLightTableSlotId: e.viewerLightTableSlotId,
           dispatch: t,
           removeImageIds: [F]
-        })) : (E.showToast(
-          `Error: Light Table slot "${W}" not found`,
-          "error"
-        ), O.warn(
-          `Attempted to send to non-existent LT slot: ${W}`
-        ));
+        })) : (E.showToast(`Error: Light Table slot "${W}" not found`, "error"), O.warn(`Attempted to send to non-existent LT slot: ${W}`));
       }
       if (B.length > 0 || D.length > 0)
         try {
@@ -16007,9 +15342,7 @@ const $s = ({
       o && "stopPropagation" in o && o.stopPropagation();
       const i = e.current;
       i && (document.fullscreenElement ? document.exitFullscreen() : i.requestFullscreen().catch((c) => {
-        O.error(
-          `Error attempting to enable full-screen mode: ${c.message}`
-        );
+        O.error(`Error attempting to enable full-screen mode: ${c.message}`);
       }));
     },
     [e]
@@ -16052,17 +15385,7 @@ const $s = ({
       }
       if (e === null || t !== "none")
         return;
-      const g = f.key === "Delete" || f.key === "Backspace", b = f.key === "ArrowRight" || f.key === "ArrowLeft" || f.key === "ArrowDown" || f.key === "ArrowUp", S = [
-        "f",
-        "F",
-        "i",
-        "I",
-        "t",
-        "T",
-        "r",
-        "R",
-        "Enter"
-      ].includes(f.key), j = f.key === "Escape", M = (f.ctrlKey || f.metaKey) && (f.key === "z" || f.key === "Z" || f.code === "KeyZ"), L = /^[0-9]$/.test(f.key) && !f.ctrlKey && !f.metaKey && !f.altKey && f.code !== "KeyZ";
+      const g = f.key === "Delete" || f.key === "Backspace", b = f.key === "ArrowRight" || f.key === "ArrowLeft" || f.key === "ArrowDown" || f.key === "ArrowUp", S = ["f", "F", "i", "I", "t", "T", "r", "R", "Enter"].includes(f.key), j = f.key === "Escape", M = (f.ctrlKey || f.metaKey) && (f.key === "z" || f.key === "Z" || f.code === "KeyZ"), L = /^[0-9]$/.test(f.key) && !f.ctrlKey && !f.metaKey && !f.altKey && f.code !== "KeyZ";
       if (g || b || S || j || M || L)
         if (!m || j)
           sl(f);
@@ -16163,11 +15486,7 @@ const $s = ({
     if (l === 0 && a === "gallery" && o.hasMore && !c && w) {
       d(!0);
       try {
-        const x = o.limit, _ = o.total, f = Math.max(0, _ - x), u = await Yl(
-          f,
-          x,
-          i
-        );
+        const x = o.limit, _ = o.total, f = Math.max(0, _ - x), u = await Yl(f, x, i);
         if (!h.isMountedRef.current || (e({ type: "APPEND_IMAGES", payload: u }), h.viewerImageIdRef.current === null)) return;
         if (u.images.length > 0) {
           const m = u.images[u.images.length - 1];
@@ -16243,15 +15562,10 @@ const uv = ({
       const _ = [k, w].filter(
         (f) => f !== null && f !== e
       );
-      _.length !== 0 && Promise.allSettled(_.map((f) => d(f))).then(
-        (f) => {
-          for (const u of f)
-            u.status === "rejected" && O.warn(
-              "Prefetching adjacent image details failed",
-              u.reason
-            );
-        }
-      );
+      _.length !== 0 && Promise.allSettled(_.map((f) => d(f))).then((f) => {
+        for (const u of f)
+          u.status === "rejected" && O.warn("Prefetching adjacent image details failed", u.reason);
+      });
     }, 50);
     return () => clearTimeout(x);
   }, [
@@ -16264,11 +15578,7 @@ const uv = ({
     o
   ]), p.useEffect(() => {
     if (e === null || t.length === 0 || n === -1) return;
-    const h = [
-      n + 1,
-      n + 2,
-      n - 1
-    ], v = setTimeout(() => {
+    const h = [n + 1, n + 2, n - 1], v = setTimeout(() => {
       for (const y of h)
         if (y >= 0 && y < t.length) {
           const k = t[y], w = new Image();
@@ -16312,11 +15622,7 @@ const mv = ({
     handleRunWithWorkflow: u,
     handleRunWithMask: m,
     handleEditSource: g
-  } = Ws(e, t), { getParentChain: b, fetchLineage: S } = em(a, c), [j, M] = p.useState(!1), [L, P] = p.useState(
-    c["viewer.show_details_by_default"]
-  ), [I, F] = p.useState(null), Q = I ?? c["viewer.show_thumbnails"], [C, B] = p.useState(!1), [D, R] = p.useState(
-    null
-  ), N = p.useRef(null), T = {
+  } = Ws(e, t), { getParentChain: b, fetchLineage: S } = em(a, c), [j, M] = p.useState(!1), [L, P] = p.useState(c["viewer.show_details_by_default"]), [I, F] = p.useState(null), Q = I ?? c["viewer.show_thumbnails"], [C, B] = p.useState(!1), [D, R] = p.useState(null), N = p.useRef(null), T = {
     isMountedRef: p.useRef(!0),
     viewerImageIdRef: p.useRef(l)
   };
@@ -16348,7 +15654,7 @@ const mv = ({
     overlayRef: N,
     settings: c,
     setShowDetails: P
-  }), { handleNext: J, handlePrevious: oe } = cv({
+  }), { handleNext: X, handlePrevious: oe } = cv({
     dispatch: t,
     isFullscreen: A,
     settings: c,
@@ -16361,11 +15667,11 @@ const mv = ({
     setIsJumping: B,
     mountRefs: T
   }), {
-    lastDeletedImages: ue,
+    lastDeletedImages: de,
     setLastDeletedImages: Le,
-    handleDelete: fe,
+    handleDelete: ue,
     handleTagEditAction: Tt,
-    handleRestoreAction: X,
+    handleRestoreAction: Z,
     handleUndo: Bt,
     executeCommand: Qt
   } = sv({
@@ -16379,7 +15685,7 @@ const mv = ({
     lineageImages: i,
     images: a,
     mountRefs: T,
-    handleNext: J,
+    handleNext: X,
     handlePrevious: oe,
     handleEditTags: v,
     handleRestore: k,
@@ -16401,14 +15707,14 @@ const mv = ({
     dispatch: t,
     isMountedRef: T.isMountedRef,
     toggleFullscreen: K,
-    handleNext: J,
+    handleNext: X,
     handlePrevious: oe,
     handleDelete: () => {
-      fe();
+      ue();
     },
     handleUndo: Bt,
     handleTagEditAction: Tt,
-    handleRestoreAction: X,
+    handleRestoreAction: Z,
     executeCommand: Qt,
     setShowDetails: P,
     setActiveShortcutKey: R
@@ -16442,9 +15748,7 @@ const mv = ({
     var be, at;
     if (l !== null) {
       if (Q) {
-        const gt = document.querySelector(
-          ".meld-viewer-thumbnail--active"
-        );
+        const gt = document.querySelector(".meld-viewer-thumbnail--active");
         gt && gt.scrollIntoView({
           behavior: "auto",
           block: "nearest",
@@ -16464,16 +15768,16 @@ const mv = ({
     isMenuOpen: j,
     setIsMenuOpen: M,
     activeShortcutKey: D,
-    lastDeletedImages: ue,
+    lastDeletedImages: de,
     setLastDeletedImages: Le,
     overlayRef: N,
-    handleNext: J,
+    handleNext: X,
     handlePrevious: oe,
-    handleDelete: fe,
+    handleDelete: ue,
     handleUpdateUserNotes: w,
     handleEditNotes: () => V && y(V),
     handleTagEdit: Tt,
-    handleRestore: X,
+    handleRestore: Z,
     handleUndo: Bt,
     handleRestoreWorkflow: async () => {
       if (!V) return;
@@ -16938,7 +16242,7 @@ function yv() {
   }), D = p.useRef(null), R = p.useRef(null), { executeWorkflow: N } = gi(), T = p.useMemo(() => e.viewScope === "trash" ? "Delete Permanently" : "Move to Trash", [e.viewScope]);
   if (!Q) return null;
   const { viewerImageId: W, viewerMode: E } = e, z = l ? e.settings["fullscreen.show_icons"] : e.settings["viewer.show_icons"];
-  return ce.createPortal(
+  return me.createPortal(
     /* @__PURE__ */ s.jsxs(
       "div",
       {
@@ -17089,13 +16393,7 @@ function yv() {
                     lightTableSlotId: e.viewerLightTableSlotId
                   }
                 ),
-                /* @__PURE__ */ s.jsx(
-                  hv,
-                  {
-                    settings: e.settings,
-                    activeShortcutKey: k
-                  }
-                )
+                /* @__PURE__ */ s.jsx(hv, { settings: e.settings, activeShortcutKey: k })
               ]
             }
           ),
@@ -17118,13 +16416,8 @@ function yv() {
                       }
                     }), !1;
                   const K = e.activeModal.maskFilename;
-                  for (const J of e.activeModal.images)
-                    await N(
-                      V,
-                      J,
-                      K,
-                      A
-                    );
+                  for (const X of e.activeModal.images)
+                    await N(V, X, K, A);
                   t({ type: "CLOSE_MODAL" }), t({ type: "CLOSE_VIEWER" });
                 }
               }
@@ -17217,17 +16510,9 @@ const vv = () => {
       for (const u of f)
         _.add(Number(u));
     return _;
-  }, [y]), w = p.useMemo(() => e.images.filter((_) => k.has(_.id) ? !1 : e.viewScope === "trash" ? _.exists !== !1 || e.settings["gallery.trash.show_missing"] : _.exists !== !1 && (e.settings["gallery.show_parent_images"] || d || !_.has_children)), [
-    e.images,
-    e.settings,
-    e.viewScope,
-    k,
-    d
-  ]), x = w;
+  }, [y]), w = p.useMemo(() => e.images.filter((_) => k.has(_.id) ? !1 : e.viewScope === "trash" ? _.exists !== !1 || e.settings["gallery.trash.show_missing"] : _.exists !== !1 && (e.settings["gallery.show_parent_images"] || d || !_.has_children)), [e.images, e.settings, e.viewScope, k, d]), x = w;
   return p.useEffect(() => {
-    !e.isLoading && e.pagination.hasMore && e.images.length > 0 && w.length === 0 && (O.log(
-      "GalleryPanel: Auto-loading more because all loaded images are hidden"
-    ), r());
+    !e.isLoading && e.pagination.hasMore && e.images.length > 0 && w.length === 0 && (O.log("GalleryPanel: Auto-loading more because all loaded images are hidden"), r());
   }, [
     e.isLoading,
     e.pagination.hasMore,
@@ -17248,9 +16533,7 @@ const vv = () => {
       (u) => {
         if (u[0].isIntersecting) {
           if (e.isLoading) {
-            O.log(
-              "GalleryPanel: Intersection observed but already loading"
-            );
+            O.log("GalleryPanel: Intersection observed but already loading");
             return;
           }
           e.pagination.hasMore ? (O.log(
@@ -17259,13 +16542,10 @@ const vv = () => {
               offset: e.images.length,
               hasMore: e.pagination.hasMore
             }
-          ), r()) : O.log(
-            "GalleryPanel: Intersection observed but no more to load",
-            {
-              localCount: w.length,
-              serverHasMore: e.pagination.hasMore
-            }
-          );
+          ), r()) : O.log("GalleryPanel: Intersection observed but no more to load", {
+            localCount: w.length,
+            serverHasMore: e.pagination.hasMore
+          });
         }
       },
       { threshold: 0, rootMargin: "800px" }
@@ -17298,10 +16578,7 @@ const vv = () => {
     loadMoreRef: h
   };
 }, wv = () => {
-  const { state: e, dispatch: t, deleteSelected: n, restoreSelected: r } = ge(), { handleRunWithWorkflow: l, handleRunWithMask: a } = Ws(
-    e,
-    t
-  ), o = e.selectedIds.size, [i, c] = p.useState(!1), [d, h] = p.useState(null), v = p.useRef(null), y = p.useRef(null), k = Yf("bulkActionBar");
+  const { state: e, dispatch: t, deleteSelected: n, restoreSelected: r } = ge(), { handleRunWithWorkflow: l, handleRunWithMask: a } = Ws(e, t), o = e.selectedIds.size, [i, c] = p.useState(!1), [d, h] = p.useState(null), v = p.useRef(null), y = p.useRef(null), k = Yf("bulkActionBar");
   if (Ue({
     onEscape: () => c(!1),
     enabled: i
@@ -17346,149 +16623,137 @@ const vv = () => {
         imageIds: Array.from(e.selectedIds)
       }
     });
-  }, S = /* @__PURE__ */ s.jsxs(
-    "div",
-    {
-      className: `meld-bulk-bar ${w ? "meld-bulk-bar--trash" : ""}`,
-      children: [
-        /* @__PURE__ */ s.jsxs("span", { className: "meld-bulk-bar__info", children: [
-          o,
-          " items selected"
-        ] }),
-        /* @__PURE__ */ s.jsxs(
-          "button",
-          {
-            ref: v,
-            type: "button",
-            className: "meld-bulk-bar__button meld-bulk-bar__button--action",
-            onClick: _,
-            children: [
-              /* @__PURE__ */ s.jsx(
-                rg,
-                {
-                  size: 16,
-                  style: { marginRight: "8px", verticalAlign: "middle" }
-                }
-              ),
-              "Action"
-            ]
-          }
-        ),
-        /* @__PURE__ */ s.jsxs(
-          "button",
-          {
-            type: "button",
-            className: "meld-bulk-bar__button meld-bulk-bar__button--cancel",
-            onClick: () => t({ type: "CLEAR_SELECTION" }),
-            children: [
-              /* @__PURE__ */ s.jsx(pe, { size: 16, style: { marginRight: "8px", verticalAlign: "middle" } }),
-              "Cancel"
-            ]
-          }
-        ),
-        i && d && /* @__PURE__ */ s.jsx(
-          "div",
-          {
-            ref: y,
-            className: "meld-bulk-bar-menu",
-            style: {
-              bottom: window.innerHeight - d.top + 5,
-              left: d.left
-            },
-            children: w ? /* @__PURE__ */ s.jsxs(s.Fragment, { children: [
-              /* @__PURE__ */ s.jsxs(
-                "button",
-                {
-                  type: "button",
-                  className: "meld-bulk-bar-menu__item meld-bulk-bar-menu__item--restore",
-                  onClick: () => f(r),
-                  children: [
-                    /* @__PURE__ */ s.jsx(rl, { size: 14 }),
-                    " Restore"
-                  ]
-                }
-              ),
-              /* @__PURE__ */ s.jsxs(
-                "button",
-                {
-                  type: "button",
-                  className: "meld-bulk-bar-menu__item meld-bulk-bar-menu__item--danger",
-                  onClick: () => f(n),
-                  children: [
-                    /* @__PURE__ */ s.jsx(Ut, { size: 14 }),
-                    " Delete Permanently"
-                  ]
-                }
-              )
-            ] }) : /* @__PURE__ */ s.jsxs(s.Fragment, { children: [
-              /* @__PURE__ */ s.jsxs(
-                "button",
-                {
-                  type: "button",
-                  className: "meld-bulk-bar-menu__item",
-                  onClick: () => f(u),
-                  children: [
-                    /* @__PURE__ */ s.jsx(mr, { size: 14 }),
-                    " Edit Tags"
-                  ]
-                }
-              ),
-              /* @__PURE__ */ s.jsxs(
-                "button",
-                {
-                  type: "button",
-                  className: "meld-bulk-bar-menu__item",
-                  onClick: () => f(m),
-                  children: [
-                    /* @__PURE__ */ s.jsx(ui, { size: 14 }),
-                    " Queue Workflow"
-                  ]
-                }
-              ),
-              /* @__PURE__ */ s.jsxs(
-                "button",
-                {
-                  type: "button",
-                  className: "meld-bulk-bar-menu__item",
-                  onClick: () => f(g),
-                  children: [
-                    /* @__PURE__ */ s.jsx(og, { size: 14 }),
-                    " Queue Workflow (Mask)"
-                  ]
-                }
-              ),
-              /* @__PURE__ */ s.jsxs(
-                "button",
-                {
-                  type: "button",
-                  className: "meld-bulk-bar-menu__item",
-                  onClick: () => f(b),
-                  children: [
-                    /* @__PURE__ */ s.jsx(tl, { size: 14 }),
-                    " Download"
-                  ]
-                }
-              ),
-              /* @__PURE__ */ s.jsx("div", { className: "meld-bulk-bar-menu__divider" }),
-              /* @__PURE__ */ s.jsxs(
-                "button",
-                {
-                  type: "button",
-                  className: "meld-bulk-bar-menu__item meld-bulk-bar-menu__item--danger",
-                  onClick: () => f(n),
-                  children: [
-                    /* @__PURE__ */ s.jsx(Ut, { size: 14 }),
-                    " Move to Trash"
-                  ]
-                }
-              )
-            ] })
-          }
-        )
-      ]
-    }
-  );
-  return ce.createPortal(S, k);
+  }, S = /* @__PURE__ */ s.jsxs("div", { className: `meld-bulk-bar ${w ? "meld-bulk-bar--trash" : ""}`, children: [
+    /* @__PURE__ */ s.jsxs("span", { className: "meld-bulk-bar__info", children: [
+      o,
+      " items selected"
+    ] }),
+    /* @__PURE__ */ s.jsxs(
+      "button",
+      {
+        ref: v,
+        type: "button",
+        className: "meld-bulk-bar__button meld-bulk-bar__button--action",
+        onClick: _,
+        children: [
+          /* @__PURE__ */ s.jsx(rg, { size: 16, style: { marginRight: "8px", verticalAlign: "middle" } }),
+          "Action"
+        ]
+      }
+    ),
+    /* @__PURE__ */ s.jsxs(
+      "button",
+      {
+        type: "button",
+        className: "meld-bulk-bar__button meld-bulk-bar__button--cancel",
+        onClick: () => t({ type: "CLEAR_SELECTION" }),
+        children: [
+          /* @__PURE__ */ s.jsx(pe, { size: 16, style: { marginRight: "8px", verticalAlign: "middle" } }),
+          "Cancel"
+        ]
+      }
+    ),
+    i && d && /* @__PURE__ */ s.jsx(
+      "div",
+      {
+        ref: y,
+        className: "meld-bulk-bar-menu",
+        style: {
+          bottom: window.innerHeight - d.top + 5,
+          left: d.left
+        },
+        children: w ? /* @__PURE__ */ s.jsxs(s.Fragment, { children: [
+          /* @__PURE__ */ s.jsxs(
+            "button",
+            {
+              type: "button",
+              className: "meld-bulk-bar-menu__item meld-bulk-bar-menu__item--restore",
+              onClick: () => f(r),
+              children: [
+                /* @__PURE__ */ s.jsx(rl, { size: 14 }),
+                " Restore"
+              ]
+            }
+          ),
+          /* @__PURE__ */ s.jsxs(
+            "button",
+            {
+              type: "button",
+              className: "meld-bulk-bar-menu__item meld-bulk-bar-menu__item--danger",
+              onClick: () => f(n),
+              children: [
+                /* @__PURE__ */ s.jsx(Ut, { size: 14 }),
+                " Delete Permanently"
+              ]
+            }
+          )
+        ] }) : /* @__PURE__ */ s.jsxs(s.Fragment, { children: [
+          /* @__PURE__ */ s.jsxs(
+            "button",
+            {
+              type: "button",
+              className: "meld-bulk-bar-menu__item",
+              onClick: () => f(u),
+              children: [
+                /* @__PURE__ */ s.jsx(mr, { size: 14 }),
+                " Edit Tags"
+              ]
+            }
+          ),
+          /* @__PURE__ */ s.jsxs(
+            "button",
+            {
+              type: "button",
+              className: "meld-bulk-bar-menu__item",
+              onClick: () => f(m),
+              children: [
+                /* @__PURE__ */ s.jsx(ui, { size: 14 }),
+                " Queue Workflow"
+              ]
+            }
+          ),
+          /* @__PURE__ */ s.jsxs(
+            "button",
+            {
+              type: "button",
+              className: "meld-bulk-bar-menu__item",
+              onClick: () => f(g),
+              children: [
+                /* @__PURE__ */ s.jsx(og, { size: 14 }),
+                " Queue Workflow (Mask)"
+              ]
+            }
+          ),
+          /* @__PURE__ */ s.jsxs(
+            "button",
+            {
+              type: "button",
+              className: "meld-bulk-bar-menu__item",
+              onClick: () => f(b),
+              children: [
+                /* @__PURE__ */ s.jsx(tl, { size: 14 }),
+                " Download"
+              ]
+            }
+          ),
+          /* @__PURE__ */ s.jsx("div", { className: "meld-bulk-bar-menu__divider" }),
+          /* @__PURE__ */ s.jsxs(
+            "button",
+            {
+              type: "button",
+              className: "meld-bulk-bar-menu__item meld-bulk-bar-menu__item--danger",
+              onClick: () => f(n),
+              children: [
+                /* @__PURE__ */ s.jsx(Ut, { size: 14 }),
+                " Move to Trash"
+              ]
+            }
+          )
+        ] })
+      }
+    )
+  ] });
+  return me.createPortal(S, k);
 };
 function An(e, t, n) {
   let r = n.initialDeps ?? [], l, a = !0;
@@ -18064,7 +17329,7 @@ function Iv({
     ...t,
     onChange: (a, o) => {
       var i;
-      e && o ? ce.flushSync(n) : n(), (i = t.onChange) == null || i.call(t, a, o);
+      e && o ? me.flushSync(n) : n(), (i = t.onChange) == null || i.call(t, a, o);
     }
   }, [l] = p.useState(
     () => new Nv(r)
@@ -18098,20 +17363,20 @@ const rm = (e) => {
     insideRefs: [P],
     onOutside: () => b(!1)
   });
-  const I = async (X, Bt, Qt = !1) => {
+  const I = async (Z, Bt, Qt = !1) => {
     try {
-      await navigator.clipboard.writeText(X), Qt ? (L(!0), setTimeout(() => L(!1), 2e3)) : (j(Bt), setTimeout(() => j(null), 2e3));
+      await navigator.clipboard.writeText(Z), Qt ? (L(!0), setTimeout(() => L(!1), 2e3)) : (j(Bt), setTimeout(() => j(null), 2e3));
     } catch (Ht) {
       O.error("Failed to copy text: ", Ht);
     }
   }, F = p.useCallback(
-    (X) => {
-      if (X.key === "Escape") {
+    (Z) => {
+      if (Z.key === "Escape") {
         if (u) {
-          sl(X), m(null);
+          sl(Z), m(null);
           return;
         }
-        g && (sl(X), b(!1));
+        g && (sl(Z), b(!1));
       }
     },
     [u, g]
@@ -18120,10 +17385,7 @@ const rm = (e) => {
     enabled: g || u !== null,
     onKeyDown: F
   });
-  const Q = f(e), B = t.settings["sidebar.show_filename"] === "filepath" ? `${e.type !== "custom" ? `${e.type}/` : ""}${e.subfolder ? `${e.subfolder}/` : ""}${e.filename}` : e.filename, D = t.settings["sidebar.thumbnail_size"] || 100, R = mt(
-    e,
-    Math.min(400, Math.round(D * 1.5))
-  );
+  const Q = f(e), B = t.settings["sidebar.show_filename"] === "filepath" ? `${e.type !== "custom" ? `${e.type}/` : ""}${e.subfolder ? `${e.subfolder}/` : ""}${e.filename}` : e.filename, D = t.settings["sidebar.thumbnail_size"] || 100, R = mt(e, Math.min(400, Math.round(D * 1.5)));
   return {
     state: t,
     dispatch: n,
@@ -18140,23 +17402,21 @@ const rm = (e) => {
     displayFilename: B,
     imgSrc: R,
     handleCopy: I,
-    handleClick: (X) => {
-      X.shiftKey ? (X.preventDefault(), X.stopPropagation(), n({ type: "SELECT_RANGE", payload: e.id })) : X.ctrlKey || X.metaKey || t.selectedIds.size > 0 ? (X.preventDefault(), X.stopPropagation(), n({ type: "TOGGLE_SELECT", payload: e.id })) : n({ type: "OPEN_VIEWER", payload: e.id });
+    handleClick: (Z) => {
+      Z.shiftKey ? (Z.preventDefault(), Z.stopPropagation(), n({ type: "SELECT_RANGE", payload: e.id })) : Z.ctrlKey || Z.metaKey || t.selectedIds.size > 0 ? (Z.preventDefault(), Z.stopPropagation(), n({ type: "TOGGLE_SELECT", payload: e.id })) : n({ type: "OPEN_VIEWER", payload: e.id });
     },
-    handleSelectToggle: (X) => {
-      X.preventDefault(), X.stopPropagation(), X.shiftKey ? n({ type: "SELECT_RANGE", payload: e.id }) : n({ type: "TOGGLE_SELECT", payload: e.id });
+    handleSelectToggle: (Z) => {
+      Z.preventDefault(), Z.stopPropagation(), Z.shiftKey ? n({ type: "SELECT_RANGE", payload: e.id }) : n({ type: "TOGGLE_SELECT", payload: e.id });
     },
-    handleContainerClick: (X) => {
-      X.shiftKey ? (X.preventDefault(), X.stopPropagation(), n({ type: "SELECT_RANGE", payload: e.id })) : X.ctrlKey || X.metaKey || t.selectedIds.size > 0 ? (X.preventDefault(), X.stopPropagation(), n({ type: "TOGGLE_SELECT", payload: e.id })) : (X.preventDefault(), X.stopPropagation(), n({ type: "TOGGLE_SELECT", payload: e.id }));
+    handleContainerClick: (Z) => {
+      Z.shiftKey ? (Z.preventDefault(), Z.stopPropagation(), n({ type: "SELECT_RANGE", payload: e.id })) : Z.ctrlKey || Z.metaKey || t.selectedIds.size > 0 ? (Z.preventDefault(), Z.stopPropagation(), n({ type: "TOGGLE_SELECT", payload: e.id })) : (Z.preventDefault(), Z.stopPropagation(), n({ type: "TOGGLE_SELECT", payload: e.id }));
     },
-    handleMouseDown: (X) => {
-      X.target.closest(
-        "textarea, input, button, .meld-image-card__meta-content"
-      ) || !X.shiftKey && !X.ctrlKey && !X.metaKey && l || (X.shiftKey || X.ctrlKey || X.metaKey || t.selectedIds.size > 0) && X.preventDefault();
+    handleMouseDown: (Z) => {
+      Z.target.closest("textarea, input, button, .meld-image-card__meta-content") || !Z.shiftKey && !Z.ctrlKey && !Z.metaKey && l || (Z.shiftKey || Z.ctrlKey || Z.metaKey || t.selectedIds.size > 0) && Z.preventDefault();
     },
-    handleKeyDown: (X) => {
+    handleKeyDown: (Z) => {
       var Qt, Ht, Ln;
-      ((Qt = document.activeElement) == null ? void 0 : Qt.tagName) === "INPUT" || ((Ht = document.activeElement) == null ? void 0 : Ht.tagName) === "TEXTAREA" || (Ln = document.activeElement) != null && Ln.isContentEditable || (X.key === "Enter" || X.key === " ") && (X.preventDefault(), n({ type: "TOGGLE_SELECT", payload: e.id }));
+      ((Qt = document.activeElement) == null ? void 0 : Qt.tagName) === "INPUT" || ((Ht = document.activeElement) == null ? void 0 : Ht.tagName) === "TEXTAREA" || (Ln = document.activeElement) != null && Ln.isContentEditable || (Z.key === "Enter" || Z.key === " ") && (Z.preventDefault(), n({ type: "TOGGLE_SELECT", payload: e.id }));
     },
     handleRestoreWorkflow: async () => {
       await o(e);
@@ -18185,8 +17445,8 @@ const rm = (e) => {
     handleRunWithWorkflow: () => {
       v(e);
     },
-    handleRunWithMask: (X = "run") => y(e, X),
-    handleUpdateUserNotes: (X) => _(e.id, X),
+    handleRunWithMask: (Z = "run") => y(e, Z),
+    handleUpdateUserNotes: (Z) => _(e.id, Z),
     fetchFullImageDetails: r
   };
 }, Lv = ({
@@ -18195,7 +17455,7 @@ const rm = (e) => {
   onClose: n,
   onCopy: r,
   isCopied: l
-}) => ce.createPortal(
+}) => me.createPortal(
   /* @__PURE__ */ s.jsx(
     "div",
     {
@@ -18203,478 +17463,440 @@ const rm = (e) => {
       onClick: (a) => {
         a.stopPropagation(), n();
       },
-      children: /* @__PURE__ */ s.jsxs(
-        "div",
-        {
-          className: "meld-prompt-popup-content",
-          onClick: (a) => a.stopPropagation(),
-          children: [
-            /* @__PURE__ */ s.jsxs("div", { className: "meld-prompt-popup-header", children: [
-              /* @__PURE__ */ s.jsx("span", { children: e }),
-              /* @__PURE__ */ s.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "10px" }, children: [
-                l ? /* @__PURE__ */ s.jsx(ci, { size: 18, style: { color: "var(--meld-success-color)" } }) : /* @__PURE__ */ s.jsx(
-                  Kp,
-                  {
-                    className: "meld-prompt-popup-copy",
-                    size: 18,
-                    onClick: () => r(t)
-                  }
-                ),
-                /* @__PURE__ */ s.jsx(
-                  pe,
-                  {
-                    className: "meld-prompt-popup-close",
-                    size: 18,
-                    onClick: n
-                  }
-                )
-              ] })
-            ] }),
-            /* @__PURE__ */ s.jsx("div", { className: "meld-prompt-popup-text", children: t })
-          ]
-        }
-      )
+      children: /* @__PURE__ */ s.jsxs("div", { className: "meld-prompt-popup-content", onClick: (a) => a.stopPropagation(), children: [
+        /* @__PURE__ */ s.jsxs("div", { className: "meld-prompt-popup-header", children: [
+          /* @__PURE__ */ s.jsx("span", { children: e }),
+          /* @__PURE__ */ s.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "10px" }, children: [
+            l ? /* @__PURE__ */ s.jsx(ci, { size: 18, style: { color: "var(--meld-success-color)" } }) : /* @__PURE__ */ s.jsx(Kp, { className: "meld-prompt-popup-copy", size: 18, onClick: () => r(t) }),
+            /* @__PURE__ */ s.jsx(pe, { className: "meld-prompt-popup-close", size: 18, onClick: n })
+          ] })
+        ] }),
+        /* @__PURE__ */ s.jsx("div", { className: "meld-prompt-popup-text", children: t })
+      ] })
     }
   ),
   document.body
-), lm = Jt.memo(
-  ({ image: e }) => {
-    const {
-      state: t,
-      dispatch: n,
-      isSelected: r,
-      popupContent: l,
-      setPopupContent: a,
-      isMenuOpen: o,
-      setIsMenuOpen: i,
-      copiedLabel: c,
-      popupCopied: d,
-      menuRef: h,
-      parentChain: v,
-      displayFilename: y,
-      imgSrc: k,
-      handleCopy: w,
-      handleClick: x,
-      handleSelectToggle: _,
-      handleContainerClick: f,
-      handleMouseDown: u,
-      handleKeyDown: m,
-      handleRestoreWorkflow: g,
-      handleAddUnifiedLoader: b,
-      handleEditSource: S,
-      handleEditTags: j,
-      handleEditNotes: M,
-      handleSendToWorkflow: L,
-      handleRestore: P,
-      handleDelete: I,
-      handleRunWithWorkflow: F,
-      handleRunWithMask: Q,
-      fetchFullImageDetails: C
-    } = rm(e), [B, D] = p.useState("idle");
-    p.useEffect(() => {
-      e.user_notes && B === "saving" && D("idle");
-    }, [e.user_notes, B]);
-    const R = (N) => {
-      N.stopPropagation();
-      let T = String(e.id);
-      r && t.selectedIds.size > 0 && (T = Array.from(t.selectedIds).join(",")), N.dataTransfer.setData("text/plain", T), se.getState().setIsOpen(!0);
-    };
-    return /* @__PURE__ */ s.jsxs(
-      "div",
-      {
-        className: `meld-image-card ${r ? "meld-image-card--selected" : ""} ${o ? "meld-image-card--menu-open" : ""}`,
-        onClick: f,
-        onMouseDown: u,
-        onKeyDown: m,
-        role: "button",
-        tabIndex: 0,
-        draggable: !0,
-        onDragStart: R,
-        children: [
-          /* @__PURE__ */ s.jsxs("div", { className: "meld-image-card__thumbnail-wrapper", children: [
-            /* @__PURE__ */ s.jsx(
-              "button",
-              {
-                type: "button",
-                className: `meld-image-card__select-checkbox ${r ? "meld-image-card__select-checkbox--checked" : ""}`,
-                onClick: _,
-                "aria-label": "Toggle selection",
-                role: "checkbox",
-                "aria-checked": r,
-                children: r && /* @__PURE__ */ s.jsxs(
-                  "svg",
-                  {
-                    viewBox: "0 0 24 24",
-                    width: "12",
-                    height: "12",
-                    stroke: "currentColor",
-                    strokeWidth: "4",
-                    fill: "none",
-                    strokeLinecap: "round",
-                    strokeLinejoin: "round",
-                    children: [
-                      /* @__PURE__ */ s.jsx("title", { children: "Selected" }),
-                      /* @__PURE__ */ s.jsx("polyline", { points: "20 6 9 17 4 12" })
-                    ]
-                  }
-                )
-              }
-            ),
-            /* @__PURE__ */ s.jsx(
-              "img",
-              {
-                src: k,
-                className: "meld-image-card__thumbnail",
-                alt: e.filename,
-                loading: "lazy",
-                draggable: !1,
-                width: e.width || void 0,
-                height: e.height || void 0,
-                style: {
-                  aspectRatio: e.width && e.height ? `${e.width} / ${e.height}` : void 0
-                },
-                onMouseDown: u,
-                onClick: (N) => {
-                  N.stopPropagation(), x(N);
-                }
-              }
-            )
-          ] }),
-          /* @__PURE__ */ s.jsxs("div", { className: "meld-image-card__details", children: [
-            (t.settings["sidebar.show_filename"] !== "none" || t.settings["sidebar.show_dimensions"]) && /* @__PURE__ */ s.jsxs("div", { className: "meld-image-card__filename", children: [
-              t.settings["sidebar.show_filename"] !== "none" && y,
-              t.settings["sidebar.show_filename"] !== "none" && t.settings["sidebar.show_dimensions"] && e.width && e.height && ` (${e.width} x ${e.height})`,
-              t.settings["sidebar.show_filename"] === "none" && t.settings["sidebar.show_dimensions"] && e.width && e.height && `${e.width} x ${e.height}`
-            ] }),
-            t.settings["gallery.show_parent_image"] && v.length > 0 && /* @__PURE__ */ s.jsxs("div", { className: "meld-image-card__lineage-v2", children: [
-              /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__meta-label", children: "Source" }),
-              /* @__PURE__ */ s.jsx("div", { className: "meld-lineage-thumbs", children: v.map(
-                (N, T) => N.imgSrc && /* @__PURE__ */ s.jsx(
-                  "img",
-                  {
-                    src: N.imgSrc,
-                    className: "meld-lineage-badge__parent-thumb",
-                    loading: "lazy",
-                    onClick: (W) => {
-                      W.stopPropagation(), n({
-                        type: "OPEN_VIEWER",
-                        payload: {
-                          id: N.id || e.id,
-                          mode: "lineage"
-                        }
-                      });
-                    },
-                    title: T === 0 ? "Source" : T === 1 ? "Grand-Source" : `Ancestor (S${T + 1})`,
-                    alt: "source thumb"
-                  },
-                  N.id || T
-                )
-              ) })
-            ] }),
-            t.settings["sidebar.show_created_at"] && /* @__PURE__ */ s.jsxs("div", { className: "meld-image-card__meta-item", children: [
-              /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__meta-label", children: "Created At" }),
-              /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__meta-content", children: new Date(e.created_at * 1e3).toLocaleString() })
-            ] }),
-            t.viewScope === "trash" && e.deleted_at && /* @__PURE__ */ s.jsxs("div", { className: "meld-image-card__meta-item", children: [
-              /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__meta-label", children: "Deleted At" }),
-              /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__meta-content", children: new Date(e.deleted_at * 1e3).toLocaleString() })
-            ] }),
-            t.settings["sidebar.show_model_name"] && /* @__PURE__ */ s.jsxs(
-              "div",
-              {
-                className: "meld-image-card__meta-item meld-image-card__meta-item--clickable",
-                onClick: async (N) => {
-                  N.stopPropagation();
-                  const T = await C(e.id);
-                  a({
-                    title: "Model",
-                    text: T.model_name || "-"
-                  });
-                },
-                children: [
-                  /* @__PURE__ */ s.jsx(
-                    "div",
-                    {
-                      className: `meld-image-card__meta-label meld-image-card__meta-label--copyable ${c === "Model" ? "meld-image-card__meta-label--copied" : ""}`,
-                      title: "Click to copy",
-                      onClick: async (N) => {
-                        N.stopPropagation();
-                        const T = await C(e.id);
-                        w(T.model_name || "-", "Model");
-                      },
-                      children: c === "Model" ? "Copied!" : "Model"
-                    }
-                  ),
-                  /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__meta-content", children: e.model_name || "-" })
-                ]
-              }
-            ),
-            t.settings["sidebar.show_positive_prompt"] && /* @__PURE__ */ s.jsxs(
-              "div",
-              {
-                className: "meld-image-card__meta-item meld-image-card__meta-item--clickable",
-                onClick: async (N) => {
-                  N.stopPropagation();
-                  const T = await C(e.id);
-                  a({
-                    title: "Positive Prompt",
-                    text: T.positive_prompt || T.positive || "-"
-                  });
-                },
-                children: [
-                  /* @__PURE__ */ s.jsx(
-                    "div",
-                    {
-                      className: `meld-image-card__meta-label meld-image-card__meta-label--copyable ${c === "Positive" ? "meld-image-card__meta-label--copied" : ""}`,
-                      title: "Click to copy",
-                      onClick: async (N) => {
-                        N.stopPropagation();
-                        const T = await C(e.id);
-                        w(
-                          T.positive_prompt || T.positive || "-",
-                          "Positive"
-                        );
-                      },
-                      children: c === "Positive" ? "Copied!" : "Positive"
-                    }
-                  ),
-                  /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__meta-content", children: e.positive_prompt || e.positive || "-" })
-                ]
-              }
-            ),
-            t.settings["sidebar.show_negative_prompt"] && /* @__PURE__ */ s.jsxs(
-              "div",
-              {
-                className: "meld-image-card__meta-item meld-image-card__meta-item--clickable",
-                onClick: async (N) => {
-                  N.stopPropagation();
-                  const T = await C(e.id);
-                  a({
-                    title: "Negative Prompt",
-                    text: T.negative_prompt || T.negative || "-"
-                  });
-                },
-                children: [
-                  /* @__PURE__ */ s.jsx(
-                    "div",
-                    {
-                      className: `meld-image-card__meta-label meld-image-card__meta-label--copyable ${c === "Negative" ? "meld-image-card__meta-label--copied" : ""}`,
-                      title: "Click to copy",
-                      onClick: async (N) => {
-                        N.stopPropagation();
-                        const T = await C(e.id);
-                        w(
-                          T.negative_prompt || T.negative || "-",
-                          "Negative"
-                        );
-                      },
-                      children: c === "Negative" ? "Copied!" : "Negative"
-                    }
-                  ),
-                  /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__meta-content", children: e.negative_prompt || e.negative || "-" })
-                ]
-              }
-            ),
-            t.settings["sidebar.show_tags"] && /* @__PURE__ */ s.jsxs(
-              "div",
-              {
-                className: "meld-image-card__meta-item meld-image-card__meta-item--clickable",
-                onClick: (N) => {
-                  N.stopPropagation(), j();
-                },
-                children: [
-                  /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__meta-label", children: "Tags" }),
-                  /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__tags", children: e.tags && e.tags.length > 0 ? e.tags.map((N, T) => /* @__PURE__ */ s.jsx(
-                    "span",
-                    {
-                      className: "meld-image-card__tag",
-                      children: N
-                    },
-                    `${N}-${T}`
-                  )) : /* @__PURE__ */ s.jsx(
-                    "span",
-                    {
-                      style: {
-                        color: "var(--meld-text-secondary)"
-                      },
-                      children: "-"
-                    }
-                  ) })
-                ]
-              }
-            ),
-            (t.settings["sidebar.show_user_notes"] === "always" || t.settings["sidebar.show_user_notes"] === "if_present" && e.user_notes) && /* @__PURE__ */ s.jsxs("div", { className: "meld-image-card__meta-item meld-image-card__meta-item--notes", children: [
-              /* @__PURE__ */ s.jsxs("div", { className: "meld-image-card__meta-label", children: [
-                "Notes",
-                B === "saving" && /* @__PURE__ */ s.jsx("span", { className: "meld-notes-status", children: "Saving..." })
-              ] }),
-              /* @__PURE__ */ s.jsx(
-                "div",
+), lm = Jt.memo(({ image: e }) => {
+  const {
+    state: t,
+    dispatch: n,
+    isSelected: r,
+    popupContent: l,
+    setPopupContent: a,
+    isMenuOpen: o,
+    setIsMenuOpen: i,
+    copiedLabel: c,
+    popupCopied: d,
+    menuRef: h,
+    parentChain: v,
+    displayFilename: y,
+    imgSrc: k,
+    handleCopy: w,
+    handleClick: x,
+    handleSelectToggle: _,
+    handleContainerClick: f,
+    handleMouseDown: u,
+    handleKeyDown: m,
+    handleRestoreWorkflow: g,
+    handleAddUnifiedLoader: b,
+    handleEditSource: S,
+    handleEditTags: j,
+    handleEditNotes: M,
+    handleSendToWorkflow: L,
+    handleRestore: P,
+    handleDelete: I,
+    handleRunWithWorkflow: F,
+    handleRunWithMask: Q,
+    fetchFullImageDetails: C
+  } = rm(e), [B, D] = p.useState("idle");
+  p.useEffect(() => {
+    e.user_notes && B === "saving" && D("idle");
+  }, [e.user_notes, B]);
+  const R = (N) => {
+    N.stopPropagation();
+    let T = String(e.id);
+    r && t.selectedIds.size > 0 && (T = Array.from(t.selectedIds).join(",")), N.dataTransfer.setData("text/plain", T), se.getState().setIsOpen(!0);
+  };
+  return /* @__PURE__ */ s.jsxs(
+    "div",
+    {
+      className: `meld-image-card ${r ? "meld-image-card--selected" : ""} ${o ? "meld-image-card--menu-open" : ""}`,
+      onClick: f,
+      onMouseDown: u,
+      onKeyDown: m,
+      role: "button",
+      tabIndex: 0,
+      draggable: !0,
+      onDragStart: R,
+      children: [
+        /* @__PURE__ */ s.jsxs("div", { className: "meld-image-card__thumbnail-wrapper", children: [
+          /* @__PURE__ */ s.jsx(
+            "button",
+            {
+              type: "button",
+              className: `meld-image-card__select-checkbox ${r ? "meld-image-card__select-checkbox--checked" : ""}`,
+              onClick: _,
+              "aria-label": "Toggle selection",
+              role: "checkbox",
+              "aria-checked": r,
+              children: r && /* @__PURE__ */ s.jsxs(
+                "svg",
                 {
-                  className: "meld-image-card__meta-content",
-                  onClick: (N) => {
-                    N.stopPropagation(), M();
-                  },
-                  children: /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__notes-preview", children: e.user_notes || /* @__PURE__ */ s.jsx("span", { className: "meld-notes-placeholder", children: "Add notes..." }) })
+                  viewBox: "0 0 24 24",
+                  width: "12",
+                  height: "12",
+                  stroke: "currentColor",
+                  strokeWidth: "4",
+                  fill: "none",
+                  strokeLinecap: "round",
+                  strokeLinejoin: "round",
+                  children: [
+                    /* @__PURE__ */ s.jsx("title", { children: "Selected" }),
+                    /* @__PURE__ */ s.jsx("polyline", { points: "20 6 9 17 4 12" })
+                  ]
                 }
               )
-            ] })
-          ] }),
-          /* @__PURE__ */ s.jsx(
-            vi,
-            {
-              isMenuOpen: o,
-              setIsMenuOpen: i,
-              menuRef: h,
-              settings: t.settings,
-              onAddUnifiedLoader: b,
-              onRestoreWorkflow: g,
-              onSendToWorkflow: L,
-              onRunWithWorkflow: F,
-              onRunWithMask: (N) => Q(N),
-              onEditSource: S,
-              onEditTags: j,
-              onEditNotes: M,
-              onRestore: P,
-              showRestore: t.viewScope === "trash",
-              onDelete: I,
-              deleteLabel: t.viewScope === "trash" ? "Delete Permanently" : "Move to Trash"
             }
           ),
-          l && /* @__PURE__ */ s.jsx(
-            Lv,
+          /* @__PURE__ */ s.jsx(
+            "img",
             {
-              title: l.title,
-              text: l.text,
-              onClose: () => a(null),
-              onCopy: (N) => w(N, "", !0),
-              isCopied: d
+              src: k,
+              className: "meld-image-card__thumbnail",
+              alt: e.filename,
+              loading: "lazy",
+              draggable: !1,
+              width: e.width || void 0,
+              height: e.height || void 0,
+              style: {
+                aspectRatio: e.width && e.height ? `${e.width} / ${e.height}` : void 0
+              },
+              onMouseDown: u,
+              onClick: (N) => {
+                N.stopPropagation(), x(N);
+              }
             }
           )
-        ]
-      }
-    );
-  }
-);
-lm.displayName = "DetailedImageCard";
-const sm = Jt.memo(
-  ({ image: e }) => {
-    const {
-      isSelected: t,
-      imgSrc: n,
-      handleContainerClick: r,
-      handleMouseDown: l,
-      handleKeyDown: a,
-      handleClick: o,
-      handleSelectToggle: i,
-      isMenuOpen: c,
-      setIsMenuOpen: d,
-      menuRef: h,
-      state: v,
-      handleAddUnifiedLoader: y,
-      handleRestoreWorkflow: k,
-      handleSendToWorkflow: w,
-      handleRunWithWorkflow: x,
-      handleRunWithMask: _,
-      handleEditSource: f,
-      handleEditTags: u,
-      handleEditNotes: m,
-      handleDelete: g,
-      handleRestore: b
-    } = rm(e), S = v.viewScope === "trash", j = S ? "Delete Permanently" : "Move to Trash", M = (L) => {
-      L.stopPropagation();
-      let P = String(e.id);
-      t && v.selectedIds.size > 0 && (P = Array.from(v.selectedIds).join(",")), L.dataTransfer.setData("text/plain", P), se.getState().setIsOpen(!0);
-    };
-    return /* @__PURE__ */ s.jsxs(
-      "div",
-      {
-        className: `meld-image-card meld-image-card--grid-only ${t ? "meld-image-card--selected" : ""} ${c ? "meld-image-card--menu-open" : ""}`,
-        onClick: r,
-        onMouseDown: l,
-        onKeyDown: a,
-        role: "button",
-        tabIndex: 0,
-        draggable: !0,
-        onDragStart: M,
-        children: [
-          /* @__PURE__ */ s.jsxs("div", { className: "meld-image-card__thumbnail-wrapper", children: [
-            /* @__PURE__ */ s.jsx(
-              "button",
-              {
-                type: "button",
-                className: `meld-image-card__select-checkbox ${t ? "meld-image-card__select-checkbox--checked" : ""}`,
-                onClick: i,
-                "aria-label": "Toggle selection",
-                role: "checkbox",
-                "aria-checked": t,
-                children: t && /* @__PURE__ */ s.jsxs(
-                  "svg",
-                  {
-                    viewBox: "0 0 24 24",
-                    width: "10",
-                    height: "10",
-                    stroke: "currentColor",
-                    strokeWidth: "4",
-                    fill: "none",
-                    strokeLinecap: "round",
-                    strokeLinejoin: "round",
-                    children: [
-                      /* @__PURE__ */ s.jsx("title", { children: "Selected" }),
-                      /* @__PURE__ */ s.jsx("polyline", { points: "20 6 9 17 4 12" })
-                    ]
-                  }
-                )
-              }
-            ),
-            /* @__PURE__ */ s.jsx(
-              "img",
-              {
-                src: n,
-                className: "meld-image-card__thumbnail",
-                alt: e.filename,
-                loading: "lazy",
-                draggable: !1,
-                width: e.width || void 0,
-                height: e.height || void 0,
-                style: {
-                  aspectRatio: e.width && e.height ? `${e.width} / ${e.height}` : void 0
+        ] }),
+        /* @__PURE__ */ s.jsxs("div", { className: "meld-image-card__details", children: [
+          (t.settings["sidebar.show_filename"] !== "none" || t.settings["sidebar.show_dimensions"]) && /* @__PURE__ */ s.jsxs("div", { className: "meld-image-card__filename", children: [
+            t.settings["sidebar.show_filename"] !== "none" && y,
+            t.settings["sidebar.show_filename"] !== "none" && t.settings["sidebar.show_dimensions"] && e.width && e.height && ` (${e.width} x ${e.height})`,
+            t.settings["sidebar.show_filename"] === "none" && t.settings["sidebar.show_dimensions"] && e.width && e.height && `${e.width} x ${e.height}`
+          ] }),
+          t.settings["gallery.show_parent_image"] && v.length > 0 && /* @__PURE__ */ s.jsxs("div", { className: "meld-image-card__lineage-v2", children: [
+            /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__meta-label", children: "Source" }),
+            /* @__PURE__ */ s.jsx("div", { className: "meld-lineage-thumbs", children: v.map(
+              (N, T) => N.imgSrc && /* @__PURE__ */ s.jsx(
+                "img",
+                {
+                  src: N.imgSrc,
+                  className: "meld-lineage-badge__parent-thumb",
+                  loading: "lazy",
+                  onClick: (W) => {
+                    W.stopPropagation(), n({
+                      type: "OPEN_VIEWER",
+                      payload: {
+                        id: N.id || e.id,
+                        mode: "lineage"
+                      }
+                    });
+                  },
+                  title: T === 0 ? "Source" : T === 1 ? "Grand-Source" : `Ancestor (S${T + 1})`,
+                  alt: "source thumb"
                 },
-                onMouseDown: l,
-                onClick: (L) => {
-                  L.stopPropagation(), o(L);
-                }
+                N.id || T
+              )
+            ) })
+          ] }),
+          t.settings["sidebar.show_created_at"] && /* @__PURE__ */ s.jsxs("div", { className: "meld-image-card__meta-item", children: [
+            /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__meta-label", children: "Created At" }),
+            /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__meta-content", children: new Date(e.created_at * 1e3).toLocaleString() })
+          ] }),
+          t.viewScope === "trash" && e.deleted_at && /* @__PURE__ */ s.jsxs("div", { className: "meld-image-card__meta-item", children: [
+            /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__meta-label", children: "Deleted At" }),
+            /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__meta-content", children: new Date(e.deleted_at * 1e3).toLocaleString() })
+          ] }),
+          t.settings["sidebar.show_model_name"] && /* @__PURE__ */ s.jsxs(
+            "div",
+            {
+              className: "meld-image-card__meta-item meld-image-card__meta-item--clickable",
+              onClick: async (N) => {
+                N.stopPropagation();
+                const T = await C(e.id);
+                a({
+                  title: "Model",
+                  text: T.model_name || "-"
+                });
+              },
+              children: [
+                /* @__PURE__ */ s.jsx(
+                  "div",
+                  {
+                    className: `meld-image-card__meta-label meld-image-card__meta-label--copyable ${c === "Model" ? "meld-image-card__meta-label--copied" : ""}`,
+                    title: "Click to copy",
+                    onClick: async (N) => {
+                      N.stopPropagation();
+                      const T = await C(e.id);
+                      w(T.model_name || "-", "Model");
+                    },
+                    children: c === "Model" ? "Copied!" : "Model"
+                  }
+                ),
+                /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__meta-content", children: e.model_name || "-" })
+              ]
+            }
+          ),
+          t.settings["sidebar.show_positive_prompt"] && /* @__PURE__ */ s.jsxs(
+            "div",
+            {
+              className: "meld-image-card__meta-item meld-image-card__meta-item--clickable",
+              onClick: async (N) => {
+                N.stopPropagation();
+                const T = await C(e.id);
+                a({
+                  title: "Positive Prompt",
+                  text: T.positive_prompt || T.positive || "-"
+                });
+              },
+              children: [
+                /* @__PURE__ */ s.jsx(
+                  "div",
+                  {
+                    className: `meld-image-card__meta-label meld-image-card__meta-label--copyable ${c === "Positive" ? "meld-image-card__meta-label--copied" : ""}`,
+                    title: "Click to copy",
+                    onClick: async (N) => {
+                      N.stopPropagation();
+                      const T = await C(e.id);
+                      w(T.positive_prompt || T.positive || "-", "Positive");
+                    },
+                    children: c === "Positive" ? "Copied!" : "Positive"
+                  }
+                ),
+                /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__meta-content", children: e.positive_prompt || e.positive || "-" })
+              ]
+            }
+          ),
+          t.settings["sidebar.show_negative_prompt"] && /* @__PURE__ */ s.jsxs(
+            "div",
+            {
+              className: "meld-image-card__meta-item meld-image-card__meta-item--clickable",
+              onClick: async (N) => {
+                N.stopPropagation();
+                const T = await C(e.id);
+                a({
+                  title: "Negative Prompt",
+                  text: T.negative_prompt || T.negative || "-"
+                });
+              },
+              children: [
+                /* @__PURE__ */ s.jsx(
+                  "div",
+                  {
+                    className: `meld-image-card__meta-label meld-image-card__meta-label--copyable ${c === "Negative" ? "meld-image-card__meta-label--copied" : ""}`,
+                    title: "Click to copy",
+                    onClick: async (N) => {
+                      N.stopPropagation();
+                      const T = await C(e.id);
+                      w(T.negative_prompt || T.negative || "-", "Negative");
+                    },
+                    children: c === "Negative" ? "Copied!" : "Negative"
+                  }
+                ),
+                /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__meta-content", children: e.negative_prompt || e.negative || "-" })
+              ]
+            }
+          ),
+          t.settings["sidebar.show_tags"] && /* @__PURE__ */ s.jsxs(
+            "div",
+            {
+              className: "meld-image-card__meta-item meld-image-card__meta-item--clickable",
+              onClick: (N) => {
+                N.stopPropagation(), j();
+              },
+              children: [
+                /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__meta-label", children: "Tags" }),
+                /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__tags", children: e.tags && e.tags.length > 0 ? e.tags.map((N) => /* @__PURE__ */ s.jsx("span", { className: "meld-image-card__tag", children: N }, N)) : /* @__PURE__ */ s.jsx(
+                  "span",
+                  {
+                    style: {
+                      color: "var(--meld-text-secondary)"
+                    },
+                    children: "-"
+                  }
+                ) })
+              ]
+            }
+          ),
+          (t.settings["sidebar.show_user_notes"] === "always" || t.settings["sidebar.show_user_notes"] === "if_present" && e.user_notes) && /* @__PURE__ */ s.jsxs("div", { className: "meld-image-card__meta-item meld-image-card__meta-item--notes", children: [
+            /* @__PURE__ */ s.jsxs("div", { className: "meld-image-card__meta-label", children: [
+              "Notes",
+              B === "saving" && /* @__PURE__ */ s.jsx("span", { className: "meld-notes-status", children: "Saving..." })
+            ] }),
+            /* @__PURE__ */ s.jsx(
+              "div",
+              {
+                className: "meld-image-card__meta-content",
+                onClick: (N) => {
+                  N.stopPropagation(), M();
+                },
+                children: /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__notes-preview", children: e.user_notes || /* @__PURE__ */ s.jsx("span", { className: "meld-notes-placeholder", children: "Add notes..." }) })
               }
             )
-          ] }),
+          ] })
+        ] }),
+        /* @__PURE__ */ s.jsx(
+          vi,
+          {
+            isMenuOpen: o,
+            setIsMenuOpen: i,
+            menuRef: h,
+            settings: t.settings,
+            onAddUnifiedLoader: b,
+            onRestoreWorkflow: g,
+            onSendToWorkflow: L,
+            onRunWithWorkflow: F,
+            onRunWithMask: (N) => Q(N),
+            onEditSource: S,
+            onEditTags: j,
+            onEditNotes: M,
+            onRestore: P,
+            showRestore: t.viewScope === "trash",
+            onDelete: I,
+            deleteLabel: t.viewScope === "trash" ? "Delete Permanently" : "Move to Trash"
+          }
+        ),
+        l && /* @__PURE__ */ s.jsx(
+          Lv,
+          {
+            title: l.title,
+            text: l.text,
+            onClose: () => a(null),
+            onCopy: (N) => w(N, "", !0),
+            isCopied: d
+          }
+        )
+      ]
+    }
+  );
+});
+lm.displayName = "DetailedImageCard";
+const sm = Jt.memo(({ image: e }) => {
+  const {
+    isSelected: t,
+    imgSrc: n,
+    handleContainerClick: r,
+    handleMouseDown: l,
+    handleKeyDown: a,
+    handleClick: o,
+    handleSelectToggle: i,
+    isMenuOpen: c,
+    setIsMenuOpen: d,
+    menuRef: h,
+    state: v,
+    handleAddUnifiedLoader: y,
+    handleRestoreWorkflow: k,
+    handleSendToWorkflow: w,
+    handleRunWithWorkflow: x,
+    handleRunWithMask: _,
+    handleEditSource: f,
+    handleEditTags: u,
+    handleEditNotes: m,
+    handleDelete: g,
+    handleRestore: b
+  } = rm(e), S = v.viewScope === "trash", j = S ? "Delete Permanently" : "Move to Trash", M = (L) => {
+    L.stopPropagation();
+    let P = String(e.id);
+    t && v.selectedIds.size > 0 && (P = Array.from(v.selectedIds).join(",")), L.dataTransfer.setData("text/plain", P), se.getState().setIsOpen(!0);
+  };
+  return /* @__PURE__ */ s.jsxs(
+    "div",
+    {
+      className: `meld-image-card meld-image-card--grid-only ${t ? "meld-image-card--selected" : ""} ${c ? "meld-image-card--menu-open" : ""}`,
+      onClick: r,
+      onMouseDown: l,
+      onKeyDown: a,
+      role: "button",
+      tabIndex: 0,
+      draggable: !0,
+      onDragStart: M,
+      children: [
+        /* @__PURE__ */ s.jsxs("div", { className: "meld-image-card__thumbnail-wrapper", children: [
           /* @__PURE__ */ s.jsx(
-            vi,
+            "button",
             {
-              isMenuOpen: c,
-              setIsMenuOpen: d,
-              menuRef: h,
-              settings: v.settings,
-              onAddUnifiedLoader: y,
-              onRestoreWorkflow: k,
-              onSendToWorkflow: w,
-              onRunWithWorkflow: x,
-              onRunWithMask: _,
-              onEditSource: f,
-              onEditTags: u,
-              onEditNotes: m,
-              onDelete: g,
-              onRestore: b,
-              showRestore: S,
-              deleteLabel: j,
-              showQuickShortcuts: !1,
-              variant: "thumbnail_overlay_top_right"
+              type: "button",
+              className: `meld-image-card__select-checkbox ${t ? "meld-image-card__select-checkbox--checked" : ""}`,
+              onClick: i,
+              "aria-label": "Toggle selection",
+              role: "checkbox",
+              "aria-checked": t,
+              children: t && /* @__PURE__ */ s.jsxs(
+                "svg",
+                {
+                  viewBox: "0 0 24 24",
+                  width: "10",
+                  height: "10",
+                  stroke: "currentColor",
+                  strokeWidth: "4",
+                  fill: "none",
+                  strokeLinecap: "round",
+                  strokeLinejoin: "round",
+                  children: [
+                    /* @__PURE__ */ s.jsx("title", { children: "Selected" }),
+                    /* @__PURE__ */ s.jsx("polyline", { points: "20 6 9 17 4 12" })
+                  ]
+                }
+              )
+            }
+          ),
+          /* @__PURE__ */ s.jsx(
+            "img",
+            {
+              src: n,
+              className: "meld-image-card__thumbnail",
+              alt: e.filename,
+              loading: "lazy",
+              draggable: !1,
+              width: e.width || void 0,
+              height: e.height || void 0,
+              style: {
+                aspectRatio: e.width && e.height ? `${e.width} / ${e.height}` : void 0
+              },
+              onMouseDown: l,
+              onClick: (L) => {
+                L.stopPropagation(), o(L);
+              }
             }
           )
-        ]
-      }
-    );
-  }
-);
+        ] }),
+        /* @__PURE__ */ s.jsx(
+          vi,
+          {
+            isMenuOpen: c,
+            setIsMenuOpen: d,
+            menuRef: h,
+            settings: v.settings,
+            onAddUnifiedLoader: y,
+            onRestoreWorkflow: k,
+            onSendToWorkflow: w,
+            onRunWithWorkflow: x,
+            onRunWithMask: _,
+            onEditSource: f,
+            onEditTags: u,
+            onEditNotes: m,
+            onDelete: g,
+            onRestore: b,
+            showRestore: S,
+            deleteLabel: j,
+            showQuickShortcuts: !1,
+            variant: "thumbnail_overlay_top_right"
+          }
+        )
+      ]
+    }
+  );
+});
 sm.displayName = "SimpleImageCard";
 const Kc = ({ image: e }) => {
   const { state: t } = ge();
@@ -18700,9 +17922,7 @@ const Kc = ({ image: e }) => {
   }, []);
   const v = d + 10, y = h ? Math.max(
     1,
-    Math.floor(
-      (i - Rv * 2 + ya) / (v + ya)
-    )
+    Math.floor((i - Rv * 2 + ya) / (v + ya))
   ) : 1, k = h ? Math.ceil(e.length / y) : e.length, w = h ? d + 14 : d + 40, x = Tv({
     count: k,
     getScrollElement: () => o.current,
@@ -18743,10 +17963,7 @@ const Kc = ({ image: e }) => {
             },
             children: _.map((f) => {
               if (h) {
-                const m = f.index * y, g = Math.min(
-                  m + y,
-                  e.length
-                ), b = e.slice(m, g);
+                const m = f.index * y, g = Math.min(m + y, e.length), b = e.slice(m, g);
                 return /* @__PURE__ */ s.jsx(
                   "div",
                   {
@@ -18777,10 +17994,7 @@ const Kc = ({ image: e }) => {
                           "div",
                           {
                             style: {
-                              width: S.width && S.height ? Math.min(
-                                d,
-                                d * S.width / S.height
-                              ) + 10 : d + 10,
+                              width: S.width && S.height ? Math.min(d, d * S.width / S.height) + 10 : d + 10,
                               minWidth: d + 10
                             },
                             children: /* @__PURE__ */ s.jsx(Kc, { image: S })
@@ -18848,12 +18062,12 @@ const Kc = ({ image: e }) => {
     visibleImages: d,
     isSearchActive: h,
     loadMoreRef: v
-  } = vv(), y = se((j) => j.isOpen), k = se((j) => j.setIsOpen), w = se((j) => j.buckets), x = Object.values(w).some((j) => j && j.length > 0);
+  } = vv(), y = se((j) => j.isOpen), k = se((j) => j.setIsOpen), w = se((j) => j.buckets), x = Object.values(w).some(
+    (j) => j && j.length > 0
+  );
   O.log("GalleryPanel: isLightTableOpen =", y);
   const [_, f] = p.useState(!1), [u, m] = p.useState(null), g = p.useRef(null), b = p.useCallback(() => {
-    g.current && (m(
-      g.current.getBoundingClientRect()
-    ), f(!0));
+    g.current && (m(g.current.getBoundingClientRect()), f(!0));
   }, []), S = p.useCallback(
     (j) => {
       t({ type: "SET_SEARCH_QUERY", payload: j }), i(j), a("search"), f(!1);
@@ -18871,14 +18085,10 @@ const Kc = ({ image: e }) => {
     {
       className: `meld-gallery ${e.viewScope === "trash" ? "meld-gallery--trash" : ""}`,
       onDragOver: (j) => {
-        j.dataTransfer.types.includes(
-          "application/meld-lt-source-slot"
-        ) && (j.preventDefault(), j.dataTransfer.dropEffect = "move");
+        j.dataTransfer.types.includes("application/meld-lt-source-slot") && (j.preventDefault(), j.dataTransfer.dropEffect = "move");
       },
       onDrop: (j) => {
-        const M = j.dataTransfer.getData(
-          "application/meld-lt-source-slot"
-        );
+        const M = j.dataTransfer.getData("application/meld-lt-source-slot");
         if (M) {
           j.preventDefault();
           const L = j.dataTransfer.getData("text/plain");
@@ -18965,13 +18175,7 @@ const Kc = ({ image: e }) => {
                   alignItems: "center"
                 },
                 title: "Favorites",
-                children: /* @__PURE__ */ s.jsx(
-                  cr,
-                  {
-                    size: 14,
-                    fill: _ ? "var(--brand-yellow, #ffd700)" : "none"
-                  }
-                )
+                children: /* @__PURE__ */ s.jsx(cr, { size: 14, fill: _ ? "var(--brand-yellow, #ffd700)" : "none" })
               }
             ),
             /* @__PURE__ */ s.jsx(
@@ -19093,13 +18297,7 @@ const Kc = ({ image: e }) => {
                 },
                 disabled: e.isLoading,
                 title: "Refresh",
-                children: /* @__PURE__ */ s.jsx(
-                  rl,
-                  {
-                    size: 14,
-                    className: e.isLoading ? "animate-spin" : ""
-                  }
-                )
+                children: /* @__PURE__ */ s.jsx(rl, { size: 14, className: e.isLoading ? "animate-spin" : "" })
               }
             ),
             /* @__PURE__ */ s.jsx(
@@ -19216,9 +18414,7 @@ Gc.registerExtension({
     t(), setTimeout(t, 1), setTimeout(t, 100);
   }
 });
-const Ov = document.getElementById(
-  "meld-gallery-style"
-);
+const Ov = document.getElementById("meld-gallery-style");
 if (!Ov) {
   const e = document.createElement("link");
   e.id = "meld-gallery-style", e.rel = "stylesheet", e.type = "text/css";
@@ -19276,14 +18472,10 @@ Gc.registerExtension({
         var n;
         (n = e.ui.meld) == null || n.refresh();
       }), te.addEventListener("meld-scan-progress", (n) => {
-        window.dispatchEvent(
-          new CustomEvent("meld-scan-progress", { detail: n.detail })
-        );
+        window.dispatchEvent(new CustomEvent("meld-scan-progress", { detail: n.detail }));
       }), te.addEventListener("meld-scan-finished", (n) => {
         var r;
-        window.dispatchEvent(
-          new CustomEvent("meld-scan-finished", { detail: n.detail })
-        ), (r = e.ui.meld) == null || r.refresh(), O.log("Import completed.");
+        window.dispatchEvent(new CustomEvent("meld-scan-finished", { detail: n.detail })), (r = e.ui.meld) == null || r.refresh(), O.log("Import completed.");
       }), te.addEventListener(
         "executed",
         async ({
@@ -19326,14 +18518,8 @@ Gc.registerExtension({
             let r = n.parentElement;
             for (; r && !r.classList.contains("sidebar-content-container"); )
               r.style.height = "100%", r.style.overflow = "hidden", r = r.parentElement;
-            r && (r.style.overflow = "hidden"), it || (O.log("galleryContainer not found, creating new one"), it = document.createElement("div"), it.id = "meld-gallery-container", it.style.height = "100%", it.style.width = "100%", it.style.display = "flex", it.style.flexDirection = "column", it.style.overflow = "hidden"), n.contains(it) || (O.log("Appending galleryContainer to el"), n.appendChild(it)), Al ? O.log(
-              "Gallery root already exists, React should handle re-render if needed"
-            ) : (O.log("Creating new gallery root"), Al = sf(it), Al.render(
-              Jt.createElement(
-                Gg,
-                null,
-                Jt.createElement(Pv)
-              )
+            r && (r.style.overflow = "hidden"), it || (O.log("galleryContainer not found, creating new one"), it = document.createElement("div"), it.id = "meld-gallery-container", it.style.height = "100%", it.style.width = "100%", it.style.display = "flex", it.style.flexDirection = "column", it.style.overflow = "hidden"), n.contains(it) || (O.log("Appending galleryContainer to el"), n.appendChild(it)), Al ? O.log("Gallery root already exists, React should handle re-render if needed") : (O.log("Creating new gallery root"), Al = sf(it), Al.render(
+              Jt.createElement(Gg, null, Jt.createElement(Pv))
             ));
           }
         });

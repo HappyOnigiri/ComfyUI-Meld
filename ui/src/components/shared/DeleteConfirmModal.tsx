@@ -40,10 +40,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 		[state.searchQuery],
 	);
 
-	const isSearchActive = useMemo(
-		() => state.searchQuery.trim() !== "",
-		[state.searchQuery],
-	);
+	const isSearchActive = useMemo(() => state.searchQuery.trim() !== "", [state.searchQuery]);
 
 	const currentList = useMemo(() => {
 		if (state.viewerMode === "lighttable" && state.viewerLightTableSlotId) {
@@ -116,10 +113,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 		(idsToDelete: Set<number>) => {
 			if (!isMounted.current) return;
 			const currentViewerImageId = viewerImageIdRef.current;
-			if (
-				currentViewerImageId === null ||
-				!idsToDelete.has(currentViewerImageId)
-			) {
+			if (currentViewerImageId === null || !idsToDelete.has(currentViewerImageId)) {
 				return;
 			}
 
@@ -139,8 +133,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 							id: currentList[i].id,
 							mode: state.viewerMode,
 							// Preserve slotId in lighttable mode to stay within the slot
-							...(state.viewerMode === "lighttable" &&
-							state.viewerLightTableSlotId
+							...(state.viewerMode === "lighttable" && state.viewerLightTableSlotId
 								? { slotId: state.viewerLightTableSlotId }
 								: {}),
 						},
@@ -160,8 +153,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 								id: currentList[i].id,
 								mode: state.viewerMode,
 								// Preserve slotId in lighttable mode to stay within the slot
-								...(state.viewerMode === "lighttable" &&
-								state.viewerLightTableSlotId
+								...(state.viewerMode === "lighttable" && state.viewerLightTableSlotId
 									? { slotId: state.viewerLightTableSlotId }
 									: {}),
 							},
@@ -184,9 +176,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 			dispatch({ type: "SET_LOADING", payload: true });
 
 			const idsToDeleteSet = new Set(imageIds);
-			const deletedImages = currentList.filter((img: MeldImage) =>
-				idsToDeleteSet.has(img.id),
-			);
+			const deletedImages = currentList.filter((img: MeldImage) => idsToDeleteSet.has(img.id));
 			navigateViewerIfNeeded(idsToDeleteSet);
 
 			await deleteImagesAndSyncLightTable(imageIds, isPermanent);
@@ -227,15 +217,10 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 				}
 			}
 
-			const deletedImages = currentList.filter((img: MeldImage) =>
-				allIdsToDelete.has(img.id),
-			);
+			const deletedImages = currentList.filter((img: MeldImage) => allIdsToDelete.has(img.id));
 			navigateViewerIfNeeded(allIdsToDelete);
 
-			await deleteImagesAndSyncLightTable(
-				Array.from(allIdsToDelete),
-				isPermanent,
-			);
+			await deleteImagesAndSyncLightTable(Array.from(allIdsToDelete), isPermanent);
 			if (!isMounted.current) return;
 
 			if (state.activeModal.type === "delete_confirm") {
@@ -276,11 +261,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 						<Trash2 size={20} color="var(--meld-danger-color)" />
 						{isPermanent ? "Permanent Deletion" : "Move to Trash"}
 					</h2>
-					<button
-						type="button"
-						className="meld-modal-close"
-						onClick={handleClose}
-					>
+					<button type="button" className="meld-modal-close" onClick={handleClose}>
 						<X size={20} />
 					</button>
 				</div>
@@ -295,8 +276,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 						}}
 					>
 						<p>
-							Are you sure you want to{" "}
-							{isPermanent ? "permanently delete" : "move to trash"}{" "}
+							Are you sure you want to {isPermanent ? "permanently delete" : "move to trash"}{" "}
 							<strong>{imageIds.length}</strong> selected items?
 						</p>
 
@@ -313,22 +293,20 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 							<AlertTriangle
 								size={20}
 								style={{
-									color: isPermanent
-										? "var(--meld-danger-color)"
-										: "var(--meld-accent-color)",
+									color: isPermanent ? "var(--meld-danger-color)" : "var(--meld-accent-color)",
 									flexShrink: 0,
 								}}
 							/>
 							<div style={{ fontSize: "13px" }}>
 								{isPermanent ? (
 									<>
-										<strong>WARNING:</strong> Physical files will be permanently
-										deleted from the trash bin. This operation cannot be undone.
+										<strong>WARNING:</strong> Physical files will be permanently deleted from the
+										trash bin. This operation cannot be undone.
 									</>
 								) : (
 									<>
-										<strong>INFO:</strong> Selected items will be moved to the
-										trash bin. You can restore them later from the settings.
+										<strong>INFO:</strong> Selected items will be moved to the trash bin. You can
+										restore them later from the settings.
 									</>
 								)}
 							</div>
@@ -338,27 +316,21 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 							<div
 								style={{
 									padding: "12px",
-									backgroundColor:
-										"var(--comfy-input-bg-active, rgba(0, 150, 255, 0.1))",
+									backgroundColor: "var(--comfy-input-bg-active, rgba(0, 150, 255, 0.1))",
 									border: "1px solid var(--meld-accent-color)",
 									borderRadius: "4px",
 									fontSize: "13px",
 								}}
 							>
-								Selected images include items with a <strong>Source</strong> or
-								derivatives. You can choose to delete just the selected items or
-								all related items (lineage).
+								Selected images include items with a <strong>Source</strong> or derivatives. You can
+								choose to delete just the selected items or all related items (lineage).
 							</div>
 						)}
 					</div>
 				</div>
 
 				<div className="meld-modal-footer">
-					<button
-						type="button"
-						className="meld-btn meld-btn-secondary"
-						onClick={handleClose}
-					>
+					<button type="button" className="meld-btn meld-btn-secondary" onClick={handleClose}>
 						Cancel
 					</button>
 

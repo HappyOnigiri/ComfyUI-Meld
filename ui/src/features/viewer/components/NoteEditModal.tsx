@@ -13,11 +13,7 @@ interface NoteEditModalProps {
 	onClose: () => void;
 }
 
-export const NoteEditModal: React.FC<NoteEditModalProps> = ({
-	imageId,
-	initialNotes,
-	onClose,
-}) => {
+export const NoteEditModal: React.FC<NoteEditModalProps> = ({ imageId, initialNotes, onClose }) => {
 	const { state, dispatch } = useGallery();
 	const { handleUpdateUserNotes } = useImageActions(state, dispatch);
 	const [notes, setNotes] = useState(initialNotes);
@@ -132,11 +128,7 @@ export const NoteEditModal: React.FC<NoteEditModalProps> = ({
 				</div>
 
 				<div className="meld-modal-footer">
-					<button
-						type="button"
-						className="meld-btn meld-btn-secondary"
-						onClick={onClose}
-					>
+					<button type="button" className="meld-btn meld-btn-secondary" onClick={onClose}>
 						Cancel
 					</button>
 					<button

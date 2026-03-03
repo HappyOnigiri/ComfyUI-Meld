@@ -61,18 +61,11 @@ export const useImageViewerLogic = ({
 	const { getParentChain, fetchLineage } = useImageLineage(images, settings);
 
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
-	const [showDetails, setShowDetails] = useState(
-		settings["viewer.show_details_by_default"],
-	);
-	const [showThumbnailsOverride, setShowThumbnailsOverride] = useState<
-		boolean | null
-	>(null);
-	const showThumbnails =
-		showThumbnailsOverride ?? settings["viewer.show_thumbnails"];
+	const [showDetails, setShowDetails] = useState(settings["viewer.show_details_by_default"]);
+	const [showThumbnailsOverride, setShowThumbnailsOverride] = useState<boolean | null>(null);
+	const showThumbnails = showThumbnailsOverride ?? settings["viewer.show_thumbnails"];
 	const [isJumping, setIsJumping] = useState(false);
-	const [activeShortcutKey, setActiveShortcutKey] = useState<string | null>(
-		null,
-	);
+	const [activeShortcutKey, setActiveShortcutKey] = useState<string | null>(null);
 	const overlayRef = useRef<HTMLDivElement>(null);
 
 	const mountRefs: ViewerMountRefs = {
@@ -115,9 +108,7 @@ export const useImageViewerLogic = ({
 			: images.filter(
 					(img) =>
 						img.exists !== false &&
-						(settings["gallery.show_parent_images"] ||
-							isSearchActive ||
-							!img.has_children),
+						(settings["gallery.show_parent_images"] || isSearchActive || !img.has_children),
 				);
 	}, [
 		viewerMode,
@@ -129,9 +120,7 @@ export const useImageViewerLogic = ({
 	]);
 
 	const currentIndex =
-		viewerImageId === null
-			? -1
-			: currentThumbnails.findIndex((img) => img.id === viewerImageId);
+		viewerImageId === null ? -1 : currentThumbnails.findIndex((img) => img.id === viewerImageId);
 
 	const foundImage = (
 		viewerMode === "lineage" && lineageImages.length > 0
@@ -143,9 +132,7 @@ export const useImageViewerLogic = ({
 
 	const image =
 		foundImage ||
-		(viewerImageId === state.viewerFallbackImage?.id
-			? state.viewerFallbackImage
-			: undefined);
+		(viewerImageId === state.viewerFallbackImage?.id ? state.viewerFallbackImage : undefined);
 
 	const { isFullscreen, toggleFullscreen } = useViewerFullscreen({
 		overlayRef,
@@ -270,9 +257,7 @@ export const useImageViewerLogic = ({
 	useEffect(() => {
 		if (viewerImageId !== null) {
 			if (showThumbnails) {
-				const activeThumb = document.querySelector(
-					".meld-viewer-thumbnail--active",
-				);
+				const activeThumb = document.querySelector(".meld-viewer-thumbnail--active");
 				if (activeThumb) {
 					activeThumb.scrollIntoView({
 						behavior: "auto",
@@ -326,8 +311,7 @@ export const useImageViewerLogic = ({
 			if (success) dispatch({ type: "CLOSE_VIEWER" });
 		},
 		handleRunWithWorkflow: () => image && handleRunWithWorkflow(image),
-		handleRunWithMask: (mode: "apply" | "run") =>
-			image && handleRunWithMask(image, mode),
+		handleRunWithMask: (mode: "apply" | "run") => image && handleRunWithMask(image, mode),
 		handleEditSource: () => image && handleEditSource(image),
 		toggleFullscreen,
 		currentIndex,

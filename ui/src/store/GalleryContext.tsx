@@ -23,18 +23,13 @@ interface GalleryContextType {
 	refreshFavorites: () => Promise<void>;
 	deleteSelected: () => Promise<void>;
 	restoreSelected: () => Promise<void>;
-	updateSetting: (
-		key: string,
-		value: string | number | boolean | null,
-	) => Promise<void>;
+	updateSetting: (key: string, value: string | number | boolean | null) => Promise<void>;
 	fetchFullImageDetails: (id: number) => Promise<MeldImage>;
 }
 
 const GalleryContext = createContext<GalleryContextType | undefined>(undefined);
 
-export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
-	children,
-}) => {
+export const GalleryProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 	const [state, dispatch] = useReducer(galleryReducer, initialState);
 
 	const imagesLengthRef = useRef(state.images.length);
@@ -76,8 +71,7 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 					currentOffset += result.images.length;
 
 					// If we reached the end or fetched nothing, stop
-					if (result.images.length === 0 || currentOffset >= result.total)
-						break;
+					if (result.images.length === 0 || currentOffset >= result.total) break;
 
 					// Sleep a bit to keep browser responsive (300ms)
 					await new Promise((resolve) => setTimeout(resolve, 300));
@@ -135,12 +129,7 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 				payload: err instanceof Error ? err.message : String(err),
 			});
 		}
-	}, [
-		state.searchQuery,
-		state.viewScope,
-		state.settings,
-		startBackgroundFetch,
-	]);
+	}, [state.searchQuery, state.viewScope, state.settings, startBackgroundFetch]);
 
 	const loadMoreImages = useCallback(async () => {
 		if (state.isLoading || !state.pagination.hasMore) return;
@@ -201,13 +190,9 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({
 		if (state.selectedIds.size === 0) return;
 
 		const ids = Array.from(state.selectedIds) as number[];
-		const selectedImages = state.images.filter((img) =>
-			state.selectedIds.has(img.id),
-		);
+		const selectedImages = state.images.filter((img) => state.selectedIds.has(img.id));
 
-		const hasLineage = selectedImages.some(
-			(img) => img.parent_id || img.has_children,
-		);
+		const hasLineage = selectedImages.some((img) => img.parent_id || img.has_children);
 
 		dispatch({
 			type: "OPEN_MODAL",

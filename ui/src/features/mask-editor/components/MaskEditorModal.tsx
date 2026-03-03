@@ -23,19 +23,8 @@ import { getImageViewUrl } from "../../../utils/url";
 import { useLightTableStore } from "../../light-table/store";
 import { useWorkflowExecution } from "../../workflows/hooks/useWorkflowExecution";
 import { useMaskInjection } from "../hooks/useMaskInjection";
-import type {
-	MaskBitmap,
-	MaskMode,
-	MaskSelection,
-	MaskTool,
-	Point,
-} from "../types";
-import {
-	createMaskBitmap,
-	isMaskEmpty,
-	maskToImageData,
-	stampShape,
-} from "../utils/maskUtils";
+import type { MaskBitmap, MaskMode, MaskSelection, MaskTool, Point } from "../types";
+import { createMaskBitmap, isMaskEmpty, maskToImageData, stampShape } from "../utils/maskUtils";
 
 interface MaskEditorModalProps {
 	imageId: number;
@@ -179,9 +168,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 	const handleZoomIn = useCallback(() => {
 		setScale((prev) => {
 			const nextScale = Math.min(prev * 1.2, 20);
-			setPan((prevPan) =>
-				getCenteredPan(overlayRef.current, prevPan, prev, nextScale),
-			);
+			setPan((prevPan) => getCenteredPan(overlayRef.current, prevPan, prev, nextScale));
 			return nextScale;
 		});
 	}, [getCenteredPan]);
@@ -189,9 +176,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 	const handleZoomOut = useCallback(() => {
 		setScale((prev) => {
 			const nextScale = Math.max(0.1, prev / 1.2);
-			setPan((prevPan) =>
-				getCenteredPan(overlayRef.current, prevPan, prev, nextScale),
-			);
+			setPan((prevPan) => getCenteredPan(overlayRef.current, prevPan, prev, nextScale));
 			return nextScale;
 		});
 	}, [getCenteredPan]);
@@ -260,24 +245,14 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 			ctx.stroke();
 			ctx.restore();
 		}
-	}, [
-		isDragging,
-		startPos,
-		currentPos,
-		activeTool,
-		lassoPath,
-		getBaseImageBounds,
-	]);
+	}, [isDragging, startPos, currentPos, activeTool, lassoPath, getBaseImageBounds]);
 
 	// Mask state with history for Undo
 	const [maskHistory, setMaskHistory] = useState<MaskBitmap[]>([]);
 	const currentMask = useMemo(() => {
 		if (maskHistory.length > 0) return maskHistory[maskHistory.length - 1];
 		if (imageRef.current) {
-			return createMaskBitmap(
-				imageRef.current.naturalWidth,
-				imageRef.current.naturalHeight,
-			);
+			return createMaskBitmap(imageRef.current.naturalWidth, imageRef.current.naturalHeight);
 		}
 		return null;
 	}, [maskHistory]);
@@ -286,10 +261,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 	useEffect(() => {
 		if (imageRef.current?.naturalWidth && maskHistory.length === 0) {
 			setMaskHistory([
-				createMaskBitmap(
-					imageRef.current.naturalWidth,
-					imageRef.current.naturalHeight,
-				),
+				createMaskBitmap(imageRef.current.naturalWidth, imageRef.current.naturalHeight),
 			]);
 		}
 	}, [maskHistory.length]);
@@ -298,10 +270,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 	const handleImageLoad = useCallback(() => {
 		if (imageRef.current?.naturalWidth && maskHistory.length === 0) {
 			setMaskHistory([
-				createMaskBitmap(
-					imageRef.current.naturalWidth,
-					imageRef.current.naturalHeight,
-				),
+				createMaskBitmap(imageRef.current.naturalWidth, imageRef.current.naturalHeight),
 			]);
 		}
 	}, [maskHistory.length]);
@@ -316,11 +285,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 	};
 
 	const handleOverlayMouseUp = (e: React.MouseEvent) => {
-		if (
-			e.target === e.currentTarget &&
-			overlayMouseDownRef.current &&
-			!isDragging
-		) {
+		if (e.target === e.currentTarget && overlayMouseDownRef.current && !isDragging) {
 			onClose();
 		}
 		overlayMouseDownRef.current = false;
@@ -462,14 +427,8 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 		};
 
 		// Clamp coordinates to image bounds
-		const x = Math.max(
-			bounds.left,
-			Math.min(basePos.x, bounds.left + bounds.width),
-		);
-		const y = Math.max(
-			bounds.top,
-			Math.min(basePos.y, bounds.top + bounds.height),
-		);
+		const x = Math.max(bounds.left, Math.min(basePos.x, bounds.left + bounds.width));
+		const y = Math.max(bounds.top, Math.min(basePos.y, bounds.top + bounds.height));
 		setStartPos({ x, y });
 		setCurrentPos({ x, y });
 		if (activeTool === "lasso") {
@@ -494,14 +453,8 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 				x: (e.clientX - rect.left - pan.x) / scale,
 				y: (e.clientY - rect.top - pan.y) / scale,
 			};
-			const x = Math.max(
-				bounds.left,
-				Math.min(basePos.x, bounds.left + bounds.width),
-			);
-			const y = Math.max(
-				bounds.top,
-				Math.min(basePos.y, bounds.top + bounds.height),
-			);
+			const x = Math.max(bounds.left, Math.min(basePos.x, bounds.left + bounds.width));
+			const y = Math.max(bounds.top, Math.min(basePos.y, bounds.top + bounds.height));
 			setCurrentPos({ x, y });
 			if (activeTool === "lasso") {
 				setLassoPath((prev) => [...prev, { x, y }]);
@@ -516,14 +469,8 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 					x: (e.clientX - rect.left - pan.x) / scale,
 					y: (e.clientY - rect.top - pan.y) / scale,
 				};
-				const x = Math.max(
-					bounds.left,
-					Math.min(basePos.x, bounds.left + bounds.width),
-				);
-				const y = Math.max(
-					bounds.top,
-					Math.min(basePos.y, bounds.top + bounds.height),
-				);
+				const x = Math.max(bounds.left, Math.min(basePos.x, bounds.left + bounds.width));
+				const y = Math.max(bounds.top, Math.min(basePos.y, bounds.top + bounds.height));
 
 				const finalX = Math.min(startPos.x, x);
 				const finalY = Math.min(startPos.y, y);
@@ -531,8 +478,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 				const finalH = Math.abs(startPos.y - y);
 
 				const isLasso = activeTool === "lasso";
-				const hasEnoughMovement =
-					finalW > 5 || finalH > 5 || (isLasso && lassoPath.length > 2);
+				const hasEnoughMovement = finalW > 5 || finalH > 5 || (isLasso && lassoPath.length > 2);
 
 				if (hasEnoughMovement) {
 					// Convert overlay coords to natural coords
@@ -556,15 +502,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 							const relH = finalH * scaleY;
 							const centerX = relX + relW / 2;
 							const centerY = relY + relH / 2;
-							ctx.ellipse(
-								centerX,
-								centerY,
-								relW / 2,
-								relH / 2,
-								0,
-								0,
-								2 * Math.PI,
-							);
+							ctx.ellipse(centerX, centerY, relW / 2, relH / 2, 0, 0, 2 * Math.PI);
 						} else if (activeTool === "lasso") {
 							if (lassoPath.length > 2) {
 								const startPoint = lassoPath[0];
@@ -642,11 +580,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 				}
 			}
 			// Cmd+Z (Mac) or Ctrl+Z (Windows/Linux)
-			if (
-				(e.metaKey || e.ctrlKey) &&
-				e.key.toLowerCase() === "z" &&
-				!e.shiftKey
-			) {
+			if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "z" && !e.shiftKey) {
 				e.preventDefault();
 				e.stopPropagation();
 				e.stopImmediatePropagation();
@@ -773,10 +707,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 		}
 	};
 
-	const hasMask = useMemo(
-		() => currentMask && !isMaskEmpty(currentMask),
-		[currentMask],
-	);
+	const hasMask = useMemo(() => currentMask && !isMaskEmpty(currentMask), [currentMask]);
 
 	if (!image) return null;
 
@@ -801,9 +732,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 				<div className="meld-modal-body">
 					<div className="meld-mask-editor-tool-selector">
 						<button
-							className={`meld-mask-tool-btn ${
-								activeTool === "rect" ? "active" : ""
-							}`}
+							className={`meld-mask-tool-btn ${activeTool === "rect" ? "active" : ""}`}
 							onClick={() => setActiveTool("rect")}
 							type="button"
 							title="Rectangle Tool"
@@ -812,9 +741,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 							<span>Rect</span>
 						</button>
 						<button
-							className={`meld-mask-tool-btn ${
-								activeTool === "ellipse" ? "active" : ""
-							}`}
+							className={`meld-mask-tool-btn ${activeTool === "ellipse" ? "active" : ""}`}
 							onClick={() => setActiveTool("ellipse")}
 							type="button"
 							title="Ellipse Tool"
@@ -823,9 +750,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 							<span>Ellipse</span>
 						</button>
 						<button
-							className={`meld-mask-tool-btn ${
-								activeTool === "lasso" ? "active" : ""
-							}`}
+							className={`meld-mask-tool-btn ${activeTool === "lasso" ? "active" : ""}`}
 							onClick={() => setActiveTool("lasso")}
 							type="button"
 							title="Lasso Tool"
@@ -884,11 +809,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 						onContextMenu={(e) => e.preventDefault()}
 						role="presentation"
 						style={{
-							cursor: isPanDragging
-								? "grabbing"
-								: isPanning
-									? "grab"
-									: "crosshair",
+							cursor: isPanDragging ? "grabbing" : isPanning ? "grab" : "crosshair",
 						}}
 					>
 						<div
@@ -924,8 +845,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 					</div>
 					<div className="meld-mask-editor-footer">
 						<div className="meld-mask-editor-hint">
-							Select a tool and drag on the image to create mask areas
-							(Cmd/Ctrl+Z to undo)
+							Select a tool and drag on the image to create mask areas (Cmd/Ctrl+Z to undo)
 						</div>
 						<div className="meld-mask-editor-actions">
 							{mode === "apply" ? (
@@ -956,8 +876,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 									)}
 									<span>
 										{mode === "run_sequence" && sequenceData
-											? sequenceData.currentIndex ===
-												sequenceData.totalCount - 1
+											? sequenceData.currentIndex === sequenceData.totalCount - 1
 												? "Queue (Last)"
 												: `Queue (${sequenceData.currentIndex + 1}/${sequenceData.totalCount})`
 											: "Queue"}

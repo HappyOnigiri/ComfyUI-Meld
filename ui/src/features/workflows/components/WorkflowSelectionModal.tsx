@@ -1,11 +1,4 @@
-import {
-	AlertCircle,
-	ChevronRight,
-	FileJson,
-	Play,
-	Search,
-	X,
-} from "lucide-react";
+import { AlertCircle, ChevronRight, FileJson, Play, Search, X } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -13,18 +6,11 @@ import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { logger } from "../../../logger";
 import { useGallery } from "../../../store/GalleryContext";
 import type { MeldImage } from "../../../types";
-import {
-	fetchWorkflowRaw,
-	fetchWorkflows,
-	type WorkflowInfo,
-} from "../api/workflowsApi";
+import { fetchWorkflowRaw, fetchWorkflows, type WorkflowInfo } from "../api/workflowsApi";
 
 interface WorkflowSelectionModalProps {
 	images: MeldImage[];
-	onExecute: (
-		workflowName: string,
-		targetLoaderNodeId?: string,
-	) => Promise<boolean | undefined>;
+	onExecute: (workflowName: string, targetLoaderNodeId?: string) => Promise<boolean | undefined>;
 	onSuccess?: () => void;
 	isMaskMode?: boolean;
 }
@@ -54,9 +40,7 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 	const [error, setError] = useState<string | null>(null);
 	const [executing, setExecuting] = useState(false);
 	const [expandedWorkflow, setExpandedWorkflow] = useState<string | null>(null);
-	const [workflowNodes, setWorkflowNodes] = useState<
-		Record<string, LoaderNodeInfo[]>
-	>({});
+	const [workflowNodes, setWorkflowNodes] = useState<Record<string, LoaderNodeInfo[]>>({});
 	const [loadingNodes, setLoadingNodes] = useState<Record<string, boolean>>({});
 	const [searchQuery, setSearchQuery] = useState("");
 	const searchInputRef = useRef<HTMLInputElement>(null);
@@ -88,9 +72,7 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 	const filteredWorkflows = useMemo(() => {
 		if (!searchQuery.trim()) return sortedWorkflows;
 		const query = searchQuery.toLowerCase();
-		return sortedWorkflows.filter((wf) =>
-			wf.name.toLowerCase().includes(query),
-		);
+		return sortedWorkflows.filter((wf) => wf.name.toLowerCase().includes(query));
 	}, [sortedWorkflows, searchQuery]);
 
 	const loadWorkflows = useCallback(async () => {
@@ -140,10 +122,7 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 		[handleClose],
 	);
 
-	const handleRun = async (
-		workflowName: string,
-		targetLoaderNodeId?: string,
-	) => {
+	const handleRun = async (workflowName: string, targetLoaderNodeId?: string) => {
 		if (executing) return;
 		try {
 			setExecuting(true);
@@ -177,18 +156,10 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 
 			if (workflow.nodes && Array.isArray(workflow.nodes)) {
 				// UI Format
-				logger.log(
-					"Extracting nodes from UI format workflow",
-					workflow.nodes.length,
-				);
+				logger.log("Extracting nodes from UI format workflow", workflow.nodes.length);
 				for (const node of workflow.nodes as WorkflowNode[]) {
 					if (isTargetNode(node.type)) {
-						logger.log(
-							"Found target node (UI):",
-							node.id,
-							node.type,
-							node.title,
-						);
+						logger.log("Found target node (UI):", node.id, node.type, node.title);
 						loaders.push({
 							id: String(node.id),
 							type: node.type || "",
@@ -201,11 +172,7 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 				logger.log("Extracting nodes from API format workflow");
 				for (const nodeId in workflow) {
 					const node = workflow[nodeId] as WorkflowNode;
-					if (
-						node &&
-						typeof node === "object" &&
-						isTargetNode(node.class_type)
-					) {
+					if (node && typeof node === "object" && isTargetNode(node.class_type)) {
 						logger.log("Found target node (API):", nodeId, node.class_type);
 						loaders.push({
 							id: nodeId,
@@ -230,9 +197,7 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 	const toggleExpand = (wf: WorkflowInfo) => {
 		if (!wf.valid || executing) return;
 
-		const targetCount = isMaskMode
-			? wf.mask_count
-			: wf.loader_count + wf.load_image_count;
+		const targetCount = isMaskMode ? wf.mask_count : wf.loader_count + wf.load_image_count;
 
 		if (targetCount <= 1) {
 			handleRun(wf.name);
@@ -262,11 +227,7 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 						<FileJson size={20} color="var(--meld-accent-color)" />
 						Queue via Workflow
 					</h2>
-					<button
-						type="button"
-						className="meld-modal-close"
-						onClick={handleClose}
-					>
+					<button type="button" className="meld-modal-close" onClick={handleClose}>
 						<X size={20} />
 					</button>
 				</div>
@@ -303,12 +264,9 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 							>
 								Select a workflow to process{" "}
 								<strong>
-									{images.length > 1
-										? `${images.length} images`
-										: images[0]?.filename}
+									{images.length > 1 ? `${images.length} images` : images[0]?.filename}
 								</strong>
-								. Workflows must have at least one{" "}
-								<strong>Meld Image Loader</strong> or{" "}
+								. Workflows must have at least one <strong>Meld Image Loader</strong> or{" "}
 								<strong>Load Image</strong> node
 								{isMaskMode && (
 									<>
@@ -319,10 +277,7 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 								.
 							</div>
 
-							<div
-								className="meld-tag-search-container"
-								style={{ marginBottom: "12px" }}
-							>
+							<div className="meld-tag-search-container" style={{ marginBottom: "12px" }}>
 								<Search className="meld-tag-search-icon" size={16} />
 								<input
 									ref={searchInputRef}
@@ -374,13 +329,9 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 												title={wf.reason || "Click to select"}
 											>
 												<div className="meld-workflow-item__info">
-													<div className="meld-workflow-item__name">
-														{wf.name}
-													</div>
+													<div className="meld-workflow-item__name">{wf.name}</div>
 													{!wf.valid && (
-														<div className="meld-workflow-item__reason">
-															{wf.reason}
-														</div>
+														<div className="meld-workflow-item__reason">{wf.reason}</div>
 													)}
 													{wf.valid && (
 														<div className="meld-workflow-item__supports">
@@ -425,9 +376,7 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 														<ChevronRight
 															size={14}
 															style={{
-																transform: isExpanded
-																	? "rotate(90deg)"
-																	: "rotate(0deg)",
+																transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)",
 																transition: "transform 0.2s",
 															}}
 														/>

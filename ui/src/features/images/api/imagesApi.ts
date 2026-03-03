@@ -26,10 +26,7 @@ export const fetchImageDetails = async (id: number): Promise<MeldImage> => {
 	return handleResponse(res);
 };
 
-export const deleteImages = async (
-	ids: number[],
-	permanent = false,
-): Promise<void> => {
+export const deleteImages = async (ids: number[], permanent = false): Promise<void> => {
 	const res = await api.fetchApi("/meld/bulk-delete", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
@@ -41,9 +38,7 @@ export const deleteImages = async (
 	await handleResponse(res);
 };
 
-export const restoreImages = async (
-	ids: number[],
-): Promise<{ restored_ids: number[] }> => {
+export const restoreImages = async (ids: number[]): Promise<{ restored_ids: number[] }> => {
 	const res = await api.fetchApi("/meld/restore", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
@@ -65,10 +60,7 @@ export const registerImage = async (image: {
 	return handleResponse(res);
 };
 
-export const linkParent = async (
-	childId: number,
-	parentId: number | null,
-): Promise<void> => {
+export const linkParent = async (childId: number, parentId: number | null): Promise<void> => {
 	const res = await api.fetchApi("/meld/link-parent", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
@@ -91,11 +83,8 @@ export const suggestParents = async (
 		is_source_match: boolean;
 	}[]
 > => {
-	const thresholdParam =
-		threshold !== undefined ? `&threshold=${threshold}` : "";
-	const res = await api.fetchApi(
-		`/meld/suggest-parents?id=${id}${thresholdParam}`,
-	);
+	const thresholdParam = threshold !== undefined ? `&threshold=${threshold}` : "";
+	const res = await api.fetchApi(`/meld/suggest-parents?id=${id}${thresholdParam}`);
 	try {
 		return await handleResponse(res);
 	} catch (_e) {
@@ -112,10 +101,7 @@ export const fetchLineage = async (id: number): Promise<MeldImage[]> => {
 	}
 };
 
-export const updateImageTags = async (
-	imageId: number,
-	tags: string[],
-): Promise<void> => {
+export const updateImageTags = async (imageId: number, tags: string[]): Promise<void> => {
 	const res = await api.fetchApi("/meld/image-tags", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
@@ -124,10 +110,7 @@ export const updateImageTags = async (
 	await handleResponse(res);
 };
 
-export const updateImageNotes = async (
-	imageId: number,
-	userNotes: string,
-): Promise<MeldImage> => {
+export const updateImageNotes = async (imageId: number, userNotes: string): Promise<MeldImage> => {
 	const res = await api.fetchApi("/meld/image-notes", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
@@ -149,9 +132,7 @@ export const bulkUpdateImageTags = async (
 	await handleResponse(res);
 };
 
-export const fetchImageWorkflow = async (
-	imageId: number,
-): Promise<{ workflow: unknown }> => {
+export const fetchImageWorkflow = async (imageId: number): Promise<{ workflow: unknown }> => {
 	const res = await api.fetchApi(`/meld/image/${imageId}/workflow`);
 	return handleResponse(res);
 };
@@ -203,10 +184,7 @@ export const downloadZipImages = async (
 	document.body.removeChild(a);
 };
 
-export const downloadRawImage = async (
-	imageId: number,
-	removeMetadata: boolean,
-): Promise<void> => {
+export const downloadRawImage = async (imageId: number, removeMetadata: boolean): Promise<void> => {
 	const res = await api.fetchApi("/meld/api/download/raw", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },

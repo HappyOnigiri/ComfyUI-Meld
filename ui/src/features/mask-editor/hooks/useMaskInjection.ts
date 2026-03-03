@@ -27,15 +27,12 @@ export const useMaskInjection = () => {
 			);
 
 			if (maskNodes.length === 0) {
-				logger.log(
-					"[Meld-Debug] injectMaskToGraph: No LoadImageMask nodes found in active graph",
-				);
+				logger.log("[Meld-Debug] injectMaskToGraph: No LoadImageMask nodes found in active graph");
 				dispatch({
 					type: "OPEN_MODAL",
 					payload: {
 						type: "error",
-						message:
-							"No 'Load Image (as Mask)' node found in the current workflow.",
+						message: "No 'Load Image (as Mask)' node found in the current workflow.",
 					},
 				});
 				return false;
@@ -43,9 +40,7 @@ export const useMaskInjection = () => {
 
 			// If multiple, use the first one
 			const node = maskNodes[0];
-			const imageWidget = node.widgets.find(
-				(w: { name: string }) => w.name === "image",
-			);
+			const imageWidget = node.widgets.find((w: { name: string }) => w.name === "image");
 			const fullMaskPath = `${maskFilename} [temp]`;
 			logger.log(
 				"[Meld-Debug] injectMaskToGraph: Updating node",
@@ -60,9 +55,7 @@ export const useMaskInjection = () => {
 				}
 			}
 
-			const channelWidget = node.widgets.find(
-				(w: { name: string }) => w.name === "channel",
-			);
+			const channelWidget = node.widgets.find((w: { name: string }) => w.name === "channel");
 			if (channelWidget) {
 				channelWidget.value = "red";
 				if (typeof channelWidget.callback === "function") {

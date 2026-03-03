@@ -30,10 +30,7 @@ export const GalleryModals: React.FC = () => {
 			{state.activeModal.type === "workflow_selection" && (
 				<WorkflowSelectionModal
 					images={state.activeModal.images}
-					isMaskMode={
-						!!state.activeModal.maskFilename ||
-						!!state.activeModal.isMaskSequence
-					}
+					isMaskMode={!!state.activeModal.maskFilename || !!state.activeModal.isMaskSequence}
 					onExecute={async (workflowName, targetLoaderNodeId) => {
 						if (state.activeModal.type === "workflow_selection") {
 							if (state.activeModal.isMaskSequence) {
@@ -53,12 +50,7 @@ export const GalleryModals: React.FC = () => {
 							const maskFilename = state.activeModal.maskFilename;
 							const onSuccess = state.activeModal.onSuccess;
 							for (const img of state.activeModal.images) {
-								await executeWorkflow(
-									workflowName,
-									img,
-									maskFilename,
-									targetLoaderNodeId,
-								);
+								await executeWorkflow(workflowName, img, maskFilename, targetLoaderNodeId);
 							}
 							onSuccess?.();
 						}
@@ -76,17 +68,13 @@ export const GalleryModals: React.FC = () => {
 					}}
 				/>
 			)}
-			{state.activeModal.type === "parent_selection" &&
-				createPortal(
-					<ParentSelectionModal imageId={state.activeModal.imageId} />,
-					document.body,
-				)}
+			{state.activeModal.type === "parent_selection" && (
+				<ParentSelectionModal imageId={state.activeModal.imageId} />
+			)}
 
-			{state.activeModal.type === "import" &&
-				createPortal(<ImportModal />, document.body)}
+			{state.activeModal.type === "import" && <ImportModal />}
 
-			{state.activeModal.type === "settings" &&
-				createPortal(<SettingsModal />, document.body)}
+			{state.activeModal.type === "settings" && <SettingsModal />}
 
 			{state.activeModal.type === "tag_edit" &&
 				createPortal(
@@ -100,10 +88,7 @@ export const GalleryModals: React.FC = () => {
 				)}
 
 			{state.activeModal.type === "error" &&
-				createPortal(
-					<ErrorModal message={state.activeModal.message} />,
-					document.body,
-				)}
+				createPortal(<ErrorModal message={state.activeModal.message} />, document.body)}
 
 			{state.activeModal.type === "delete_confirm" &&
 				createPortal(
@@ -135,9 +120,7 @@ export const GalleryModals: React.FC = () => {
 				createPortal(
 					<MaskEditorModal
 						key={state.activeModal.images[state.activeModal.currentIndex].id}
-						imageId={
-							state.activeModal.images[state.activeModal.currentIndex].id
-						}
+						imageId={state.activeModal.images[state.activeModal.currentIndex].id}
 						mode="run_sequence"
 						sequenceData={{
 							workflowName: state.activeModal.workflowName,
