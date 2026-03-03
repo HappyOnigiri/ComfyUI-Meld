@@ -43,6 +43,8 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(({
 		fetchFullImageDetails,
 	} = useImageCardLogic(image);
 
+	// TODO: Wire save flow to set saveStatus to "saving" before starting and "idle" after completion.
+	// Currently saveStatus is never set to "saving", so "Saving..." indicator will not show.
 	const [saveStatus, setSaveStatus] = useState<"idle" | "saving">("idle");
 
 	useEffect(() => {
@@ -286,13 +288,11 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(({
 						<div className="meld-image-card__meta-label">Tags</div>
 						<div className="meld-image-card__tags">
 							{image.tags && image.tags.length > 0 ? (
-								image.tags.map((tag, i) => {
-									return (
-										<span key={`${tag}-${i}`} className="meld-image-card__tag">
-											{tag}
-										</span>
-									);
-								})
+								image.tags.map((tag) => (
+									<span key={tag} className="meld-image-card__tag">
+										{tag}
+									</span>
+								))
 							) : (
 								<span
 									style={{
