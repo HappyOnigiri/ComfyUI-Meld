@@ -11,8 +11,8 @@ describe("useViewerNavigation", () => {
 			useViewerNavigation({
 				dispatch: mockDispatch,
 				isFullscreen: false,
-				settings: { "viewer.loop": true, "fullscreen.loop": true } as any,
-				currentThumbnails: [{ id: 1 }, { id: 2 }, { id: 3 }] as any,
+				settings: { "viewer.loop": true, "fullscreen.loop": true } as never,
+				currentThumbnails: [{ id: 1 }, { id: 2 }, { id: 3 }] as never,
 				currentIndex: 1,
 				viewerMode: "gallery",
 				pagination: { hasMore: false, limit: 10, total: 3, offset: 0 },

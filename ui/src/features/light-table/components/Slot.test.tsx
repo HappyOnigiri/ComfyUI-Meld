@@ -37,7 +37,7 @@ vi.mock("../store", () => ({
 describe("Slot", () => {
 	it("renders without crashing", () => {
 		const { getByText } = render(
-			<Slot config={{ id: "1", label: "Keep", color: "var(--comfy-menu-bg)" }} />
+			<Slot config={{ id: "1", label: "Keep", color: "var(--comfy-menu-bg)", shortcutKey: "" }} />,
 		);
 		expect(getByText("Drag & Drop images here")).toBeInTheDocument();
 	});

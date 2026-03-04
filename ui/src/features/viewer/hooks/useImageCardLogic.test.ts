@@ -23,7 +23,7 @@ describe("useImageCardLogic", () => {
 				filename: "test.png",
 				type: "output",
 				subfolder: "",
-			} as any),
+			} as never),
 		);
 
 		expect(result.current.viewMode).toBe("grid");
