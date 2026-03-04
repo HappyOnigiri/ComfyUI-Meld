@@ -26,7 +26,7 @@ export default defineConfig({
 			exclude: ["node_modules/", "src/test/"],
 			thresholds: {
 				lines: 50,
-				functions: 45,
+				functions: 50,
 				branches: 50,
 				statements: 50,
 			},
