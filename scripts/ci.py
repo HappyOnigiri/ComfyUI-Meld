@@ -91,6 +91,29 @@ def _unpack_task(
     return task[0], task[1], None
 
 
+def extract_coverage(output: str) -> dict[str, str] | None:
+    """Extract coverage summary from vitest output."""
+    import re
+
+    # Match Vitest's coverage table:
+    # -------------------|---------|----------|---------|---------|-------------------
+    # File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
+    # -------------------|---------|----------|---------|---------|-------------------
+    # All files          |   44.74 |    63.27 |   34.48 |   44.74 |
+    match = re.search(
+        r"All files\s+\|\s+([\d\.]+)\s+\|\s+([\d\.]+)\s+\|\s+([\d\.]+)\s+\|\s+([\d\.]+)",
+        output,
+    )
+    if match:
+        return {
+            "statements": match.group(1),
+            "branches": match.group(2),
+            "functions": match.group(3),
+            "lines": match.group(4),
+        }
+    return None
+
+
 def main() -> None:
     # Workaround for Windows encoding issues
     if hasattr(sys.stdout, "reconfigure"):
@@ -161,7 +184,13 @@ def main() -> None:
             failed_tasks.append((name, output))
 
         # Consistent layout
-        print(f"  {symbol} {name:<35} {status_text}", flush=True)
+        coverage_info = ""
+        if name == "UI-Tests" and success:
+            cov = extract_coverage(output)
+            if cov:
+                coverage_info = f" (Lines: {cov['lines']}%, Funcs: {cov['functions']}%, Branches: {cov['branches']}%, Stmts: {cov['statements']}%)"
+
+        print(f"  {symbol} {name:<35} {status_text}{coverage_info}", flush=True)
     print("-" * 60, flush=True)
 
     if failed_tasks:
