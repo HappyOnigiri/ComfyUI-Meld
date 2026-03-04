@@ -5,7 +5,8 @@ import sys
 def resolve_search_path() -> tuple[str, str, str]:
     """Resolves and validates the search directories, returning (base_dir, target_dir, search_path)."""
     target_dir = os.path.join("ui", "src")
-    base_dir = os.getcwd()
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    base_dir = os.path.dirname(script_dir)
     search_path = os.path.join(base_dir, target_dir)
 
     if not os.path.exists(search_path):

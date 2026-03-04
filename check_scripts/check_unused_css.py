@@ -91,7 +91,7 @@ def get_referenced_classes(search_path: str) -> set[str]:
                         # 4. Targeted extraction: search inside className usages
                         # to properly handle class names inside complex template literals or conditionals
                         for attr_match in re.finditer(
-                            r'className\s*=\s*({(?:[^{}]|{(?:[^{}]|{[^{}]*})*})*}|["\'`][\s\S]*?["\'`])', content
+                            r'className\s*=\s*({(?:[^{}]|{(?:[^{}]|{[^{}]*})*})*}|(["\'`])[\s\S]*?\2)', content
                         ):
                             attr_val = attr_match.group(1)
                             for str_match in re.finditer(r'(["\'`])(.*?)\1', attr_val, flags=re.DOTALL):
