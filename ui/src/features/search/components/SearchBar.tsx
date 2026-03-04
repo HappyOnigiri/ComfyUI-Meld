@@ -274,6 +274,7 @@ export const SearchBar: React.FC = () => {
 						<button
 							type="button"
 							onClick={clearSearch}
+							aria-label="Clear search"
 							style={{
 								background: "none",
 								border: "none",
