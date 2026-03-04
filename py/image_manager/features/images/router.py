@@ -1746,12 +1746,138 @@ def _strip_metadata(image_path: str) -> bytes:
         raise ValueError("Invalid image file") from e
 
 
+# Resize filter name -> Pillow Resampling constant mapping
+_RESAMPLING_FILTERS: dict[str, "Image.Resampling"] = {
+    "lanczos": Image.Resampling.LANCZOS,
+    "bicubic": Image.Resampling.BICUBIC,
+    "bilinear": Image.Resampling.BILINEAR,
+    "box": Image.Resampling.BOX,
+    "hamming": Image.Resampling.HAMMING,
+    "nearest": Image.Resampling.NEAREST,
+}
+
+
+def _process_image_for_download(
+    image_path: str,
+    remove_metadata: bool,
+    resize_mode: str,
+    resize_value: float,
+    resize_filter: str = "lanczos",
+) -> bytes:
+    """Process image for download. If no resize or metadata removal is needed, read as-is.
+    If resize is needed, use Pillow to resize while maintaining aspect ratio (no upscaling).
+    Metadata is preserved or removed according to the remove_metadata flag.
+    """
+    import io
+
+    from PIL.PngImagePlugin import PngInfo
+
+    needs_resize = False
+    if resize_mode == "percent" and 0 < resize_value < 100:
+        needs_resize = True
+    elif resize_mode == "max_edge" and resize_value > 0:
+        needs_resize = True
+
+    # If no resize needed, delegate to existing processing
+    if not needs_resize:
+        if remove_metadata:
+            return _strip_metadata(image_path)
+        with open(image_path, "rb") as f:
+            return f.read()
+
+    # Fall back to LANCZOS for unknown filter names
+    resampling = _RESAMPLING_FILTERS.get(resize_filter, Image.Resampling.LANCZOS)
+
+    # Resize needed: open with Pillow and process
+    with Image.open(image_path) as img:
+        orig_w, orig_h = img.size
+        orig_format = img.format or "PNG"
+        orig_info = dict(img.info)  # Copy metadata for preservation
+        orig_mode = img.mode
+
+        # Calculate new dimensions (maintain aspect ratio, no upscaling)
+        if resize_mode == "percent":
+            scale = resize_value / 100.0
+            new_w = max(1, int(orig_w * scale))
+            new_h = max(1, int(orig_h * scale))
+        else:  # max_edge
+            max_dim = int(resize_value)
+            if orig_w <= max_dim and orig_h <= max_dim:
+                # Already within max edge size, no resize needed
+                if remove_metadata:
+                    return _strip_metadata(image_path)
+                with open(image_path, "rb") as f:
+                    return f.read()
+            if orig_w >= orig_h:
+                scale = max_dim / orig_w
+            else:
+                scale = max_dim / orig_h
+            new_w = max(1, int(orig_w * scale))
+            new_h = max(1, int(orig_h * scale))
+
+        resized = img.resize((new_w, new_h), resampling)
+
+    buffer = io.BytesIO()
+    fmt = orig_format.upper()
+
+    if fmt in ("JPEG", "JPG"):
+        if remove_metadata:
+            resized.save(buffer, format="JPEG", quality=95)
+        else:
+            # Preserve metadata: reattach exif/icc_profile if available
+            save_kwargs: dict[str, Any] = {"format": "JPEG", "quality": 95}
+            if orig_info.get("exif"):
+                save_kwargs["exif"] = orig_info["exif"]
+            if orig_info.get("icc_profile"):
+                save_kwargs["icc_profile"] = orig_info["icc_profile"]
+            resized.save(buffer, **save_kwargs)
+    elif fmt == "WEBP":
+        if remove_metadata:
+            resized.save(buffer, format="WEBP", lossless=(orig_mode not in ("RGB", "L")))
+        else:
+            # Preserve metadata: reattach exif/xmp/icc_profile if available
+            save_kwargs = {"format": "WEBP", "lossless": (orig_mode not in ("RGB", "L"))}
+            if orig_info.get("exif"):
+                save_kwargs["exif"] = orig_info["exif"]
+            if orig_info.get("xmp"):
+                save_kwargs["xmp"] = orig_info["xmp"]
+            if orig_info.get("icc_profile"):
+                save_kwargs["icc_profile"] = orig_info["icc_profile"]
+            resized.save(buffer, **save_kwargs)
+    else:
+        # PNG: re-apply metadata via PngInfo when preserving metadata
+        if remove_metadata:
+            resized.save(buffer, format="PNG")
+        else:
+            pnginfo = PngInfo()
+            for k, v in orig_info.items():
+                key = str(k)
+                if isinstance(v, str):
+                    pnginfo.add_text(key, v)
+                elif isinstance(v, bytes):
+                    try:
+                        pnginfo.add_text(key, v.decode("latin-1"))
+                    except Exception:
+                        pass
+            resized.save(buffer, format="PNG", pnginfo=pnginfo)
+
+    return buffer.getvalue()
+
+
 @routes.post("/meld/api/download/zip")
 async def download_zip(request: web.Request) -> web.Response:
     try:
         data = await request.json()
         image_ids = data.get("imageIds", [])
         remove_metadata = data.get("removeMetadata", False)
+        resize_mode = str(data.get("resizeMode", "none"))  # "none" | "percent" | "max_edge"
+        resize_filter = str(data.get("resizeFilter", "lanczos"))
+        try:
+            resize_value = float(data.get("resizeValue", 100))
+        except (TypeError, ValueError):
+            return web.json_response(
+                ApiResponse(success=False, error="resizeValue must be a valid number").to_dict(), status=400
+            )
 
         if not image_ids:
             return web.json_response(ApiResponse(success=False, error="No image IDs provided").to_dict(), status=400)
@@ -1777,14 +1903,10 @@ async def download_zip(request: web.Request) -> web.Response:
                 path = _get_image_path(img_type, subfolder, filename)
                 if path and os.path.exists(path):
                     try:
-                        if remove_metadata:
-                            img_bytes = _strip_metadata(path)
-                            zf.writestr(filename, img_bytes)
-                        else:
-                            # Basic validation even when not stripping metadata
-                            with Image.open(path) as img:
-                                img.verify()
-                            zf.write(path, filename)
+                        img_bytes = _process_image_for_download(
+                            path, remove_metadata, resize_mode, resize_value, resize_filter
+                        )
+                        zf.writestr(filename, img_bytes)
                     except Exception:
                         logging.warning(f"[Meld] Skipping invalid or corrupted image in zip: {path}")
                         continue
@@ -1808,6 +1930,14 @@ async def download_raw(request: web.Request) -> web.Response:
         data = await request.json()
         image_id = data.get("imageId")
         remove_metadata = data.get("removeMetadata", False)
+        resize_mode = str(data.get("resizeMode", "none"))  # "none" | "percent" | "max_edge"
+        resize_filter = str(data.get("resizeFilter", "lanczos"))
+        try:
+            resize_value = float(data.get("resizeValue", 100))
+        except (TypeError, ValueError):
+            return web.json_response(
+                ApiResponse(success=False, error="resizeValue must be a valid number").to_dict(), status=400
+            )
 
         if not image_id:
             return web.json_response(ApiResponse(success=False, error="No image ID provided").to_dict(), status=400)
@@ -1832,14 +1962,7 @@ async def download_raw(request: web.Request) -> web.Response:
             return web.json_response(ApiResponse(success=False, error="File not found on disk").to_dict(), status=404)
 
         try:
-            if remove_metadata:
-                img_bytes = _strip_metadata(path)
-            else:
-                # Basic validation
-                with Image.open(path) as img:
-                    img.verify()
-                with open(path, "rb") as f:
-                    img_bytes = f.read()
+            img_bytes = _process_image_for_download(path, remove_metadata, resize_mode, resize_value, resize_filter)
         except Exception as e:
             return web.json_response(ApiResponse(success=False, error=f"Invalid image file: {e}").to_dict(), status=400)
 
