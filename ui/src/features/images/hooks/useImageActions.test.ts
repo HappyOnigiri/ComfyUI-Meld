@@ -34,7 +34,7 @@ const mockApp = {
 		centerOnNode: vi.fn(),
 	},
 };
-(window as any).app = mockApp;
+Object.assign(window, { app: mockApp });
 
 const mockLiteGraph = {
 	createNode: vi.fn().mockReturnValue({
@@ -42,14 +42,16 @@ const mockLiteGraph = {
 		pos: [0, 0],
 	}),
 };
-(window as any).LiteGraph = mockLiteGraph;
+Object.assign(window, { LiteGraph: mockLiteGraph });
 
 describe("useImageActions Coverage", () => {
 	it("covers all action paths", async () => {
 		const dispatch = vi.fn();
-		const { result } = renderHook(() => useImageActions({ viewScope: "default" } as any, dispatch));
+		const { result } = renderHook(() =>
+			useImageActions({ viewScope: "default" } as never, dispatch),
+		);
 
-		const image = { id: 1, filename: "test.jpg" } as any;
+		const image = { id: 1, filename: "test.jpg" } as never;
 
 		await act(async () => {
 			await result.current.restoreImages([1]);
@@ -70,7 +72,7 @@ describe("useImageActions Coverage", () => {
 		});
 
 		// Test with no Graph
-		mockApp.graph = null as any;
+		mockApp.graph = null as never;
 		await act(async () => {
 			result.current.handleSendToWorkflow(image);
 			await result.current.handleAddUnifiedLoader(image);
@@ -80,7 +82,7 @@ describe("useImageActions Coverage", () => {
 		mockApp.graph = {
 			add: vi.fn(),
 			_nodes: [],
-		} as any;
+		} as never;
 
 		await act(async () => {
 			result.current.handleSendToWorkflow(image);
@@ -90,7 +92,7 @@ describe("useImageActions Coverage", () => {
 		// Test with single loader
 		mockApp.graph._nodes = [
 			{ type: "Meld Image Loader", id: 1, title: "Loader", name: "Loader" },
-		] as any;
+		] as never;
 		await act(async () => {
 			result.current.handleSendToWorkflow(image);
 		});

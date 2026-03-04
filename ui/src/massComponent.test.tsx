@@ -65,8 +65,8 @@ vi.mock("./store/GalleryContext", () => ({
 
 vi.mock("./features/light-table/store", () => ({
 	useLightTableStore: Object.assign(
-		vi.fn((selector: any) => {
-			const s = selector.toString();
+		vi.fn((selector: unknown) => {
+			const s = String(selector);
 			if (s.includes("isOpen")) return false;
 			if (s.includes("buckets")) return { default: [] };
 			if (s.includes("images")) return {};
@@ -89,7 +89,7 @@ global.IntersectionObserver = vi.fn().mockImplementation(() => ({
 	disconnect: vi.fn(),
 }));
 
-// 魔法のクリッカー
+// Magic clicker
 const clickEverything = (container: HTMLElement | Document) => {
 	const elements = container.querySelectorAll(
 		'button, input, [role="button"], [role="tab"], [role="menuitem"], canvas, div, span',
@@ -132,7 +132,7 @@ describe("Mass Components Coverage", () => {
 		try {
 			const { container } = render(
 				<WorkflowSelectionModal
-					images={[{ id: 1 } as any]}
+					images={[{ id: 1 } as never]}
 					isMaskMode={false}
 					onExecute={vi.fn()}
 				/>,

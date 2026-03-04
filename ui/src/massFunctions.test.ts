@@ -10,13 +10,13 @@ vi.mock("/scripts/app.js", () => ({ app: { registerExtension: vi.fn() } }));
 describe("Mass Functions Booster", () => {
 	it("invokes all exported functions to bump func coverage", () => {
 		for (const path in modules) {
-			const mod = modules[path] as any;
+			const mod = modules[path] as Record<string, unknown>;
 			if (mod) {
 				for (const key in mod) {
 					const fn = mod[key];
 					if (typeof fn === "function" && !key.startsWith("use") && key !== "default") {
 						// Function calls with various dummy args
-						const safeCall = (args: any[]) => {
+						const safeCall = (args: unknown[]) => {
 							try {
 								const res = fn(...args);
 								if (res && typeof res.catch === "function") {

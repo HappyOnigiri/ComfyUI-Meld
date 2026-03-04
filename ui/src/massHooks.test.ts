@@ -66,11 +66,12 @@ describe("Mass Hooks Coverage", () => {
 	it("renders hooks and calls returned functions", async () => {
 		for (const item of hooksToTest) {
 			try {
-				const { result } = renderHook(() => (item.hook as any)(...(item.args || [])));
+				// biome-ignore lint/complexity/noBannedTypes: required for dynamic testing
+				const { result } = renderHook(() => (item.hook as Function)(...(item.args || [])));
 
 				if (result.current && typeof result.current === "object") {
 					for (const key of Object.keys(result.current)) {
-						const val = (result.current as any)[key];
+						const val = (result.current as Record<string, unknown>)[key];
 						if (typeof val === "function") {
 							try {
 								await act(async () => {

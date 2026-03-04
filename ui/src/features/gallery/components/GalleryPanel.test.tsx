@@ -62,8 +62,8 @@ vi.mock("../hooks/useGalleryLogic", () => ({
 
 vi.mock("../../light-table/store", () => ({
 	useLightTableStore: Object.assign(
-		vi.fn((selector: any) => {
-			const selectorStr = selector.toString();
+		vi.fn((selector: unknown) => {
+			const selectorStr = String(selector);
 			if (selectorStr.includes("isOpen")) return false;
 			if (selectorStr.includes("setIsOpen")) return vi.fn();
 			if (selectorStr.includes("buckets")) return { default: [] };
