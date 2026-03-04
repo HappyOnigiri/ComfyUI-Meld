@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { error, initLogger, log, warn } from "./logger";
 
 describe("logger", () => {
@@ -17,6 +17,14 @@ describe("logger", () => {
 		// Reset dev mode
 		initLogger(false);
 		logSpy.mockClear();
+		warnSpy.mockClear();
+		errorSpy.mockClear();
+	});
+
+	afterAll(() => {
+		logSpy.mockRestore();
+		warnSpy.mockRestore();
+		errorSpy.mockRestore();
 	});
 
 	describe("initLogger", () => {

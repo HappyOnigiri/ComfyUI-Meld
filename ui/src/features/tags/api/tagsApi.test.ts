@@ -24,6 +24,16 @@ describe("tagsApi", () => {
 			expect(mockFetchApi).toHaveBeenCalledWith("/meld/tags");
 			expect(result).toEqual(tags);
 		});
+
+		it("throws error when fetching fails", async () => {
+			mockFetchApi.mockResolvedValueOnce(
+				new Response(JSON.stringify({ success: false, error: "some error" }), {
+					status: 200,
+					headers: { "Content-Type": "application/json" },
+				}),
+			);
+			await expect(fetchTags()).rejects.toThrow("some error");
+		});
 	});
 
 	describe("createTag", () => {
@@ -43,6 +53,16 @@ describe("tagsApi", () => {
 			});
 			expect(result).toEqual(tag);
 		});
+
+		it("throws error when creation fails", async () => {
+			mockFetchApi.mockResolvedValueOnce(
+				new Response(JSON.stringify({ success: false, error: "some error" }), {
+					status: 200,
+					headers: { "Content-Type": "application/json" },
+				}),
+			);
+			await expect(createTag("new-tag")).rejects.toThrow("some error");
+		});
 	});
 
 	describe("deleteTag", () => {
@@ -57,6 +77,16 @@ describe("tagsApi", () => {
 			expect(mockFetchApi).toHaveBeenCalledWith("/meld/tags?id=1", {
 				method: "DELETE",
 			});
+		});
+
+		it("throws error when deletion fails", async () => {
+			mockFetchApi.mockResolvedValueOnce(
+				new Response(JSON.stringify({ success: false, error: "some error" }), {
+					status: 200,
+					headers: { "Content-Type": "application/json" },
+				}),
+			);
+			await expect(deleteTag(1)).rejects.toThrow("some error");
 		});
 	});
 
@@ -74,6 +104,16 @@ describe("tagsApi", () => {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ id: 1, name: "renamed" }),
 			});
+		});
+
+		it("throws error when renaming fails", async () => {
+			mockFetchApi.mockResolvedValueOnce(
+				new Response(JSON.stringify({ success: false, error: "some error" }), {
+					status: 200,
+					headers: { "Content-Type": "application/json" },
+				}),
+			);
+			await expect(renameTag(1, "renamed")).rejects.toThrow("some error");
 		});
 	});
 });
