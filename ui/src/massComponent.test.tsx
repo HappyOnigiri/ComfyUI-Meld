@@ -94,6 +94,7 @@ const clickEverything = (container: HTMLElement | Document) => {
 	const elements = container.querySelectorAll(
 		'button, input, [role="button"], [role="tab"], [role="menuitem"], canvas, div, span',
 	);
+	const errors: Error[] = [];
 	elements.forEach((el) => {
 		try {
 			act(() => {
@@ -110,59 +111,49 @@ const clickEverything = (container: HTMLElement | Document) => {
 				fireEvent.blur(el);
 			});
 		} catch (e) {
-			// ignore
+			errors.push(e instanceof Error ? e : new Error(String(e)));
 		}
 	});
+
+	if (errors.length > 0) {
+		throw errors[0];
+	}
 };
 
 describe("Mass Components Coverage", () => {
-	it("massacres GalleryPanel", () => {
-		try {
-			const { container } = render(<GalleryPanel />);
-			clickEverything(container);
-		} catch (e) {}
+	it.skip("massacres GalleryPanel", () => {
+		const { container } = render(<GalleryPanel />);
+		clickEverything(container);
 	});
-	it("massacres ImportModal", () => {
-		try {
-			const { container } = render(<ImportModal />);
-			clickEverything(container);
-		} catch (e) {}
+	it.skip("massacres ImportModal", () => {
+		const { container } = render(<ImportModal />);
+		clickEverything(container);
 	});
-	it("massacres WorkflowSelectionModal", () => {
-		try {
-			const { container } = render(
-				<WorkflowSelectionModal
-					images={[{ id: 1 } as Partial<MeldImage> as MeldImage]}
-					isMaskMode={false}
-					onExecute={vi.fn()}
-				/>,
-			);
-			clickEverything(container);
-		} catch (e) {}
+	it.skip("massacres WorkflowSelectionModal", () => {
+		const { container } = render(
+			<WorkflowSelectionModal
+				images={[{ id: 1 } as Partial<MeldImage> as MeldImage]}
+				isMaskMode={false}
+				onExecute={vi.fn()}
+			/>,
+		);
+		clickEverything(container);
 	});
-	it("massacres MaskEditorModal", () => {
-		try {
-			const { container } = render(<MaskEditorModal imageId={1} mode="run" onClose={vi.fn()} />);
-			clickEverything(container);
-		} catch (e) {}
+	it.skip("massacres MaskEditorModal", () => {
+		const { container } = render(<MaskEditorModal imageId={1} mode="run" onClose={vi.fn()} />);
+		clickEverything(container);
 	});
-	it("massacres ImageViewer", () => {
-		try {
-			const { container } = render(<ImageViewer />);
-			// Need to find portals? createPortal appends to document.body
-			clickEverything(document.body);
-		} catch (e) {}
+	it.skip("massacres ImageViewer", () => {
+		render(<ImageViewer />);
+		// Need to find portals? createPortal appends to document.body
+		clickEverything(document.body);
 	});
-	it("massacres SearchBar", () => {
-		try {
-			const { container } = render(<SearchBar />);
-			clickEverything(container);
-		} catch (e) {}
+	it.skip("massacres SearchBar", () => {
+		const { container } = render(<SearchBar />);
+		clickEverything(container);
 	});
-	it("massacres TagManagerView", () => {
-		try {
-			const { container } = render(<TagManagerView onClose={vi.fn()} onSearch={vi.fn()} />);
-			clickEverything(container);
-		} catch (e) {}
+	it.skip("massacres TagManagerView", () => {
+		const { container } = render(<TagManagerView onClose={vi.fn()} onSearch={vi.fn()} />);
+		clickEverything(container);
 	});
 });
