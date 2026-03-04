@@ -1746,11 +1746,23 @@ def _strip_metadata(image_path: str) -> bytes:
         raise ValueError("Invalid image file") from e
 
 
+# Resize filter name -> Pillow Resampling constant mapping
+_RESAMPLING_FILTERS: dict[str, "Image.Resampling"] = {
+    "lanczos": Image.Resampling.LANCZOS,
+    "bicubic": Image.Resampling.BICUBIC,
+    "bilinear": Image.Resampling.BILINEAR,
+    "box": Image.Resampling.BOX,
+    "hamming": Image.Resampling.HAMMING,
+    "nearest": Image.Resampling.NEAREST,
+}
+
+
 def _process_image_for_download(
     image_path: str,
     remove_metadata: bool,
     resize_mode: str,
     resize_value: float,
+    resize_filter: str = "lanczos",
 ) -> bytes:
     """Process image for download. If no resize or metadata removal is needed, read as-is.
     If resize is needed, use Pillow to resize while maintaining aspect ratio (no upscaling).
@@ -1772,6 +1784,9 @@ def _process_image_for_download(
             return _strip_metadata(image_path)
         with open(image_path, "rb") as f:
             return f.read()
+
+    # Fall back to LANCZOS for unknown filter names
+    resampling = _RESAMPLING_FILTERS.get(resize_filter, Image.Resampling.LANCZOS)
 
     # Resize needed: open with Pillow and process
     with Image.open(image_path) as img:
@@ -1800,7 +1815,7 @@ def _process_image_for_download(
             new_w = max(1, int(orig_w * scale))
             new_h = max(1, int(orig_h * scale))
 
-        resized = img.resize((new_w, new_h), Image.Resampling.LANCZOS)
+        resized = img.resize((new_w, new_h), resampling)
 
     buffer = io.BytesIO()
     fmt = orig_format.upper()
@@ -1856,6 +1871,7 @@ async def download_zip(request: web.Request) -> web.Response:
         image_ids = data.get("imageIds", [])
         remove_metadata = data.get("removeMetadata", False)
         resize_mode = str(data.get("resizeMode", "none"))  # "none" | "percent" | "max_edge"
+        resize_filter = str(data.get("resizeFilter", "lanczos"))
         try:
             resize_value = float(data.get("resizeValue", 100))
         except (TypeError, ValueError):
@@ -1887,7 +1903,9 @@ async def download_zip(request: web.Request) -> web.Response:
                 path = _get_image_path(img_type, subfolder, filename)
                 if path and os.path.exists(path):
                     try:
-                        img_bytes = _process_image_for_download(path, remove_metadata, resize_mode, resize_value)
+                        img_bytes = _process_image_for_download(
+                            path, remove_metadata, resize_mode, resize_value, resize_filter
+                        )
                         zf.writestr(filename, img_bytes)
                     except Exception:
                         logging.warning(f"[Meld] Skipping invalid or corrupted image in zip: {path}")
@@ -1913,6 +1931,7 @@ async def download_raw(request: web.Request) -> web.Response:
         image_id = data.get("imageId")
         remove_metadata = data.get("removeMetadata", False)
         resize_mode = str(data.get("resizeMode", "none"))  # "none" | "percent" | "max_edge"
+        resize_filter = str(data.get("resizeFilter", "lanczos"))
         try:
             resize_value = float(data.get("resizeValue", 100))
         except (TypeError, ValueError):
@@ -1943,7 +1962,7 @@ async def download_raw(request: web.Request) -> web.Response:
             return web.json_response(ApiResponse(success=False, error="File not found on disk").to_dict(), status=404)
 
         try:
-            img_bytes = _process_image_for_download(path, remove_metadata, resize_mode, resize_value)
+            img_bytes = _process_image_for_download(path, remove_metadata, resize_mode, resize_value, resize_filter)
         except Exception as e:
             return web.json_response(ApiResponse(success=False, error=f"Invalid image file: {e}").to_dict(), status=400)
 
