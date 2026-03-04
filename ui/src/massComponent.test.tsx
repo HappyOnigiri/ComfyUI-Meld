@@ -2,6 +2,8 @@ import { act, fireEvent, render } from "@testing-library/react";
 import React from "react";
 import { describe, it, vi } from "vitest";
 
+import type { MeldImage } from "./types";
+
 import { GalleryPanel } from "./features/gallery/components/GalleryPanel";
 import { ImportModal } from "./features/importer/components/ImportModal";
 import { MaskEditorModal } from "./features/mask-editor/components/MaskEditorModal";
@@ -120,49 +122,49 @@ describe("Mass Components Coverage", () => {
 		try {
 			const { container } = render(<GalleryPanel />);
 			clickEverything(container);
-		} catch (e) {}
+		} catch (e) { }
 	});
 	it("massacres ImportModal", () => {
 		try {
 			const { container } = render(<ImportModal />);
 			clickEverything(container);
-		} catch (e) {}
+		} catch (e) { }
 	});
 	it("massacres WorkflowSelectionModal", () => {
 		try {
 			const { container } = render(
 				<WorkflowSelectionModal
-					images={[{ id: 1 } as never]}
+					images={[{ id: 1 } as Partial<MeldImage> as MeldImage]}
 					isMaskMode={false}
 					onExecute={vi.fn()}
 				/>,
 			);
 			clickEverything(container);
-		} catch (e) {}
+		} catch (e) { }
 	});
 	it("massacres MaskEditorModal", () => {
 		try {
 			const { container } = render(<MaskEditorModal imageId={1} mode="run" onClose={vi.fn()} />);
 			clickEverything(container);
-		} catch (e) {}
+		} catch (e) { }
 	});
 	it("massacres ImageViewer", () => {
 		try {
 			const { container } = render(<ImageViewer />);
 			// Need to find portals? createPortal appends to document.body
 			clickEverything(document.body);
-		} catch (e) {}
+		} catch (e) { }
 	});
 	it("massacres SearchBar", () => {
 		try {
 			const { container } = render(<SearchBar />);
 			clickEverything(container);
-		} catch (e) {}
+		} catch (e) { }
 	});
 	it("massacres TagManagerView", () => {
 		try {
 			const { container } = render(<TagManagerView onClose={vi.fn()} onSearch={vi.fn()} />);
 			clickEverything(container);
-		} catch (e) {}
+		} catch (e) { }
 	});
 });

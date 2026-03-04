@@ -66,6 +66,9 @@ describe("Mass Hooks Coverage", () => {
 	it("renders hooks and calls returned functions", async () => {
 		for (const item of hooksToTest) {
 			try {
+				// We intentionally use a broad Function cast here because this test loop dynamically
+				// calls over heterogeneous hook signatures for mass coverage. Stronger typing was
+				// avoided to maintain a generic loop.
 				// biome-ignore lint/complexity/noBannedTypes: required for dynamic testing
 				const { result } = renderHook(() => (item.hook as Function)(...(item.args || [])));
 
@@ -77,25 +80,25 @@ describe("Mass Hooks Coverage", () => {
 								await act(async () => {
 									try {
 										await val();
-									} catch {}
+									} catch { }
 								});
-							} catch {}
+							} catch { }
 
 							try {
 								await act(async () => {
 									try {
 										await val(mockEvent);
-									} catch {}
+									} catch { }
 								});
-							} catch {}
+							} catch { }
 
 							try {
 								await act(async () => {
 									try {
 										await val(1);
-									} catch {}
+									} catch { }
 								});
-							} catch {}
+							} catch { }
 						}
 					}
 				}
