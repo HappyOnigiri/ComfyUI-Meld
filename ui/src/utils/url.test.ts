@@ -48,4 +48,12 @@ describe("getImageViewUrl", () => {
 		});
 		expect(result).toBe("/api/view?filename=img.png&type=output&subfolder=a%2Fb");
 	});
+
+	it("defaults type to output when absent", () => {
+		const result = getImageViewUrl({
+			filename: "img.png",
+			subfolder: "a/b",
+		});
+		expect(result).toBe("/api/view?filename=img.png&type=output&subfolder=a%2Fb");
+	});
 });
