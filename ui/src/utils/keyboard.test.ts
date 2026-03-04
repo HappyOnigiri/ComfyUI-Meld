@@ -1,5 +1,6 @@
+import type React from "react";
 import { describe, expect, it, vi } from "vitest";
-import { isEditableActiveElement, stopKeyboardEvent } from "./keyboard";
+import { isEditableActiveElement, stopKeyboardEvent, stopReactKeyboardEvent } from "./keyboard";
 
 describe("stopKeyboardEvent", () => {
 	it("calls preventDefault and stop propagation methods", () => {
@@ -13,6 +14,23 @@ describe("stopKeyboardEvent", () => {
 		} as unknown as KeyboardEvent;
 
 		stopKeyboardEvent(event);
+
+		expect(preventDefault).toHaveBeenCalledTimes(1);
+		expect(stopPropagation).toHaveBeenCalledTimes(1);
+		expect(stopImmediatePropagation).toHaveBeenCalledTimes(1);
+	});
+
+	it("calls preventDefault and stop propagation methods for React event", () => {
+		const preventDefault = vi.fn();
+		const stopPropagation = vi.fn();
+		const stopImmediatePropagation = vi.fn();
+		const event = {
+			preventDefault,
+			stopPropagation,
+			nativeEvent: { stopImmediatePropagation },
+		} as unknown as React.KeyboardEvent;
+
+		stopReactKeyboardEvent(event);
 
 		expect(preventDefault).toHaveBeenCalledTimes(1);
 		expect(stopPropagation).toHaveBeenCalledTimes(1);
