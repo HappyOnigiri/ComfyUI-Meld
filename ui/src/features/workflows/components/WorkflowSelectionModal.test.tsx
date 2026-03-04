@@ -1,5 +1,5 @@
 import { render } from "@testing-library/react";
-import type React from "react";
+
 import { describe, expect, it, vi } from "vitest";
 import { WorkflowSelectionModal } from "./WorkflowSelectionModal";
 

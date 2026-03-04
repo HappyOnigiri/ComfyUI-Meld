@@ -15,13 +15,15 @@ describe("ShortcutsTab", () => {
 		expect(() =>
 			render(
 				<ShortcutsTab
-					localSettings={{ "viewer.shortcut.1": "test" } as never}
-					setLocalSettings={vi.fn()}
-					shortcutErrors={{}}
-					setShortcutErrors={vi.fn()}
-					validateShortcut={vi.fn()}
-					handleToggle={vi.fn()}
-					handleResetShortcuts={vi.fn()}
+					{...({
+						localSettings: { "viewer.shortcut.1": "test" },
+						setLocalSettings: vi.fn(),
+						shortcutErrors: {},
+						setShortcutErrors: vi.fn(),
+						validateShortcut: vi.fn(),
+						handleToggle: vi.fn(),
+						handleResetShortcuts: vi.fn(),
+					} as unknown as React.ComponentProps<typeof ShortcutsTab>)}
 				/>,
 			),
 		).not.toThrow();
