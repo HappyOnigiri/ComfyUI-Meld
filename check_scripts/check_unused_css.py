@@ -2,6 +2,8 @@ import os
 import re
 import sys
 
+from utils import resolve_search_path
+
 
 def get_defined_classes(search_path: str) -> dict[str, str]:
     defined: dict[str, list[str]] = {}
@@ -88,11 +90,11 @@ def get_referenced_classes(search_path: str) -> set[str]:
 
                         # 4. Targeted extraction: search inside className usages
                         # to properly handle class names inside complex template literals or conditionals
-                        for chunk_idx, chunk in enumerate(content.split("className")):
-                            if chunk_idx == 0:
-                                continue
-                            window = chunk[:300]
-                            for str_match in re.finditer(r'(["\'`])(.*?)\1', window, re.DOTALL):
+                        for attr_match in re.finditer(
+                            r'className\s*=\s*({(?:[^{}]|{(?:[^{}]|{[^{}]*})*})*}|["\'`][\s\S]*?["\'`])', content
+                        ):
+                            attr_val = attr_match.group(1)
+                            for str_match in re.finditer(r'(["\'`])(.*?)\1', attr_val, flags=re.DOTALL):
                                 val = str_match.group(2)
                                 for cls in re.finditer(r"\b(meld-[a-zA-Z0-9_-]+)\b", val):
                                     references.add(cls.group(1))
@@ -104,19 +106,7 @@ def get_referenced_classes(search_path: str) -> set[str]:
 
 
 def main() -> None:
-    target_dir = os.path.join("ui", "src")
-    base_dir = os.getcwd()
-    search_path = os.path.join(base_dir, target_dir)
-
-    if not os.path.exists(search_path):
-        if os.path.basename(base_dir) == "ui":
-            search_path = os.path.join(base_dir, "src")
-            if not os.path.exists(search_path):
-                print(f"Directory not found: {search_path}")
-                sys.exit(1)
-        else:
-            print(f"Directory not found: {search_path}")
-            sys.exit(1)
+    base_dir, target_dir, search_path = resolve_search_path()
 
     print(f"Checking for unused CSS classes in {target_dir}...")
 
