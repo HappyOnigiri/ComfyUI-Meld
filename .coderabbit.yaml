@@ -4,6 +4,10 @@ tone_instructions: "Please provide the PR summary and review comments in both En
 reviews:
   profile: "chill"
   request_changes_workflow: false
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    auto_pause_after_reviewed_commits: 0
   high_level_summary: true
   poem: false
   sequence_diagrams: true
