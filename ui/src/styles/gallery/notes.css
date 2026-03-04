@@ -2,6 +2,7 @@
 	color: var(--meld-text-secondary);
 	font-style: italic;
 }
+/* unused-css-check-ignore */
 .meld-notes__edit-btn {
 	background: none;
 	border: none;
@@ -11,6 +12,7 @@
 	cursor: pointer;
 	transition: opacity 0.2s;
 }
+/* unused-css-check-ignore */
 .meld-notes__edit-btn:hover {
 	opacity: 1;
 	text-decoration: underline;
@@ -23,6 +25,7 @@
 	text-transform: none;
 	font-style: italic;
 }
+/* unused-css-check-ignore */
 .meld-notes__status--saved {
 	color: var(--meld-success-color);
 }

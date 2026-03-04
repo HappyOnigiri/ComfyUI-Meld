@@ -1,41 +1,43 @@
 {
-	"formatter": {
-		"enabled": true,
-		"indentStyle": "tab",
-		"lineWidth": 100
-	},
-	"css": {
-		"formatter": {
-			"enabled": true
-		},
-		"linter": {
-			"enabled": true
-		}
-	},
-	"linter": {
-		"enabled": true,
-		"rules": {
-			"recommended": true,
-			"suspicious": {
-				"noExplicitAny": "error",
-				"noCommentText": "error",
-				"noTsIgnore": "error",
-				"noArrayIndexKey": "off",
-				"noConsole": "error"
-			},
-			"complexity": {
-				"noImportantStyles": "error"
-			},
-			"a11y": {
-				"useSemanticElements": "off",
-				"useKeyWithClickEvents": "off",
-				"noStaticElementInteractions": "off"
-			},
-			"correctness": {
-				"noUnusedImports": "error",
-				"noUnusedVariables": "error",
-				"useExhaustiveDependencies": "error"
-			}
-		}
-	}
+    "formatter": {
+        "enabled": true,
+        "indentStyle": "tab",
+        "lineWidth": 100
+    },
+    "css": {
+        "formatter": {
+            "enabled": true
+        },
+        "linter": {
+            "enabled": true
+        }
+    },
+    "linter": {
+        "enabled": true,
+        "rules": {
+            "recommended": true,
+            "suspicious": {
+                "noExplicitAny": "error",
+                "noCommentText": "error",
+                "noTsIgnore": "error",
+                "noArrayIndexKey": "off",
+                "noConsole": "error",
+                "noDuplicateProperties": "error"
+            },
+            "complexity": {
+                "noImportantStyles": "error"
+            },
+            "a11y": {
+                "useSemanticElements": "off",
+                "useKeyWithClickEvents": "off",
+                "noStaticElementInteractions": "off"
+            },
+            "correctness": {
+                "noUnusedImports": "error",
+                "noUnusedVariables": "error",
+                "useExhaustiveDependencies": "error",
+                "noUnknownUnit": "error"
+            }
+        }
+    }
 }

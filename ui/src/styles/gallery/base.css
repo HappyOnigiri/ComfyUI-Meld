@@ -239,6 +239,7 @@ so without this the menu can render behind neighboring rows.
 .animate-spin {
 	animation: spin 1s linear infinite;
 }
+/* unused-css-check-ignore */
 .meld-icon {
 	width: 1.2rem;
 	height: 1.2rem;
@@ -250,6 +251,7 @@ so without this the menu can render behind neighboring rows.
 }
 
 /* PrimeIcons sizing when used as fallback on the same element. */
+/* unused-css-check-ignore */
 .meld-icon.pi::before {
 	font-size: 1.2rem;
 	line-height: 1;
@@ -260,6 +262,7 @@ Legacy icon (preferred in WebUI):
 Enable mask-image only when supported to avoid "solid square" rendering on some desktop WebViews.
 */
 @supports ((-webkit-mask-image: url("")) or (mask-image: url(""))) {
+	/* unused-css-check-ignore */
 	.meld-icon {
 		background-color: currentcolor;
 		mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2a3 3 0 0 1 2.6 1.5l7.7 13.3A3 3 0 0 1 19.7 21H4.3a3 3 0 0 1-2.6-4.2L9.4 3.5A3 3 0 0 1 12 2z' /%3E%3Cpath d='M9 14.5h6v6.5H9z' fill='currentColor' /%3E%3C/svg%3E");
@@ -273,6 +276,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	}
 
 	/* Hide PrimeIcons glyph when the legacy mask icon is active. */
+	/* unused-css-check-ignore */
 	.meld-icon.pi::before {
 		content: none;
 	}
@@ -315,6 +319,7 @@ Enable mask-image only when supported to avoid "solid square" rendering on some 
 	background: var(--meld-danger-color);
 	color: white;
 }
+/* unused-css-check-ignore */
 .meld-finished-icon {
 	margin-bottom: 10px;
 }

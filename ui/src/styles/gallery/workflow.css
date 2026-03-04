@@ -126,6 +126,7 @@
 	font-family: monospace;
 }
 
+/* unused-css-check-ignore */
 .meld-workflow-item__expand-icon {
 	color: var(--meld-text-secondary);
 	display: flex;

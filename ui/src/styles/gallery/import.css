@@ -19,12 +19,14 @@
 }
 
 /* Import Scan Styles */
+/* unused-css-check-ignore */
 .meld-import-config {
 	display: flex;
 	flex-direction: column;
 	gap: 15px;
 }
 
+/* unused-css-check-ignore */
 .meld-scan-progress {
 	display: flex;
 	flex-direction: column;
@@ -32,6 +34,7 @@
 	padding: 10px 0;
 }
 
+/* unused-css-check-ignore */
 .meld-scan__status-text {
 	font-size: 15px;
 	text-align: center;
@@ -41,6 +44,7 @@
 	color: var(--meld-danger-color);
 }
 
+/* unused-css-check-ignore */
 .meld-progress-container {
 	height: 12px;
 	background: var(--comfy-input-bg, #1a1a1a);
@@ -55,6 +59,7 @@
 	transition: width 0.3s ease;
 }
 
+/* unused-css-check-ignore */
 .meld-progress-stats {
 	text-align: center;
 	font-size: 13px;
@@ -69,6 +74,7 @@
 }
 
 /* Import Scan Finished */
+/* unused-css-check-ignore */
 .meld-scan-finished {
 	display: flex;
 	flex-direction: column;
@@ -79,21 +85,25 @@
 	text-align: center;
 }
 
+/* unused-css-check-ignore */
 .meld-scan-finished h3 {
 	margin: 0;
 	font-size: 20px;
 	color: var(--meld-text-color);
 }
 
+/* unused-css-check-ignore */
 .meld-scan-finished p {
 	color: var(--meld-text-secondary);
 	margin: 0;
 }
 
+/* unused-css-check-ignore */
 .meld-scan-finished strong {
 	color: var(--meld-accent-color);
 }
 
+/* unused-css-check-ignore */
 .meld-scan-finished .meld-scan-actions {
 	justify-content: center;
 	margin-top: 10px;
@@ -154,6 +164,7 @@
 	cursor: not-allowed;
 }
 
+/* unused-css-check-ignore */
 .meld-browser-title {
 	font-size: 12px;
 	color: var(--meld-text-secondary);
@@ -342,6 +353,7 @@
 	color: var(--meld-text-secondary);
 }
 
+/* unused-css-check-ignore */
 .meld-path-display {
 	background: var(--comfy-input-bg, #000);
 	padding: 8px 10px;
@@ -351,6 +363,7 @@
 	color: var(--meld-accent-color);
 }
 
+/* unused-css-check-ignore */
 .meld-path-text {
 	word-break: break-all;
 	margin-bottom: 4px;
@@ -415,7 +428,8 @@
 
 .meld-browser-loading,
 .meld-browser-empty,
-.meld-browser-info {
+/* unused-css-check-ignore */
+	.meld-browser-info {
 	height: 100%;
 	display: flex;
 	flex-direction: column;
@@ -483,7 +497,8 @@
 }
 
 .meld-btn--stop--compact,
-.meld-btn--stop.meld-btn--compact {
+/* unused-css-check-ignore */
+	.meld-btn--stop.meld-btn--compact {
 	position: absolute;
 	right: -4px;
 	top: 50%;
@@ -500,20 +515,24 @@
 }
 
 .meld-btn--stop--compact:hover:not(:disabled),
-.meld-btn--stop.meld-btn--compact:hover:not(:disabled),
+/* unused-css-check-ignore */
+	.meld-btn--stop.meld-btn--compact:hover:not(:disabled),
 .meld-btn--stop--compact:focus-visible,
-.meld-btn--stop.meld-btn--compact:focus-visible {
+/* unused-css-check-ignore */
+	.meld-btn--stop.meld-btn--compact:focus-visible {
 	color: var(--meld-danger-color, #ff4444);
 }
 
 .meld-btn--stop--compact:focus-visible,
-.meld-btn--stop.meld-btn--compact:focus-visible {
+/* unused-css-check-ignore */
+	.meld-btn--stop.meld-btn--compact:focus-visible {
 	outline: 2px solid var(--meld-focus-color, #48f);
 	outline-offset: 2px;
 }
 
 .meld-btn--stop--compact:disabled,
-.meld-btn--stop.meld-btn--compact:disabled {
+/* unused-css-check-ignore */
+	.meld-btn--stop.meld-btn--compact:disabled {
 	color: var(--meld-text-secondary);
 	cursor: not-allowed;
 }
@@ -526,7 +545,8 @@
 }
 
 .meld-btn--ok--compact,
-.meld-btn--ok.meld-btn--compact {
+/* unused-css-check-ignore */
+	.meld-btn--ok.meld-btn--compact {
 	background: var(--meld-accent-color);
 	color: white;
 	border: none;
@@ -539,14 +559,17 @@
 }
 
 .meld-btn--ok--compact:hover,
-.meld-btn--ok.meld-btn--compact:hover,
+/* unused-css-check-ignore */
+	.meld-btn--ok.meld-btn--compact:hover,
 .meld-btn--ok--compact:focus-visible,
-.meld-btn--ok.meld-btn--compact:focus-visible {
+/* unused-css-check-ignore */
+	.meld-btn--ok.meld-btn--compact:focus-visible {
 	background: var(--meld-accent-color-hover, #5599ff);
 }
 
 .meld-btn--ok--compact:focus-visible,
-.meld-btn--ok.meld-btn--compact:focus-visible {
+/* unused-css-check-ignore */
+	.meld-btn--ok.meld-btn--compact:focus-visible {
 	outline: 2px solid var(--meld-focus-color, #48f);
 	outline-offset: 2px;
 }

@@ -32,6 +32,7 @@
 	max-width: 500px;
 }
 
+/* unused-css-check-ignore: Preserved for future use when wider dialogs are needed */
 .meld-modal-content--medium {
 	max-width: 800px;
 }

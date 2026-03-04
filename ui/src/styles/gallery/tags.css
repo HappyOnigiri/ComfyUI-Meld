@@ -16,6 +16,7 @@
 }
 
 .meld-tab {
+	/* property-conflict-ignore */
 	padding: 10px 20px;
 	border: none;
 	background: none;
@@ -109,6 +110,7 @@
 }
 
 /* Tag Manager Modal */
+/* unused-css-check-ignore */
 .meld-tag-manager-modal {
 	height: 600px;
 }

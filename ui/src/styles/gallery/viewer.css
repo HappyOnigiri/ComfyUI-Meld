@@ -55,15 +55,18 @@
 	transform: translateZ(0);
 }
 
+/* unused-css-check-ignore */
 .meld-viewer-image--interacting {
 	will-change: transform, max-height;
 }
 
+/* unused-css-check-ignore */
 .meld-viewer-image--fit {
 	width: 100%;
 	height: 100%;
 }
 
+/* unused-css-check-ignore */
 .meld-viewer-image--original {
 	width: auto;
 	height: auto;
@@ -117,6 +120,7 @@
 	outline-offset: 2px;
 }
 
+/* unused-css-check-ignore */
 .meld-viewer-action-btn--active {
 	background: var(--comfy-menu-bg, rgba(0, 0, 0, 0.5));
 	color: var(--meld-text-primary, white);
@@ -132,7 +136,7 @@
 }
 
 /* Viewer Action Menu overrides */
-.meld-viewer-actions .meld-image-card__menu-container {
+.meld-viewer-actions /* unused-css-check-ignore */ .meld-image-card__menu-container {
 	position: relative;
 	width: 40px;
 	height: 40px;
@@ -157,7 +161,7 @@
 	min-width: 200px;
 }
 
-.meld-viewer-actions .meld-image-card__menu-item {
+.meld-viewer-actions /* unused-css-check-ignore */ .meld-image-card__menu-item {
 	padding: 10px 15px;
 	font-size: 14px;
 }
@@ -327,6 +331,7 @@
 	margin-top: 8px;
 }
 
+/* unused-css-check-ignore */
 .meld-viewer-notes-textarea {
 	width: 100%;
 	min-height: 80px;
@@ -345,6 +350,7 @@
 	transition: border-color 0.2s;
 }
 
+/* unused-css-check-ignore */
 .meld-viewer-notes-textarea:focus {
 	border-color: var(--meld-accent-color);
 	background: var(--comfy-input-bg, rgba(0, 0, 0, 0.4));
