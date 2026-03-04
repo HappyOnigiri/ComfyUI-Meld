@@ -1,6 +1,6 @@
 import { act, fireEvent, render } from "@testing-library/react";
 import React from "react";
-import { describe, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { GalleryPanel } from "./features/gallery/components/GalleryPanel";
 import { ImportModal } from "./features/importer/components/ImportModal";
 import { MaskEditorModal } from "./features/mask-editor/components/MaskEditorModal";
@@ -12,9 +12,12 @@ import type { MeldImage } from "./types";
 
 vi.mock("/scripts/api.js", () => ({
 	api: {
-		fetchApi: vi
-			.fn()
-			.mockResolvedValue({ ok: true, json: vi.fn().mockResolvedValue({ success: true }) }),
+		// fetchApi returns a Response-like object (handleResponse reads res.ok / res.json())
+		// json() body matches the { success, data } shape used by handleResponse
+		fetchApi: vi.fn().mockResolvedValue({
+			ok: true,
+			json: vi.fn().mockResolvedValue({ success: true, data: [] }),
+		}),
 		addEventListener: vi.fn(),
 		removeEventListener: vi.fn(),
 	},
@@ -61,6 +64,19 @@ vi.mock("./store/GalleryContext", () => ({
 		state: mockState,
 		dispatch: vi.fn(),
 	}),
+}));
+
+vi.mock("./features/search/api/searchApi", () => ({
+	fetchSearchKeywords: vi.fn().mockResolvedValue([]),
+	fetchSearchConfig: vi.fn().mockResolvedValue({
+		all_prefixes: [],
+		boolean_prefixes: [],
+		date_prefixes: [],
+		sort_prefix: "sort",
+		no_quote_prefixes: [],
+	}),
+	fetchSearchSuggestions: vi.fn().mockResolvedValue([]),
+	fetchSuggestions: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock("./features/light-table/store", () => ({
@@ -147,6 +163,11 @@ describe("Mass Components Coverage", () => {
 		render(<ImageViewer />);
 		// Need to find portals? createPortal appends to document.body
 		clickEverything(document.body);
+	});
+	it("renders SearchBar without throwing", () => {
+		// Simple render check without clickEverything for a stable, deterministic assertion
+		const { container } = render(<SearchBar />);
+		expect(container.firstChild).not.toBeNull();
 	});
 	it.skip("massacres SearchBar", () => {
 		const { container } = render(<SearchBar />);

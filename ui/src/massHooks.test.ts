@@ -64,9 +64,12 @@ vi.mock("./features/search/api/searchApi", () => ({
 
 vi.mock("/scripts/api.js", () => ({
 	api: {
-		fetchApi: vi
-			.fn()
-			.mockResolvedValue({ ok: true, json: vi.fn().mockResolvedValue({ success: true }) }),
+		// fetchApi returns a Response-like object (handleResponse reads res.ok / res.json())
+		// json() body matches the { success, data } shape used by handleResponse
+		fetchApi: vi.fn().mockResolvedValue({
+			ok: true,
+			json: vi.fn().mockResolvedValue({ success: true, data: {} }),
+		}),
 		addEventListener: vi.fn(),
 		removeEventListener: vi.fn(),
 	},
@@ -213,9 +216,7 @@ describe("Mass Hooks Coverage", () => {
 			}
 		}
 
-		if (errors.length > 0) {
-			throw errors[0];
-		}
+		// Remove throw errors[0]: consolidate into a single failure path via expect()
 		expect(errors).toHaveLength(0);
 	});
 });
