@@ -104,11 +104,18 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 
 	// Handler for confirming resize value input
 	const handleResizeValueChange = (raw: string) => {
+		// Keep raw text in the input field to allow in-progress typing
 		setResizeValueInput(raw);
 		const num = Number(raw);
-		if (!Number.isNaN(num) && num > 0) {
-			setOptions((o) => ({ ...o, resizeValue: num }));
+		// Reject NaN, non-finite, and non-positive values
+		if (!Number.isFinite(num) || num <= 0) {
+			return;
 		}
+		// Clamp to mode-specific min/max before writing to options
+		const min = 1;
+		const max = resizeMode === "percent" ? 99 : 99999;
+		const clamped = Math.min(max, Math.max(min, Math.round(num)));
+		setOptions((o) => ({ ...o, resizeValue: clamped }));
 	};
 
 	const handleDownload = async () => {

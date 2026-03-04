@@ -1809,9 +1809,26 @@ def _process_image_for_download(
         if remove_metadata:
             resized.save(buffer, format="JPEG", quality=95)
         else:
-            resized.save(buffer, format="JPEG", quality=95)
+            # Preserve metadata: reattach exif/icc_profile if available
+            save_kwargs: dict[str, Any] = {"format": "JPEG", "quality": 95}
+            if orig_info.get("exif"):
+                save_kwargs["exif"] = orig_info["exif"]
+            if orig_info.get("icc_profile"):
+                save_kwargs["icc_profile"] = orig_info["icc_profile"]
+            resized.save(buffer, **save_kwargs)
     elif fmt == "WEBP":
-        resized.save(buffer, format="WEBP", lossless=(orig_mode not in ("RGB", "L")))
+        if remove_metadata:
+            resized.save(buffer, format="WEBP", lossless=(orig_mode not in ("RGB", "L")))
+        else:
+            # Preserve metadata: reattach exif/xmp/icc_profile if available
+            save_kwargs = {"format": "WEBP", "lossless": (orig_mode not in ("RGB", "L"))}
+            if orig_info.get("exif"):
+                save_kwargs["exif"] = orig_info["exif"]
+            if orig_info.get("xmp"):
+                save_kwargs["xmp"] = orig_info["xmp"]
+            if orig_info.get("icc_profile"):
+                save_kwargs["icc_profile"] = orig_info["icc_profile"]
+            resized.save(buffer, **save_kwargs)
     else:
         # PNG: re-apply metadata via PngInfo when preserving metadata
         if remove_metadata:
@@ -1839,7 +1856,12 @@ async def download_zip(request: web.Request) -> web.Response:
         image_ids = data.get("imageIds", [])
         remove_metadata = data.get("removeMetadata", False)
         resize_mode = str(data.get("resizeMode", "none"))  # "none" | "percent" | "max_edge"
-        resize_value = float(data.get("resizeValue", 100))
+        try:
+            resize_value = float(data.get("resizeValue", 100))
+        except (TypeError, ValueError):
+            return web.json_response(
+                ApiResponse(success=False, error="resizeValue must be a valid number").to_dict(), status=400
+            )
 
         if not image_ids:
             return web.json_response(ApiResponse(success=False, error="No image IDs provided").to_dict(), status=400)
@@ -1891,7 +1913,12 @@ async def download_raw(request: web.Request) -> web.Response:
         image_id = data.get("imageId")
         remove_metadata = data.get("removeMetadata", False)
         resize_mode = str(data.get("resizeMode", "none"))  # "none" | "percent" | "max_edge"
-        resize_value = float(data.get("resizeValue", 100))
+        try:
+            resize_value = float(data.get("resizeValue", 100))
+        except (TypeError, ValueError):
+            return web.json_response(
+                ApiResponse(success=False, error="resizeValue must be a valid number").to_dict(), status=400
+            )
 
         if not image_id:
             return web.json_response(ApiResponse(success=False, error="No image ID provided").to_dict(), status=400)
