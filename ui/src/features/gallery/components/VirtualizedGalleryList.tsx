@@ -26,6 +26,7 @@ export const VirtualizedGalleryList: React.FC<VirtualizedGalleryListProps> = ({
 }) => {
 	const scrollRef = useRef<HTMLDivElement>(null);
 	const [containerWidth, setContainerWidth] = useState(300);
+	const [isContainerVisible, setIsContainerVisible] = useState(true);
 
 	const thumbSize = settings["sidebar.thumbnail_size"] || 100;
 	const isGridOnly = settings["gallery.view_mode"] === "grid_only";
@@ -41,6 +42,28 @@ export const VirtualizedGalleryList: React.FC<VirtualizedGalleryListProps> = ({
 
 		updateWidth();
 		const observer = new ResizeObserver(updateWidth);
+		observer.observe(el);
+		return () => observer.disconnect();
+	}, []);
+
+	// Reset virtualizer observers while the sidebar tab is hidden.
+	// This prevents stale 0x0 measurements after reopening the sidebar.
+	useEffect(() => {
+		const el = scrollRef.current;
+		if (!el) return;
+		if (typeof IntersectionObserver === "undefined") {
+			setIsContainerVisible(true);
+			return;
+		}
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				const entry = entries[0];
+				if (!entry) return;
+				setIsContainerVisible(entry.isIntersecting);
+			},
+			{ threshold: 0 },
+		);
 		observer.observe(el);
 		return () => observer.disconnect();
 	}, []);
@@ -64,6 +87,7 @@ export const VirtualizedGalleryList: React.FC<VirtualizedGalleryListProps> = ({
 		getScrollElement: () => scrollRef.current,
 		estimateSize: () => rowHeightEstimate,
 		overscan: 5,
+		enabled: isContainerVisible,
 		getItemKey: (index: number) =>
 			isGridOnly ? `row-${index}-${columnCount}` : (visibleImages[index]?.id ?? index),
 	});

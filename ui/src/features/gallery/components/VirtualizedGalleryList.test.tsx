@@ -11,6 +11,18 @@ beforeAll(() => {
 		unobserve() {}
 		disconnect() {}
 	} as unknown as typeof ResizeObserver;
+
+	globalThis.IntersectionObserver = class {
+		observe() {}
+		unobserve() {}
+		disconnect() {}
+		takeRecords() {
+			return [];
+		}
+		root = null;
+		rootMargin = "";
+		thresholds = [];
+	} as unknown as typeof IntersectionObserver;
 });
 
 // Mock @tanstack/react-virtual
