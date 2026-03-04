@@ -1627,11 +1627,106 @@ def _get_image_path(img_type: str, subfolder: str, filename: str) -> str | None:
     return full_path
 
 
+def _strip_png_metadata_fast(data: bytes) -> bytes | None:
+    import io
+    import struct
+
+    if len(data) < 8 or data[:8] != b"\x89PNG\r\n\x1a\n":
+        return None
+    out = io.BytesIO()
+    out.write(data[:8])
+    offset = 8
+    saw_any_chunk = False
+    saw_iend = False
+    while offset + 8 <= len(data):
+        chunk_length = struct.unpack(">I", data[offset : offset + 4])[0]
+        chunk_type = data[offset + 4 : offset + 8]
+        chunk_full_size = 12 + chunk_length
+        if offset + chunk_full_size > len(data):
+            return None
+        saw_any_chunk = True
+        if chunk_type == b"IEND":
+            saw_iend = True
+        if chunk_type not in (b"tEXt", b"zTXt", b"iTXt"):
+            out.write(data[offset : offset + chunk_full_size])
+        offset += chunk_full_size
+    if not saw_any_chunk or not saw_iend:
+        return None
+    return out.getvalue()
+
+
+def _strip_webp_metadata_fast(data: bytes) -> bytes | None:
+    import io
+    import struct
+
+    if len(data) < 12 or data[:4] != b"RIFF" or data[8:12] != b"WEBP":
+        return None
+    out = io.BytesIO()
+    out.write(data[:12])
+    offset = 12
+    vp8x_pos = -1
+    vp8x_data = bytearray()
+    saw_any_chunk = False
+    while offset + 8 <= len(data):
+        chunk_id = data[offset : offset + 4]
+        chunk_size = struct.unpack("<I", data[offset + 4 : offset + 8])[0]
+        padding = chunk_size % 2
+        chunk_full_size = 8 + chunk_size + padding
+        if offset + chunk_full_size > len(data):
+            return None
+        saw_any_chunk = True
+        chunk_data = data[offset : offset + chunk_full_size]
+        if chunk_id in (b"EXIF", b"XMP "):
+            pass  # skip metadata
+        elif chunk_id == b"VP8X":
+            vp8x_pos = out.tell()
+            vp8x_data = bytearray(chunk_data)
+            out.write(vp8x_data)
+        else:
+            out.write(chunk_data)
+        offset += chunk_full_size
+    total_size = out.tell()
+    if not saw_any_chunk or total_size <= 12:
+        return None
+    if vp8x_pos != -1 and len(vp8x_data) >= 12:
+        flags = struct.unpack("<I", vp8x_data[8:12])[0]
+        flags &= ~8  # Unset EXIF
+        flags &= ~4  # Unset XMP
+        vp8x_data[8:12] = struct.pack("<I", flags)
+        current_pos = out.tell()
+        out.seek(vp8x_pos)
+        out.write(vp8x_data)
+        out.seek(current_pos)
+    out.seek(4)
+    out.write(struct.pack("<I", total_size - 8))
+    return out.getvalue()
+
+
 def _strip_metadata(image_path: str) -> bytes:
     import io
 
     try:
-        with Image.open(image_path) as img:
+        with open(image_path, "rb") as f:
+            data = f.read()
+
+        if data.startswith(b"\x89PNG\r\n\x1a\n"):
+            try:
+                res = _strip_png_metadata_fast(data)
+                if res is not None:
+                    return res
+            except Exception as e:
+                logging.warning(f"[Meld] Fast PNG strip failed for {image_path}: {e}")
+
+        if data.startswith(b"RIFF") and data[8:12] == b"WEBP":
+            try:
+                res = _strip_webp_metadata_fast(data)
+                if res is not None:
+                    return res
+            except Exception as e:
+                logging.warning(f"[Meld] Fast WebP strip failed for {image_path}: {e}")
+
+        # Fallback for JPEG or if fast paths fail
+        with Image.open(io.BytesIO(data)) as img:
             # Paste into a new image to strip metadata
             clean_img = Image.new(img.mode, img.size)
             clean_img.paste(img)

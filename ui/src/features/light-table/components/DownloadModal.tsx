@@ -1,10 +1,46 @@
 import { Download, X } from "lucide-react";
 import type React from "react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { logger } from "../../../logger";
 import * as imagesApi from "../../images/api/imagesApi";
+
+const STORAGE_KEY = "meld-download-options";
+
+interface StoredDownloadOptions {
+	format: "zip" | "raw";
+	removeMetadata: boolean;
+}
+
+function loadStoredOptions(): StoredDownloadOptions {
+	try {
+		const saved = localStorage.getItem(STORAGE_KEY);
+		if (saved) {
+			const parsed = JSON.parse(saved) as Partial<StoredDownloadOptions>;
+			const raw = parsed.removeMetadata as unknown;
+			// Legacy clients/saved states may store removeMetadata as boolean true, string "true",
+			// or numeric 1; preserve these exact values for backward compatibility.
+			const removeMetadata =
+				raw === true || raw === "true" || (typeof raw === "number" && raw === 1);
+			return {
+				format: parsed.format === "raw" ? "raw" : "zip",
+				removeMetadata,
+			};
+		}
+	} catch (_e) {
+		// Ignore parse errors, use defaults
+	}
+	return { format: "zip", removeMetadata: false };
+}
+
+function saveStoredOptions(options: StoredDownloadOptions): void {
+	try {
+		localStorage.setItem(STORAGE_KEY, JSON.stringify(options));
+	} catch (_e) {
+		// Ignore quota errors
+	}
+}
 
 interface DownloadModalProps {
 	imageIds: number[];
@@ -13,11 +49,15 @@ interface DownloadModalProps {
 }
 
 export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSuccess, onClose }) => {
-	const [format, setFormat] = useState<"zip" | "raw">("zip");
-	const [removeMetadata, setRemoveMetadata] = useState(false);
+	const [options, setOptions] = useState<StoredDownloadOptions>(() => loadStoredOptions());
+	const { format, removeMetadata } = options;
 	const [isDownloading, setIsDownloading] = useState(false);
 
 	const overlayMouseDownRef = useRef(false);
+
+	useEffect(() => {
+		saveStoredOptions(options);
+	}, [options]);
 
 	const handleOverlayMouseDown = (e: React.MouseEvent) => {
 		if (e.target === e.currentTarget) {
@@ -110,7 +150,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 									name="format"
 									value="zip"
 									checked={format === "zip"}
-									onChange={() => setFormat("zip")}
+									onChange={() => setOptions((o) => ({ ...o, format: "zip" }))}
 									disabled={isDownloading}
 								/>
 								ZIP (Single File)
@@ -128,7 +168,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 									name="format"
 									value="raw"
 									checked={format === "raw"}
-									onChange={() => setFormat("raw")}
+									onChange={() => setOptions((o) => ({ ...o, format: "raw" }))}
 									disabled={isDownloading}
 								/>
 								Raw (Multiple Files)
@@ -158,7 +198,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 							<input
 								type="checkbox"
 								checked={removeMetadata}
-								onChange={(e) => setRemoveMetadata(e.target.checked)}
+								onChange={(e) => setOptions((o) => ({ ...o, removeMetadata: e.target.checked }))}
 								disabled={isDownloading}
 							/>
 							Remove metadata (ComfyUI workflow data) from downloaded images
