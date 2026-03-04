@@ -8,7 +8,9 @@ COLOR_GREEN = "\033[92m"
 COLOR_RED = "\033[91m"
 COLOR_RESET = "\033[0m"
 
-TASKS = [
+# Each task is a tuple of (name, command, cwd).
+# cwd defaults to None (project root) unless specified.
+TASKS: list[tuple[str, str] | tuple[str, str, str]] = [
     ("Python-Lint-ruff-format", f"{sys.executable} -m ruff format ."),
     ("Python-Lint-ruff-check", f"{sys.executable} -m ruff check . --fix"),
     ("Python-Lint-mypy", f"{sys.executable} -m mypy py tests"),
@@ -24,13 +26,25 @@ TASKS = [
     ("Check-Scripts", "make --no-print-directory check-scripts"),
     ("Local-Check-Scripts", "make --no-print-directory local-check-scripts"),
     ("Python-Tests", f"{sys.executable} -m unittest discover tests"),
-    ("UI-Tests", "npm --prefix ui run test"),
+    # Run vitest from ui/ directory to ensure consistent path resolution
+    # for v8 coverage on Windows (avoids duplicate file entries).
+    ("UI-Tests", "npx vitest run --coverage", "ui"),
     ("Build-UI", "npm --prefix ui run build"),
 ]
 
 
-def run_task(name: str, command: str) -> tuple[bool, str, str]:
+def run_task(name: str, command: str, cwd: str | None = None) -> tuple[bool, str, str]:
     try:
+        # On Windows, normalize the working directory to ensure consistent
+        # drive-letter casing (e.g., "C:\..." vs "c:\..."). Python's os.getcwd()
+        # may return a lowercase drive letter while Node.js / v8 uses uppercase.
+        # This mismatch causes v8 coverage to report duplicate file entries.
+        resolved_cwd = cwd
+        if resolved_cwd is not None:
+            resolved_cwd = os.path.realpath(resolved_cwd)
+        elif sys.platform == "win32":
+            resolved_cwd = os.path.realpath(os.getcwd())
+
         process = subprocess.Popen(
             command,
             shell=True,
@@ -39,6 +53,7 @@ def run_task(name: str, command: str) -> tuple[bool, str, str]:
             text=True,
             encoding="utf-8",
             errors="replace",
+            cwd=resolved_cwd,
         )
         stdout, _ = process.communicate()
 
@@ -58,6 +73,15 @@ MUTATING_TASK_NAMES = {
 }
 
 
+def _unpack_task(
+    task: tuple[str, str] | tuple[str, str, str],
+) -> tuple[str, str, str | None]:
+    """Unpack a task tuple into (name, command, cwd)."""
+    if len(task) == 3:
+        return task[0], task[1], task[2]
+    return task[0], task[1], None
+
+
 def main() -> None:
     # Workaround for Windows encoding issues
     if hasattr(sys.stdout, "reconfigure"):
@@ -75,17 +99,18 @@ def main() -> None:
 
     # Split tasks into mutating and non-mutating to avoid concurrent file writes.
     # We use an explicit allowlist for robustness.
-    mutating_tasks = []
-    non_mutating_tasks = []
-    for name, cmd in TASKS:
+    mutating_tasks: list[tuple[str, str, str | None]] = []
+    non_mutating_tasks: list[tuple[str, str, str | None]] = []
+    for task in TASKS:
+        name, cmd, cwd = _unpack_task(task)
         if name in MUTATING_TASK_NAMES:
-            mutating_tasks.append((name, cmd))
+            mutating_tasks.append((name, cmd, cwd))
         else:
-            non_mutating_tasks.append((name, cmd))
+            non_mutating_tasks.append((name, cmd, cwd))
 
     # 1. Run mutating tasks serially
-    for name, cmd in mutating_tasks:
-        success, _, output = run_task(name, cmd)
+    for name, cmd, cwd in mutating_tasks:
+        success, _, output = run_task(name, cmd, cwd)
         results[name] = (success, output)
         log_filename = os.path.join(".logs", f"{name.replace(' ', '_')}.log")
         with open(log_filename, "w", encoding="utf-8") as f:
@@ -94,7 +119,7 @@ def main() -> None:
     # 2. Run non-mutating tasks in parallel
     max_workers = 4
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        future_to_task = {executor.submit(run_task, name, cmd): name for name, cmd in non_mutating_tasks}
+        future_to_task = {executor.submit(run_task, name, cmd, cwd): name for name, cmd, cwd in non_mutating_tasks}
 
         for future in as_completed(future_to_task):
             success, name, output = future.result()
@@ -108,7 +133,8 @@ def main() -> None:
     # Print results in original order
     failed_tasks = []
     print("\n" + "-" * 60, flush=True)
-    for name, _ in TASKS:
+    for task in TASKS:
+        name = task[0]
         success, output = results[name]
 
         if success:
