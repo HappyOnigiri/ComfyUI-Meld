@@ -169,7 +169,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 				<div className="meld-modal-footer">
 					<button
 						type="button"
-						className="meld-btn meld-btn-secondary"
+						className="meld-btn meld-btn--secondary"
 						onClick={onClose}
 						disabled={isDownloading}
 					>
@@ -177,7 +177,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 					</button>
 					<button
 						type="button"
-						className="meld-btn meld-btn-primary"
+						className="meld-btn meld-btn--primary"
 						onClick={handleDownload}
 						disabled={isDownloading}
 						style={{ display: "flex", alignItems: "center", gap: "8px" }}

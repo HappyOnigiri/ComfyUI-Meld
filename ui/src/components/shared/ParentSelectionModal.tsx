@@ -261,7 +261,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({ imag
 							</div>
 							<button
 								type="button"
-								className="meld-btn meld-btn-danger meld-btn--sm"
+								className="meld-btn meld-btn--danger meld-btn--sm"
 								style={{
 									flexShrink: 0,
 									width: "32px",

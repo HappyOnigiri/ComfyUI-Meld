@@ -94,7 +94,7 @@ export const NodeSelectionModal: React.FC<NodeSelectionModalProps> = ({
 				</div>
 
 				<div className="meld-modal-footer">
-					<button type="button" className="meld-btn meld-btn-secondary" onClick={handleClose}>
+					<button type="button" className="meld-btn meld-btn--secondary" onClick={handleClose}>
 						Cancel
 					</button>
 				</div>

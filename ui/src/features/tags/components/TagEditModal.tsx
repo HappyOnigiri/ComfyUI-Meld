@@ -245,12 +245,12 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 				</div>
 
 				<div className="meld-modal-footer">
-					<button type="button" className="meld-btn meld-btn-secondary" onClick={onClose}>
+					<button type="button" className="meld-btn meld-btn--secondary" onClick={onClose}>
 						Cancel
 					</button>
 					<button
 						type="button"
-						className="meld-btn meld-btn-primary"
+						className="meld-btn meld-btn--primary"
 						onClick={handleSave}
 						disabled={isSaving}
 					>

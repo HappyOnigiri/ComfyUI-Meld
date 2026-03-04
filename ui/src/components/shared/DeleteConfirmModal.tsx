@@ -332,14 +332,14 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 				</div>
 
 				<div className="meld-modal-footer">
-					<button type="button" className="meld-btn meld-btn-secondary" onClick={handleClose}>
+					<button type="button" className="meld-btn meld-btn--secondary" onClick={handleClose}>
 						Cancel
 					</button>
 
 					<div style={{ display: "flex", gap: "10px" }}>
 						<button
 							type="button"
-							className="meld-btn meld-btn-danger"
+							className="meld-btn meld-btn--danger"
 							onClick={handleDeleteSelected}
 						>
 							{isPermanent ? "Delete Permanently" : "Move to Trash"}
@@ -348,7 +348,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 						{hasLineage && (
 							<button
 								type="button"
-								className="meld-btn meld-btn-danger"
+								className="meld-btn meld-btn--danger"
 								title={
 									isPermanent
 										? "Permanently delete all images in the lineage"

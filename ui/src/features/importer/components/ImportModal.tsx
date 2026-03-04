@@ -357,7 +357,7 @@ export const ImportModal: React.FC = () => {
 								</div>
 							</div>
 
-							<div className="meld-form-group checkbox">
+							<div className="meld-form-group--checkbox">
 								<label>
 									<input
 										type="checkbox"
@@ -455,7 +455,7 @@ export const ImportModal: React.FC = () => {
 							<div className="meld-scan-actions">
 								<button
 									type="button"
-									className="meld-btn meld-btn-primary"
+									className="meld-btn meld-btn--primary"
 									onClick={handleStart}
 									style={{ width: "100%" }}
 								>

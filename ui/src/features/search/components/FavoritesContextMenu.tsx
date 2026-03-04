@@ -208,14 +208,14 @@ export const FavoritesContextMenu: React.FC<FavoritesContextMenuProps> = ({
 						<div className="meld-modal-footer">
 							<button
 								type="button"
-								className="meld-btn meld-btn-secondary"
+								className="meld-btn meld-btn--secondary"
 								onClick={() => setEditingFavorite(null)}
 							>
 								Cancel
 							</button>
 							<button
 								type="button"
-								className="meld-btn meld-btn-primary"
+								className="meld-btn meld-btn--primary"
 								onClick={handleSaveEditFavorite}
 								disabled={isSaving || !editFavoriteName.trim() || !editFavoriteQuery.trim()}
 							>

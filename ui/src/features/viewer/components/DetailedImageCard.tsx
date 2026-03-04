@@ -311,7 +311,7 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(({
 					<div className="meld-image-card__meta-item meld-image-card__meta-item--notes">
 						<div className="meld-image-card__meta-label">
 							Notes
-							{saveStatus === "saving" && <span className="meld-notes-status">Saving...</span>}
+							{saveStatus === "saving" && <span className="meld-notes__status">Saving...</span>}
 						</div>
 						<div
 							className="meld-image-card__meta-content"
@@ -321,7 +321,7 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(({
 							}}
 						>
 							<div className="meld-image-card__notes-preview">
-								{image.user_notes || <span className="meld-notes-placeholder">Add notes...</span>}
+								{image.user_notes || <span className="meld-notes__placeholder">Add notes...</span>}
 							</div>
 						</div>
 					</div>

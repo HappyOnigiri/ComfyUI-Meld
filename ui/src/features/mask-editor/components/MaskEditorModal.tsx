@@ -737,7 +737,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 				<div className="meld-modal-body">
 					<div className="meld-mask-editor-tool-selector">
 						<button
-							className={`meld-mask-tool-btn ${activeTool === "rect" ? "active" : ""}`}
+							className={`meld-mask-tool-btn ${activeTool === "rect" ? "meld-mask-tool-btn--active" : ""}`}
 							onClick={() => setActiveTool("rect")}
 							type="button"
 							title="Rectangle Tool"
@@ -746,7 +746,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 							<span>Rect</span>
 						</button>
 						<button
-							className={`meld-mask-tool-btn ${activeTool === "ellipse" ? "active" : ""}`}
+							className={`meld-mask-tool-btn ${activeTool === "ellipse" ? "meld-mask-tool-btn--active" : ""}`}
 							onClick={() => setActiveTool("ellipse")}
 							type="button"
 							title="Ellipse Tool"
@@ -755,7 +755,7 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 							<span>Ellipse</span>
 						</button>
 						<button
-							className={`meld-mask-tool-btn ${activeTool === "lasso" ? "active" : ""}`}
+							className={`meld-mask-tool-btn ${activeTool === "lasso" ? "meld-mask-tool-btn--active" : ""}`}
 							onClick={() => setActiveTool("lasso")}
 							type="button"
 							title="Lasso Tool"
