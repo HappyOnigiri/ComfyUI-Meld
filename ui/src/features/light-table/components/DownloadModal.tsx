@@ -101,6 +101,11 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 	const [options, setOptions] = useState<StoredDownloadOptions>(() => loadStoredOptions());
 	const { format, removeMetadata, resizeMode, resizeValue, resizeFilter } = options;
 	const [isDownloading, setIsDownloading] = useState(false);
+	// Download progress: current=processed images, total=total images
+	const [downloadProgress, setDownloadProgress] = useState<{
+		current: number;
+		total: number;
+	} | null>(null);
 
 	// String state for the resize value input field (to hold uncommitted input)
 	const [resizeValueInput, setResizeValueInput] = useState<string>(String(resizeValue));
@@ -153,8 +158,11 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 
 	const handleDownload = async () => {
 		setIsDownloading(true);
+		const total = imageIds.length;
+		setDownloadProgress({ current: 0, total });
 		try {
 			if (format === "zip") {
+				// ZIP format: No individual progress as it's processed in bulk on the server
 				await imagesApi.downloadZipImages(
 					imageIds,
 					removeMetadata,
@@ -162,16 +170,21 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 					resizeValue,
 					resizeFilter,
 				);
+				setDownloadProgress({ current: total, total });
 			} else {
-				for (const id of imageIds) {
+				// Raw format: Tracking progress per image
+				for (let i = 0; i < imageIds.length; i++) {
+					const imageId = imageIds[i] as number;
+					setDownloadProgress({ current: i, total });
 					await imagesApi.downloadRawImage(
-						id,
+						imageId,
 						removeMetadata,
 						resizeMode,
 						resizeValue,
 						resizeFilter,
 					);
-					// slight delay to let browser process multiple downloads
+					setDownloadProgress({ current: i + 1, total });
+					// Allow browser to process multiple downloads
 					await new Promise((r) => setTimeout(r, 200));
 				}
 			}
@@ -182,6 +195,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 			alert("Failed to download images.");
 		} finally {
 			setIsDownloading(false);
+			setDownloadProgress(null);
 		}
 	};
 
@@ -445,6 +459,66 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 					</div>
 				</div>
 
+				{/* Download progress display */}
+				{isDownloading && downloadProgress && (
+					<div
+						style={{
+							padding: "12px 20px",
+							borderTop: "1px solid var(--border-color, #555)",
+						}}
+					>
+						<div
+							style={{
+								display: "flex",
+								justifyContent: "space-between",
+								alignItems: "center",
+								marginBottom: "8px",
+								fontSize: "13px",
+							}}
+						>
+							<span>
+								{format === "zip"
+									? `${downloadProgress.total} images - Creating ZIP...`
+									: `${downloadProgress.total} images - Processing ${downloadProgress.current + 1 > downloadProgress.total ? downloadProgress.total : downloadProgress.current + 1} of ${downloadProgress.total}...`}
+							</span>
+							{format !== "zip" && (
+								<span style={{ color: "var(--meld-text-secondary)" }}>
+									{Math.round((downloadProgress.current / downloadProgress.total) * 100)}%
+								</span>
+							)}
+						</div>
+						{/* Progress bar */}
+						<div
+							style={{
+								width: "100%",
+								height: "4px",
+								background: "var(--comfy-input-bg, #1a1a1a)",
+								borderRadius: "2px",
+								overflow: "hidden",
+							}}
+						>
+							<div
+								style={{
+									height: "100%",
+									borderRadius: "2px",
+									transition: "width 0.3s ease",
+									...(format === "zip"
+										? {
+												width: "100%",
+												background:
+													"linear-gradient(90deg, transparent, var(--meld-accent, #4a9eff), transparent)",
+												animation: "meld-progress-indeterminate 1.5s ease-in-out infinite",
+											}
+										: {
+												width: `${(downloadProgress.current / downloadProgress.total) * 100}%`,
+												background: "var(--meld-accent, #4a9eff)",
+											}),
+								}}
+							/>
+						</div>
+					</div>
+				)}
+
 				<div className="meld-modal-footer">
 					<button
 						type="button"
@@ -461,8 +535,12 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 						disabled={isDownloading}
 						style={{ display: "flex", alignItems: "center", gap: "8px" }}
 					>
-						{isDownloading ? (
-							"Downloading..."
+						{isDownloading && downloadProgress ? (
+							format === "zip" ? (
+								"Creating ZIP..."
+							) : (
+								`Downloading ${downloadProgress.current}/${downloadProgress.total}...`
+							)
 						) : (
 							<>
 								<Download size={16} /> Download
