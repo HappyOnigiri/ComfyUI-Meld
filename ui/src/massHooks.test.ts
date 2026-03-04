@@ -41,36 +41,33 @@ const mockEvent = {
 	target: { value: "test" },
 };
 
-const hooksToTest = [
-	{ hook: useSettingsModalLogic, args: [] },
+const hooksToTest: { run: (...args: any[]) => unknown; args?: any[] }[] = [
+	{ run: useSettingsModalLogic, args: [] },
 	{
-		hook: useSearchLogic,
+		run: useSearchLogic,
 		args: ["gallery", vi.fn(), false, vi.fn()],
 	},
-	{ hook: useGalleryLogic, args: [] },
+	{ run: useGalleryLogic, args: [] },
 	{
-		hook: useImageViewerLogic,
+		run: useImageViewerLogic,
 		args: [{ settings: {}, images: [{ id: 1 }] }, vi.fn(), vi.fn(), vi.fn()],
 	},
 	{
-		hook: useImageCardLogic,
+		run: useImageCardLogic,
 		args: [{ id: 1, filename: "test" }, false, vi.fn()],
 	},
 	{
-		hook: useViewerActionsBridge,
+		run: useViewerActionsBridge,
 		args: [{ settings: {}, images: [] }, vi.fn(), { id: 1, filename: "test" }],
 	},
 ];
 
 describe("Mass Hooks Coverage", () => {
 	it("renders hooks and calls returned functions", async () => {
+		const errors: Error[] = [];
 		for (const item of hooksToTest) {
 			try {
-				// We intentionally use a broad Function cast here because this test loop dynamically
-				// calls over heterogeneous hook signatures for mass coverage. Stronger typing was
-				// avoided to maintain a generic loop.
-				// biome-ignore lint/complexity/noBannedTypes: required for dynamic testing
-				const { result } = renderHook(() => (item.hook as Function)(...(item.args || [])));
+				const { result } = renderHook(() => item.run(...(item.args || [])));
 
 				if (result.current && typeof result.current === "object") {
 					for (const key of Object.keys(result.current)) {
@@ -80,32 +77,64 @@ describe("Mass Hooks Coverage", () => {
 								await act(async () => {
 									try {
 										await val();
-									} catch { }
+									} catch (e) {
+										errors.push(
+											new Error(`Inner error in ${item.run.name} calling ${key}(): ${String(e)}`),
+										);
+									}
 								});
-							} catch { }
+							} catch (e) {
+								errors.push(
+									new Error(`Outer error in ${item.run.name} calling ${key}(): ${String(e)}`),
+								);
+							}
 
 							try {
 								await act(async () => {
 									try {
 										await val(mockEvent);
-									} catch { }
+									} catch (e) {
+										errors.push(
+											new Error(
+												`Inner error in ${item.run.name} calling ${key}(mockEvent): ${String(e)}`,
+											),
+										);
+									}
 								});
-							} catch { }
+							} catch (e) {
+								errors.push(
+									new Error(
+										`Outer error in ${item.run.name} calling ${key}(mockEvent): ${String(e)}`,
+									),
+								);
+							}
 
 							try {
 								await act(async () => {
 									try {
 										await val(1);
-									} catch { }
+									} catch (e) {
+										errors.push(
+											new Error(`Inner error in ${item.run.name} calling ${key}(1): ${String(e)}`),
+										);
+									}
 								});
-							} catch { }
+							} catch (e) {
+								errors.push(
+									new Error(`Outer error in ${item.run.name} calling ${key}(1): ${String(e)}`),
+								);
+							}
 						}
 					}
 				}
 			} catch (e) {
-				// ignore
+				errors.push(new Error(`Error in renderHook for ${item.run.name}: ${String(e)}`));
 			}
 		}
-		expect(true).toBe(true);
+
+		if (errors.length > 0) {
+			throw errors[0];
+		}
+		expect(errors).toHaveLength(0);
 	});
 });

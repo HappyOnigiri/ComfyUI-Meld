@@ -1,9 +1,6 @@
 import { act, fireEvent, render } from "@testing-library/react";
 import React from "react";
 import { describe, it, vi } from "vitest";
-
-import type { MeldImage } from "./types";
-
 import { GalleryPanel } from "./features/gallery/components/GalleryPanel";
 import { ImportModal } from "./features/importer/components/ImportModal";
 import { MaskEditorModal } from "./features/mask-editor/components/MaskEditorModal";
@@ -11,6 +8,7 @@ import { SearchBar } from "./features/search/components/SearchBar";
 import { TagManagerView } from "./features/tags/components/TagManagerView";
 import { ImageViewer } from "./features/viewer/components/ImageViewer";
 import { WorkflowSelectionModal } from "./features/workflows/components/WorkflowSelectionModal";
+import type { MeldImage } from "./types";
 
 vi.mock("/scripts/api.js", () => ({
 	api: {
@@ -122,13 +120,13 @@ describe("Mass Components Coverage", () => {
 		try {
 			const { container } = render(<GalleryPanel />);
 			clickEverything(container);
-		} catch (e) { }
+		} catch (e) {}
 	});
 	it("massacres ImportModal", () => {
 		try {
 			const { container } = render(<ImportModal />);
 			clickEverything(container);
-		} catch (e) { }
+		} catch (e) {}
 	});
 	it("massacres WorkflowSelectionModal", () => {
 		try {
@@ -140,31 +138,31 @@ describe("Mass Components Coverage", () => {
 				/>,
 			);
 			clickEverything(container);
-		} catch (e) { }
+		} catch (e) {}
 	});
 	it("massacres MaskEditorModal", () => {
 		try {
 			const { container } = render(<MaskEditorModal imageId={1} mode="run" onClose={vi.fn()} />);
 			clickEverything(container);
-		} catch (e) { }
+		} catch (e) {}
 	});
 	it("massacres ImageViewer", () => {
 		try {
 			const { container } = render(<ImageViewer />);
 			// Need to find portals? createPortal appends to document.body
 			clickEverything(document.body);
-		} catch (e) { }
+		} catch (e) {}
 	});
 	it("massacres SearchBar", () => {
 		try {
 			const { container } = render(<SearchBar />);
 			clickEverything(container);
-		} catch (e) { }
+		} catch (e) {}
 	});
 	it("massacres TagManagerView", () => {
 		try {
 			const { container } = render(<TagManagerView onClose={vi.fn()} onSearch={vi.fn()} />);
 			clickEverything(container);
-		} catch (e) { }
+		} catch (e) {}
 	});
 });
