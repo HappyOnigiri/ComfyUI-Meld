@@ -28,8 +28,10 @@ MODAL_FILENAME_PATTERNS = ("*Modal*", "*Popup*", "*Overlay*")
 
 
 def matches_modal_filename(filename: str) -> bool:
-    """Return True if filename matches any modal pattern (tsx only; excludes hooks/helpers)."""
+    """Return True if filename matches any modal pattern (tsx only; excludes hooks/helpers and tests)."""
     if not filename.endswith(".tsx"):
+        return False
+    if ".test." in filename or ".spec." in filename:
         return False
     return any(fnmatch.fnmatch(filename, p) for p in MODAL_FILENAME_PATTERNS)
 
@@ -61,6 +63,7 @@ def is_modal_component(filepath: str, content: str) -> bool:
     Return True if the file is a modal/overlay component per policy.
 
     Only .tsx files are considered (React components); .ts hooks/reducers are excluded.
+    Test files (.test.tsx, .spec.tsx) are always excluded.
 
     A file is a modal if:
     - Filename matches *Modal*.tsx, *Popup*.tsx, *Overlay*.tsx, OR
@@ -68,6 +71,9 @@ def is_modal_component(filepath: str, content: str) -> bool:
     - Content contains meld-modal-overlay (as className, not selector strings)
     """
     filename = os.path.basename(filepath)
+    # Exclude test files
+    if ".test." in filename or ".spec." in filename:
+        return False
     if matches_modal_filename(filename):
         return True
     if has_create_portal(content):
