@@ -30,6 +30,11 @@
 	color: var(--meld-text-color);
 }
 
+.meld-tab:focus-visible {
+	outline: 2px solid var(--meld-accent-color);
+	outline-offset: -2px;
+}
+
 .meld-tab.active {
 	color: var(--meld-accent-color);
 	border-bottom-color: var(--meld-accent-color);
@@ -88,6 +93,13 @@
 .meld-tag-manager-close:hover {
 	background: var(--comfy-input-bg-active, rgba(255, 255, 255, 0.1));
 	color: var(--meld-text-color);
+}
+
+.meld-tag-manager-close:focus-visible {
+	background: var(--comfy-input-bg-active, rgba(255, 255, 255, 0.1));
+	color: var(--meld-text-color);
+	outline: 2px solid var(--meld-accent-color);
+	outline-offset: 2px;
 }
 
 .meld-tag-manager-content {
@@ -200,14 +212,32 @@
 	color: var(--meld-accent-color);
 }
 
+.meld-tag-item__btn:focus-visible {
+	background: var(--comfy-input-bg-active, rgba(68, 136, 255, 0.2));
+	color: var(--meld-accent-color);
+	outline: 2px solid var(--meld-accent-color);
+}
+
 .meld-tag-item__btn--delete:hover {
 	background: var(--error-color, rgba(255, 68, 68, 0.2));
 	color: var(--meld-danger-color);
 }
 
+.meld-tag-item__btn--delete:focus-visible {
+	background: var(--error-color, rgba(255, 68, 68, 0.2));
+	color: var(--meld-danger-color);
+	outline: 2px solid var(--meld-danger-color);
+}
+
 .meld-tag-item__btn--save:hover {
 	background: var(--comfy-input-bg-active, rgba(68, 255, 136, 0.2));
 	color: var(--meld-success-color);
+}
+
+.meld-tag-item__btn--save:focus-visible {
+	background: var(--comfy-input-bg-active, rgba(68, 255, 136, 0.2));
+	color: var(--meld-success-color);
+	outline: 2px solid var(--meld-success-color);
 }
 
 .meld-tag-rename-form {
@@ -264,7 +294,7 @@
 	align-items: center;
 	gap: 4px;
 	background: var(--meld-accent-color);
-	color: white;
+	color: var(--meld-on-accent, var(--meld-text-color, #ffffff));
 	padding: 2px 8px;
 	border-radius: 12px;
 	font-size: 12px;
@@ -283,7 +313,13 @@
 }
 
 .meld-tag-edit-remove:hover {
-	color: white;
+	color: var(--meld-on-accent, var(--meld-text-color, #ffffff));
+}
+
+.meld-tag-edit-remove:focus-visible {
+	color: var(--meld-on-accent, var(--meld-text-color, #ffffff));
+	outline: 2px solid var(--meld-on-accent, var(--meld-text-color, #ffffff));
+	outline-offset: 2px;
 }
 
 .meld-tag-edit-empty {
@@ -313,6 +349,12 @@
 	background: var(--meld-accent-color-hover, #5599ff);
 }
 
+.meld-tag-add-btn:focus-visible {
+	background: var(--meld-accent-color-hover, #5599ff);
+	outline: 2px solid var(--meld-accent-color);
+	outline-offset: 2px;
+}
+
 .meld-tag-suggestions {
 	display: flex;
 	flex-wrap: wrap;
@@ -338,6 +380,14 @@
 	background: var(--secondary-background-hover);
 	color: var(--meld-text-color);
 	border-color: var(--meld-accent-color);
+}
+
+.meld-tag-suggestion-item:focus-visible {
+	background: var(--secondary-background-hover);
+	color: var(--meld-text-color);
+	border-color: var(--meld-accent-color);
+	outline: 2px solid var(--meld-accent-color);
+	outline-offset: 2px;
 }
 
 .meld-tag-suggestions-loading,
