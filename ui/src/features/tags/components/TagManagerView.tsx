@@ -165,7 +165,7 @@ export const TagManagerView: React.FC<TagManagerViewProps> = ({ onClose, onSearc
 					/>
 					<button
 						type="submit"
-						className="meld-btn meld-btn-primary"
+						className="meld-btn meld-btn--primary"
 						style={{ padding: "4px 12px", height: "34px" }}
 						disabled={!newTagName.trim() || isAdding}
 					>

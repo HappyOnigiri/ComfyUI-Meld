@@ -346,7 +346,7 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 												{wf.valid && totalLoaders <= 1 && (
 													<button
 														type="button"
-														className="meld-btn meld-btn-primary meld-btn-small"
+														className="meld-btn meld-btn--primary meld-btn-small"
 														disabled={executing}
 														onClick={(e) => {
 															e.stopPropagation();
@@ -360,7 +360,7 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 												{wf.valid && totalLoaders > 1 && (
 													<button
 														type="button"
-														className="meld-btn meld-btn-primary meld-btn-small"
+														className="meld-btn meld-btn--primary meld-btn-small"
 														disabled={executing}
 														onClick={(e) => {
 															e.stopPropagation();
@@ -432,7 +432,7 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 				<div className="meld-modal-footer">
 					<button
 						type="button"
-						className="meld-btn meld-btn-secondary"
+						className="meld-btn meld-btn--secondary"
 						onClick={handleClose}
 						disabled={executing}
 					>

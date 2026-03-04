@@ -210,7 +210,7 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 				<div className="meld-viewer-details-item meld-viewer-details-item--notes">
 					<div className="meld-viewer-details-label">
 						Notes
-						{saveStatus === "saving" && <span className="meld-notes-status">Saving...</span>}
+						{saveStatus === "saving" && <span className="meld-notes__status">Saving...</span>}
 					</div>
 					<div
 						className="meld-viewer-notes-preview"

@@ -7676,7 +7676,7 @@ const bf = h.createContext(void 0), Jg = ({ children: e }) => {
                       /* @__PURE__ */ s.jsx("span", { className: "meld-form-label", children: "Images Found" }),
                       /* @__PURE__ */ s.jsx("div", { className: "meld-path-count", children: i === null ? /* @__PURE__ */ s.jsx("span", { className: "meld-path-count--loading", children: "Scanning..." }) : `${i} images` })
                     ] }),
-                    /* @__PURE__ */ s.jsx("div", { className: "meld-form-group checkbox", children: /* @__PURE__ */ s.jsxs("label", { children: [
+                    /* @__PURE__ */ s.jsx("div", { className: "meld-form-group--checkbox", children: /* @__PURE__ */ s.jsxs("label", { children: [
                       /* @__PURE__ */ s.jsx(
                         "input",
                         {
@@ -7763,7 +7763,7 @@ const bf = h.createContext(void 0), Jg = ({ children: e }) => {
                       "button",
                       {
                         type: "button",
-                        className: "meld-btn meld-btn-primary",
+                        className: "meld-btn meld-btn--primary",
                         onClick: M,
                         style: { width: "100%" },
                         children: [
@@ -8050,7 +8050,7 @@ const bf = h.createContext(void 0), Jg = ({ children: e }) => {
               "button",
               {
                 type: "button",
-                className: "meld-btn meld-btn-secondary",
+                className: "meld-btn meld-btn--secondary",
                 onClick: n,
                 disabled: i,
                 children: "Cancel"
@@ -8060,7 +8060,7 @@ const bf = h.createContext(void 0), Jg = ({ children: e }) => {
               "button",
               {
                 type: "button",
-                className: "meld-btn meld-btn-primary",
+                className: "meld-btn meld-btn--primary",
                 onClick: g,
                 disabled: i,
                 style: { display: "flex", alignItems: "center", gap: "8px" },
@@ -8910,7 +8910,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
                 /* @__PURE__ */ s.jsxs(
                   "button",
                   {
-                    className: `meld-mask-tool-btn ${u === "rect" ? "active" : ""}`,
+                    className: `meld-mask-tool-btn ${u === "rect" ? "meld-mask-tool-btn--active" : ""}`,
                     onClick: () => m("rect"),
                     type: "button",
                     title: "Rectangle Tool",
@@ -8923,7 +8923,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
                 /* @__PURE__ */ s.jsxs(
                   "button",
                   {
-                    className: `meld-mask-tool-btn ${u === "ellipse" ? "active" : ""}`,
+                    className: `meld-mask-tool-btn ${u === "ellipse" ? "meld-mask-tool-btn--active" : ""}`,
                     onClick: () => m("ellipse"),
                     type: "button",
                     title: "Ellipse Tool",
@@ -8936,7 +8936,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
                 /* @__PURE__ */ s.jsxs(
                   "button",
                   {
-                    className: `meld-mask-tool-btn ${u === "lasso" ? "active" : ""}`,
+                    className: `meld-mask-tool-btn ${u === "lasso" ? "meld-mask-tool-btn--active" : ""}`,
                     onClick: () => m("lasso"),
                     type: "button",
                     title: "Lasso Tool",
@@ -11170,12 +11170,12 @@ const Bf = [
             ] })
           ] }),
           /* @__PURE__ */ s.jsxs("div", { className: "meld-modal-footer", children: [
-            /* @__PURE__ */ s.jsx("button", { type: "button", className: "meld-btn meld-btn-secondary", onClick: n, children: "Cancel" }),
+            /* @__PURE__ */ s.jsx("button", { type: "button", className: "meld-btn meld-btn--secondary", onClick: n, children: "Cancel" }),
             /* @__PURE__ */ s.jsx(
               "button",
               {
                 type: "button",
-                className: "meld-btn meld-btn-primary",
+                className: "meld-btn meld-btn--primary",
                 onClick: D,
                 disabled: w,
                 children: w ? "Saving..." : "Save Changes"
@@ -11550,12 +11550,12 @@ const Bf = [
             )
           ] }) }),
           /* @__PURE__ */ s.jsxs("div", { className: "meld-modal-footer", children: [
-            /* @__PURE__ */ s.jsx("button", { type: "button", className: "meld-btn meld-btn-secondary", onClick: n, children: "Cancel" }),
+            /* @__PURE__ */ s.jsx("button", { type: "button", className: "meld-btn meld-btn--secondary", onClick: n, children: "Cancel" }),
             /* @__PURE__ */ s.jsx(
               "button",
               {
                 type: "button",
-                className: "meld-btn meld-btn-primary",
+                className: "meld-btn meld-btn--primary",
                 onClick: w,
                 disabled: c,
                 children: c ? "Saving..." : "Save Notes"
@@ -11640,7 +11640,7 @@ const Bf = [
                   c.id
                 )) })
               ] }),
-              /* @__PURE__ */ s.jsx("div", { className: "meld-modal-footer", children: /* @__PURE__ */ s.jsx("button", { type: "button", className: "meld-btn meld-btn-secondary", onClick: l, children: "Cancel" }) })
+              /* @__PURE__ */ s.jsx("div", { className: "meld-modal-footer", children: /* @__PURE__ */ s.jsx("button", { type: "button", className: "meld-btn meld-btn--secondary", onClick: l, children: "Cancel" }) })
             ]
           }
         )
@@ -11860,7 +11860,7 @@ const Bf = [
                             "button",
                             {
                               type: "button",
-                              className: "meld-btn meld-btn-primary meld-btn-small",
+                              className: "meld-btn meld-btn--primary meld-btn-small",
                               disabled: v,
                               onClick: (F) => {
                                 F.stopPropagation(), B(L.name);
@@ -11875,7 +11875,7 @@ const Bf = [
                             "button",
                             {
                               type: "button",
-                              className: "meld-btn meld-btn-primary meld-btn-small",
+                              className: "meld-btn meld-btn--primary meld-btn-small",
                               disabled: v,
                               onClick: (F) => {
                                 F.stopPropagation(), Q(L);
@@ -11936,7 +11936,7 @@ const Bf = [
                 "button",
                 {
                   type: "button",
-                  className: "meld-btn meld-btn-secondary",
+                  className: "meld-btn meld-btn--secondary",
                   onClick: D,
                   disabled: v,
                   children: "Cancel"
@@ -12239,13 +12239,13 @@ const Bf = [
                 }
               ) }),
               /* @__PURE__ */ s.jsxs("div", { className: "meld-modal-footer", children: [
-                /* @__PURE__ */ s.jsx("button", { type: "button", className: "meld-btn meld-btn-secondary", onClick: v, children: "Cancel" }),
+                /* @__PURE__ */ s.jsx("button", { type: "button", className: "meld-btn meld-btn--secondary", onClick: v, children: "Cancel" }),
                 /* @__PURE__ */ s.jsxs("div", { style: { display: "flex", gap: "10px" }, children: [
                   /* @__PURE__ */ s.jsx(
                     "button",
                     {
                       type: "button",
-                      className: "meld-btn meld-btn-danger",
+                      className: "meld-btn meld-btn--danger",
                       onClick: _,
                       children: n ? "Delete Permanently" : "Move to Trash"
                     }
@@ -12254,7 +12254,7 @@ const Bf = [
                     "button",
                     {
                       type: "button",
-                      className: "meld-btn meld-btn-danger",
+                      className: "meld-btn meld-btn--danger",
                       title: n ? "Permanently delete all images in the lineage" : "Move all images in the lineage to trash",
                       onClick: f,
                       children: n ? "Delete All Related" : "Move All Related"
@@ -12282,7 +12282,7 @@ const Bf = [
       /* @__PURE__ */ s.jsx("button", { className: "meld-modal-close", onClick: n, type: "button", children: /* @__PURE__ */ s.jsx(pe, { size: 20 }) })
     ] }),
     /* @__PURE__ */ s.jsx("div", { className: "meld-modal-body", children: /* @__PURE__ */ s.jsx("div", { style: { padding: "20px 0", textAlign: "center", fontSize: "14px" }, children: e }) }),
-    /* @__PURE__ */ s.jsx("div", { className: "meld-modal-footer", children: /* @__PURE__ */ s.jsx("button", { className: "meld-btn meld-btn-primary", onClick: n, type: "button", children: "OK" }) })
+    /* @__PURE__ */ s.jsx("div", { className: "meld-modal-footer", children: /* @__PURE__ */ s.jsx("button", { className: "meld-btn meld-btn--primary", onClick: n, type: "button", children: "OK" }) })
   ] }) });
 }, Zf = ({ imageId: e }) => {
   const { state: t, dispatch: n, refreshImages: r } = ge(), [l, a] = h.useState([]), [o, i] = h.useState(!0), [c, d] = h.useState(!1), p = h.useCallback(() => {
@@ -12495,7 +12495,7 @@ const Bf = [
                     "button",
                     {
                       type: "button",
-                      className: "meld-btn meld-btn-danger meld-btn--sm",
+                      className: "meld-btn meld-btn--danger meld-btn--sm",
                       style: {
                         flexShrink: 0,
                         width: "32px",
@@ -12819,28 +12819,28 @@ const Bf = [
       payload: { isFinished: !1, isRunning: !1 }
     });
   }, a = n.progress.phase === "linking", { current: o, total: i } = n.progress, c = i > 0 ? o / i : 0, d = a ? 50 + Math.round(c * 50) : Math.round(c * 50);
-  return /* @__PURE__ */ s.jsx("div", { className: "meld-import-progress-sidebar", children: n.isRunning ? /* @__PURE__ */ s.jsxs("div", { className: "meld-scan-progress-compact", children: [
+  return /* @__PURE__ */ s.jsx("div", { className: "meld-import-progress-sidebar", children: n.isRunning ? /* @__PURE__ */ s.jsxs("div", { className: "meld-scan-progress--compact", children: [
     /* @__PURE__ */ s.jsxs("div", { className: "meld-scan-info", children: [
-      /* @__PURE__ */ s.jsx("div", { className: "meld-scan-status-text-compact", children: n.shouldCancel ? /* @__PURE__ */ s.jsx("span", { className: "meld-status-cancelling", children: "Cancelling..." }) : a ? /* @__PURE__ */ s.jsx("span", { children: "Linking..." }) : /* @__PURE__ */ s.jsx("span", { children: "Scanning..." }) }),
-      /* @__PURE__ */ s.jsxs("div", { className: "meld-progress-stats-compact", children: [
+      /* @__PURE__ */ s.jsx("div", { className: "meld-scan__status-text--compact", children: n.shouldCancel ? /* @__PURE__ */ s.jsx("span", { className: "meld-scan__status--cancelling", children: "Cancelling..." }) : a ? /* @__PURE__ */ s.jsx("span", { children: "Linking..." }) : /* @__PURE__ */ s.jsx("span", { children: "Scanning..." }) }),
+      /* @__PURE__ */ s.jsxs("div", { className: "meld-progress-stats--compact", children: [
         n.progress.current,
         " / ",
         n.progress.total
       ] })
     ] }),
-    /* @__PURE__ */ s.jsx("div", { className: "meld-progress-container-compact", children: /* @__PURE__ */ s.jsx("div", { className: "meld-progress-bar", style: { width: `${d}%` } }) }),
+    /* @__PURE__ */ s.jsx("div", { className: "meld-progress-container--compact", children: /* @__PURE__ */ s.jsx("div", { className: "meld-progress-bar", style: { width: `${d}%` } }) }),
     /* @__PURE__ */ s.jsx(
       "button",
       {
         type: "button",
-        className: "meld-btn-stop-compact",
+        className: "meld-btn--stop--compact",
         disabled: n.shouldCancel,
         onClick: r,
         title: "Stop Scan",
         children: /* @__PURE__ */ s.jsx(vf, { size: 12, fill: "currentColor" })
       }
     )
-  ] }) : /* @__PURE__ */ s.jsxs("div", { className: "meld-scan-finished-compact", children: [
+  ] }) : /* @__PURE__ */ s.jsxs("div", { className: "meld-scan-finished--compact", children: [
     /* @__PURE__ */ s.jsxs("div", { className: "meld-finished-info", children: [
       /* @__PURE__ */ s.jsx(qp, { size: 14, className: "meld-success-icon" }),
       /* @__PURE__ */ s.jsxs("span", { className: "meld-finished-text", children: [
@@ -12851,7 +12851,7 @@ const Bf = [
         " updated"
       ] })
     ] }),
-    /* @__PURE__ */ s.jsx("button", { type: "button", className: "meld-btn-ok-compact", onClick: l, children: "OK" })
+    /* @__PURE__ */ s.jsx("button", { type: "button", className: "meld-btn--ok--compact", onClick: l, children: "OK" })
   ] }) });
 }, wi = {
   lightTable: {
@@ -13894,7 +13894,7 @@ const Us = ({
                     "button",
                     {
                       type: "button",
-                      className: "meld-btn meld-btn-secondary",
+                      className: "meld-btn meld-btn--secondary",
                       onClick: () => i(null),
                       children: "Cancel"
                     }
@@ -13903,7 +13903,7 @@ const Us = ({
                     "button",
                     {
                       type: "button",
-                      className: "meld-btn meld-btn-primary",
+                      className: "meld-btn meld-btn--primary",
                       onClick: w,
                       disabled: l || !c.trim() || !p.trim(),
                       children: l ? "Saving..." : "Save Changes"
@@ -14863,7 +14863,7 @@ const Us = ({
                         "button",
                         {
                           type: "button",
-                          className: "meld-btn meld-btn-secondary",
+                          className: "meld-btn meld-btn--secondary",
                           onClick: () => D(null),
                           children: "Cancel"
                         }
@@ -14872,7 +14872,7 @@ const Us = ({
                         "button",
                         {
                           type: "button",
-                          className: "meld-btn meld-btn-primary",
+                          className: "meld-btn meld-btn--primary",
                           onClick: R,
                           disabled: j || !A.trim() || !z.trim(),
                           children: j ? "Saving..." : "Save Changes"
@@ -14999,7 +14999,7 @@ const Us = ({
           "button",
           {
             type: "submit",
-            className: "meld-btn meld-btn-primary",
+            className: "meld-btn meld-btn--primary",
             style: { padding: "4px 12px", height: "34px" },
             disabled: !c.trim() || p,
             children: [
@@ -16184,7 +16184,7 @@ const wv = ({
         p && /* @__PURE__ */ s.jsxs("div", { className: "meld-viewer-details-item meld-viewer-details-item--notes", children: [
           /* @__PURE__ */ s.jsxs("div", { className: "meld-viewer-details-label", children: [
             "Notes",
-            i === "saving" && /* @__PURE__ */ s.jsx("span", { className: "meld-notes-status", children: "Saving..." })
+            i === "saving" && /* @__PURE__ */ s.jsx("span", { className: "meld-notes__status", children: "Saving..." })
           ] }),
           /* @__PURE__ */ s.jsx(
             "div",
@@ -17533,19 +17533,19 @@ const im = (e) => {
   /* @__PURE__ */ s.jsx(
     "div",
     {
-      className: "meld-prompt-popup-overlay",
+      className: "meld-prompt-popup__overlay",
       onClick: (a) => {
         a.stopPropagation(), n();
       },
-      children: /* @__PURE__ */ s.jsxs("div", { className: "meld-prompt-popup-content", onClick: (a) => a.stopPropagation(), children: [
-        /* @__PURE__ */ s.jsxs("div", { className: "meld-prompt-popup-header", children: [
+      children: /* @__PURE__ */ s.jsxs("div", { className: "meld-prompt-popup__content", onClick: (a) => a.stopPropagation(), children: [
+        /* @__PURE__ */ s.jsxs("div", { className: "meld-prompt-popup__header", children: [
           /* @__PURE__ */ s.jsx("span", { children: e }),
           /* @__PURE__ */ s.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "10px" }, children: [
-            l ? /* @__PURE__ */ s.jsx(di, { size: 18, style: { color: "var(--meld-success-color)" } }) : /* @__PURE__ */ s.jsx(Zp, { className: "meld-prompt-popup-copy", size: 18, onClick: () => r(t) }),
-            /* @__PURE__ */ s.jsx(pe, { className: "meld-prompt-popup-close", size: 18, onClick: n })
+            l ? /* @__PURE__ */ s.jsx(di, { size: 18, style: { color: "var(--meld-success-color)" } }) : /* @__PURE__ */ s.jsx(Zp, { className: "meld-prompt-popup__copy", size: 18, onClick: () => r(t) }),
+            /* @__PURE__ */ s.jsx(pe, { className: "meld-prompt-popup__close", size: 18, onClick: n })
           ] })
         ] }),
-        /* @__PURE__ */ s.jsx("div", { className: "meld-prompt-popup-text", children: t })
+        /* @__PURE__ */ s.jsx("div", { className: "meld-prompt-popup__text", children: t })
       ] })
     }
   ),
@@ -17805,7 +17805,7 @@ const im = (e) => {
           (t.settings["sidebar.show_user_notes"] === "always" || t.settings["sidebar.show_user_notes"] === "if_present" && e.user_notes) && /* @__PURE__ */ s.jsxs("div", { className: "meld-image-card__meta-item meld-image-card__meta-item--notes", children: [
             /* @__PURE__ */ s.jsxs("div", { className: "meld-image-card__meta-label", children: [
               "Notes",
-              Q === "saving" && /* @__PURE__ */ s.jsx("span", { className: "meld-notes-status", children: "Saving..." })
+              Q === "saving" && /* @__PURE__ */ s.jsx("span", { className: "meld-notes__status", children: "Saving..." })
             ] }),
             /* @__PURE__ */ s.jsx(
               "div",
@@ -17814,7 +17814,7 @@ const im = (e) => {
                 onClick: (N) => {
                   N.stopPropagation(), I();
                 },
-                children: /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__notes-preview", children: e.user_notes || /* @__PURE__ */ s.jsx("span", { className: "meld-notes-placeholder", children: "Add notes..." }) })
+                children: /* @__PURE__ */ s.jsx("div", { className: "meld-image-card__notes-preview", children: e.user_notes || /* @__PURE__ */ s.jsx("span", { className: "meld-notes__placeholder", children: "Add notes..." }) })
               }
             )
           ] })
