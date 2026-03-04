@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { initialState } from "../../../store/galleryReducer";
 import { createTestImage, resetImageIdCounter } from "../../../test/factories/image";
@@ -30,9 +31,18 @@ vi.mock("./PromptPopup", () => ({
 	PromptPopup: () => <div data-testid="prompt-popup" />,
 }));
 
-function createMockCardLogic(overrides = {}) {
+function createMockCardLogic(
+	overrides: { settings?: Record<string, unknown>; [key: string]: unknown } = {},
+) {
+	const { settings, ...rest } = overrides;
 	return {
-		state: { ...initialState },
+		state: {
+			...initialState,
+			settings: {
+				...initialState.settings,
+				...settings,
+			},
+		},
 		dispatch: vi.fn(),
 		isSelected: false,
 		viewMode: "grid_details",
@@ -64,7 +74,7 @@ function createMockCardLogic(overrides = {}) {
 		handleRunWithMask: vi.fn(),
 		handleUpdateUserNotes: vi.fn(),
 		fetchFullImageDetails: vi.fn(),
-		...overrides,
+		...rest,
 	};
 }
 
@@ -142,12 +152,14 @@ describe("DetailedImageCard", () => {
 			handleEditTags,
 			handleEditNotes,
 			fetchFullImageDetails,
+			settings: {
+				"sidebar.show_model_name": true,
+				"sidebar.show_positive_prompt": true,
+				"sidebar.show_negative_prompt": true,
+				"sidebar.show_tags": true,
+				"sidebar.show_user_notes": "always",
+			},
 		});
-		mockLogic.state.settings["sidebar.show_model_name"] = true;
-		mockLogic.state.settings["sidebar.show_positive_prompt"] = true;
-		mockLogic.state.settings["sidebar.show_negative_prompt"] = true;
-		mockLogic.state.settings["sidebar.show_tags"] = true;
-		mockLogic.state.settings["sidebar.show_user_notes"] = "always";
 
 		mockUseImageCardLogic.mockReturnValue(mockLogic);
 
@@ -158,7 +170,7 @@ describe("DetailedImageCard", () => {
 			negative_prompt: "my_negative",
 		});
 		render(<DetailedImageCard image={image} />);
-		const user = (await import("@testing-library/user-event")).default.setup();
+		const user = userEvent.setup();
 
 		// Checkbox
 		await user.click(screen.getByRole("checkbox"));

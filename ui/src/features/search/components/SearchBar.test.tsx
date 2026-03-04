@@ -102,12 +102,7 @@ describe("SearchBar", () => {
 		});
 		expect(input).toHaveValue("testing");
 
-		// Clear button should appear. Getting by SVG might be tricky, it's the only button when there's input except search
-		// Wait, X is lucide icon. Find button containing X.
-		// Actually search bar has a button for clear. We can find it by finding all buttons. The search button is first.
-		const buttons = screen.getAllByRole("button");
-		// First is Search, second is clear (no favorites yet because query not submitted to state)
-		const clearButton = buttons[1]!;
+		const clearButton = screen.getByRole("button", { name: /clear/i });
 
 		await act(async () => {
 			await user.click(clearButton);

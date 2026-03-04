@@ -14692,6 +14692,7 @@ const Us = ({
                   {
                     type: "button",
                     onClick: _,
+                    "aria-label": "Clear search",
                     style: {
                       background: "none",
                       border: "none",
