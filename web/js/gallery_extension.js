@@ -10995,7 +10995,16 @@ const Bf = [
         children: /* @__PURE__ */ s.jsxs("div", { className: "meld-modal-content meld-settings-modal", onClick: (Q) => Q.stopPropagation(), children: [
           /* @__PURE__ */ s.jsxs("div", { className: "meld-modal-header", children: [
             /* @__PURE__ */ s.jsx("h2", { children: "Settings" }),
-            /* @__PURE__ */ s.jsx("button", { type: "button", className: "meld-modal-close", onClick: o, children: /* @__PURE__ */ s.jsx(pe, { size: 20 }) })
+            /* @__PURE__ */ s.jsx(
+              "button",
+              {
+                type: "button",
+                className: "meld-modal-close",
+                onClick: o,
+                "aria-label": "Close",
+                children: /* @__PURE__ */ s.jsx(pe, { size: 20 })
+              }
+            )
           ] }),
           /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-layout", children: [
             /* @__PURE__ */ s.jsx("div", { className: "meld-settings-sidebar", children: /* @__PURE__ */ s.jsx("div", { className: "meld-tabs", children: B.map((Q) => /* @__PURE__ */ s.jsx(
