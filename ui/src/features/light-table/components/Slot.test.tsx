@@ -1,5 +1,5 @@
 import { render } from "@testing-library/react";
-import React from "react";
+import type React from "react";
 import { describe, expect, it, vi } from "vitest";
 import { Slot } from "./Slot";
 
@@ -15,7 +15,7 @@ vi.mock("../../../store/GalleryContext", () => ({
 
 vi.mock("../store", () => ({
 	useLightTableStore: Object.assign(
-		(selector: any) => {
+		(selector: unknown) => {
 			const state = {
 				buckets: {},
 				slots: [{ id: "keep", label: "Keep", color: "var(--comfy-menu-bg)" }],
@@ -36,7 +36,13 @@ vi.mock("../store", () => ({
 
 describe("Slot", () => {
 	it("renders without crashing", () => {
-		const { container } = render(<Slot {...({ config: { type: "image", id: "1" } } as any)} />);
+		const { container } = render(
+			<Slot
+				{...({ config: { type: "image", id: "1" } } as unknown as React.ComponentProps<
+					typeof Slot
+				>)}
+			/>,
+		);
 		expect(container).toBeTruthy();
 	});
 });

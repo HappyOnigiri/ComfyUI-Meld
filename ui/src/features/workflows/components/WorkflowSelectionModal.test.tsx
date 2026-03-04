@@ -1,5 +1,5 @@
 import { render } from "@testing-library/react";
-import React from "react";
+import type React from "react";
 import { describe, expect, it, vi } from "vitest";
 import { WorkflowSelectionModal } from "./WorkflowSelectionModal";
 
@@ -12,7 +12,9 @@ vi.mock("../../../store/GalleryContext", () => ({
 
 describe("WorkflowSelectionModal", () => {
 	it("renders without crashing", () => {
-		const { container } = render(<WorkflowSelectionModal {...({} as any)} />);
+		const { container } = render(
+			<WorkflowSelectionModal {...({} as React.ComponentProps<typeof WorkflowSelectionModal>)} />,
+		);
 		expect(container).toBeTruthy();
 	});
 });

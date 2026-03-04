@@ -24,32 +24,35 @@ describe("useImageViewerLogic", () => {
 					searchQuery: "",
 					viewScope: "all",
 					selectedIds: new Set(),
-					images: [{ id: 1 } as any],
+					images: [{ id: 1 } as never],
 					lineageImages: [],
 					activeModal: {},
 					pagination: {},
-				} as any,
+				} as never,
 				dispatch: vi.fn(),
-				currentImage: { id: 1, filename: "a", type: "output", subfolder: "", tags: [] } as any,
+				currentImage: { id: 1, filename: "a", type: "output", subfolder: "", tags: [] } as never,
 				currentIndex: 0,
-				images: [{ id: 1 } as any],
+				images: [{ id: 1 } as never],
 				fetchFullImageDetails: vi.fn().mockResolvedValue(true),
-			} as any),
+			} as never),
 		);
 
 		act(() => {
 			try {
-				(result.current as any).onImageLoad({
+				// @ts-expect-error accessing internal hook method
+				result.current.onImageLoad({
 					target: { naturalWidth: 100, naturalHeight: 100 },
-				} as any);
+				} as never);
 			} catch (e) {}
 			try {
-				(result.current as any).onImageError();
+				// @ts-expect-error accessing internal hook method
+				result.current.onImageError();
 			} catch (e) {}
 			try {
-				(result.current as any).onTransform({
+				// @ts-expect-error accessing internal hook method
+				result.current.onTransform({
 					state: { scale: 2, positionX: 0, positionY: 0 },
-				} as any);
+				} as never);
 			} catch (e) {}
 		});
 

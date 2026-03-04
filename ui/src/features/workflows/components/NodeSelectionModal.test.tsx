@@ -1,5 +1,5 @@
 import { render } from "@testing-library/react";
-import React from "react";
+import type React from "react";
 import { describe, expect, it, vi } from "vitest";
 import { NodeSelectionModal } from "./NodeSelectionModal";
 
@@ -12,7 +12,11 @@ vi.mock("../../../store/GalleryContext", () => ({
 describe("NodeSelectionModal", () => {
 	it("renders without crashing", () => {
 		const { container } = render(
-			<NodeSelectionModal {...({ nodes: [], image: { filename: "test" } } as any)} />,
+			<NodeSelectionModal
+				{...({ nodes: [], image: { filename: "test" } } as unknown as React.ComponentProps<
+					typeof NodeSelectionModal
+				>)}
+			/>,
 		);
 		expect(container).toBeTruthy();
 	});

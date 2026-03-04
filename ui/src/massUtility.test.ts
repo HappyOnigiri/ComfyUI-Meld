@@ -20,7 +20,7 @@ vi.mock("./api", () => ({
 	getVersion: vi.fn(),
 }));
 
-const modules: any[] = [
+const modules: Record<string, unknown>[] = [
 	ltActions,
 	searchApi,
 	importerApi,
@@ -42,9 +42,9 @@ describe("Mass utility functions coverage", () => {
 				if (typeof fn === "function") {
 					const attempts = [
 						() => fn(),
-						() => fn({} as any),
-						() => fn({} as any, {} as any),
-						() => fn({} as any, {} as any, {} as any),
+						() => fn({} as never),
+						() => fn({} as never, {} as never),
+						() => fn({} as never, {} as never, {} as never),
 					];
 
 					for (const attempt of attempts) {

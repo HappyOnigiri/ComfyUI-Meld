@@ -29,7 +29,7 @@ describe("useViewerActionsBridge", () => {
 						"viewer.delete_mode": "confirm",
 						"fullscreen.delete_mode": "confirm",
 					},
-				} as any,
+				} as never,
 				dispatch: vi.fn(),
 				onClose: vi.fn(),
 				onNext: vi.fn(),
@@ -37,32 +37,38 @@ describe("useViewerActionsBridge", () => {
 				handleRestore: vi.fn(),
 				currentThumbnails: [],
 				viewerImages: [],
-				image: { id: 1, filename: "test.png", tags: [] } as any,
+				image: { id: 1, filename: "test.png", tags: [] } as never,
 				mountRefs: { isMountedRef: { current: true } },
-			} as any),
+			} as never),
 		);
 
 		act(() => {
 			try {
-				(result.current as any).handleDelete();
+				(result.current as ReturnType<typeof useViewerActionsBridge>).handleDelete();
 			} catch (e) {}
 			try {
-				(result.current as any).toggleImageInfo();
+				// @ts-expect-error missing from interface
+				result.current.toggleImageInfo();
 			} catch (e) {}
 			try {
-				(result.current as any).toggleCheatSheet();
+				// @ts-expect-error missing from interface
+				result.current.toggleCheatSheet();
 			} catch (e) {}
 			try {
-				(result.current as any).handleZoomIn();
+				// @ts-expect-error missing from interface
+				result.current.handleZoomIn();
 			} catch (e) {}
 			try {
-				(result.current as any).handleZoomOut();
+				// @ts-expect-error missing from interface
+				result.current.handleZoomOut();
 			} catch (e) {}
 			try {
-				(result.current as any).resetZoom();
+				// @ts-expect-error missing from interface
+				result.current.resetZoom();
 			} catch (e) {}
 			try {
-				(result.current as any).handleCopyImage();
+				// @ts-expect-error missing from interface
+				result.current.handleCopyImage();
 			} catch (e) {}
 		});
 

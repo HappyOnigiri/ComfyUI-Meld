@@ -5,10 +5,10 @@ import { useViewerFullscreen } from "./useViewerFullscreen";
 describe("useViewerFullscreen", () => {
 	it("renders and toggles", () => {
 		const dispatch = vi.fn();
-		const element = document.createElement("div") as any;
+		const element = document.createElement("div") as unknown as HTMLElement;
 		element.requestFullscreen = vi.fn().mockResolvedValue(undefined);
 		const { result } = renderHook(() =>
-			useViewerFullscreen({ overlayRef: { current: element } as any } as any),
+			useViewerFullscreen({ overlayRef: { current: element } as never } as never),
 		);
 
 		act(() => {

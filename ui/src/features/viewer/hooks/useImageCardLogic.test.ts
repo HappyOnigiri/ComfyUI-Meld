@@ -19,12 +19,12 @@ describe("useImageCardLogic", () => {
 	it("executes functions without crashing", () => {
 		const { result } = renderHook(() =>
 			useImageCardLogic({
-				image: { id: 1, filename: "test.png", type: "output", subfolder: "" } as any,
+				image: { id: 1, filename: "test.png", type: "output", subfolder: "" } as never,
 				viewScope: "all",
 				showThumbnails: false,
 				isCompact: false,
 				isSelected: false,
-			} as any),
+			} as never),
 		);
 
 		expect(result.current).toBeTruthy();

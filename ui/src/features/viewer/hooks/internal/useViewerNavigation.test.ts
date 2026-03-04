@@ -6,12 +6,12 @@ describe("useViewerNavigation", () => {
 	it("renders and calls next/prev safely", () => {
 		const { result } = renderHook(() =>
 			useViewerNavigation({
-				images: [{ id: 1 }, { id: 2 }, { id: 3 }] as any,
+				images: [{ id: 1 }, { id: 2 }, { id: 3 }] as never,
 				currentIndex: 1,
-				dispatch: vi.fn() as any,
-				resetZoom: vi.fn() as any,
-				settings: { "viewer.loop": true } as any,
-			} as any),
+				dispatch: vi.fn() as never,
+				resetZoom: vi.fn() as never,
+				settings: { "viewer.loop": true } as never,
+			} as never),
 		);
 
 		act(() => {

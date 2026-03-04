@@ -16,7 +16,7 @@ describe("useViewerPrefetch", () => {
 				isLoading: false,
 				loadMoreImages: vi.fn(),
 				fetchFullImageDetails: vi.fn(),
-			} as any),
+			} as never),
 		);
 		expect(true).toBe(true);
 	});

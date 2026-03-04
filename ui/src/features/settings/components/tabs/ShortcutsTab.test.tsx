@@ -1,5 +1,5 @@
 import { render } from "@testing-library/react";
-import React from "react";
+import type React from "react";
 import { describe, expect, it, vi } from "vitest";
 import { ShortcutsTab } from "./ShortcutsTab";
 
@@ -13,7 +13,7 @@ vi.mock("../../../../store/GalleryContext", () => ({
 describe("ShortcutsTab", () => {
 	it("renders", () => {
 		try {
-			render(<ShortcutsTab {...({} as any)} />);
+			render(<ShortcutsTab {...({} as React.ComponentProps<typeof ShortcutsTab>)} />);
 		} catch (e) {}
 		expect(true).toBeTruthy();
 	});
