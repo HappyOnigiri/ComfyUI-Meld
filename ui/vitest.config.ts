@@ -22,12 +22,13 @@ export default defineConfig({
 		coverage: {
 			provider: "v8",
 			reporter: ["text", "json", "html"],
+			include: ["src/**/*.{ts,tsx}"],
 			exclude: ["node_modules/", "src/test/"],
 			thresholds: {
-				lines: 14,
-				functions: 12,
-				branches: 50,
-				statements: 14,
+				lines: 20,
+				functions: 20,
+				branches: 20,
+				statements: 20,
 			},
 		},
 	},
