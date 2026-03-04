@@ -19,6 +19,8 @@ function loadStoredOptions(): StoredDownloadOptions {
 		if (saved) {
 			const parsed = JSON.parse(saved) as Partial<StoredDownloadOptions>;
 			const raw = parsed.removeMetadata as unknown;
+			// Legacy clients/saved states may store removeMetadata as boolean true, string "true",
+			// or numeric 1; preserve these exact values for backward compatibility.
 			const removeMetadata =
 				raw === true || raw === "true" || (typeof raw === "number" && raw === 1);
 			return {
