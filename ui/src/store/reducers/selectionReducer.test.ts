@@ -82,6 +82,36 @@ describe("selectionReducer", () => {
 		expect(next.lastSelectedId).toBe(5);
 	});
 
+	it("SELECT_RANGE returns unchanged state if lastSelectedId is not in images", () => {
+		const images = [createTestImage({ id: 20 }), createTestImage({ id: 30 })];
+		const state = {
+			...initialState,
+			images,
+			selectedIds: new Set([10]),
+			lastSelectedId: 10,
+		};
+		const next = selectionReducer(state, {
+			type: "SELECT_RANGE",
+			payload: 20,
+		});
+		expect(next).toBe(state);
+	});
+
+	it("SELECT_RANGE returns unchanged state if payload target is not in images", () => {
+		const images = [createTestImage({ id: 10 }), createTestImage({ id: 20 })];
+		const state = {
+			...initialState,
+			images,
+			selectedIds: new Set([10]),
+			lastSelectedId: 10,
+		};
+		const next = selectionReducer(state, {
+			type: "SELECT_RANGE",
+			payload: 30, // Not in images
+		});
+		expect(next).toBe(state);
+	});
+
 	it("DESELECT_IMAGES removes specified ids", () => {
 		const state = {
 			...initialState,

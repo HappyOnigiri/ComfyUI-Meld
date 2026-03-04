@@ -14,6 +14,7 @@ vi.mock("../../../logger", () => ({
 	logger: { log: vi.fn(), error: vi.fn(), warn: vi.fn() },
 }));
 
+import { logger } from "../../../logger";
 import * as tagsApi from "../api/tagsApi";
 import { TagManagerView } from "./TagManagerView";
 
@@ -65,5 +66,16 @@ describe("TagManagerView", () => {
 		await waitFor(() => {
 			expect(screen.getByText("No tags found.")).toBeInTheDocument();
 		});
+	});
+
+	it("shows empty message and logs error when fetch fails", async () => {
+		const error = new Error("fetch failed");
+		vi.mocked(tagsApi.fetchTags).mockRejectedValueOnce(error);
+		render(<TagManagerView onClose={mockOnClose} onSearch={mockOnSearch} />);
+
+		await waitFor(() => {
+			expect(screen.getByText("No tags found.")).toBeInTheDocument();
+		});
+		expect(logger.error).toHaveBeenCalledWith("Failed to fetch tags:", error);
 	});
 });

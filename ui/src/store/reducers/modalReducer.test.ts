@@ -29,6 +29,18 @@ describe("modalReducer", () => {
 		});
 	});
 
+	it("OPEN_VIEWER with boolean initialMaskMode sets mask_editor modal to run", () => {
+		const next = modalReducer(initialState, {
+			type: "OPEN_VIEWER",
+			payload: { id: 1, mode: "gallery", initialMaskMode: true },
+		});
+		expect(next.activeModal).toEqual({
+			type: "mask_editor",
+			imageId: 1,
+			mode: "run",
+		});
+	});
+
 	it("OPEN_VIEWER with number payload does not change activeModal", () => {
 		const next = modalReducer(initialState, {
 			type: "OPEN_VIEWER",

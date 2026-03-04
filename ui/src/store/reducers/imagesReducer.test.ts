@@ -80,6 +80,40 @@ describe("imagesReducer", () => {
 		expect(next.pagination.total).toBe(1);
 	});
 
+	it("ADD_IMAGES deduplicates images by id and increments pagination.total properly", () => {
+		const old = createTestImage({ id: 1, created_at: 1000 });
+		const state = {
+			...initialState,
+			images: [old],
+			pagination: { ...initialState.pagination, total: 1 },
+		};
+		const dup = createTestImage({ id: 1, created_at: 2000 });
+		const recent = createTestImage({ id: 2, created_at: 2000 });
+		const next = imagesReducer(state, {
+			type: "ADD_IMAGES",
+			payload: [dup, recent],
+		});
+		expect(next.images).toHaveLength(2);
+		expect(next.pagination.total).toBe(2);
+	});
+
+	it("REMOVE_IMAGES deduplicates ids and decrements pagination.total properly", () => {
+		const img1 = createTestImage({ id: 1 });
+		const img2 = createTestImage({ id: 2 });
+		const state = {
+			...initialState,
+			images: [img1, img2],
+			pagination: { ...initialState.pagination, total: 2 },
+		};
+		const next = imagesReducer(state, {
+			type: "REMOVE_IMAGES",
+			payload: [1, 1], // Duplicate ID
+		});
+		expect(next.images).toHaveLength(1);
+		expect(next.images[0]?.id).toBe(2);
+		expect(next.pagination.total).toBe(1);
+	});
+
 	it("UPDATE_IMAGE updates a specific image in the list", () => {
 		const img = createTestImage({ id: 1, filename: "old.png" });
 		const state = { ...initialState, images: [img], lineageImages: [img] };

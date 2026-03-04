@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock the settings hook
@@ -95,11 +95,18 @@ describe("SettingsModal", () => {
 
 	it("renders close button", () => {
 		render(<SettingsModal />);
-		// The close button has an X icon
-		const buttons = screen.getAllByRole("button");
-		// Close button is the one in header with meld-modal-close class
-		const closeBtn = buttons.find((b) => b.classList.contains("meld-modal-close"));
-		expect(closeBtn).toBeDefined();
+		const closeBtn = screen.getByRole("button", { name: /close/i });
+		expect(closeBtn).toBeInTheDocument();
+	});
+
+	it("calls setActiveTab when a tab is clicked", () => {
+		const mockSetActiveTab = vi.fn();
+		mockUseSettingsModalLogic.mockReturnValue(createMockLogic({ setActiveTab: mockSetActiveTab }));
+		render(<SettingsModal />);
+
+		const viewTab = screen.getByRole("button", { name: "View" });
+		fireEvent.click(viewTab);
+		expect(mockSetActiveTab).toHaveBeenCalledWith("View");
 	});
 
 	it("renders Gallery tab content by default", () => {

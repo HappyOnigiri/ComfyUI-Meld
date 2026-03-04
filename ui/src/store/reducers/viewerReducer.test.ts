@@ -143,6 +143,38 @@ describe("viewerReducer", () => {
 		expect(next.viewerImageId).toBe(5);
 	});
 
+	it("NEXT_IMAGE at end in gallery mode returns unchanged state when hasMore is true", () => {
+		const images = [createTestImage({ id: 1 }), createTestImage({ id: 2 })];
+		const state = {
+			...initialState,
+			images,
+			viewerImageId: 2,
+			viewerMode: "gallery" as const,
+			pagination: { ...initialState.pagination, hasMore: true },
+		};
+		const next = viewerReducer(state, {
+			type: "NEXT_IMAGE",
+			payload: { isFullscreen: false },
+		});
+		expect(next).toBe(state);
+	});
+
+	it("PREVIOUS_IMAGE at start in gallery mode returns unchanged state when hasMore is true", () => {
+		const images = [createTestImage({ id: 1 }), createTestImage({ id: 2 })];
+		const state = {
+			...initialState,
+			images,
+			viewerImageId: 1,
+			viewerMode: "gallery" as const,
+			pagination: { ...initialState.pagination, hasMore: true },
+		};
+		const next = viewerReducer(state, {
+			type: "PREVIOUS_IMAGE",
+			payload: { isFullscreen: false },
+		});
+		expect(next).toBe(state);
+	});
+
 	it("unknown action returns state unchanged", () => {
 		const next = viewerReducer(initialState, { type: "UNKNOWN" } as never);
 		expect(next).toBe(initialState);

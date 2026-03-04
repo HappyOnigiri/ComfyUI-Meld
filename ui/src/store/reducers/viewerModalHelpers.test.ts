@@ -25,4 +25,8 @@ describe("resolveInitialMaskMode", () => {
 	it("initialMaskMode unknown string => false", () => {
 		expect(resolveInitialMaskMode({ initialMaskMode: "unknown" })).toBe(false);
 	});
+
+	it("initialMaskMode false => false", () => {
+		expect(resolveInitialMaskMode({ initialMaskMode: false })).toBe(false);
+	});
 });

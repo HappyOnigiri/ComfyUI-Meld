@@ -58,6 +58,15 @@ describe("uiMetaReducer", () => {
 		expect(next.toastType).toBe("error");
 	});
 
+	it("SHOW_TOAST defaults to info type for object payload without type", () => {
+		const next = uiMetaReducer(initialState, {
+			type: "SHOW_TOAST",
+			payload: { message: "fallback" } as { message: string; type?: "info" | "error" },
+		});
+		expect(next.toastMessage).toBe("fallback");
+		expect(next.toastType).toBe("info");
+	});
+
 	it("HIDE_TOAST clears toast message", () => {
 		const state = { ...initialState, toastMessage: "old" };
 		const next = uiMetaReducer(state, { type: "HIDE_TOAST" });
