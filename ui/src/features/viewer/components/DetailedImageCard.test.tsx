@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { initialState } from "../../../store/galleryReducer";
 import { createTestImage, resetImageIdCounter } from "../../../test/factories/image";
@@ -30,9 +31,18 @@ vi.mock("./PromptPopup", () => ({
 	PromptPopup: () => <div data-testid="prompt-popup" />,
 }));
 
-function createMockCardLogic(overrides = {}) {
+function createMockCardLogic(
+	overrides: { settings?: Record<string, unknown>; [key: string]: unknown } = {},
+) {
+	const { settings, ...rest } = overrides;
 	return {
-		state: { ...initialState },
+		state: {
+			...initialState,
+			settings: {
+				...initialState.settings,
+				...settings,
+			},
+		},
 		dispatch: vi.fn(),
 		isSelected: false,
 		viewMode: "grid_details",
@@ -64,7 +74,7 @@ function createMockCardLogic(overrides = {}) {
 		handleRunWithMask: vi.fn(),
 		handleUpdateUserNotes: vi.fn(),
 		fetchFullImageDetails: vi.fn(),
-		...overrides,
+		...rest,
 	};
 }
 
@@ -119,5 +129,86 @@ describe("DetailedImageCard", () => {
 
 		const card = container.querySelector(".meld-image-card");
 		expect(card).toHaveAttribute("draggable", "true");
+	});
+
+	it("interacts with various card elements", async () => {
+		const handleSelectToggle = vi.fn();
+		const handleClick = vi.fn();
+		const setPopupContent = vi.fn();
+		const handleCopy = vi.fn();
+		const handleEditTags = vi.fn();
+		const handleEditNotes = vi.fn();
+		const fetchFullImageDetails = vi.fn().mockResolvedValue({
+			model_name: "test-model",
+			positive_prompt: "pos",
+			negative_prompt: "neg",
+		});
+
+		const mockLogic = createMockCardLogic({
+			handleSelectToggle,
+			handleClick,
+			setPopupContent,
+			handleCopy,
+			handleEditTags,
+			handleEditNotes,
+			fetchFullImageDetails,
+			settings: {
+				"sidebar.show_model_name": true,
+				"sidebar.show_positive_prompt": true,
+				"sidebar.show_negative_prompt": true,
+				"sidebar.show_tags": true,
+				"sidebar.show_user_notes": "always",
+			},
+		});
+
+		mockUseImageCardLogic.mockReturnValue(mockLogic);
+
+		const image = createTestImage({
+			tags: ["test-tag"],
+			user_notes: "note",
+			positive_prompt: "my_positive",
+			negative_prompt: "my_negative",
+		});
+		render(<DetailedImageCard image={image} />);
+		const user = userEvent.setup();
+
+		// Checkbox
+		await user.click(screen.getByRole("checkbox"));
+		expect(handleSelectToggle).toHaveBeenCalled();
+
+		// Image click
+		const img = screen.getByRole("img");
+		await user.click(img);
+		expect(handleClick).toHaveBeenCalled();
+
+		// Model click to copy
+		const modelLabel = screen.getByText("Model");
+		await user.click(modelLabel);
+		expect(fetchFullImageDetails).toHaveBeenCalledWith(image.id);
+		expect(handleCopy).toHaveBeenCalled();
+
+		// Positive Prompt click to popup
+		const posContent = screen.getByText("my_positive", {
+			selector: ".meld-image-card__meta-content",
+		});
+		await user.click(posContent);
+		expect(setPopupContent).toHaveBeenCalled();
+
+		// Negative Prompt click to popup
+		const negContent = screen.getByText("my_negative", {
+			selector: ".meld-image-card__meta-content",
+		});
+		await user.click(negContent);
+		expect(setPopupContent).toHaveBeenCalled();
+
+		// Tags click
+		const tagsLabel = screen.getByText("test-tag");
+		await user.click(tagsLabel);
+		expect(handleEditTags).toHaveBeenCalled();
+
+		// Notes click
+		const notesContent = screen.getByText("note", { selector: ".meld-image-card__notes-preview" });
+		await user.click(notesContent);
+		expect(handleEditNotes).toHaveBeenCalled();
 	});
 });
