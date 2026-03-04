@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { error, initLogger, log, warn } from "./logger";
 
 describe("logger", () => {
-	// コンソールメソッドをモック
+	// Mock console methods
 	const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 	const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 	const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
@@ -14,32 +14,32 @@ describe("logger", () => {
 	});
 
 	afterEach(() => {
-		// devモードをリセット
+		// Reset dev mode
 		initLogger(false);
 		logSpy.mockClear();
 	});
 
 	describe("initLogger", () => {
-		it("devモードが有効な場合、初期化メッセージを出力する", () => {
+		it("outputs initialization message when dev mode is enabled", () => {
 			initLogger(true);
 			expect(logSpy).toHaveBeenCalledWith("[Meld] Logger initialized in DEV mode (MELD_DEV=true).");
 		});
 
-		it("devモードが無効な場合、初期化メッセージを出力しない", () => {
+		it("does not output initialization message when dev mode is disabled", () => {
 			initLogger(false);
 			expect(logSpy).not.toHaveBeenCalled();
 		});
 	});
 
 	describe("log", () => {
-		it("devモード時にメッセージを出力する", () => {
+		it("outputs message in dev mode", () => {
 			initLogger(true);
 			logSpy.mockClear();
 			log("test message");
 			expect(logSpy).toHaveBeenCalledWith("[Meld]", "test message");
 		});
 
-		it("非devモード時にはメッセージを出力しない", () => {
+		it("does not output message when not in dev mode", () => {
 			initLogger(false);
 			logSpy.mockClear();
 			log("test message");
@@ -48,13 +48,13 @@ describe("logger", () => {
 	});
 
 	describe("warn", () => {
-		it("devモード時に警告を出力する", () => {
+		it("outputs warning in dev mode", () => {
 			initLogger(true);
 			warn("warning message");
 			expect(warnSpy).toHaveBeenCalledWith("[Meld]", "warning message");
 		});
 
-		it("非devモード時には警告を出力しない", () => {
+		it("does not output warning when not in dev mode", () => {
 			initLogger(false);
 			warn("warning message");
 			expect(warnSpy).not.toHaveBeenCalled();
@@ -62,13 +62,13 @@ describe("logger", () => {
 	});
 
 	describe("error", () => {
-		it("devモードに関わらずエラーを出力する", () => {
+		it("outputs error regardless of dev mode", () => {
 			initLogger(false);
 			error("error message");
 			expect(errorSpy).toHaveBeenCalledWith("[Meld]", "error message");
 		});
 
-		it("devモード時もエラーを出力する", () => {
+		it("outputs error in dev mode", () => {
 			initLogger(true);
 			error("error message");
 			expect(errorSpy).toHaveBeenCalledWith("[Meld]", "error message");

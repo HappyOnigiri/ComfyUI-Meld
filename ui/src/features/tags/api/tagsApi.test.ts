@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createTag, deleteTag, fetchTags, renameTag } from "./tagsApi";
 
 describe("tagsApi", () => {
-	// テストごとにfetchApiモックをリセット
+	// Reset fetchApi mock before each test
 	let mockFetchApi: ReturnType<typeof vi.fn>;
 
 	beforeEach(() => {

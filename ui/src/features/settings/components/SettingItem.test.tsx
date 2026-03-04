@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { SettingItem } from "./SettingItem";
 
 describe("SettingItem", () => {
-	it("label, description, children を正しくレンダリングする", () => {
+	it("renders label, description, and children correctly", () => {
 		render(
 			<SettingItem label="Test Label" description="Test Description">
 				<input data-testid="child-input" />
@@ -14,7 +14,7 @@ describe("SettingItem", () => {
 		expect(screen.getByTestId("child-input")).toBeInTheDocument();
 	});
 
-	it("正しいCSSクラスが適用される", () => {
+	it("applies correct CSS classes", () => {
 		const { container } = render(
 			<SettingItem label="Label" description="Desc">
 				<span>child</span>
