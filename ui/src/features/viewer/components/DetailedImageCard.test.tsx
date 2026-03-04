@@ -184,6 +184,7 @@ describe("DetailedImageCard", () => {
 		// Model click to copy
 		const modelLabel = screen.getByText("Model");
 		await user.click(modelLabel);
+		expect(fetchFullImageDetails).toHaveBeenCalledWith(image.id);
 		expect(handleCopy).toHaveBeenCalled();
 
 		// Positive Prompt click to popup
