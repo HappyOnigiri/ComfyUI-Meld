@@ -13,11 +13,11 @@ This skill file serves as your operational guideline.
 
 Execute the following steps systematically:
 
-1.  **Examine Diffs:** Run `git status` and `git diff` to thoroughly review all changes, including untracked files, modifications, and deletions.
+1.  **CI Check:** Run `make ci` to execute linters, formatters, and tests.
+    - If errors occur, analyze them and fix them before proceeding. Ensure `make ci` succeeds so that any automatically formatted code or generated files are finalized.
+2.  **Examine Diffs:** Run `git status` and `git diff` to thoroughly review all changes, including untracked files, modifications, deletions, and any changes resulting from `make ci`.
     - If there are no changes, report this to the user and terminate the process.
     - **Note on Build Artifacts**: Do NOT attempt to read or analyze the content of build artifacts. Restrict skip/auto-stage rules to explicitly enumerated artifact paths (e.g., specific `web/` build outputs or other named build output directories). If such artifacts are modified alongside their source files, assume they are updated correctly by the build process and stage them without inspection. Do NOT treat the entire `.cursorignore` file as a list of safe build artifacts—`.cursorignore` may include non-generated files (e.g., secrets, temp files). Non-generated files listed in `.cursorignore` must still be manually reviewed before staging.
-2.  **CI Check:** Run `make ci` to check for any errors.
-    - If errors occur, analyze them and fix them before proceeding.
 3.  **Determine Commit Units:** Analyze the changes and group related modifications into logical units (Atomic Commits).
     - For example, separate "README updates" from "logic bug fixes" into different commits.
 4.  **Loop Execution:** Repeat the following for each identified group:
