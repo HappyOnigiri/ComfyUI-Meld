@@ -18,8 +18,8 @@ export const useViewerFullscreen = ({
 
 	const toggleFullscreen = useCallback(
 		(e?: React.MouseEvent | KeyboardEvent) => {
-			if (e && "stopPropagation" in e) {
-				e.stopPropagation();
+			if (e && typeof e === "object" && "stopPropagation" in (e as object)) {
+				(e as Event).stopPropagation();
 			}
 
 			const element = overlayRef.current;

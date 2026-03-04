@@ -342,7 +342,7 @@ export const useViewerActionsBridge = ({
 
 	const executeCommand = useCallback(
 		async (command: string) => {
-			if (!command || !image) return;
+			if (!command || typeof command !== "string" || !image) return;
 
 			const currentImageId = image.id;
 			const currentImageTags = [...image.tags];

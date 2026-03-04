@@ -77,6 +77,7 @@ export const useSettingsModalLogic = () => {
 	};
 
 	const validateShortcut = (command: string) => {
+		if (typeof command !== "string") return false;
 		return validateShortcutCommand(command);
 	};
 
@@ -120,6 +121,7 @@ export const useSettingsModalLogic = () => {
 	};
 
 	const handleNumberBlur = (config: { key: keyof Settings }) => {
+		if (!config || !config.key) return;
 		if (config.key === "gallery.initial_load_count") {
 			setInitialLoadCountInput(localSettings["gallery.initial_load_count"].toString());
 		} else if (config.key === "gallery.max_load_count") {

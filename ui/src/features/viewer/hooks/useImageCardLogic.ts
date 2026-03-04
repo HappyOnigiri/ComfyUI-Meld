@@ -103,6 +103,7 @@ export const useImageCardLogic = (image: MeldImage) => {
 	const imgSrc = getThumbnailViewUrl(image, Math.min(400, Math.round(thumbSize * 1.5)));
 
 	const handleClick = (e: React.MouseEvent) => {
+		if (!e || typeof e.preventDefault !== "function") return;
 		if (e.shiftKey) {
 			e.preventDefault();
 			e.stopPropagation();
@@ -117,6 +118,7 @@ export const useImageCardLogic = (image: MeldImage) => {
 	};
 
 	const handleContainerClick = (e: React.MouseEvent) => {
+		if (!e || typeof e.preventDefault !== "function") return;
 		if (e.shiftKey) {
 			e.preventDefault();
 			e.stopPropagation();
@@ -135,10 +137,12 @@ export const useImageCardLogic = (image: MeldImage) => {
 	};
 
 	const handleMouseDown = (e: React.MouseEvent) => {
+		if (!e || typeof e.preventDefault !== "function" || !e.target) return;
 		// To ensure smooth D&D operation, avoid unnecessary preventDefault in mousedown of MeldImageCard root or thumbnail.
 		// Exclude interactive UI elements (textarea, input, button, etc.)
 		if (
-			(e.target as HTMLElement).closest("textarea, input, button, .meld-image-card__meta-content")
+			e.target instanceof Element &&
+			e.target.closest("textarea, input, button, .meld-image-card__meta-content")
 		) {
 			return;
 		}
@@ -157,6 +161,7 @@ export const useImageCardLogic = (image: MeldImage) => {
 	};
 
 	const handleKeyDown = (e: React.KeyboardEvent) => {
+		if (!e || typeof e.preventDefault !== "function") return;
 		const isTargetInput =
 			document.activeElement?.tagName === "INPUT" ||
 			document.activeElement?.tagName === "TEXTAREA" ||
@@ -207,6 +212,7 @@ export const useImageCardLogic = (image: MeldImage) => {
 	};
 
 	const handleSelectToggle = (e: React.MouseEvent) => {
+		if (!e || typeof e.preventDefault !== "function") return;
 		e.preventDefault();
 		e.stopPropagation();
 		if (e.shiftKey) {
