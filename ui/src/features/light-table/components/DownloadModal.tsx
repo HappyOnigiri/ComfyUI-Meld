@@ -18,9 +18,12 @@ function loadStoredOptions(): StoredDownloadOptions {
 		const saved = localStorage.getItem(STORAGE_KEY);
 		if (saved) {
 			const parsed = JSON.parse(saved) as Partial<StoredDownloadOptions>;
+			const raw = parsed.removeMetadata as unknown;
+			const removeMetadata =
+				raw === true || raw === "true" || (typeof raw === "number" && raw === 1);
 			return {
 				format: parsed.format === "raw" ? "raw" : "zip",
-				removeMetadata: Boolean(parsed.removeMetadata),
+				removeMetadata,
 			};
 		}
 	} catch (_e) {
@@ -44,15 +47,15 @@ interface DownloadModalProps {
 }
 
 export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSuccess, onClose }) => {
-	const [format, setFormat] = useState<"zip" | "raw">(() => loadStoredOptions().format);
-	const [removeMetadata, setRemoveMetadata] = useState(() => loadStoredOptions().removeMetadata);
+	const [options, setOptions] = useState<StoredDownloadOptions>(() => loadStoredOptions());
+	const { format, removeMetadata } = options;
 	const [isDownloading, setIsDownloading] = useState(false);
 
 	const overlayMouseDownRef = useRef(false);
 
 	useEffect(() => {
-		saveStoredOptions({ format, removeMetadata });
-	}, [format, removeMetadata]);
+		saveStoredOptions(options);
+	}, [options]);
 
 	const handleOverlayMouseDown = (e: React.MouseEvent) => {
 		if (e.target === e.currentTarget) {
@@ -145,7 +148,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 									name="format"
 									value="zip"
 									checked={format === "zip"}
-									onChange={() => setFormat("zip")}
+									onChange={() => setOptions((o) => ({ ...o, format: "zip" }))}
 									disabled={isDownloading}
 								/>
 								ZIP (Single File)
@@ -163,7 +166,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 									name="format"
 									value="raw"
 									checked={format === "raw"}
-									onChange={() => setFormat("raw")}
+									onChange={() => setOptions((o) => ({ ...o, format: "raw" }))}
 									disabled={isDownloading}
 								/>
 								Raw (Multiple Files)
@@ -193,7 +196,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 							<input
 								type="checkbox"
 								checked={removeMetadata}
-								onChange={(e) => setRemoveMetadata(e.target.checked)}
+								onChange={(e) => setOptions((o) => ({ ...o, removeMetadata: e.target.checked }))}
 								disabled={isDownloading}
 							/>
 							Remove metadata (ComfyUI workflow data) from downloaded images

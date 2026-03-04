@@ -1636,15 +1636,22 @@ def _strip_png_metadata_fast(data: bytes) -> bytes | None:
     out = io.BytesIO()
     out.write(data[:8])
     offset = 8
+    saw_any_chunk = False
+    saw_iend = False
     while offset + 8 <= len(data):
         chunk_length = struct.unpack(">I", data[offset : offset + 4])[0]
         chunk_type = data[offset + 4 : offset + 8]
         chunk_full_size = 12 + chunk_length
         if offset + chunk_full_size > len(data):
             return None
+        saw_any_chunk = True
+        if chunk_type == b"IEND":
+            saw_iend = True
         if chunk_type not in (b"tEXt", b"zTXt", b"iTXt"):
             out.write(data[offset : offset + chunk_full_size])
         offset += chunk_full_size
+    if not saw_any_chunk or not saw_iend:
+        return None
     return out.getvalue()
 
 
@@ -1659,6 +1666,7 @@ def _strip_webp_metadata_fast(data: bytes) -> bytes | None:
     offset = 12
     vp8x_pos = -1
     vp8x_data = bytearray()
+    saw_any_chunk = False
     while offset + 8 <= len(data):
         chunk_id = data[offset : offset + 4]
         chunk_size = struct.unpack("<I", data[offset + 4 : offset + 8])[0]
@@ -1666,6 +1674,7 @@ def _strip_webp_metadata_fast(data: bytes) -> bytes | None:
         chunk_full_size = 8 + chunk_size + padding
         if offset + chunk_full_size > len(data):
             return None
+        saw_any_chunk = True
         chunk_data = data[offset : offset + chunk_full_size]
         if chunk_id in (b"EXIF", b"XMP "):
             pass  # skip metadata
@@ -1676,6 +1685,9 @@ def _strip_webp_metadata_fast(data: bytes) -> bytes | None:
         else:
             out.write(chunk_data)
         offset += chunk_full_size
+    total_size = out.tell()
+    if not saw_any_chunk or total_size <= 12:
+        return None
     if vp8x_pos != -1 and len(vp8x_data) >= 12:
         flags = struct.unpack("<I", vp8x_data[8:12])[0]
         flags &= ~8  # Unset EXIF
@@ -1685,7 +1697,6 @@ def _strip_webp_metadata_fast(data: bytes) -> bytes | None:
         out.seek(vp8x_pos)
         out.write(vp8x_data)
         out.seek(current_pos)
-    total_size = out.tell()
     out.seek(4)
     out.write(struct.pack("<I", total_size - 8))
     return out.getvalue()
