@@ -5,12 +5,12 @@ import { ImageCardMenu } from "./ImageCardMenu";
 
 describe("ImageCardMenu", () => {
 	it("renders without crashing when open", () => {
-		const { container } = render(
+		const { getByText } = render(
 			<ImageCardMenu
 				isMenuOpen={true}
 				setIsMenuOpen={vi.fn()}
 				menuRef={{ current: null }}
-				settings={{} as never}
+				settings={{ "gallery.quick_shortcut.1": "add_unified_loader" } as any}
 				onAddUnifiedLoader={vi.fn()}
 				onRestoreWorkflow={vi.fn()}
 				onSendToWorkflow={vi.fn()}
@@ -23,16 +23,17 @@ describe("ImageCardMenu", () => {
 				deleteLabel="Delete"
 			/>,
 		);
-		expect(container).toBeTruthy();
+		expect(getByText("Delete")).not.toBeNull();
+		expect(getByText("Add Unified Loader")).not.toBeNull();
 	});
 
 	it("renders without crashing when closed", () => {
-		const { container } = render(
+		const { queryByText } = render(
 			<ImageCardMenu
 				isMenuOpen={false}
 				setIsMenuOpen={vi.fn()}
 				menuRef={{ current: null }}
-				settings={{} as never}
+				settings={{ "gallery.quick_shortcut.1": "add_unified_loader" } as any}
 				onAddUnifiedLoader={vi.fn()}
 				onRestoreWorkflow={vi.fn()}
 				onSendToWorkflow={vi.fn()}
@@ -45,6 +46,6 @@ describe("ImageCardMenu", () => {
 				deleteLabel="Delete"
 			/>,
 		);
-		expect(container).toBeTruthy();
+		expect(queryByText("Add Unified Loader")).toBeNull();
 	});
 });

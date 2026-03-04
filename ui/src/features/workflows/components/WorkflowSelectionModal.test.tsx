@@ -13,7 +13,7 @@ vi.mock("../../../store/GalleryContext", () => ({
 describe("WorkflowSelectionModal", () => {
 	it("renders without crashing", () => {
 		const { container } = render(
-			<WorkflowSelectionModal {...({} as React.ComponentProps<typeof WorkflowSelectionModal>)} />,
+			<WorkflowSelectionModal images={[]} onExecute={vi.fn()} />
 		);
 		expect(container).toBeTruthy();
 	});

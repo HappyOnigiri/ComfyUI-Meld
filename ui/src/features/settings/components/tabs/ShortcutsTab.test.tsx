@@ -12,9 +12,18 @@ vi.mock("../../../../store/GalleryContext", () => ({
 
 describe("ShortcutsTab", () => {
 	it("renders", () => {
-		try {
-			render(<ShortcutsTab {...({} as React.ComponentProps<typeof ShortcutsTab>)} />);
-		} catch (e) {}
-		expect(true).toBeTruthy();
+		expect(() =>
+			render(
+				<ShortcutsTab
+					localSettings={{ "viewer.shortcut.1": "test" } as any}
+					setLocalSettings={vi.fn()}
+					shortcutErrors={{}}
+					setShortcutErrors={vi.fn()}
+					validateShortcut={vi.fn()}
+					handleToggle={vi.fn()}
+					handleResetShortcuts={vi.fn()}
+				/>
+			)
+		).not.toThrow();
 	});
 });

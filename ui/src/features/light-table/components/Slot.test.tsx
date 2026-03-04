@@ -36,13 +36,9 @@ vi.mock("../store", () => ({
 
 describe("Slot", () => {
 	it("renders without crashing", () => {
-		const { container } = render(
-			<Slot
-				{...({ config: { type: "image", id: "1" } } as unknown as React.ComponentProps<
-					typeof Slot
-				>)}
-			/>,
+		const { getByText } = render(
+			<Slot config={{ id: "1", label: "Keep", color: "var(--comfy-menu-bg)" }} />
 		);
-		expect(container).toBeTruthy();
+		expect(getByText("Drag & Drop images here")).toBeInTheDocument();
 	});
 });

@@ -1,4 +1,4 @@
-import { renderHook } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { useImageCardLogic } from "./useImageCardLogic";
 
@@ -19,14 +19,20 @@ describe("useImageCardLogic", () => {
 	it("executes functions without crashing", () => {
 		const { result } = renderHook(() =>
 			useImageCardLogic({
-				image: { id: 1, filename: "test.png", type: "output", subfolder: "" } as never,
-				viewScope: "all",
-				showThumbnails: false,
-				isCompact: false,
-				isSelected: false,
-			} as never),
+				id: 1,
+				filename: "test.png",
+				type: "output",
+				subfolder: "",
+			} as any),
 		);
 
-		expect(result.current).toBeTruthy();
+		expect(result.current.viewMode).toBe("grid");
+		expect(typeof result.current.setIsMenuOpen).toBe("function");
+		expect(result.current.isMenuOpen).toBe(false);
+
+		act(() => {
+			result.current.setIsMenuOpen(true);
+		});
+		expect(result.current.isMenuOpen).toBe(true);
 	});
 });
