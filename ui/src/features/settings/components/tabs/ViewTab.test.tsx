@@ -136,18 +136,18 @@ describe("ViewTab", () => {
 		const selects = screen.getAllByRole("combobox");
 		// small image mode
 		await user.selectOptions(selects[0]!, "fit");
-		expect(setLocalSettings).toHaveBeenCalled();
+		expect(setLocalSettings).toHaveBeenCalledTimes(1);
 
 		// delete mode
 		await user.selectOptions(selects[1]!, "target_only");
-		expect(setLocalSettings).toHaveBeenCalled();
+		expect(setLocalSettings).toHaveBeenCalledTimes(2);
 
 		// details.show_filename
 		await user.selectOptions(selects[2]!, "filepath");
-		expect(setLocalSettings).toHaveBeenCalled();
+		expect(setLocalSettings).toHaveBeenCalledTimes(3);
 
 		// details.show_user_notes
 		await user.selectOptions(selects[3]!, "if_present");
-		expect(setLocalSettings).toHaveBeenCalled();
+		expect(setLocalSettings).toHaveBeenCalledTimes(4);
 	});
 });

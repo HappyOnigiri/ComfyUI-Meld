@@ -1,5 +1,7 @@
 import { act, renderHook } from "@testing-library/react";
-import { describe, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import { injectImageToGraph } from "../../workflows/utils/injectImageToGraph";
+import * as imagesApi from "../api/imagesApi";
 import { useImageActions } from "./useImageActions";
 
 vi.mock("../api/imagesApi", () => ({
@@ -55,7 +57,11 @@ describe("useImageActions Coverage", () => {
 
 		await act(async () => {
 			await result.current.restoreImages([1]);
+			expect(imagesApi.restoreImages).toHaveBeenCalledWith([1]);
+
 			await result.current.bulkUpdateImageTags([1], ["tag"], []);
+			expect(imagesApi.bulkUpdateImageTags).toHaveBeenCalledWith([1], ["tag"], []);
+
 			await result.current.handleRestoreWorkflow(image);
 			await result.current.handleAddUnifiedLoader(image);
 			result.current.handleEditTags(image);
@@ -65,10 +71,18 @@ describe("useImageActions Coverage", () => {
 			await result.current.handleRunWithMask(image, "apply");
 			await result.current.handleRunWithMask([image, image], "apply"); // Multiple images apply
 			await result.current.handleRunWithMask(image, "run");
+
 			await result.current.handleRestore(image);
+			expect(dispatch).toHaveBeenCalled();
+
 			result.current.handleDelete(image);
+			expect(dispatch).toHaveBeenCalled();
+
 			result.current.handleEditNotes(image);
+			expect(dispatch).toHaveBeenCalled();
+
 			await result.current.handleUpdateUserNotes(1, "notes");
+			expect(dispatch).toHaveBeenCalled();
 		});
 
 		// Test with no Graph
@@ -87,6 +101,7 @@ describe("useImageActions Coverage", () => {
 		await act(async () => {
 			result.current.handleSendToWorkflow(image);
 			await result.current.handleRunWithMask(image, "apply");
+			expect(injectImageToGraph).not.toHaveBeenCalled();
 		});
 
 		// Test with single loader
@@ -95,6 +110,8 @@ describe("useImageActions Coverage", () => {
 		] as never;
 		await act(async () => {
 			result.current.handleSendToWorkflow(image);
+			expect(injectImageToGraph).toHaveBeenCalledTimes(1);
+			expect(injectImageToGraph).toHaveBeenCalledWith(image);
 		});
 	});
 });

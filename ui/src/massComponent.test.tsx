@@ -82,11 +82,15 @@ vi.mock("./features/search/api/searchApi", () => ({
 vi.mock("./features/light-table/store", () => ({
 	useLightTableStore: Object.assign(
 		vi.fn((selector: unknown) => {
-			const s = String(selector);
-			if (s.includes("isOpen")) return false;
-			if (s.includes("buckets")) return { default: [] };
-			if (s.includes("images")) return {};
-			return {};
+			const mockState = {
+				isOpen: false,
+				buckets: { default: [] },
+				images: {},
+			};
+			if (typeof selector === "function") {
+				return selector(mockState);
+			}
+			return mockState;
 		}),
 		{ getState: () => ({ removeFromBucket: vi.fn(), images: {} }) },
 	),

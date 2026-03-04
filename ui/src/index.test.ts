@@ -1,4 +1,4 @@
-import { describe, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 vi.mock("/scripts/api.js", () => ({
 	api: {
@@ -55,5 +55,8 @@ describe("index.ts", () => {
 	it("registers extension successfully", async () => {
 		// Import the file to execute its top-level code
 		await import("./index");
+		// @ts-expect-error Mocked module
+		const { app } = await import("/scripts/app.js");
+		expect(app.registerExtension).toHaveBeenCalled();
 	});
 });

@@ -72,6 +72,7 @@ describe("MaskEditorModal", () => {
 	it("simulates drawing and zooms", () => {
 		render(<MaskEditorModal imageId={1} mode="run" onClose={vi.fn()} />);
 		const overlay = document.querySelector(".meld-modal-overlay");
+		expect(overlay).not.toBeNull();
 
 		// Zoom in/out
 		const zoomOut = screen.getByTitle("Zoom Out");
@@ -80,23 +81,21 @@ describe("MaskEditorModal", () => {
 		fireEvent.click(resetZoom);
 
 		// Draw Rect
-		if (overlay) {
-			fireEvent.mouseDown(overlay, { clientX: 100, clientY: 100, button: 0 });
-			fireEvent.mouseMove(window, { clientX: 200, clientY: 200 });
-			fireEvent.mouseUp(window, { clientX: 200, clientY: 200 });
+		fireEvent.mouseDown(overlay!, { clientX: 100, clientY: 100, button: 0 });
+		fireEvent.mouseMove(window, { clientX: 200, clientY: 200 });
+		fireEvent.mouseUp(window, { clientX: 200, clientY: 200 });
 
-			// Draw Ellipse
-			fireEvent.click(screen.getByTitle("Ellipse Tool"));
-			fireEvent.mouseDown(overlay, { clientX: 300, clientY: 300, button: 0 });
-			fireEvent.mouseMove(window, { clientX: 400, clientY: 400 });
-			fireEvent.mouseUp(window, { clientX: 400, clientY: 400 });
+		// Draw Ellipse
+		fireEvent.click(screen.getByTitle("Ellipse Tool"));
+		fireEvent.mouseDown(overlay!, { clientX: 300, clientY: 300, button: 0 });
+		fireEvent.mouseMove(window, { clientX: 400, clientY: 400 });
+		fireEvent.mouseUp(window, { clientX: 400, clientY: 400 });
 
-			// Draw Lasso
-			fireEvent.click(screen.getByTitle("Lasso Tool"));
-			fireEvent.mouseDown(overlay, { clientX: 100, clientY: 100, button: 0 });
-			fireEvent.mouseMove(window, { clientX: 150, clientY: 150 });
-			fireEvent.mouseMove(window, { clientX: 200, clientY: 100 });
-			fireEvent.mouseUp(window, { clientX: 200, clientY: 100 });
-		}
+		// Draw Lasso
+		fireEvent.click(screen.getByTitle("Lasso Tool"));
+		fireEvent.mouseDown(overlay!, { clientX: 100, clientY: 100, button: 0 });
+		fireEvent.mouseMove(window, { clientX: 150, clientY: 150 });
+		fireEvent.mouseMove(window, { clientX: 200, clientY: 100 });
+		fireEvent.mouseUp(window, { clientX: 200, clientY: 100 });
 	});
 });

@@ -15452,7 +15452,7 @@ const Us = ({
 }) => {
   const [r, l] = h.useState(!1), a = h.useCallback(
     (o) => {
-      o && typeof o == "object" && "stopPropagation" in o && o.stopPropagation();
+      o && typeof o.stopPropagation == "function" && o.stopPropagation();
       const i = e.current;
       i && (document.fullscreenElement ? document.exitFullscreen() : i.requestFullscreen().catch((c) => {
         P.error(`Error attempting to enable full-screen mode: ${c.message}`);
