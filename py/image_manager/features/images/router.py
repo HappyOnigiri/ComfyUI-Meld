@@ -1641,7 +1641,7 @@ def _strip_png_metadata_fast(data: bytes) -> bytes | None:
         chunk_type = data[offset + 4 : offset + 8]
         chunk_full_size = 12 + chunk_length
         if offset + chunk_full_size > len(data):
-            break
+            return None
         if chunk_type not in (b"tEXt", b"zTXt", b"iTXt"):
             out.write(data[offset : offset + chunk_full_size])
         offset += chunk_full_size
@@ -1665,7 +1665,7 @@ def _strip_webp_metadata_fast(data: bytes) -> bytes | None:
         padding = chunk_size % 2
         chunk_full_size = 8 + chunk_size + padding
         if offset + chunk_full_size > len(data):
-            break
+            return None
         chunk_data = data[offset : offset + chunk_full_size]
         if chunk_id in (b"EXIF", b"XMP "):
             pass  # skip metadata
