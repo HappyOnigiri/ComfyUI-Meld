@@ -45,15 +45,24 @@ def run_task(name: str, command: str, cwd: str | None = None) -> tuple[bool, str
         elif sys.platform == "win32":
             resolved_cwd = os.path.realpath(os.getcwd())
 
+        # Windows: prevent child processes from inheriting the console handle.
+        # Without this, grandchild processes spawned via shell=True may write
+        # directly to the console, corrupting ANSI escape sequences.
+        extra_kwargs: dict[str, object] = {}
+        if sys.platform == "win32":
+            extra_kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
+
         process = subprocess.Popen(
             command,
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
+            stdin=subprocess.DEVNULL,
             text=True,
             encoding="utf-8",
             errors="replace",
             cwd=resolved_cwd,
+            **extra_kwargs,
         )
         stdout, _ = process.communicate()
 
@@ -129,6 +138,10 @@ def main() -> None:
             log_filename = os.path.join(".logs", f"{name.replace(' ', '_')}.log")
             with open(log_filename, "w", encoding="utf-8") as f:
                 f.write(output)
+
+    # Reset ANSI state in case subprocess output leaked to the terminal
+    sys.stdout.write("\033[0m")
+    sys.stdout.flush()
 
     # Print results in original order
     failed_tasks = []
