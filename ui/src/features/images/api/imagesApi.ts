@@ -246,7 +246,6 @@ export const downloadZipImages = async (
 	let i = 0;
 	let totalBytes = 0;
 	for (const imageId of imageIds) {
-
 		onProgress?.(i, total);
 		const { blob, filename } = await fetchImageBlob(
 			imageId,
