@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as imagesApi from "../../images/api/imagesApi";
 import { TagEditModal } from "./TagEditModal";
 
@@ -26,6 +26,14 @@ vi.mock("../../../store/GalleryContext", () => ({
 }));
 
 describe("TagEditModal", () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
+	afterEach(() => {
+		vi.clearAllMocks();
+	});
+
 	it("renders without crashing", () => {
 		const { container } = render(
 			<TagEditModal imageIds={[1]} initialTags={["tag1"]} onClose={vi.fn()} />,
@@ -74,7 +82,6 @@ describe("TagEditModal", () => {
 		});
 
 		expect(alertMock).toHaveBeenCalled();
-		alertMock.mockRestore();
 	});
 
 	it("can remove a selected tag", async () => {
@@ -123,7 +130,6 @@ describe("TagEditModal", () => {
 			expect(updateSpy).toHaveBeenCalledWith(1, ["tag1"]);
 			expect(onCloseMock).toHaveBeenCalled();
 		});
-		updateSpy.mockRestore();
 	});
 
 	it("saves tags via Save button (bulk images)", async () => {
@@ -142,7 +148,6 @@ describe("TagEditModal", () => {
 			expect(bulkSpy).toHaveBeenCalledWith([1, 2], [], []);
 			expect(onCloseMock).toHaveBeenCalled();
 		});
-		bulkSpy.mockRestore();
 	});
 
 	it("adds a tag by clicking suggestion button", async () => {
