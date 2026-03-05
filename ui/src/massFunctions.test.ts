@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Use import.meta.glob to dynamically import all TS/TSX files except test/setup.ts
 const modules = import.meta.glob(["./**/*.ts", "./**/*.tsx", "!./**/*.test.*", "!./test/**/*"], {
@@ -27,18 +27,6 @@ vi.mock("/scripts/api.js", () => ({
 	},
 }));
 
-global.fetch = vi.fn().mockResolvedValue({
-	ok: true,
-	status: 200,
-	json: async () => ({ success: true, data: [] }),
-	text: async () => "",
-	blob: async () => new Blob(),
-	headers: new Headers(),
-}) as unknown as typeof fetch;
-
-global.URL.createObjectURL = vi.fn();
-global.URL.revokeObjectURL = vi.fn();
-
 vi.stubGlobal(
 	"ImageData",
 	class ImageData {
@@ -54,6 +42,34 @@ vi.stubGlobal(
 );
 
 describe("Mass Functions Booster", () => {
+	let originalFetch: typeof fetch;
+	let originalCreateObjectURL: typeof URL.createObjectURL;
+	let originalRevokeObjectURL: typeof URL.revokeObjectURL;
+
+	beforeEach(() => {
+		originalFetch = global.fetch;
+		originalCreateObjectURL = global.URL.createObjectURL;
+		originalRevokeObjectURL = global.URL.revokeObjectURL;
+
+		global.fetch = vi.fn().mockResolvedValue({
+			ok: true,
+			status: 200,
+			json: async () => ({ success: true, data: [] }),
+			text: async () => "",
+			blob: async () => new Blob(),
+			headers: new Headers(),
+		}) as unknown as typeof fetch;
+
+		global.URL.createObjectURL = vi.fn();
+		global.URL.revokeObjectURL = vi.fn();
+	});
+
+	afterEach(() => {
+		global.fetch = originalFetch;
+		global.URL.createObjectURL = originalCreateObjectURL;
+		global.URL.revokeObjectURL = originalRevokeObjectURL;
+	});
+
 	it("invokes all exported functions to bump func coverage", async () => {
 		let invokedCount = 0;
 		const failures: Error[] = [];
@@ -111,9 +127,7 @@ describe("Mass Functions Booster", () => {
 						for (const args of argsList) {
 							try {
 								const res = fn(...args);
-								if (res instanceof Promise) {
-									await res;
-								}
+								await Promise.resolve(res);
 								hasSuccess = true;
 								invokedCount++;
 								break; // we only need one success
