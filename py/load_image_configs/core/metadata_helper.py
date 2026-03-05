@@ -105,9 +105,11 @@ class MetadataHelper:
 
     @staticmethod
     def find_best_match_model(
-        model_name_query: str | None, model_type: str = "checkpoints"
+        model_name_query: str | None,
+        model_type: str = "checkpoints",
+        available_models: list[str] | None = None,
     ) -> tuple[str | None, float, str]:
-        return ModelUtils.find_best_match_model(model_name_query, model_type)
+        return ModelUtils.find_best_match_model(model_name_query, model_type, available_models)
 
     @staticmethod
     def extract_metadata(image_path: str) -> tuple[str, str, str, str | None, str | None, str | None, str]:
