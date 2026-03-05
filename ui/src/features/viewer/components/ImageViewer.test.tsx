@@ -282,7 +282,7 @@ describe("ImageViewer", () => {
 			} catch (e) {
 				// Some buttons (like node UI triggers) may fail when clicked outside of
 				// a full DOM environment; this loop is simply to exercise button existence.
-				console.error("Ignored click failure in testing:", e);
+				// Ignored click failure in testing
 			}
 		}
 		expect(buttons.length).toBeGreaterThan(0);
