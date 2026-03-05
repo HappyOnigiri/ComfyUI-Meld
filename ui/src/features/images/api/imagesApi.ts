@@ -218,11 +218,23 @@ const fetchImageBlob = async (
 		throw new Error(errMsg);
 	}
 
-	// Detect JSON responses that might contain error information despite a 2xx status
+	// Explicitly reject JSON responses on the binary download path.
+	// Even a 2xx JSON response cannot be treated as binary data.
 	const contentType = res.headers.get("Content-Type") || "";
 	if (contentType.includes("application/json") || contentType.includes("+json")) {
-		// handleResponse internally checks if `success === true` and throws `result.error` if false
-		await handleResponse(res.clone());
+		// Attempt to extract a meaningful error message via handleResponse, then always throw.
+		let jsonErrMsg = `Image ${imageId}: server returned JSON instead of binary data`;
+		try {
+			await handleResponse(res.clone());
+			// Even if handleResponse succeeds, JSON is not acceptable on the binary path.
+			jsonErrMsg = `Image ${imageId}: server returned a JSON response on the binary download path`;
+		} catch (e: unknown) {
+			const extracted = e instanceof Error ? e.message : String(e);
+			if (extracted) {
+				jsonErrMsg = extracted;
+			}
+		}
+		throw new Error(jsonErrMsg);
 	}
 
 	// Extract and sanitize filename from Content-Disposition header
