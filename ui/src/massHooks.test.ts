@@ -193,10 +193,17 @@ const hooksToTest: { run: (...args: unknown[]) => unknown; args?: unknown[] }[] 
 						typeof arg1 === "number" ||
 						(arg1 && typeof arg1 === "object" && "preventDefault" in arg1)
 					) {
-						return executeWorkflow("test-wf", {
+						const fixture: MeldImage = {
 							id: 1,
 							filename: "test.jpg",
-						} as unknown as MeldImage);
+							subfolder: "",
+							type: "output",
+							created_at: Date.now(),
+							positive: "",
+							negative: "",
+							tags: [],
+						};
+						return executeWorkflow("test-wf", fixture);
 					}
 					return (executeWorkflow as (a: unknown) => Promise<unknown>)(arg1);
 				},

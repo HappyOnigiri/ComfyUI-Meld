@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import type { MouseEventHandler } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createTestImage, resetImageIdCounter } from "../../../test/factories/image";
 import {
@@ -20,9 +21,10 @@ vi.mock("../hooks/useImageViewerLogic", () => ({
 }));
 
 // Mock useWorkflowExecution
+const mockExecuteWorkflow = vi.fn();
 vi.mock("../../workflows/hooks/useWorkflowExecution", () => ({
 	useWorkflowExecution: vi.fn(() => ({
-		executeWorkflow: vi.fn(),
+		executeWorkflow: mockExecuteWorkflow,
 	})),
 }));
 
@@ -41,7 +43,7 @@ vi.mock("./ViewerCheatSheet", () => ({
 }));
 vi.mock("./NoteEditModal", () => ({
 	NoteEditModal: ({ onClose }: Record<string, unknown>) => (
-		<div data-testid="note-edit-modal" onClick={onClose as React.MouseEventHandler} />
+		<div data-testid="note-edit-modal" onClick={onClose as MouseEventHandler} />
 	),
 }));
 
@@ -63,20 +65,20 @@ vi.mock("../../settings/components/SettingsModal", () => ({
 }));
 vi.mock("../../tags/components/TagEditModal", () => ({
 	TagEditModal: ({ onClose }: Record<string, unknown>) => (
-		<div data-testid="tag-edit-modal" onClick={onClose as React.MouseEventHandler} />
+		<div data-testid="tag-edit-modal" onClick={onClose as MouseEventHandler} />
 	),
 }));
 vi.mock("../../mask-editor/components/MaskEditorModal", () => ({
 	MaskEditorModal: ({ onClose }: Record<string, unknown>) => (
-		<div data-testid="mask-editor-modal" onClick={onClose as React.MouseEventHandler} />
+		<div data-testid="mask-editor-modal" onClick={onClose as MouseEventHandler} />
 	),
 }));
 vi.mock("../../mask-editor/components/MaskSequenceModal", () => ({
 	MaskSequenceModal: ({ onSuccess, onClose }: Record<string, unknown>) => (
 		<div
 			data-testid="mask-sequence-modal"
-			onClick={onSuccess as React.MouseEventHandler}
-			onContextMenu={onClose as React.MouseEventHandler}
+			onClick={onSuccess as MouseEventHandler}
+			onContextMenu={onClose as MouseEventHandler}
 		/>
 	),
 }));
@@ -105,6 +107,8 @@ vi.mock("../../../utils/url", () => ({
 
 import { useGallery } from "../../../store/GalleryContext";
 import { initialState } from "../../../store/galleryReducer";
+import { useWorkflowExecution } from "../../workflows/hooks/useWorkflowExecution";
+import { injectImageToGraph } from "../../workflows/utils/injectImageToGraph";
 
 function createMockViewerLogic(image: ReturnType<typeof createTestImage> | null, overrides = {}) {
 	return {
@@ -161,6 +165,7 @@ describe("ImageViewer", () => {
 
 	beforeEach(() => {
 		resetImageIdCounter();
+		vi.clearAllMocks();
 	});
 
 	it("renders nothing when image is null", () => {
@@ -360,8 +365,45 @@ describe("ImageViewer", () => {
 				expect(expectedId).toBeDefined();
 				if (!expectedId) throw new Error(`Missing test ID for modal type: ${modal.type}`);
 				const el = screen.getByTestId(expectedId);
+
 				fireEvent.click(el); // triggers main callback
+
+				// Assertions for onClick
+				switch (modal.type) {
+					case "tag_edit":
+					case "mask_editor":
+					case "note_edit":
+						expect(ctx.dispatch).toHaveBeenCalledWith({ type: "CLOSE_MODAL" });
+						break;
+					case "node_selection":
+						expect(injectImageToGraph).toHaveBeenCalledWith(img, "node1");
+						break;
+					case "workflow_selection":
+						if (modal.isMaskSequence) {
+							expect(ctx.dispatch).toHaveBeenCalledWith(
+								expect.objectContaining({ type: "OPEN_MODAL" }),
+							);
+						} else {
+							expect(mockExecuteWorkflow).toHaveBeenCalled();
+						}
+						break;
+					case "mask_sequence_step":
+						if (modal.currentIndex === 0) {
+							// onSuccess for index 0 -> opens index 1
+							expect(ctx.dispatch).toHaveBeenCalledWith(
+								expect.objectContaining({ type: "OPEN_MODAL" }),
+							);
+						} else {
+							// onSuccess for last index -> closes
+							expect(ctx.dispatch).toHaveBeenCalledWith({ type: "CLOSE_MODAL" });
+						}
+						break;
+				}
+
 				fireEvent.contextMenu(el); // triggers alternate callback like onClose
+				if (modal.type === "mask_sequence_step") {
+					expect(ctx.dispatch).toHaveBeenCalledWith({ type: "CLOSE_MODAL" });
+				}
 			});
 		});
 	});

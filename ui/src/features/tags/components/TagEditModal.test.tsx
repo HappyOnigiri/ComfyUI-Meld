@@ -33,6 +33,14 @@ async function waitForLoadingToFinish() {
 	});
 }
 
+async function renderModal(imageIds = [1], initialTags: string[] = [], onClose = vi.fn()) {
+	const result = render(
+		<TagEditModal imageIds={imageIds} initialTags={initialTags} onClose={onClose} />,
+	);
+	await waitForLoadingToFinish();
+	return { ...result, onClose };
+}
+
 describe("TagEditModal", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -50,16 +58,13 @@ describe("TagEditModal", () => {
 	});
 
 	it("shows tags after loading", async () => {
-		render(<TagEditModal imageIds={[1]} initialTags={[]} onClose={vi.fn()} />);
-		// After Loading... disappears, verify that specific tag suggestions are shown
-		await waitForLoadingToFinish();
+		await renderModal();
 		// tag1 registered in the mock should appear in the suggestion list
 		expect(screen.getByText("tag1")).toBeInTheDocument();
 	});
 
 	it("allows searching and adding a new tag via Enter key", async () => {
-		render(<TagEditModal imageIds={[1]} initialTags={[]} onClose={vi.fn()} />);
-		await waitForLoadingToFinish();
+		await renderModal();
 
 		const input = screen.getByPlaceholderText("Search or create new tag...");
 
@@ -76,8 +81,7 @@ describe("TagEditModal", () => {
 
 	it("prevents adding reserved tag keyword", async () => {
 		const alertMock = vi.spyOn(window, "alert").mockImplementation(() => {});
-		render(<TagEditModal imageIds={[1]} initialTags={[]} onClose={vi.fn()} />);
-		await waitForLoadingToFinish();
+		await renderModal();
 
 		const input = screen.getByPlaceholderText("Search or create new tag...");
 		await act(async () => {
@@ -91,8 +95,7 @@ describe("TagEditModal", () => {
 	});
 
 	it("can remove a selected tag", async () => {
-		render(<TagEditModal imageIds={[1]} initialTags={["tag1"]} onClose={vi.fn()} />);
-		await waitForLoadingToFinish();
+		await renderModal([1], ["tag1"]);
 
 		// Click the remove button for tag1
 		const removeBtns = document.querySelectorAll(".meld-tag-edit-remove");
@@ -121,10 +124,8 @@ describe("TagEditModal", () => {
 	});
 
 	it("saves tags via Save button (single image)", async () => {
-		const onCloseMock = vi.fn();
 		const updateSpy = vi.spyOn(imagesApi, "updateImageTags");
-		render(<TagEditModal imageIds={[1]} initialTags={["tag1"]} onClose={onCloseMock} />);
-		await waitForLoadingToFinish();
+		const { onClose } = await renderModal([1], ["tag1"]);
 
 		const saveBtn = screen.getByText("Save Changes");
 		await act(async () => {
@@ -134,15 +135,13 @@ describe("TagEditModal", () => {
 		// Verify updateImageTags is called with imageId=1 and selected tags, and onClose is called
 		await waitFor(() => {
 			expect(updateSpy).toHaveBeenCalledWith(1, ["tag1"]);
-			expect(onCloseMock).toHaveBeenCalled();
+			expect(onClose).toHaveBeenCalled();
 		});
 	});
 
 	it("saves tags via Save button (bulk images)", async () => {
-		const onCloseMock = vi.fn();
 		const bulkSpy = vi.spyOn(imagesApi, "bulkUpdateImageTags");
-		render(<TagEditModal imageIds={[1, 2]} initialTags={["tag1"]} onClose={onCloseMock} />);
-		await waitForLoadingToFinish();
+		const { onClose } = await renderModal([1, 2], ["tag1"]);
 
 		const saveBtn = screen.getByText("Save Changes");
 		await act(async () => {
@@ -152,13 +151,12 @@ describe("TagEditModal", () => {
 		// Verify bulkUpdateImageTags is called with imageIds=[1,2] and onClose is called
 		await waitFor(() => {
 			expect(bulkSpy).toHaveBeenCalledWith([1, 2], [], []);
-			expect(onCloseMock).toHaveBeenCalled();
+			expect(onClose).toHaveBeenCalled();
 		});
 	});
 
 	it("adds a tag by clicking suggestion button", async () => {
-		render(<TagEditModal imageIds={[1]} initialTags={[]} onClose={vi.fn()} />);
-		await waitForLoadingToFinish();
+		await renderModal();
 
 		// Click the tag2 suggestion button
 		const suggBtn = screen.getByText("tag2");

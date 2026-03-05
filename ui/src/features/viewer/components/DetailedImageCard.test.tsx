@@ -273,6 +273,7 @@ describe("DetailedImageCard", () => {
 		const handleSendToWorkflow = vi.fn();
 		const handleRunWithWorkflow = vi.fn();
 		const handleRunWithMask = vi.fn();
+		const handleRestoreWorkflow = vi.fn();
 
 		mockUseImageCardLogic.mockReturnValue({
 			...mockLogic,
@@ -283,6 +284,7 @@ describe("DetailedImageCard", () => {
 			handleSendToWorkflow,
 			handleRunWithWorkflow,
 			handleRunWithMask,
+			handleRestoreWorkflow,
 		});
 
 		rerender(<DetailedImageCard image={{ ...image }} />);
@@ -299,6 +301,9 @@ describe("DetailedImageCard", () => {
 
 		await user.click(screen.getByText("Add Loader"));
 		expect(handleAddUnifiedLoader).toHaveBeenCalled();
+
+		await user.click(screen.getByText("Restore Workflow"));
+		expect(handleRestoreWorkflow).toHaveBeenCalled();
 
 		await user.click(screen.getByText("Send"));
 		expect(handleSendToWorkflow).toHaveBeenCalled();
