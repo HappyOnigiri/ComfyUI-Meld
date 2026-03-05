@@ -52,6 +52,18 @@ Select multiple images with `Ctrl + Click` (`Cmd + Click` on macOS) or `Shift + 
 *   **Queue Workflow**: Run a workflow with selected images as inputs in order (batch processing).
 *   **Move to Trash**: Move selected images to Trash.
 
+### Image Analytics
+
+Click the **BarChart2 icon** in the gallery header to open a modal showing image statistics.
+
+*   **Total Images**: The total number of registered images.
+*   **Category Rankings**: Top 5 items for Positive Prompt, Negative Prompt, Tag, Model, Created Date, and Resolution.
+*   **Click to Search**: Click any item to switch to the search bar and run a search with the corresponding query (e.g., `tag:girl`, `pos:1girl`).
+*   **See All**: Click "See all" for each category to view the full list. You can filter by partial match and toggle count sort (ascending/descending).
+*   **Refresh**: Use the "Refresh" button in the modal to re-run the aggregation.
+
+Aggregation runs in the background on app startup, and results are cached for instant display.
+
 ---
 
 ## 2. Image Detailed Viewer (Viewer)
@@ -163,6 +175,7 @@ You can narrow results using the following syntax:
 | `id:` | Search by exact database ID | `id:123` |
 | `filename:` | Search by filename (exact or partial match) | `filename:image.png` `filename:img` |
 | `date:` | Search by date | `date:2024-01-01` (day), `date:2024-01` (month) |
+| `resolution:` | Search by resolution | `resolution:1024x1024` |
 | `after:` | Search after a date | `after:2024-01-01` |
 | `before:` | Search before a date | `before:2024-01-01` |
 | `pos:` | Search Positive prompt only | `pos:cat` |
