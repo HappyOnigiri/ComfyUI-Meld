@@ -1,23 +1,40 @@
 import sqlite3
 import sys
+import types
 import unittest
 from unittest.mock import MagicMock
 
-# Mock ComfyUI dependencies
-sys.modules["folder_paths"] = MagicMock()
-sys.modules["server"] = MagicMock()
-sys.modules["comfy.cli_args"] = MagicMock()
-sys.modules["nodes"] = MagicMock()
-sys.modules["comfy"] = MagicMock()
-sys.modules["comfy.sd"] = MagicMock()
-sys.modules["comfy.utils"] = MagicMock()
-sys.modules["comfy.samplers"] = MagicMock()
+# Mock ComfyUI deps before import; tearDownModule restores so other tests are unaffected.
+_MOCK_KEYS = (
+    "folder_paths",
+    "server",
+    "comfy.cli_args",
+    "nodes",
+    "comfy",
+    "comfy.sd",
+    "comfy.utils",
+    "comfy.samplers",
+)
+_saved_modules: dict[str, object | None] = {k: sys.modules.get(k) for k in _MOCK_KEYS}
+
+for k in _MOCK_KEYS:
+    sys.modules[k] = MagicMock()
 
 from py.image_manager.features.analytics.service import (  # noqa: E402
     CATEGORIES,
     get_category_list,
     get_summary,
 )
+
+
+def tearDownModule() -> None:
+    """Restore sys.modules so other test modules are not affected."""
+    for k in _MOCK_KEYS:
+        orig = _saved_modules.get(k)
+        if orig is None:
+            sys.modules.pop(k, None)
+        elif isinstance(orig, types.ModuleType):
+            sys.modules[k] = orig
 
 
 def create_analytics_schema(cursor: sqlite3.Cursor) -> None:
