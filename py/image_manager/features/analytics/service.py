@@ -171,7 +171,7 @@ def get_summary(cursor: sqlite3.Cursor) -> dict[str, Any]:
 
     for cat, table in CATEGORY_TABLE_MAP.items():
         name_col = CATEGORY_NAME_COL[cat]
-        cursor.execute(f"SELECT {name_col}, count FROM {table} ORDER BY count DESC LIMIT 5")
+        cursor.execute(f"SELECT {name_col}, count FROM {table} ORDER BY count DESC, {name_col} ASC LIMIT 5")
         rows = cursor.fetchall()
         if cat == "by_date":
             result[cat] = [{"date": r[0], "count": r[1]} for r in rows]
@@ -201,9 +201,10 @@ def get_category_list(
     table = CATEGORY_TABLE_MAP[category]
     name_col = CATEGORY_NAME_COL[category]
 
-    order = "count ASC" if sort == "count_asc" else "count DESC"
+    order = "count ASC, {name_col} ASC" if sort == "count_asc" else "count DESC, {name_col} ASC"
     if sort not in ("count_desc", "count_asc"):
-        order = "count DESC"
+        order = "count DESC, {name_col} ASC"
+    order_clause_raw = f"ORDER BY {order.format(name_col=name_col)}"
 
     where = ""
     params: list[Any] = []
@@ -215,7 +216,7 @@ def get_category_list(
     cursor.execute(count_sql, params)
     total = cursor.fetchone()[0]
 
-    order_clause = f"ORDER BY {order}"
+    order_clause = order_clause_raw
     fetch_sql = f"SELECT {name_col}, count FROM {table}{where} {order_clause} LIMIT ? OFFSET ?"
     cursor.execute(fetch_sql, params + [limit, offset])
     rows = cursor.fetchall()

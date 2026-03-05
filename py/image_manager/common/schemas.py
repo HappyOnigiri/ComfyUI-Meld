@@ -75,6 +75,14 @@ class SettingRecord(BaseSchema):
 
 @dataclass
 class ApiResponse(BaseSchema):
+    """
+    Unified API response wrapper.
+
+    count: Number of items in the current response/page (current batch).
+    total: Overall total number of items available across all pages.
+    Either may be None when pagination is not used.
+    """
+
     success: bool
     data: Any | None = None
     error: str | None = None
