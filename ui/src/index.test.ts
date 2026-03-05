@@ -29,6 +29,7 @@ vi.mock("/scripts/app.js", () => ({
 						tab.render(el);
 						// call render again to hit branch
 						tab.render(el);
+						document.body.removeChild(parent);
 					}),
 					setSidebarTabActive: vi.fn(),
 				},

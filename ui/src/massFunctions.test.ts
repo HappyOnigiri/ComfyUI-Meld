@@ -34,7 +34,7 @@ global.fetch = vi.fn().mockResolvedValue({
 	text: async () => "",
 	blob: async () => new Blob(),
 	headers: new Headers(),
-}) as never;
+}) as unknown as typeof fetch;
 
 global.URL.createObjectURL = vi.fn();
 global.URL.revokeObjectURL = vi.fn();

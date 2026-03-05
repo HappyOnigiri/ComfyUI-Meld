@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type React from "react";
 import { describe, expect, it, vi } from "vitest";
@@ -54,7 +54,6 @@ describe("ViewTab", () => {
 		).not.toThrow();
 
 		const numberInputs = screen.getAllByRole("spinbutton");
-		const { fireEvent } = await import("@testing-library/react");
 
 		// thumbnail window size
 		fireEvent.change(numberInputs[0]!, { target: { value: "20" } });
