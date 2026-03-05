@@ -222,9 +222,25 @@ const fetchImageBlob = async (
 	const fallbackFilename = `image_${imageId}.png`;
 	const disposition = res.headers.get("Content-Disposition");
 	let filename = fallbackFilename;
-	if (disposition?.includes("filename=")) {
-		const match = disposition.match(/filename="?([^"]+)"?/);
-		if (match?.[1]) filename = sanitizeFilename(match[1], fallbackFilename);
+	if (disposition) {
+		const starMatch = disposition.match(/filename\*=([^;\s]+)/i);
+		if (starMatch?.[1]) {
+			let rawVal = starMatch[1];
+			// Extract value after optional charset/lang, e.g. UTF-8''
+			const charsetMatch = rawVal.match(/^([A-Za-z0-9-]+)'[^']*'(.*)$/);
+			if (charsetMatch) {
+				rawVal = charsetMatch[2];
+			}
+			try {
+				filename = sanitizeFilename(decodeURIComponent(rawVal), fallbackFilename);
+			} catch {
+				const match = disposition.match(/filename="?([^"]+)"?/);
+				if (match?.[1]) filename = sanitizeFilename(match[1], fallbackFilename);
+			}
+		} else if (disposition.includes("filename=")) {
+			const match = disposition.match(/filename="?([^"]+)"?/);
+			if (match?.[1]) filename = sanitizeFilename(match[1], fallbackFilename);
+		}
 	}
 
 	const blob = await res.blob();
