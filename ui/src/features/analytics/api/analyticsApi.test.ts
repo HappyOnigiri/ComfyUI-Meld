@@ -55,7 +55,9 @@ describe("analyticsApi", () => {
 
 			const result = await fetchAnalyticsCategory("positive_prompts");
 
-			expect(api.fetchApi).toHaveBeenCalledWith("/meld/analytics/positive_prompts?");
+			const url = (api.fetchApi as ReturnType<typeof vi.fn>).mock.calls[0]?.[0] as string;
+			expect(url).toMatch(/^\/meld\/analytics\/positive_prompts$/);
+			expect(url).not.toMatch(/\?$/);
 			expect(result).toEqual({ data: items, total: 1 });
 		});
 

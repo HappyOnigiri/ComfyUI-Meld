@@ -35,7 +35,13 @@ export const fetchAnalyticsSummary = async (): Promise<AnalyticsSummary> => {
 
 export const fetchAnalyticsCategory = async (
 	category: AnalyticsCategory,
-	options?: { limit?: number; offset?: number; sort?: AnalyticsSort; q?: string },
+	options?: {
+		limit?: number;
+		offset?: number;
+		sort?: AnalyticsSort;
+		q?: string;
+		signal?: AbortSignal;
+	},
 ): Promise<{ data: AnalyticsCategoryItem[]; total: number }> => {
 	const params = new URLSearchParams();
 	if (options?.limit !== undefined) params.set("limit", String(options.limit));
@@ -43,7 +49,9 @@ export const fetchAnalyticsCategory = async (
 	if (options?.sort) params.set("sort", options.sort);
 	if (options?.q?.trim()) params.set("q", options.q.trim());
 
-	const res = await api.fetchApi(`/meld/analytics/${category}?${params.toString()}`);
+	const query = params.toString();
+	const url = `/meld/analytics/${category}${query ? `?${query}` : ""}`;
+	const res = await api.fetchApi(url, { signal: options?.signal });
 	const json = await parseJsonResponse<{
 		success: boolean;
 		data: AnalyticsCategoryItem[];
