@@ -55,6 +55,10 @@ else:
 
 
 # --- Automatic cleanup (at extension load time) ---
+# Synchronization: analytics aggregation waits for cleanup to finish before running.
+_cleanup_done_event = threading.Event()
+
+
 def _run_auto_cleanup() -> None:
     """Run cleanup in the background"""
     import time
@@ -66,15 +70,16 @@ def _run_auto_cleanup() -> None:
             logging.info(f"[Meld] Extension load cleanup: Removed {count} missing images from database.")
     except Exception as e:
         logging.warning(f"[Meld] Extension load cleanup failed: {e}")
+    finally:
+        _cleanup_done_event.set()
 
 
 def _run_analytics_aggregation() -> None:
-    """Run analytics aggregation in the background."""
-    import time
-
+    """Run analytics aggregation in the background. Waits for cleanup to complete first."""
     from .features.analytics.service import run_aggregation
 
-    time.sleep(6)  # After cleanup
+    if not _cleanup_done_event.wait(timeout=60):
+        logging.warning("[Meld] Analytics aggregation: cleanup did not complete within 60s, proceeding anyway.")
     try:
         run_aggregation()
     except Exception as e:
