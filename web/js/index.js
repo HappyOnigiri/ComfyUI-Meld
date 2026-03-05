@@ -6538,7 +6538,7 @@ const Cg = (e) => {
     if (y != null && y[1]) {
       let g = y[1];
       const k = g.match(/^([A-Za-z0-9-]+)'[^']*'(.*)$/);
-      k && (g = k[2]);
+      k != null && k[2] && (g = k[2]);
       try {
         d = ya(decodeURIComponent(g), i);
       } catch {
@@ -11412,7 +11412,7 @@ const Yf = [
     k(!0);
     try {
       const M = await vi();
-      i(M);
+      i(M || []);
     } catch (M) {
       z.error("Failed to fetch tags:", M);
     } finally {
@@ -19023,13 +19023,14 @@ ed.registerExtension({
     t.name;
   },
   async nodeCreated(e) {
-    if (e.comfyClass !== "MeldUnifiedLoader") return;
-    const t = () => {
-      var l, a;
-      const n = (l = e.widgets) == null ? void 0 : l.find((o) => o.name === "positive"), r = (a = e.widgets) == null ? void 0 : a.find((o) => o.name === "negative");
-      n && n.inputEl && (n.inputEl.style.borderLeft = "4px solid var(--comfy-input-text-active, #44bb44)", n.inputEl.style.paddingLeft = "8px"), r && r.inputEl && (r.inputEl.style.borderLeft = "4px solid var(--error-color, #ff4444)", r.inputEl.style.paddingLeft = "8px");
+    const t = e;
+    if (t.comfyClass !== "MeldUnifiedLoader") return;
+    const n = () => {
+      var a, o;
+      const r = (a = t.widgets) == null ? void 0 : a.find((i) => i.name === "positive"), l = (o = t.widgets) == null ? void 0 : o.find((i) => i.name === "negative");
+      r && r.inputEl && (r.inputEl.style.borderLeft = "4px solid var(--comfy-input-text-active, #44bb44)", r.inputEl.style.paddingLeft = "8px"), l && l.inputEl && (l.inputEl.style.borderLeft = "4px solid var(--error-color, #ff4444)", l.inputEl.style.paddingLeft = "8px");
     };
-    t(), setTimeout(t, 1), setTimeout(t, 100);
+    n(), setTimeout(n, 1), setTimeout(n, 100);
   }
 });
 const Yv = document.getElementById("meld-gallery-style");
@@ -19094,27 +19095,23 @@ ed.registerExtension({
       }), te.addEventListener("meld-scan-finished", (n) => {
         var r;
         window.dispatchEvent(new CustomEvent("meld-scan-finished", { detail: n.detail })), (r = e.ui.meld) == null || r.refresh(), z.log("Import completed.");
-      }), te.addEventListener(
-        "executed",
-        async ({
-          detail: n
-        }) => {
-          var r;
-          if ((r = n == null ? void 0 : n.output) != null && r.images) {
-            for (const l of n.output.images)
-              if (l.type === "output")
-                try {
-                  await bf({
-                    filename: l.filename,
-                    subfolder: l.subfolder,
-                    type: l.type
-                  });
-                } catch (a) {
-                  z.error("Failed to auto-register image:", a);
-                }
-          }
+      }), te.addEventListener("executed", async (n) => {
+        var l;
+        const r = n.detail;
+        if ((l = r == null ? void 0 : r.output) != null && l.images) {
+          for (const a of r.output.images)
+            if (a.type === "output")
+              try {
+                await bf({
+                  filename: a.filename,
+                  subfolder: a.subfolder,
+                  type: a.type
+                });
+              } catch (o) {
+                z.error("Failed to auto-register image:", o);
+              }
         }
-      );
+      });
       try {
         e.extensionManager.registerSidebarTab({
           id: "meld-gallery",
