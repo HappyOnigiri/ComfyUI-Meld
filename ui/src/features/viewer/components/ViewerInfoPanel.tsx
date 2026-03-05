@@ -1,6 +1,6 @@
 import { Check, Copy } from "lucide-react";
 import type React from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { GalleryAction, MeldImage, Settings } from "../../../types";
 
 interface ViewerInfoPanelProps {
@@ -24,21 +24,35 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 }) => {
 	const [saveStatus, setSaveStatus] = useState<"idle" | "saving">("idle");
 	const [copiedField, setCopiedField] = useState<string | null>(null);
+	const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const handleCopy = useCallback(async (text: string, fieldId: string) => {
 		try {
 			await navigator.clipboard.writeText(text);
+			if (copyTimeoutRef.current) {
+				clearTimeout(copyTimeoutRef.current);
+				copyTimeoutRef.current = null;
+			}
 			setCopiedField(fieldId);
-			setTimeout(() => setCopiedField(null), 2000);
+			copyTimeoutRef.current = setTimeout(() => {
+				setCopiedField(null);
+				copyTimeoutRef.current = null;
+			}, 2000);
 		} catch (_err) {
 			// Clipboard API may fail in some contexts; ignore
 		}
 	}, []);
 
-	// Reset local state on mount; copiedField auto-clears after 2s
+	// Reset local state on mount; cleanup timeout on unmount
 	useEffect(() => {
 		setSaveStatus("idle");
 		setCopiedField(null);
+		return () => {
+			if (copyTimeoutRef.current) {
+				clearTimeout(copyTimeoutRef.current);
+				copyTimeoutRef.current = null;
+			}
+		};
 	}, []);
 
 	const showNotesSetting = isFullscreen
@@ -67,6 +81,13 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 							type="button"
 							className="meld-viewer-details-copy-btn"
 							title="Copy"
+							aria-label={
+								(isFullscreen
+									? settings["fullscreen.details.show_filename"]
+									: settings["viewer.details.show_filename"]) === "filepath"
+									? "Copy filepath"
+									: "Copy filename"
+							}
 							onClick={(e) => {
 								e.stopPropagation();
 								const text =
@@ -107,6 +128,7 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 								type="button"
 								className="meld-viewer-details-copy-btn"
 								title="Copy"
+								aria-label="Copy dimensions"
 								onClick={(e) => {
 									e.stopPropagation();
 									handleCopy(`${image.width} x ${image.height} px`, "dimensions");
@@ -131,6 +153,7 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 							type="button"
 							className="meld-viewer-details-copy-btn"
 							title="Copy"
+							aria-label="Copy created timestamp"
 							onClick={(e) => {
 								e.stopPropagation();
 								handleCopy(new Date(image.created_at * 1000).toLocaleString(), "created_at");
@@ -153,6 +176,7 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 							type="button"
 							className="meld-viewer-details-copy-btn"
 							title="Copy"
+							aria-label="Copy deleted timestamp"
 							onClick={(e) => {
 								e.stopPropagation();
 								const deletedAt = image.deleted_at;
@@ -181,6 +205,7 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 								type="button"
 								className="meld-viewer-details-copy-btn"
 								title="Copy"
+								aria-label="Copy model"
 								onClick={(e) => {
 									e.stopPropagation();
 									const name = image.model_name;
@@ -248,6 +273,7 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 								type="button"
 								className="meld-viewer-details-copy-btn"
 								title="Copy"
+								aria-label="Copy positive prompt"
 								onClick={(e) => {
 									e.stopPropagation();
 									handleCopy(image.positive_prompt || image.positive || "", "positive");
@@ -282,6 +308,7 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 								type="button"
 								className="meld-viewer-details-copy-btn"
 								title="Copy"
+								aria-label="Copy negative prompt"
 								onClick={(e) => {
 									e.stopPropagation();
 									handleCopy(image.negative_prompt || image.negative || "", "negative");
@@ -317,6 +344,7 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 								type="button"
 								className="meld-viewer-details-copy-btn"
 								title="Copy"
+								aria-label="Copy tags"
 								onClick={(e) => {
 									e.stopPropagation();
 									handleCopy(image.tags?.join(", ") ?? "", "tags");
@@ -346,6 +374,7 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 							type="button"
 							className="meld-viewer-details-copy-btn"
 							title="Copy"
+							aria-label="Copy notes"
 							onClick={(e) => {
 								e.stopPropagation();
 								handleCopy(image.user_notes || "", "notes");
