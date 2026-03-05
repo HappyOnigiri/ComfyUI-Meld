@@ -173,8 +173,8 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 				setDownloadProgress({ current: total, total });
 			} else {
 				// Raw format: Tracking progress per image
-				for (let i = 0; i < imageIds.length; i++) {
-					const imageId = imageIds[i] as number;
+				let i = 0;
+				for (const imageId of imageIds) {
 					setDownloadProgress({ current: i, total });
 					await imagesApi.downloadRawImage(
 						imageId,
@@ -183,7 +183,8 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 						resizeValue,
 						resizeFilter,
 					);
-					setDownloadProgress({ current: i + 1, total });
+					i += 1;
+					setDownloadProgress({ current: i, total });
 					// Allow browser to process multiple downloads
 					await new Promise((r) => setTimeout(r, 200));
 				}
@@ -539,7 +540,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 							format === "zip" ? (
 								"Creating ZIP..."
 							) : (
-								`Downloading ${downloadProgress.current}/${downloadProgress.total}...`
+								`Downloading ${Math.min(downloadProgress.current + 1, downloadProgress.total)}/${downloadProgress.total}...`
 							)
 						) : (
 							<>

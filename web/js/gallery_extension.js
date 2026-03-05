@@ -7965,17 +7965,17 @@ const py = ({ imageIds: e, onSuccess: t, onClose: n }) => {
           c,
           d
         ), S({ current: T, total: T });
-      else
-        for (let D = 0; D < e.length; D++) {
-          const N = e[D];
+      else {
+        let D = 0;
+        for (const N of e)
           S({ current: D, total: T }), await Dg(
             N,
             o,
             i,
             c,
             d
-          ), S({ current: D + 1, total: T }), await new Promise((z) => setTimeout(z, 200));
-        }
+          ), D += 1, S({ current: D, total: T }), await new Promise((z) => setTimeout(z, 200));
+      }
       n(), t == null || t();
     } catch (D) {
       O.error("Download failed:", D), alert("Failed to download images.");
@@ -8349,7 +8349,7 @@ const py = ({ imageIds: e, onSuccess: t, onClose: n }) => {
                 onClick: y,
                 disabled: p,
                 style: { display: "flex", alignItems: "center", gap: "8px" },
-                children: p && g ? a === "zip" ? "Creating ZIP..." : `Downloading ${g.current}/${g.total}...` : /* @__PURE__ */ s.jsxs(s.Fragment, { children: [
+                children: p && g ? a === "zip" ? "Creating ZIP..." : `Downloading ${Math.min(g.current + 1, g.total)}/${g.total}...` : /* @__PURE__ */ s.jsxs(s.Fragment, { children: [
                   /* @__PURE__ */ s.jsx(sl, { size: 16 }),
                   " Download"
                 ] })
