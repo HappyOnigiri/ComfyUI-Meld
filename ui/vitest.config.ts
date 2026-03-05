@@ -9,9 +9,9 @@ export default defineConfig({
 	},
 	resolve: {
 		alias: {
-			"@": resolve(__dirname, "./src"),
-			"/scripts/api.js": resolve(__dirname, "./src/test/__mocks__/comfyApi.ts"),
-			"/scripts/app.js": resolve(__dirname, "./src/test/__mocks__/comfyApp.ts"),
+			"@": resolve(__dirname, "./src").replace(/^[A-Z]:/i, m => m.toLowerCase()),
+			"/scripts/api.js": resolve(__dirname, "./src/test/__mocks__/comfyApi.ts").replace(/^[A-Z]:/i, m => m.toLowerCase()),
+			"/scripts/app.js": resolve(__dirname, "./src/test/__mocks__/comfyApp.ts").replace(/^[A-Z]:/i, m => m.toLowerCase()),
 		},
 	},
 	test: {
@@ -25,10 +25,10 @@ export default defineConfig({
 			include: ["src/**/*.{ts,tsx}"],
 			exclude: ["node_modules/", "src/test/"],
 			thresholds: {
-				lines: 40,
-				functions: 40,
-				branches: 40,
-				statements: 40,
+				lines: 50,
+				functions: 50,
+				branches: 50,
+				statements: 50,
 			},
 		},
 	},
