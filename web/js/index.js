@@ -6520,7 +6520,7 @@ const Cg = (e) => {
     }
     throw new Error(y);
   }
-  const o = a.headers.get("Content-Type") || "";
+  const o = (a.headers.get("Content-Type") || "").toLowerCase();
   if (o.includes("application/json") || o.includes("+json")) {
     let y = `Image ${e}: server returned JSON instead of binary data`;
     try {
