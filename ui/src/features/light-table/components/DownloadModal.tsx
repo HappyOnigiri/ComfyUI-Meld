@@ -192,8 +192,9 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 					);
 					i += 1;
 					setDownloadProgress({ current: i, total });
-					// Allow browser to process multiple downloads
-					await new Promise((r) => setTimeout(r, 200));
+					// Yield one animation frame so the browser can process UI / IO
+					// between consecutive downloads, avoiding a fixed N*200ms delay.
+					await new Promise<void>((r) => requestAnimationFrame(() => r()));
 				}
 			}
 			onClose();
@@ -492,8 +493,15 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 								%
 							</span>
 						</div>
-						{/* Progress bar */}
+						{/* Progress bar: ARIA semantics for screen reader support */}
 						<div
+							role="progressbar"
+							aria-label="Download progress"
+							aria-valuemin={0}
+							aria-valuemax={downloadProgress.total}
+							aria-valuenow={Math.round(
+								(downloadProgress.current / Math.max(1, downloadProgress.total)) * 100,
+							)}
 							style={{
 								width: "100%",
 								height: "4px",

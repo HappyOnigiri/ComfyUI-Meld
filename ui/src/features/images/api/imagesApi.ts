@@ -161,6 +161,26 @@ export const fetchSnapshotData = async (
 	return handleResponse(res);
 };
 
+// Sanitize a filename from a Content-Disposition header: strip path components,
+// remove directory traversal sequences, remove control characters, and enforce
+// a max length. Returns a safe basename only.
+const sanitizeFilename = (raw: string, fallback: string): string => {
+	// Extract basename by normalising backslashes and splitting on path separators
+	let name =
+		raw
+			.replace(/\\/g, "/") // normalise backslashes to forward slashes
+			.split("/")
+			.pop() ?? ""; // keep only the last path component
+	name = name
+		.replace(/\.\./g, "") // remove directory traversal sequences
+		// biome-ignore lint/suspicious/noControlCharactersInRegex: intentionally stripping control chars
+		.replace(/[\x00-\x1f\x7f]/g, "") // strip control characters
+		.trim();
+	// Fall back to a safe default when the result is empty or suspiciously long
+	if (!name || name.length > 255) return fallback;
+	return name;
+};
+
 // Helper to fetch image binary data with filename
 const fetchImageBlob = async (
 	imageId: number,
@@ -178,17 +198,22 @@ const fetchImageBlob = async (
 		throw new Error(`Failed to fetch image ${imageId}`);
 	}
 
-	// Extract filename from Content-Disposition header
+	// Extract and sanitize filename from Content-Disposition header
+	const fallbackFilename = `image_${imageId}.png`;
 	const disposition = res.headers.get("Content-Disposition");
-	let filename = `image_${imageId}.png`;
+	let filename = fallbackFilename;
 	if (disposition?.includes("filename=")) {
 		const match = disposition.match(/filename="?([^"]+)"?/);
-		if (match?.[1]) filename = match[1];
+		if (match?.[1]) filename = sanitizeFilename(match[1], fallbackFilename);
 	}
 
 	const blob = await res.blob();
 	return { blob, filename };
 };
+
+// OOM guard: enforce a max number of ZIP entries and total byte size
+const MAX_ZIP_FILES = 500;
+const MAX_ZIP_BYTES = 2 * 1024 * 1024 * 1024; // 2 GB
 
 export const downloadZipImages = async (
 	imageIds: number[],
@@ -205,6 +230,7 @@ export const downloadZipImages = async (
 	// Fetch images one by one and report progress
 	const usedNames = new Set<string>();
 	let i = 0;
+	let totalBytes = 0;
 	for (const imageId of imageIds) {
 		onProgress?.(i, total);
 		const { blob, filename } = await fetchImageBlob(
@@ -214,6 +240,19 @@ export const downloadZipImages = async (
 			resizeValue,
 			resizeFilter,
 		);
+
+		// Guard: check entry count and total byte size limits before adding to zip
+		if (i >= MAX_ZIP_FILES) {
+			throw new Error(
+				`ZIP entry limit reached (${MAX_ZIP_FILES} files). Please reduce the number of images.`,
+			);
+		}
+		totalBytes += blob.size;
+		if (totalBytes > MAX_ZIP_BYTES) {
+			throw new Error(
+				`ZIP size limit reached (${MAX_ZIP_BYTES / 1024 / 1024 / 1024} GB). Please reduce the number of images.`,
+			);
+		}
 
 		// Deduplicate filenames
 		let uniqueName = filename;
