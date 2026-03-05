@@ -14,7 +14,8 @@
 		"strict": true,
 		"forceConsistentCasingInFileNames": true,
 		"module": "ESNext",
-		"moduleResolution": "Node",
+		"moduleResolution": "bundler",
+		"allowImportingTsExtensions": true,
 		"resolveJsonModule": true,
 		"isolatedModules": true,
 		"noEmit": true,
@@ -23,20 +24,28 @@
 		"paths": {
 			"@/*": [
 				"./src/*"
+			],
+			"/scripts/api.js": [
+				"./src/types.d.ts"
+			],
+			"/scripts/app.js": [
+				"./src/types.d.ts"
 			]
 		},
 		"noImplicitAny": true,
 		"noImplicitThis": true,
 		"strictNullChecks": true,
-		"noUncheckedIndexedAccess": true
+		"noUncheckedIndexedAccess": true,
+		"types": [
+			"vitest/globals",
+			"@testing-library/jest-dom"
+		]
 	},
 	"include": [
 		"src"
 	],
 	"exclude": [
-		"src/**/*.test.ts",
-		"src/**/*.test.tsx",
-		"src/test/**/*"
+		"node_modules"
 	],
 	"references": [
 		{

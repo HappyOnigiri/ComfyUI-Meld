@@ -1,8 +1,12 @@
 /// <reference types="vite/client" />
-declare const __APP_VERSION__: string;
+import type { ComfyApi, ComfyApp } from "./types";
 
-interface Window {
-	app: unknown;
-	api: unknown;
-	LiteGraph?: unknown;
+declare global {
+	const __APP_VERSION__: string;
+
+	interface Window {
+		app: ComfyApp;
+		api: ComfyApi;
+		LiteGraph?: unknown;
+	}
 }
