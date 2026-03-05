@@ -498,7 +498,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 							role="progressbar"
 							aria-label="Download progress"
 							aria-valuemin={0}
-							aria-valuemax={downloadProgress.total}
+							aria-valuemax={100}
 							aria-valuenow={Math.round(
 								(downloadProgress.current / Math.max(1, downloadProgress.total)) * 100,
 							)}

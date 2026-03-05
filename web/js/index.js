@@ -6505,7 +6505,7 @@ const Eg = (e) => {
   let n = e.replace(/\\/g, "/").split("/").pop() ?? "";
   return n = n.replace(/\.\./g, "").replace(/[\x00-\x1f\x7f]/g, "").trim(), !n || n.length > 255 ? t : n;
 }, bf = async (e, t, n, r, l) => {
-  const a = await te.fetchApi("/meld/api/download/raw", {
+  const a = await te.fetchApi("/meld/download/raw", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ imageId: e, removeMetadata: t, resizeMode: n, resizeValue: r, resizeFilter: l })
@@ -6523,6 +6523,10 @@ const Eg = (e) => {
   const o = (await import("./jszip.min.js").then((x) => x.j)).default, i = new o(), c = e.length, d = /* @__PURE__ */ new Set();
   let p = 0, v = 0;
   for (const x of e) {
+    if (p >= Rc)
+      throw new Error(
+        `ZIP entry limit reached (${Rc} files). Please reduce the number of images.`
+      );
     a == null || a(p, c);
     const { blob: _, filename: f } = await bf(
       x,
@@ -6531,10 +6535,6 @@ const Eg = (e) => {
       r,
       l
     );
-    if (p >= Rc)
-      throw new Error(
-        `ZIP entry limit reached (${Rc} files). Please reduce the number of images.`
-      );
     if (v += _.size, v > Dc)
       throw new Error(
         `ZIP size limit reached (${Dc / 1024 / 1024 / 1024} GB). Please reduce the number of images.`
@@ -8344,7 +8344,7 @@ const vy = ({ imageIds: e, onSuccess: t, onClose: n }) => {
                     role: "progressbar",
                     "aria-label": "Download progress",
                     "aria-valuemin": 0,
-                    "aria-valuemax": g.total,
+                    "aria-valuemax": 100,
                     "aria-valuenow": Math.round(
                       g.current / Math.max(1, g.total) * 100
                     ),

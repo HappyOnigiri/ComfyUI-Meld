@@ -189,7 +189,7 @@ const fetchImageBlob = async (
 	resizeValue: number,
 	resizeFilter: string,
 ): Promise<{ blob: Blob; filename: string }> => {
-	const res = await api.fetchApi("/meld/api/download/raw", {
+	const res = await api.fetchApi("/meld/download/raw", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ imageId, removeMetadata, resizeMode, resizeValue, resizeFilter }),
@@ -232,6 +232,13 @@ export const downloadZipImages = async (
 	let i = 0;
 	let totalBytes = 0;
 	for (const imageId of imageIds) {
+		// Guard: check entry count limit before fetching
+		if (i >= MAX_ZIP_FILES) {
+			throw new Error(
+				`ZIP entry limit reached (${MAX_ZIP_FILES} files). Please reduce the number of images.`,
+			);
+		}
+
 		onProgress?.(i, total);
 		const { blob, filename } = await fetchImageBlob(
 			imageId,
@@ -241,12 +248,7 @@ export const downloadZipImages = async (
 			resizeFilter,
 		);
 
-		// Guard: check entry count and total byte size limits before adding to zip
-		if (i >= MAX_ZIP_FILES) {
-			throw new Error(
-				`ZIP entry limit reached (${MAX_ZIP_FILES} files). Please reduce the number of images.`,
-			);
-		}
+		// Guard: check total byte size limit before adding to zip
 		totalBytes += blob.size;
 		if (totalBytes > MAX_ZIP_BYTES) {
 			throw new Error(
