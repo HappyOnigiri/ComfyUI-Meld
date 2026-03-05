@@ -30,7 +30,8 @@ app.registerExtension({
 				n !== null &&
 				typeof n === "object" &&
 				"comfyClass" in n &&
-				typeof (n as Record<string, unknown>).comfyClass === "string"
+				typeof (n as Record<string, unknown>).comfyClass === "string" &&
+				Array.isArray((n as Record<string, unknown>).widgets)
 			);
 		}
 

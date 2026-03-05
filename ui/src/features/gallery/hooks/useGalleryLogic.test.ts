@@ -10,11 +10,15 @@ vi.mock("../../light-table/store", () => ({
 	useLightTableStore: vi.fn(),
 }));
 
+function setupUseLightTableStoreMock(buckets: Record<string, string[]>) {
+	vi.mocked(useLightTableStore).mockImplementation(<T>(selector: (state: TrayState) => T): T => {
+		return selector({ buckets } as TrayState);
+	});
+}
+
 describe("useGalleryLogic", () => {
 	beforeEach(() => {
-		vi.mocked(useLightTableStore).mockImplementation(<T>(selector: (state: TrayState) => T): T => {
-			return selector({ buckets: {} } as TrayState);
-		});
+		setupUseLightTableStoreMock({});
 	});
 
 	it("returns correct default values and handles view mode changes", () => {
@@ -54,10 +58,7 @@ describe("useGalleryLogic", () => {
 	});
 
 	it("filters out hidden images (in light table buckets)", () => {
-		vi.mocked(useLightTableStore).mockImplementation(<T>(selector: (state: TrayState) => T): T => {
-			const mockState: Partial<TrayState> = { buckets: { default: ["1"] } };
-			return selector(mockState as TrayState); // image id 1 is in bucket
-		});
+		setupUseLightTableStoreMock({ default: ["1"] });
 
 		const mockState = {
 			images: [
@@ -87,10 +88,7 @@ describe("useGalleryLogic", () => {
 
 	it("auto-loads more images if all loaded images are hidden", () => {
 		const mockLoadMore = vi.fn();
-		vi.mocked(useLightTableStore).mockImplementation(<T>(selector: (state: TrayState) => T): T => {
-			const mockState: Partial<TrayState> = { buckets: { default: ["1"] } };
-			return selector(mockState as TrayState);
-		});
+		setupUseLightTableStoreMock({ default: ["1"] });
 
 		const mockState = {
 			images: [{ id: 1, has_children: false }],

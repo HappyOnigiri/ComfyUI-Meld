@@ -19024,7 +19024,7 @@ ed.registerExtension({
   },
   async nodeCreated(e) {
     function t(l) {
-      return l !== null && typeof l == "object" && "comfyClass" in l && typeof l.comfyClass == "string";
+      return l !== null && typeof l == "object" && "comfyClass" in l && typeof l.comfyClass == "string" && Array.isArray(l.widgets);
     }
     if (!t(e)) return;
     const n = e;

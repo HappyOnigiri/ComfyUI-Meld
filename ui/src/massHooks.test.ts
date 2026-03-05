@@ -8,6 +8,7 @@ import { useViewerKeyboardShortcuts } from "./features/viewer/hooks/internal/use
 import { useImageCardLogic } from "./features/viewer/hooks/useImageCardLogic";
 import { useImageViewerLogic } from "./features/viewer/hooks/useImageViewerLogic";
 import { useWorkflowExecution } from "./features/workflows/hooks/useWorkflowExecution";
+import type { MeldImage } from "./types";
 
 vi.mock("./store/GalleryContext", () => ({
 	useGallery: () => ({
@@ -57,6 +58,9 @@ Object.assign(navigator, {
 
 vi.mock("./features/workflows/api/workflowsApi", () => ({
 	fetchWorkflows: vi.fn().mockResolvedValue([{ valid: true, mask_count: 1 }]),
+	fetchWorkflowRaw: vi.fn().mockResolvedValue({
+		nodes: [{ id: "1", type: "MeldImageLoader", widgets: [{ name: "image", value: "" }] }],
+	}),
 }));
 
 vi.mock("./features/search/api/searchApi", () => ({
@@ -158,16 +162,47 @@ const hooksToTest: { run: (...args: unknown[]) => unknown; args?: unknown[] }[] 
 		run: useViewerKeyboardShortcuts as unknown as (...args: unknown[]) => unknown,
 		args: [
 			{
-				dispatch: vi.fn(),
 				viewerImageId: null,
-				isProcessing: false,
-				fetchFullImageDetails: vi.fn(),
+				activeModalType: "none",
+				viewScope: "default",
+				settings: {},
+				dispatch: vi.fn(),
+				isMountedRef: { current: true },
+				toggleFullscreen: vi.fn(),
+				handleNext: vi.fn(),
+				handlePrevious: vi.fn(),
+				handleDelete: vi.fn(),
+				handleUndo: vi.fn().mockResolvedValue(undefined),
+				handleTagEditAction: vi.fn(),
+				handleRestoreAction: vi.fn().mockResolvedValue(undefined),
+				executeCommand: vi.fn().mockResolvedValue(undefined),
+				setShowDetails: vi.fn(),
+				setActiveShortcutKey: vi.fn(),
 			},
 		],
 	},
 	{
-		run: useWorkflowExecution as unknown as (...args: unknown[]) => unknown,
-		args: [false, vi.fn()],
+		run: () => {
+			const { executeWorkflow } = useWorkflowExecution();
+			return {
+				executeWorkflow: (arg1: unknown) => {
+					// Harness calls functions with no args, then mockEvent, then 1.
+					// We provide valid signature placeholders to avoid "Missing required inputs".
+					if (
+						arg1 === undefined ||
+						typeof arg1 === "number" ||
+						(arg1 && typeof arg1 === "object" && "preventDefault" in arg1)
+					) {
+						return executeWorkflow("test-wf", {
+							id: 1,
+							filename: "test.jpg",
+						} as unknown as MeldImage);
+					}
+					return (executeWorkflow as (a: unknown) => Promise<unknown>)(arg1);
+				},
+			};
+		},
+		args: [],
 	},
 ];
 
@@ -243,7 +278,6 @@ describe("Mass Hooks Coverage", () => {
 		}
 
 		// Remove throw errors[0]: consolidate into a single failure path via expect()
-		const filteredErrors = errors.filter((e) => !e.message.includes("Missing required inputs"));
-		expect(filteredErrors).toEqual([]);
+		expect(errors).toEqual([]);
 	});
 });

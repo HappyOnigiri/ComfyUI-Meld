@@ -349,14 +349,19 @@ describe("ImageViewer", () => {
 					tag_edit: "tag-edit-modal",
 					mask_editor: "mask-editor-modal",
 					note_edit: "note-edit-modal",
+					error: "error-modal",
+					delete_confirm: "delete-confirm-modal",
+					parent_selection: "parent-selection-modal",
+					import: "import-modal",
+					settings: "settings-modal",
 				};
 
 				const expectedId = modalIdMap[modal.type];
-				if (expectedId) {
-					const el = screen.getByTestId(expectedId);
-					fireEvent.click(el); // triggers main callback
-					fireEvent.contextMenu(el); // triggers alternate callback like onClose
-				}
+				expect(expectedId).toBeDefined();
+				if (!expectedId) throw new Error(`Missing test ID for modal type: ${modal.type}`);
+				const el = screen.getByTestId(expectedId);
+				fireEvent.click(el); // triggers main callback
+				fireEvent.contextMenu(el); // triggers alternate callback like onClose
 			});
 		});
 	});

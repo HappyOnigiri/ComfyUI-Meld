@@ -223,7 +223,7 @@ describe("DetailedImageCard", () => {
 			positive_prompt: "my_positive",
 			negative_prompt: "my_negative",
 		});
-		render(<DetailedImageCard image={image} />);
+		const { rerender } = render(<DetailedImageCard image={image} />);
 		const user = userEvent.setup();
 
 		// Checkbox
@@ -266,24 +266,64 @@ describe("DetailedImageCard", () => {
 		expect(handleEditNotes).toHaveBeenCalled();
 
 		// Trigger Menu UI interactions
+		const handleRestore = vi.fn();
+		const handleDelete = vi.fn();
+		const handleEditSource = vi.fn();
+		const handleAddUnifiedLoader = vi.fn();
+		const handleSendToWorkflow = vi.fn();
+		const handleRunWithWorkflow = vi.fn();
+		const handleRunWithMask = vi.fn();
+
+		mockUseImageCardLogic.mockReturnValue({
+			...mockLogic,
+			handleRestore,
+			handleDelete,
+			handleEditSource,
+			handleAddUnifiedLoader,
+			handleSendToWorkflow,
+			handleRunWithWorkflow,
+			handleRunWithMask,
+		});
+
+		rerender(<DetailedImageCard image={{ ...image }} />);
+
 		expect(screen.getByText("Restore")).toBeInTheDocument();
 		await user.click(screen.getByText("Restore"));
+		expect(handleRestore).toHaveBeenCalled();
+
 		await user.click(screen.getByText("Delete"));
+		expect(handleDelete).toHaveBeenCalled();
+
 		await user.click(screen.getByText("Edit Source"));
+		expect(handleEditSource).toHaveBeenCalled();
+
 		await user.click(screen.getByText("Add Loader"));
+		expect(handleAddUnifiedLoader).toHaveBeenCalled();
+
 		await user.click(screen.getByText("Send"));
+		expect(handleSendToWorkflow).toHaveBeenCalled();
+
 		await user.click(screen.getByText("Run"));
+		expect(handleRunWithWorkflow).toHaveBeenCalled();
+
 		await user.click(screen.getByText("Run Mask"));
+		expect(handleRunWithMask).toHaveBeenCalledWith("bg");
 
 		// Re-render with parentChain to test lineage click
+		const setPopupContentAlt = vi.fn();
+		const handleCopyAlt = vi.fn();
+
 		mockUseImageCardLogic.mockReturnValue(
 			createMockCardLogic({
 				parentChain: [{ id: 99, imgSrc: "parent.png" }],
 				settings: { "gallery.show_parent_image": true },
 				popupContent: { title: "title", text: "text" },
+				setPopupContent: setPopupContentAlt,
+				handleCopy: handleCopyAlt,
 			}),
 		);
-		render(<DetailedImageCard image={image} />);
+		rerender(<DetailedImageCard image={{ ...image }} />);
+
 		const sourceThumb = screen.getAllByAltText("source thumb")[0];
 		if (sourceThumb) {
 			await user.click(sourceThumb);
@@ -292,6 +332,9 @@ describe("DetailedImageCard", () => {
 		// Trigger Popup UI interactions if it was rendered
 		expect(screen.getByText("Close Popup")).toBeInTheDocument();
 		await user.click(screen.getByText("Close Popup"));
+		expect(setPopupContentAlt).toHaveBeenCalledWith(null);
+
 		await user.click(screen.getByText("Copy Popup"));
+		expect(handleCopyAlt).toHaveBeenCalledWith("test-copy", "", true);
 	});
 });

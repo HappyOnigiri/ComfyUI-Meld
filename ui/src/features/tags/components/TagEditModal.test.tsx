@@ -27,6 +27,12 @@ vi.mock("../../../store/GalleryContext", () => ({
 	}),
 }));
 
+async function waitForLoadingToFinish() {
+	await waitFor(() => {
+		expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
+	});
+}
+
 describe("TagEditModal", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -46,16 +52,14 @@ describe("TagEditModal", () => {
 	it("shows tags after loading", async () => {
 		render(<TagEditModal imageIds={[1]} initialTags={[]} onClose={vi.fn()} />);
 		// After Loading... disappears, verify that specific tag suggestions are shown
-		await waitFor(() => {
-			expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
-		});
+		await waitForLoadingToFinish();
 		// tag1 registered in the mock should appear in the suggestion list
 		expect(screen.getByText("tag1")).toBeInTheDocument();
 	});
 
 	it("allows searching and adding a new tag via Enter key", async () => {
 		render(<TagEditModal imageIds={[1]} initialTags={[]} onClose={vi.fn()} />);
-		await waitFor(() => expect(screen.queryByText("Loading...")).not.toBeInTheDocument());
+		await waitForLoadingToFinish();
 
 		const input = screen.getByPlaceholderText("Search or create new tag...");
 
@@ -73,7 +77,7 @@ describe("TagEditModal", () => {
 	it("prevents adding reserved tag keyword", async () => {
 		const alertMock = vi.spyOn(window, "alert").mockImplementation(() => {});
 		render(<TagEditModal imageIds={[1]} initialTags={[]} onClose={vi.fn()} />);
-		await waitFor(() => expect(screen.queryByText("Loading...")).not.toBeInTheDocument());
+		await waitForLoadingToFinish();
 
 		const input = screen.getByPlaceholderText("Search or create new tag...");
 		await act(async () => {
@@ -88,7 +92,7 @@ describe("TagEditModal", () => {
 
 	it("can remove a selected tag", async () => {
 		render(<TagEditModal imageIds={[1]} initialTags={["tag1"]} onClose={vi.fn()} />);
-		await waitFor(() => expect(screen.queryByText("Loading...")).not.toBeInTheDocument());
+		await waitForLoadingToFinish();
 
 		// Click the remove button for tag1
 		const removeBtns = document.querySelectorAll(".meld-tag-edit-remove");
@@ -120,7 +124,7 @@ describe("TagEditModal", () => {
 		const onCloseMock = vi.fn();
 		const updateSpy = vi.spyOn(imagesApi, "updateImageTags");
 		render(<TagEditModal imageIds={[1]} initialTags={["tag1"]} onClose={onCloseMock} />);
-		await waitFor(() => expect(screen.queryByText("Loading...")).not.toBeInTheDocument());
+		await waitForLoadingToFinish();
 
 		const saveBtn = screen.getByText("Save Changes");
 		await act(async () => {
@@ -138,7 +142,7 @@ describe("TagEditModal", () => {
 		const onCloseMock = vi.fn();
 		const bulkSpy = vi.spyOn(imagesApi, "bulkUpdateImageTags");
 		render(<TagEditModal imageIds={[1, 2]} initialTags={["tag1"]} onClose={onCloseMock} />);
-		await waitFor(() => expect(screen.queryByText("Loading...")).not.toBeInTheDocument());
+		await waitForLoadingToFinish();
 
 		const saveBtn = screen.getByText("Save Changes");
 		await act(async () => {
@@ -154,7 +158,7 @@ describe("TagEditModal", () => {
 
 	it("adds a tag by clicking suggestion button", async () => {
 		render(<TagEditModal imageIds={[1]} initialTags={[]} onClose={vi.fn()} />);
-		await waitFor(() => expect(screen.queryByText("Loading...")).not.toBeInTheDocument());
+		await waitForLoadingToFinish();
 
 		// Click the tag2 suggestion button
 		const suggBtn = screen.getByText("tag2");
