@@ -161,9 +161,9 @@ export const fetchSnapshotData = async (
 	return handleResponse(res);
 };
 
-// Sanitize a filename from a Content-Disposition header: strip path components,
+// Sanitize a filename from a Content-Disposition header: ensure safe basename,
 // remove directory traversal sequences, remove control characters, and enforce
-// a max length. Returns a safe basename only.
+// a safe whitelist for ZIP/download-safe filenames.
 const sanitizeFilename = (raw: string, fallback: string): string => {
 	// Extract basename by normalising backslashes and splitting on path separators
 	let name =
@@ -171,13 +171,24 @@ const sanitizeFilename = (raw: string, fallback: string): string => {
 			.replace(/\\/g, "/") // normalise backslashes to forward slashes
 			.split("/")
 			.pop() ?? ""; // keep only the last path component
-	name = name
-		.replace(/\.\./g, "") // remove directory traversal sequences
-		// biome-ignore lint/suspicious/noControlCharactersInRegex: intentionally stripping control chars
-		.replace(/[\x00-\x1f\x7f]/g, "") // strip control characters
-		.trim();
-	// Fall back to a safe default when the result is empty or suspiciously long
-	if (!name || name.length > 255) return fallback;
+
+	// Normalize names that are "." or ".." or start with "-" by returning the fallback
+	if (name === "." || name === ".." || name.startsWith("-")) return fallback;
+
+	// Replace Windows/ZIP-reserved chars, whitespace, and control chars with "_"
+	// biome-ignore lint/suspicious/noControlCharactersInRegex: intentionally stripping control chars
+	name = name.replace(/[\\:*?"<>|/\x00-\x1f\x7f\s]/g, "_");
+
+	// Enforce a safe whitelist (alphanumeric, dash, underscore, dot) by replacing disallowed chars
+	name = name.replace(/[^a-zA-Z0-9\-_.]/g, "_");
+
+	// Collapse repeated dots and trim trailing dots/spaces
+	name = name.replace(/\.{2,}/g, ".").replace(/[\s.]+$/, "");
+
+	// Fall back to a safe default when the result is empty, invalid again, or suspiciously long
+	if (!name || name === "." || name === ".." || name.startsWith("-") || name.length > 255) {
+		return fallback;
+	}
 	return name;
 };
 
@@ -197,10 +208,18 @@ const fetchImageBlob = async (
 	if (!res.ok) {
 		let errMsg = `Failed to fetch image ${imageId}: ${res.statusText || res.status}`;
 		try {
-			const result = await res.json(); // frontend-api-check-ignore
-			errMsg = result.error || errMsg;
-		} catch (_e) {
-			// Keep fallback if JSON parsing fails
+			const result = await handleResponse<Record<string, unknown>>(res.clone());
+			if (result && result.success === false) {
+				throw new Error((result.error as string) || errMsg);
+			} else if (result?.data) {
+				// use the parsed payload via result.data
+			}
+		} catch (e: unknown) {
+			const extracted = e instanceof Error ? e.message : String(e);
+			// Keep fallback if handling fails, but use error message from handleResponse if it's meaningful
+			if (extracted && !extracted.startsWith("API error:")) {
+				errMsg = `Failed to fetch image ${imageId}: ${extracted}`;
+			}
 		}
 		throw new Error(errMsg);
 	}
