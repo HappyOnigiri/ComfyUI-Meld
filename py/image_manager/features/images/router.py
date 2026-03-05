@@ -1864,7 +1864,7 @@ def _process_image_for_download(
     return buffer.getvalue()
 
 
-@routes.post("/meld/api/download/zip")
+@routes.post("/meld/download/zip")
 async def download_zip(request: web.Request) -> web.Response:
     try:
         data = await request.json()
@@ -1924,7 +1924,7 @@ async def download_zip(request: web.Request) -> web.Response:
         return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
 
-@routes.post("/meld/api/download/raw")
+@routes.post("/meld/download/raw")
 async def download_raw(request: web.Request) -> web.Response:
     try:
         data = await request.json()

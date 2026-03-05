@@ -101,6 +101,11 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 	const [options, setOptions] = useState<StoredDownloadOptions>(() => loadStoredOptions());
 	const { format, removeMetadata, resizeMode, resizeValue, resizeFilter } = options;
 	const [isDownloading, setIsDownloading] = useState(false);
+	// Download progress: current=processed images, total=total images
+	const [downloadProgress, setDownloadProgress] = useState<{
+		current: number;
+		total: number;
+	} | null>(null);
 
 	// String state for the resize value input field (to hold uncommitted input)
 	const [resizeValueInput, setResizeValueInput] = useState<string>(String(resizeValue));
@@ -152,27 +157,44 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 	};
 
 	const handleDownload = async () => {
+		if (imageIds.length === 0) {
+			onClose();
+			return;
+		}
+
 		setIsDownloading(true);
+		const total = imageIds.length;
+		setDownloadProgress({ current: 0, total });
 		try {
 			if (format === "zip") {
+				// ZIP: Fetch images individually and assemble ZIP on client side
 				await imagesApi.downloadZipImages(
 					imageIds,
 					removeMetadata,
 					resizeMode,
 					resizeValue,
 					resizeFilter,
+					(current, progressTotal) => {
+						setDownloadProgress({ current, total: progressTotal });
+					},
 				);
 			} else {
-				for (const id of imageIds) {
+				// Raw format: Tracking progress per image
+				let i = 0;
+				for (const imageId of imageIds) {
+					setDownloadProgress({ current: i, total });
 					await imagesApi.downloadRawImage(
-						id,
+						imageId,
 						removeMetadata,
 						resizeMode,
 						resizeValue,
 						resizeFilter,
 					);
-					// slight delay to let browser process multiple downloads
-					await new Promise((r) => setTimeout(r, 200));
+					i += 1;
+					setDownloadProgress({ current: i, total });
+					// Yield one animation frame so the browser can process UI / IO
+					// between consecutive downloads, avoiding a fixed N*200ms delay.
+					await new Promise<void>((r) => requestAnimationFrame(() => r()));
 				}
 			}
 			onClose();
@@ -182,6 +204,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 			alert("Failed to download images.");
 		} finally {
 			setIsDownloading(false);
+			setDownloadProgress(null);
 		}
 	};
 
@@ -445,6 +468,61 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 					</div>
 				</div>
 
+				{/* Download progress display */}
+				{isDownloading && downloadProgress && (
+					<div
+						style={{
+							padding: "12px 20px",
+							borderTop: "1px solid var(--border-color, #555)",
+						}}
+					>
+						<div
+							style={{
+								display: "flex",
+								justifyContent: "space-between",
+								alignItems: "center",
+								marginBottom: "8px",
+								fontSize: "13px",
+							}}
+						>
+							<span>
+								{`${downloadProgress.total} images - Processing ${downloadProgress.current + 1 > downloadProgress.total ? downloadProgress.total : downloadProgress.current + 1} of ${downloadProgress.total}...`}
+							</span>
+							<span style={{ color: "var(--meld-text-secondary)" }}>
+								{Math.round((downloadProgress.current / Math.max(1, downloadProgress.total)) * 100)}
+								%
+							</span>
+						</div>
+						{/* Progress bar: ARIA semantics for screen reader support */}
+						<div
+							role="progressbar"
+							aria-label="Download progress"
+							aria-valuemin={0}
+							aria-valuemax={100}
+							aria-valuenow={Math.round(
+								(downloadProgress.current / Math.max(1, downloadProgress.total)) * 100,
+							)}
+							style={{
+								width: "100%",
+								height: "4px",
+								background: "var(--comfy-input-bg, #1a1a1a)",
+								borderRadius: "2px",
+								overflow: "hidden",
+							}}
+						>
+							<div
+								style={{
+									height: "100%",
+									borderRadius: "2px",
+									transition: "width 0.3s ease",
+									width: `${(downloadProgress.current / Math.max(1, downloadProgress.total)) * 100}%`,
+									background: "var(--meld-accent, #4a9eff)",
+								}}
+							/>
+						</div>
+					</div>
+				)}
+
 				<div className="meld-modal-footer">
 					<button
 						type="button"
@@ -461,8 +539,8 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 						disabled={isDownloading}
 						style={{ display: "flex", alignItems: "center", gap: "8px" }}
 					>
-						{isDownloading ? (
-							"Downloading..."
+						{isDownloading && downloadProgress ? (
+							`Downloading ${Math.min(downloadProgress.current + 1, downloadProgress.total)}/${downloadProgress.total}...`
 						) : (
 							<>
 								<Download size={16} /> Download
