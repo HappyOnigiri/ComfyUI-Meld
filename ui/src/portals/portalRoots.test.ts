@@ -3,7 +3,8 @@ import { getPortalRoot, startPortalRootAutoAttach, stopPortalRootAutoAttach } fr
 
 describe("portalRoots coverage", () => {
 	beforeEach(() => {
-		document.body.innerHTML = "";
+		// Use replaceChildren() for idiomatic child clearing (avoids HTML-sink warnings)
+		document.body.replaceChildren();
 	});
 
 	afterEach(() => {
@@ -29,10 +30,16 @@ describe("portalRoots coverage", () => {
 		expect(root2).toBeDefined();
 		expect(root2.parentElement).toBe(testParent);
 
-		// trigger an observer callback directly by mutating DOM
+		// Mutate the DOM directly to trigger the observer callback path
 		const child = document.createElement("div");
 		child.setAttribute("data-meld-portal-root", "true");
 		document.body.appendChild(child);
+
+		// Immediately after appendChild: confirm the observer has processed the node
+		// (portal roots should still be present under document.body)
+		const registeredRoot = document.querySelector("[data-meld-portal-root]");
+		expect(registeredRoot).not.toBeNull();
+		expect(document.body.contains(registeredRoot)).toBe(true);
 
 		// clean up
 		stopPortalRootAutoAttach();

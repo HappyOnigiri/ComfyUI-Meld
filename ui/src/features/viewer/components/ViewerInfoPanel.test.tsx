@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { initialState } from "../../../store/galleryReducer";
 import { createTestImage, resetImageIdCounter } from "../../../test/factories/image";
 import type { GalleryAction, Settings } from "../../../types";
@@ -215,9 +215,14 @@ describe("ViewerInfoPanel", () => {
 	});
 
 	it("invokes copy buttons to cover handleCopy and inline callbacks", async () => {
-		Object.assign(navigator, { clipboard: { writeText: vi.fn().mockResolvedValue(undefined) } });
+		// Save navigator.clipboard and replace with test stub to prevent test leakage
+		const originalClipboard = navigator.clipboard;
+		const writeTextMock = vi.fn().mockResolvedValue(undefined);
+		Object.assign(navigator, { clipboard: { writeText: writeTextMock } });
 
+		const onEditNotesMock = vi.fn();
 		const { container } = renderPanel({
+			onEditNotes: onEditNotesMock,
 			settings: {
 				...defaultSettings,
 				"viewer.details.show_filename": "filename",
@@ -231,17 +236,35 @@ describe("ViewerInfoPanel", () => {
 			},
 		});
 
-		// Fire clicks to cover handleCopy and inline callbacks
+		// Click all copy buttons and verify writeText is called once per button
+		// Known payloads based on component implementation (in rendering order)
+		const expectedPayloads = [
+			"test.png", // filename
+			"1024 x 768 px", // dimensions
+			new Date(1700000000 * 1000).toLocaleString(), // created_at
+			"sdxl-turbo", // model
+			"beautiful landscape, 4k", // positive_prompt
+			"ugly, blurry", // negative_prompt
+			"nature, landscape", // tags (join(", "))
+			"My favorite image", // user_notes
+		];
 		const copyBtns = container.querySelectorAll(".meld-viewer-details-copy-btn");
-		for (const btn of Array.from(copyBtns)) {
+		expect(copyBtns.length).toBe(expectedPayloads.length);
+		Array.from(copyBtns).forEach((btn, i) => {
 			fireEvent.click(btn);
-		}
+			expect(writeTextMock).toHaveBeenLastCalledWith(expectedPayloads[i]);
+		});
+		expect(writeTextMock).toHaveBeenCalledTimes(copyBtns.length);
 
-		// Click in the notes area to trigger onEditNotes
+		// Verify onEditNotes is called when clicking the notes preview area
 		const notesPreview = container.querySelector(".meld-viewer-notes-preview");
 		if (notesPreview) {
 			fireEvent.click(notesPreview);
 		}
+		expect(onEditNotesMock).toHaveBeenCalled();
+
+		// Restore navigator.clipboard to its original state
+		Object.assign(navigator, { clipboard: originalClipboard });
 	});
 
 	it("covers filepath copy and source thumb click paths", () => {

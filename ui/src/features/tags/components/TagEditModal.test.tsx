@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { describe, expect, it, vi } from "vitest";
+import * as imagesApi from "../../images/api/imagesApi";
 import { TagEditModal } from "./TagEditModal";
 
 // Mock tagsApi and imagesApi
@@ -34,10 +35,12 @@ describe("TagEditModal", () => {
 
 	it("shows tags after loading", async () => {
 		render(<TagEditModal imageIds={[1]} initialTags={[]} onClose={vi.fn()} />);
-		// tags should be visible after loading
+		// After Loading... disappears, verify that specific tag suggestions are shown
 		await waitFor(() => {
 			expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
 		});
+		// tag1 registered in the mock should appear in the suggestion list
+		expect(screen.getByText("tag1")).toBeInTheDocument();
 	});
 
 	it("allows searching and adding a new tag via Enter key", async () => {
@@ -84,6 +87,14 @@ describe("TagEditModal", () => {
 		await act(async () => {
 			fireEvent.click(removeBtns[0]!);
 		});
+
+		// After removal: verify the tag1 badge disappears from the selected-tags area
+		await waitFor(() => {
+			// Ensure no .meld-tag-edit-badge element contains the text "tag1"
+			const badges = document.querySelectorAll(".meld-tag-edit-badge");
+			const tag1Badge = Array.from(badges).find((b) => b.textContent?.includes("tag1"));
+			expect(tag1Badge).toBeUndefined();
+		});
 	});
 
 	it("closes modal on overlay mousedown + mouseup outside", async () => {
@@ -98,23 +109,41 @@ describe("TagEditModal", () => {
 	});
 
 	it("saves tags via Save button (single image)", async () => {
-		render(<TagEditModal imageIds={[1]} initialTags={["tag1"]} onClose={vi.fn()} />);
+		const onCloseMock = vi.fn();
+		const updateSpy = vi.spyOn(imagesApi, "updateImageTags");
+		render(<TagEditModal imageIds={[1]} initialTags={["tag1"]} onClose={onCloseMock} />);
 		await waitFor(() => expect(screen.queryByText("Loading...")).not.toBeInTheDocument());
 
 		const saveBtn = screen.getByText("Save Changes");
 		await act(async () => {
 			fireEvent.click(saveBtn);
 		});
+
+		// Verify updateImageTags is called with imageId=1 and selected tags, and onClose is called
+		await waitFor(() => {
+			expect(updateSpy).toHaveBeenCalledWith(1, ["tag1"]);
+			expect(onCloseMock).toHaveBeenCalled();
+		});
+		updateSpy.mockRestore();
 	});
 
 	it("saves tags via Save button (bulk images)", async () => {
-		render(<TagEditModal imageIds={[1, 2]} initialTags={["tag1"]} onClose={vi.fn()} />);
+		const onCloseMock = vi.fn();
+		const bulkSpy = vi.spyOn(imagesApi, "bulkUpdateImageTags");
+		render(<TagEditModal imageIds={[1, 2]} initialTags={["tag1"]} onClose={onCloseMock} />);
 		await waitFor(() => expect(screen.queryByText("Loading...")).not.toBeInTheDocument());
 
 		const saveBtn = screen.getByText("Save Changes");
 		await act(async () => {
 			fireEvent.click(saveBtn);
 		});
+
+		// Verify bulkUpdateImageTags is called with imageIds=[1,2] and onClose is called
+		await waitFor(() => {
+			expect(bulkSpy).toHaveBeenCalledWith([1, 2], [], []);
+			expect(onCloseMock).toHaveBeenCalled();
+		});
+		bulkSpy.mockRestore();
 	});
 
 	it("adds a tag by clicking suggestion button", async () => {
@@ -127,8 +156,13 @@ describe("TagEditModal", () => {
 			fireEvent.click(suggBtn);
 		});
 
-		// tag2 should be added to selected tags (shown as a badge)
-		expect(screen.getByText("tag2")).toBeInTheDocument();
+		// Verify tag2 is shown as a badge (.meld-tag-edit-badge) in the selected-tags area
+		// Use badge elements instead of plain getByText to confirm selection state
+		await waitFor(() => {
+			const badges = document.querySelectorAll(".meld-tag-edit-badge");
+			const tag2Badge = Array.from(badges).find((b) => b.textContent?.includes("tag2"));
+			expect(tag2Badge).toBeDefined();
+		});
 	});
 
 	it("closes modal when Cancel is clicked", async () => {
