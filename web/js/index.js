@@ -6510,8 +6510,14 @@ const Eg = (e) => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ imageId: e, removeMetadata: t, resizeMode: n, resizeValue: r, resizeFilter: l })
   });
-  if (!a.ok)
-    throw new Error(`Failed to fetch image ${e}`);
+  if (!a.ok) {
+    let p = `Failed to fetch image ${e}: ${a.statusText || a.status}`;
+    try {
+      p = (await a.json()).error || p;
+    } catch {
+    }
+    throw new Error(p);
+  }
   const o = `image_${e}.png`, i = a.headers.get("Content-Disposition");
   let c = o;
   if (i != null && i.includes("filename=")) {
@@ -6520,13 +6526,14 @@ const Eg = (e) => {
   }
   return { blob: await a.blob(), filename: c };
 }, Rc = 500, Dc = 2 * 1024 * 1024 * 1024, zg = async (e, t, n, r, l, a) => {
-  const o = (await import("./jszip.min.js").then((x) => x.j)).default, i = new o(), c = e.length, d = /* @__PURE__ */ new Set();
+  const o = (await import("./jszip.min.js").then((x) => x.j)).default, i = new o(), c = e.length;
+  if (c > Rc)
+    throw new Error(
+      `ZIP entry limit reached (${Rc} files). Please reduce the number of images.`
+    );
+  const d = /* @__PURE__ */ new Set();
   let p = 0, v = 0;
   for (const x of e) {
-    if (p >= Rc)
-      throw new Error(
-        `ZIP entry limit reached (${Rc} files). Please reduce the number of images.`
-      );
     a == null || a(p, c);
     const { blob: _, filename: f } = await bf(
       x,

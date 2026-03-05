@@ -195,7 +195,14 @@ const fetchImageBlob = async (
 		body: JSON.stringify({ imageId, removeMetadata, resizeMode, resizeValue, resizeFilter }),
 	});
 	if (!res.ok) {
-		throw new Error(`Failed to fetch image ${imageId}`);
+		let errMsg = `Failed to fetch image ${imageId}: ${res.statusText || res.status}`;
+		try {
+			const result = await res.json();
+			errMsg = result.error || errMsg;
+		} catch (_e) {
+			// Keep fallback if JSON parsing fails
+		}
+		throw new Error(errMsg);
 	}
 
 	// Extract and sanitize filename from Content-Disposition header
@@ -227,17 +234,18 @@ export const downloadZipImages = async (
 	const zip = new JSZip();
 	const total = imageIds.length;
 
+	// Guard: check entry count limit before fetching
+	if (total > MAX_ZIP_FILES) {
+		throw new Error(
+			`ZIP entry limit reached (${MAX_ZIP_FILES} files). Please reduce the number of images.`,
+		);
+	}
+
 	// Fetch images one by one and report progress
 	const usedNames = new Set<string>();
 	let i = 0;
 	let totalBytes = 0;
 	for (const imageId of imageIds) {
-		// Guard: check entry count limit before fetching
-		if (i >= MAX_ZIP_FILES) {
-			throw new Error(
-				`ZIP entry limit reached (${MAX_ZIP_FILES} files). Please reduce the number of images.`,
-			);
-		}
 
 		onProgress?.(i, total);
 		const { blob, filename } = await fetchImageBlob(
