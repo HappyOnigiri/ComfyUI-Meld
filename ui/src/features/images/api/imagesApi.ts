@@ -252,23 +252,14 @@ export const downloadRawImage = async (
 	resizeValue: number,
 	resizeFilter: string,
 ): Promise<void> => {
-	const res = await api.fetchApi("/meld/api/download/raw", {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ imageId, removeMetadata, resizeMode, resizeValue, resizeFilter }),
-	});
-	if (!res.ok) {
-		throw new Error(`Failed to download image ${imageId}`);
-	}
+	const { blob, filename } = await fetchImageBlob(
+		imageId,
+		removeMetadata,
+		resizeMode,
+		resizeValue,
+		resizeFilter,
+	);
 
-	const disposition = res.headers.get("Content-Disposition");
-	let filename = `image_${imageId}.png`;
-	if (disposition?.includes("filename=")) {
-		const match = disposition.match(/filename="?([^"]+)"?/);
-		if (match?.[1]) filename = match[1];
-	}
-
-	const blob = await res.blob();
 	const url = window.URL.createObjectURL(blob);
 	const a = document.createElement("a");
 	a.href = url;

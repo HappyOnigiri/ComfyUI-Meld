@@ -157,6 +157,11 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 	};
 
 	const handleDownload = async () => {
+		if (imageIds.length === 0) {
+			onClose();
+			return;
+		}
+
 		setIsDownloading(true);
 		const total = imageIds.length;
 		setDownloadProgress({ current: 0, total });
@@ -483,7 +488,8 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 								{`${downloadProgress.total} images - Processing ${downloadProgress.current + 1 > downloadProgress.total ? downloadProgress.total : downloadProgress.current + 1} of ${downloadProgress.total}...`}
 							</span>
 							<span style={{ color: "var(--meld-text-secondary)" }}>
-								{Math.round((downloadProgress.current / downloadProgress.total) * 100)}%
+								{Math.round((downloadProgress.current / Math.max(1, downloadProgress.total)) * 100)}
+								%
 							</span>
 						</div>
 						{/* Progress bar */}
@@ -501,7 +507,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 									height: "100%",
 									borderRadius: "2px",
 									transition: "width 0.3s ease",
-									width: `${(downloadProgress.current / downloadProgress.total) * 100}%`,
+									width: `${(downloadProgress.current / Math.max(1, downloadProgress.total)) * 100}%`,
 									background: "var(--meld-accent, #4a9eff)",
 								}}
 							/>

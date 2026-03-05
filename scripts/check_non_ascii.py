@@ -6,7 +6,7 @@ from pathlib import Path
 
 EXCLUDE_RE = re.compile(
     r"(?i)\.(png|jpe?g|gif|ico|webp|woff2?|ttf|eot|mp4|webm|zip|exe|dll)$|"
-    r"(\.ja\.|^docs/ja/|^\.cursor/rules/|^web/js/gallery_extension\.js$|^\.github/ISSUE_TEMPLATE/.*\.ja\.yml$|"
+    r"(\.ja\.|^docs/ja/|^\.cursor/rules/|^web/js/(gallery_extension|index)\.js$|^\.github/ISSUE_TEMPLATE/.*\.ja\.yml$|"
     r"i18n\.(ts|test\.ts)|README\.md|\.cursor/skills/.*\.md)"
 )
 
