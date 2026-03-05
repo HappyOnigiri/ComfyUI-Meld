@@ -161,23 +161,81 @@ export const fetchSnapshotData = async (
 	return handleResponse(res);
 };
 
+// Helper to fetch image binary data with filename
+const fetchImageBlob = async (
+	imageId: number,
+	removeMetadata: boolean,
+	resizeMode: string,
+	resizeValue: number,
+	resizeFilter: string,
+): Promise<{ blob: Blob; filename: string }> => {
+	const res = await api.fetchApi("/meld/api/download/raw", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ imageId, removeMetadata, resizeMode, resizeValue, resizeFilter }),
+	});
+	if (!res.ok) {
+		throw new Error(`Failed to fetch image ${imageId}`);
+	}
+
+	// Extract filename from Content-Disposition header
+	const disposition = res.headers.get("Content-Disposition");
+	let filename = `image_${imageId}.png`;
+	if (disposition?.includes("filename=")) {
+		const match = disposition.match(/filename="?([^"]+)"?/);
+		if (match?.[1]) filename = match[1];
+	}
+
+	const blob = await res.blob();
+	return { blob, filename };
+};
+
 export const downloadZipImages = async (
 	imageIds: number[],
 	removeMetadata: boolean,
 	resizeMode: string,
 	resizeValue: number,
 	resizeFilter: string,
+	onProgress?: (current: number, total: number) => void,
 ): Promise<void> => {
-	const res = await api.fetchApi("/meld/api/download/zip", {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ imageIds, removeMetadata, resizeMode, resizeValue, resizeFilter }),
-	});
-	if (!res.ok) {
-		throw new Error("Failed to download ZIP");
+	const JSZip = (await import("jszip")).default;
+	const zip = new JSZip();
+	const total = imageIds.length;
+
+	// Fetch images one by one and report progress
+	const usedNames = new Set<string>();
+	let i = 0;
+	for (const imageId of imageIds) {
+		onProgress?.(i, total);
+		const { blob, filename } = await fetchImageBlob(
+			imageId,
+			removeMetadata,
+			resizeMode,
+			resizeValue,
+			resizeFilter,
+		);
+
+		// Deduplicate filenames
+		let uniqueName = filename;
+		if (usedNames.has(uniqueName)) {
+			const dotIdx = uniqueName.lastIndexOf(".");
+			const base = dotIdx > 0 ? uniqueName.slice(0, dotIdx) : uniqueName;
+			const ext = dotIdx > 0 ? uniqueName.slice(dotIdx) : "";
+			let counter = 2;
+			while (usedNames.has(uniqueName)) {
+				uniqueName = `${base}_${counter}${ext}`;
+				counter++;
+			}
+		}
+		usedNames.add(uniqueName);
+		zip.file(uniqueName, blob);
+		i += 1;
 	}
-	const blob = await res.blob();
-	const url = window.URL.createObjectURL(blob);
+	onProgress?.(total, total);
+
+	// Generate ZIP and trigger download
+	const zipBlob = await zip.generateAsync({ type: "blob" });
+	const url = window.URL.createObjectURL(zipBlob);
 	const a = document.createElement("a");
 	a.href = url;
 	a.download = `meld_images_${Date.now()}.zip`;

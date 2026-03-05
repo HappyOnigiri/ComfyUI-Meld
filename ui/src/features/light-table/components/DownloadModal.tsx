@@ -162,15 +162,17 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 		setDownloadProgress({ current: 0, total });
 		try {
 			if (format === "zip") {
-				// ZIP format: No individual progress as it's processed in bulk on the server
+				// ZIP: Fetch images individually and assemble ZIP on client side
 				await imagesApi.downloadZipImages(
 					imageIds,
 					removeMetadata,
 					resizeMode,
 					resizeValue,
 					resizeFilter,
+					(current, progressTotal) => {
+						setDownloadProgress({ current, total: progressTotal });
+					},
 				);
-				setDownloadProgress({ current: total, total });
 			} else {
 				// Raw format: Tracking progress per image
 				let i = 0;
@@ -478,15 +480,11 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 							}}
 						>
 							<span>
-								{format === "zip"
-									? `${downloadProgress.total} images - Creating ZIP...`
-									: `${downloadProgress.total} images - Processing ${downloadProgress.current + 1 > downloadProgress.total ? downloadProgress.total : downloadProgress.current + 1} of ${downloadProgress.total}...`}
+								{`${downloadProgress.total} images - Processing ${downloadProgress.current + 1 > downloadProgress.total ? downloadProgress.total : downloadProgress.current + 1} of ${downloadProgress.total}...`}
 							</span>
-							{format !== "zip" && (
-								<span style={{ color: "var(--meld-text-secondary)" }}>
-									{Math.round((downloadProgress.current / downloadProgress.total) * 100)}%
-								</span>
-							)}
+							<span style={{ color: "var(--meld-text-secondary)" }}>
+								{Math.round((downloadProgress.current / downloadProgress.total) * 100)}%
+							</span>
 						</div>
 						{/* Progress bar */}
 						<div
@@ -503,17 +501,8 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 									height: "100%",
 									borderRadius: "2px",
 									transition: "width 0.3s ease",
-									...(format === "zip"
-										? {
-												width: "100%",
-												background:
-													"linear-gradient(90deg, transparent, var(--meld-accent, #4a9eff), transparent)",
-												animation: "meld-progress-indeterminate 1.5s ease-in-out infinite",
-											}
-										: {
-												width: `${(downloadProgress.current / downloadProgress.total) * 100}%`,
-												background: "var(--meld-accent, #4a9eff)",
-											}),
+									width: `${(downloadProgress.current / downloadProgress.total) * 100}%`,
+									background: "var(--meld-accent, #4a9eff)",
 								}}
 							/>
 						</div>
@@ -537,11 +526,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 						style={{ display: "flex", alignItems: "center", gap: "8px" }}
 					>
 						{isDownloading && downloadProgress ? (
-							format === "zip" ? (
-								"Creating ZIP..."
-							) : (
-								`Downloading ${Math.min(downloadProgress.current + 1, downloadProgress.total)}/${downloadProgress.total}...`
-							)
+							`Downloading ${Math.min(downloadProgress.current + 1, downloadProgress.total)}/${downloadProgress.total}...`
 						) : (
 							<>
 								<Download size={16} /> Download
