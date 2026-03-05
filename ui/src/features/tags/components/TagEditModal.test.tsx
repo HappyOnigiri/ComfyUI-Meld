@@ -101,10 +101,9 @@ describe("TagEditModal", () => {
 		const onClose = vi.fn();
 		render(<TagEditModal imageIds={[1]} initialTags={[]} onClose={onClose} />);
 		const overlay = document.querySelector(".meld-modal-overlay");
-		if (overlay) {
-			fireEvent.mouseDown(overlay, { target: overlay });
-			fireEvent.mouseUp(overlay, { target: overlay });
-		}
+		expect(overlay).not.toBeNull();
+		fireEvent.mouseDown(overlay!, { target: overlay });
+		fireEvent.mouseUp(overlay!, { target: overlay });
 		expect(onClose).toHaveBeenCalled();
 	});
 
