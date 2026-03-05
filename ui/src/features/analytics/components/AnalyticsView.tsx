@@ -94,7 +94,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 	}, [loadSummary]);
 
 	const loadFullList = useCallback(
-		async (category: AnalyticsCategory, sort: AnalyticsSort, q: string) => {
+		async (category: AnalyticsCategory, sort: AnalyticsSort, q: string, signal?: AbortSignal) => {
 			setFullLoading(true);
 			try {
 				const { data, total } = await fetchAnalyticsCategory(category, {
@@ -102,14 +102,19 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 					offset: 0,
 					sort,
 					q: q.trim() || undefined,
+					signal,
 				});
+				if (signal?.aborted) return;
 				setFullItems(data);
 				setFullTotal(total);
 			} catch {
+				if (signal?.aborted) return;
 				setFullItems([]);
 				setFullTotal(0);
 			} finally {
-				setFullLoading(false);
+				if (!signal?.aborted) {
+					setFullLoading(false);
+				}
 			}
 		},
 		[],
@@ -119,11 +124,21 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 		if (!expandedCategory) return;
 		const isQueryChange = prevFullQueryRef.current !== fullQuery;
 		prevFullQueryRef.current = fullQuery;
+		const abortController = new AbortController();
+
+		const run = () => {
+			loadFullList(expandedCategory, fullSort, fullQuery, abortController.signal);
+		};
+
 		if (isQueryChange) {
-			const t = setTimeout(() => loadFullList(expandedCategory, fullSort, fullQuery), 300);
-			return () => clearTimeout(t);
+			const t = setTimeout(run, 300);
+			return () => {
+				clearTimeout(t);
+				abortController.abort();
+			};
 		}
-		loadFullList(expandedCategory, fullSort, fullQuery);
+		run();
+		return () => abortController.abort();
 	}, [expandedCategory, fullSort, fullQuery, loadFullList]);
 
 	const handleRefresh = useCallback(async () => {
@@ -143,8 +158,11 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 	const handleItemClick = useCallback(
 		(category: string, value: string) => {
 			const query = buildSearchQuery(category, value);
-			onSearchAndNavigate?.(query);
-			onClose();
+			if (onSearchAndNavigate) {
+				onSearchAndNavigate(query);
+			} else {
+				onClose();
+			}
 		},
 		[onSearchAndNavigate, onClose],
 	);
@@ -246,7 +264,6 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 									style={{
 										border: "none",
 										background: "transparent",
-										outline: "none",
 										width: "100%",
 									}}
 									placeholder="Filter..."

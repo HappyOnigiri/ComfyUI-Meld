@@ -134,7 +134,7 @@ describe("AnalyticsView", () => {
 		expect(screen.getByText("1. 1girl")).toBeInTheDocument();
 	});
 
-	it("calls onSearchAndNavigate with correct query and onClose when item is clicked", async () => {
+	it("calls onSearchAndNavigate with correct query when item is clicked (does not call onClose)", async () => {
 		await act(async () => {
 			render(<AnalyticsView onClose={mockOnClose} onSearchAndNavigate={mockOnSearchAndNavigate} />);
 		});
@@ -145,7 +145,7 @@ describe("AnalyticsView", () => {
 		await user.click(screen.getByText("1girl"));
 
 		expect(mockOnSearchAndNavigate).toHaveBeenCalledWith("pos:1girl");
-		expect(mockOnClose).toHaveBeenCalled();
+		expect(mockOnClose).not.toHaveBeenCalled();
 	});
 
 	it("calls onClose when Escape is pressed and no category expanded", async () => {
