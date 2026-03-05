@@ -253,6 +253,7 @@
 	gap: 10px;
 	box-shadow: -4px 0 15px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.3));
 	/* color-check-ignore */
+	user-select: text;
 }
 
 .meld-viewer-details-overlay--fullscreen {
@@ -273,6 +274,37 @@
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
+}
+
+.meld-viewer-details-item__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+}
+
+.meld-viewer-details-copy-btn {
+	background: transparent;
+	border: none;
+	color: var(--meld-text-secondary);
+	cursor: pointer;
+	padding: 2px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 4px;
+	flex-shrink: 0;
+	outline: none;
+}
+
+.meld-viewer-details-copy-btn:hover {
+	color: var(--meld-text-color);
+	background: var(--comfy-input-bg, rgba(255, 255, 255, 0.1));
+}
+
+.meld-viewer-details-copy-btn:focus-visible {
+	outline: 2px solid var(--comfy-focus, var(--meld-accent-color));
+	outline-offset: 2px;
 }
 
 .meld-viewer-details-label {

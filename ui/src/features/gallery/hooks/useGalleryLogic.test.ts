@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useGallery } from "../../../store/GalleryContext";
-import { LightTableState, useLightTableStore } from "../../light-table/store";
+import { type LightTableState, useLightTableStore } from "../../light-table/store";
 import { useGalleryLogic } from "./useGalleryLogic";
 
 vi.mock("../../../store/GalleryContext");
@@ -11,9 +11,11 @@ vi.mock("../../light-table/store", () => ({
 
 describe("useGalleryLogic", () => {
 	beforeEach(() => {
-		vi.mocked(useLightTableStore).mockImplementation(<T>(selector: (state: LightTableState) => T): T => {
-			return selector({ buckets: {} } as LightTableState);
-		});
+		vi.mocked(useLightTableStore).mockImplementation(
+			<T>(selector: (state: LightTableState) => T): T => {
+				return selector({ buckets: {} } as LightTableState);
+			},
+		);
 	});
 
 	it("returns correct default values and handles view mode changes", () => {
@@ -53,9 +55,11 @@ describe("useGalleryLogic", () => {
 	});
 
 	it("filters out hidden images (in light table buckets)", () => {
-		vi.mocked(useLightTableStore).mockImplementation(<T>(selector: (state: LightTableState) => T): T => {
-			return selector({ buckets: { default: [1] } } as unknown as LightTableState); // image id 1 is in bucket
-		});
+		vi.mocked(useLightTableStore).mockImplementation(
+			<T>(selector: (state: LightTableState) => T): T => {
+				return selector({ buckets: { default: [1] } } as unknown as LightTableState); // image id 1 is in bucket
+			},
+		);
 
 		const mockState = {
 			images: [
@@ -85,9 +89,11 @@ describe("useGalleryLogic", () => {
 
 	it("auto-loads more images if all loaded images are hidden", () => {
 		const mockLoadMore = vi.fn();
-		vi.mocked(useLightTableStore).mockImplementation(<T>(selector: (state: LightTableState) => T): T => {
-			return selector({ buckets: { default: [1] } } as unknown as LightTableState);
-		});
+		vi.mocked(useLightTableStore).mockImplementation(
+			<T>(selector: (state: LightTableState) => T): T => {
+				return selector({ buckets: { default: [1] } } as unknown as LightTableState);
+			},
+		);
 
 		const mockState = {
 			images: [{ id: 1, has_children: false }],

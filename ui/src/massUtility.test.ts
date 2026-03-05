@@ -60,9 +60,9 @@ describe("Mass utility functions coverage", () => {
 						try {
 							const res = attempt();
 							if (res && typeof res.catch === "function") {
-								res.catch(() => { });
+								res.catch(() => {});
 							}
-						} catch (e) { }
+						} catch (e) {}
 					}
 				}
 			}

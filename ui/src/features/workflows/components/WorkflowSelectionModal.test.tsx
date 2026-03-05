@@ -11,9 +11,11 @@ vi.mock("../../../store/GalleryContext", () => ({
 }));
 
 vi.mock("../api/workflowsApi", () => ({
-	fetchWorkflows: vi.fn().mockResolvedValue([
-		{ name: "test-workflow", valid: true, loader_count: 1, load_image_count: 0 },
-	]),
+	fetchWorkflows: vi
+		.fn()
+		.mockResolvedValue([
+			{ name: "test-workflow", valid: true, loader_count: 1, load_image_count: 0 },
+		]),
 	fetchWorkflowRaw: vi.fn(),
 }));
 

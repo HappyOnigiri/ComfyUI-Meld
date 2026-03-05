@@ -67,7 +67,9 @@ describe("injectImageToGraph", () => {
 	});
 
 	it("returns no_image_widget if node has no image widget", () => {
-		mockApp.graph._nodes = [{ type: "LoadImage", widgets: [{ name: "other" }] } as unknown as Record<string, unknown>];
+		mockApp.graph._nodes = [
+			{ type: "LoadImage", widgets: [{ name: "other" }] } as unknown as Record<string, unknown>,
+		];
 		expect(injectImageToGraph({ filename: "test.png" } as unknown as MeldImage)).toEqual({
 			ok: false,
 			reason: "no_image_widget",
@@ -76,7 +78,9 @@ describe("injectImageToGraph", () => {
 
 	it("injects image and triggers updates", () => {
 		const mockWidget = { name: "image", value: "", callback: vi.fn() };
-		mockApp.graph._nodes = [{ id: "1", type: "LoadImage", widgets: [mockWidget] } as unknown as Record<string, unknown>];
+		mockApp.graph._nodes = [
+			{ id: "1", type: "LoadImage", widgets: [mockWidget] } as unknown as Record<string, unknown>,
+		];
 
 		const res = injectImageToGraph({ filename: "test.png" } as unknown as MeldImage);
 		expect(res).toEqual({ ok: true });
