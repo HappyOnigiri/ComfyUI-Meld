@@ -28,47 +28,47 @@ describe("injectImageToGraph", () => {
 	};
 
 	beforeEach(() => {
-		window.app = mockApp as any;
+		window.app = mockApp as unknown as Record<string, unknown>;
 		mockApp.graph._nodes = [];
 		mockApp.graph.afterChange.mockClear();
 		mockApp.graph.setDirtyCanvas.mockClear();
 	});
 
 	it("returns no_app_graph if graph is missing", () => {
-		window.app = {} as any;
-		expect(injectImageToGraph({ filename: "test.png" } as any)).toEqual({
+		window.app = {} as unknown as Record<string, unknown>;
+		expect(injectImageToGraph({ filename: "test.png" } as unknown as MeldImage)).toEqual({
 			ok: false,
 			reason: "no_app_graph",
 		});
 	});
 
 	it("returns no_loader_node if _nodes is not array", () => {
-		window.app = { graph: {} } as any;
-		expect(injectImageToGraph({ filename: "test.png" } as any)).toEqual({
+		window.app = { graph: {} } as unknown as Record<string, unknown>;
+		expect(injectImageToGraph({ filename: "test.png" } as unknown as MeldImage)).toEqual({
 			ok: false,
 			reason: "no_loader_node",
 		});
 	});
 
 	it("returns no_loader_node if no LoadImage nodes exist", () => {
-		mockApp.graph._nodes = [{ type: "OtherNode" } as any];
-		expect(injectImageToGraph({ filename: "test.png" } as any)).toEqual({
+		mockApp.graph._nodes = [{ type: "OtherNode" } as unknown as Record<string, unknown>];
+		expect(injectImageToGraph({ filename: "test.png" } as unknown as MeldImage)).toEqual({
 			ok: false,
 			reason: "no_loader_node",
 		});
 	});
 
 	it("returns no_widgets if node has no widgets", () => {
-		mockApp.graph._nodes = [{ type: "LoadImage" } as any];
-		expect(injectImageToGraph({ filename: "test.png" } as any)).toEqual({
+		mockApp.graph._nodes = [{ type: "LoadImage" } as unknown as Record<string, unknown>];
+		expect(injectImageToGraph({ filename: "test.png" } as unknown as MeldImage)).toEqual({
 			ok: false,
 			reason: "no_widgets",
 		});
 	});
 
 	it("returns no_image_widget if node has no image widget", () => {
-		mockApp.graph._nodes = [{ type: "LoadImage", widgets: [{ name: "other" }] } as any];
-		expect(injectImageToGraph({ filename: "test.png" } as any)).toEqual({
+		mockApp.graph._nodes = [{ type: "LoadImage", widgets: [{ name: "other" }] } as unknown as Record<string, unknown>];
+		expect(injectImageToGraph({ filename: "test.png" } as unknown as MeldImage)).toEqual({
 			ok: false,
 			reason: "no_image_widget",
 		});
@@ -76,9 +76,9 @@ describe("injectImageToGraph", () => {
 
 	it("injects image and triggers updates", () => {
 		const mockWidget = { name: "image", value: "", callback: vi.fn() };
-		mockApp.graph._nodes = [{ id: "1", type: "LoadImage", widgets: [mockWidget] } as any];
+		mockApp.graph._nodes = [{ id: "1", type: "LoadImage", widgets: [mockWidget] } as unknown as Record<string, unknown>];
 
-		const res = injectImageToGraph({ filename: "test.png" } as any);
+		const res = injectImageToGraph({ filename: "test.png" } as unknown as MeldImage);
 		expect(res).toEqual({ ok: true });
 		expect(mockWidget.value).toBe("test.png");
 		expect(mockWidget.callback).toHaveBeenCalledWith("test.png");
@@ -90,11 +90,11 @@ describe("injectImageToGraph", () => {
 		const mockWidget1 = { name: "image", value: "" };
 		const mockWidget2 = { name: "image", value: "" };
 		mockApp.graph._nodes = [
-			{ id: "1", type: "LoadImage", widgets: [mockWidget1] } as any,
-			{ id: "2", type: "LoadImage", widgets: [mockWidget2] } as any,
+			{ id: "1", type: "LoadImage", widgets: [mockWidget1] } as unknown as Record<string, unknown>,
+			{ id: "2", type: "LoadImage", widgets: [mockWidget2] } as unknown as Record<string, unknown>,
 		];
 
-		const res = injectImageToGraph({ filename: "test.png" } as any, "2");
+		const res = injectImageToGraph({ filename: "test.png" } as unknown as MeldImage, "2");
 		expect(res).toEqual({ ok: true });
 		expect(mockWidget1.value).toBe("");
 		expect(mockWidget2.value).toBe("test.png");

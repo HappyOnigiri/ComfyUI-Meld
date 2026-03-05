@@ -38,6 +38,11 @@ const modules: Record<string, unknown>[] = [
 	maskInjection,
 ];
 
+/**
+ * This test intentionally invokes every exported function from modules with various arities
+ * and silently catches exceptions to exercise code paths solely for coverage
+ * rather than to assert correctness.
+ */
 describe("Mass utility functions coverage", () => {
 	it("executes all exported functions", () => {
 		for (const mod of modules) {
@@ -55,9 +60,9 @@ describe("Mass utility functions coverage", () => {
 						try {
 							const res = attempt();
 							if (res && typeof res.catch === "function") {
-								res.catch(() => {});
+								res.catch(() => { });
 							}
-						} catch (e) {}
+						} catch (e) { }
 					}
 				}
 			}

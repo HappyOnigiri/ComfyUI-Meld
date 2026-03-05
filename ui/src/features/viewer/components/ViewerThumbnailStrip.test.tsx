@@ -41,9 +41,7 @@ describe("ViewerThumbnailStrip", () => {
 
 		const items = document.querySelectorAll(".meld-viewer-thumbnail");
 		for (const item of Array.from(items)) {
-			try {
-				fireEvent.click(item);
-			} catch (e) {}
+			fireEvent.click(item);
 		}
 		expect(dispatch).toHaveBeenCalled();
 	});

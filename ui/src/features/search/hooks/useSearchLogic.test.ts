@@ -1,9 +1,10 @@
 import { act, renderHook } from "@testing-library/react";
+import type React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockDispatch = vi.fn();
 const mockUpdateSetting = vi.fn();
-let mockSettings: Record<string, any> = {};
+let mockSettings: Record<string, unknown> = {};
 
 vi.mock("../../../store/GalleryContext", () => ({
 	useGallery: () => ({
@@ -102,7 +103,7 @@ describe("useSearchLogic", () => {
 				preventDefault: vi.fn(),
 				stopPropagation: vi.fn(),
 				nativeEvent,
-			} as any;
+			} as unknown as React.KeyboardEvent<HTMLInputElement>;
 			result.current.handleKeyDown(mockEvent);
 		});
 
@@ -112,7 +113,7 @@ describe("useSearchLogic", () => {
 				preventDefault: vi.fn(),
 				stopPropagation: vi.fn(),
 				nativeEvent,
-			} as any;
+			} as unknown as React.KeyboardEvent<HTMLInputElement>;
 			result.current.handleKeyDown(mockEventEscape);
 		});
 

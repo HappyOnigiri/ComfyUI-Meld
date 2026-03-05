@@ -13,10 +13,10 @@ vi.mock("/scripts/api.js", () => ({
 
 describe("importerApi", () => {
 	it("calls fetchApi for all endpoints", async () => {
-		(api.fetchApi as any).mockResolvedValueOnce({
+		vi.mocked(api.fetchApi).mockResolvedValueOnce({
 			ok: true,
 			json: vi.fn().mockResolvedValue({ name: "a", subfolder: "b", type: "c" }),
-		});
+		} as unknown as Response);
 		await importerApi.uploadImage(new File([], "test.png"));
 
 		await importerApi.fetchFolders("type", "path");

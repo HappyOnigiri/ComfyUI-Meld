@@ -21,7 +21,7 @@ describe("useViewerKeyboardShortcuts", () => {
 				viewerImageId: 1,
 				activeModalType: "none",
 				viewScope: "default",
-				settings: { "viewer.shortcut.1": "command" } as any,
+				settings: { "viewer.shortcut.1": "command" } as unknown as Record<string, unknown>,
 				dispatch,
 				isMountedRef: { current: true },
 				toggleFullscreen,
@@ -57,5 +57,7 @@ describe("useViewerKeyboardShortcuts", () => {
 
 		expect(handleNext).toHaveBeenCalled();
 		expect(handlePrevious).toHaveBeenCalled();
+		expect(handleDelete).toHaveBeenCalled();
+		expect(handleUndo).toHaveBeenCalled();
 	});
 });

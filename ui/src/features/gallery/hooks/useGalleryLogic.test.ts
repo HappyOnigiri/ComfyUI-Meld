@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useGallery } from "../../../store/GalleryContext";
-import { useLightTableStore } from "../../light-table/store";
+import { LightTableState, useLightTableStore } from "../../light-table/store";
 import { useGalleryLogic } from "./useGalleryLogic";
 
 vi.mock("../../../store/GalleryContext");
@@ -11,8 +11,8 @@ vi.mock("../../light-table/store", () => ({
 
 describe("useGalleryLogic", () => {
 	beforeEach(() => {
-		vi.mocked(useLightTableStore).mockImplementation((selector: any) => {
-			return selector({ buckets: {} });
+		vi.mocked(useLightTableStore).mockImplementation(<T>(selector: (state: LightTableState) => T): T => {
+			return selector({ buckets: {} } as LightTableState);
 		});
 	});
 
@@ -36,7 +36,7 @@ describe("useGalleryLogic", () => {
 			refreshImages: vi.fn(),
 			loadMoreImages: mockLoadMore,
 			updateSetting: vi.fn(),
-		} as any);
+		} as unknown as ReturnType<typeof useGallery>);
 
 		const { result } = renderHook(() => useGalleryLogic());
 
@@ -53,8 +53,8 @@ describe("useGalleryLogic", () => {
 	});
 
 	it("filters out hidden images (in light table buckets)", () => {
-		vi.mocked(useLightTableStore).mockImplementation((selector: any) => {
-			return selector({ buckets: { default: [1] } }); // image id 1 is in bucket
+		vi.mocked(useLightTableStore).mockImplementation(<T>(selector: (state: LightTableState) => T): T => {
+			return selector({ buckets: { default: [1] } } as unknown as LightTableState); // image id 1 is in bucket
 		});
 
 		const mockState = {
@@ -75,7 +75,7 @@ describe("useGalleryLogic", () => {
 			state: mockState,
 			dispatch: vi.fn(),
 			loadMoreImages: vi.fn(),
-		} as any);
+		} as unknown as ReturnType<typeof useGallery>);
 
 		const { result } = renderHook(() => useGalleryLogic());
 
@@ -85,8 +85,8 @@ describe("useGalleryLogic", () => {
 
 	it("auto-loads more images if all loaded images are hidden", () => {
 		const mockLoadMore = vi.fn();
-		vi.mocked(useLightTableStore).mockImplementation((selector: any) => {
-			return selector({ buckets: { default: [1] } });
+		vi.mocked(useLightTableStore).mockImplementation(<T>(selector: (state: LightTableState) => T): T => {
+			return selector({ buckets: { default: [1] } } as unknown as LightTableState);
 		});
 
 		const mockState = {
@@ -105,7 +105,7 @@ describe("useGalleryLogic", () => {
 			state: mockState,
 			dispatch: vi.fn(),
 			loadMoreImages: mockLoadMore,
-		} as any);
+		} as unknown as ReturnType<typeof useGallery>);
 
 		renderHook(() => useGalleryLogic());
 

@@ -48,10 +48,10 @@ describe("imagesApi", () => {
 			blob: vi.fn().mockResolvedValue(new Blob()),
 			headers: { get: () => "" },
 		};
-		(api.fetchApi as any).mockResolvedValueOnce(mockBlobResp);
+		vi.mocked(api.fetchApi).mockResolvedValueOnce(mockBlobResp as unknown as Response);
 		await imagesApi.downloadZipImages([1], false, "", 0, "");
 
-		(api.fetchApi as any).mockResolvedValueOnce(mockBlobResp);
+		vi.mocked(api.fetchApi).mockResolvedValueOnce(mockBlobResp as unknown as Response);
 		await imagesApi.downloadRawImage(1, false, "", 0, "");
 
 		expect(api.fetchApi).toHaveBeenCalled();

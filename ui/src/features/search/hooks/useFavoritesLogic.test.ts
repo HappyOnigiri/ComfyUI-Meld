@@ -18,7 +18,7 @@ describe("useFavoritesLogic", () => {
 		vi.mocked(useGallery).mockReturnValue({
 			state: { favorites: [], searchQuery: "" },
 			refreshFavorites: vi.fn(),
-		} as any);
+		} as unknown as ReturnType<typeof useGallery>);
 
 		const { result } = renderHook(() => useFavoritesLogic());
 
@@ -32,11 +32,11 @@ describe("useFavoritesLogic", () => {
 		vi.mocked(useGallery).mockReturnValue({
 			state: { favorites: [], searchQuery: "" },
 			refreshFavorites: mockRefresh,
-		} as any);
+		} as unknown as ReturnType<typeof useGallery>);
 
 		const { result } = renderHook(() => useFavoritesLogic());
 
-		const mockEvent = { stopPropagation: vi.fn() } as any;
+		const mockEvent = { stopPropagation: vi.fn() } as unknown as Event;
 
 		await act(async () => {
 			await result.current.handleDeleteFavorite(mockEvent, 1, "test");
@@ -52,11 +52,11 @@ describe("useFavoritesLogic", () => {
 		vi.mocked(useGallery).mockReturnValue({
 			state: { favorites: [], searchQuery: "" },
 			refreshFavorites: mockRefresh,
-		} as any);
+		} as unknown as ReturnType<typeof useGallery>);
 
 		const { result } = renderHook(() => useFavoritesLogic());
 
-		const mockEvent = { stopPropagation: vi.fn() } as any;
+		const mockEvent = { stopPropagation: vi.fn() } as unknown as Event;
 		const mockFav = { id: 1, name: "old name", query: "old query", created_at: "", updated_at: "" };
 
 		act(() => {
@@ -85,7 +85,7 @@ describe("useFavoritesLogic", () => {
 		vi.mocked(useGallery).mockReturnValue({
 			state: { favorites: [], searchQuery: "my test query" },
 			refreshFavorites: mockRefresh,
-		} as any);
+		} as unknown as ReturnType<typeof useGallery>);
 
 		const { result } = renderHook(() => useFavoritesLogic());
 
@@ -107,7 +107,7 @@ describe("useFavoritesLogic", () => {
 				searchQuery: "my test query",
 			},
 			refreshFavorites: mockRefresh,
-		} as any);
+		} as unknown as ReturnType<typeof useGallery>);
 
 		const { result } = renderHook(() => useFavoritesLogic());
 

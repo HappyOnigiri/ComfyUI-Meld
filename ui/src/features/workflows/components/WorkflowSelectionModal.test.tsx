@@ -1,5 +1,6 @@
 import { act, fireEvent, render } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import type { MeldImage } from "../../../types";
 import { WorkflowSelectionModal } from "./WorkflowSelectionModal";
 
 vi.mock("../../../store/GalleryContext", () => ({
@@ -9,31 +10,36 @@ vi.mock("../../../store/GalleryContext", () => ({
 	}),
 }));
 
+vi.mock("../api/workflowsApi", () => ({
+	fetchWorkflows: vi.fn().mockResolvedValue([
+		{ name: "test-workflow", valid: true, loader_count: 1, load_image_count: 0 },
+	]),
+	fetchWorkflowRaw: vi.fn(),
+}));
+
 describe("WorkflowSelectionModal", () => {
 	it("renders without crashing", () => {
 		expect(() => render(<WorkflowSelectionModal images={[]} onExecute={vi.fn()} />)).not.toThrow();
 	});
 
-	it("handles action buttons safely", async () => {
+	it("handles execute button clicks", async () => {
+		const mockExecute = vi.fn().mockResolvedValue(true);
 		await act(async () => {
 			render(
 				<WorkflowSelectionModal
-					images={[{ filename: "test.png", subfolder: "", type: "output" }]}
-					onExecute={vi.fn()}
+					images={[{ filename: "test.png", subfolder: "", type: "output" } as unknown as MeldImage]}
+					onExecute={mockExecute}
 				/>,
 			);
 		});
 
-		const buttons = document.body.querySelectorAll("button");
-		for (const btn of Array.from(buttons)) {
-			try {
-				await act(async () => {
-					fireEvent.click(btn);
-				});
-			} catch (e) {
-				// skip
-			}
+		const queueBtn = document.body.querySelector(".meld-btn--primary");
+		if (queueBtn) {
+			await act(async () => {
+				fireEvent.click(queueBtn);
+			});
 		}
-		expect(buttons.length).toBeGreaterThan(0);
+
+		expect(mockExecute).toHaveBeenCalledWith("test-workflow", undefined);
 	});
 });

@@ -1,4 +1,4 @@
-import { act, render } from "@testing-library/react";
+import { act, fireEvent, render } from "@testing-library/react";
 import React from "react";
 import { describe, expect, it, vi } from "vitest";
 import { ImportModal } from "./ImportModal";
@@ -39,13 +39,9 @@ describe("ImportModal", () => {
 
 		const buttons = document.body.querySelectorAll("button");
 		for (const btn of Array.from(buttons)) {
-			try {
-				await act(async () => {
-					btn.click();
-				});
-			} catch (e) {
-				// skip
-			}
+			await act(async () => {
+				fireEvent.click(btn);
+			});
 		}
 		expect(buttons.length).toBeGreaterThan(0);
 	});

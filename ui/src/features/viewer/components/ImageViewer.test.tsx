@@ -280,7 +280,9 @@ describe("ImageViewer", () => {
 			try {
 				fireEvent.click(btn);
 			} catch (e) {
-				// skip
+				// Some buttons (like node UI triggers) may fail when clicked outside of
+				// a full DOM environment; this loop is simply to exercise button existence.
+				console.error("Ignored click failure in testing:", e);
 			}
 		}
 		expect(buttons.length).toBeGreaterThan(0);
