@@ -208,16 +208,10 @@ const fetchImageBlob = async (
 	if (!res.ok) {
 		let errMsg = `Failed to fetch image ${imageId}: ${res.statusText || res.status}`;
 		try {
-			const result = await handleResponse<Record<string, unknown>>(res.clone());
-			if (result && result.success === false) {
-				throw new Error((result.error as string) || errMsg);
-			} else if (result?.data) {
-				// use the parsed payload via result.data
-			}
+			await handleResponse(res.clone());
 		} catch (e: unknown) {
 			const extracted = e instanceof Error ? e.message : String(e);
-			// Keep fallback if handling fails, but use error message from handleResponse if it's meaningful
-			if (extracted && !extracted.startsWith("API error:")) {
+			if (extracted) {
 				errMsg = `Failed to fetch image ${imageId}: ${extracted}`;
 			}
 		}
