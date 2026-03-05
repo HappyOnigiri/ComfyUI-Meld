@@ -1,5 +1,6 @@
 import {
 	ArrowDownNarrowWide,
+	ArrowRight,
 	ArrowUpNarrowWide,
 	BarChart2,
 	RefreshCw,
@@ -182,7 +183,7 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({ onClose, onSearc
 					setFullSort("count_desc");
 				}}
 			>
-				See all
+				See all <ArrowRight size={14} />
 			</button>
 		</div>
 	);
@@ -228,12 +229,28 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({ onClose, onSearc
 						<div className={styles.meldAnalytics__fullView}>
 							<div className={styles.meldAnalytics__fullViewToolbar}>
 								<div
-									style={{ display: "flex", alignItems: "center", gap: 4, flex: 1, minWidth: 0 }}
+									style={{
+										display: "flex",
+										alignItems: "center",
+										gap: 8,
+										flex: 1,
+										minWidth: 0,
+										background: "var(--comfy-input-bg)",
+										padding: "6px 10px",
+										borderRadius: "6px",
+										border: "1px solid var(--meld-border-color)",
+									}}
 								>
-									<Search size={14} style={{ flexShrink: 0 }} />
+									<Search size={14} style={{ flexShrink: 0, color: "var(--meld-text-secondary)" }} />
 									<input
 										type="text"
 										className={styles.meldAnalytics__searchInput}
+										style={{
+											border: "none",
+											background: "transparent",
+											outline: "none",
+											width: "100%",
+										}}
 										placeholder="Filter..."
 										value={fullQuery}
 										onChange={(e) => setFullQuery(e.target.value)}
@@ -241,7 +258,8 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({ onClose, onSearc
 								</div>
 								<button
 									type="button"
-									className={styles.meldAnalytics__sortBtn}
+									className="meld-btn meld-btn--secondary"
+									style={{ padding: "6px 12px", height: "auto" }}
 									onClick={() =>
 										setFullSort((s) => (s === "count_desc" ? "count_asc" : "count_desc"))
 									}
@@ -256,10 +274,11 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({ onClose, onSearc
 								</button>
 								<button
 									type="button"
-									className={styles.meldAnalytics__closeFullBtn}
+									className="meld-btn meld-btn--secondary"
+									style={{ padding: "6px 12px", height: "auto" }}
 									onClick={() => setExpandedCategory(null)}
 								>
-									Close
+									Back
 								</button>
 							</div>
 							{fullLoading ? (
@@ -302,26 +321,28 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({ onClose, onSearc
 						<div className="meld-gallery__loading">Loading analytics...</div>
 					) : summary ? (
 						<div className={styles.meldAnalytics}>
-							<div className={styles.meldAnalytics__section}>
-								<h3 className={styles.meldAnalytics__sectionTitle}>Total Images</h3>
-								<div style={{ fontSize: 18, fontWeight: 600 }}>
+							<div className={styles.meldAnalytics__totalCard}>
+								<div className={styles.meldAnalytics__totalCardTitle}>Total Images</div>
+								<div className={styles.meldAnalytics__totalCardValue}>
 									{summary.total_images.toLocaleString()}
 								</div>
 							</div>
-							{renderSection(
-								"Positive Prompt (top 5)",
-								"positive_prompts",
-								summary.positive_prompts,
-							)}
-							{renderSection(
-								"Negative Prompt (top 5)",
-								"negative_prompts",
-								summary.negative_prompts,
-							)}
-							{renderSection("Tag (top 5)", "tags", summary.tags)}
-							{renderSection("Model (top 5)", "models", summary.models)}
-							{renderSection("Created Date (top 5)", "by_date", summary.by_date)}
-							{renderSection("Resolution (top 5)", "by_resolution", summary.by_resolution)}
+							<div className={styles.meldAnalytics__grid}>
+								{renderSection(
+									"Positive Prompt (top 5)",
+									"positive_prompts",
+									summary.positive_prompts,
+								)}
+								{renderSection(
+									"Negative Prompt (top 5)",
+									"negative_prompts",
+									summary.negative_prompts,
+								)}
+								{renderSection("Tag (top 5)", "tags", summary.tags)}
+								{renderSection("Model (top 5)", "models", summary.models)}
+								{renderSection("Created Date (top 5)", "by_date", summary.by_date)}
+								{renderSection("Resolution (top 5)", "by_resolution", summary.by_resolution)}
+							</div>
 						</div>
 					) : (
 						<div className="meld-gallery__empty">Failed to load analytics.</div>
