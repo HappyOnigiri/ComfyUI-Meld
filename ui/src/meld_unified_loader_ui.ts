@@ -25,7 +25,17 @@ app.registerExtension({
 	},
 
 	async nodeCreated(node: unknown) {
-		const comfyNode = node as ComfyNode;
+		function isComfyNode(n: unknown): n is ComfyNode {
+			return (
+				n !== null &&
+				typeof n === "object" &&
+				"comfyClass" in n &&
+				typeof (n as Record<string, unknown>).comfyClass === "string"
+			);
+		}
+
+		if (!isComfyNode(node)) return;
+		const comfyNode = node;
 		if (comfyNode.comfyClass !== "MeldUnifiedLoader") return;
 
 		// Function to apply subtle color indicators to widgets

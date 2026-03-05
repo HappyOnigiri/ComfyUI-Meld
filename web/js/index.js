@@ -19023,14 +19023,18 @@ ed.registerExtension({
     t.name;
   },
   async nodeCreated(e) {
-    const t = e;
-    if (t.comfyClass !== "MeldUnifiedLoader") return;
-    const n = () => {
-      var a, o;
-      const r = (a = t.widgets) == null ? void 0 : a.find((i) => i.name === "positive"), l = (o = t.widgets) == null ? void 0 : o.find((i) => i.name === "negative");
-      r && r.inputEl && (r.inputEl.style.borderLeft = "4px solid var(--comfy-input-text-active, #44bb44)", r.inputEl.style.paddingLeft = "8px"), l && l.inputEl && (l.inputEl.style.borderLeft = "4px solid var(--error-color, #ff4444)", l.inputEl.style.paddingLeft = "8px");
+    function t(l) {
+      return l !== null && typeof l == "object" && "comfyClass" in l && typeof l.comfyClass == "string";
+    }
+    if (!t(e)) return;
+    const n = e;
+    if (n.comfyClass !== "MeldUnifiedLoader") return;
+    const r = () => {
+      var o, i;
+      const l = (o = n.widgets) == null ? void 0 : o.find((c) => c.name === "positive"), a = (i = n.widgets) == null ? void 0 : i.find((c) => c.name === "negative");
+      l && l.inputEl && (l.inputEl.style.borderLeft = "4px solid var(--comfy-input-text-active, #44bb44)", l.inputEl.style.paddingLeft = "8px"), a && a.inputEl && (a.inputEl.style.borderLeft = "4px solid var(--error-color, #ff4444)", a.inputEl.style.paddingLeft = "8px");
     };
-    n(), setTimeout(n, 1), setTimeout(n, 100);
+    r(), setTimeout(r, 1), setTimeout(r, 100);
   }
 });
 const Yv = document.getElementById("meld-gallery-style");
@@ -19062,85 +19066,99 @@ ed.registerExtension({
     }
   },
   async setup(e) {
-    var t;
+    var n;
     Yy();
     try {
-      const n = await Nf();
-      z.init(n.dev_mode), z.log("Settings received:", n);
-    } catch (n) {
-      z.error("Failed to fetch settings", n), z.init(!1);
+      const r = await Nf();
+      z.init(r.dev_mode), z.log("Settings received:", r);
+    } catch (r) {
+      z.error("Failed to fetch settings", r), z.init(!1);
     }
-    if ((t = e.extensionManager) != null && t.registerSidebarTab) {
-      e.ui.meld = {
-        refresh: () => {
-          window.dispatchEvent(new CustomEvent("meld-refresh"));
-        },
-        isVisible: () => {
-          const n = document.getElementById("meld-gallery-container");
-          return n && n.offsetParent !== null;
-        },
-        toggle: () => {
-          var n;
-          try {
-            (n = e.extensionManager) == null || n.setSidebarTabActive("meld-gallery");
-          } catch (r) {
-            z.error("Error toggling sidebar:", r);
-          }
-        }
-      }, te.addEventListener("meld-image-saved", () => {
-        var n;
-        (n = e.ui.meld) == null || n.refresh();
-      }), te.addEventListener("meld-scan-progress", (n) => {
-        window.dispatchEvent(new CustomEvent("meld-scan-progress", { detail: n.detail }));
-      }), te.addEventListener("meld-scan-finished", (n) => {
+    if (!((n = e.extensionManager) != null && n.registerSidebarTab))
+      return;
+    e.ui.meld = {
+      refresh: () => {
+        window.dispatchEvent(new CustomEvent("meld-refresh"));
+      },
+      isVisible: () => {
+        const r = document.getElementById("meld-gallery-container");
+        return r && r.offsetParent !== null;
+      },
+      toggle: () => {
         var r;
-        window.dispatchEvent(new CustomEvent("meld-scan-finished", { detail: n.detail })), (r = e.ui.meld) == null || r.refresh(), z.log("Import completed.");
-      }), te.addEventListener("executed", async (n) => {
-        var l;
-        const r = n.detail;
-        if ((l = r == null ? void 0 : r.output) != null && l.images) {
-          for (const a of r.output.images)
-            if (a.type === "output")
-              try {
-                await bf({
-                  filename: a.filename,
-                  subfolder: a.subfolder,
-                  type: a.type
-                });
-              } catch (o) {
-                z.error("Failed to auto-register image:", o);
-              }
+        try {
+          (r = e.extensionManager) == null || r.setSidebarTabActive("meld-gallery");
+        } catch (l) {
+          z.error("Error toggling sidebar:", l);
+        }
+      }
+    }, te.addEventListener("meld-image-saved", () => {
+      var r;
+      (r = e.ui.meld) == null || r.refresh();
+    }), te.addEventListener("meld-scan-progress", (r) => {
+      window.dispatchEvent(new CustomEvent("meld-scan-progress", { detail: r.detail }));
+    }), te.addEventListener("meld-scan-finished", (r) => {
+      var l;
+      window.dispatchEvent(new CustomEvent("meld-scan-finished", { detail: r.detail })), (l = e.ui.meld) == null || l.refresh(), z.log("Import completed.");
+    });
+    function t(r) {
+      if (!r || typeof r != "object") return !1;
+      const l = r.output;
+      if (!l || typeof l != "object") return !1;
+      const a = l.images;
+      if (!a || !Array.isArray(a)) return !1;
+      for (const o of a) {
+        if (!o || typeof o != "object") return !1;
+        const i = o;
+        if (typeof i.filename != "string" || typeof i.subfolder != "string" || typeof i.type != "string")
+          return !1;
+      }
+      return !0;
+    }
+    te.addEventListener("executed", async (r) => {
+      var l;
+      if (t(r.detail) && (l = r.detail.output) != null && l.images) {
+        for (const a of r.detail.output.images)
+          if (a.type === "output")
+            try {
+              await bf({
+                filename: a.filename,
+                subfolder: a.subfolder,
+                type: a.type
+              });
+            } catch (o) {
+              z.error("Failed to auto-register image:", o);
+            }
+      }
+    });
+    try {
+      e.extensionManager.registerSidebarTab({
+        id: "meld-gallery",
+        // NOTE: Use both the legacy mask-based icon and a PrimeIcons fallback.
+        // - Web browsers typically render mask-image/data-URL icons correctly (legacy look).
+        // - Some desktop WebViews (notably macOS desktop builds) may fail to render them reliably,
+        //   so we keep PrimeIcons as a fallback.
+        // The CSS decides which one is visible via @supports().
+        icon: "meld-icon pi pi-images",
+        title: "Meld",
+        tooltip: "Meld Image Manager",
+        type: "custom",
+        render: (r) => {
+          z.log("render called", {
+            el: r,
+            galleryRoot: Wl,
+            galleryContainer: it
+          }), r.style.height = "100%", r.style.overflow = "hidden";
+          let l = r.parentElement;
+          for (; l && !l.classList.contains("sidebar-content-container"); )
+            l.style.height = "100%", l.style.overflow = "hidden", l = l.parentElement;
+          l && (l.style.overflow = "hidden"), it || (z.log("galleryContainer not found, creating new one"), it = document.createElement("div"), it.id = "meld-gallery-container", it.style.height = "100%", it.style.width = "100%", it.style.display = "flex", it.style.flexDirection = "column", it.style.overflow = "hidden"), r.contains(it) || (z.log("Appending galleryContainer to el"), r.appendChild(it)), Wl ? z.log("Gallery root already exists, React should handle re-render if needed") : (z.log("Creating new gallery root"), Wl = ff(it), Wl.render(
+            nn.createElement(ly, null, nn.createElement(qv))
+          ));
         }
       });
-      try {
-        e.extensionManager.registerSidebarTab({
-          id: "meld-gallery",
-          // NOTE: Use both the legacy mask-based icon and a PrimeIcons fallback.
-          // - Web browsers typically render mask-image/data-URL icons correctly (legacy look).
-          // - Some desktop WebViews (notably macOS desktop builds) may fail to render them reliably,
-          //   so we keep PrimeIcons as a fallback.
-          // The CSS decides which one is visible via @supports().
-          icon: "meld-icon pi pi-images",
-          title: "Meld",
-          tooltip: "Meld Image Manager",
-          type: "custom",
-          render: (n) => {
-            z.log("render called", {
-              el: n,
-              galleryRoot: Wl,
-              galleryContainer: it
-            }), n.style.height = "100%", n.style.overflow = "hidden";
-            let r = n.parentElement;
-            for (; r && !r.classList.contains("sidebar-content-container"); )
-              r.style.height = "100%", r.style.overflow = "hidden", r = r.parentElement;
-            r && (r.style.overflow = "hidden"), it || (z.log("galleryContainer not found, creating new one"), it = document.createElement("div"), it.id = "meld-gallery-container", it.style.height = "100%", it.style.width = "100%", it.style.display = "flex", it.style.flexDirection = "column", it.style.overflow = "hidden"), n.contains(it) || (z.log("Appending galleryContainer to el"), n.appendChild(it)), Wl ? z.log("Gallery root already exists, React should handle re-render if needed") : (z.log("Creating new gallery root"), Wl = ff(it), Wl.render(
-              nn.createElement(ly, null, nn.createElement(qv))
-            ));
-          }
-        });
-      } catch (n) {
-        z.error("Error during sidebar registration:", n);
-      }
+    } catch (r) {
+      z.error("Error during sidebar registration:", r);
     }
   }
 });
