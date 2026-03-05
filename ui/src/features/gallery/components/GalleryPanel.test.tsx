@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { GalleryPanel } from "./GalleryPanel";
 
@@ -31,6 +31,12 @@ vi.mock("../../../store/GalleryContext", () => ({
 }));
 
 // Mock dependencies
+const mockDispatch = vi.fn();
+const mockRefreshImages = vi.fn();
+const mockUpdateSetting = vi.fn();
+const mockSetViewMode = vi.fn();
+const mockSetLastSearchQuery = vi.fn();
+
 vi.mock("../hooks/useGalleryLogic", () => ({
 	useGalleryLogic: () => ({
 		state: {
@@ -46,13 +52,13 @@ vi.mock("../hooks/useGalleryLogic", () => ({
 			selection: new Set(),
 			importProgress: { isRunning: false, progress: 0 },
 		},
-		dispatch: vi.fn(),
-		refreshImages: vi.fn(),
-		updateSetting: vi.fn(),
+		dispatch: mockDispatch,
+		refreshImages: mockRefreshImages,
+		updateSetting: mockUpdateSetting,
 		viewMode: "gallery",
-		setViewMode: vi.fn(),
+		setViewMode: mockSetViewMode,
 		lastSearchQuery: "",
-		setLastSearchQuery: vi.fn(),
+		setLastSearchQuery: mockSetLastSearchQuery,
 		displayedImages: [],
 		visibleImages: [],
 		isSearchActive: false,
@@ -126,5 +132,45 @@ describe("GalleryPanel", () => {
 	it("renders correctly", () => {
 		render(<GalleryPanel />);
 		expect(screen.getByTitle("Search")).toBeInTheDocument();
+	});
+
+	it("handles action buttons clicks", async () => {
+		render(<GalleryPanel />);
+
+		// Click Tag Manager
+		const tagBtn = screen.getByTitle("Tag Manager");
+		fireEvent.click(tagBtn);
+		expect(mockSetViewMode).toHaveBeenCalled();
+
+		// Click Grid View
+		const gridBtn =
+			screen.queryByTitle("Switch to Details View") ||
+			screen.queryByTitle("Switch to Grid Only View");
+		if (gridBtn) {
+			fireEvent.click(gridBtn);
+			expect(mockUpdateSetting).toHaveBeenCalledWith("gallery.view_mode", expect.any(String));
+		}
+
+		// Click Light Table
+		const ltBtn = screen.getByTitle("Light Table");
+		fireEvent.click(ltBtn);
+
+		// Click Import
+		const importBtn = screen.getByTitle("Import");
+		fireEvent.click(importBtn);
+		expect(mockDispatch).toHaveBeenCalledWith({ type: "OPEN_MODAL", payload: { type: "import" } });
+
+		// Click Refresh
+		const refreshBtn = screen.getByTitle("Refresh");
+		fireEvent.click(refreshBtn);
+		expect(mockRefreshImages).toHaveBeenCalled();
+
+		// Click Settings
+		const settingsBtn = screen.getByTitle("Settings");
+		fireEvent.click(settingsBtn);
+		expect(mockDispatch).toHaveBeenCalledWith({
+			type: "OPEN_MODAL",
+			payload: { type: "settings" },
+		});
 	});
 });

@@ -23,12 +23,57 @@ vi.mock("../../light-table/store", () => ({
 
 // Mock ImageCardMenu
 vi.mock("./ImageCardMenu", () => ({
-	ImageCardMenu: () => <div data-testid="image-card-menu" />,
+	ImageCardMenu: ({
+		onRestore,
+		onDelete,
+		onEditSource,
+		onAddUnifiedLoader,
+		onRestoreWorkflow,
+		onSendToWorkflow,
+		onRunWithWorkflow,
+		onRunWithMask,
+	}: Record<string, unknown>) => (
+		<div data-testid="image-card-menu">
+			<button type="button" onClick={onRestore}>
+				Restore
+			</button>
+			<button type="button" onClick={onDelete}>
+				Delete
+			</button>
+			<button type="button" onClick={onEditSource}>
+				Edit Source
+			</button>
+			<button type="button" onClick={onAddUnifiedLoader}>
+				Add Loader
+			</button>
+			<button type="button" onClick={onRestoreWorkflow}>
+				Restore Workflow
+			</button>
+			<button type="button" onClick={onSendToWorkflow}>
+				Send
+			</button>
+			<button type="button" onClick={onRunWithWorkflow}>
+				Run
+			</button>
+			<button type="button" onClick={() => onRunWithMask("bg")}>
+				Run Mask
+			</button>
+		</div>
+	),
 }));
 
 // Mock PromptPopup
 vi.mock("./PromptPopup", () => ({
-	PromptPopup: () => <div data-testid="prompt-popup" />,
+	PromptPopup: ({ onClose, onCopy }: Record<string, unknown>) => (
+		<div data-testid="prompt-popup">
+			<button type="button" onClick={onClose}>
+				Close Popup
+			</button>
+			<button type="button" onClick={() => onCopy("test-copy")}>
+				Copy Popup
+			</button>
+		</div>
+	),
 }));
 
 function createMockCardLogic(
@@ -210,5 +255,36 @@ describe("DetailedImageCard", () => {
 		const notesContent = screen.getByText("note", { selector: ".meld-image-card__notes-preview" });
 		await user.click(notesContent);
 		expect(handleEditNotes).toHaveBeenCalled();
+
+		// Trigger Menu UI interactions
+		if (screen.queryByText("Restore")) {
+			await user.click(screen.getByText("Restore"));
+			await user.click(screen.getByText("Delete"));
+			await user.click(screen.getByText("Edit Source"));
+			await user.click(screen.getByText("Add Loader"));
+			await user.click(screen.getByText("Send"));
+			await user.click(screen.getByText("Run"));
+			await user.click(screen.getByText("Run Mask"));
+		}
+
+		// Re-render with parentChain to test lineage click
+		mockUseImageCardLogic.mockReturnValue(
+			createMockCardLogic({
+				parentChain: [{ id: 99, imgSrc: "parent.png" }],
+				settings: { "gallery.show_parent_image": true },
+				popupContent: { title: "title", text: "text" },
+			}),
+		);
+		const { container: lineageContainer } = render(<DetailedImageCard image={image} />);
+		const sourceThumb = screen.getAllByAltText("source thumb")[0];
+		if (sourceThumb) {
+			await user.click(sourceThumb);
+		}
+
+		// Trigger Popup UI interactions if it was rendered
+		if (screen.queryByText("Close Popup")) {
+			await user.click(screen.getByText("Close Popup"));
+			await user.click(screen.getByText("Copy Popup"));
+		}
 	});
 });

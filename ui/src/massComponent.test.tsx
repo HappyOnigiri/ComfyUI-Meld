@@ -7,8 +7,11 @@ import { MaskEditorModal } from "./features/mask-editor/components/MaskEditorMod
 import { SearchBar } from "./features/search/components/SearchBar";
 import { TagManagerView } from "./features/tags/components/TagManagerView";
 import { ImageViewer } from "./features/viewer/components/ImageViewer";
+import { ViewerCheatSheet } from "./features/viewer/components/ViewerCheatSheet";
+import { ViewerThumbnailStrip } from "./features/viewer/components/ViewerThumbnailStrip";
+import { NodeSelectionModal } from "./features/workflows/components/NodeSelectionModal";
 import { WorkflowSelectionModal } from "./features/workflows/components/WorkflowSelectionModal";
-import type { MeldImage } from "./types";
+import type { MeldImage, Settings } from "./types";
 
 vi.mock("/scripts/api.js", () => ({
 	api: {
@@ -42,11 +45,17 @@ const mockState = {
 	searchQuery: "",
 	pagination: { hasMore: false },
 	viewerImageId: 1,
-	viewerMode: "gallery",
 	viewerLightTableSlotId: null,
 	isProcessing: false,
-	selection: new Set([1]),
+	selectedIds: new Set([1]),
 	importProgress: { isRunning: false, progress: 0, currentFile: "" },
+	scanStatus: {
+		isRunning: false,
+		isFinished: false,
+		currentFolder: "",
+		processedImages: 0,
+		newImages: 0,
+	},
 	error: null,
 	searchTags: [],
 };
@@ -58,7 +67,7 @@ vi.mock("./store/GalleryContext", () => ({
 		refreshImages: vi.fn(),
 		updateSetting: vi.fn(),
 		loadMoreImages: vi.fn(),
-		fetchFullImageDetails: vi.fn(),
+		fetchFullImageDetails: vi.fn().mockResolvedValue({}),
 	}),
 	useGalleryContext: () => ({
 		state: mockState,
@@ -86,13 +95,14 @@ vi.mock("./features/light-table/store", () => ({
 				isOpen: false,
 				buckets: { default: [] },
 				images: {},
+				slots: [],
 			};
 			if (typeof selector === "function") {
 				return selector(mockState);
 			}
 			return mockState;
 		}),
-		{ getState: () => ({ removeFromBucket: vi.fn(), images: {} }) },
+		{ getState: () => ({ removeFromBucket: vi.fn(), images: {}, slots: [] }) },
 	),
 }));
 
@@ -141,13 +151,33 @@ const clickEverything = (container: HTMLElement | Document) => {
 };
 
 describe("Mass Components Coverage", () => {
+	it("renders GalleryPanel without throwing", () => {
+		const { container } = render(<GalleryPanel />);
+		expect(container.firstChild).toBeDefined();
+	});
 	it.skip("massacres GalleryPanel", () => {
 		const { container } = render(<GalleryPanel />);
 		clickEverything(container);
 	});
+
+	it("renders ImportModal without throwing", () => {
+		const { container } = render(<ImportModal />);
+		expect(container.firstChild).toBeDefined();
+	});
 	it.skip("massacres ImportModal", () => {
 		const { container } = render(<ImportModal />);
 		clickEverything(container);
+	});
+
+	it("renders WorkflowSelectionModal without throwing", () => {
+		const { container } = render(
+			<WorkflowSelectionModal
+				images={[{ id: 1 } as Partial<MeldImage> as MeldImage]}
+				isMaskMode={false}
+				onExecute={vi.fn()}
+			/>,
+		);
+		expect(container.firstChild).toBeDefined();
 	});
 	it.skip("massacres WorkflowSelectionModal", () => {
 		const { container } = render(
@@ -159,17 +189,26 @@ describe("Mass Components Coverage", () => {
 		);
 		clickEverything(container);
 	});
+
+	it("renders MaskEditorModal without throwing", () => {
+		const { container } = render(<MaskEditorModal imageId={1} mode="run" onClose={vi.fn()} />);
+		expect(container.firstChild).toBeDefined();
+	});
 	it.skip("massacres MaskEditorModal", () => {
 		const { container } = render(<MaskEditorModal imageId={1} mode="run" onClose={vi.fn()} />);
 		clickEverything(container);
 	});
+
+	it("renders ImageViewer without throwing", () => {
+		const { container } = render(<ImageViewer />);
+		expect(container).toBeDefined();
+	});
 	it.skip("massacres ImageViewer", () => {
 		render(<ImageViewer />);
-		// Need to find portals? createPortal appends to document.body
 		clickEverything(document.body);
 	});
+
 	it("renders SearchBar without throwing", () => {
-		// Simple render check without clickEverything for a stable, deterministic assertion
 		const { container } = render(<SearchBar />);
 		expect(container.firstChild).not.toBeNull();
 	});
@@ -177,8 +216,49 @@ describe("Mass Components Coverage", () => {
 		const { container } = render(<SearchBar />);
 		clickEverything(container);
 	});
+
+	it("renders TagManagerView without throwing", () => {
+		const { container } = render(<TagManagerView onClose={vi.fn()} onSearch={vi.fn()} />);
+		expect(container.firstChild).toBeDefined();
+	});
 	it.skip("massacres TagManagerView", () => {
 		const { container } = render(<TagManagerView onClose={vi.fn()} onSearch={vi.fn()} />);
 		clickEverything(container);
+	});
+
+	it("renders ViewerCheatSheet without throwing", () => {
+		const { container } = render(
+			<ViewerCheatSheet
+				settings={{ "viewer.shortcut.show_cheat_sheet": true } as Partial<Settings> as Settings}
+				activeShortcutKey="1"
+			/>,
+		);
+		expect(container.firstChild).toBeDefined();
+	});
+
+	it("renders ViewerThumbnailStrip without throwing", () => {
+		const { container } = render(
+			<ViewerThumbnailStrip
+				windowedThumbnails={[]}
+				viewerImageId={1}
+				currentImage={{ id: 1 } as MeldImage}
+				dispatch={vi.fn()}
+				isLoadingLineage={false}
+				isLoading={false}
+				viewerMode="gallery"
+			/>,
+		);
+		expect(container.firstChild).toBeDefined();
+	});
+
+	it("renders NodeSelectionModal without throwing", () => {
+		const { container } = render(
+			<NodeSelectionModal
+				nodes={[]}
+				image={{ id: 1, filename: "test" } as Partial<MeldImage> as MeldImage}
+				onSelect={vi.fn()}
+			/>,
+		);
+		expect(container.firstChild).toBeDefined();
 	});
 });

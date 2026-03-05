@@ -30,6 +30,7 @@ export const useWorkflowExecution = () => {
 			maskFilename?: string,
 			targetLoaderNodeId?: string,
 		) => {
+			if (!workflowName || !image) return;
 			logger.log("executeWorkflow called:", {
 				workflowName,
 				imageId: image.id,

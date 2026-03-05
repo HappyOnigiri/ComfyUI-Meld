@@ -20,12 +20,18 @@ declare global {
 	// Keep these declarations in setup so production code stays strict.
 	var api: unknown;
 	var app: unknown;
+	var Node: unknown;
 
 	interface Window {
 		api?: unknown;
 		app?: unknown;
 	}
 }
+
+global.Node = window.Node;
+HTMLCanvasElement.prototype.getContext = () => null as unknown as RenderingContext;
+HTMLElement.prototype.requestFullscreen = vi.fn().mockResolvedValue(undefined);
+document.exitFullscreen = vi.fn().mockResolvedValue(undefined);
 
 const testApi: ComfyApi = {
 	clientId: "vitest-client",

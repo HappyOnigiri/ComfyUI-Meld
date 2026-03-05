@@ -4,8 +4,10 @@ import { useGalleryLogic } from "./features/gallery/hooks/useGalleryLogic";
 import { useSearchLogic } from "./features/search/hooks/useSearchLogic";
 import { useSettingsModalLogic } from "./features/settings/hooks/useSettingsModalLogic";
 import { useViewerActionsBridge } from "./features/viewer/hooks/internal/useViewerActionsBridge";
+import { useViewerKeyboardShortcuts } from "./features/viewer/hooks/internal/useViewerKeyboardShortcuts";
 import { useImageCardLogic } from "./features/viewer/hooks/useImageCardLogic";
 import { useImageViewerLogic } from "./features/viewer/hooks/useImageViewerLogic";
+import { useWorkflowExecution } from "./features/workflows/hooks/useWorkflowExecution";
 
 vi.mock("./store/GalleryContext", () => ({
 	useGallery: () => ({
@@ -47,6 +49,14 @@ vi.mock("./store/GalleryContext", () => ({
 		loadMoreImages: vi.fn(),
 		fetchFullImageDetails: vi.fn(),
 	}),
+}));
+
+Object.assign(navigator, {
+	clipboard: { writeText: vi.fn() },
+});
+
+vi.mock("./features/workflows/api/workflowsApi", () => ({
+	fetchWorkflows: vi.fn().mockResolvedValue([{ valid: true, mask_count: 1 }]),
 }));
 
 vi.mock("./features/search/api/searchApi", () => ({
@@ -144,6 +154,21 @@ const hooksToTest: { run: (...args: unknown[]) => unknown; args?: unknown[] }[] 
 			},
 		],
 	},
+	{
+		run: useViewerKeyboardShortcuts as unknown as (...args: unknown[]) => unknown,
+		args: [
+			{
+				dispatch: vi.fn(),
+				viewerImageId: null,
+				isProcessing: false,
+				fetchFullImageDetails: vi.fn(),
+			},
+		],
+	},
+	{
+		run: useWorkflowExecution as unknown as (...args: unknown[]) => unknown,
+		args: [false, vi.fn()],
+	},
 ];
 
 describe("Mass Hooks Coverage", () => {
@@ -217,6 +242,6 @@ describe("Mass Hooks Coverage", () => {
 		}
 
 		// Remove throw errors[0]: consolidate into a single failure path via expect()
-		expect(errors).toHaveLength(0);
+		expect(errors).toEqual([]);
 	});
 });

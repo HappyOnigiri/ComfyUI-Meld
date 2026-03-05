@@ -330,8 +330,18 @@ export const useSearchLogic = () => {
 		}
 	}, [inputValue, searchPrefixRegex, searchConfig]);
 
+	const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
 	const handleInputBlur = useCallback(() => {
-		setTimeout(() => setShowSuggestions(false), 200);
+		blurTimeoutRef.current = setTimeout(() => setShowSuggestions(false), 200);
+	}, []);
+
+	useEffect(() => {
+		return () => {
+			if (blurTimeoutRef.current) {
+				clearTimeout(blurTimeoutRef.current);
+			}
+		};
 	}, []);
 
 	return {

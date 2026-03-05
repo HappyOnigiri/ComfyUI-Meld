@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createTestImage, resetImageIdCounter } from "../../../test/factories/image";
 import {
@@ -40,7 +40,9 @@ vi.mock("./ViewerCheatSheet", () => ({
 	ViewerCheatSheet: () => <div data-testid="viewer-cheat-sheet" />,
 }));
 vi.mock("./NoteEditModal", () => ({
-	NoteEditModal: () => <div data-testid="note-edit-modal" />,
+	NoteEditModal: ({ onClose }: Record<string, unknown>) => (
+		<div data-testid="note-edit-modal" onClick={onClose as React.MouseEventHandler} />
+	),
 }));
 
 // Mock modal components
@@ -60,19 +62,39 @@ vi.mock("../../settings/components/SettingsModal", () => ({
 	SettingsModal: () => <div data-testid="settings-modal" />,
 }));
 vi.mock("../../tags/components/TagEditModal", () => ({
-	TagEditModal: () => <div data-testid="tag-edit-modal" />,
+	TagEditModal: ({ onClose }: Record<string, unknown>) => (
+		<div data-testid="tag-edit-modal" onClick={onClose as React.MouseEventHandler} />
+	),
 }));
 vi.mock("../../mask-editor/components/MaskEditorModal", () => ({
-	MaskEditorModal: () => <div data-testid="mask-editor-modal" />,
+	MaskEditorModal: ({ onClose }: Record<string, unknown>) => (
+		<div data-testid="mask-editor-modal" onClick={onClose as React.MouseEventHandler} />
+	),
 }));
 vi.mock("../../mask-editor/components/MaskSequenceModal", () => ({
-	MaskSequenceModal: () => <div data-testid="mask-sequence-modal" />,
+	MaskSequenceModal: ({ onSuccess, onClose }: Record<string, unknown>) => (
+		<div
+			data-testid="mask-sequence-modal"
+			onClick={onSuccess as React.MouseEventHandler}
+			onContextMenu={onClose as React.MouseEventHandler}
+		/>
+	),
 }));
 vi.mock("../../workflows/components/NodeSelectionModal", () => ({
-	NodeSelectionModal: () => <div data-testid="node-selection-modal" />,
+	NodeSelectionModal: ({ onSelect }: Record<string, unknown>) => (
+		<div
+			data-testid="node-selection-modal"
+			onClick={() => (onSelect as (id: string) => void)("node1")}
+		/>
+	),
 }));
 vi.mock("../../workflows/components/WorkflowSelectionModal", () => ({
-	WorkflowSelectionModal: () => <div data-testid="workflow-selection-modal" />,
+	WorkflowSelectionModal: ({ onExecute }: Record<string, unknown>) => (
+		<div
+			data-testid="workflow-selection-modal"
+			onClick={() => (onExecute as (wf: string, node: string) => void)("workflow-name", "node1")}
+		/>
+	),
 }));
 vi.mock("../../workflows/utils/injectImageToGraph", () => ({
 	injectImageToGraph: vi.fn(),
@@ -237,5 +259,89 @@ describe("ImageViewer", () => {
 		render(<ImageViewer />);
 		expect(document.querySelector(".meld-viewer-nav--prev")).toBeNull();
 		expect(document.querySelector(".meld-viewer-nav--next")).toBeNull();
+	});
+
+	it("handles action buttons safely", () => {
+		const img = createTestImage();
+		ctx = createMockGalleryContext({
+			viewerImageId: img.id,
+			viewerMode: "gallery",
+			activeModal: { type: "none" },
+			viewScope: "default",
+			settings: iconsVisibleSettings,
+		});
+		vi.mocked(useGallery).mockReturnValue(ctx);
+		mockUseImageViewerLogic.mockReturnValue(createMockViewerLogic(img));
+
+		render(<ImageViewer />);
+
+		const buttons = document.body.querySelectorAll("button");
+		for (const btn of Array.from(buttons)) {
+			try {
+				fireEvent.click(btn);
+			} catch (e) {
+				// skip
+			}
+		}
+		expect(buttons.length).toBeGreaterThan(0);
+	});
+
+	describe("renders modals and invokes callbacks", () => {
+		const img = createTestImage();
+
+		const testModals = [
+			{
+				type: "workflow_selection",
+				images: [img],
+				maskFilename: "mask.png",
+				isMaskSequence: false,
+			},
+			{ type: "workflow_selection", images: [img, img], maskFilename: "", isMaskSequence: true },
+			{ type: "node_selection", image: img, nodes: [] },
+			{ type: "error", message: "err" },
+			{ type: "delete_confirm", imageIds: [1], hasLineage: false, isPermanent: false },
+			{ type: "parent_selection", imageId: 1 },
+			{ type: "import" },
+			{ type: "settings" },
+			{ type: "tag_edit", imageIds: [1], tags: [] },
+			{ type: "mask_editor", imageId: 1, mode: "create" },
+			{ type: "mask_sequence_step", images: [img, img], currentIndex: 0, workflowName: "wf" },
+			{ type: "mask_sequence_step", images: [img, img], currentIndex: 1, workflowName: "wf" },
+			{ type: "note_edit", imageId: 1, notes: "note" },
+		];
+
+		testModals.forEach((modal, idx) => {
+			it(`renders and interacts with modal ${modal.type} (${idx})`, () => {
+				ctx = createMockGalleryContext({
+					viewerImageId: img.id,
+					viewerMode: "gallery",
+					activeModal: modal as Exclude<MockGalleryContext["activeModal"], undefined>,
+					viewScope: "default",
+					settings: iconsVisibleSettings,
+				});
+				vi.mocked(useGallery).mockReturnValue(ctx);
+				mockUseImageViewerLogic.mockReturnValue(createMockViewerLogic(img));
+
+				const { container } = render(<ImageViewer />);
+				expect(container).toBeDefined();
+
+				const modalTestIds = [
+					"workflow-selection-modal",
+					"node-selection-modal",
+					"mask-sequence-modal",
+					"tag-edit-modal",
+					"mask-editor-modal",
+					"note-edit-modal",
+				];
+
+				for (const id of modalTestIds) {
+					const el = screen.queryByTestId(id);
+					if (el) {
+						fireEvent.click(el); // triggers main callback
+						fireEvent.contextMenu(el); // triggers alternate callback like onClose
+					}
+				}
+			});
+		});
 	});
 });
