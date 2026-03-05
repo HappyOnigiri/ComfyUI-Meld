@@ -1,8 +1,6 @@
 import React from "react";
 import { createRoot, type Root } from "react-dom/client";
-// @ts-expect-error
 import { api } from "/scripts/api.js";
-// @ts-expect-error
 import { app } from "/scripts/app.js";
 import { GalleryPanel } from "./features/gallery/components/GalleryPanel";
 import * as imagesApi from "./features/images/api/imagesApi";
@@ -112,33 +110,49 @@ app.registerExtension({
 			logger.log("Import completed.");
 		});
 
+		function isExecutedDetail(
+			detail: unknown,
+		): detail is { output?: { images?: { filename: string; subfolder: string; type: string }[] } } {
+			if (!detail || typeof detail !== "object") return false;
+			const out = (detail as Record<string, unknown>).output;
+			if (!out || typeof out !== "object") return false;
+			const imgs = (out as Record<string, unknown>).images;
+			if (!imgs || !Array.isArray(imgs)) return false;
+			for (const img of imgs) {
+				if (!img || typeof img !== "object") return false;
+				const i = img as Record<string, unknown>;
+				if (
+					typeof i.filename !== "string" ||
+					typeof i.subfolder !== "string" ||
+					typeof i.type !== "string"
+				) {
+					return false;
+				}
+			}
+			return true;
+		}
+
 		// Auto-register when image generation is complete
-		api.addEventListener(
-			"executed",
-			async ({
-				detail,
-			}: CustomEvent<{
-				output?: {
-					images?: Array<{ filename: string; subfolder: string; type: string }>;
-				};
-			}>) => {
-				if (detail?.output?.images) {
-					for (const img of detail.output.images) {
-						if (img.type === "output") {
-							try {
-								await imagesApi.registerImage({
-									filename: img.filename,
-									subfolder: img.subfolder,
-									type: img.type,
-								});
-							} catch (e) {
-								logger.error("Failed to auto-register image:", e);
-							}
+		api.addEventListener("executed", async (e: CustomEvent) => {
+			if (!isExecutedDetail(e.detail)) {
+				return;
+			}
+			if (e.detail.output?.images) {
+				for (const img of e.detail.output.images) {
+					if (img.type === "output") {
+						try {
+							await imagesApi.registerImage({
+								filename: img.filename,
+								subfolder: img.subfolder,
+								type: img.type,
+							});
+						} catch (err) {
+							logger.error("Failed to auto-register image:", err);
 						}
 					}
 				}
-			},
-		);
+			}
+		});
 
 		try {
 			app.extensionManager.registerSidebarTab({

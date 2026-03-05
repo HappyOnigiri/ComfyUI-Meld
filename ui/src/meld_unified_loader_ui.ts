@@ -1,4 +1,3 @@
-// @ts-expect-error
 import { app } from "/scripts/app.js";
 import type { ComfyApp } from "./types";
 
@@ -25,13 +24,25 @@ app.registerExtension({
 		if (nodeData.name !== "MeldUnifiedLoader") return;
 	},
 
-	async nodeCreated(node: ComfyNode) {
-		if (node.comfyClass !== "MeldUnifiedLoader") return;
+	async nodeCreated(node: unknown) {
+		function isComfyNode(n: unknown): n is ComfyNode {
+			return (
+				n !== null &&
+				typeof n === "object" &&
+				"comfyClass" in n &&
+				typeof (n as Record<string, unknown>).comfyClass === "string" &&
+				Array.isArray((n as Record<string, unknown>).widgets)
+			);
+		}
+
+		if (!isComfyNode(node)) return;
+		const comfyNode = node;
+		if (comfyNode.comfyClass !== "MeldUnifiedLoader") return;
 
 		// Function to apply subtle color indicators to widgets
 		const applyStyles = () => {
-			const positive = node.widgets?.find((w) => w.name === "positive");
-			const negative = node.widgets?.find((w) => w.name === "negative");
+			const positive = comfyNode.widgets?.find((w) => w.name === "positive");
+			const negative = comfyNode.widgets?.find((w) => w.name === "negative");
 
 			if (positive) {
 				if (positive.inputEl) {

@@ -30,6 +30,11 @@ export const useWorkflowExecution = () => {
 			maskFilename?: string,
 			targetLoaderNodeId?: string,
 		) => {
+			if (!workflowName || !image) {
+				throw new Error(
+					`Missing required inputs for workflow execution: workflowName (${Boolean(workflowName)}), image (${Boolean(image)})`,
+				);
+			}
 			logger.log("executeWorkflow called:", {
 				workflowName,
 				imageId: image.id,

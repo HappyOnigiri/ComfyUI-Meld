@@ -2,7 +2,11 @@
 	"compilerOptions": {
 		"target": "ESNext",
 		"useDefineForClassFields": true,
-		"lib": ["DOM", "DOM.Iterable", "ESNext"],
+		"lib": [
+			"DOM",
+			"DOM.Iterable",
+			"ESNext"
+		],
 		"allowJs": false,
 		"skipLibCheck": true,
 		"esModuleInterop": false,
@@ -10,20 +14,42 @@
 		"strict": true,
 		"forceConsistentCasingInFileNames": true,
 		"module": "ESNext",
-		"moduleResolution": "Node",
+		"moduleResolution": "bundler",
+		"allowImportingTsExtensions": true,
 		"resolveJsonModule": true,
 		"isolatedModules": true,
 		"noEmit": true,
 		"jsx": "react-jsx",
 		"baseUrl": ".",
 		"paths": {
-			"@/*": ["./src/*"]
+			"@/*": [
+				"./src/*"
+			],
+			"/scripts/api.js": [
+				"./src/types.d.ts"
+			],
+			"/scripts/app.js": [
+				"./src/types.d.ts"
+			]
 		},
 		"noImplicitAny": true,
 		"noImplicitThis": true,
 		"strictNullChecks": true,
-		"noUncheckedIndexedAccess": true
+		"noUncheckedIndexedAccess": true,
+		"types": [
+			"vitest/globals",
+			"@testing-library/jest-dom"
+		]
 	},
-	"include": ["src"],
-	"references": [{ "path": "./tsconfig.node.json" }]
+	"include": [
+		"src"
+	],
+	"exclude": [
+		"node_modules"
+	],
+	"references": [
+		{
+			"path": "./tsconfig.node.json"
+		}
+	]
 }

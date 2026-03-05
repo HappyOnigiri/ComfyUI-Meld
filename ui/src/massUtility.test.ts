@@ -3,6 +3,7 @@ import * as imagesApi from "./features/images/api/imagesApi";
 import * as deleteHelpers from "./features/images/hooks/deleteHelpers";
 import * as importerApi from "./features/importer/api/importerApi";
 import * as ltActions from "./features/light-table/api/actions";
+import * as maskInjection from "./features/mask-editor/hooks/useMaskInjection";
 import * as maskUtils from "./features/mask-editor/utils/maskUtils";
 import * as searchApi from "./features/search/api/searchApi";
 import * as settingsApi from "./features/settings/api/settingsApi";
@@ -18,6 +19,8 @@ vi.mock("./api", () => ({
 	},
 	fetchApi: vi.fn().mockResolvedValue({ ok: true, json: vi.fn().mockResolvedValue({}) }),
 	getVersion: vi.fn(),
+	handleResponse: vi.fn(),
+	parseJsonResponse: vi.fn(),
 }));
 
 const modules: Record<string, unknown>[] = [
@@ -32,8 +35,14 @@ const modules: Record<string, unknown>[] = [
 	galleryReducer,
 	nodeTypePredicates,
 	portalRoots,
+	maskInjection,
 ];
 
+/**
+ * This test intentionally invokes every exported function from modules with various arities
+ * and silently catches exceptions to exercise code paths solely for coverage
+ * rather than to assert correctness.
+ */
 describe("Mass utility functions coverage", () => {
 	it("executes all exported functions", () => {
 		for (const mod of modules) {

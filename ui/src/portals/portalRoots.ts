@@ -36,7 +36,7 @@ function nodeListContainsRelevantNode(list: NodeList): boolean {
 	for (let i = 0; i < list.length; i++) {
 		const node = list.item(i);
 		if (!node) continue;
-		if (node.nodeType !== Node.ELEMENT_NODE) continue;
+		if (node.nodeType !== 1) continue; // 1 represents Node.ELEMENT_NODE
 		const el = node as Element;
 		if (el.hasAttribute?.(PORTAL_ROOT_ATTR)) return true;
 		if (el.querySelector?.(portalSelector)) return true;

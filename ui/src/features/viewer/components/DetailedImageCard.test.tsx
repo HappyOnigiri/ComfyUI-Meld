@@ -23,12 +23,66 @@ vi.mock("../../light-table/store", () => ({
 
 // Mock ImageCardMenu
 vi.mock("./ImageCardMenu", () => ({
-	ImageCardMenu: () => <div data-testid="image-card-menu" />,
+	ImageCardMenu: ({
+		onRestore,
+		onDelete,
+		onEditSource,
+		onAddUnifiedLoader,
+		onRestoreWorkflow,
+		onSendToWorkflow,
+		onRunWithWorkflow,
+		onRunWithMask,
+	}: {
+		onRestore: () => void;
+		onDelete: () => void;
+		onEditSource: () => void;
+		onAddUnifiedLoader: () => void;
+		onRestoreWorkflow: () => void;
+		onSendToWorkflow: () => void;
+		onRunWithWorkflow: () => void;
+		onRunWithMask: (mode: string) => void;
+	}) => (
+		<div data-testid="image-card-menu">
+			<button type="button" onClick={onRestore}>
+				Restore
+			</button>
+			<button type="button" onClick={onDelete}>
+				Delete
+			</button>
+			<button type="button" onClick={onEditSource}>
+				Edit Source
+			</button>
+			<button type="button" onClick={onAddUnifiedLoader}>
+				Add Loader
+			</button>
+			<button type="button" onClick={onRestoreWorkflow}>
+				Restore Workflow
+			</button>
+			<button type="button" onClick={onSendToWorkflow}>
+				Send
+			</button>
+			<button type="button" onClick={onRunWithWorkflow}>
+				Run
+			</button>
+			<button type="button" onClick={() => onRunWithMask("bg")}>
+				Run Mask
+			</button>
+		</div>
+	),
 }));
 
 // Mock PromptPopup
 vi.mock("./PromptPopup", () => ({
-	PromptPopup: () => <div data-testid="prompt-popup" />,
+	PromptPopup: ({ onClose, onCopy }: { onClose: () => void; onCopy: (text: string) => void }) => (
+		<div data-testid="prompt-popup">
+			<button type="button" onClick={onClose}>
+				Close Popup
+			</button>
+			<button type="button" onClick={() => onCopy("test-copy")}>
+				Copy Popup
+			</button>
+		</div>
+	),
 }));
 
 function createMockCardLogic(
@@ -169,7 +223,7 @@ describe("DetailedImageCard", () => {
 			positive_prompt: "my_positive",
 			negative_prompt: "my_negative",
 		});
-		render(<DetailedImageCard image={image} />);
+		const { rerender } = render(<DetailedImageCard image={image} />);
 		const user = userEvent.setup();
 
 		// Checkbox
@@ -210,5 +264,82 @@ describe("DetailedImageCard", () => {
 		const notesContent = screen.getByText("note", { selector: ".meld-image-card__notes-preview" });
 		await user.click(notesContent);
 		expect(handleEditNotes).toHaveBeenCalled();
+
+		// Trigger Menu UI interactions
+		const handleRestore = vi.fn();
+		const handleDelete = vi.fn();
+		const handleEditSource = vi.fn();
+		const handleAddUnifiedLoader = vi.fn();
+		const handleSendToWorkflow = vi.fn();
+		const handleRunWithWorkflow = vi.fn();
+		const handleRunWithMask = vi.fn();
+		const handleRestoreWorkflow = vi.fn();
+
+		mockUseImageCardLogic.mockReturnValue({
+			...mockLogic,
+			handleRestore,
+			handleDelete,
+			handleEditSource,
+			handleAddUnifiedLoader,
+			handleSendToWorkflow,
+			handleRunWithWorkflow,
+			handleRunWithMask,
+			handleRestoreWorkflow,
+		});
+
+		rerender(<DetailedImageCard image={{ ...image }} />);
+
+		expect(screen.getByText("Restore")).toBeInTheDocument();
+		await user.click(screen.getByText("Restore"));
+		expect(handleRestore).toHaveBeenCalled();
+
+		await user.click(screen.getByText("Delete"));
+		expect(handleDelete).toHaveBeenCalled();
+
+		await user.click(screen.getByText("Edit Source"));
+		expect(handleEditSource).toHaveBeenCalled();
+
+		await user.click(screen.getByText("Add Loader"));
+		expect(handleAddUnifiedLoader).toHaveBeenCalled();
+
+		await user.click(screen.getByText("Restore Workflow"));
+		expect(handleRestoreWorkflow).toHaveBeenCalled();
+
+		await user.click(screen.getByText("Send"));
+		expect(handleSendToWorkflow).toHaveBeenCalled();
+
+		await user.click(screen.getByText("Run"));
+		expect(handleRunWithWorkflow).toHaveBeenCalled();
+
+		await user.click(screen.getByText("Run Mask"));
+		expect(handleRunWithMask).toHaveBeenCalledWith("bg");
+
+		// Re-render with parentChain to test lineage click
+		const setPopupContentAlt = vi.fn();
+		const handleCopyAlt = vi.fn();
+
+		mockUseImageCardLogic.mockReturnValue(
+			createMockCardLogic({
+				parentChain: [{ id: 99, imgSrc: "parent.png" }],
+				settings: { "gallery.show_parent_image": true },
+				popupContent: { title: "title", text: "text" },
+				setPopupContent: setPopupContentAlt,
+				handleCopy: handleCopyAlt,
+			}),
+		);
+		rerender(<DetailedImageCard image={{ ...image }} />);
+
+		const sourceThumb = screen.getAllByAltText("source thumb")[0];
+		if (sourceThumb) {
+			await user.click(sourceThumb);
+		}
+
+		// Trigger Popup UI interactions if it was rendered
+		expect(screen.getByText("Close Popup")).toBeInTheDocument();
+		await user.click(screen.getByText("Close Popup"));
+		expect(setPopupContentAlt).toHaveBeenCalledWith(null);
+
+		await user.click(screen.getByText("Copy Popup"));
+		expect(handleCopyAlt).toHaveBeenCalledWith("test-copy", "", true);
 	});
 });

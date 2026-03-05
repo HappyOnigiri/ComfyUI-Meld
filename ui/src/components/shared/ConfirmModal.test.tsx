@@ -56,4 +56,24 @@ describe("ConfirmModal", () => {
 		// The first focusable element (Cancel button) should be focused
 		expect(screen.getByRole("button", { name: "Cancel" })).toHaveFocus();
 	});
+
+	it("cycles focus with Tab and Shift+Tab", async () => {
+		renderModal();
+		const cancelBtn = screen.getByRole("button", { name: "Cancel" });
+		const okBtn = screen.getByRole("button", { name: "OK" });
+
+		expect(cancelBtn).toHaveFocus();
+
+		// Press Tab
+		await userEvent.tab();
+		expect(okBtn).toHaveFocus();
+
+		// Press Tab again (should wrap to first)
+		await userEvent.tab();
+		expect(cancelBtn).toHaveFocus();
+
+		// Press Shift+Tab (should wrap to last)
+		await userEvent.tab({ shift: true });
+		expect(okBtn).toHaveFocus();
+	});
 });

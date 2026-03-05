@@ -1,6 +1,6 @@
 import { act, type RenderResult, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock tagsApi before importing the component
 vi.mock("../api/tagsApi", () => ({
@@ -35,6 +35,10 @@ describe("TagManagerView", () => {
 		// Mock window.confirm and alert
 		vi.spyOn(window, "confirm").mockImplementation(() => true);
 		vi.spyOn(window, "alert").mockImplementation(() => {});
+	});
+
+	afterEach(() => {
+		vi.restoreAllMocks();
 	});
 
 	const renderComponent = async () => {

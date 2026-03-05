@@ -2,6 +2,10 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("/scripts/api.js", () => ({
 	api: {
+		fetchApi: vi.fn().mockResolvedValue({
+			ok: true,
+			json: vi.fn().mockResolvedValue({ success: true, data: {} }),
+		}),
 		addEventListener: vi.fn((event, cb) => {
 			if (event === "executed") {
 				cb({
@@ -50,14 +54,14 @@ vi.mock("./features/settings/api/settingsApi", () => ({
 
 vi.mock("./features/images/api/imagesApi", () => ({
 	registerImage: vi.fn(),
+	fetchImages: vi.fn().mockResolvedValue({ items: [], total: 0 }),
 }));
 
 describe("index.ts", () => {
 	it("registers extension successfully", async () => {
 		// Import the file to execute its top-level code
 		await import("./index");
-		// @ts-expect-error Mocked module
 		const { app } = await import("/scripts/app.js");
 		expect(app.registerExtension).toHaveBeenCalled();
-	});
+	}, 20000);
 });

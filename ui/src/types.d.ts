@@ -35,5 +35,3 @@ declare module "*.module.css" {
 	const classes: { [key: string]: string };
 	export default classes;
 }
-
-// Treat as a module

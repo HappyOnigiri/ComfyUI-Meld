@@ -1,7 +1,7 @@
 import { act, type RenderResult, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock resize observer and matchMedia for any UI components
 beforeEach(() => {
@@ -13,9 +13,9 @@ beforeEach(() => {
 			disconnect() {}
 		},
 	);
-	Object.defineProperty(window, "matchMedia", {
-		writable: true,
-		value: vi.fn().mockImplementation((query) => ({
+	vi.stubGlobal(
+		"matchMedia",
+		vi.fn().mockImplementation((query) => ({
 			matches: false,
 			media: query,
 			onchange: null,
@@ -25,25 +25,25 @@ beforeEach(() => {
 			removeEventListener: vi.fn(),
 			dispatchEvent: vi.fn(),
 		})),
-	});
+	);
 });
 
 // Mock APIs
 vi.mock("../../../features/settings/api/settingsApi", () => ({
-	fetchSettings: vi.fn().mockResolvedValue({}),
+	fetchSettings: vi.fn(() => Promise.resolve({})),
 }));
 vi.mock("../../../features/search/api/searchApi", () => ({
-	fetchFavorites: vi.fn().mockResolvedValue([]),
-	saveFavorite: vi.fn().mockResolvedValue(true),
-	updateFavorite: vi.fn().mockResolvedValue(true),
-	deleteFavorite: vi.fn().mockResolvedValue(true),
-	fetchSearchConfig: vi.fn().mockResolvedValue({ all_prefixes: [] }),
-	fetchSearchKeywords: vi.fn().mockResolvedValue([]),
-	fetchSearchSuggestions: vi.fn().mockResolvedValue([]),
+	fetchFavorites: vi.fn(() => Promise.resolve([])),
+	saveFavorite: vi.fn(() => Promise.resolve(true)),
+	updateFavorite: vi.fn(() => Promise.resolve(true)),
+	deleteFavorite: vi.fn(() => Promise.resolve(true)),
+	fetchSearchConfig: vi.fn(() => Promise.resolve({ all_prefixes: [] })),
+	fetchSearchKeywords: vi.fn(() => Promise.resolve([])),
+	fetchSearchSuggestions: vi.fn(() => Promise.resolve([])),
 }));
 vi.mock("../../../features/images/api/imagesApi", () => ({
-	fetchImages: vi.fn().mockResolvedValue({ images: [], total: 0, offset: 0 }),
-	getAllKeywords: vi.fn().mockResolvedValue(["test-keyword"]),
+	fetchImages: vi.fn(() => Promise.resolve({ images: [], total: 0, offset: 0 })),
+	getAllKeywords: vi.fn(() => Promise.resolve(["test-keyword"])),
 }));
 
 import { GalleryProvider } from "../../../store/GalleryContext";
@@ -54,7 +54,12 @@ describe("SearchBar", () => {
 
 	beforeEach(() => {
 		user = userEvent.setup();
-		vi.clearAllMocks();
+		vi.restoreAllMocks();
+	});
+
+	afterEach(() => {
+		vi.restoreAllMocks();
+		vi.unstubAllGlobals();
 	});
 
 	const renderComponent = async () => {

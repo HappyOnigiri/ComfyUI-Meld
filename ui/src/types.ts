@@ -366,4 +366,5 @@ export interface ComfyExtension {
 		app: ComfyApp,
 	) => Promise<void>;
 	setup?: (app: ComfyApp) => Promise<void>;
+	nodeCreated?: (node: unknown) => void;
 }

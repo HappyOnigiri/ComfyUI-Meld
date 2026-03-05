@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { handleResponse } from "./api";
+import { api } from "/scripts/api.js";
+import { cleanupDatabase, fetchHomeDir, handleResponse, parseJsonResponse } from "./api";
+
+vi.mock("/scripts/api.js", () => ({
+	api: {
+		fetchApi: vi.fn(),
+	},
+}));
 
 function jsonResponse(body: unknown, init?: ResponseInit): Response {
 	return new Response(JSON.stringify(body), {
@@ -53,5 +60,36 @@ describe("handleResponse", () => {
 	it("throws generic message when res.ok=false and body JSON lacks error field", async () => {
 		const res = jsonResponse({ detail: "some detail" }, { status: 400, statusText: "Bad Request" });
 		await expect(handleResponse(res)).rejects.toThrow("API error: 400 Bad Request");
+	});
+});
+
+describe("parseJsonResponse", () => {
+	it("returns data on json success", async () => {
+		const res = jsonResponse({ hello: "world" });
+		const data = await parseJsonResponse(res);
+		expect(data).toEqual({ hello: "world" });
+	});
+
+	it("throws parsed msg on json error", async () => {
+		const res = jsonResponse({ error: "custom error" }, { status: 400, statusText: "Bad" });
+		await expect(parseJsonResponse(res)).rejects.toThrow("custom error");
+	});
+});
+
+describe("API endpoints", () => {
+	it("fetchHomeDir calls api", async () => {
+		(api.fetchApi as ReturnType<typeof vi.fn>).mockResolvedValueOnce(
+			jsonResponse({ success: true, data: { home: "/abc" } }),
+		);
+		const res = await fetchHomeDir();
+		expect(res).toBe("/abc");
+	});
+
+	it("cleanupDatabase calls api", async () => {
+		(api.fetchApi as ReturnType<typeof vi.fn>).mockResolvedValueOnce(
+			jsonResponse({ success: true, data: { count: 3 } }),
+		);
+		const res = await cleanupDatabase();
+		expect(res).toEqual({ count: 3 });
 	});
 });

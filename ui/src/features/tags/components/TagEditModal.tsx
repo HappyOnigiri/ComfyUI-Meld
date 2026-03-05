@@ -53,7 +53,7 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 		setIsLoading(true);
 		try {
 			const data = await tagsApi.fetchTags();
-			setAllTags(data);
+			setAllTags(data || []);
 		} catch (error) {
 			logger.error("Failed to fetch tags:", error);
 		} finally {

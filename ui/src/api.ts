@@ -1,4 +1,3 @@
-// @ts-expect-error
 import { api } from "/scripts/api.js";
 
 (window as unknown as { api: unknown }).api = api;

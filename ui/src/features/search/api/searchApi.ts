@@ -1,4 +1,3 @@
-// @ts-expect-error
 import { api } from "/scripts/api.js";
 import { handleResponse } from "../../../api";
 import type { Favorite } from "../../../types";

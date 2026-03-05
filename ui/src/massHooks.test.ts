@@ -4,8 +4,11 @@ import { useGalleryLogic } from "./features/gallery/hooks/useGalleryLogic";
 import { useSearchLogic } from "./features/search/hooks/useSearchLogic";
 import { useSettingsModalLogic } from "./features/settings/hooks/useSettingsModalLogic";
 import { useViewerActionsBridge } from "./features/viewer/hooks/internal/useViewerActionsBridge";
+import { useViewerKeyboardShortcuts } from "./features/viewer/hooks/internal/useViewerKeyboardShortcuts";
 import { useImageCardLogic } from "./features/viewer/hooks/useImageCardLogic";
 import { useImageViewerLogic } from "./features/viewer/hooks/useImageViewerLogic";
+import { useWorkflowExecution } from "./features/workflows/hooks/useWorkflowExecution";
+import type { MeldImage } from "./types";
 
 vi.mock("./store/GalleryContext", () => ({
 	useGallery: () => ({
@@ -46,6 +49,17 @@ vi.mock("./store/GalleryContext", () => ({
 		updateSetting: vi.fn(),
 		loadMoreImages: vi.fn(),
 		fetchFullImageDetails: vi.fn(),
+	}),
+}));
+
+Object.assign(navigator, {
+	clipboard: { writeText: vi.fn() },
+});
+
+vi.mock("./features/workflows/api/workflowsApi", () => ({
+	fetchWorkflows: vi.fn().mockResolvedValue([{ valid: true, mask_count: 1 }]),
+	fetchWorkflowRaw: vi.fn().mockResolvedValue({
+		nodes: [{ id: "1", type: "MeldImageLoader", widgets: [{ name: "image", value: "" }] }],
 	}),
 }));
 
@@ -144,6 +158,59 @@ const hooksToTest: { run: (...args: unknown[]) => unknown; args?: unknown[] }[] 
 			},
 		],
 	},
+	{
+		run: useViewerKeyboardShortcuts as unknown as (...args: unknown[]) => unknown,
+		args: [
+			{
+				viewerImageId: null,
+				activeModalType: "none",
+				viewScope: "default",
+				settings: {},
+				dispatch: vi.fn(),
+				isMountedRef: { current: true },
+				toggleFullscreen: vi.fn(),
+				handleNext: vi.fn(),
+				handlePrevious: vi.fn(),
+				handleDelete: vi.fn(),
+				handleUndo: vi.fn().mockResolvedValue(undefined),
+				handleTagEditAction: vi.fn(),
+				handleRestoreAction: vi.fn().mockResolvedValue(undefined),
+				executeCommand: vi.fn().mockResolvedValue(undefined),
+				setShowDetails: vi.fn(),
+				setActiveShortcutKey: vi.fn(),
+			},
+		],
+	},
+	{
+		run: () => {
+			const { executeWorkflow } = useWorkflowExecution();
+			return {
+				executeWorkflow: (arg1: unknown) => {
+					// Harness calls functions with no args, then mockEvent, then 1.
+					// We provide valid signature placeholders to avoid "Missing required inputs".
+					if (
+						arg1 === undefined ||
+						typeof arg1 === "number" ||
+						(arg1 && typeof arg1 === "object" && "preventDefault" in arg1)
+					) {
+						const fixture: MeldImage = {
+							id: 1,
+							filename: "test.jpg",
+							subfolder: "",
+							type: "output",
+							created_at: Date.now(),
+							positive: "",
+							negative: "",
+							tags: [],
+						};
+						return executeWorkflow("test-wf", fixture);
+					}
+					return (executeWorkflow as (a: unknown) => Promise<unknown>)(arg1);
+				},
+			};
+		},
+		args: [],
+	},
 ];
 
 describe("Mass Hooks Coverage", () => {
@@ -151,7 +218,7 @@ describe("Mass Hooks Coverage", () => {
 		const errors: Error[] = [];
 		for (const item of hooksToTest) {
 			try {
-				const { result } = renderHook(() => item.run(...(item.args || [])));
+				const { result, unmount } = renderHook(() => item.run(...(item.args || [])));
 
 				if (result.current && typeof result.current === "object") {
 					for (const key of Object.keys(result.current)) {
@@ -211,12 +278,13 @@ describe("Mass Hooks Coverage", () => {
 						}
 					}
 				}
+				unmount();
 			} catch (e) {
 				errors.push(new Error(`Error in renderHook for ${item.run.name}: ${String(e)}`));
 			}
 		}
 
 		// Remove throw errors[0]: consolidate into a single failure path via expect()
-		expect(errors).toHaveLength(0);
+		expect(errors).toEqual([]);
 	});
 });
