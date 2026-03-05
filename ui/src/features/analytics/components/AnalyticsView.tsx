@@ -19,7 +19,7 @@ import {
 	fetchAnalyticsSummary,
 	refreshAnalytics,
 } from "../api/analyticsApi";
-import styles from "./AnalyticsModal.module.css";
+import styles from "./AnalyticsView.module.css";
 
 const CATEGORY_PREFIX: Record<string, string> = {
 	positive_prompts: "pos",
@@ -152,7 +152,20 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 		items: { name?: string; date?: string; resolution?: string; count: number }[],
 	) => (
 		<div key={category} className={styles.meldAnalytics__section}>
-			<h3 className={styles.meldAnalytics__sectionTitle}>{title}</h3>
+			<div className={styles.meldAnalytics__sectionHeader}>
+				<h3 className={styles.meldAnalytics__sectionTitle}>{title}</h3>
+				<button
+					type="button"
+					className={styles.meldAnalytics__seeAllBtn}
+					onClick={() => {
+						setExpandedCategory(category);
+						setFullQuery("");
+						setFullSort("count_desc");
+					}}
+				>
+					See all <ArrowRight size={14} />
+				</button>
+			</div>
 			{items.map((item, idx) => {
 				const val = getItemValue(item, category);
 				return (
@@ -174,17 +187,6 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 					</div>
 				);
 			})}
-			<button
-				type="button"
-				className={styles.meldAnalytics__seeAllBtn}
-				onClick={() => {
-					setExpandedCategory(category);
-					setFullQuery("");
-					setFullSort("count_desc");
-				}}
-			>
-				See all <ArrowRight size={14} />
-			</button>
 		</div>
 	);
 
@@ -321,8 +323,16 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 							</div>
 						</div>
 						<div className={styles.meldAnalytics__grid}>
-							{renderSection("Positive Prompt (top 5)", "positive_prompts", summary.positive_prompts)}
-							{renderSection("Negative Prompt (top 5)", "negative_prompts", summary.negative_prompts)}
+							{renderSection(
+								"Positive Prompt (top 5)",
+								"positive_prompts",
+								summary.positive_prompts,
+							)}
+							{renderSection(
+								"Negative Prompt (top 5)",
+								"negative_prompts",
+								summary.negative_prompts,
+							)}
 							{renderSection("Tag (top 5)", "tags", summary.tags)}
 							{renderSection("Model (top 5)", "models", summary.models)}
 							{renderSection("Created Date (top 5)", "by_date", summary.by_date)}
