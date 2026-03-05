@@ -8,9 +8,27 @@ import * as imagesApi from "../../images/api/imagesApi";
 
 const STORAGE_KEY = "meld-download-options";
 
+// Resize mode type definition
+type ResizeMode = "none" | "percent" | "max_edge";
+
+// Resize filter type definition
+type ResizeFilter = "lanczos" | "bicubic" | "bilinear" | "box" | "hamming" | "nearest";
+
+const RESIZE_FILTER_OPTIONS: { value: ResizeFilter; label: string }[] = [
+	{ value: "lanczos", label: "Lanczos (high quality)" },
+	{ value: "bicubic", label: "Bicubic" },
+	{ value: "bilinear", label: "Bilinear" },
+	{ value: "box", label: "Box" },
+	{ value: "hamming", label: "Hamming" },
+	{ value: "nearest", label: "Nearest (pixel art)" },
+];
+
 interface StoredDownloadOptions {
 	format: "zip" | "raw";
 	removeMetadata: boolean;
+	resizeMode: ResizeMode;
+	resizeValue: number;
+	resizeFilter: ResizeFilter;
 }
 
 function loadStoredOptions(): StoredDownloadOptions {
@@ -23,15 +41,46 @@ function loadStoredOptions(): StoredDownloadOptions {
 			// or numeric 1; preserve these exact values for backward compatibility.
 			const removeMetadata =
 				raw === true || raw === "true" || (typeof raw === "number" && raw === 1);
+
+			// Validate resizeMode (may not exist in older localStorage versions)
+			const validModes: ResizeMode[] = ["none", "percent", "max_edge"];
+			const resizeMode: ResizeMode = validModes.includes(parsed.resizeMode as ResizeMode)
+				? (parsed.resizeMode as ResizeMode)
+				: "none";
+			const resizeValue =
+				typeof parsed.resizeValue === "number" && parsed.resizeValue > 0 ? parsed.resizeValue : 100;
+
+			// Validate resizeFilter (may not exist in older localStorage versions)
+			const validFilters: ResizeFilter[] = [
+				"lanczos",
+				"bicubic",
+				"bilinear",
+				"box",
+				"hamming",
+				"nearest",
+			];
+			const resizeFilter: ResizeFilter = validFilters.includes(parsed.resizeFilter as ResizeFilter)
+				? (parsed.resizeFilter as ResizeFilter)
+				: "lanczos";
+
 			return {
 				format: parsed.format === "raw" ? "raw" : "zip",
 				removeMetadata,
+				resizeMode,
+				resizeValue,
+				resizeFilter,
 			};
 		}
 	} catch (_e) {
 		// Ignore parse errors, use defaults
 	}
-	return { format: "zip", removeMetadata: false };
+	return {
+		format: "zip",
+		removeMetadata: false,
+		resizeMode: "none",
+		resizeValue: 100,
+		resizeFilter: "lanczos",
+	};
 }
 
 function saveStoredOptions(options: StoredDownloadOptions): void {
@@ -50,14 +99,22 @@ interface DownloadModalProps {
 
 export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSuccess, onClose }) => {
 	const [options, setOptions] = useState<StoredDownloadOptions>(() => loadStoredOptions());
-	const { format, removeMetadata } = options;
+	const { format, removeMetadata, resizeMode, resizeValue, resizeFilter } = options;
 	const [isDownloading, setIsDownloading] = useState(false);
+
+	// String state for the resize value input field (to hold uncommitted input)
+	const [resizeValueInput, setResizeValueInput] = useState<string>(String(resizeValue));
 
 	const overlayMouseDownRef = useRef(false);
 
 	useEffect(() => {
 		saveStoredOptions(options);
 	}, [options]);
+
+	// Reset input field when resizeValue changes
+	useEffect(() => {
+		setResizeValueInput(String(resizeValue));
+	}, [resizeValue]);
 
 	const handleOverlayMouseDown = (e: React.MouseEvent) => {
 		if (e.target === e.currentTarget) {
@@ -78,14 +135,42 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 		},
 	});
 
+	// Handler for confirming resize value input
+	const handleResizeValueChange = (raw: string) => {
+		// Keep raw text in the input field to allow in-progress typing
+		setResizeValueInput(raw);
+		const num = Number(raw);
+		// Reject NaN, non-finite, and non-positive values
+		if (!Number.isFinite(num) || num <= 0) {
+			return;
+		}
+		// Clamp to mode-specific min/max before writing to options
+		const min = 1;
+		const max = resizeMode === "percent" ? 99 : 99999;
+		const clamped = Math.min(max, Math.max(min, Math.round(num)));
+		setOptions((o) => ({ ...o, resizeValue: clamped }));
+	};
+
 	const handleDownload = async () => {
 		setIsDownloading(true);
 		try {
 			if (format === "zip") {
-				await imagesApi.downloadZipImages(imageIds, removeMetadata);
+				await imagesApi.downloadZipImages(
+					imageIds,
+					removeMetadata,
+					resizeMode,
+					resizeValue,
+					resizeFilter,
+				);
 			} else {
 				for (const id of imageIds) {
-					await imagesApi.downloadRawImage(id, removeMetadata);
+					await imagesApi.downloadRawImage(
+						id,
+						removeMetadata,
+						resizeMode,
+						resizeValue,
+						resizeFilter,
+					);
 					// slight delay to let browser process multiple downloads
 					await new Promise((r) => setTimeout(r, 200));
 				}
@@ -99,6 +184,12 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 			setIsDownloading(false);
 		}
 	};
+
+	// Label and constraints for resize value input field
+	const resizeInputLabel = resizeMode === "percent" ? "%" : "px";
+	const resizeInputMin = 1;
+	const resizeInputMax = resizeMode === "percent" ? 99 : 99999;
+	const resizeInputPlaceholder = resizeMode === "percent" ? "1-99" : "Max edge (px)";
 
 	return createPortal(
 		<div
@@ -125,6 +216,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 				</div>
 
 				<div className="meld-modal-body" style={{ padding: "20px" }}>
+					{/* Format selection */}
 					<div style={{ marginBottom: "20px" }}>
 						<label
 							htmlFor="download-format"
@@ -176,6 +268,153 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 						</div>
 					</div>
 
+					{/* Size reduction options */}
+					<div style={{ marginBottom: "20px" }}>
+						<label
+							htmlFor="resize-value"
+							style={{
+								display: "block",
+								marginBottom: "8px",
+								fontWeight: "bold",
+							}}
+						>
+							Resize
+						</label>
+						<div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+							<label
+								style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}
+							>
+								<input
+									type="radio"
+									name="resizeMode"
+									value="none"
+									checked={resizeMode === "none"}
+									onChange={() => setOptions((o) => ({ ...o, resizeMode: "none" }))}
+									disabled={isDownloading}
+								/>
+								No resize
+							</label>
+							<label
+								style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}
+							>
+								<input
+									type="radio"
+									name="resizeMode"
+									value="percent"
+									checked={resizeMode === "percent"}
+									onChange={() =>
+										setOptions((o) => ({ ...o, resizeMode: "percent", resizeValue: 50 }))
+									}
+									disabled={isDownloading}
+								/>
+								Resize (percentage)
+							</label>
+							<label
+								style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}
+							>
+								<input
+									type="radio"
+									name="resizeMode"
+									value="max_edge"
+									checked={resizeMode === "max_edge"}
+									onChange={() =>
+										setOptions((o) => ({ ...o, resizeMode: "max_edge", resizeValue: 1024 }))
+									}
+									disabled={isDownloading}
+								/>
+								Resize (max edge)
+							</label>
+						</div>
+
+						{/* Resize value input (shown only when percent / max_edge is selected) */}
+						{resizeMode !== "none" && (
+							<div
+								style={{
+									display: "flex",
+									alignItems: "center",
+									gap: "6px",
+									marginTop: "10px",
+									paddingLeft: "4px",
+								}}
+							>
+								<input
+									type="number"
+									id="resize-value"
+									min={resizeInputMin}
+									max={resizeInputMax}
+									step={1}
+									value={resizeValueInput}
+									placeholder={resizeInputPlaceholder}
+									onChange={(e) => handleResizeValueChange(e.target.value)}
+									disabled={isDownloading}
+									style={{
+										width: "100px",
+										padding: "4px 8px",
+										borderRadius: "4px",
+										border: "1px solid var(--border-color, #555)",
+										background: "var(--comfy-input-bg, #1a1a1a)",
+										color: "inherit",
+										fontSize: "14px",
+									}}
+								/>
+								<span style={{ fontSize: "13px" }}>{resizeInputLabel}</span>
+								{resizeMode === "percent" && (
+									<span style={{ fontSize: "12px", color: "var(--meld-text-secondary)" }}>
+										(1-99)
+									</span>
+								)}
+								{resizeMode === "max_edge" && (
+									<span style={{ fontSize: "12px", color: "var(--meld-text-secondary)" }}>
+										(max edge px)
+									</span>
+								)}
+							</div>
+						)}
+
+						{/* Algorithm selection (shown only when resize is active) */}
+						{resizeMode !== "none" && (
+							<div
+								style={{
+									display: "flex",
+									alignItems: "center",
+									gap: "8px",
+									marginTop: "10px",
+									paddingLeft: "4px",
+								}}
+							>
+								<label htmlFor="resize-filter" style={{ fontSize: "13px" }}>
+									Algorithm:
+								</label>
+								<select
+									id="resize-filter"
+									value={resizeFilter}
+									onChange={(e) =>
+										setOptions((o) => ({
+											...o,
+											resizeFilter: e.target.value as ResizeFilter,
+										}))
+									}
+									disabled={isDownloading}
+									style={{
+										padding: "4px 8px",
+										borderRadius: "4px",
+										border: "1px solid var(--border-color, #555)",
+										background: "var(--comfy-input-bg, #1a1a1a)",
+										color: "inherit",
+										fontSize: "13px",
+									}}
+								>
+									{RESIZE_FILTER_OPTIONS.map((opt) => (
+										<option key={opt.value} value={opt.value}>
+											{opt.label}
+										</option>
+									))}
+								</select>
+							</div>
+						)}
+					</div>
+
+					{/* Metadata removal option */}
 					<div>
 						<label
 							htmlFor="download-options"

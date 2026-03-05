@@ -164,11 +164,14 @@ export const fetchSnapshotData = async (
 export const downloadZipImages = async (
 	imageIds: number[],
 	removeMetadata: boolean,
+	resizeMode: string,
+	resizeValue: number,
+	resizeFilter: string,
 ): Promise<void> => {
 	const res = await api.fetchApi("/meld/api/download/zip", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ imageIds, removeMetadata }),
+		body: JSON.stringify({ imageIds, removeMetadata, resizeMode, resizeValue, resizeFilter }),
 	});
 	if (!res.ok) {
 		throw new Error("Failed to download ZIP");
@@ -184,11 +187,17 @@ export const downloadZipImages = async (
 	document.body.removeChild(a);
 };
 
-export const downloadRawImage = async (imageId: number, removeMetadata: boolean): Promise<void> => {
+export const downloadRawImage = async (
+	imageId: number,
+	removeMetadata: boolean,
+	resizeMode: string,
+	resizeValue: number,
+	resizeFilter: string,
+): Promise<void> => {
 	const res = await api.fetchApi("/meld/api/download/raw", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ imageId, removeMetadata }),
+		body: JSON.stringify({ imageId, removeMetadata, resizeMode, resizeValue, resizeFilter }),
 	});
 	if (!res.ok) {
 		throw new Error(`Failed to download image ${imageId}`);
