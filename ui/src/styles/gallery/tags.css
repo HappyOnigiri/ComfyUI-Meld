@@ -109,6 +109,54 @@
 	overflow-y: auto;
 }
 
+/* Analytics View (sidebar) - fills content area like search */
+.meld-analytics-view {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.meld-analytics-header {
+	flex-shrink: 0;
+	padding: 10px 12px;
+	border-bottom: 1px solid var(--meld-border-color);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.meld-analytics-close {
+	background: none;
+	border: none;
+	color: var(--meld-text-secondary);
+	cursor: pointer;
+	padding: 4px;
+	display: flex;
+	align-items: center;
+	border-radius: 4px;
+}
+
+.meld-analytics-close:hover {
+	background: var(--comfy-input-bg-active, rgba(255, 255, 255, 0.1));
+	color: var(--meld-text-color);
+}
+
+.meld-analytics-close:focus-visible {
+	background: var(--comfy-input-bg-active, rgba(255, 255, 255, 0.1));
+	color: var(--meld-text-color);
+	outline: 2px solid var(--meld-accent-color);
+	outline-offset: 2px;
+}
+
+.meld-analytics-content {
+	flex: 1;
+	min-height: 0;
+	padding: 12px;
+	overflow-y: auto;
+}
+
 /* Tag Manager Modal */
 /* unused-css-check-ignore */
 .meld-tag-manager-modal {

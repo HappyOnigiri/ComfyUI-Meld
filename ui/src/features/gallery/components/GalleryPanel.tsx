@@ -1,4 +1,5 @@
 import {
+	BarChart2,
 	Download,
 	LayoutGrid,
 	LayoutList,
@@ -15,6 +16,7 @@ import type React from "react";
 import { useCallback, useRef, useState } from "react";
 import { GalleryModals } from "../../../components/shared/GalleryModals";
 import { logger } from "../../../logger";
+import { AnalyticsView } from "../../analytics/components/AnalyticsView";
 import { ImportProgress } from "../../importer/components/ImportProgress";
 import { LightTable } from "../../light-table/components/LightTable";
 import { useLightTableStore } from "../../light-table/store";
@@ -142,6 +144,24 @@ export const GalleryPanel: React.FC = () => {
 					</div>
 				) : (
 					<div className="meld-gallery__actions">
+						<button
+							type="button"
+							onClick={() => setViewMode(viewMode === "analytics" ? "gallery" : "analytics")}
+							style={{
+								background: "none",
+								border: "none",
+								color:
+									viewMode === "analytics"
+										? "var(--meld-accent-color)"
+										: "var(--meld-text-secondary)",
+								cursor: "pointer",
+								display: "flex",
+								alignItems: "center",
+							}}
+							title="Image Analytics"
+						>
+							<BarChart2 size={14} />
+						</button>
 						<button
 							type="button"
 							onClick={() => {
@@ -349,7 +369,25 @@ export const GalleryPanel: React.FC = () => {
 
 				{state.error && <div className="meld-gallery__error">{state.error}</div>}
 
-				{viewMode === "tags" ? (
+				{viewMode === "analytics" ? (
+					<div
+						className="meld-gallery__list-wrapper"
+						style={{
+							flex: 1,
+							minHeight: 0,
+							display: "flex",
+							flexDirection: "column",
+						}}
+					>
+						<AnalyticsView
+							onClose={() => setViewMode("gallery")}
+							onSearchAndNavigate={(query) => {
+								dispatch({ type: "SET_SEARCH_QUERY", payload: query });
+								setViewMode("search");
+							}}
+						/>
+					</div>
+				) : viewMode === "tags" ? (
 					<TagManagerView
 						onClose={() => setViewMode("gallery")}
 						onSearch={(query) => {

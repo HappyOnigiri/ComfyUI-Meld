@@ -1,0 +1,147 @@
+/* Analytics Modal - BEM with meld- prefix */
+.meldAnalytics {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.meldAnalytics__section {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.meldAnalytics__sectionTitle {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--meld-accent-color);
+	margin: 0;
+}
+
+.meldAnalytics__item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 4px 8px;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.meldAnalytics__item:hover {
+	background: var(--meld-card-bg);
+}
+
+.meldAnalytics__itemLabel {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.meldAnalytics__itemCount {
+	color: var(--meld-text-secondary);
+	font-size: 12px;
+	margin-left: 8px;
+}
+
+.meldAnalytics__seeAllBtn {
+	background: none;
+	border: none;
+	color: var(--meld-accent-color);
+	cursor: pointer;
+	font-size: 12px;
+	padding: 4px 0;
+	text-align: left;
+}
+
+.meldAnalytics__seeAllBtn:hover {
+	text-decoration: underline;
+}
+
+.meldAnalytics__fullView {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.meldAnalytics__fullViewToolbar {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+.meldAnalytics__searchInput {
+	flex: 1;
+	min-width: 120px;
+	padding: 6px 10px;
+	border: 1px solid var(--meld-border-color);
+	border-radius: 4px;
+	background: var(--comfy-input-bg);
+	color: var(--meld-text-color);
+	font-size: 13px;
+}
+
+.meldAnalytics__sortBtn {
+	background: none;
+	border: 1px solid var(--meld-border-color);
+	border-radius: 4px;
+	color: var(--meld-text-secondary);
+	cursor: pointer;
+	font-size: 12px;
+	padding: 6px 10px;
+}
+
+.meldAnalytics__sortBtn:hover {
+	color: var(--meld-text-color);
+}
+
+.meldAnalytics__closeFullBtn {
+	background: none;
+	border: none;
+	color: var(--meld-text-secondary);
+	cursor: pointer;
+	font-size: 12px;
+	padding: 4px 0;
+}
+
+.meldAnalytics__closeFullBtn:hover {
+	color: var(--meld-text-color);
+}
+
+.meldAnalytics__fullList {
+	overflow-y: auto;
+}
+
+.meldAnalytics__fullListItem {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 6px 8px;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.meldAnalytics__fullListItem:hover {
+	background: var(--meld-card-bg);
+}
+
+.meldAnalytics__refreshBtn {
+	align-self: flex-start;
+	background: none;
+	border: 1px solid var(--meld-border-color);
+	border-radius: 4px;
+	color: var(--meld-text-secondary);
+	cursor: pointer;
+	font-size: 12px;
+	padding: 6px 12px;
+}
+
+.meldAnalytics__refreshBtn:hover {
+	color: var(--meld-text-color);
+}
+
+.meldAnalytics__refreshBtn:disabled {
+	color: var(--meld-text-secondary);
+	cursor: not-allowed;
+}
