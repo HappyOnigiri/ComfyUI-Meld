@@ -123,4 +123,95 @@ describe("BulkActionBar", () => {
 		expect(screen.getByText("Move to Trash")).toBeInTheDocument();
 		expect(screen.getByText("Download")).toBeInTheDocument();
 	});
+
+	it("clicks Edit Tags menu item to dispatch OPEN_MODAL", async () => {
+		const img = createTestImage({ tags: ["a", "b"] });
+		ctx = createMockGalleryContext({
+			images: [img],
+			selectedIds: new Set([img.id]),
+			viewScope: "default",
+		});
+		vi.mocked(useGallery).mockReturnValue(ctx);
+
+		render(<BulkActionBar />);
+		await userEvent.click(screen.getByText("Action"));
+		await userEvent.click(screen.getByText("Edit Tags"));
+		expect(ctx.dispatch).toHaveBeenCalledWith(expect.objectContaining({ type: "OPEN_MODAL" }));
+	});
+
+	it("clicks Download menu item to dispatch OPEN_MODAL", async () => {
+		const img = createTestImage();
+		ctx = createMockGalleryContext({
+			images: [img],
+			selectedIds: new Set([img.id]),
+			viewScope: "default",
+		});
+		vi.mocked(useGallery).mockReturnValue(ctx);
+
+		render(<BulkActionBar />);
+		await userEvent.click(screen.getByText("Action"));
+		await userEvent.click(screen.getByText("Download"));
+		expect(ctx.dispatch).toHaveBeenCalledWith(expect.objectContaining({ type: "OPEN_MODAL" }));
+	});
+
+	it("clicks Move to Trash menu item", async () => {
+		const img = createTestImage();
+		ctx = createMockGalleryContext({
+			images: [img],
+			selectedIds: new Set([img.id]),
+			viewScope: "default",
+		});
+		vi.mocked(useGallery).mockReturnValue(ctx);
+
+		render(<BulkActionBar />);
+		await userEvent.click(screen.getByText("Action"));
+		await userEvent.click(screen.getByText("Move to Trash"));
+		expect(ctx.deleteSelected).toHaveBeenCalled();
+	});
+
+	it("clicks Restore in trash mode", async () => {
+		const img = createTestImage();
+		ctx = createMockGalleryContext({
+			images: [img],
+			selectedIds: new Set([img.id]),
+			viewScope: "trash",
+		});
+		vi.mocked(useGallery).mockReturnValue(ctx);
+
+		render(<BulkActionBar />);
+		await userEvent.click(screen.getByText("Action"));
+		await userEvent.click(screen.getByText("Restore"));
+		expect(ctx.restoreSelected).toHaveBeenCalled();
+	});
+
+	it("clicks Delete Permanently in trash mode", async () => {
+		const img = createTestImage();
+		ctx = createMockGalleryContext({
+			images: [img],
+			selectedIds: new Set([img.id]),
+			viewScope: "trash",
+		});
+		vi.mocked(useGallery).mockReturnValue(ctx);
+
+		render(<BulkActionBar />);
+		await userEvent.click(screen.getByText("Action"));
+		await userEvent.click(screen.getByText("Delete Permanently"));
+		expect(ctx.deleteSelected).toHaveBeenCalled();
+	});
+
+	it("toggles menu closed when Action is clicked twice", async () => {
+		const img = createTestImage();
+		ctx = createMockGalleryContext({
+			images: [img],
+			selectedIds: new Set([img.id]),
+		});
+		vi.mocked(useGallery).mockReturnValue(ctx);
+
+		render(<BulkActionBar />);
+		await userEvent.click(screen.getByText("Action"));
+		expect(screen.getByText("Edit Tags")).toBeInTheDocument();
+		// Clicking Action twice should close the menu
+		await userEvent.click(screen.getByText("Action"));
+		expect(screen.queryByText("Edit Tags")).not.toBeInTheDocument();
+	});
 });

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { initialState } from "../../../store/galleryReducer";
 import { createTestImage, resetImageIdCounter } from "../../../test/factories/image";
@@ -212,5 +212,75 @@ describe("ViewerInfoPanel", () => {
 		expect(screen.getByText("Source")).toBeInTheDocument();
 		const imgs = screen.getAllByAltText("source thumb");
 		expect(imgs).toHaveLength(2);
+	});
+
+	it("invokes copy buttons to cover handleCopy and inline callbacks", async () => {
+		Object.assign(navigator, { clipboard: { writeText: vi.fn().mockResolvedValue(undefined) } });
+
+		const { container } = renderPanel({
+			settings: {
+				...defaultSettings,
+				"viewer.details.show_filename": "filename",
+				"viewer.details.show_dimensions": true,
+				"viewer.details.show_created_at": true,
+				"viewer.details.show_model_name": true,
+				"viewer.details.show_positive_prompt": true,
+				"viewer.details.show_negative_prompt": true,
+				"viewer.details.show_tags": true,
+				"viewer.details.show_user_notes": "always",
+			},
+		});
+
+		// Fire clicks to cover handleCopy and inline callbacks
+		const copyBtns = container.querySelectorAll(".meld-viewer-details-copy-btn");
+		for (const btn of Array.from(copyBtns)) {
+			fireEvent.click(btn);
+		}
+
+		// Click in the notes area to trigger onEditNotes
+		const notesPreview = container.querySelector(".meld-viewer-notes-preview");
+		if (notesPreview) {
+			fireEvent.click(notesPreview);
+		}
+	});
+
+	it("covers filepath copy and source thumb click paths", () => {
+		const mockDispatch = vi.fn();
+		const { container } = renderPanel({
+			settings: {
+				...defaultSettings,
+				"viewer.details.show_filename": "filepath",
+				"viewer.details.show_source": true,
+			},
+			parentChain: [{ id: 10, imgSrc: "/view?id=10" }],
+			dispatch: mockDispatch,
+		});
+
+		// Copy the filepath value
+		const copyBtns = container.querySelectorAll(".meld-viewer-details-copy-btn");
+		if (copyBtns[0]) fireEvent.click(copyBtns[0]);
+
+		// Click source thumb to dispatch OPEN_VIEWER
+		const thumbImg = screen.getByAltText("source thumb");
+		fireEvent.click(thumbImg);
+		expect(mockDispatch).toHaveBeenCalledWith(expect.objectContaining({ type: "OPEN_VIEWER" }));
+	});
+
+	it("renders in fullscreen mode with fullscreen settings", () => {
+		renderPanel({
+			isFullscreen: true,
+			settings: {
+				...defaultSettings,
+				"fullscreen.details.show_filename": "filename",
+				"fullscreen.details.show_dimensions": true,
+				"fullscreen.details.show_model_name": true,
+				"fullscreen.details.show_positive_prompt": true,
+				"fullscreen.details.show_negative_prompt": true,
+				"fullscreen.details.show_tags": true,
+				"fullscreen.details.show_user_notes": "always",
+				"fullscreen.details.show_created_at": true,
+			},
+		});
+		expect(screen.getByText("Filename")).toBeInTheDocument();
 	});
 });

@@ -24,9 +24,11 @@ export default defineConfig({
 			reporter: ["text", "json", "html"],
 			include: ["src/**/*.{ts,tsx}"],
 			exclude: ["node_modules/", "src/test/"],
+			// WARNING: Do NOT lower these thresholds just to make CI pass.
+			// The correct fix is to add more tests to increase coverage.
 			thresholds: {
 				lines: 60,
-				functions: 58,
+				functions: 60,
 				branches: 60,
 				statements: 60,
 			},

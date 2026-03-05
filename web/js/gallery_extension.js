@@ -13104,7 +13104,7 @@ function $c(e) {
   const t = `[${Fc}]`;
   for (let o = 0; o < e.length; o++) {
     const i = e.item(o);
-    if (!i || i.nodeType !== Node.ELEMENT_NODE) continue;
+    if (!i || i.nodeType !== 1) continue;
     const c = i;
     if ((n = c.hasAttribute) != null && n.call(c, Fc) || (r = c.querySelector) != null && r.call(c, t) || (l = c.matches) != null && l.call(c, Wc) || (a = c.querySelector) != null && a.call(c, Wc)) return !0;
   }
