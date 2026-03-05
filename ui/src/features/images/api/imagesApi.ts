@@ -1,4 +1,3 @@
-// @ts-expect-error
 import { api } from "/scripts/api.js";
 import { handleResponse } from "../../../api";
 import type { MeldImage } from "../../../types";
@@ -247,7 +246,7 @@ const fetchImageBlob = async (
 			let rawVal = starMatch[1];
 			// Extract value after optional charset/lang, e.g. UTF-8''
 			const charsetMatch = rawVal.match(/^([A-Za-z0-9-]+)'[^']*'(.*)$/);
-			if (charsetMatch) {
+			if (charsetMatch?.[2]) {
 				rawVal = charsetMatch[2];
 			}
 			try {

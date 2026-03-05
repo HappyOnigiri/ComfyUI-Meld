@@ -1,8 +1,6 @@
 import React from "react";
 import { createRoot, type Root } from "react-dom/client";
-// @ts-expect-error
 import { api } from "/scripts/api.js";
-// @ts-expect-error
 import { app } from "/scripts/app.js";
 import { GalleryPanel } from "./features/gallery/components/GalleryPanel";
 import * as imagesApi from "./features/images/api/imagesApi";
@@ -113,32 +111,26 @@ app.registerExtension({
 		});
 
 		// Auto-register when image generation is complete
-		api.addEventListener(
-			"executed",
-			async ({
-				detail,
-			}: CustomEvent<{
-				output?: {
-					images?: Array<{ filename: string; subfolder: string; type: string }>;
-				};
-			}>) => {
-				if (detail?.output?.images) {
-					for (const img of detail.output.images) {
-						if (img.type === "output") {
-							try {
-								await imagesApi.registerImage({
-									filename: img.filename,
-									subfolder: img.subfolder,
-									type: img.type,
-								});
-							} catch (e) {
-								logger.error("Failed to auto-register image:", e);
-							}
+		api.addEventListener("executed", async (e: CustomEvent) => {
+			const detail = e.detail as {
+				output?: { images?: { filename: string; subfolder: string; type: string }[] };
+			};
+			if (detail?.output?.images) {
+				for (const img of detail.output.images) {
+					if (img.type === "output") {
+						try {
+							await imagesApi.registerImage({
+								filename: img.filename,
+								subfolder: img.subfolder,
+								type: img.type,
+							});
+						} catch (e) {
+							logger.error("Failed to auto-register image:", e);
 						}
 					}
 				}
-			},
-		);
+			}
+		});
 
 		try {
 			app.extensionManager.registerSidebarTab({

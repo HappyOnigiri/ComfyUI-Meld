@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-// @ts-expect-error: ComfyUI scripts are not available in build time
 import { api } from "/scripts/api.js";
 import { parseJsonResponse } from "../../../api";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";

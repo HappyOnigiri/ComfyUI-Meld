@@ -1,4 +1,3 @@
-// @ts-expect-error
 import { api } from "/scripts/api.js";
 import { handleResponse, parseJsonResponse } from "../../../api";
 import { logger } from "../../../logger";
