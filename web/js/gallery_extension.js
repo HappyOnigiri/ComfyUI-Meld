@@ -274,9 +274,9 @@ var ad = { exports: {} }, st = {}, od = { exports: {} }, id = {};
     if (W !== T) {
       I[0] = W;
       e: for (var E = 0, F = I.length, U = F >>> 1; E < U; ) {
-        var O = 2 * (E + 1) - 1, K = I[O], X = O + 1, oe = I[X];
-        if (0 > l(K, W)) X < F && 0 > l(oe, K) ? (I[E] = oe, I[X] = W, E = X) : (I[E] = K, I[O] = W, E = O);
-        else if (X < F && 0 > l(oe, W)) I[E] = oe, I[X] = W, E = X;
+        var O = 2 * (E + 1) - 1, K = I[O], Z = O + 1, oe = I[Z];
+        if (0 > l(K, W)) Z < F && 0 > l(oe, K) ? (I[E] = oe, I[Z] = W, E = Z) : (I[E] = K, I[O] = W, E = O);
+        else if (Z < F && 0 > l(oe, W)) I[E] = oe, I[Z] = W, E = Z;
         else break e;
       }
     }
@@ -8841,7 +8841,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
       const H = Math.min($ * 1.2, 20);
       return L((ee) => O(j.current, ee, $, H)), H;
     });
-  }, [O]), X = h.useCallback(() => {
+  }, [O]), Z = h.useCallback(() => {
     Q(($) => {
       const H = Math.max(0.1, $ / 1.2);
       return L((ee) => O(j.current, ee, $, H)), H;
@@ -8891,10 +8891,10 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
     ($ = w.current) != null && $.naturalWidth && de.length === 0 && Re([
       Ol(w.current.naturalWidth, w.current.naturalHeight)
     ]);
-  }, [de.length]), Z = h.useRef(!1), Bt = h.useRef(0), Qt = ($) => {
-    $.target === $.currentTarget && (Z.current = !0);
+  }, [de.length]), Y = h.useRef(!1), Bt = h.useRef(0), Qt = ($) => {
+    $.target === $.currentTarget && (Y.current = !0);
   }, Ht = ($) => {
-    $.target === $.currentTarget && Z.current && !_ && l(), Z.current = !1;
+    $.target === $.currentTarget && Y.current && !_ && l(), Y.current = !1;
   };
   h.useEffect(() => {
     if (!ue) return;
@@ -9181,7 +9181,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
                   "button",
                   {
                     className: "meld-mask-tool-btn",
-                    onClick: X,
+                    onClick: Z,
                     type: "button",
                     title: "Zoom Out",
                     "aria-label": "Zoom Out",
@@ -9433,22 +9433,22 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
     setShortcutErrors: c,
     handleClose: async () => {
       const K = Object.keys(a).filter(
-        (X) => a[X] !== e.settings[X] && !i[X]
+        (Z) => a[Z] !== e.settings[Z] && !i[Z]
       );
       if (K.length > 0)
-        for (const X of K)
-          await n(X, a[X]);
+        for (const Z of K)
+          await n(Z, a[Z]);
       t({ type: "CLOSE_MODAL" });
     },
-    handleToggle: (K, X) => {
+    handleToggle: (K, Z) => {
       o((oe) => ({
         ...oe,
-        [K]: !X
+        [K]: !Z
       }));
     },
-    handleNumberChange: (K, X, oe, de) => {
-      K === "gallery.initial_load_count" ? p(X) : K === "gallery.max_load_count" ? v(X) : K === "gallery.lineage_max_depth" ? w(X) : K === "viewer.thumbnail_window_size" ? _(X) : K === "gallery.trash_retention_days" ? u(X) : K === "gallery.auto_link_phash_threshold" ? g(X) : K === "gallery.suggest_phash_threshold" ? S(X) : K === "viewer.details.max_positive_prompt_lines" ? C(X) : K === "viewer.details.max_negative_prompt_lines" ? A(X) : K === "fullscreen.details.max_positive_prompt_lines" ? z(X) : K === "fullscreen.details.max_negative_prompt_lines" ? N(X) : K === "sidebar.thumbnail_size" && R(X);
-      const Re = Number.parseInt(X, 10);
+    handleNumberChange: (K, Z, oe, de) => {
+      K === "gallery.initial_load_count" ? p(Z) : K === "gallery.max_load_count" ? v(Z) : K === "gallery.lineage_max_depth" ? w(Z) : K === "viewer.thumbnail_window_size" ? _(Z) : K === "gallery.trash_retention_days" ? u(Z) : K === "gallery.auto_link_phash_threshold" ? g(Z) : K === "gallery.suggest_phash_threshold" ? S(Z) : K === "viewer.details.max_positive_prompt_lines" ? C(Z) : K === "viewer.details.max_negative_prompt_lines" ? A(Z) : K === "fullscreen.details.max_positive_prompt_lines" ? z(Z) : K === "fullscreen.details.max_negative_prompt_lines" ? N(Z) : K === "sidebar.thumbnail_size" && R(Z);
+      const Re = Number.parseInt(Z, 10);
       if (!Number.isNaN(Re)) {
         let ue = Re;
         oe !== void 0 && ue < oe && (ue = oe), de !== void 0 && ue > de && (ue = de), o((Tt) => ({
@@ -9458,7 +9458,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
       }
     },
     handleNumberBlur: (K) => {
-      K.key === "gallery.initial_load_count" ? p(a["gallery.initial_load_count"].toString()) : K.key === "gallery.max_load_count" ? v(a["gallery.max_load_count"].toString()) : K.key === "gallery.lineage_max_depth" ? w(a["gallery.lineage_max_depth"].toString()) : K.key === "viewer.thumbnail_window_size" ? _(a["viewer.thumbnail_window_size"].toString()) : K.key === "gallery.trash_retention_days" ? u(a["gallery.trash_retention_days"].toString()) : K.key === "gallery.auto_link_phash_threshold" ? g(a["gallery.auto_link_phash_threshold"].toString()) : K.key === "gallery.suggest_phash_threshold" ? S(a["gallery.suggest_phash_threshold"].toString()) : K.key === "viewer.details.max_positive_prompt_lines" ? C(
+      !K || !K.key || (K.key === "gallery.initial_load_count" ? p(a["gallery.initial_load_count"].toString()) : K.key === "gallery.max_load_count" ? v(a["gallery.max_load_count"].toString()) : K.key === "gallery.lineage_max_depth" ? w(a["gallery.lineage_max_depth"].toString()) : K.key === "viewer.thumbnail_window_size" ? _(a["viewer.thumbnail_window_size"].toString()) : K.key === "gallery.trash_retention_days" ? u(a["gallery.trash_retention_days"].toString()) : K.key === "gallery.auto_link_phash_threshold" ? g(a["gallery.auto_link_phash_threshold"].toString()) : K.key === "gallery.suggest_phash_threshold" ? S(a["gallery.suggest_phash_threshold"].toString()) : K.key === "viewer.details.max_positive_prompt_lines" ? C(
         a["viewer.details.max_positive_prompt_lines"].toString()
       ) : K.key === "viewer.details.max_negative_prompt_lines" ? A(
         a["viewer.details.max_negative_prompt_lines"].toString()
@@ -9466,7 +9466,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
         a["fullscreen.details.max_positive_prompt_lines"].toString()
       ) : K.key === "fullscreen.details.max_negative_prompt_lines" ? N(
         a["fullscreen.details.max_negative_prompt_lines"].toString()
-      ) : K.key === "sidebar.thumbnail_size" && R(a["sidebar.thumbnail_size"].toString());
+      ) : K.key === "sidebar.thumbnail_size" && R(a["sidebar.thumbnail_size"].toString()));
     },
     handleResetShortcuts: () => {
       o((K) => ({
@@ -9507,7 +9507,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
         }
       });
     },
-    validateShortcut: (K) => My(K),
+    validateShortcut: (K) => typeof K != "string" ? !1 : My(K),
     // Input states
     initialLoadCountInput: d,
     maxLoadCountInput: y,
@@ -9522,7 +9522,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
     fullscreenMaxNegativePromptLinesInput: B,
     thumbnailSizeInput: Q
   };
-}, Y = ({ label: e, description: t, children: n }) => /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-item", children: [
+}, X = ({ label: e, description: t, children: n }) => /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-item", children: [
   /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-item__info", children: [
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-item__label", children: e }),
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-item__description", children: t })
@@ -9540,7 +9540,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
   /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-group", children: [
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-group-title", children: "Navigation & Display" }),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Show Tool Icons",
         description: "Display navigation and close icons in fullscreen mode.",
@@ -9558,7 +9558,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Delete Mode",
         description: "Choose how images are deleted in fullscreen mode.",
@@ -9581,7 +9581,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Loop Navigation",
         description: "Loop to the beginning/end when navigating in fullscreen.",
@@ -9599,7 +9599,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Small Image Display",
         description: "Choose how to display images smaller than the screen in fullscreen.",
@@ -9624,7 +9624,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
   /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-group", children: [
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-group-title", children: "Details Panel" }),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Show Details by Default",
         description: "Show the image details panel automatically when entering fullscreen.",
@@ -9645,7 +9645,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Show Filename/Path",
         description: "Choose how to display the filename or path in fullscreen details.",
@@ -9668,7 +9668,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Show Dimensions",
         description: "Display dimensions in fullscreen details.",
@@ -9689,7 +9689,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Show Created At",
         description: "Display generation date/time in fullscreen details.",
@@ -9710,7 +9710,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Show Source Info",
         description: "Display source image information in fullscreen details.",
@@ -9730,7 +9730,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
         ] })
       }
     ),
-    /* @__PURE__ */ s.jsx(Y, { label: "Show Model", description: "Display model name in fullscreen details.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
+    /* @__PURE__ */ s.jsx(X, { label: "Show Model", description: "Display model name in fullscreen details.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
       /* @__PURE__ */ s.jsx(
         "input",
         {
@@ -9745,7 +9745,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
       /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
     ] }) }),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Show Positive",
         description: "Display positive prompt in fullscreen details.",
@@ -9766,7 +9766,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Max Positive Prompt Lines",
         description: "Maximum number of lines to display for the positive prompt in fullscreen.",
@@ -9792,7 +9792,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Show Negative",
         description: "Display negative prompt in fullscreen details.",
@@ -9813,7 +9813,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Show User Notes",
         description: "Display user notes in fullscreen details.",
@@ -9836,7 +9836,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Max Negative Prompt Lines",
         description: "Maximum number of lines to display for the negative prompt in fullscreen.",
@@ -9861,7 +9861,7 @@ const Oc = (e) => e === "rect" || e === "ellipse" || e === "lasso", vi = ({
         )
       }
     ),
-    /* @__PURE__ */ s.jsx(Y, { label: "Show Tags", description: "Display tags in fullscreen details.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
+    /* @__PURE__ */ s.jsx(X, { label: "Show Tags", description: "Display tags in fullscreen details.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
       /* @__PURE__ */ s.jsx(
         "input",
         {
@@ -10034,7 +10034,7 @@ const Qf = [
   /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-group", children: [
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-group-title", children: "Card Appearance" }),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Thumbnail Size",
         description: "Size of the image thumbnails in the sidebar (50-500px).",
@@ -10053,7 +10053,7 @@ const Qf = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Show Filename/Path",
         description: "Choose how to display the filename or path on the card.",
@@ -10076,7 +10076,7 @@ const Qf = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Show Dimensions",
         description: "Display the image dimensions (width x height) on the card.",
@@ -10094,7 +10094,7 @@ const Qf = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Show Created At",
         description: "Display the image creation date and time on the card.",
@@ -10112,7 +10112,7 @@ const Qf = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Show Source Images",
         description: "Display images that have been used as a basis for other images (sources). (Note: This setting is ignored during searches)",
@@ -10133,7 +10133,7 @@ const Qf = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Show Source Info",
         description: "Display source image information and lineage link on image cards.",
@@ -10153,7 +10153,7 @@ const Qf = [
         ] })
       }
     ),
-    /* @__PURE__ */ s.jsx(Y, { label: "Show Model", description: "Display the model name on the card.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
+    /* @__PURE__ */ s.jsx(X, { label: "Show Model", description: "Display the model name on the card.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
       /* @__PURE__ */ s.jsx(
         "input",
         {
@@ -10164,7 +10164,7 @@ const Qf = [
       ),
       /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
     ] }) }),
-    /* @__PURE__ */ s.jsx(Y, { label: "Show Positive", description: "Display the positive prompt on the card.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
+    /* @__PURE__ */ s.jsx(X, { label: "Show Positive", description: "Display the positive prompt on the card.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
       /* @__PURE__ */ s.jsx(
         "input",
         {
@@ -10178,7 +10178,7 @@ const Qf = [
       ),
       /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
     ] }) }),
-    /* @__PURE__ */ s.jsx(Y, { label: "Show Negative", description: "Display the negative prompt on the card.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
+    /* @__PURE__ */ s.jsx(X, { label: "Show Negative", description: "Display the negative prompt on the card.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
       /* @__PURE__ */ s.jsx(
         "input",
         {
@@ -10192,7 +10192,7 @@ const Qf = [
       ),
       /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
     ] }) }),
-    /* @__PURE__ */ s.jsx(Y, { label: "Show User Notes", description: "Display user notes on the card.", children: /* @__PURE__ */ s.jsxs(
+    /* @__PURE__ */ s.jsx(X, { label: "Show User Notes", description: "Display user notes on the card.", children: /* @__PURE__ */ s.jsxs(
       "select",
       {
         className: "meld-select",
@@ -10208,7 +10208,7 @@ const Qf = [
         ]
       }
     ) }),
-    /* @__PURE__ */ s.jsx(Y, { label: "Show Tags", description: "Display tags on the card.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
+    /* @__PURE__ */ s.jsx(X, { label: "Show Tags", description: "Display tags on the card.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
       /* @__PURE__ */ s.jsx(
         "input",
         {
@@ -10223,7 +10223,7 @@ const Qf = [
   /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-group", children: [
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-group-title", children: "Search Behavior" }),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Show Quick Suggestions",
         description: "Show suggested keywords when the search field is empty.",
@@ -10241,7 +10241,7 @@ const Qf = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Show Input Suggestions",
         description: "Show suggestions when typing search prefixes (e.g. pos:).",
@@ -10262,7 +10262,7 @@ const Qf = [
   /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-group", children: [
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-group-title", children: "List Behavior" }),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Initial Load Count",
         description: "Number of images to load and display immediately (10-1000).",
@@ -10281,7 +10281,7 @@ const Qf = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Maximum Load Count",
         description: "Maximum number of images to load in the background (10-1000000).",
@@ -10303,7 +10303,7 @@ const Qf = [
   /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-group", children: [
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-group-title", children: "Quick Shortcuts (Card)" }),
     [1, 2, 3].map((c) => /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: `Quick Shortcut Slot ${c}`,
         description: `Choose an action for shortcut slot ${c}.`,
@@ -10492,7 +10492,7 @@ const Qf = [
     ] }),
     /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-list", children: [
       i.map((c, d) => /* @__PURE__ */ s.jsx(
-        Y,
+        X,
         {
           label: `Shortcut ${d === 9 ? 0 : d + 1} (Key: ${d === 9 ? 0 : d + 1})`,
           description: `Command to execute when pressing '${d === 9 ? 0 : d + 1}' in View/Full Screen mode.`,
@@ -10521,7 +10521,7 @@ const Qf = [
         c
       )),
       /* @__PURE__ */ s.jsx(
-        Y,
+        X,
         {
           label: "Show Cheat Sheet",
           description: "Display shortcut key guide in View/Full Screen mode.",
@@ -10543,7 +10543,7 @@ const Qf = [
       )
     ] }),
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-extra", children: /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Reset Shortcuts",
         description: "Restore all shortcuts to their default values.",
@@ -10575,7 +10575,7 @@ const Qf = [
   /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-group", children: [
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-group-title", children: "Image Matching" }),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Source Matching Strategy",
         description: "Algorithm used to identify the source image.",
@@ -10598,7 +10598,7 @@ const Qf = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Auto Linking Threshold (%)",
         description: "Minimum similarity percentage for automatic parent linking during creation or scan (0-100). Default: 92%. Should be strict to avoid false links.",
@@ -10617,7 +10617,7 @@ const Qf = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Source Suggestion Threshold (%)",
         description: "Minimum similarity percentage for showing candidates in manual 'Add Source' dialog (0-100). Default: 82%. Permissive enough to find ancestors.",
@@ -10636,7 +10636,7 @@ const Qf = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Inherit Tags from Source",
         description: "Automatically copy tags from the source image when a new image is registered or saved.",
@@ -10657,7 +10657,7 @@ const Qf = [
   /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-group", children: [
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-group-title", children: "Lineage" }),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Max Lineage Depth",
         description: "Maximum number of ancestor levels to fetch and display (1-10).",
@@ -10679,7 +10679,7 @@ const Qf = [
   /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-group", children: [
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-group-title", children: "Thumbnail Cache" }),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Clear Thumbnail Cache",
         description: "Delete all cached thumbnails. They will be regenerated on next view.",
@@ -10698,7 +10698,7 @@ const Qf = [
   /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-group", children: [
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-group-title", children: "Trash" }),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Trash Retention Period (Days)",
         description: "How many days to keep deleted items in trash (0-365).",
@@ -10717,7 +10717,7 @@ const Qf = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Trash Management",
         description: "View and manage items currently in the trash bin.",
@@ -10746,7 +10746,7 @@ const Qf = [
   /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-group", children: [
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-group-title", children: "Navigation & Display" }),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Loop Navigation",
         description: "Loop to the beginning/end when navigating in the viewer.",
@@ -10764,7 +10764,7 @@ const Qf = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Small Image Display",
         description: "Choose how to display images smaller than the viewer area.",
@@ -10786,7 +10786,7 @@ const Qf = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Show Tool Icons",
         description: "Display navigation and action icons in view mode.",
@@ -10804,7 +10804,7 @@ const Qf = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Show Thumbnails",
         description: "Display the thumbnail strip at the bottom of the viewer. Disabling this can improve performance on slower systems.",
@@ -10822,7 +10822,7 @@ const Qf = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Thumbnail Window Size",
         description: "Number of thumbnails to keep in the viewer (1-10000).",
@@ -10840,7 +10840,7 @@ const Qf = [
         )
       }
     ),
-    /* @__PURE__ */ s.jsx(Y, { label: "Delete Mode", description: "Choose how images are deleted in view mode.", children: /* @__PURE__ */ s.jsxs(
+    /* @__PURE__ */ s.jsx(X, { label: "Delete Mode", description: "Choose how images are deleted in view mode.", children: /* @__PURE__ */ s.jsxs(
       "select",
       {
         className: "meld-select",
@@ -10860,7 +10860,7 @@ const Qf = [
   /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-group", children: [
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-group-title", children: "Details Panel" }),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Show Details by Default",
         description: "Show the image details panel automatically when opening the viewer.",
@@ -10881,7 +10881,7 @@ const Qf = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Show Filename/Path",
         description: "Choose how to display the filename or path in the details.",
@@ -10903,7 +10903,7 @@ const Qf = [
         )
       }
     ),
-    /* @__PURE__ */ s.jsx(Y, { label: "Show Dimensions", description: "Display dimensions in the details panel.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
+    /* @__PURE__ */ s.jsx(X, { label: "Show Dimensions", description: "Display dimensions in the details panel.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
       /* @__PURE__ */ s.jsx(
         "input",
         {
@@ -10918,7 +10918,7 @@ const Qf = [
       /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
     ] }) }),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Show Created At",
         description: "Display generation date/time in the details panel.",
@@ -10939,7 +10939,7 @@ const Qf = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Show Source Info",
         description: "Display source image information in the details panel.",
@@ -10959,7 +10959,7 @@ const Qf = [
         ] })
       }
     ),
-    /* @__PURE__ */ s.jsx(Y, { label: "Show Model", description: "Display model name in the details panel.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
+    /* @__PURE__ */ s.jsx(X, { label: "Show Model", description: "Display model name in the details panel.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
       /* @__PURE__ */ s.jsx(
         "input",
         {
@@ -10974,7 +10974,7 @@ const Qf = [
       /* @__PURE__ */ s.jsx("span", { className: "meld-switch__slider" })
     ] }) }),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Show Positive",
         description: "Display positive prompt in the details panel.",
@@ -10995,7 +10995,7 @@ const Qf = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Max Positive Prompt Lines",
         description: "Maximum number of lines to display for the positive prompt.",
@@ -11016,7 +11016,7 @@ const Qf = [
       }
     ),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Show Negative",
         description: "Display negative prompt in the details panel.",
@@ -11036,7 +11036,7 @@ const Qf = [
         ] })
       }
     ),
-    /* @__PURE__ */ s.jsx(Y, { label: "Show User Notes", description: "Display user notes in the details panel.", children: /* @__PURE__ */ s.jsxs(
+    /* @__PURE__ */ s.jsx(X, { label: "Show User Notes", description: "Display user notes in the details panel.", children: /* @__PURE__ */ s.jsxs(
       "select",
       {
         className: "meld-select",
@@ -11053,7 +11053,7 @@ const Qf = [
       }
     ) }),
     /* @__PURE__ */ s.jsx(
-      Y,
+      X,
       {
         label: "Max Negative Prompt Lines",
         description: "Maximum number of lines to display for the negative prompt.",
@@ -11073,7 +11073,7 @@ const Qf = [
         )
       }
     ),
-    /* @__PURE__ */ s.jsx(Y, { label: "Show Tags", description: "Display tags in the details panel.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
+    /* @__PURE__ */ s.jsx(X, { label: "Show Tags", description: "Display tags in the details panel.", children: /* @__PURE__ */ s.jsxs("label", { className: "meld-switch", children: [
       /* @__PURE__ */ s.jsx(
         "input",
         {
@@ -13347,9 +13347,9 @@ const Us = ({
     const F = E.dataTransfer.getData("text/plain");
     F && F.split(",").forEach((O) => {
       if (O) {
-        const K = O.trim(), X = Number(K);
-        let oe = a.images.find((de) => de.id === X);
-        oe || (oe = a.lineageImages.find((de) => de.id === X)), se.getState().addToBucket(e.id, K, oe);
+        const K = O.trim(), Z = Number(K);
+        let oe = a.images.find((de) => de.id === Z);
+        oe || (oe = a.lineageImages.find((de) => de.id === Z)), se.getState().addToBucket(e.id, K, oe);
       }
     });
   }, Q = (E, F) => {
@@ -13408,9 +13408,9 @@ const Us = ({
                     (O) => O.includes(E.id) ? O.filter((K) => K !== E.id) : [...O, E.id]
                   ), g(E.id);
                 else if (U.shiftKey && m !== null) {
-                  const O = D.findIndex((X) => X.id === E.id), K = D.findIndex((X) => X.id === m);
+                  const O = D.findIndex((Z) => Z.id === E.id), K = D.findIndex((Z) => Z.id === m);
                   if (O !== -1 && K !== -1) {
-                    const X = Math.min(O, K), oe = Math.max(O, K), de = D.slice(X, oe + 1).map((Re) => Re.id);
+                    const Z = Math.min(O, K), oe = Math.max(O, K), de = D.slice(Z, oe + 1).map((Re) => Re.id);
                     u((Re) => Array.from(/* @__PURE__ */ new Set([...Re, ...de])));
                   }
                   g(E.id);
@@ -14246,6 +14246,7 @@ const Us = ({
   const D = h.useCallback(
     (R) => {
       var U;
+      if (!R) return;
       const L = Al(r), T = (L.pop() || "").match(/^([-!])/), W = T ? T[1] : "", F = ((_ == null ? void 0 : _.no_quote_prefixes) || []).includes(R.type);
       if (R.value === "") {
         const O = `${[...L, `${W}${R.type}:`].join(" ").trim()}`;
@@ -14258,24 +14259,26 @@ const Us = ({
     },
     [r, _]
   ), A = (R) => {
-    if (R.key === "Enter")
-      if (Ye(R), i && w >= 0) {
-        const L = a[w];
-        L && D(L);
-      } else
-        C(r);
-    else if (R.key === "Tab") {
-      if (i && a.length > 0) {
-        Ye(R);
-        const L = w >= 0 ? w : 0, I = a[L];
-        I && D(I);
-      }
-    } else R.key === "ArrowDown" ? i && (Ye(R), x((L) => Math.min(L + 1, a.length - 1))) : R.key === "ArrowUp" ? i && (Ye(R), x((L) => Math.max(L - 1, -1))) : R.key === "Escape" && (Ye(R), c(!1));
+    if (R)
+      if (R.key === "Enter")
+        if (Ye(R), i && w >= 0) {
+          const L = a[w];
+          L && D(L);
+        } else
+          C(r);
+      else if (R.key === "Tab") {
+        if (i && a.length > 0) {
+          Ye(R);
+          const L = w >= 0 ? w : 0, I = a[L];
+          I && D(I);
+        }
+      } else R.key === "ArrowDown" ? i && (Ye(R), x((L) => Math.min(L + 1, a.length - 1))) : R.key === "ArrowUp" ? i && (Ye(R), x((L) => Math.max(L - 1, -1))) : R.key === "Escape" && (Ye(R), c(!1));
   }, M = h.useCallback(() => {
     l(""), C("");
   }, [C]), z = h.useCallback(
     (R, L, I = !1) => {
       var ue;
+      if (!R) return;
       const T = Al(r), W = T[T.length - 1] || "";
       let E = !1;
       const F = W.replace(/^([-!])/, "").toLowerCase();
@@ -14731,7 +14734,7 @@ const Us = ({
     handleSaveFavorite: L,
     setToastMessage: I
   } = lm(), T = async () => {
-    const O = e.favorites.some((X) => X.query === e.searchQuery);
+    const O = e.favorites.some((Z) => Z.query === e.searchQuery);
     await L() && I(
       O ? "Removed from favorites." : "Added to favorites.",
       "info"
@@ -15576,7 +15579,7 @@ const Us = ({
     o
   ]), A = h.useCallback(
     async (M) => {
-      if (!M || !n) return;
+      if (!M || typeof M != "string" || !n) return;
       const z = n.id, B = [...n.tags], N = Iy(M, n), { addTags: Q, removeTags: R, isDeleted: L, moveNext: I, movePrev: T, sendToLtSlot: W } = N;
       if (W) {
         const E = se.getState(), F = E.slots.find(
@@ -15645,7 +15648,7 @@ const Us = ({
 }) => {
   const [r, l] = h.useState(!1), a = h.useCallback(
     (o) => {
-      o && "stopPropagation" in o && o.stopPropagation();
+      o && typeof o.stopPropagation == "function" && o.stopPropagation();
       const i = e.current;
       i && (document.fullscreenElement ? document.exitFullscreen() : i.requestFullscreen().catch((c) => {
         P.error(`Error attempting to enable full-screen mode: ${c.message}`);
@@ -15963,7 +15966,7 @@ const Sv = ({
     overlayRef: I,
     settings: c,
     setShowDetails: A
-  }), { handleNext: X, handlePrevious: oe } = wv({
+  }), { handleNext: Z, handlePrevious: oe } = wv({
     dispatch: t,
     isFullscreen: O,
     settings: c,
@@ -15980,7 +15983,7 @@ const Sv = ({
     setLastDeletedImages: Re,
     handleDelete: ue,
     handleTagEditAction: Tt,
-    handleRestoreAction: Z,
+    handleRestoreAction: Y,
     handleUndo: Bt,
     executeCommand: Qt
   } = hv({
@@ -15994,7 +15997,7 @@ const Sv = ({
     lineageImages: i,
     images: a,
     mountRefs: T,
-    handleNext: X,
+    handleNext: Z,
     handlePrevious: oe,
     handleEditTags: y,
     handleRestore: j,
@@ -16016,14 +16019,14 @@ const Sv = ({
     dispatch: t,
     isMountedRef: T.isMountedRef,
     toggleFullscreen: K,
-    handleNext: X,
+    handleNext: Z,
     handlePrevious: oe,
     handleDelete: () => {
       ue();
     },
     handleUndo: Bt,
     handleTagEditAction: Tt,
-    handleRestoreAction: Z,
+    handleRestoreAction: Y,
     executeCommand: Qt,
     setShowDetails: A,
     setActiveShortcutKey: L
@@ -16080,13 +16083,13 @@ const Sv = ({
     lastDeletedImages: de,
     setLastDeletedImages: Re,
     overlayRef: I,
-    handleNext: X,
+    handleNext: Z,
     handlePrevious: oe,
     handleDelete: ue,
     handleUpdateUserNotes: w,
     handleEditNotes: () => U && v(U),
     handleTagEdit: Tt,
-    handleRestore: Z,
+    handleRestore: Y,
     handleUndo: Bt,
     handleRestoreWorkflow: async () => {
       if (!U) return;
@@ -16725,8 +16728,8 @@ function Cv() {
                       }
                     }), !1;
                   const K = e.activeModal.maskFilename;
-                  for (const X of e.activeModal.images)
-                    await I(U, X, K, O);
+                  for (const Z of e.activeModal.images)
+                    await I(U, Z, K, O);
                   t({ type: "CLOSE_MODAL" }), t({ type: "CLOSE_VIEWER" });
                 }
               }
@@ -17668,20 +17671,20 @@ const cm = (e) => {
     insideRefs: [A],
     onOutside: () => b(!1)
   });
-  const M = async (Z, Bt, Qt = !1) => {
+  const M = async (Y, Bt, Qt = !1) => {
     try {
-      await navigator.clipboard.writeText(Z), Qt ? (D(!0), setTimeout(() => D(!1), 2e3)) : (k(Bt), setTimeout(() => k(null), 2e3));
+      await navigator.clipboard.writeText(Y), Qt ? (D(!0), setTimeout(() => D(!1), 2e3)) : (k(Bt), setTimeout(() => k(null), 2e3));
     } catch (Ht) {
       P.error("Failed to copy text: ", Ht);
     }
   }, z = h.useCallback(
-    (Z) => {
-      if (Z.key === "Escape") {
+    (Y) => {
+      if (Y.key === "Escape") {
         if (u) {
-          cl(Z), m(null);
+          cl(Y), m(null);
           return;
         }
-        g && (cl(Z), b(!1));
+        g && (cl(Y), b(!1));
       }
     },
     [u, g]
@@ -17707,21 +17710,21 @@ const cm = (e) => {
     displayFilename: Q,
     imgSrc: L,
     handleCopy: M,
-    handleClick: (Z) => {
-      Z.shiftKey ? (Z.preventDefault(), Z.stopPropagation(), n({ type: "SELECT_RANGE", payload: e.id })) : Z.ctrlKey || Z.metaKey || t.selectedIds.size > 0 ? (Z.preventDefault(), Z.stopPropagation(), n({ type: "TOGGLE_SELECT", payload: e.id })) : n({ type: "OPEN_VIEWER", payload: e.id });
+    handleClick: (Y) => {
+      !Y || typeof Y.preventDefault != "function" || (Y.shiftKey ? (Y.preventDefault(), Y.stopPropagation(), n({ type: "SELECT_RANGE", payload: e.id })) : Y.ctrlKey || Y.metaKey || t.selectedIds.size > 0 ? (Y.preventDefault(), Y.stopPropagation(), n({ type: "TOGGLE_SELECT", payload: e.id })) : n({ type: "OPEN_VIEWER", payload: e.id }));
     },
-    handleSelectToggle: (Z) => {
-      Z.preventDefault(), Z.stopPropagation(), Z.shiftKey ? n({ type: "SELECT_RANGE", payload: e.id }) : n({ type: "TOGGLE_SELECT", payload: e.id });
+    handleSelectToggle: (Y) => {
+      !Y || typeof Y.preventDefault != "function" || (Y.preventDefault(), Y.stopPropagation(), Y.shiftKey ? n({ type: "SELECT_RANGE", payload: e.id }) : n({ type: "TOGGLE_SELECT", payload: e.id }));
     },
-    handleContainerClick: (Z) => {
-      Z.shiftKey ? (Z.preventDefault(), Z.stopPropagation(), n({ type: "SELECT_RANGE", payload: e.id })) : Z.ctrlKey || Z.metaKey || t.selectedIds.size > 0 ? (Z.preventDefault(), Z.stopPropagation(), n({ type: "TOGGLE_SELECT", payload: e.id })) : (Z.preventDefault(), Z.stopPropagation(), n({ type: "TOGGLE_SELECT", payload: e.id }));
+    handleContainerClick: (Y) => {
+      !Y || typeof Y.preventDefault != "function" || (Y.shiftKey ? (Y.preventDefault(), Y.stopPropagation(), n({ type: "SELECT_RANGE", payload: e.id })) : Y.ctrlKey || Y.metaKey || t.selectedIds.size > 0 ? (Y.preventDefault(), Y.stopPropagation(), n({ type: "TOGGLE_SELECT", payload: e.id })) : (Y.preventDefault(), Y.stopPropagation(), n({ type: "TOGGLE_SELECT", payload: e.id })));
     },
-    handleMouseDown: (Z) => {
-      Z.target.closest("textarea, input, button, .meld-image-card__meta-content") || !Z.shiftKey && !Z.ctrlKey && !Z.metaKey && l || (Z.shiftKey || Z.ctrlKey || Z.metaKey || t.selectedIds.size > 0) && Z.preventDefault();
+    handleMouseDown: (Y) => {
+      !Y || typeof Y.preventDefault != "function" || !Y.target || Y.target instanceof Element && Y.target.closest("textarea, input, button, .meld-image-card__meta-content") || !Y.shiftKey && !Y.ctrlKey && !Y.metaKey && l || (Y.shiftKey || Y.ctrlKey || Y.metaKey || t.selectedIds.size > 0) && Y.preventDefault();
     },
-    handleKeyDown: (Z) => {
+    handleKeyDown: (Y) => {
       var Qt, Ht, Pn;
-      ((Qt = document.activeElement) == null ? void 0 : Qt.tagName) === "INPUT" || ((Ht = document.activeElement) == null ? void 0 : Ht.tagName) === "TEXTAREA" || (Pn = document.activeElement) != null && Pn.isContentEditable || (Z.key === "Enter" || Z.key === " ") && (Z.preventDefault(), n({ type: "TOGGLE_SELECT", payload: e.id }));
+      !Y || typeof Y.preventDefault != "function" || ((Qt = document.activeElement) == null ? void 0 : Qt.tagName) === "INPUT" || ((Ht = document.activeElement) == null ? void 0 : Ht.tagName) === "TEXTAREA" || (Pn = document.activeElement) != null && Pn.isContentEditable || (Y.key === "Enter" || Y.key === " ") && (Y.preventDefault(), n({ type: "TOGGLE_SELECT", payload: e.id }));
     },
     handleRestoreWorkflow: async () => {
       await o(e);
@@ -17750,8 +17753,8 @@ const cm = (e) => {
     handleRunWithWorkflow: () => {
       y(e);
     },
-    handleRunWithMask: (Z = "run") => v(e, Z),
-    handleUpdateUserNotes: (Z) => _(e.id, Z),
+    handleRunWithMask: (Y = "run") => v(e, Y),
+    handleUpdateUserNotes: (Y) => _(e.id, Y),
     fetchFullImageDetails: r
   };
 }, Uv = ({

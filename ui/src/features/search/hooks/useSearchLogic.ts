@@ -196,6 +196,7 @@ export const useSearchLogic = () => {
 
 	const applySuggestion = useCallback(
 		(suggestion: Suggestion) => {
+			if (!suggestion) return;
 			const words = getSearchTokens(inputValue);
 			const lastWord = words.pop() || ""; // Remove the last partial word
 			const negationMatch = lastWord.match(/^([-!])/);
@@ -224,6 +225,7 @@ export const useSearchLogic = () => {
 	);
 
 	const handleKeyDown = (e: React.KeyboardEvent) => {
+		if (!e) return;
 		if (e.key === "Enter") {
 			stopReactKeyboardEvent(e);
 			if (showSuggestions && selectedIndex >= 0) {
@@ -266,6 +268,7 @@ export const useSearchLogic = () => {
 
 	const applySearchSuggestion = useCallback(
 		(type: string, value: string, onlyPrefix = false) => {
+			if (!type) return;
 			const words = getSearchTokens(inputValue);
 			const lastWord = words[words.length - 1] || "";
 

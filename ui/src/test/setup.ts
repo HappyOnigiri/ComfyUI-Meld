@@ -2,6 +2,19 @@ import "@testing-library/jest-dom/vitest";
 import { vi } from "vitest";
 import type { ComfyApi, ComfyApp } from "../types";
 
+// ResizeObserver is not available in jsdom, so we mock it
+global.ResizeObserver = class ResizeObserver {
+	observe() {}
+	unobserve() {}
+	disconnect() {}
+};
+
+global.IntersectionObserver = class IntersectionObserver {
+	observe() {}
+	unobserve() {}
+	disconnect() {}
+} as unknown as typeof IntersectionObserver;
+
 declare global {
 	// Test environment shims for ComfyUI globals.
 	// Keep these declarations in setup so production code stays strict.
