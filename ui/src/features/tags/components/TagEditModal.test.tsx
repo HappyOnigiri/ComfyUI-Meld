@@ -29,7 +29,7 @@ vi.mock("../../../store/GalleryContext", () => ({
 
 describe("TagEditModal", () => {
 	beforeEach(() => {
-		vi.restoreAllMocks();
+		vi.clearAllMocks();
 	});
 
 	afterEach(() => {

@@ -266,15 +266,14 @@ describe("DetailedImageCard", () => {
 		expect(handleEditNotes).toHaveBeenCalled();
 
 		// Trigger Menu UI interactions
-		if (screen.queryByText("Restore")) {
-			await user.click(screen.getByText("Restore"));
-			await user.click(screen.getByText("Delete"));
-			await user.click(screen.getByText("Edit Source"));
-			await user.click(screen.getByText("Add Loader"));
-			await user.click(screen.getByText("Send"));
-			await user.click(screen.getByText("Run"));
-			await user.click(screen.getByText("Run Mask"));
-		}
+		expect(screen.getByText("Restore")).toBeInTheDocument();
+		await user.click(screen.getByText("Restore"));
+		await user.click(screen.getByText("Delete"));
+		await user.click(screen.getByText("Edit Source"));
+		await user.click(screen.getByText("Add Loader"));
+		await user.click(screen.getByText("Send"));
+		await user.click(screen.getByText("Run"));
+		await user.click(screen.getByText("Run Mask"));
 
 		// Re-render with parentChain to test lineage click
 		mockUseImageCardLogic.mockReturnValue(
@@ -284,16 +283,15 @@ describe("DetailedImageCard", () => {
 				popupContent: { title: "title", text: "text" },
 			}),
 		);
-		const { container: lineageContainer } = render(<DetailedImageCard image={image} />);
+		render(<DetailedImageCard image={image} />);
 		const sourceThumb = screen.getAllByAltText("source thumb")[0];
 		if (sourceThumb) {
 			await user.click(sourceThumb);
 		}
 
 		// Trigger Popup UI interactions if it was rendered
-		if (screen.queryByText("Close Popup")) {
-			await user.click(screen.getByText("Close Popup"));
-			await user.click(screen.getByText("Copy Popup"));
-		}
+		expect(screen.getByText("Close Popup")).toBeInTheDocument();
+		await user.click(screen.getByText("Close Popup"));
+		await user.click(screen.getByText("Copy Popup"));
 	});
 });

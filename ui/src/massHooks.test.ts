@@ -176,7 +176,7 @@ describe("Mass Hooks Coverage", () => {
 		const errors: Error[] = [];
 		for (const item of hooksToTest) {
 			try {
-				const { result } = renderHook(() => item.run(...(item.args || [])));
+				const { result, unmount } = renderHook(() => item.run(...(item.args || [])));
 
 				if (result.current && typeof result.current === "object") {
 					for (const key of Object.keys(result.current)) {
@@ -236,6 +236,7 @@ describe("Mass Hooks Coverage", () => {
 						}
 					}
 				}
+				unmount();
 			} catch (e) {
 				errors.push(new Error(`Error in renderHook for ${item.run.name}: ${String(e)}`));
 			}

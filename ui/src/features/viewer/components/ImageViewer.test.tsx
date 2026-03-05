@@ -261,7 +261,7 @@ describe("ImageViewer", () => {
 		expect(document.querySelector(".meld-viewer-nav--next")).toBeNull();
 	});
 
-	it("handles action buttons safely", () => {
+	it("interacts with navigation and close buttons", () => {
 		const img = createTestImage();
 		ctx = createMockGalleryContext({
 			viewerImageId: img.id,
@@ -271,21 +271,36 @@ describe("ImageViewer", () => {
 			settings: iconsVisibleSettings,
 		});
 		vi.mocked(useGallery).mockReturnValue(ctx);
-		mockUseImageViewerLogic.mockReturnValue(createMockViewerLogic(img));
+
+		const handlePrevious = vi.fn();
+		const handleNext = vi.fn();
+		const toggleFullscreen = vi.fn();
+
+		mockUseImageViewerLogic.mockReturnValue(
+			createMockViewerLogic(img, {
+				handlePrevious,
+				handleNext,
+				toggleFullscreen,
+			}),
+		);
 
 		render(<ImageViewer />);
 
-		const buttons = document.body.querySelectorAll("button");
-		for (const btn of Array.from(buttons)) {
-			try {
-				fireEvent.click(btn);
-			} catch (e) {
-				// Some buttons (like node UI triggers) may fail when clicked outside of
-				// a full DOM environment; this loop is simply to exercise button existence.
-				// Ignored click failure in testing
-			}
-		}
-		expect(buttons.length).toBeGreaterThan(0);
+		const prevBtn = document.querySelector(".meld-viewer-nav--prev") as HTMLButtonElement;
+		fireEvent.click(prevBtn);
+		expect(handlePrevious).toHaveBeenCalled();
+
+		const nextBtn = document.querySelector(".meld-viewer-nav--next") as HTMLButtonElement;
+		fireEvent.click(nextBtn);
+		expect(handleNext).toHaveBeenCalled();
+
+		const fullscreenBtn = screen.getByTitle("Fullscreen (F/Enter)");
+		fireEvent.click(fullscreenBtn);
+		expect(toggleFullscreen).toHaveBeenCalled();
+
+		const closeBtn = screen.getByTitle("Close (Esc)");
+		fireEvent.click(closeBtn);
+		expect(ctx.dispatch).toHaveBeenCalledWith({ type: "CLOSE_VIEWER" });
 	});
 
 	describe("renders modals and invokes callbacks", () => {
@@ -327,21 +342,20 @@ describe("ImageViewer", () => {
 				const { container } = render(<ImageViewer />);
 				expect(container).toBeDefined();
 
-				const modalTestIds = [
-					"workflow-selection-modal",
-					"node-selection-modal",
-					"mask-sequence-modal",
-					"tag-edit-modal",
-					"mask-editor-modal",
-					"note-edit-modal",
-				];
+				const modalIdMap: Record<string, string> = {
+					workflow_selection: "workflow-selection-modal",
+					node_selection: "node-selection-modal",
+					mask_sequence_step: "mask-sequence-modal",
+					tag_edit: "tag-edit-modal",
+					mask_editor: "mask-editor-modal",
+					note_edit: "note-edit-modal",
+				};
 
-				for (const id of modalTestIds) {
-					const el = screen.queryByTestId(id);
-					if (el) {
-						fireEvent.click(el); // triggers main callback
-						fireEvent.contextMenu(el); // triggers alternate callback like onClose
-					}
+				const expectedId = modalIdMap[modal.type];
+				if (expectedId) {
+					const el = screen.getByTestId(expectedId);
+					fireEvent.click(el); // triggers main callback
+					fireEvent.contextMenu(el); // triggers alternate callback like onClose
 				}
 			});
 		});

@@ -1,18 +1,24 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ComfyApp, ComfyGraphNode, MeldImage } from "../../../types";
 import { buildComfyImagePath, injectImageToGraph } from "./injectImageToGraph";
 
+const makeImage = (overrides?: Partial<MeldImage>): MeldImage =>
+	({
+		filename: "test.png",
+		...overrides,
+	}) as MeldImage;
+
 describe("buildComfyImagePath", () => {
 	it("builds simple path", () => {
-		expect(buildComfyImagePath({ filename: "test.png" } as MeldImage)).toBe("test.png");
+		expect(buildComfyImagePath(makeImage({ filename: "test.png" }))).toBe("test.png");
 	});
 	it("builds path with subfolder", () => {
-		expect(buildComfyImagePath({ filename: "test.png", subfolder: "my-folder" } as MeldImage)).toBe(
+		expect(buildComfyImagePath(makeImage({ filename: "test.png", subfolder: "my-folder" }))).toBe(
 			"my-folder/test.png",
 		);
 	});
 	it("builds path with type", () => {
-		expect(buildComfyImagePath({ filename: "test.png", type: "temp" } as MeldImage)).toBe(
+		expect(buildComfyImagePath(makeImage({ filename: "test.png", type: "temp" }))).toBe(
 			"test.png [temp]",
 		);
 	});
@@ -30,8 +36,20 @@ describe("injectImageToGraph", () => {
 		loadGraphData: vi.fn(),
 	} as unknown as ComfyApp;
 
+	let originalApp: typeof window.app;
+
 	beforeEach(() => {
+		originalApp = window.app;
 		window.app = mockApp;
+		if (mockApp.graph) {
+			mockApp.graph._nodes = [];
+			if (mockApp.graph.afterChange) vi.mocked(mockApp.graph.afterChange).mockClear();
+			if (mockApp.graph.setDirtyCanvas) vi.mocked(mockApp.graph.setDirtyCanvas).mockClear();
+		}
+	});
+
+	afterEach(() => {
+		window.app = originalApp;
 		if (mockApp.graph) {
 			mockApp.graph._nodes = [];
 			if (mockApp.graph.afterChange) vi.mocked(mockApp.graph.afterChange).mockClear();
@@ -41,7 +59,7 @@ describe("injectImageToGraph", () => {
 
 	it("returns no_app_graph if graph is missing", () => {
 		window.app = {} as unknown as ComfyApp;
-		expect(injectImageToGraph({ filename: "test.png" } as unknown as MeldImage)).toEqual({
+		expect(injectImageToGraph(makeImage({ filename: "test.png" }))).toEqual({
 			ok: false,
 			reason: "no_app_graph",
 		});
@@ -49,7 +67,7 @@ describe("injectImageToGraph", () => {
 
 	it("returns no_loader_node if _nodes is not array", () => {
 		window.app = { graph: {} } as unknown as ComfyApp;
-		expect(injectImageToGraph({ filename: "test.png" } as unknown as MeldImage)).toEqual({
+		expect(injectImageToGraph(makeImage({ filename: "test.png" }))).toEqual({
 			ok: false,
 			reason: "no_loader_node",
 		});
@@ -59,7 +77,7 @@ describe("injectImageToGraph", () => {
 		if (mockApp.graph) {
 			mockApp.graph._nodes = [{ type: "OtherNode" } as unknown as ComfyGraphNode];
 		}
-		expect(injectImageToGraph({ filename: "test.png" } as MeldImage)).toEqual({
+		expect(injectImageToGraph(makeImage({ filename: "test.png" }))).toEqual({
 			ok: false,
 			reason: "no_loader_node",
 		});
@@ -69,7 +87,7 @@ describe("injectImageToGraph", () => {
 		if (mockApp.graph) {
 			mockApp.graph._nodes = [{ type: "LoadImage" } as unknown as ComfyGraphNode];
 		}
-		expect(injectImageToGraph({ filename: "test.png" } as MeldImage)).toEqual({
+		expect(injectImageToGraph(makeImage({ filename: "test.png" }))).toEqual({
 			ok: false,
 			reason: "no_widgets",
 		});
@@ -81,7 +99,7 @@ describe("injectImageToGraph", () => {
 				{ type: "LoadImage", widgets: [{ name: "other" }] } as unknown as ComfyGraphNode,
 			];
 		}
-		expect(injectImageToGraph({ filename: "test.png" } as MeldImage)).toEqual({
+		expect(injectImageToGraph(makeImage({ filename: "test.png" }))).toEqual({
 			ok: false,
 			reason: "no_image_widget",
 		});
@@ -95,7 +113,7 @@ describe("injectImageToGraph", () => {
 			];
 		}
 
-		const res = injectImageToGraph({ filename: "test.png" } as MeldImage);
+		const res = injectImageToGraph(makeImage({ filename: "test.png" }));
 		expect(res).toEqual({ ok: true });
 		expect(mockWidget.value).toBe("test.png");
 		expect(mockWidget.callback).toHaveBeenCalledWith("test.png");
@@ -113,7 +131,7 @@ describe("injectImageToGraph", () => {
 			];
 		}
 
-		const res = injectImageToGraph({ filename: "test.png" } as MeldImage, "2");
+		const res = injectImageToGraph(makeImage({ filename: "test.png" }), "2");
 		expect(res).toEqual({ ok: true });
 		expect(mockWidget1.value).toBe("");
 		expect(mockWidget2.value).toBe("test.png");

@@ -27,7 +27,7 @@ describe("TagManagerView", () => {
 
 	beforeEach(() => {
 		user = userEvent.setup();
-		vi.restoreAllMocks();
+		vi.clearAllMocks();
 		vi.mocked(tagsApi.fetchTags).mockResolvedValue([
 			{ id: 1, name: "landscape" },
 			{ id: 2, name: "portrait" },

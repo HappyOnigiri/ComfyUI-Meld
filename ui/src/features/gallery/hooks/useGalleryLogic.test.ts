@@ -55,7 +55,8 @@ describe("useGalleryLogic", () => {
 
 	it("filters out hidden images (in light table buckets)", () => {
 		vi.mocked(useLightTableStore).mockImplementation(<T>(selector: (state: TrayState) => T): T => {
-			return selector({ buckets: { default: [1] } } as unknown as TrayState); // image id 1 is in bucket
+			const mockState: Partial<TrayState> = { buckets: { default: ["1"] } };
+			return selector(mockState as TrayState); // image id 1 is in bucket
 		});
 
 		const mockState = {
@@ -87,7 +88,8 @@ describe("useGalleryLogic", () => {
 	it("auto-loads more images if all loaded images are hidden", () => {
 		const mockLoadMore = vi.fn();
 		vi.mocked(useLightTableStore).mockImplementation(<T>(selector: (state: TrayState) => T): T => {
-			return selector({ buckets: { default: [1] } } as unknown as TrayState);
+			const mockState: Partial<TrayState> = { buckets: { default: ["1"] } };
+			return selector(mockState as TrayState);
 		});
 
 		const mockState = {

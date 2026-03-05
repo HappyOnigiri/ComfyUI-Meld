@@ -24,22 +24,13 @@ const DummyChild = () => {
 	const gallery = useGallery();
 
 	const handleTest = async () => {
-		const calls = [
-			() => gallery.refreshImages(),
-			() => gallery.loadMoreImages(),
-			() => gallery.refreshFavorites(),
-			() => gallery.deleteSelected(),
-			() => gallery.restoreSelected(),
-			() => gallery.updateSetting("test", true),
-			() => gallery.fetchFullImageDetails(1),
-		];
-		for (const call of calls) {
-			try {
-				await call();
-			} catch (e) {
-				// skip
-			}
-		}
+		await gallery.refreshImages();
+		await gallery.loadMoreImages();
+		await gallery.refreshFavorites();
+		await gallery.deleteSelected();
+		await gallery.restoreSelected();
+		await gallery.updateSetting("test", true);
+		await gallery.fetchFullImageDetails(1);
 	};
 
 	return (
@@ -62,6 +53,11 @@ describe("GalleryContext", () => {
 		});
 		vi.mocked(searchApi.fetchFavorites).mockResolvedValue([]);
 		vi.mocked(settingsApi.fetchSettings).mockResolvedValue({} as Settings);
+		vi.mocked(imagesApi.fetchImageDetails).mockResolvedValue({
+			model_name: "test-model",
+			positive_prompt: "pos",
+			negative_prompt: "neg",
+		} as unknown as import("../types").MeldImage);
 
 		let containerNode: HTMLElement | undefined;
 		await act(async () => {
@@ -81,5 +77,10 @@ describe("GalleryContext", () => {
 		await act(async () => {
 			btn.click();
 		});
+
+		expect(imagesApi.fetchImages).toHaveBeenCalled();
+		expect(searchApi.fetchFavorites).toHaveBeenCalled();
+		expect(settingsApi.fetchSettings).toHaveBeenCalled();
+		expect(imagesApi.fetchImageDetails).toHaveBeenCalledWith(1);
 	});
 });
