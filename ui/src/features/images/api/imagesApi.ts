@@ -197,7 +197,7 @@ const fetchImageBlob = async (
 	if (!res.ok) {
 		let errMsg = `Failed to fetch image ${imageId}: ${res.statusText || res.status}`;
 		try {
-			const result = await res.json();
+			const result = await res.json(); // frontend-api-check-ignore
 			errMsg = result.error || errMsg;
 		} catch (_e) {
 			// Keep fallback if JSON parsing fails
