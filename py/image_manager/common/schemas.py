@@ -80,6 +80,7 @@ class ApiResponse(BaseSchema):
     error: str | None = None
     message: str | None = None
     count: int | None = None
+    total: int | None = None
 
 
 # --- API Request DTOs ---
