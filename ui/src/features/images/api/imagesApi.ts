@@ -220,7 +220,7 @@ const fetchImageBlob = async (
 
 	// Explicitly reject JSON responses on the binary download path.
 	// Even a 2xx JSON response cannot be treated as binary data.
-	const contentType = res.headers.get("Content-Type") || "";
+	const contentType = (res.headers.get("Content-Type") || "").toLowerCase();
 	if (contentType.includes("application/json") || contentType.includes("+json")) {
 		// Attempt to extract a meaningful error message via handleResponse, then always throw.
 		let jsonErrMsg = `Image ${imageId}: server returned JSON instead of binary data`;
