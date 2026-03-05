@@ -1,37 +1,39 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, it, vi } from "vitest";
 import * as imagesApi from "../../images/api/imagesApi";
 import { TagEditModal } from "./TagEditModal";
 
 // Mock tagsApi and imagesApi
-vi.mock("../../../features/tags/api/tagsApi", () => ({
-	fetchTags: vi.fn().mockResolvedValue([
-		{ id: 1, name: "tag1" },
-		{ id: 2, name: "tag2" },
-		{ id: 3, name: "none" },
-	]),
+vi.mock("../api/tagsApi", () => ({
+	fetchTags: vi.fn(() =>
+		Promise.resolve([
+			{ id: 1, name: "tag1" },
+			{ id: 2, name: "tag2" },
+			{ id: 3, name: "none" },
+		]),
+	),
 }));
 
-vi.mock("../../../features/images/api/imagesApi", () => ({
-	updateImageTags: vi.fn().mockResolvedValue(undefined),
-	bulkUpdateImageTags: vi.fn().mockResolvedValue(undefined),
+vi.mock("../../images/api/imagesApi", () => ({
+	updateImageTags: vi.fn(() => Promise.resolve(undefined)),
+	bulkUpdateImageTags: vi.fn(() => Promise.resolve(undefined)),
 }));
 
 vi.mock("../../../store/GalleryContext", () => ({
 	useGallery: () => ({
 		dispatch: vi.fn(),
-		refreshImages: vi.fn().mockResolvedValue(undefined),
+		refreshImages: vi.fn(() => Promise.resolve(undefined)),
 	}),
 }));
 
 describe("TagEditModal", () => {
 	beforeEach(() => {
-		vi.clearAllMocks();
+		vi.restoreAllMocks();
 	});
 
 	afterEach(() => {
-		vi.clearAllMocks();
+		vi.restoreAllMocks();
 	});
 
 	it("renders without crashing", () => {

@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import * as imagesApi from "../features/images/api/imagesApi";
 import * as searchApi from "../features/search/api/searchApi";
 import * as settingsApi from "../features/settings/api/settingsApi";
+import type { Settings } from "../types";
 import { GalleryProvider, useGallery } from "./GalleryContext";
 
 vi.mock("../features/images/api/imagesApi", () => ({
@@ -53,9 +54,14 @@ const DummyChild = () => {
 
 describe("GalleryContext", () => {
 	it("renders children with provider and provides context and calls functions safely", async () => {
-		vi.mocked(imagesApi.fetchImages).mockResolvedValue({ images: [], total: 0, offset: 0 });
+		vi.mocked(imagesApi.fetchImages).mockResolvedValue({
+			images: [],
+			total: 0,
+			offset: 0,
+			limit: 30,
+		});
 		vi.mocked(searchApi.fetchFavorites).mockResolvedValue([]);
-		vi.mocked(settingsApi.fetchSettings).mockResolvedValue({});
+		vi.mocked(settingsApi.fetchSettings).mockResolvedValue({} as Settings);
 
 		let containerNode: HTMLElement | undefined;
 		await act(async () => {

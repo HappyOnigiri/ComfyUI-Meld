@@ -18,18 +18,14 @@ global.IntersectionObserver = class IntersectionObserver {
 declare global {
 	// Test environment shims for ComfyUI globals.
 	// Keep these declarations in setup so production code stays strict.
-	var api: unknown;
-	var app: unknown;
-	var Node: unknown;
-
-	interface Window {
-		api?: unknown;
-		app?: unknown;
-	}
+	var api: ComfyApi;
+	var app: ComfyApp;
 }
 
 global.Node = window.Node;
-HTMLCanvasElement.prototype.getContext = () => null as unknown as RenderingContext;
+HTMLCanvasElement.prototype.getContext = vi
+	.fn()
+	.mockReturnValue(null) as unknown as HTMLCanvasElement["getContext"];
 HTMLElement.prototype.requestFullscreen = vi.fn().mockResolvedValue(undefined);
 document.exitFullscreen = vi.fn().mockResolvedValue(undefined);
 

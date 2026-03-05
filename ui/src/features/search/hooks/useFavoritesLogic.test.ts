@@ -1,5 +1,5 @@
 import { act, renderHook } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useGallery } from "../../../store/GalleryContext";
 import * as searchApi from "../api/searchApi";
 import { useFavoritesLogic } from "./useFavoritesLogic";
@@ -10,8 +10,12 @@ vi.mock("../../../logger");
 
 describe("useFavoritesLogic", () => {
 	beforeEach(() => {
-		vi.clearAllMocks();
-		global.window.confirm = vi.fn(() => true);
+		vi.restoreAllMocks();
+		vi.spyOn(window, "confirm").mockImplementation(() => true);
+	});
+
+	afterEach(() => {
+		vi.restoreAllMocks();
 	});
 
 	it("returns correct default values", () => {
@@ -36,7 +40,7 @@ describe("useFavoritesLogic", () => {
 
 		const { result } = renderHook(() => useFavoritesLogic());
 
-		const mockEvent = { stopPropagation: vi.fn() } as unknown as Event;
+		const mockEvent = { stopPropagation: vi.fn() } as unknown as React.MouseEvent;
 
 		await act(async () => {
 			await result.current.handleDeleteFavorite(mockEvent, 1, "test");
@@ -56,8 +60,8 @@ describe("useFavoritesLogic", () => {
 
 		const { result } = renderHook(() => useFavoritesLogic());
 
-		const mockEvent = { stopPropagation: vi.fn() } as unknown as Event;
-		const mockFav = { id: 1, name: "old name", query: "old query", created_at: "", updated_at: "" };
+		const mockEvent = { stopPropagation: vi.fn() } as unknown as React.MouseEvent;
+		const mockFav = { id: 1, name: "old name", query: "old query", created_at: Date.now() };
 
 		act(() => {
 			result.current.handleEditFavorite(mockEvent, mockFav);
@@ -103,7 +107,7 @@ describe("useFavoritesLogic", () => {
 		const mockRefresh = vi.fn();
 		vi.mocked(useGallery).mockReturnValue({
 			state: {
-				favorites: [{ id: 1, name: "fav", query: "my test query", created_at: "", updated_at: "" }],
+				favorites: [{ id: 1, name: "fav", query: "my test query", created_at: Date.now() }],
 				searchQuery: "my test query",
 			},
 			refreshFavorites: mockRefresh,

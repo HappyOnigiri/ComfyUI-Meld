@@ -1,5 +1,5 @@
 import { act, renderHook } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { MeldImage } from "../../../types";
 import * as workflowsApi from "../api/workflowsApi";
 import { useWorkflowExecution } from "./useWorkflowExecution";
@@ -10,7 +10,11 @@ vi.mock("../api/workflowsApi", () => ({
 
 describe("useWorkflowExecution", () => {
 	beforeEach(() => {
-		vi.clearAllMocks();
+		vi.restoreAllMocks();
+	});
+
+	afterEach(() => {
+		vi.restoreAllMocks();
 	});
 
 	it("renders without crashing", () => {
@@ -24,11 +28,12 @@ describe("useWorkflowExecution", () => {
 			"2": { class_type: "LoadImageMask", inputs: {} },
 		});
 
-		window.api = {
+		(window as unknown as { api: unknown }).api = {
 			fetchApi: vi
 				.fn()
 				.mockResolvedValue(new Response(JSON.stringify({ prompt_id: "123", number: 1 }))),
 			clientId: "test",
+			addEventListener: vi.fn(),
 		};
 
 		const { result } = renderHook(() => useWorkflowExecution());

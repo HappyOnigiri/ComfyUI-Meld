@@ -1,5 +1,6 @@
 import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import type { Settings } from "../../../../types";
 import { useViewerKeyboardShortcuts } from "./useViewerKeyboardShortcuts";
 
 describe("useViewerKeyboardShortcuts", () => {
@@ -21,7 +22,7 @@ describe("useViewerKeyboardShortcuts", () => {
 				viewerImageId: 1,
 				activeModalType: "none",
 				viewScope: "default",
-				settings: { "viewer.shortcut.1": "command" } as unknown as Record<string, unknown>,
+				settings: { "viewer.shortcut.1": "command" } as unknown as Settings,
 				dispatch,
 				isMountedRef: { current: true },
 				toggleFullscreen,

@@ -5,7 +5,7 @@ import {
 	createMockGalleryContext,
 	type MockGalleryContext,
 } from "../../../test/helpers/renderWithGallery";
-import type { Settings } from "../../../types";
+import type { GalleryState, Settings } from "../../../types";
 import { ImageViewer } from "./ImageViewer";
 
 // Mock useGallery
@@ -317,7 +317,7 @@ describe("ImageViewer", () => {
 				ctx = createMockGalleryContext({
 					viewerImageId: img.id,
 					viewerMode: "gallery",
-					activeModal: modal as Exclude<MockGalleryContext["activeModal"], undefined>,
+					activeModal: modal as GalleryState["activeModal"],
 					viewScope: "default",
 					settings: iconsVisibleSettings,
 				});

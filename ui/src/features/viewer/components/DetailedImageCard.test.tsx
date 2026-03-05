@@ -32,7 +32,16 @@ vi.mock("./ImageCardMenu", () => ({
 		onSendToWorkflow,
 		onRunWithWorkflow,
 		onRunWithMask,
-	}: Record<string, unknown>) => (
+	}: {
+		onRestore: () => void;
+		onDelete: () => void;
+		onEditSource: () => void;
+		onAddUnifiedLoader: () => void;
+		onRestoreWorkflow: () => void;
+		onSendToWorkflow: () => void;
+		onRunWithWorkflow: () => void;
+		onRunWithMask: (mode: string) => void;
+	}) => (
 		<div data-testid="image-card-menu">
 			<button type="button" onClick={onRestore}>
 				Restore
@@ -64,7 +73,7 @@ vi.mock("./ImageCardMenu", () => ({
 
 // Mock PromptPopup
 vi.mock("./PromptPopup", () => ({
-	PromptPopup: ({ onClose, onCopy }: Record<string, unknown>) => (
+	PromptPopup: ({ onClose, onCopy }: { onClose: () => void; onCopy: (text: string) => void }) => (
 		<div data-testid="prompt-popup">
 			<button type="button" onClick={onClose}>
 				Close Popup

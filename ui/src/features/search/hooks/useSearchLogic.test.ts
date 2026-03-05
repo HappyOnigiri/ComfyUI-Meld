@@ -1,6 +1,6 @@
 import { act, renderHook } from "@testing-library/react";
 import type React from "react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockDispatch = vi.fn();
 const mockUpdateSetting = vi.fn();
@@ -18,28 +18,34 @@ vi.mock("../../../store/GalleryContext", () => ({
 }));
 
 vi.mock("../api/searchApi", () => ({
-	fetchSearchKeywords: vi.fn().mockResolvedValue([{ type: "p", value: "test" }]),
-	fetchSearchConfig: vi.fn().mockResolvedValue({
-		all_prefixes: ["pos", "neg", "tag"],
-		boolean_prefixes: [],
-		date_prefixes: [],
-		sort_prefix: "sort",
-		no_quote_prefixes: ["sort"],
-	}),
-	fetchSearchSuggestions: vi.fn().mockResolvedValue([{ type: "quick", value: "suggestion" }]),
-	fetchSuggestions: vi.fn().mockResolvedValue([{ type: "tag", value: "anime", count: 10 }]),
+	fetchSearchKeywords: vi.fn(() => Promise.resolve([{ type: "p", value: "test" }])),
+	fetchSearchConfig: vi.fn(() =>
+		Promise.resolve({
+			all_prefixes: ["pos", "neg", "tag"],
+			boolean_prefixes: [],
+			date_prefixes: [],
+			sort_prefix: "sort",
+			no_quote_prefixes: ["sort"],
+		}),
+	),
+	fetchSearchSuggestions: vi.fn(() => Promise.resolve([{ type: "quick", value: "suggestion" }])),
+	fetchSuggestions: vi.fn(() => Promise.resolve([{ type: "tag", value: "anime", count: 10 }])),
 }));
 
 import { useSearchLogic } from "./useSearchLogic";
 
 describe("useSearchLogic", () => {
 	beforeEach(() => {
-		vi.clearAllMocks();
+		vi.restoreAllMocks();
 		mockSettings = {
 			"search.show_all_keywords": false,
 			"search.quick_suggestions": false,
 			"search.input_suggest": true,
 		};
+	});
+
+	afterEach(() => {
+		vi.restoreAllMocks();
 	});
 
 	it("initializes with default values", () => {

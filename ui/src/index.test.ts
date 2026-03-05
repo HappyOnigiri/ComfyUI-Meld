@@ -61,7 +61,6 @@ describe("index.ts", () => {
 	it("registers extension successfully", async () => {
 		// Import the file to execute its top-level code
 		await import("./index");
-		// @ts-expect-error Mocked module
 		const { app } = await import("/scripts/app.js");
 		expect(app.registerExtension).toHaveBeenCalled();
 	}, 20000);
