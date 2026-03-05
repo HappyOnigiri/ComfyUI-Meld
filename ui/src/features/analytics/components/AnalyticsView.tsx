@@ -10,6 +10,7 @@ import {
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
+import { useGallery } from "../../../store/GalleryContext";
 import {
 	type AnalyticsCategory,
 	type AnalyticsCategoryItem,
@@ -54,6 +55,7 @@ interface AnalyticsViewProps {
 }
 
 export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchAndNavigate }) => {
+	const { dispatch } = useGallery();
 	const [summary, setSummary] = useState<AnalyticsSummary | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isRefreshing, setIsRefreshing] = useState(false);
@@ -132,10 +134,11 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 			if (expandedCategory) {
 				await loadFullList(expandedCategory, fullSort, fullQuery);
 			}
+			dispatch({ type: "SHOW_TOAST", payload: "Analytics refreshed" });
 		} finally {
 			setIsRefreshing(false);
 		}
-	}, [loadSummary, loadFullList, expandedCategory, fullSort, fullQuery]);
+	}, [loadSummary, loadFullList, expandedCategory, fullSort, fullQuery, dispatch]);
 
 	const handleItemClick = useCallback(
 		(category: string, value: string) => {

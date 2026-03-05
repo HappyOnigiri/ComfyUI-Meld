@@ -10,11 +10,7 @@
 	flex-direction: row;
 	align-items: center;
 	justify-content: space-between;
-	background: linear-gradient(
-		145deg,
-		var(--comfy-input-bg, rgba(255, 255, 255, 0.05)),
-		rgba(0, 0, 0, 0.2)
-	);
+	background: linear-gradient(145deg, var(--comfy-input-bg), var(--comfy-menu-bg));
 	border: 1px solid var(--meld-border-color);
 	border-radius: 8px;
 	padding: 10px 16px;
@@ -106,7 +102,7 @@
 	font-size: 11px;
 	font-weight: 600;
 	margin-left: 8px;
-	background: rgba(0, 0, 0, 0.3);
+	background: var(--comfy-menu-bg);
 	padding: 2px 8px;
 	border-radius: 12px;
 }
@@ -196,7 +192,6 @@
 }
 
 .meldAnalytics__refreshBtn:disabled {
-	color: var(--meld-text-secondary);
-	opacity: 0.5;
+	color: var(--meld-text-disabled);
 	cursor: not-allowed;
 }
