@@ -19,5 +19,8 @@ web/js/style.css
 web/js/gallery_extension.js
 web/js/index.js
 
+# Vendored third-party libraries
+web/js/jszip.min.js
+
 # UI coverage
 ui/coverage/
