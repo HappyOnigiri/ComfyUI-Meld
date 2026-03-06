@@ -188,8 +188,8 @@
 }
 
 /* unused-css-check-ignore */ .meld-image-card__menu-item:focus-visible {
-	outline: 2px solid var(--meld-accent-color, #4488ff);
-	outline-offset: 2px;
+	outline: none;
+	box-shadow: inset 0 0 0 2px var(--meld-accent-color, #4488ff);
 }
 
 /* unused-css-check-ignore */ .meld-image-card__menu-item:focus:not(:focus-visible) {

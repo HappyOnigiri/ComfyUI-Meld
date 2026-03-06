@@ -193,6 +193,7 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 
 	const handleImageKeyDown = useCallback(
 		(e: React.KeyboardEvent, img: MeldImage) => {
+			if (e.repeat) return;
 			if (e.key === "Enter" || e.key === " ") {
 				e.preventDefault();
 				if (e.ctrlKey || e.metaKey) {

@@ -109,6 +109,7 @@ export function ImageViewer() {
 			}}
 			role="button"
 			tabIndex={0}
+			aria-label="Close image viewer"
 		>
 			<div
 				className={`meld-viewer-content ${isFullscreen ? "meld-viewer-content--fullscreen" : ""} ${showThumbnails ? "meld-viewer-content--with-thumbnails" : ""}`}
