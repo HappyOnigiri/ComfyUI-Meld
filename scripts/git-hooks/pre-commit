@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# Get current branch name
+branch=$(git rev-parse --abbrev-ref HEAD)
+
+# Prohibit direct commits to the main branch
+if [ "$branch" = "main" ]; then
+  # Message with newlines
+  echo "------------------------- ERROR -------------------------"
+  echo "Error: Direct commits to the main branch are prohibited."
+  echo "Please create a new branch and merge via a Pull Request (PR)."
+  echo ""
+  echo "Steps:"
+  echo "  1. Stash your changes: git stash"
+  echo "  2. Create a new branch: git checkout -b feature/your-feature-name"
+  echo "  3. Re-apply your changes: git stash pop"
+  echo ""
+  echo "We recommend using 'make ship' for the merge process."
+  echo "---------------------------------------------------------"
+  exit 1
+fi
