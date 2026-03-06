@@ -71,9 +71,10 @@ export const fetchAnalyticsCategory = async (
 	};
 };
 
-export const refreshAnalytics = async (): Promise<void> => {
+export const refreshAnalytics = async (options?: { signal?: AbortSignal }): Promise<void> => {
 	const res = await api.fetchApi("/meld/analytics/refresh", {
 		method: "POST",
+		signal: options?.signal,
 	});
 	await handleResponse(res);
 };

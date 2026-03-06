@@ -22,6 +22,13 @@ import {
 } from "../api/analyticsApi";
 import styles from "./AnalyticsView.module.css";
 
+/**
+ * Backend search-prefix grammar: maps category keys to query tokens.
+ * Supported keys: positive_prompts, negative_prompts, tags, models, by_date, by_resolution.
+ * Prefixes: pos:, neg:, tag:, model:, date:, resolution:.
+ * Values with spaces or quotes must be quoted and escaped (use \" for quotes).
+ * Format is required by the backend search parser; preserve mapping and escaping when changing.
+ */
 const CATEGORY_PREFIX: Record<string, string> = {
 	positive_prompts: "pos",
 	negative_prompts: "neg",
@@ -156,7 +163,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 
 		setIsRefreshing(true);
 		try {
-			await refreshAnalytics();
+			await refreshAnalytics({ signal });
 			if (signal.aborted) return;
 			await loadSummary(signal);
 			if (signal.aborted) return;
