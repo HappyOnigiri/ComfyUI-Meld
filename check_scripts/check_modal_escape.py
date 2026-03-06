@@ -2,7 +2,7 @@
 """
 Verify that all modal/overlay UI components close on Escape key.
 
-Enforces .cursor/rules/ui/modal-escape-policy.mdc:
+Enforces agent-config/rules/ui/modal-escape-policy.mdc:
 - Any modal/overlay UI MUST close on Escape.
 - A "modal" includes UI using createPortal, meld-modal-overlay, or *Modal* components.
 
@@ -150,7 +150,7 @@ def main() -> None:
         print(f"Directory not found: {ui_src}")
         sys.exit(1)
 
-    print("Checking modal Escape handling per .cursor/rules/ui/modal-escape-policy.mdc...")
+    print("Checking modal Escape handling per agent-config/rules/ui/modal-escape-policy.mdc...")
 
     modals = find_modal_components(ui_src)
     violations: list[str] = []
@@ -168,7 +168,7 @@ def main() -> None:
             print(f"  - {v}")
         print("\nPolicy: All modals MUST close on Escape.")
         print("Add useEscapeToClose({ onEscape: ... }) or handle key === 'Escape'.")
-        print("See .cursor/rules/ui/modal-escape-policy.mdc")
+        print("See agent-config/rules/ui/modal-escape-policy.mdc")
         sys.exit(1)
 
     print("Modal Escape check passed.")

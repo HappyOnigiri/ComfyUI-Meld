@@ -2,7 +2,7 @@
 """
 Z-index layer policy checker.
 
-Enforces the policy defined in .cursor/rules/ui/z-index-layer-policy.mdc:
+Enforces the policy defined in agent-config/rules/ui/z-index-layer-policy.mdc:
 - Global layers must use var(--meld-z-*).
 - Only small local values (1, 2, 3) are allowed for component-scoped stacking.
 - Magic numbers (e.g., 10, 11, 1001) are forbidden.

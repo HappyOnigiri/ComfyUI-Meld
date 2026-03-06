@@ -68,12 +68,12 @@ def main() -> None:
         ("repomix-ui", "ui/**,*.md,*.toml,requirements.txt,Makefile,__init__.py", None),
         (
             "repomix-image-manager",
-            "ui/**,py/image_manager/**,py/meld_save_image/**,.cursor/rules/**,*.md,*.toml,requirements.txt,Makefile,__init__.py",
+            "ui/**,py/image_manager/**,py/meld_save_image/**,agent-config/rules/**,*.md,*.toml,requirements.txt,Makefile,__init__.py",
             "tests/**",
         ),
         (
             "repomix-docs",
-            "docs/**,*.md,*.toml,requirements.txt,Makefile,__init__.py,.cursor/rules/**",
+            "docs/**,*.md,*.toml,requirements.txt,Makefile,__init__.py,agent-config/rules/**",
             None,
         ),
     ]
