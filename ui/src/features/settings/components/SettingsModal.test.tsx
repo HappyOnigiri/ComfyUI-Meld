@@ -89,7 +89,7 @@ describe("SettingsModal", () => {
 		render(<SettingsModal />);
 		const tabLabels = ["Gallery", "View", "Full Screen", "Shortcuts", "System", "Information"];
 		for (const label of tabLabels) {
-			expect(screen.getByRole("button", { name: label })).toBeInTheDocument();
+			expect(screen.getByRole("tab", { name: label })).toBeInTheDocument();
 		}
 	});
 
@@ -104,7 +104,7 @@ describe("SettingsModal", () => {
 		mockUseSettingsModalLogic.mockReturnValue(createMockLogic({ setActiveTab: mockSetActiveTab }));
 		render(<SettingsModal />);
 
-		const viewTab = screen.getByRole("button", { name: "View" });
+		const viewTab = screen.getByRole("tab", { name: "View" });
 		fireEvent.click(viewTab);
 		expect(mockSetActiveTab).toHaveBeenCalledWith("View");
 	});
