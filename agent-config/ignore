@@ -1,0 +1,26 @@
+.git/
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+venv/
+env/
+.tox/
+.coverage
+htmlcov/
+*.log
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+web/js/style.css
+web/js/gallery_extension.js
+web/js/index.js
+
+# Vendored third-party libraries
+web/js/jszip.min.js
+
+# UI coverage
+ui/coverage/

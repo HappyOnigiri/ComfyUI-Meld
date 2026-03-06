@@ -20,6 +20,7 @@ This document serves as a comprehensive guide for AI agents and developers to un
 - `__init__.py`: **Entry Point for ComfyUI**. Exports custom nodes and registers the web directory.
 - `requirements.txt`: Python dependencies.
 - `package.json` (in `ui/`): Frontend dependencies.
+- `agent-config/`: **Source of truth for AI agent configuration** (rules, skills, ignore patterns). Run `make sync` to propagate to `.cursor/`, `.agents/`, `CLAUDE.md`, `.claude/`, `.cursorignore`, `.aiignore`, `.claudeignore`.
 
 ### Backend (`py/`)
 | Directory | Responsibility |
