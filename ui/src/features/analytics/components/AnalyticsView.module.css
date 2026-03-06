@@ -159,6 +159,11 @@
 	flex-wrap: wrap;
 }
 
+.meldAnalytics__toolbarBtn {
+	padding: 6px 12px;
+	height: auto;
+}
+
 .meldAnalytics__searchContainer {
 	display: flex;
 	align-items: center;

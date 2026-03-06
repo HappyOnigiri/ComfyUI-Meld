@@ -294,8 +294,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 							</div>
 							<button
 								type="button"
-								className="meld-btn meld-btn--secondary"
-								style={{ padding: "6px 12px", height: "auto" }}
+								className={`meld-btn meld-btn--secondary ${styles.meldAnalytics__toolbarBtn}`}
 								onClick={() =>
 									setFullSort((s) => (s === "count_desc" ? "count_asc" : "count_desc"))
 								}
@@ -310,8 +309,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 							</button>
 							<button
 								type="button"
-								className="meld-btn meld-btn--secondary"
-								style={{ padding: "6px 12px", height: "auto" }}
+								className={`meld-btn meld-btn--secondary ${styles.meldAnalytics__toolbarBtn}`}
 								onClick={() => setExpandedCategory(null)}
 							>
 								Back
