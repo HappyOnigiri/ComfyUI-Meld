@@ -135,7 +135,7 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({ children })
 
 			// Start background fetch if there's more
 			if (total > initialLimit) {
-				startBackgroundFetch(initialLimit, result.total, fetchId);
+				startBackgroundFetch(initialLimit, total, fetchId);
 			}
 		} catch (err: unknown) {
 			logger.error("refreshImages: fetch failed", err);
