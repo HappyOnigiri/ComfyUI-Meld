@@ -52,39 +52,7 @@ reviews:
           than intended (e.g., count-based vs. occurrence-based ignore tracking).
         - Multi-line block comment parsing that incorrectly includes commented-out code.
 
-    - path: "ui/src/**/*.test.ts"
-      instructions: |
-        This project has mass-coverage test files (massComponent, massHooks,
-        massFunctions, massUtility) whose sole purpose is to exercise code paths
-        for coverage metrics. Do NOT flag the following in ANY test file:
-
-        SUPPRESS - Test quality / structure:
-        - Adding assertions to smoke tests or mass-coverage tests that intentionally
-          swallow exceptions. The pattern is deliberate for coverage purposes.
-        - Adding explanatory comments describing test intent or the mass-coverage pattern.
-        - Converting empty/silent catch blocks into logged or tracked errors.
-        - Converting suite-scoped fixtures into per-test fixtures.
-        - Restoring global mocks (navigator.clipboard, global.fetch, etc.) in teardown.
-        - Adding failure-path responses to shared test mocks (e.g., comfyApi mock).
-        - Commenting on intentional double-renders or StrictMode simulations.
-        - Replacing setTimeout-based waits with waitFor/act.
-
-        SUPPRESS - Typing in test files:
-        - Replacing as any / as never / as unknown with stricter types.
-        - Typing mock selectors or store selectors more strictly.
-        - Using vi.mocked() instead of (x as any).mock... casts.
-
-        SUPPRESS - Query and assertion style:
-        - Replacing document.querySelectorAll / class-name selectors with
-          Testing Library queries (screen.getByRole, screen.getByText, etc.).
-        - Replacing btn.click() with fireEvent.click(btn) for consistency.
-        - Debating render assertion style: expect(container).toBeTruthy() vs
-          expect(() => render(...)).not.toThrow() are both acceptable patterns.
-
-        STILL FLAG: structurally broken tests (always-pass logic, mock not applied),
-        incorrect assertion values, security-sensitive setup issues.
-
-    - path: "ui/src/**/*.test.tsx"
+    - path: "ui/src/**/*.test.{ts,tsx}"
       instructions: |
         This project has mass-coverage test files (massComponent, massHooks,
         massFunctions, massUtility) whose sole purpose is to exercise code paths
