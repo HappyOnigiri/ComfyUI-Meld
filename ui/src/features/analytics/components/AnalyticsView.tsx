@@ -91,9 +91,14 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 			const data = await fetchAnalyticsSummary({ signal });
 			if (signal?.aborted) return;
 			setSummary(data);
-		} catch {
-			if (signal?.aborted) return;
+		} catch (err) {
+			if (
+				signal?.aborted ||
+				(err && typeof err === "object" && (err as { name?: string }).name === "AbortError")
+			)
+				return;
 			setSummary(null);
+			throw err;
 		} finally {
 			if (!signal?.aborted) {
 				setIsLoading(false);
@@ -103,7 +108,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 
 	useEffect(() => {
 		const controller = new AbortController();
-		loadSummary(controller.signal);
+		loadSummary(controller.signal).catch(() => {});
 		return () => controller.abort();
 	}, [loadSummary]);
 
@@ -121,10 +126,15 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 				if (signal?.aborted) return;
 				setFullItems(data);
 				setFullTotal(total);
-			} catch {
-				if (signal?.aborted) return;
+			} catch (err) {
+				if (
+					signal?.aborted ||
+					(err && typeof err === "object" && (err as { name?: string }).name === "AbortError")
+				)
+					return;
 				setFullItems([]);
 				setFullTotal(0);
+				throw err;
 			} finally {
 				if (!signal?.aborted) {
 					setFullLoading(false);
@@ -141,7 +151,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 		const abortController = new AbortController();
 
 		const run = () => {
-			loadFullList(expandedCategory, fullSort, fullQuery, abortController.signal);
+			loadFullList(expandedCategory, fullSort, fullQuery, abortController.signal).catch(() => {});
 		};
 
 		if (isQueryChange) {
