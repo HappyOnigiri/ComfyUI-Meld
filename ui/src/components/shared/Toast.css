@@ -1,0 +1,50 @@
+/* Toast: toast notification for Light Table */
+
+.meld-toast {
+	position: fixed;
+	bottom: 64px;
+	/* Offset from bottom */
+	left: 50%;
+	transform: translateX(-50%);
+	background: var(--comfy-menu-bg, #15161a);
+	border: 1px solid var(--meld-success-color, #4ade80);
+	color: var(--fg-color, #eee);
+	font-family: var(--comfy-ui-font, sans-serif);
+	font-size: 13px;
+	padding: 10px 18px;
+	border-radius: 8px;
+	box-shadow: 0 4px 20px var(--comfy-menu-shadow, transparent);
+	z-index: var(--meld-z-toast);
+	animation:
+		meld-toast-in 0.2s ease,
+		meld-toast-out 0.3s ease 2.2s forwards;
+	pointer-events: none;
+}
+
+.meld-toast--error {
+	border-color: var(--meld-danger-color, #ff4c4c);
+}
+
+@keyframes meld-toast-in {
+	from {
+		opacity: 0;
+		transform: translate(-50%, 15px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translate(-50%, 0);
+	}
+}
+
+@keyframes meld-toast-out {
+	from {
+		opacity: 1;
+		transform: translate(-50%, 0);
+	}
+
+	to {
+		opacity: 0;
+		transform: translate(-50%, 15px);
+	}
+}

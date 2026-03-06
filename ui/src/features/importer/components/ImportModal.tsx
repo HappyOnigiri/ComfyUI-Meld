@@ -1,0 +1,589 @@
+import { ChevronLeft, ChevronRight, Folder, Play, Plus, Search, X } from "lucide-react";
+import type React from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import * as api from "../../../api";
+import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
+import { logger } from "../../../logger";
+import { useGallery } from "../../../store/GalleryContext";
+import type { Tag as TagType } from "../../../types";
+import { getThumbnailViewUrl } from "../../../utils/url";
+import * as tagsApi from "../../tags/api/tagsApi";
+import * as importerApi from "../api/importerApi";
+
+export const ImportModal: React.FC = () => {
+	const { dispatch } = useGallery();
+	const [config, setConfig] = useState<{
+		type: string;
+		subfolder: string;
+		custom_path: string;
+		recursive: boolean;
+		auto_link_parent: boolean;
+		link_strategy: "none" | "new_only" | "all";
+		tags: string[];
+	}>(() => {
+		const saved = localStorage.getItem("meld-import-config");
+		const defaultConfig = {
+			type: "output",
+			subfolder: "",
+			custom_path: "",
+			recursive: true,
+			auto_link_parent: true,
+			link_strategy: "new_only" as const,
+			tags: [],
+		};
+
+		if (saved) {
+			try {
+				const parsed = JSON.parse(saved);
+				return { ...defaultConfig, ...parsed, tags: [] }; // Don't persist tags
+			} catch (_e) {
+				return defaultConfig;
+			}
+		}
+		return defaultConfig;
+	});
+
+	useEffect(() => {
+		const { tags, ...rest } = config;
+		localStorage.setItem("meld-import-config", JSON.stringify(rest));
+	}, [config]);
+
+	const [folders, setFolders] = useState<
+		{
+			name: string;
+			count: number | null;
+			preview?: { filename: string; subfolder: string; type: string };
+		}[]
+	>([]);
+	const [images, setImages] = useState<{ filename: string; subfolder: string; type: string }[]>([]);
+	const [currentPathImageCount, setCurrentPathImageCount] = useState<number | null>(0);
+	const [isLoadingFolders, setIsLoadingFolders] = useState(false);
+	const [allTags, setAllTags] = useState<TagType[]>([]);
+	const [tagSearchQuery, setTagSearchQuery] = useState("");
+	const [isLoadingTags, setIsLoadingTags] = useState(false);
+	const [previewImage, setPreviewImage] = useState<{
+		filename: string;
+		subfolder: string;
+		type: string;
+	} | null>(null);
+
+	const overlayMouseDownRef = useRef(false);
+
+	const handleOverlayMouseDown = (e: React.MouseEvent) => {
+		if (e.target === e.currentTarget) {
+			overlayMouseDownRef.current = true;
+		}
+	};
+
+	const handleOverlayMouseUp = (e: React.MouseEvent) => {
+		if (e.target === e.currentTarget && overlayMouseDownRef.current) {
+			dispatch({ type: "CLOSE_MODAL" });
+		}
+		overlayMouseDownRef.current = false;
+	};
+
+	useEffect(() => {
+		const initHomeDir = async () => {
+			try {
+				const home = await api.fetchHomeDir();
+				setConfig((prev) => {
+					// Only overwrite if custom_path is empty or not yet set
+					if (prev.custom_path) return prev;
+					return { ...prev, custom_path: home };
+				});
+			} catch (err) {
+				logger.error("Failed to fetch home directory:", err);
+			}
+		};
+		initHomeDir();
+	}, []);
+
+	useEffect(() => {
+		const controller = new AbortController();
+
+		const loadFolders = async () => {
+			const path = config.type === "custom" ? config.custom_path : config.subfolder;
+			logger.log(`loadFolders started. Path: "${path}", Type: "${config.type}"`);
+
+			if (config.type === "custom" && !path) {
+				logger.log("Custom path is empty, skipping load.");
+				setFolders([]);
+				setImages([]);
+				setCurrentPathImageCount(0);
+				setIsLoadingFolders(false);
+				return;
+			}
+
+			setIsLoadingFolders(true);
+			const currentPath = path;
+			const currentType = config.type;
+
+			try {
+				// Step 1: Fast load (Folders and Images in current dir)
+				logger.log("Step 1: Fast load starting...");
+				const result = await importerApi.fetchFolders(config.type, path, true, controller.signal);
+				if (controller.signal.aborted) {
+					logger.log("Step 1: Aborted.");
+					return;
+				}
+				const folders = Array.isArray(result?.folders) ? result.folders : [];
+				const images = Array.isArray(result?.images) ? result.images : [];
+				logger.log(`Step 1 complete. Found ${folders.length} folders, ${images.length} images.`);
+				setFolders(folders);
+				setImages(images);
+				setCurrentPathImageCount(null);
+
+				// Step 2: Fetch folder metadata (counts and previews)
+				const folderNames = folders.map((f) => f.name);
+				if (folderNames.length > 0) {
+					logger.log(`Step 2: Metadata fetch starting for ${folderNames.length} folders...`);
+					importerApi
+						.fetchFolderMetadata(currentType, currentPath, folderNames, controller.signal)
+						.then((metadata) => {
+							if (controller.signal.aborted) {
+								logger.log("Step 2: Aborted.");
+								return;
+							}
+							logger.log("Step 2: Metadata fetch complete.");
+							setFolders((prev) =>
+								prev.map((f) => {
+									const m = metadata[f.name];
+									return m ? { ...f, count: m.count, preview: m.preview } : f;
+								}),
+							);
+						})
+						.catch((err) => {
+							if (err.name !== "AbortError") {
+								logger.error("Step 2: Metadata fetch failed:", err);
+							}
+						});
+				}
+
+				// Step 3: Fetch total recursive image count
+				logger.log("Step 3: Path image count starting...");
+				importerApi
+					.fetchPathImageCount(currentType, currentPath, controller.signal)
+					.then((count) => {
+						if (controller.signal.aborted) {
+							logger.log("Step 3: Aborted.");
+							return;
+						}
+						logger.log(`Step 3: Path image count complete: ${count}`);
+						setCurrentPathImageCount(count);
+					})
+					.catch((err) => {
+						if (err.name !== "AbortError") {
+							logger.error("Step 3: Path image count failed:", err);
+						}
+					});
+			} catch (err: unknown) {
+				if ((err as Error).name === "AbortError") {
+					logger.log("Request aborted.");
+					return;
+				}
+				logger.error("Failed to load folders:", err);
+				setFolders([]);
+				setImages([]);
+				setCurrentPathImageCount(0);
+			} finally {
+				if (!controller.signal.aborted) {
+					setIsLoadingFolders(false);
+				}
+			}
+		};
+
+		loadFolders();
+
+		return () => {
+			controller.abort();
+		};
+	}, [config.type, config.subfolder, config.custom_path]);
+
+	const loadTags = useCallback(async () => {
+		setIsLoadingTags(true);
+		try {
+			const data = await tagsApi.fetchTags();
+			setAllTags(data);
+		} catch (error) {
+			logger.error("Failed to fetch tags:", error);
+		} finally {
+			setIsLoadingTags(false);
+		}
+	}, []);
+
+	useEffect(() => {
+		loadTags();
+	}, [loadTags]);
+
+	useEscapeToClose({
+		onEscape: useCallback(() => {
+			if (previewImage) {
+				setPreviewImage(null);
+			} else {
+				dispatch({ type: "CLOSE_MODAL" });
+			}
+		}, [previewImage, dispatch]),
+	});
+
+	const filteredTags = useMemo(() => {
+		return allTags.filter(
+			(tag) =>
+				tag.name.toLowerCase().includes(tagSearchQuery.toLowerCase()) &&
+				!config.tags.includes(tag.name),
+		);
+	}, [allTags, tagSearchQuery, config.tags]);
+
+	const handleAddTag = (tagName: string) => {
+		const trimmed = tagName.trim();
+		if (trimmed && !config.tags.includes(trimmed)) {
+			setConfig({ ...config, tags: [...config.tags, trimmed] });
+			setTagSearchQuery("");
+		}
+	};
+
+	const handleRemoveTag = (tagName: string) => {
+		setConfig({ ...config, tags: config.tags.filter((t) => t !== tagName) });
+	};
+
+	const handleTagKeyDown = (e: React.KeyboardEvent) => {
+		if (e.key === "Enter" && tagSearchQuery.trim()) {
+			e.preventDefault();
+			handleAddTag(tagSearchQuery.trim());
+		}
+	};
+
+	const handleStart = async () => {
+		try {
+			await importerApi.startScan(config);
+			dispatch({
+				type: "SET_SCAN_STATUS",
+				payload: {
+					isRunning: true,
+					isFinished: false,
+					shouldCancel: false,
+					newCount: 0,
+					progress: { current: 0, total: 0, phase: "registering" },
+				},
+			});
+			dispatch({ type: "CLOSE_MODAL" });
+		} catch (err) {
+			logger.error("Failed to start scan:", err);
+			alert(`Failed to start scan: ${err}`);
+		}
+	};
+
+	const enterFolder = (name: string) => {
+		if (config.type === "custom") {
+			const separator = config.custom_path.includes("\\") ? "\\" : "/";
+			const newPath = config.custom_path.endsWith(separator)
+				? `${config.custom_path}${name}`
+				: `${config.custom_path}${separator}${name}`;
+			setConfig({ ...config, custom_path: newPath });
+		} else {
+			const newSub = config.subfolder ? `${config.subfolder}/${name}` : name;
+			setConfig({ ...config, subfolder: newSub });
+		}
+	};
+
+	const goUp = () => {
+		if (config.type === "custom") {
+			const separator = config.custom_path.includes("\\") ? "\\" : "/";
+			const parts = config.custom_path.split(separator);
+			if (parts.length > 1) {
+				parts.pop();
+				let newPath = parts.join(separator);
+				if (newPath === "" && separator === "/") newPath = "/"; // Root on Linux
+				setConfig({ ...config, custom_path: newPath });
+			}
+		} else {
+			const parts = config.subfolder.split("/");
+			parts.pop();
+			setConfig({ ...config, subfolder: parts.join("/") });
+		}
+	};
+
+	return createPortal(
+		<div
+			className="meld-modal-overlay"
+			onMouseDown={handleOverlayMouseDown}
+			onMouseUp={handleOverlayMouseUp}
+		>
+			<div
+				className="meld-modal-content meld-modal-content--large"
+				onClick={(e) => e.stopPropagation()}
+			>
+				<div className="meld-modal-header">
+					<h2>Import Images</h2>
+					<button
+						type="button"
+						className="meld-modal-close"
+						onClick={() => dispatch({ type: "CLOSE_MODAL" })}
+					>
+						<X size={20} />
+					</button>
+				</div>
+
+				<div className="meld-modal-body">
+					<div className="meld-import-container">
+						<div className="meld-import-sidebar">
+							<div className="meld-form-group">
+								<label htmlFor="base-location">Base Location</label>
+								<select
+									id="base-location"
+									value={config.type}
+									onChange={(e) =>
+										setConfig({
+											...config,
+											type: e.target.value,
+											subfolder: "",
+										})
+									}
+								>
+									<option value="output">Output Directory</option>
+									<option value="input">Input Directory</option>
+									<option value="custom">Custom Path (Absolute)</option>
+								</select>
+							</div>
+
+							<div className="meld-form-group">
+								<span className="meld-form-label">Images Found</span>
+								<div className="meld-path-count">
+									{currentPathImageCount === null ? (
+										<span className="meld-path-count--loading">Scanning...</span>
+									) : (
+										`${currentPathImageCount} images`
+									)}
+								</div>
+							</div>
+
+							<div className="meld-form-group--checkbox">
+								<label>
+									<input
+										type="checkbox"
+										checked={config.recursive}
+										onChange={(e) => setConfig({ ...config, recursive: e.target.checked })}
+									/>
+									Recursive Scan
+								</label>
+							</div>
+
+							<div className="meld-form-group">
+								<label htmlFor="link-strategy">Source Linking</label>
+								<select
+									id="link-strategy"
+									value={config.link_strategy}
+									onChange={(e) =>
+										setConfig({
+											...config,
+											link_strategy: e.target.value as "none" | "new_only" | "all",
+											auto_link_parent: e.target.value !== "none",
+										})
+									}
+								>
+									<option value="none">Do not link</option>
+									<option value="new_only">Only for new images</option>
+									<option value="all">Reset for all images</option>
+								</select>
+							</div>
+
+							<div className="meld-form-group">
+								<label htmlFor="import-tags">Tags to Add</label>
+								<div className="meld-tag-edit-selected">
+									{config.tags.length === 0 ? (
+										<span className="meld-tag-edit-empty">No tags selected</span>
+									) : (
+										config.tags.map((tag) => (
+											<span key={tag} className="meld-tag-edit-badge">
+												{tag}
+												<button
+													type="button"
+													className="meld-tag-edit-remove"
+													onClick={() => handleRemoveTag(tag)}
+												>
+													<X size={12} />
+												</button>
+											</span>
+										))
+									)}
+								</div>
+
+								<div className="meld-tag-search-container">
+									<Search size={14} className="meld-tag-search-icon" />
+									<input
+										id="import-tags"
+										type="text"
+										className="meld-tag-search-input"
+										placeholder="Search or create tag..."
+										value={tagSearchQuery}
+										onChange={(e) => setTagSearchQuery(e.target.value)}
+										onKeyDown={handleTagKeyDown}
+									/>
+									{tagSearchQuery.trim() && !config.tags.includes(tagSearchQuery.trim()) && (
+										<button
+											type="button"
+											className="meld-tag-add-btn"
+											onClick={() => handleAddTag(tagSearchQuery)}
+										>
+											<Plus size={14} />
+										</button>
+									)}
+								</div>
+
+								<div className="meld-tag-suggestions">
+									{isLoadingTags ? (
+										<div className="meld-tag-suggestions-loading">Loading...</div>
+									) : filteredTags.length === 0 ? (
+										tagSearchQuery && (
+											<div className="meld-tag-suggestions-empty">New tag: {tagSearchQuery}</div>
+										)
+									) : (
+										filteredTags.map((tag) => (
+											<button
+												key={tag.id}
+												type="button"
+												className="meld-tag-suggestion-item"
+												onClick={() => handleAddTag(tag.name)}
+											>
+												{tag.name}
+											</button>
+										))
+									)}
+								</div>
+							</div>
+
+							<div className="meld-scan-actions">
+								<button
+									type="button"
+									className="meld-btn meld-btn--primary"
+									onClick={handleStart}
+									style={{ width: "100%" }}
+								>
+									<Play size={16} />
+									Start Import
+								</button>
+							</div>
+						</div>
+
+						<div className="meld-import-browser">
+							<div className="meld-browser-header">
+								<button
+									type="button"
+									className="meld-browser-back"
+									disabled={
+										config.type === "custom"
+											? config.custom_path === "/" ||
+												(!config.custom_path.includes("/") && !config.custom_path.includes("\\"))
+											: !config.subfolder
+									}
+									onClick={goUp}
+								>
+									<ChevronLeft size={16} />
+									Back
+								</button>
+								<div className="meld-browser-path-container">
+									{config.type === "custom" ? (
+										<input
+											type="text"
+											className="meld-browser-path-input"
+											value={config.custom_path}
+											onChange={(e) => setConfig({ ...config, custom_path: e.target.value })}
+											placeholder="Enter absolute path..."
+										/>
+									) : (
+										<div className="meld-browser-path-display">
+											<span className="meld-browser-path-type">{config.type}/</span>
+											{config.subfolder}
+										</div>
+									)}
+								</div>
+							</div>
+
+							<div className="meld-folder-list">
+								{isLoadingFolders ? (
+									<div className="meld-browser-loading">Loading...</div>
+								) : folders.length === 0 && images.length === 0 ? (
+									<div className="meld-browser-empty">No items found.</div>
+								) : (
+									<>
+										{folders.map((f) => (
+											<div
+												key={f.name}
+												className="meld-folder-item"
+												onClick={() => enterFolder(f.name)}
+											>
+												<div className="meld-folder-icon-wrapper">
+													{f.preview ? (
+														<img
+															className="meld-folder-preview"
+															src={getThumbnailViewUrl(f.preview, 64)}
+															alt=""
+														/>
+													) : (
+														<Folder size={16} />
+													)}
+												</div>
+												<span className="meld-folder-name">{f.name}</span>
+												<span
+													className={`meld-folder-count ${
+														f.count === null ? "meld-folder-count--loading" : ""
+													}`}
+												>
+													{f.count !== null ? `${f.count} total` : "..."}
+												</span>
+												<ChevronRight size={14} />
+											</div>
+										))}
+
+										{images.length > 0 && (
+											<div className="meld-browser-image-grid">
+												{images.map((img) => (
+													<div
+														key={img.filename}
+														className="meld-browser-image-item"
+														onClick={() => setPreviewImage(img)}
+													>
+														<img
+															src={getThumbnailViewUrl(img, 120)}
+															alt={img.filename}
+															title={img.filename}
+														/>
+													</div>
+												))}
+											</div>
+										)}
+									</>
+								)}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			{previewImage && (
+				<div
+					className="meld-import-preview-overlay"
+					onClick={(e) => {
+						e.stopPropagation();
+						setPreviewImage(null);
+					}}
+				>
+					<div className="meld-import-preview-content" onClick={(e) => e.stopPropagation()}>
+						<div className="meld-import-preview-image-wrapper">
+							<button
+								type="button"
+								className="meld-import-preview-close"
+								onClick={() => setPreviewImage(null)}
+							>
+								<X size={24} />
+							</button>
+							<img src={getThumbnailViewUrl(previewImage, 400)} alt={previewImage.filename} />
+						</div>
+						<div className="meld-import-preview-info">{previewImage.filename}</div>
+					</div>
+				</div>
+			)}
+		</div>,
+		(document.fullscreenElement as HTMLElement) || document.body,
+	);
+};

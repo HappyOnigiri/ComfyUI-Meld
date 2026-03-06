@@ -1,0 +1,113 @@
+/* Modals */
+.meld-modal-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: var(
+		--meld-overlay-bg,
+		color-mix(in srgb, var(--comfy-menu-bg, #15161a) 25%, transparent)
+	);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: var(--meld-z-modal-overlay);
+}
+
+.meld-modal-content {
+	position: relative;
+	background: var(--comfy-menu-bg, #222);
+	border: 1px solid var(--meld-border-color);
+	border-radius: 8px;
+	width: 90vw;
+	max-width: 500px;
+	max-height: 85vh;
+	display: flex;
+	flex-direction: column;
+	box-shadow: 0 10px 30px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.5));
+}
+
+.meld-modal-content--small {
+	max-width: 500px;
+}
+
+/* unused-css-check-ignore: Preserved for future use when wider dialogs are needed */
+.meld-modal-content--medium {
+	max-width: 800px;
+}
+
+.meld-modal-content--large {
+	max-width: 1000px;
+}
+
+.meld-modal-header {
+	padding: 15px 20px;
+	border-bottom: 1px solid var(--meld-border-color);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.meld-modal-header h2 {
+	margin: 0;
+	font-size: 16px;
+	color: var(--meld-accent-color);
+}
+
+.meld-modal-close {
+	background: none;
+	border: none;
+	color: var(--meld-text-secondary);
+	cursor: pointer;
+	padding: 5px;
+}
+
+.meld-modal-close:hover {
+	color: var(--meld-text-color);
+}
+
+.meld-modal-body {
+	padding: 12px 20px;
+	overflow-y: auto;
+	flex: 1;
+}
+
+.meld-modal-footer {
+	padding: 15px 20px;
+	border-top: 1px solid var(--meld-border-color);
+	display: flex;
+	justify-content: center;
+	gap: 10px;
+}
+
+.meld-modal-loading {
+	text-align: center;
+	padding: 40px;
+	color: var(--meld-text-secondary);
+}
+
+.meld-mask-editor-modal .meld-modal-body {
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+/* Mask editor needs a larger, viewport-fitting modal to avoid tall/narrow layout. */
+.meld-mask-editor-modal {
+	width: 95vw;
+	max-width: 1400px;
+	height: 92vh;
+	max-height: 92vh;
+}
+
+/* Download progress bar: indeterminate animation for ZIP format */
+@keyframes meld-progress-indeterminate {
+	0% {
+		transform: translateX(-100%);
+	}
+
+	100% {
+		transform: translateX(100%);
+	}
+}
