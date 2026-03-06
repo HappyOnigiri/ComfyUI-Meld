@@ -33,11 +33,39 @@ export const PromptPopup: React.FC<PromptPopupProps> = ({
 					<span>{title}</span>
 					<div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
 						{isCopied ? (
-							<Check size={18} style={{ color: "var(--meld-success-color)" }} />
+							<Check size={18} style={{ color: "var(--meld-success-color)" }} aria-hidden />
 						) : (
-							<Copy className="meld-prompt-popup__copy" size={18} onClick={() => onCopy(text)} />
+							<span
+								role="button"
+								tabIndex={0}
+								className="meld-prompt-popup__copy"
+								aria-label="Copy prompt"
+								onClick={() => onCopy(text)}
+								onKeyDown={(e) => {
+									if (e.key === "Enter" || e.key === " ") {
+										e.preventDefault();
+										onCopy(text);
+									}
+								}}
+							>
+								<Copy size={18} />
+							</span>
 						)}
-						<X className="meld-prompt-popup__close" size={18} onClick={onClose} />
+						<span
+							role="button"
+							tabIndex={0}
+							className="meld-prompt-popup__close"
+							aria-label="Close"
+							onClick={onClose}
+							onKeyDown={(e) => {
+								if (e.key === "Enter" || e.key === " ") {
+									e.preventDefault();
+									onClose();
+								}
+							}}
+						>
+							<X size={18} />
+						</span>
 					</div>
 				</div>
 				<div className="meld-prompt-popup__text">{text}</div>

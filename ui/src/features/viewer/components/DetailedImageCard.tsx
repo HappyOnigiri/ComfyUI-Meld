@@ -144,11 +144,15 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(({
 							{parentChain.map(
 								(p, index) =>
 									p.imgSrc && (
-										<img
+										<button
 											key={p.id || index}
-											src={p.imgSrc}
-											className="meld-lineage-badge__parent-thumb"
-											loading="lazy"
+											type="button"
+											className="meld-lineage-badge__parent-thumb meld-lineage-badge__parent-thumb-btn"
+											style={{
+												padding: 0,
+												border: "none",
+												background: "none",
+											}}
 											onClick={(e) => {
 												e.stopPropagation();
 												dispatch({
@@ -166,8 +170,26 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(({
 														? "Grand-Source"
 														: `Ancestor (S${index + 1})`
 											}
-											alt="source thumb"
-										/>
+											aria-label={
+												index === 0
+													? "View source image"
+													: index === 1
+														? "View grand-source image"
+														: `View ancestor image (S${index + 1})`
+											}
+										>
+											<img
+												src={p.imgSrc}
+												loading="lazy"
+												alt=""
+												style={{
+													display: "block",
+													width: "100%",
+													height: "100%",
+													objectFit: "cover",
+												}}
+											/>
+										</button>
 									),
 							)}
 						</div>

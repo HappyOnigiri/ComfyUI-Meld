@@ -97,10 +97,13 @@ interface DownloadModalProps {
 	onClose: () => void;
 }
 
+const DOWNLOAD_MODAL_TITLE_ID = "meld-download-modal-title";
+
 export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSuccess, onClose }) => {
 	const [options, setOptions] = useState<StoredDownloadOptions>(() => loadStoredOptions());
 	const { format, removeMetadata, resizeMode, resizeValue, resizeFilter } = options;
 	const [isDownloading, setIsDownloading] = useState(false);
+	const isMountedRef = useRef(true);
 	// Download progress: current=processed images, total=total images
 	const [downloadProgress, setDownloadProgress] = useState<{
 		current: number;
@@ -111,6 +114,12 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 	const [resizeValueInput, setResizeValueInput] = useState<string>(String(resizeValue));
 
 	const overlayMouseDownRef = useRef(false);
+
+	useEffect(() => {
+		return () => {
+			isMountedRef.current = false;
+		};
+	}, []);
 
 	useEffect(() => {
 		saveStoredOptions(options);
@@ -162,12 +171,12 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 			return;
 		}
 
+		isMountedRef.current = true;
 		setIsDownloading(true);
 		const total = imageIds.length;
 		setDownloadProgress({ current: 0, total });
 		try {
 			if (format === "zip") {
-				// ZIP: Fetch images individually and assemble ZIP on client side
 				await imagesApi.downloadZipImages(
 					imageIds,
 					removeMetadata,
@@ -175,13 +184,13 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 					resizeValue,
 					resizeFilter,
 					(current, progressTotal) => {
-						setDownloadProgress({ current, total: progressTotal });
+						if (isMountedRef.current) setDownloadProgress({ current, total: progressTotal });
 					},
 				);
 			} else {
-				// Raw format: Tracking progress per image
 				let i = 0;
 				for (const imageId of imageIds) {
+					if (!isMountedRef.current) break;
 					setDownloadProgress({ current: i, total });
 					await imagesApi.downloadRawImage(
 						imageId,
@@ -191,20 +200,22 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 						resizeFilter,
 					);
 					i += 1;
-					setDownloadProgress({ current: i, total });
-					// Yield one animation frame so the browser can process UI / IO
-					// between consecutive downloads, avoiding a fixed N*200ms delay.
+					if (isMountedRef.current) setDownloadProgress({ current: i, total });
 					await new Promise<void>((r) => requestAnimationFrame(() => r()));
 				}
 			}
+			if (!isMountedRef.current) return;
 			onClose();
 			onSuccess?.();
 		} catch (error) {
+			if (!isMountedRef.current) return;
 			logger.error("Download failed:", error);
 			alert("Failed to download images.");
 		} finally {
-			setIsDownloading(false);
-			setDownloadProgress(null);
+			if (isMountedRef.current) {
+				setIsDownloading(false);
+				setDownloadProgress(null);
+			}
 		}
 	};
 
@@ -220,11 +231,17 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ imageIds, onSucces
 			onMouseDown={handleOverlayMouseDown}
 			onMouseUp={handleOverlayMouseUp}
 		>
-			<div className="meld-modal-content" onClick={(e) => e.stopPropagation()}>
+			<div
+				className="meld-modal-content"
+				onClick={(e) => e.stopPropagation()}
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby={DOWNLOAD_MODAL_TITLE_ID}
+			>
 				<div className="meld-modal-header">
 					<div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
 						<Download size={18} />
-						<h3 style={{ margin: 0 }}>
+						<h3 id={DOWNLOAD_MODAL_TITLE_ID} style={{ margin: 0 }}>
 							Download ({imageIds.length} image{imageIds.length > 1 ? "s" : ""})
 						</h3>
 					</div>

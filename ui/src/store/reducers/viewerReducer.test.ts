@@ -159,14 +159,14 @@ describe("viewerReducer", () => {
 		expect(next).toBe(state);
 	});
 
-	it("PREVIOUS_IMAGE at start in gallery mode returns unchanged state when hasMore is true", () => {
+	it("PREVIOUS_IMAGE at start in gallery mode returns unchanged when loop disabled", () => {
 		const images = [createTestImage({ id: 1 }), createTestImage({ id: 2 })];
 		const state = {
 			...initialState,
 			images,
 			viewerImageId: 1,
 			viewerMode: "gallery" as const,
-			pagination: { ...initialState.pagination, hasMore: true },
+			settings: { ...initialState.settings, "viewer.loop": false },
 		};
 		const next = viewerReducer(state, {
 			type: "PREVIOUS_IMAGE",

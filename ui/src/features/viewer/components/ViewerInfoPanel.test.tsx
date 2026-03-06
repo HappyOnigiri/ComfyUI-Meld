@@ -210,8 +210,10 @@ describe("ViewerInfoPanel", () => {
 			settings: { ...defaultSettings, "viewer.details.show_source": true },
 		});
 		expect(screen.getByText("Source")).toBeInTheDocument();
-		const imgs = screen.getAllByAltText("source thumb");
-		expect(imgs).toHaveLength(2);
+		const thumbBtns = screen.getAllByRole("button", {
+			name: /View (source|grand-source|ancestor) image/i,
+		});
+		expect(thumbBtns).toHaveLength(2);
 	});
 
 	it("invokes copy buttons to cover handleCopy and inline callbacks", async () => {
@@ -284,8 +286,8 @@ describe("ViewerInfoPanel", () => {
 		if (copyBtns[0]) fireEvent.click(copyBtns[0]);
 
 		// Click source thumb to dispatch OPEN_VIEWER
-		const thumbImg = screen.getByAltText("source thumb");
-		fireEvent.click(thumbImg);
+		const thumbBtn = screen.getByRole("button", { name: /View source image/i });
+		fireEvent.click(thumbBtn);
 		expect(mockDispatch).toHaveBeenCalledWith(expect.objectContaining({ type: "OPEN_VIEWER" }));
 	});
 

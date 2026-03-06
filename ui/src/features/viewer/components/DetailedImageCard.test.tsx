@@ -329,7 +329,9 @@ describe("DetailedImageCard", () => {
 		);
 		rerender(<DetailedImageCard image={{ ...image }} />);
 
-		const sourceThumb = screen.getAllByAltText("source thumb")[0];
+		const sourceThumb = screen.getAllByRole("button", {
+			name: /View source|View grand-source|View ancestor/i,
+		})[0];
 		if (sourceThumb) {
 			await user.click(sourceThumb);
 		}

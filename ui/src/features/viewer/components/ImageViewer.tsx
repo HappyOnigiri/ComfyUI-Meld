@@ -97,8 +97,19 @@ export function ImageViewer() {
 					dispatch({ type: "CLOSE_VIEWER" });
 				}
 			}}
+			onKeyDown={(e) => {
+				if (
+					e.target === e.currentTarget &&
+					state.activeModal.type === "none" &&
+					(e.key === "Enter" || e.key === " " || e.key === "Spacebar")
+				) {
+					if (e.key === " ") e.preventDefault();
+					dispatch({ type: "CLOSE_VIEWER" });
+				}
+			}}
 			role="button"
 			tabIndex={0}
+			aria-label="Close image viewer"
 		>
 			<div
 				className={`meld-viewer-content ${isFullscreen ? "meld-viewer-content--fullscreen" : ""} ${showThumbnails ? "meld-viewer-content--with-thumbnails" : ""}`}

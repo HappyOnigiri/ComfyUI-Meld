@@ -1,6 +1,6 @@
 import { Plus, Search, Tag, X } from "lucide-react";
 import type React from "react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { RESERVED_TAG_KEYWORD } from "../../../constants";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
@@ -49,21 +49,24 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 		overlayMouseDownRef.current = false;
 	};
 
-	const loadTags = useCallback(async () => {
-		setIsLoading(true);
-		try {
-			const data = await tagsApi.fetchTags();
-			setAllTags(data || []);
-		} catch (error) {
-			logger.error("Failed to fetch tags:", error);
-		} finally {
-			setIsLoading(false);
-		}
-	}, []);
-
 	useEffect(() => {
-		loadTags();
-	}, [loadTags]);
+		let isMounted = true;
+		const run = async () => {
+			setIsLoading(true);
+			try {
+				const data = await tagsApi.fetchTags();
+				if (isMounted) setAllTags(data || []);
+			} catch (error) {
+				if (isMounted) logger.error("Failed to fetch tags:", error);
+			} finally {
+				if (isMounted) setIsLoading(false);
+			}
+		};
+		run();
+		return () => {
+			isMounted = false;
+		};
+	}, []);
 
 	useEffect(() => {
 		// Focus input on mount

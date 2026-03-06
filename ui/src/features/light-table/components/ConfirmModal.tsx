@@ -24,7 +24,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({ message, onConfirm, 
 			className="meld-confirm-modal__overlay"
 			onClick={onCancel}
 			onKeyDown={(e) => {
-				if (e.key === "Enter") onCancel();
+				if (e.key === "Escape") onCancel();
 			}}
 			role="presentation"
 		>

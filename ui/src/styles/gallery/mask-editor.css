@@ -44,6 +44,13 @@
 	border-color: var(--meld-accent-color);
 }
 
+.meld-mask-tool-btn:focus-visible,
+.meld-mask-tool-btn--active:focus-visible {
+	outline: 2px solid var(--meld-accent-color, #4488ff);
+	outline-offset: 2px;
+	border-color: var(--meld-accent-color);
+}
+
 .meld-mask-editor-canvas-container {
 	position: relative;
 	width: 100%;
@@ -98,6 +105,12 @@
 .meld-mask-toolbar-btn:disabled {
 	color: var(--meld-text-secondary);
 	cursor: not-allowed;
+}
+
+.meld-mask-toolbar-btn:focus-visible:not(:disabled) {
+	outline: 2px solid var(--meld-accent-color, #4488ff);
+	outline-offset: 2px;
+	border-color: var(--meld-accent-color);
 }
 
 .meld-mask-toolbar-btn--inject {

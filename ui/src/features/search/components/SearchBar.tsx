@@ -239,6 +239,11 @@ export const SearchBar: React.FC = () => {
 							type="button"
 							onClick={handleSaveFavorite}
 							disabled={isSaving}
+							aria-label={
+								state.favorites.some((f) => f.query === state.searchQuery)
+									? "Remove from Favorites"
+									: "Add to Favorites"
+							}
 							title={
 								state.favorites.some((f) => f.query === state.searchQuery)
 									? "Remove from Favorites"
@@ -323,9 +328,15 @@ export const SearchBar: React.FC = () => {
 						<div
 							className="meld-modal-content meld-modal-content--small"
 							onClick={(e) => e.stopPropagation()}
+							role="dialog"
+							aria-modal="true"
+							aria-labelledby="edit-favorite-title"
 						>
 							<div className="meld-modal-header">
-								<h2 style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+								<h2
+									id="edit-favorite-title"
+									style={{ display: "flex", alignItems: "center", gap: "10px" }}
+								>
 									<Star size={20} color="var(--meld-accent-color)" />
 									Edit Favorite
 								</h2>

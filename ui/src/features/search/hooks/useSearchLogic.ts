@@ -63,13 +63,23 @@ export const useSearchLogic = () => {
 
 	// Fetch search config on mount
 	useEffect(() => {
-		searchApi.fetchSearchConfig().then((config) => {
-			setSearchConfig(config);
-		});
-		// Fetch keywords if showAllKeywords is true
+		let isMounted = true;
+		searchApi
+			.fetchSearchConfig()
+			.then((config) => {
+				if (isMounted) setSearchConfig(config);
+			})
+			.catch((err) => {
+				if (isMounted) logger.error("Failed to fetch search config:", err);
+			});
 		if (showAllKeywords) {
-			fetchKeywords();
+			fetchKeywords().catch((err) => {
+				if (isMounted) logger.error("Failed to fetch keywords:", err);
+			});
 		}
+		return () => {
+			isMounted = false;
+		};
 	}, [fetchKeywords, showAllKeywords]);
 
 	const searchPrefixRegex = useMemo(() => {
@@ -95,9 +105,21 @@ export const useSearchLogic = () => {
 			return;
 		}
 
-		searchApi.fetchSearchSuggestions().then((results) => {
-			setSearchSuggestions(results);
-		});
+		let isMounted = true;
+		searchApi
+			.fetchSearchSuggestions()
+			.then((results) => {
+				if (isMounted) setSearchSuggestions(results);
+			})
+			.catch((err) => {
+				if (isMounted) {
+					logger.error("Failed to fetch search suggestions:", err);
+					setSearchSuggestions([]);
+				}
+			});
+		return () => {
+			isMounted = false;
+		};
 	}, [state.settings["search.quick_suggestions"]]);
 
 	// Synchronize inputValue with state.searchQuery if changed externally

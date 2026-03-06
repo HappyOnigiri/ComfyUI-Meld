@@ -230,12 +230,16 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 								{parentChain.map(
 									(p, index) =>
 										p.imgSrc && (
-											<img
+											<button
 												key={p.id || index}
-												src={p.imgSrc}
-												className="meld-lineage-badge__parent-thumb"
-												style={{ cursor: "pointer" }}
-												loading="lazy"
+												type="button"
+												className="meld-lineage-badge__parent-thumb meld-lineage-badge__parent-thumb-btn"
+												style={{
+													cursor: "pointer",
+													padding: 0,
+													border: "none",
+													background: "none",
+												}}
 												onClick={(e) => {
 													e.stopPropagation();
 													dispatch({
@@ -253,8 +257,26 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 															? "Grand-Source"
 															: `Ancestor (S${index + 1})`
 												}
-												alt="source thumb"
-											/>
+												aria-label={
+													index === 0
+														? "View source image"
+														: index === 1
+															? "View grand-source image"
+															: `View ancestor image (S${index + 1})`
+												}
+											>
+												<img
+													src={p.imgSrc}
+													loading="lazy"
+													alt=""
+													style={{
+														display: "block",
+														width: "100%",
+														height: "100%",
+														objectFit: "cover",
+													}}
+												/>
+											</button>
 										),
 								)}
 							</div>
@@ -383,12 +405,14 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 							{copiedField === "notes" ? <Check size={16} /> : <Copy size={16} />}
 						</button>
 					</div>
-					<div
+					<button
+						type="button"
 						className="meld-viewer-notes-preview"
 						onClick={(e) => {
 							e.stopPropagation();
 							onEditNotes?.();
 						}}
+						aria-label={image.user_notes ? "Edit notes" : "Add notes"}
 						style={{
 							cursor: "pointer",
 							minHeight: "40px",
@@ -397,12 +421,17 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 							borderRadius: "4px",
 							fontSize: "0.9rem",
 							whiteSpace: "pre-wrap",
+							width: "100%",
+							textAlign: "left",
+							border: "none",
+							color: "inherit",
+							fontFamily: "inherit",
 						}}
 					>
 						{image.user_notes || (
 							<span style={{ color: "var(--meld-text-secondary)" }}>Add notes...</span>
 						)}
-					</div>
+					</button>
 				</div>
 			)}
 		</div>

@@ -237,8 +237,9 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 							color: "var(--meld-danger-color)",
 						},
 					].map((item) => (
-						<div
+						<button
 							key={item.id}
+							type="button"
 							className={`meld-image-card__menu-item ${item.className || ""}`}
 							onMouseDown={(e) => e.stopPropagation()}
 							onClick={(e) => {
@@ -247,10 +248,11 @@ export const ImageCardMenu: React.FC<ImageCardMenuProps> = ({
 								item.handler();
 								setIsMenuOpen(false);
 							}}
+							aria-label={item.label}
 						>
 							<item.icon size={14} color={item.color} />
 							<span>{item.label}</span>
-						</div>
+						</button>
 					))}
 				</div>
 			)}

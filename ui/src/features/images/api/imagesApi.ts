@@ -95,6 +95,7 @@ export const linkParent = async (childId: number, parentId: number | null): Prom
 export const suggestParents = async (
 	id: number,
 	threshold?: number,
+	signal?: AbortSignal,
 ): Promise<
 	{
 		id: number;
@@ -107,7 +108,7 @@ export const suggestParents = async (
 	}[]
 > => {
 	const thresholdParam = threshold !== undefined ? `&threshold=${threshold}` : "";
-	const res = await api.fetchApi(`/meld/suggest-parents?id=${id}${thresholdParam}`);
+	const res = await api.fetchApi(`/meld/suggest-parents?id=${id}${thresholdParam}`, { signal });
 	try {
 		return await handleResponse(res);
 	} catch (_e) {

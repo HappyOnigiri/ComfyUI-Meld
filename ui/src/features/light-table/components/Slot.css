@@ -87,6 +87,17 @@
 	cursor: not-allowed;
 }
 
+.meld-lt-slot__action-btn:focus-visible,
+.meld-lt-slot__menu-btn:focus-visible {
+	outline: 2px solid var(--meld-accent-color, #3b82f6);
+	outline-offset: 2px;
+}
+
+.meld-lt-slot__action-btn:focus:not(:focus-visible),
+.meld-lt-slot__menu-btn:focus:not(:focus-visible) {
+	outline: none;
+}
+
 .meld-lt-slot__action-menu {
 	position: absolute;
 	bottom: calc(100% + 6px);
@@ -199,4 +210,9 @@
 
 .meld-lt-slot__settings-save:hover {
 	filter: brightness(1.1);
+}
+
+.meld-lt-slot__settings-save:focus-visible {
+	outline: 2px solid var(--meld-focus-color, #2563eb);
+	outline-offset: 2px;
 }

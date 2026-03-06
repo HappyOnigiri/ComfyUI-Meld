@@ -82,6 +82,7 @@ export const FavoriteItem: React.FC<FavoriteItemProps> = ({ fav, onSelect, onEdi
 				<button
 					type="button"
 					onClick={(e) => onEdit(e, fav)}
+					aria-label={`Edit favorite ${fav.name}`}
 					style={{
 						background: "none",
 						border: "none",
@@ -105,6 +106,7 @@ export const FavoriteItem: React.FC<FavoriteItemProps> = ({ fav, onSelect, onEdi
 				<button
 					type="button"
 					onClick={(e) => onDelete(e, fav.id, fav.name)}
+					aria-label={`Delete favorite ${fav.name}`}
 					style={{
 						background: "none",
 						border: "none",

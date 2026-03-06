@@ -42,6 +42,11 @@
 	background-color: var(--comfy-input-bg-active, rgba(255, 255, 255, 0.1));
 }
 
+.meld-bulk-bar__button:focus-visible {
+	outline: 2px solid var(--meld-accent-color, #4488ff);
+	outline-offset: 2px;
+}
+
 .meld-bulk-bar__button--action {
 	background: var(--meld-accent-color);
 	color: white;
@@ -79,6 +84,11 @@
 .meld-bulk-bar-menu__item:hover {
 	background-color: var(--meld-accent-color);
 	color: white;
+}
+
+.meld-bulk-bar-menu__item:focus-visible {
+	outline: 2px solid var(--meld-accent-color, #4488ff);
+	outline-offset: 2px;
 }
 
 .meld-bulk-bar-menu__item--danger:hover {

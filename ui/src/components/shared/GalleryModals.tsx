@@ -50,10 +50,23 @@ export const GalleryModals: React.FC = () => {
 
 							const maskFilename = state.activeModal.maskFilename;
 							const onSuccess = state.activeModal.onSuccess;
-							for (const img of state.activeModal.images) {
-								await executeWorkflow(workflowName, img, maskFilename, targetLoaderNodeId);
+							const onError = state.activeModal.onError;
+							const results = await Promise.allSettled(
+								state.activeModal.images.map((img) =>
+									executeWorkflow(workflowName, img, maskFilename, targetLoaderNodeId),
+								),
+							);
+							const failed = results.filter((r) => r.status === "rejected");
+							if (failed.length > 0) {
+								dispatch({
+									type: "SET_ERROR",
+									payload: `${failed.length} of ${state.activeModal.images.length} workflow(s) failed.`,
+								});
+								onError?.();
+								return false;
+							} else {
+								onSuccess?.();
 							}
-							onSuccess?.();
 						}
 					}}
 				/>
