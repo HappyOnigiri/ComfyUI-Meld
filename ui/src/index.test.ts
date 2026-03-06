@@ -1,3 +1,4 @@
+import { act, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("/scripts/api.js", () => ({
@@ -25,18 +26,23 @@ vi.mock("/scripts/app.js", () => ({
 				ui: { meld: { refresh: vi.fn(), isVisible: vi.fn(() => true) } },
 				extensionManager: {
 					registerSidebarTab: vi.fn(async (tab) => {
+						const { fetchImages } = await import("./features/images/api/imagesApi");
 						const el = document.createElement("div");
 						const parent = document.createElement("div");
 						parent.className = "sidebar-content-container";
 						parent.appendChild(el);
 						document.body.appendChild(parent);
-						tab.render(el);
-						// call render again to hit branch
-						tab.render(el);
-						// Wait for async refreshImages (useEffect) to complete before unmounting.
-						// Prevents "document global was defined when React was initialized, but is not defined anymore".
-						await new Promise((r) => setTimeout(r, 50));
-						document.body.removeChild(parent);
+						try {
+							await act(async () => {
+								tab.render(el);
+								tab.render(el);
+							});
+							await waitFor(() => expect(fetchImages).toHaveBeenCalled());
+						} finally {
+							if (document.body.contains(parent)) {
+								document.body.removeChild(parent);
+							}
+						}
 					}),
 					setSidebarTabActive: vi.fn(),
 				},
@@ -68,6 +74,8 @@ describe("index.ts", () => {
 		expect(app.registerExtension).toHaveBeenCalled();
 		// Wait for async setup (registerSidebarTab, render, unmount) to complete
 		// so the test environment is not torn down while React updates are pending.
-		await new Promise((r) => setTimeout(r, 100));
+		await waitFor(() => expect(document.querySelector(".sidebar-content-container")).toBeNull(), {
+			timeout: 5000,
+		});
 	}, 20000);
 });
