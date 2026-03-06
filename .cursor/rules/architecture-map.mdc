@@ -1,0 +1,30 @@
+---
+description: Rules for maintaining the architecture map and project structure awareness
+globs: ["**/*"]
+---
+
+# Architecture Map Maintenance Rules
+
+This project relies on `architecture.md` as a source of truth for AI agents to understand the codebase.
+
+## 1. Always Read First
+When starting a new task, **ALWAYS** read `architecture.md` first to understand:
+- Where to find the relevant code.
+- How modules interact.
+- Where to place new files.
+
+## 2. Update on Change
+You must update `architecture.md` if your changes involve:
+- **Creating new directories or modules**.
+- **Adding new critical logic files** (e.g., a new service or repository).
+- **Changing the data flow** (e.g., adding a new event listener or API route group).
+- **Renaming major components**.
+
+## 3. How to Update
+- Keep the format consistent (Markdown).
+- Update the relevant section (Module Directory, Key Logic, etc.).
+- If a new pattern or rule is introduced, add it to "Implementation Rules".
+
+## 4. Path Convention
+- Refer to backend files relative to the root (e.g., `py/image_manager/...`).
+- Refer to frontend files relative to `ui/src/`.

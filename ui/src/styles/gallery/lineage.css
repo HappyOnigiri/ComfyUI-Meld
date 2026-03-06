@@ -1,0 +1,69 @@
+.meld-lineage-thumbs {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+.meld-lineage-badge__parent-thumb {
+	width: 28px;
+	height: 28px;
+	object-fit: cover;
+	border-radius: 4px;
+	border: 1px solid var(--comfy-menu-border, rgba(255, 255, 255, 0.2));
+	margin: 0;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+.meld-lineage-badge__parent-thumb:hover {
+	border-color: var(--meld-accent-color);
+	transform: scale(1.15);
+	z-index: 1;
+	box-shadow: 0 2px 8px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.4));
+}
+.meld-lineage-badge__parent-thumb:focus-visible {
+	outline: 2px solid var(--comfy-focus, var(--meld-accent-color, #4488ff));
+	outline-offset: 2px;
+	border-color: var(--meld-accent-color, #4488ff);
+	transform: scale(1.15);
+	z-index: 1;
+	box-shadow: 0 2px 8px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.4));
+}
+.meld-suggestion-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+	gap: 10px;
+	margin-top: 10px;
+}
+.meld-suggestion-card {
+	background: var(--comfy-input-bg, rgba(255, 255, 255, 0.03));
+	border-radius: 4px;
+	overflow: hidden;
+	cursor: pointer;
+	border: 1px solid transparent;
+	transition: all 0.2s;
+}
+.meld-suggestion-card:hover {
+	border-color: var(--meld-accent-color);
+	background: var(--comfy-input-bg-active, rgba(255, 255, 255, 0.06));
+}
+.meld-suggestion-card img {
+	width: 100%;
+	height: 100px;
+	object-fit: cover;
+}
+.meld-suggestion-info {
+	padding: 6px;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+.meld-suggestion-filename {
+	font-size: 9px;
+	color: var(--comfy-input-text, #aaa);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.meld-suggestion-distance {
+	font-size: 8px;
+	color: var(--meld-accent-color);
+}

@@ -1,0 +1,575 @@
+/* Parent Selection */
+.meld-drop-zone {
+	border: 2px dashed var(--comfy-menu-border, #444);
+	border-radius: 8px;
+	padding: 30px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+	color: var(--comfy-input-text, #666);
+	margin-bottom: 20px;
+	transition: all 0.2s;
+}
+
+.meld-drop-zone--active {
+	border-color: var(--meld-accent-color);
+	background: var(--comfy-input-bg-active, rgba(68, 136, 255, 0.05));
+	color: var(--meld-accent-color);
+}
+
+/* Import Scan Styles */
+/* unused-css-check-ignore */
+.meld-import-config {
+	display: flex;
+	flex-direction: column;
+	gap: 15px;
+}
+
+/* unused-css-check-ignore */
+.meld-scan-progress {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	padding: 10px 0;
+}
+
+/* unused-css-check-ignore */
+.meld-scan__status-text {
+	font-size: 15px;
+	text-align: center;
+}
+
+.meld-scan__status--cancelling {
+	color: var(--meld-danger-color);
+}
+
+/* unused-css-check-ignore */
+.meld-progress-container {
+	height: 12px;
+	background: var(--comfy-input-bg, #1a1a1a);
+	border-radius: 6px;
+	overflow: hidden;
+	border: 1px solid var(--comfy-menu-border, #333);
+}
+
+.meld-progress-bar {
+	height: 100%;
+	background: var(--meld-accent-color);
+	transition: width 0.3s ease;
+}
+
+/* unused-css-check-ignore */
+.meld-progress-stats {
+	text-align: center;
+	font-size: 13px;
+	color: var(--meld-text-secondary);
+}
+
+.meld-scan-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 12px;
+	margin-top: 10px;
+}
+
+/* Import Scan Finished */
+/* unused-css-check-ignore */
+.meld-scan-finished {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 40px 20px;
+	gap: 15px;
+	text-align: center;
+}
+
+/* unused-css-check-ignore */
+.meld-scan-finished h3 {
+	margin: 0;
+	font-size: 20px;
+	color: var(--meld-text-color);
+}
+
+/* unused-css-check-ignore */
+.meld-scan-finished p {
+	color: var(--meld-text-secondary);
+	margin: 0;
+}
+
+/* unused-css-check-ignore */
+.meld-scan-finished strong {
+	color: var(--meld-accent-color);
+}
+
+/* unused-css-check-ignore */
+.meld-scan-finished .meld-scan-actions {
+	justify-content: center;
+	margin-top: 10px;
+}
+
+/* Import Modal Browser */
+.meld-import-container {
+	display: flex;
+	gap: 20px;
+	height: min(600px, 80vh);
+}
+
+.meld-import-sidebar {
+	flex: 0 0 280px;
+	display: flex;
+	flex-direction: column;
+	gap: 15px;
+}
+
+.meld-import-browser {
+	flex: 1;
+	background: var(--comfy-input-bg, #1a1a1a);
+	border: 1px solid var(--comfy-menu-border, #333);
+	border-radius: 6px;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.meld-browser-header {
+	padding: 10px;
+	background: var(--comfy-menu-bg, #2a2a2a);
+	border-bottom: 1px solid var(--comfy-menu-border, #333);
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.meld-browser-back {
+	background: none;
+	border: none;
+	color: var(--meld-text-color);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 12px;
+	padding: 4px 8px;
+	border-radius: 4px;
+}
+
+.meld-browser-back:hover:not(:disabled) {
+	background: var(--comfy-input-bg-active, rgba(255, 255, 255, 0.1));
+}
+
+.meld-browser-back:disabled {
+	color: var(--meld-text-secondary);
+	cursor: not-allowed;
+}
+
+/* unused-css-check-ignore */
+.meld-browser-title {
+	font-size: 12px;
+	color: var(--meld-text-secondary);
+	font-weight: bold;
+}
+
+.meld-folder-list {
+	flex: 1;
+	overflow-y: auto;
+	padding: 5px;
+}
+
+.meld-folder-item {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 8px 12px;
+	border-radius: 4px;
+	cursor: pointer;
+	color: var(--meld-text-color);
+	transition: background 0.2s;
+}
+
+.meld-folder-item:hover,
+.meld-folder-item:focus-visible {
+	background: var(--comfy-input-bg-active, rgba(68, 136, 255, 0.1));
+	color: var(--meld-accent-color);
+}
+
+.meld-folder-item:focus-visible {
+	outline: 2px solid var(--meld-focus-color, #48f);
+	outline-offset: -2px;
+}
+
+.meld-folder-icon-wrapper {
+	width: 32px;
+	height: 32px;
+	border-radius: 4px;
+	background: var(--comfy-input-bg);
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--meld-text-secondary);
+	overflow: hidden;
+}
+
+.meld-folder-preview {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.meld-browser-image-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+	gap: 10px;
+	padding: 15px 12px;
+	border-top: 1px solid var(--comfy-menu-border, #333);
+}
+
+.meld-browser-image-item {
+	aspect-ratio: 1 / 1;
+	border-radius: 4px;
+	overflow: hidden;
+	background: var(--comfy-input-bg);
+	border: 1px solid transparent;
+	transition: border-color 0.2s;
+}
+
+.meld-browser-image-item:hover,
+.meld-browser-image-item:focus-visible {
+	border-color: var(--meld-accent-color);
+}
+
+.meld-browser-image-item:focus-visible {
+	outline: 2px solid var(--meld-focus-color, #48f);
+	outline-offset: 2px;
+}
+
+.meld-browser-image-item img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+/* Import Modal Preview */
+.meld-import-preview-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: transparent;
+	/* z-index-check-ignore */
+	z-index: var(--meld-z-import-preview, 1000);
+	border-radius: 0;
+}
+
+.meld-import-preview-content {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 15px;
+	width: auto;
+	max-width: 98%;
+	max-height: 98%;
+}
+
+.meld-import-preview-image-wrapper {
+	position: relative;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	max-width: 100%;
+}
+
+.meld-import-preview-content img {
+	max-width: 100%;
+	max-height: 95vh;
+	object-fit: contain;
+	box-shadow: 0 10px 50px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.6));
+	border-radius: 4px;
+	background: var(--comfy-input-bg, #000);
+	border: 1px solid var(--comfy-menu-border, #444);
+}
+
+.meld-import-preview-close {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	background: var(--comfy-input-bg, rgba(0, 0, 0, 0.5));
+	/* color-check-ignore */
+	border: 1px solid var(--comfy-menu-border, rgba(255, 255, 255, 0.2));
+	/* color-check-ignore */
+	color: white;
+	cursor: pointer;
+	padding: 4px;
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	/* z-index-check-ignore */
+	z-index: var(--meld-z-import-preview-close, 1010);
+	transition: background 0.2s;
+}
+
+.meld-import-preview-close:hover {
+	background: var(--comfy-menu-bg, rgba(0, 0, 0, 0.8));
+	/* color-check-ignore */
+	color: var(--meld-accent-color);
+}
+
+.meld-import-preview-info {
+	color: var(--meld-text-color, #eee);
+	font-size: 13px;
+	background: var(--comfy-input-bg, #222);
+	padding: 4px 12px;
+	border-radius: 20px;
+	border: 1px solid var(--comfy-menu-border, #333);
+}
+
+.meld-folder-name {
+	flex: 1;
+	font-size: 13px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.meld-folder-count {
+	font-size: 11px;
+	color: var(--meld-text-secondary);
+	background: var(--comfy-input-bg);
+	padding: 2px 6px;
+	border-radius: 10px;
+	min-width: 60px;
+	text-align: center;
+}
+
+.meld-folder-count--loading {
+	color: var(--meld-text-secondary);
+}
+
+/* unused-css-check-ignore */
+.meld-path-display {
+	background: var(--comfy-input-bg, #000);
+	padding: 8px 10px;
+	border-radius: 4px;
+	font-family: monospace;
+	font-size: 11px;
+	color: var(--meld-accent-color);
+}
+
+/* unused-css-check-ignore */
+.meld-path-text {
+	word-break: break-all;
+	margin-bottom: 4px;
+}
+
+.meld-path-count {
+	font-size: 10px;
+	color: var(--meld-text-secondary);
+	font-family: var(--meld-font-sans, sans-serif);
+	min-height: 1.4em;
+	display: flex;
+	align-items: center;
+}
+
+.meld-path-count--loading {
+	color: var(--meld-text-secondary);
+	font-style: italic;
+}
+
+.meld-browser-path-container {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	min-width: 0;
+}
+
+.meld-browser-path-input {
+	flex: 1;
+	background: var(--comfy-input-bg, #111);
+	border: 1px solid var(--comfy-menu-border, #444);
+	border-radius: 4px;
+	padding: 4px 10px;
+	color: var(--meld-text-color);
+	font-size: 13px;
+	font-family: monospace;
+	outline: none;
+	width: 100%;
+}
+
+.meld-browser-path-input:focus {
+	border-color: var(--meld-accent-color);
+}
+
+.meld-browser-path-display {
+	flex: 1;
+	font-size: 13px;
+	color: var(--meld-text-color);
+	font-family: monospace;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	background: var(--comfy-input-bg, #111);
+	padding: 4px 10px;
+	border-radius: 4px;
+	border: 1px solid var(--comfy-menu-border, #222);
+}
+
+.meld-browser-path-type {
+	color: var(--meld-accent-color);
+	margin-right: 2px;
+}
+
+.meld-browser-loading,
+.meld-browser-empty,
+/* unused-css-check-ignore */
+	.meld-browser-info {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	color: var(--meld-text-secondary);
+	gap: 10px;
+	text-align: center;
+}
+
+/* Number Input */
+.meld-number-input {
+	background: var(--comfy-input-bg, #1a1a1a);
+	border: 1px solid var(--comfy-menu-border, #444);
+	border-radius: 4px;
+	padding: 4px 8px;
+	color: var(--meld-text-color);
+	font-size: 14px;
+	width: 80px;
+	outline: none;
+}
+
+.meld-number-input:focus {
+	border-color: var(--meld-accent-color);
+}
+
+/* Sidebar Import Progress */
+.meld-import-progress-sidebar {
+	padding: 8px 12px;
+	background: var(--comfy-menu-bg, rgba(30, 30, 30, 0.95));
+	border-bottom: 1px solid var(--comfy-menu-border, #333);
+	animation: slide-down 0.3s ease-out;
+}
+
+.meld-scan-progress--compact {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	position: relative;
+	padding-right: 24px;
+}
+
+.meld-scan-info {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 11px;
+}
+
+.meld-scan__status-text--compact {
+	color: var(--meld-text-color);
+	font-weight: 500;
+}
+
+.meld-progress-stats--compact {
+	color: var(--meld-text-secondary);
+}
+
+.meld-progress-container--compact {
+	width: 100%;
+	height: 4px;
+	background: var(--comfy-input-bg, rgba(255, 255, 255, 0.1));
+	border-radius: 2px;
+	overflow: hidden;
+}
+
+.meld-btn--stop--compact,
+/* unused-css-check-ignore */
+	.meld-btn--stop.meld-btn--compact {
+	position: absolute;
+	right: -4px;
+	top: 50%;
+	transform: translateY(-50%);
+	background: none;
+	border: none;
+	color: var(--meld-text-secondary);
+	cursor: pointer;
+	padding: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: color 0.2s;
+}
+
+.meld-btn--stop--compact:hover:not(:disabled),
+/* unused-css-check-ignore */
+	.meld-btn--stop.meld-btn--compact:hover:not(:disabled),
+.meld-btn--stop--compact:focus-visible,
+/* unused-css-check-ignore */
+	.meld-btn--stop.meld-btn--compact:focus-visible {
+	color: var(--meld-danger-color, #ff4444);
+}
+
+.meld-btn--stop--compact:focus-visible,
+/* unused-css-check-ignore */
+	.meld-btn--stop.meld-btn--compact:focus-visible {
+	outline: 2px solid var(--meld-focus-color, #48f);
+	outline-offset: 2px;
+}
+
+.meld-btn--stop--compact:disabled,
+/* unused-css-check-ignore */
+	.meld-btn--stop.meld-btn--compact:disabled {
+	color: var(--meld-text-secondary);
+	cursor: not-allowed;
+}
+
+.meld-scan-finished--compact {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 8px;
+}
+
+.meld-btn--ok--compact,
+/* unused-css-check-ignore */
+	.meld-btn--ok.meld-btn--compact {
+	background: var(--meld-accent-color);
+	color: white;
+	border: none;
+	border-radius: 4px;
+	padding: 2px 10px;
+	font-size: 11px;
+	font-weight: bold;
+	cursor: pointer;
+	transition: background 0.2s;
+}
+
+.meld-btn--ok--compact:hover,
+/* unused-css-check-ignore */
+	.meld-btn--ok.meld-btn--compact:hover,
+.meld-btn--ok--compact:focus-visible,
+/* unused-css-check-ignore */
+	.meld-btn--ok.meld-btn--compact:focus-visible {
+	background: var(--meld-accent-color-hover, #5599ff);
+}
+
+.meld-btn--ok--compact:focus-visible,
+/* unused-css-check-ignore */
+	.meld-btn--ok.meld-btn--compact:focus-visible {
+	outline: 2px solid var(--meld-focus-color, #48f);
+	outline-offset: 2px;
+}

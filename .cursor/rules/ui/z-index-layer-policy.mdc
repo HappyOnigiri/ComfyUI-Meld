@@ -1,0 +1,24 @@
+---
+alwaysApply: true
+---
+
+# UI Z-index Layer Policy
+
+Use centralized z-index tokens for global UI layers to avoid stacking conflicts and click-blocking overlays.
+
+## 1) Source of Truth
+- Define and maintain global z-index tokens in `ui/src/styles/Gallery.css` under `:root`.
+- Token naming convention: `--meld-z-*`.
+
+## 2) Required Usage
+- For global layers (viewer, modal, toast, dropdown, overlay, light table), always use `var(--meld-z-...)`.
+- Do not add new magic-number z-index values for global layers.
+- If a new layer is needed, add a token first and then consume it from component styles.
+
+## 3) Inline Style Restriction
+- Do not set `zIndex` in inline React styles for global layers.
+- Use CSS classes that reference `--meld-z-*` tokens instead.
+
+## 4) Local Layer Exceptions
+- Small local layering values (e.g., `1/2/3`) are allowed only for internal, component-scoped stacking that does not represent global layer ordering.
+- If local stacking grows or interacts with overlays/modals, migrate it to global tokens.

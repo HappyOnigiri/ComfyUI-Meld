@@ -1,0 +1,76 @@
+[project]
+name = "comfyui-meld"
+description = "High-performance nodes for Prompt Construction, Metadata Extraction, and Workflow Consolidation."
+version = "0.4.0"
+license = { text = "Apache-2.0" } # DO NOT change this to a string; table format is required for Release Action
+authors = [
+    { name = "HappyOnigiri", email = "nodemeld+happy-onigiri@gmail.com" }
+]
+requires-python = ">=3.10,<3.12" # DO NOT change this range; specific versioning is required for CI/Release stability
+readme = "README.md"
+keywords = ["comfyui", "prompt-constructor", "metadata", "exif", "workflow", "optimization", "meld"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: Apache Software License", # DO NOT remove; required for correct package metadata
+    "Operating System :: OS Independent",
+    "Framework :: IDE",
+]
+dependencies = [
+    "aiohttp",
+    "torch",
+    "numpy",
+    "Pillow",
+    "imagehash",
+    "scipy",
+    "PyWavelets",
+]
+
+[tool.setuptools]
+packages = ["py"]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "mypy",
+    "types-Pillow",
+    "types-requests",
+    "types-setuptools",
+]
+
+[project.urls]
+Repository = "https://github.com/HappyOnigiri/ComfyUI-Meld"
+"Bug Tracker" = "https://github.com/HappyOnigiri/ComfyUI-Meld/issues"
+
+[tool.comfy]
+PublisherId = "happyonigiri"
+DisplayName = "Meld: Workflow Consolidator"
+Icon = ""
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "N",    # pep8-naming
+    "I",    # isort
+    "W",    # pycodestyle warnings
+    "ANN",  # flake8-annotations: enforce type annotations for functions
+    "B",
+    "UP",
+]
+ignore = [
+    "N802", # Function name should be lowercase
+    "N803", # Argument name should be lowercase
+    "N806", # Variable name should be lowercase
+    "N812", # Lowercase functional imported as non-lowercase F
+    "N999", # Invalid module name
+    "E501", # Line too long
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["py"]

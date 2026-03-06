@@ -1,0 +1,396 @@
+:root {
+	--meld-bg-color: var(--comfy-menu-bg, #222);
+	--meld-text-color: var(--comfy-input-text, var(--fg-color, #eee));
+	--meld-text-secondary: var(
+		--desc-color,
+		var(--comfy-menu-label-text, var(--text-secondary, #888))
+	);
+	--meld-accent-color: var(--comfy-input-text-active, #4488ff);
+	--meld-success-color: var(--comfy-input-text-active, #44bb44);
+	--meld-danger-color: var(--error-color, #ff4444);
+	--meld-border-color: var(--comfy-menu-border, #444);
+	--meld-border-subtle: var(--border-subtle, var(--comfy-menu-border, #333));
+	--meld-card-bg: var(--comfy-input-bg, rgba(0, 0, 0, 0.2));
+	--meld-card-content-bg: var(--comfy-menu-bg, rgba(255, 255, 255, 0.05));
+	--meld-card-selected-bg: var(
+		--comfy-input-bg-active,
+		var(--comfy-input-bg, rgba(68, 136, 255, 0.2))
+	);
+	/* Global z-index tokens: use these instead of magic numbers. */
+	--meld-z-base: 0;
+	--meld-z-gallery-header: 100;
+	--meld-z-light-table: 98;
+	--meld-z-popover: 200;
+	--meld-z-dropdown: 2000;
+	--meld-z-floating-menu: 5000;
+	--meld-z-viewer-overlay: 10000;
+	--meld-z-viewer-ui: 10010;
+	--meld-z-viewer-ui-secondary: 10005;
+	--meld-z-prompt-popup: 10500;
+	--meld-z-modal-overlay: 11000;
+	--meld-z-toast: 11500;
+	--meld-z-import-preview: 20000;
+	--meld-z-import-preview-close: 1001;
+	--meld-z-card-thumbnail-overlay: 11;
+	--meld-z-card-checkbox: 10;
+}
+.meld-gallery {
+	font-family: var(--comfy-ui-font, sans-serif);
+	background: var(--meld-bg-color);
+	color: var(--meld-text-color);
+	padding: 0;
+	/* Use Flexbox layout to fix the header and enable content scrolling */
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	height: 100%;
+	box-sizing: border-box;
+}
+.meld-gallery *,
+.meld-gallery *::before,
+.meld-gallery *::after {
+	box-sizing: inherit;
+}
+.meld-gallery__header {
+	/* Header is a fixed child of Flexbox and always visible */
+	flex-shrink: 0;
+	background: var(--meld-bg-color);
+	z-index: var(--meld-z-gallery-header);
+	padding: 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	border-bottom: 1px solid var(--meld-border-color);
+}
+
+/* Content area below the header: flex container, scroll delegated to list area */
+.meld-gallery__content {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	min-height: 0;
+}
+
+/* Scroll container for virtualized list - only this area scrolls when list is shown */
+.meld-gallery__list-scroll {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
+	overflow-x: hidden;
+	scrollbar-gutter: stable;
+	padding-bottom: 200px;
+}
+.meld-gallery__list-wrapper {
+	margin-left: 0;
+	margin-right: 0;
+}
+
+/* Virtualized list row (grid_details mode) */
+.meld-gallery__virtual-row {
+	padding-bottom: 10px;
+}
+
+/* Virtualized grid row (grid_only mode) */
+.meld-gallery__virtual-grid-row {
+	padding-bottom: 6px;
+}
+
+/*
+Raise the virtualized row while a card menu is open.
+Each virtual row uses transform-based positioning and becomes a stacking context,
+so without this the menu can render behind neighboring rows.
+*/
+.meld-gallery__virtual-row:has(.meld-image-card--menu-open),
+.meld-gallery__virtual-grid-row:has(.meld-image-card--menu-open) {
+	z-index: var(--meld-z-dropdown);
+}
+
+/* Fallback for environments without :has() support. */
+@supports not selector(:has(*)) {
+	.meld-gallery__virtual-row:focus-within,
+	.meld-gallery__virtual-grid-row:focus-within {
+		z-index: var(--meld-z-dropdown);
+	}
+}
+
+.meld-gallery__list--virtualized {
+	margin-top: 10px;
+}
+.meld-gallery__actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 15px;
+	flex-wrap: wrap;
+	align-items: center;
+	flex-shrink: 0;
+	padding-top: 4px;
+}
+.meld-gallery__actions > button {
+	/* Keep header icon buttons compact and consistent across WebUI/Desktop WebViews. */
+	padding: 2px;
+	line-height: 1;
+}
+.meld-gallery__search-wrapper {
+	width: 100%;
+}
+.meld-gallery__list--grid-only {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-top: 10px;
+	justify-content: flex-start;
+	align-items: flex-start;
+}
+.meld-gallery__loading {
+	text-align: center;
+	padding: 20px;
+	color: var(--meld-text-secondary);
+}
+.meld-gallery__error {
+	color: var(--meld-danger-color);
+	padding: 10px;
+	background: var(--comfy-input-bg, rgba(255, 0, 0, 0.1));
+	border-radius: 4px;
+	margin-bottom: 10px;
+}
+.meld-gallery__empty {
+	text-align: center;
+	padding: 40px;
+	color: var(--meld-text-secondary);
+}
+.meld-gallery__end {
+	text-align: center;
+	padding: 20px;
+	color: var(--meld-text-secondary);
+	font-size: 0.9em;
+	border-top: 1px solid var(--meld-border-color);
+	margin-top: 20px;
+}
+
+/* Trash Mode Styles */
+.meld-gallery--trash {
+	background: var(--meld-bg-color);
+}
+.meld-gallery__trash-indicator {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 6px 10px;
+	background: var(--comfy-input-bg);
+	border: 1px solid var(--meld-border-color);
+	color: var(--meld-text-color);
+	border-radius: 4px;
+	margin-bottom: 10px;
+}
+.meld-gallery__trash-label {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-weight: bold;
+	font-size: 13px;
+	color: var(--meld-danger-color);
+	/* Keep warning color for icon and label only */
+}
+.meld-gallery__trash-toggle {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	cursor: pointer;
+	font-size: 11px;
+	color: var(--meld-text-secondary);
+	margin-right: auto;
+	margin-left: 15px;
+	user-select: none;
+}
+.meld-gallery__trash-toggle input {
+	margin: 0;
+	cursor: pointer;
+}
+.meld-gallery__trash-toggle:hover {
+	color: var(--meld-text-color);
+}
+.meld-gallery__exit-trash {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	background: var(--comfy-input-bg-active);
+	border: 1px solid var(--meld-border-color);
+	color: var(--meld-text-color);
+	padding: 4px 10px;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 12px;
+	font-weight: bold;
+	transition: all 0.2s;
+}
+.meld-gallery__exit-trash:hover {
+	background: var(--secondary-background-hover);
+}
+@keyframes spin {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.animate-spin {
+	animation: spin 1s linear infinite;
+}
+/* unused-css-check-ignore */
+.meld-icon {
+	width: 1.2rem;
+	height: 1.2rem;
+	/* Base (fallback): show PrimeIcons glyph (pi pi-*) if present. */
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	vertical-align: middle;
+}
+
+/* PrimeIcons sizing when used as fallback on the same element. */
+/* unused-css-check-ignore */
+.meld-icon.pi::before {
+	font-size: 1.2rem;
+	line-height: 1;
+}
+
+/*
+Legacy icon (preferred in WebUI):
+Enable mask-image only when supported to avoid "solid square" rendering on some desktop WebViews.
+*/
+@supports ((-webkit-mask-image: url("")) or (mask-image: url(""))) {
+	/* unused-css-check-ignore */
+	.meld-icon {
+		background-color: currentcolor;
+		mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2a3 3 0 0 1 2.6 1.5l7.7 13.3A3 3 0 0 1 19.7 21H4.3a3 3 0 0 1-2.6-4.2L9.4 3.5A3 3 0 0 1 12 2z' /%3E%3Cpath d='M9 14.5h6v6.5H9z' fill='currentColor' /%3E%3C/svg%3E");
+		-webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2a3 3 0 0 1 2.6 1.5l7.7 13.3A3 3 0 0 1 19.7 21H4.3a3 3 0 0 1-2.6-4.2L9.4 3.5A3 3 0 0 1 12 2z' /%3E%3Cpath d='M9 14.5h6v6.5H9z' fill='currentColor' /%3E%3C/svg%3E");
+		mask-repeat: no-repeat;
+		-webkit-mask-repeat: no-repeat;
+		mask-position: center;
+		-webkit-mask-position: center;
+		mask-size: contain;
+		-webkit-mask-size: contain;
+	}
+
+	/* Hide PrimeIcons glyph when the legacy mask icon is active. */
+	/* unused-css-check-ignore */
+	.meld-icon.pi::before {
+		content: none;
+	}
+}
+.meld-suggestions-container h3 {
+	font-size: 12px;
+	color: var(--meld-text-secondary);
+	margin: 20px 0 10px 0;
+}
+.meld-suggestions-container section:first-child h3 {
+	margin-top: 0;
+}
+.meld-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding: 8px 20px;
+	border-radius: 4px;
+	border: none;
+	font-size: 14px;
+	font-weight: bold;
+	cursor: pointer;
+	transition: background-color 0.2s;
+}
+.meld-btn:disabled {
+	background-color: var(--comfy-input-bg, #444);
+	color: var(--meld-text-secondary);
+	cursor: not-allowed;
+}
+.meld-btn--primary {
+	background: var(--meld-accent-color);
+	color: white;
+}
+.meld-btn--secondary {
+	background: var(--comfy-input-bg, #444);
+	color: var(--meld-text-color);
+}
+.meld-btn--danger {
+	background: var(--meld-danger-color);
+	color: white;
+}
+/* unused-css-check-ignore */
+.meld-finished-icon {
+	margin-bottom: 10px;
+}
+@keyframes slide-down {
+	from {
+		transform: translateY(-10px);
+		opacity: 0;
+	}
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+.meld-finished-info {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 12px;
+}
+.meld-success-icon {
+	color: var(--meld-success-color, #44ff88);
+}
+.meld-finished-text {
+	color: var(--meld-text-color);
+}
+@keyframes meld-feedback-in {
+	from {
+		opacity: 0;
+		transform: translate(-50%, calc(-50% + 10px));
+	}
+	to {
+		opacity: 1;
+		transform: translate(-50%, -50%);
+	}
+}
+
+@keyframes meld-feedback-out {
+	from {
+		opacity: 1;
+		transform: translate(-50%, -50%);
+	}
+	to {
+		opacity: 0;
+		transform: translate(-50%, calc(-50% - 10px));
+	}
+}
+
+@keyframes meld-fade-in {
+	from {
+		opacity: 0;
+		transform: translate(-50%, 10px);
+	}
+	to {
+		opacity: 1;
+		transform: translate(-50%, 0);
+	}
+}
+
+@keyframes meld-fade-in-down {
+	from {
+		opacity: 0;
+		transform: translate(-50%, -10px);
+	}
+	to {
+		opacity: 1;
+		transform: translate(-50%, 0);
+	}
+}
+
+.meld-loading-spinner--small {
+	width: 14px;
+	height: 14px;
+	border-width: 2px;
+}

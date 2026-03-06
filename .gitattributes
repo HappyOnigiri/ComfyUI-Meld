@@ -1,0 +1,9 @@
+* text=auto eol=lf
+
+# Build artifacts (Tracked auto-generated files; viewer.js is hand-written)
+/web/js/gallery_extension.js linguist-generated
+/web/js/index.js linguist-generated
+/web/js/style.css linguist-generated
+
+# Vendored third-party libraries
+/web/js/jszip.min.js linguist-generated
