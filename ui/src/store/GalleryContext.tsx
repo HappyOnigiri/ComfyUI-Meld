@@ -9,6 +9,7 @@ import {
 	useRef,
 } from "react";
 import * as imagesApi from "../features/images/api/imagesApi";
+import { normalizeImagesResponse } from "../features/images/api/imagesApi";
 import * as searchApi from "../features/search/api/searchApi";
 import * as settingsApi from "../features/settings/api/settingsApi";
 import { logger } from "../logger";
@@ -67,8 +68,9 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({ children })
 
 					if (fetchId !== backgroundFetchIdRef.current) break;
 
-					const chunkImages = Array.isArray(result?.images) ? result.images : [];
-					const chunkTotal = typeof result?.total === "number" ? result.total : 0;
+					const { images: chunkImages, total: chunkTotal } = normalizeImagesResponse(result, {
+						total,
+					});
 					dispatch({
 						type: "APPEND_IMAGES",
 						payload: {
@@ -119,23 +121,23 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({ children })
 				state.viewScope,
 				false, // not minimal for initial load
 			);
-			const images = Array.isArray(result?.images) ? result.images : [];
-			const total = typeof result?.total === "number" ? result.total : 0;
-			const offset = typeof result?.offset === "number" ? result.offset : 0;
-			const limit = typeof result?.limit === "number" ? result.limit : initialLimit;
-			const payload = { images, total, offset, limit };
+			const payload = normalizeImagesResponse(result, {
+				total: state.pagination.total,
+				offset: 0,
+				limit: initialLimit,
+			});
 			const fetchTime = performance.now() - startTime;
 			logger.log("refreshImages: initial fetch complete", {
-				count: images.length,
-				total,
-				offset,
+				count: payload.images.length,
+				total: payload.total,
+				offset: payload.offset,
 				durationMs: fetchTime.toFixed(2),
 			});
 			dispatch({ type: "SET_IMAGES", payload });
 
 			// Start background fetch if there's more
-			if (total > initialLimit) {
-				startBackgroundFetch(initialLimit, total, fetchId);
+			if (payload.total > initialLimit) {
+				startBackgroundFetch(initialLimit, payload.total, fetchId);
 			}
 		} catch (err: unknown) {
 			logger.error("refreshImages: fetch failed", err);
@@ -144,7 +146,13 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({ children })
 				payload: err instanceof Error ? err.message : String(err),
 			});
 		}
-	}, [state.searchQuery, state.viewScope, state.settings, startBackgroundFetch]);
+	}, [
+		state.searchQuery,
+		state.viewScope,
+		state.settings,
+		state.pagination.total,
+		startBackgroundFetch,
+	]);
 
 	const loadMoreImages = useCallback(async () => {
 		if (state.isLoading || !state.pagination.hasMore) return;
@@ -169,16 +177,16 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({ children })
 				state.viewScope,
 				true, // use minimal mode for scroll-triggered loads
 			);
-			const images = Array.isArray(result?.images) ? result.images : [];
-			const total = typeof result?.total === "number" ? result.total : 0;
-			const offset = typeof result?.offset === "number" ? result.offset : nextOffset;
-			const limit = typeof result?.limit === "number" ? result.limit : fetchLimit;
-			const payload = { images, total, offset, limit };
+			const payload = normalizeImagesResponse(result, {
+				total: state.pagination.total,
+				offset: nextOffset,
+				limit: fetchLimit,
+			});
 			const fetchTime = performance.now() - startTime;
 			logger.log("loadMoreImages: fetch complete", {
-				count: images.length,
-				total,
-				offset,
+				count: payload.images.length,
+				total: payload.total,
+				offset: payload.offset,
 				durationMs: fetchTime.toFixed(2),
 			});
 			dispatch({ type: "APPEND_IMAGES", payload });
@@ -193,6 +201,7 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({ children })
 		state.isLoading,
 		state.pagination.hasMore,
 		state.pagination.limit,
+		state.pagination.total,
 		state.searchQuery,
 		state.viewScope,
 	]);
