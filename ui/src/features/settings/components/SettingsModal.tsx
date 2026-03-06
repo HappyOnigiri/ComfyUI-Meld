@@ -69,17 +69,20 @@ export const SettingsModal: React.FC = () => {
 	];
 
 	const sanitizeId = (id: string) =>
-		id.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+		id
+			.toLowerCase()
+			.replace(/\s+/g, "-")
+			.replace(/[^a-z0-9-]/g, "");
 
 	const handleTabKeyDown = (e: React.KeyboardEvent, index: number) => {
 		if (e.key === "ArrowDown" || e.key === "ArrowRight") {
 			e.preventDefault();
-			const next = tabs[(index + 1) % tabs.length]!;
-			setActiveTab(next.id);
+			const next = tabs[(index + 1) % tabs.length];
+			if (next) setActiveTab(next.id);
 		} else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
 			e.preventDefault();
-			const prev = tabs[(index - 1 + tabs.length) % tabs.length]!;
-			setActiveTab(prev.id);
+			const prev = tabs[(index - 1 + tabs.length) % tabs.length];
+			if (prev) setActiveTab(prev.id);
 		}
 	};
 

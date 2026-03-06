@@ -224,7 +224,7 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 				}
 			}
 		},
-		[bucketImages, lastSelectedId, setSelectedIds, setLastSelectedId, galleryDispatch, config.id],
+		[bucketImages, lastSelectedId, galleryDispatch, config.id],
 	);
 	return (
 		<div
