@@ -17,6 +17,15 @@
 		background-color 0.2s;
 }
 
+.meld-image-card:focus-visible {
+	outline: 2px solid var(--meld-accent-color, #4488ff);
+	outline-offset: 2px;
+}
+
+.meld-image-card:focus:not(:focus-visible) {
+	outline: none;
+}
+
 .meld-image-card:hover {
 	border-color: var(--comfy-menu-border, #666);
 }
@@ -118,6 +127,15 @@
 	--meld-icon-halo: var(--meld-accent-color);
 }
 
+.meld-image-card__menu-btn:focus-visible {
+	outline: 2px solid var(--meld-accent-color, #4488ff);
+	outline-offset: 2px;
+}
+
+.meld-image-card__menu-btn:focus:not(:focus-visible) {
+	outline: none;
+}
+
 .meld-image-card__menu {
 	position: absolute;
 	top: 0;
@@ -162,6 +180,15 @@
 	background-color: var(--meld-accent-color);
 	color: var(--comfy-input-text, white);
 	--meld-icon-halo: var(--meld-accent-color);
+}
+
+/* unused-css-check-ignore */ .meld-image-card__menu-item:focus-visible {
+	outline: 2px solid var(--meld-accent-color, #4488ff);
+	outline-offset: 2px;
+}
+
+/* unused-css-check-ignore */ .meld-image-card__menu-item:focus:not(:focus-visible) {
+	outline: none;
 }
 
 .meld-image-card__thumbnail-wrapper {

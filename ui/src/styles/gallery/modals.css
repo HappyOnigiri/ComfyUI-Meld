@@ -67,6 +67,11 @@
 	color: var(--meld-text-color);
 }
 
+.meld-modal-close:focus-visible {
+	outline: 2px solid var(--meld-accent-color, #4488ff);
+	outline-offset: 2px;
+}
+
 .meld-modal-body {
 	padding: 12px 20px;
 	overflow-y: auto;

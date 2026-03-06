@@ -19,10 +19,27 @@
 	z-index: 1;
 	box-shadow: 0 2px 8px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.4));
 }
-.meld-lineage-badge__parent-thumb:focus-visible {
+.meld-lineage-badge__parent-thumb:focus-visible,
+.meld-lineage-badge__parent-thumb-btn:focus-visible {
 	outline: 2px solid var(--comfy-focus, var(--meld-accent-color, #4488ff));
 	outline-offset: 2px;
 	border-color: var(--meld-accent-color, #4488ff);
+	transform: scale(1.15);
+	z-index: 1;
+	box-shadow: 0 2px 8px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.4));
+}
+
+.meld-lineage-badge__parent-thumb-btn {
+	width: 28px;
+	height: 28px;
+	border-radius: 4px;
+	border: 1px solid var(--comfy-menu-border, rgba(255, 255, 255, 0.2));
+	overflow: hidden;
+	display: block;
+}
+
+.meld-lineage-badge__parent-thumb-btn:hover {
+	border-color: var(--meld-accent-color);
 	transform: scale(1.15);
 	z-index: 1;
 	box-shadow: 0 2px 8px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.4));
@@ -42,6 +59,13 @@
 	transition: all 0.2s;
 }
 .meld-suggestion-card:hover {
+	border-color: var(--meld-accent-color);
+	background: var(--comfy-input-bg-active, rgba(255, 255, 255, 0.06));
+}
+
+.meld-suggestion-card:focus-visible {
+	outline: 2px solid var(--meld-accent-color, #4488ff);
+	outline-offset: 2px;
 	border-color: var(--meld-accent-color);
 	background: var(--comfy-input-bg-active, rgba(255, 255, 255, 0.06));
 }
