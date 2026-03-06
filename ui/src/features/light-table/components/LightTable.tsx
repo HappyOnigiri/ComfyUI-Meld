@@ -104,6 +104,7 @@ export const LightTable: React.FC = () => {
 					className="meld-light-table__add-tab-btn"
 					onClick={handleAddSlot}
 					title="Add Tab"
+					aria-label="Add Tab"
 					style={{
 						background: "none",
 						border: "none",
@@ -131,6 +132,7 @@ export const LightTable: React.FC = () => {
 					className="meld-light-table__close-btn"
 					onClick={() => setIsOpen(false)}
 					title="Close Light Table"
+					aria-label="Close Light Table"
 					style={{
 						background: "none",
 						border: "none",

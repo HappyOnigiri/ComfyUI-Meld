@@ -206,14 +206,47 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 				) : (
 					bucketImages.map((img) => {
 						const imgSrc = getThumbnailViewUrl(img);
+						const handleImageKeyDown = (e: React.KeyboardEvent) => {
+							if (e.key === "Enter" || e.key === " ") {
+								e.preventDefault();
+								if (e.ctrlKey || e.metaKey) {
+									setSelectedIds((prev) =>
+										prev.includes(img.id) ? prev.filter((id) => id !== img.id) : [...prev, img.id],
+									);
+									setLastSelectedId(img.id);
+								} else if (e.shiftKey && lastSelectedId !== null) {
+									const currentIndex = bucketImages.findIndex((i) => i.id === img.id);
+									const lastIndex = bucketImages.findIndex((i) => i.id === lastSelectedId);
+									if (currentIndex !== -1 && lastIndex !== -1) {
+										const start = Math.min(currentIndex, lastIndex);
+										const end = Math.max(currentIndex, lastIndex);
+										const rangeIds = bucketImages.slice(start, end + 1).map((i) => i.id);
+										setSelectedIds((prev) => Array.from(new Set([...prev, ...rangeIds])));
+									}
+									setLastSelectedId(img.id);
+								} else {
+									setSelectedIds([]);
+									setLastSelectedId(null);
+									galleryDispatch({
+										type: "OPEN_VIEWER",
+										payload: {
+											id: img.id,
+											mode: "lighttable",
+											slotId: config.id,
+										},
+									});
+								}
+							}
+						};
 						return (
 							<div
 								key={img.id}
+								role="button"
+								tabIndex={0}
 								className={`meld-lt-slot-panel__image-wrapper${validSelectedIds.includes(img.id) ? " selected" : ""}`}
 								draggable
 								onClick={(e) => {
 									if (e.ctrlKey || e.metaKey) {
-										// Toggle selection
 										setSelectedIds((prev) =>
 											prev.includes(img.id)
 												? prev.filter((id) => id !== img.id)
@@ -221,7 +254,6 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 										);
 										setLastSelectedId(img.id);
 									} else if (e.shiftKey && lastSelectedId !== null) {
-										// Range selection
 										const currentIndex = bucketImages.findIndex((i) => i.id === img.id);
 										const lastIndex = bucketImages.findIndex((i) => i.id === lastSelectedId);
 										if (currentIndex !== -1 && lastIndex !== -1) {
@@ -232,7 +264,6 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 										}
 										setLastSelectedId(img.id);
 									} else {
-										// Normal click: clear selection and open viewer
 										setSelectedIds([]);
 										setLastSelectedId(null);
 										galleryDispatch({
@@ -245,6 +276,7 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 										});
 									}
 								}}
+								onKeyDown={handleImageKeyDown}
 								onDragStart={(e) => handleImageDragStart(e, img.id)}
 								onDragEnd={(e) => handleImageDragEnd(e, img.id)}
 							>

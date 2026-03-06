@@ -55,8 +55,13 @@ export const NodeSelectionModal: React.FC<NodeSelectionModalProps> = ({
 			>
 				<div className="meld-modal-header">
 					<h2>Select Target Node</h2>
-					<button type="button" className="meld-modal-close" onClick={handleClose}>
-						<X size={20} />
+					<button
+						type="button"
+						className="meld-modal-close"
+						onClick={handleClose}
+						aria-label="Close"
+					>
+						<X size={20} aria-hidden />
 					</button>
 				</div>
 

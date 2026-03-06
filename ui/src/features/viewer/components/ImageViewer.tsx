@@ -97,6 +97,15 @@ export function ImageViewer() {
 					dispatch({ type: "CLOSE_VIEWER" });
 				}
 			}}
+			onKeyDown={(e) => {
+				if (
+					state.activeModal.type === "none" &&
+					(e.key === "Enter" || e.key === " " || e.key === "Spacebar")
+				) {
+					if (e.key === " ") e.preventDefault();
+					dispatch({ type: "CLOSE_VIEWER" });
+				}
+			}}
 			role="button"
 			tabIndex={0}
 		>

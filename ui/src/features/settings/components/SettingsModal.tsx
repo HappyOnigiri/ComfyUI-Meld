@@ -164,11 +164,16 @@ export const SettingsModal: React.FC = () => {
 
 				<div className="meld-settings-layout">
 					<div className="meld-settings-sidebar">
-						<div className="meld-tabs">
+						<div className="meld-tabs" role="tablist">
 							{tabs.map((tab) => (
 								<button
 									key={tab.id}
+									id={`meld-settings-tab-${tab.id}`}
 									type="button"
+									role="tab"
+									aria-selected={activeTab === tab.id}
+									tabIndex={activeTab === tab.id ? 0 : -1}
+									aria-controls={`meld-settings-tabpanel-${tab.id}`}
 									className={`meld-tab ${activeTab === tab.id ? "active" : ""}`}
 									onClick={() => setActiveTab(tab.id)}
 								>
@@ -178,7 +183,14 @@ export const SettingsModal: React.FC = () => {
 						</div>
 					</div>
 
-					<div className="meld-modal-body">{renderActiveTab()}</div>
+					<div
+						className="meld-modal-body"
+						role="tabpanel"
+						id={`meld-settings-tabpanel-${activeTab}`}
+						aria-labelledby={`meld-settings-tab-${activeTab}`}
+					>
+						{renderActiveTab()}
+					</div>
 				</div>
 			</div>
 		</div>,

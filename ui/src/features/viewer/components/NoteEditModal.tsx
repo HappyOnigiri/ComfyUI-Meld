@@ -89,7 +89,7 @@ export const NoteEditModal: React.FC<NoteEditModalProps> = ({ imageId, initialNo
 						<StickyNote size={18} />
 						<h3 style={{ margin: 0 }}>Edit Notes</h3>
 					</div>
-					<button type="button" className="meld-modal-close" onClick={onClose}>
+					<button type="button" className="meld-modal-close" onClick={onClose} aria-label="Close">
 						<X size={20} />
 					</button>
 				</div>
@@ -97,8 +97,10 @@ export const NoteEditModal: React.FC<NoteEditModalProps> = ({ imageId, initialNo
 				<div className="meld-modal-body">
 					<div className="meld-note-edit-section">
 						<textarea
+							id="meld-notes-textarea"
 							ref={textareaRef}
 							className="meld-image-card__notes-textarea"
+							aria-label="Image notes"
 							style={{
 								width: "100%",
 								minHeight: "200px",

@@ -509,8 +509,17 @@ export const ImportModal: React.FC = () => {
 										{folders.map((f) => (
 											<div
 												key={f.name}
+												role="button"
+												tabIndex={0}
 												className="meld-folder-item"
 												onClick={() => enterFolder(f.name)}
+												onKeyDown={(e) => {
+													if (e.key === "Enter" || e.key === " ") {
+														e.preventDefault();
+														enterFolder(f.name);
+													}
+												}}
+												aria-label={`Open folder ${f.name}`}
 											>
 												<div className="meld-folder-icon-wrapper">
 													{f.preview ? (
@@ -540,8 +549,17 @@ export const ImportModal: React.FC = () => {
 												{images.map((img) => (
 													<div
 														key={img.filename}
+														role="button"
+														tabIndex={0}
 														className="meld-browser-image-item"
 														onClick={() => setPreviewImage(img)}
+														onKeyDown={(e) => {
+															if (e.key === "Enter" || e.key === " ") {
+																e.preventDefault();
+																setPreviewImage(img);
+															}
+														}}
+														aria-label={`Preview ${img.filename}`}
 													>
 														<img
 															src={getThumbnailViewUrl(img, 120)}
