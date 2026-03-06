@@ -39,7 +39,7 @@ Every node must be a Python class with the following specific attributes and met
 - **Images**: `[Batch, Height, Width, Channels]` (BHWC), range 0.0-1.0 (float32).
   - Use `torch.from_numpy` and `permute` if converting from standard libraries like PIL or OpenCV.
 - **Masks**: `[Batch, Height, Width]`, range 0.0-1.0.
-/
+
 ## 3. Code Snippets & Patterns
 
 ### Basic Node Template
@@ -110,7 +110,7 @@ def tensor2pil(image):
 
 ```
 
-## 4. Registration (**init**.py)
+## 4. Registration (__init__.py)
 
 Always remind me to update `__init__.py` to export the node.
 

@@ -7,8 +7,9 @@ alwaysApply: true
 Use centralized z-index tokens for global UI layers to avoid stacking conflicts and click-blocking overlays.
 
 ## 1) Source of Truth
-- Define and maintain global z-index tokens in `ui/src/styles/Gallery.css` under `:root`.
+- Define and maintain global z-index tokens in `ui/src/styles/gallery/base.css` under `:root`.
 - Token naming convention: `--meld-z-*`.
+- Use the exact lowercase path `ui/src/styles/gallery/base.css`; the `:root` block in that file is the canonical location for all `--meld-z-*` token definitions.
 
 ## 2) Required Usage
 - For global layers (viewer, modal, toast, dropdown, overlay, light table), always use `var(--meld-z-...)`.

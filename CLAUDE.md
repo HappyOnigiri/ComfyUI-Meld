@@ -66,7 +66,7 @@ Every node must be a Python class with the following specific attributes and met
 - **Images**: `[Batch, Height, Width, Channels]` (BHWC), range 0.0-1.0 (float32).
   - Use `torch.from_numpy` and `permute` if converting from standard libraries like PIL or OpenCV.
 - **Masks**: `[Batch, Height, Width]`, range 0.0-1.0.
-/
+
 ## 3. Code Snippets & Patterns
 
 ### Basic Node Template
@@ -137,7 +137,7 @@ def tensor2pil(image):
 
 ```
 
-## 4. Registration (**init**.py)
+## 4. Registration (__init__.py)
 
 Always remind me to update `__init__.py` to export the node.
 
@@ -187,8 +187,8 @@ The project enforces strict linting via **Biome** and **TypeScript Strict Mode**
 Extensions must be registered via `app.registerExtension`. Keep the entry point clean and delegate logic to separate modules or React components.
 
 ```typescript
-import { app } from "../../scripts/app.js";
-import { api } from "../../scripts/api.js";
+import { app } from "/scripts/app.js";
+import { api } from "/scripts/api.js";
 import type { ComfyApp, ComfyNode, ComfyExtension } from "./types/comfy";
 
 const ext: ComfyExtension = {
@@ -492,8 +492,9 @@ When using plain CSS, strictly follow these naming rules:
 Use centralized z-index tokens for global UI layers to avoid stacking conflicts and click-blocking overlays.
 
 ## 1) Source of Truth
-- Define and maintain global z-index tokens in `ui/src/styles/Gallery.css` under `:root`.
+- Define and maintain global z-index tokens in `ui/src/styles/gallery/base.css` under `:root`.
 - Token naming convention: `--meld-z-*`.
+- Use the exact lowercase path `ui/src/styles/gallery/base.css`; the `:root` block in that file is the canonical location for all `--meld-z-*` token definitions.
 
 ## 2) Required Usage
 - For global layers (viewer, modal, toast, dropdown, overlay, light table), always use `var(--meld-z-...)`.
