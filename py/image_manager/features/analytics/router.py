@@ -25,7 +25,7 @@ async def refresh_analytics(request: web.Request) -> web.Response:
             if _refresh_running:
                 return web.json_response(
                     ApiResponse(success=False, error="Analytics refresh already in progress").to_dict(),
-                    status=409,
+                    status=400,
                 )
             _refresh_running = True
 
@@ -91,7 +91,7 @@ async def get_analytics_category(request: web.Request) -> web.Response:
         if category not in CATEGORIES:
             return web.json_response(
                 ApiResponse(success=False, error=f"Unknown category: {category}").to_dict(),
-                status=400,
+                status=404,
             )
 
         parsed = _parse_limit_offset(request)
