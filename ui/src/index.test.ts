@@ -63,17 +63,19 @@ vi.mock("./features/settings/api/settingsApi", () => ({
 
 vi.mock("./features/images/api/imagesApi", () => ({
 	registerImage: vi.fn(),
-	fetchImages: vi.fn().mockResolvedValue({ images: [], total: 0, offset: 0, limit: 100 }),
+	fetchImages: vi.fn().mockResolvedValue({ images: [], total: 0, offset: 0, limit: 30 }),
 }));
 
 describe("index.ts", () => {
 	it("registers extension successfully", async () => {
+		const { fetchImages } = await import("./features/images/api/imagesApi");
 		// Import the file to execute its top-level code
 		await import("./index");
 		const { app } = await import("/scripts/app.js");
 		expect(app.registerExtension).toHaveBeenCalled();
-		// Wait for async setup (registerSidebarTab, render, unmount) to complete
-		// so the test environment is not torn down while React updates are pending.
+		// First await async setup checkpoint: fetchImages called (setup + render completed)
+		await waitFor(() => expect(fetchImages).toHaveBeenCalled(), { timeout: 5000 });
+		// Then assert cleanup: sidebar container removed
 		await waitFor(() => expect(document.querySelector(".sidebar-content-container")).toBeNull(), {
 			timeout: 5000,
 		});
