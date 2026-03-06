@@ -84,7 +84,7 @@ reviews:
         STILL FLAG: structurally broken tests (always-pass logic, mock not applied),
         incorrect assertion values, security-sensitive setup issues.
 
-    - path: "ui/src/**/*.ts"
+    - path: "ui/src/**/!(*.test).ts"
       instructions: |
         Do NOT flag the following in UI source files:
 
@@ -106,7 +106,7 @@ reviews:
         memory leaks or OOM risks, missing AbortController causing post-unmount state
         updates, thread safety issues, HTTP status code misuse, resource leaks.
 
-    - path: "ui/src/**/*.tsx"
+    - path: "ui/src/**/!(*.test).tsx"
       instructions: |
         Do NOT flag the following in UI source files:
 
@@ -166,18 +166,19 @@ reviews:
         functional logic errors.
 
   tools:
+    # Disabled: CI already runs ruff, biome, mypy, pyright, tsc. Avoid duplicate findings.
     ruff:
-      enabled: true
+      enabled: false
     flake8:
-      enabled: true
+      enabled: false
     pylint:
-      enabled: true
+      enabled: false
     biome:
-      enabled: true
+      enabled: false
     eslint:
-      enabled: true
+      enabled: false
     oxc:
-      enabled: true
+      enabled: false
     shellcheck:
       enabled: true
     markdownlint:
