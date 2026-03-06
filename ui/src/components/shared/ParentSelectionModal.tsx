@@ -172,7 +172,12 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({ imag
 			>
 				<div className="meld-modal-header">
 					<h2 id="parent-selection-modal-title">Select Source for #{image.id}</h2>
-					<button type="button" className="meld-modal-close" onClick={handleClose} aria-label="Close">
+					<button
+						type="button"
+						className="meld-modal-close"
+						onClick={handleClose}
+						aria-label="Close"
+					>
 						<X size={20} />
 					</button>
 				</div>

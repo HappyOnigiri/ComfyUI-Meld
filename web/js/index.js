@@ -12904,7 +12904,16 @@ const tm = [
                   "Select Source for #",
                   x.id
                 ] }),
-                /* @__PURE__ */ s.jsx("button", { type: "button", className: "meld-modal-close", onClick: h, children: /* @__PURE__ */ s.jsx(me, { size: 20 }) })
+                /* @__PURE__ */ s.jsx(
+                  "button",
+                  {
+                    type: "button",
+                    className: "meld-modal-close",
+                    onClick: h,
+                    "aria-label": "Close",
+                    children: /* @__PURE__ */ s.jsx(me, { size: 20 })
+                  }
+                )
               ] }),
               /* @__PURE__ */ s.jsxs("div", { className: "meld-modal-body", children: [
                 x.parent_id && /* @__PURE__ */ s.jsxs(
@@ -14056,7 +14065,7 @@ const Ks = ({
     R.slots.length <= 1 || (R.removeSlot(e.id), ae.getState().showToast(`Tab "${e.label}" deleted`));
   }, P = p.useCallback(
     (R, O) => {
-      if (R.key === "Enter" || R.key === " ")
+      if (!R.repeat && (R.key === "Enter" || R.key === " "))
         if (R.preventDefault(), R.ctrlKey || R.metaKey)
           m(
             (z) => z.includes(O.id) ? z.filter((B) => B !== O.id) : [...z, O.id]
@@ -17476,6 +17485,7 @@ function gw() {
         },
         role: "button",
         tabIndex: 0,
+        "aria-label": "Close image viewer",
         children: [
           /* @__PURE__ */ s.jsxs(
             "div",
