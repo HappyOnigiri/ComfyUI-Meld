@@ -42,10 +42,12 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 
 	const isSearchActive = useMemo(() => state.searchQuery.trim() !== "", [state.searchQuery]);
 
+	// Subscribe to bucket changes via selector so currentList updates when buckets change
+	const lightTableBuckets = useLightTableStore((s) => s.buckets);
+
 	const currentList = useMemo(() => {
 		if (state.viewerMode === "lighttable" && state.viewerLightTableSlotId) {
-			const ltStore = useLightTableStore.getState();
-			const bucketIds = ltStore.buckets[state.viewerLightTableSlotId] || [];
+			const bucketIds = lightTableBuckets[state.viewerLightTableSlotId] || [];
 			return bucketIds
 				.map((idStr) => {
 					const idNum = Number.parseInt(idStr, 10);
@@ -72,6 +74,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 	}, [
 		state.viewerMode,
 		state.viewerLightTableSlotId,
+		lightTableBuckets,
 		state.lineageImages,
 		state.images,
 		state.settings,
