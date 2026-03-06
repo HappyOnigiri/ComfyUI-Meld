@@ -31,9 +31,7 @@ export interface AnalyticsCategoryItem {
 export const fetchAnalyticsSummary = async (options?: {
 	signal?: AbortSignal;
 }): Promise<AnalyticsSummary> => {
-	const res = options?.signal
-		? await api.fetchApi("/meld/analytics", { signal: options.signal })
-		: await api.fetchApi("/meld/analytics");
+	const res = await api.fetchApi("/meld/analytics", { signal: options?.signal });
 	return handleResponse<AnalyticsSummary>(res);
 };
 

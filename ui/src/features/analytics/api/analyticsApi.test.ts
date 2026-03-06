@@ -33,7 +33,7 @@ describe("analyticsApi", () => {
 
 			const result = await fetchAnalyticsSummary();
 
-			expect(api.fetchApi).toHaveBeenCalledWith("/meld/analytics");
+			expect(api.fetchApi).toHaveBeenCalledWith("/meld/analytics", { signal: undefined });
 			expect(result).toEqual(summary);
 		});
 
