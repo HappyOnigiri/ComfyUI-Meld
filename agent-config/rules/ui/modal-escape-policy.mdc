@@ -1,6 +1,6 @@
 ---
 alwaysApply: true
-globs: ["ui/src/**/*.{ts,tsx}"]
+globs: ["ui/src/**/*.tsx"]
 ---
 
 # UI Modal Policy: Escape-to-Close

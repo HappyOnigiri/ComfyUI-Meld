@@ -20,8 +20,8 @@ The project enforces strict linting via **Biome** and **TypeScript Strict Mode**
 Extensions must be registered via `app.registerExtension`. Keep the entry point clean and delegate logic to separate modules or React components.
 
 ```typescript
-import { app } from "../../scripts/app.js";
-import { api } from "../../scripts/api.js";
+import { app } from "/scripts/app.js";
+import { api } from "/scripts/api.js";
 import type { ComfyApp, ComfyNode, ComfyExtension } from "./types/comfy";
 
 const ext: ComfyExtension = {
