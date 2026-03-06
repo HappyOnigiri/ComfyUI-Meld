@@ -163,9 +163,15 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({ imag
 			onMouseDown={handleOverlayMouseDown}
 			onMouseUp={handleOverlayMouseUp}
 		>
-			<div className="meld-modal-content" onClick={(e) => e.stopPropagation()}>
+			<div
+				className="meld-modal-content"
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="parent-selection-modal-title"
+				onClick={(e) => e.stopPropagation()}
+			>
 				<div className="meld-modal-header">
-					<h2>Select Source for #{image.id}</h2>
+					<h2 id="parent-selection-modal-title">Select Source for #{image.id}</h2>
 					<button type="button" className="meld-modal-close" onClick={handleClose}>
 						<X size={20} />
 					</button>
@@ -331,6 +337,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({ imag
 													tabIndex={0}
 													aria-pressed={isCurrent}
 													aria-current={isCurrent ? "true" : undefined}
+													aria-label={`Select ${sug.filename} as source${isCurrent ? " (current)" : ""}`}
 													className={`meld-suggestion-card ${isCurrent ? "meld-suggestion-card--current" : ""}`}
 													onClick={() => !isCurrent && handleSelect(sug.id)}
 													onKeyDown={(e) => {
@@ -385,6 +392,7 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({ imag
 													tabIndex={0}
 													aria-pressed={isCurrent}
 													aria-current={isCurrent ? "true" : undefined}
+													aria-label={`Select ${sug.filename} as source${isCurrent ? " (current)" : ""}`}
 													className={`meld-suggestion-card ${isCurrent ? "meld-suggestion-card--current" : ""}`}
 													onClick={() => !isCurrent && handleSelect(sug.id)}
 													onKeyDown={(e) => {

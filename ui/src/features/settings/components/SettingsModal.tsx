@@ -68,6 +68,21 @@ export const SettingsModal: React.FC = () => {
 		{ id: "Information", label: "Information" },
 	];
 
+	const sanitizeId = (id: string) =>
+		id.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+
+	const handleTabKeyDown = (e: React.KeyboardEvent, index: number) => {
+		if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+			e.preventDefault();
+			const next = tabs[(index + 1) % tabs.length]!;
+			setActiveTab(next.id);
+		} else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+			e.preventDefault();
+			const prev = tabs[(index - 1 + tabs.length) % tabs.length]!;
+			setActiveTab(prev.id);
+		}
+	};
+
 	const renderActiveTab = () => {
 		switch (activeTab) {
 			case "System":
@@ -165,17 +180,18 @@ export const SettingsModal: React.FC = () => {
 				<div className="meld-settings-layout">
 					<div className="meld-settings-sidebar">
 						<div className="meld-tabs" role="tablist">
-							{tabs.map((tab) => (
+							{tabs.map((tab, index) => (
 								<button
 									key={tab.id}
-									id={`meld-settings-tab-${tab.id}`}
+									id={`meld-settings-tab-${sanitizeId(tab.id)}`}
 									type="button"
 									role="tab"
 									aria-selected={activeTab === tab.id}
 									tabIndex={activeTab === tab.id ? 0 : -1}
-									aria-controls={`meld-settings-tabpanel-${tab.id}`}
+									aria-controls={`meld-settings-tabpanel-${sanitizeId(tab.id)}`}
 									className={`meld-tab ${activeTab === tab.id ? "active" : ""}`}
 									onClick={() => setActiveTab(tab.id)}
+									onKeyDown={(e) => handleTabKeyDown(e, index)}
 								>
 									{tab.label}
 								</button>
@@ -186,8 +202,8 @@ export const SettingsModal: React.FC = () => {
 					<div
 						className="meld-modal-body"
 						role="tabpanel"
-						id={`meld-settings-tabpanel-${activeTab}`}
-						aria-labelledby={`meld-settings-tab-${activeTab}`}
+						id={`meld-settings-tabpanel-${sanitizeId(activeTab)}`}
+						aria-labelledby={`meld-settings-tab-${sanitizeId(activeTab)}`}
 					>
 						{renderActiveTab()}
 					</div>

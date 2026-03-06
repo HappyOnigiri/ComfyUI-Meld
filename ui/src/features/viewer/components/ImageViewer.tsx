@@ -99,6 +99,7 @@ export function ImageViewer() {
 			}}
 			onKeyDown={(e) => {
 				if (
+					e.target === e.currentTarget &&
 					state.activeModal.type === "none" &&
 					(e.key === "Enter" || e.key === " " || e.key === "Spacebar")
 				) {

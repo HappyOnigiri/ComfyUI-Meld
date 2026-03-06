@@ -9,7 +9,7 @@ import {
 	Workflow,
 } from "lucide-react";
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useOnPointerDownOutside } from "../../../hooks/useOnPointerDownOutside";
 import { useGallery } from "../../../store/GalleryContext";
 import type { MeldImage } from "../../../types";
@@ -191,6 +191,41 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 		useLightTableStore.getState().showToast(`Tab "${config.label}" deleted`);
 	};
 
+	const handleImageKeyDown = useCallback(
+		(e: React.KeyboardEvent, img: MeldImage) => {
+			if (e.key === "Enter" || e.key === " ") {
+				e.preventDefault();
+				if (e.ctrlKey || e.metaKey) {
+					setSelectedIds((prev) =>
+						prev.includes(img.id) ? prev.filter((id) => id !== img.id) : [...prev, img.id],
+					);
+					setLastSelectedId(img.id);
+				} else if (e.shiftKey && lastSelectedId !== null) {
+					const currentIndex = bucketImages.findIndex((i) => i.id === img.id);
+					const lastIndex = bucketImages.findIndex((i) => i.id === lastSelectedId);
+					if (currentIndex !== -1 && lastIndex !== -1) {
+						const start = Math.min(currentIndex, lastIndex);
+						const end = Math.max(currentIndex, lastIndex);
+						const rangeIds = bucketImages.slice(start, end + 1).map((i) => i.id);
+						setSelectedIds((prev) => Array.from(new Set([...prev, ...rangeIds])));
+					}
+					setLastSelectedId(img.id);
+				} else {
+					setSelectedIds([]);
+					setLastSelectedId(null);
+					galleryDispatch({
+						type: "OPEN_VIEWER",
+						payload: {
+							id: img.id,
+							mode: "lighttable",
+							slotId: config.id,
+						},
+					});
+				}
+			}
+		},
+		[bucketImages, lastSelectedId, setSelectedIds, setLastSelectedId, galleryDispatch, config.id],
+	);
 	return (
 		<div
 			className="meld-lt-slot-panel"
@@ -206,38 +241,6 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 				) : (
 					bucketImages.map((img) => {
 						const imgSrc = getThumbnailViewUrl(img);
-						const handleImageKeyDown = (e: React.KeyboardEvent) => {
-							if (e.key === "Enter" || e.key === " ") {
-								e.preventDefault();
-								if (e.ctrlKey || e.metaKey) {
-									setSelectedIds((prev) =>
-										prev.includes(img.id) ? prev.filter((id) => id !== img.id) : [...prev, img.id],
-									);
-									setLastSelectedId(img.id);
-								} else if (e.shiftKey && lastSelectedId !== null) {
-									const currentIndex = bucketImages.findIndex((i) => i.id === img.id);
-									const lastIndex = bucketImages.findIndex((i) => i.id === lastSelectedId);
-									if (currentIndex !== -1 && lastIndex !== -1) {
-										const start = Math.min(currentIndex, lastIndex);
-										const end = Math.max(currentIndex, lastIndex);
-										const rangeIds = bucketImages.slice(start, end + 1).map((i) => i.id);
-										setSelectedIds((prev) => Array.from(new Set([...prev, ...rangeIds])));
-									}
-									setLastSelectedId(img.id);
-								} else {
-									setSelectedIds([]);
-									setLastSelectedId(null);
-									galleryDispatch({
-										type: "OPEN_VIEWER",
-										payload: {
-											id: img.id,
-											mode: "lighttable",
-											slotId: config.id,
-										},
-									});
-								}
-							}
-						};
 						return (
 							<div
 								key={img.id}
@@ -276,7 +279,7 @@ export const Slot: React.FC<SlotProps> = ({ config }) => {
 										});
 									}
 								}}
-								onKeyDown={handleImageKeyDown}
+								onKeyDown={(e) => handleImageKeyDown(e, img)}
 								onDragStart={(e) => handleImageDragStart(e, img.id)}
 								onDragEnd={(e) => handleImageDragEnd(e, img.id)}
 							>

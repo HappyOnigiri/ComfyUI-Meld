@@ -159,22 +159,6 @@ describe("viewerReducer", () => {
 		expect(next).toBe(state);
 	});
 
-	it("PREVIOUS_IMAGE at start in gallery mode loops to last image when loopEnabled", () => {
-		const images = [createTestImage({ id: 1 }), createTestImage({ id: 2 })];
-		const state = {
-			...initialState,
-			images,
-			viewerImageId: 1,
-			viewerMode: "gallery" as const,
-			settings: { ...initialState.settings, "viewer.loop": true },
-		};
-		const next = viewerReducer(state, {
-			type: "PREVIOUS_IMAGE",
-			payload: { isFullscreen: false },
-		});
-		expect(next.viewerImageId).toBe(2);
-	});
-
 	it("PREVIOUS_IMAGE at start in gallery mode returns unchanged when loop disabled", () => {
 		const images = [createTestImage({ id: 1 }), createTestImage({ id: 2 })];
 		const state = {

@@ -58,11 +58,12 @@ export const GalleryModals: React.FC = () => {
 							);
 							const failed = results.filter((r) => r.status === "rejected");
 							if (failed.length > 0) {
-								onError?.();
 								dispatch({
 									type: "SET_ERROR",
 									payload: `${failed.length} of ${state.activeModal.images.length} workflow(s) failed.`,
 								});
+								onError?.();
+								return false;
 							} else {
 								onSuccess?.();
 							}
