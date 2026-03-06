@@ -33,6 +33,7 @@ vi.mock("/scripts/app.js", () => ({
 						parent.appendChild(el);
 						document.body.appendChild(parent);
 						try {
+							// Intentional double render to test idempotency / simulate React StrictMode double-invoke
 							await act(async () => {
 								tab.render(el);
 								tab.render(el);
