@@ -127,15 +127,15 @@ export const ImportModal: React.FC = () => {
 					logger.log("Step 1: Aborted.");
 					return;
 				}
-				logger.log(
-					`Step 1 complete. Found ${result.folders.length} folders, ${result.images.length} images.`,
-				);
-				setFolders(result.folders);
-				setImages(result.images);
+				const folders = Array.isArray(result?.folders) ? result.folders : [];
+				const images = Array.isArray(result?.images) ? result.images : [];
+				logger.log(`Step 1 complete. Found ${folders.length} folders, ${images.length} images.`);
+				setFolders(folders);
+				setImages(images);
 				setCurrentPathImageCount(null);
 
 				// Step 2: Fetch folder metadata (counts and previews)
-				const folderNames = result.folders.map((f) => f.name);
+				const folderNames = folders.map((f) => f.name);
 				if (folderNames.length > 0) {
 					logger.log(`Step 2: Metadata fetch starting for ${folderNames.length} folders...`);
 					importerApi

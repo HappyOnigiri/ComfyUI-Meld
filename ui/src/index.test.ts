@@ -20,11 +20,11 @@ vi.mock("/scripts/api.js", () => ({
 
 vi.mock("/scripts/app.js", () => ({
 	app: {
-		registerExtension: vi.fn((ext) => {
+		registerExtension: vi.fn(async (ext) => {
 			const mockApp = {
 				ui: { meld: { refresh: vi.fn(), isVisible: vi.fn(() => true) } },
 				extensionManager: {
-					registerSidebarTab: vi.fn((tab) => {
+					registerSidebarTab: vi.fn(async (tab) => {
 						const el = document.createElement("div");
 						const parent = document.createElement("div");
 						parent.className = "sidebar-content-container";
@@ -33,12 +33,15 @@ vi.mock("/scripts/app.js", () => ({
 						tab.render(el);
 						// call render again to hit branch
 						tab.render(el);
+						// Wait for async refreshImages (useEffect) to complete before unmounting.
+						// Prevents "document global was defined when React was initialized, but is not defined anymore".
+						await new Promise((r) => setTimeout(r, 50));
 						document.body.removeChild(parent);
 					}),
 					setSidebarTabActive: vi.fn(),
 				},
 			};
-			ext.setup?.(mockApp);
+			await ext.setup?.(mockApp);
 
 			const mockNodeType = { prototype: { onExecuted: vi.fn() } };
 			ext.beforeRegisterNodeDef?.(mockNodeType, { name: "MeldSaveImage" }, mockApp);
@@ -54,7 +57,7 @@ vi.mock("./features/settings/api/settingsApi", () => ({
 
 vi.mock("./features/images/api/imagesApi", () => ({
 	registerImage: vi.fn(),
-	fetchImages: vi.fn().mockResolvedValue({ items: [], total: 0 }),
+	fetchImages: vi.fn().mockResolvedValue({ images: [], total: 0, offset: 0, limit: 100 }),
 }));
 
 describe("index.ts", () => {
@@ -63,5 +66,8 @@ describe("index.ts", () => {
 		await import("./index");
 		const { app } = await import("/scripts/app.js");
 		expect(app.registerExtension).toHaveBeenCalled();
+		// Wait for async setup (registerSidebarTab, render, unmount) to complete
+		// so the test environment is not torn down while React updates are pending.
+		await new Promise((r) => setTimeout(r, 100));
 	}, 20000);
 });
