@@ -1,0 +1,81 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+bin/
+build/
+develop-eggs/
+dist/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environments
+.env
+.envrc
+.venv
+env/
+venv/
+ENV/
+
+# IDEs and editors
+.vscode/
+.idea/
+.cursor/*
+!.cursor/rules/
+!.cursor/commands/
+!.cursor/skills/
+!.cursor/skills/**
+*.swp
+*.swo
+.history/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Testing / Coverage
+.tox/
+.noseresults/
+.pytest_cache/
+.coverage
+*.cover
+.hypothesis/
+htmlcov/
+ui/coverage/
+
+# Local configuration / Logs
+*.log
+.logs/
+*.local.*
+local_*.json
+local_check_scripts/
+*.code-workspace
+
+tmp/*
+data/*
+py/data/*
+
+# Node / JS
+node_modules/
+package.json
+package-lock.json
+!ui/package.json
+!ui/package-lock.json
+*.bak
+
+# Keep directories
+!.gitkeep

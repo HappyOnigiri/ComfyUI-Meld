@@ -1,0 +1,7 @@
+aiohttp
+torch
+numpy
+Pillow
+imagehash
+scipy
+PyWavelets

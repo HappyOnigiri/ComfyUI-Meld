@@ -1,0 +1,22 @@
+{
+    "include": [
+        "py",
+        "tests"
+    ],
+    "exclude": [
+        "**/node_modules",
+        "**/__pycache__"
+    ],
+    "extraPaths": [
+        "../../"
+    ],
+    "venvPath": "../../",
+    "venv": "venv",
+    "reportMissingImports": "none",
+    "executionEnvironments": [
+        {
+            "root": "tests",
+            "reportFunctionMemberAccess": "none"
+        }
+    ]
+}

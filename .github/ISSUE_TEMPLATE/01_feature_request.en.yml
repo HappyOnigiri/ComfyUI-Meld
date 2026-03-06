@@ -1,0 +1,37 @@
+name: "[EN] Feature Request"
+description: Suggest an idea for Meld
+title: "[Feat]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        We welcome ideas to make Meld better!
+
+        **Note:** The developer is Japanese and uses **auto-translation**. Please use **simple English** if possible. Diagrams or screenshots are also welcome to explain your idea.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Related Problem
+      description: What problem are you trying to solve?
+      placeholder: e.g. It is inconvenient because I cannot filter past images by date...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like.
+      placeholder: e.g. I want a syntax like `date:2024-01-01` added to the search bar.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: Describe alternatives you've considered (optional).
+    validations:
+      required: false

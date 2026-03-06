@@ -1,0 +1,71 @@
+name: Merge Main and Rebuild Artifacts
+
+on:
+  workflow_dispatch:
+
+jobs:
+  rebuild-and-commit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: rebuild-${{ github.ref }}
+      cancel-in-progress: true
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Merge main branch
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "::error::This workflow must not run on the main branch. Run it from a feature branch."
+            exit 1
+          fi
+          git fetch origin main
+          if ! git merge origin/main; then
+            conflicted=$(git diff --name-only --diff-filter=U)
+            while IFS= read -r f; do
+              [ -z "$f" ] && continue
+              if [[ "$f" == "web/js/viewer.js" ]] || [[ "$f" != web/js/* ]]; then
+                echo "::error file=$f::Conflict in non-build-artifact - resolve manually"
+                exit 1
+              fi
+            done <<< "$conflicted"
+            while IFS= read -r f; do
+              [ -z "$f" ] && continue
+              git checkout --ours "$f" && git add "$f"
+            done <<< "$conflicted"
+            GIT_EDITOR=: git merge --continue
+          fi
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: ui/package-lock.json
+
+      - name: Install UI dependencies
+        working-directory: ui
+        run: npm ci
+
+      - name: Run Build
+        working-directory: ui
+        run: npm run build
+
+      - name: Commit and Push
+        run: |
+          git add web/js/
+          if [ -n "$(git ls-files --staged web/js/viewer.js)" ]; then
+            git restore --staged web/js/viewer.js
+          fi
+          git diff --staged --quiet || git commit -m "chore: merge main and rebuild artifacts"
+          git push
