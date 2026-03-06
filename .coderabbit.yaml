@@ -9,7 +9,7 @@ reviews:
   high_level_summary: true
   poem: false
   sequence_diagrams: false
-  collapse_walkthrough: false
+  collapse_walkthrough: true
   review_status: true
   enable_prompt_for_ai_agents: true
   in_progress_fortune: false

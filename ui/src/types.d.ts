@@ -14,7 +14,7 @@ declare global {
 declare const __APP_VERSION__: string;
 
 // ComfyUI script modules. Vite externals resolve these at build time.
-// Absolute paths (/scripts/...) are required per .cursor/rules/web.mdc.
+// Absolute paths (/scripts/...) are required per agent-config/rules/web.mdc.
 declare module "/scripts/app.js" {
 	export const app: ComfyApp;
 }

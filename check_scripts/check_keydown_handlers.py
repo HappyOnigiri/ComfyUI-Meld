@@ -3,7 +3,7 @@
 Check that keydown event handlers follow the keybinding propagation policy.
 
 Flags global keydown listeners (window/document) that do not use { capture: true }.
-Does not validate stopImmediatePropagation (see .cursor/rules/ui/keybinding-propagation-policy.mdc
+Does not validate stopImmediatePropagation (see agent-config/rules/ui/keybinding-propagation-policy.mdc
 for full policy).
 
 Scope: ui/src/**/*.{ts,tsx}
@@ -122,7 +122,7 @@ def main() -> None:
 
     if has_errors:
         print("\nError: Keydown handlers must use { capture: true }.")
-        print("  See .cursor/rules/ui/keybinding-propagation-policy.mdc")
+        print("  See agent-config/rules/ui/keybinding-propagation-policy.mdc")
         print("  Use useEscapeToClose or useKeydownCapture hooks when possible.")
         sys.exit(1)
     print("Keydown handler policy check passed.")

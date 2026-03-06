@@ -2,7 +2,7 @@
 """
 Check that ComfyUI scripts (api.js, app.js) are imported via absolute paths.
 
-Enforces .cursor/rules/web.mdc: ComfyUI scripts must use /scripts/api.js and
+Enforces agent-config/rules/web.mdc: ComfyUI scripts must use /scripts/api.js and
 /scripts/app.js. Relative paths (e.g. ../../../scripts/api.js) break the build
 when files are moved.
 
@@ -135,7 +135,7 @@ def main() -> None:
         print("\nError: Use absolute paths for ComfyUI scripts.")
         print('  Allowed:  from "/scripts/api.js" or from "/scripts/app.js"')
         print('  Forbidden: from "../../scripts/api.js" or similar relative paths')
-        print("  See .cursor/rules/web.mdc (Import Paths section)")
+        print("  See agent-config/rules/web.mdc (Import Paths section)")
         sys.exit(1)
     else:
         print("Import path check passed.")

@@ -1,4 +1,4 @@
-.PHONY: ci test-all lint lint-py lint-ui lint-misc lint-scripts build-ui watch-ui local-check-scripts check-scripts check-ts-rules check-non-ascii repomix loc setup-hooks sync-agent
+.PHONY: ci test-all lint lint-py lint-ui lint-misc lint-scripts build-ui watch-ui local-check-scripts check-scripts check-ts-rules check-non-ascii repomix loc setup-hooks sync
 
 setup-hooks:
 	git config core.hooksPath scripts/git-hooks
@@ -106,11 +106,13 @@ repomix:
 repomix-%:
 	$(PYTHON) scripts/generate_repomix.py repomix-$*
 
-sync-agent:
-	@$(PYTHON) scripts/sync_agent.py
-	@if [ -f .cursorignore ]; then cp .cursorignore .aiignore; fi
-	@echo ".cursor files have been synchronized to .agent."
-	@echo ".cursorignore has been copied to .aiignore."
-	@echo "Note: It is recommended to exclude the .agent directory and .aiignore via .git/info/exclude"
-	@echo "      rather than .gitignore. Excluding them in .gitignore may prevent"
-	@echo "      Antigravity from functioning correctly."
+sync:
+	@$(PYTHON) scripts/sync_agent_config.py
+	@echo "Synchronized from agent-config/ (source of truth):"
+	@echo "  - agent-config/ -> .cursor/, .agents/"
+	@echo "  - agent-config/rules/ -> CLAUDE.md, CLAUDE.local.md"
+	@echo "  - agent-config/skills/ -> .claude/skills/"
+	@echo "  - agent-config/ignore -> .cursorignore, .aiignore, .claudeignore"
+	@echo "Note: .agents/ and .aiignore: exclude via .git/info/exclude for Antigravity."
+	@echo "Note: CLAUDE.local.md is git-ignored (*.local.* pattern)."
+	@echo "Note: Commit agent-config/, CLAUDE.md, .claude/, .claudeignore to git."
