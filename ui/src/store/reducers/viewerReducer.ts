@@ -114,9 +114,6 @@ export const viewerReducer: GallerySubReducer = (state, action) => {
 			if (state.viewerImageId === null || currentList.length === 0) return state;
 			const currentIndex = currentList.findIndex((img) => img.id === state.viewerImageId);
 			if (currentIndex === -1) return state;
-			if (currentIndex === 0 && state.viewerMode === "gallery" && state.pagination.hasMore) {
-				return state;
-			}
 			if (currentIndex === 0 && !loopEnabled) {
 				return state;
 			}
