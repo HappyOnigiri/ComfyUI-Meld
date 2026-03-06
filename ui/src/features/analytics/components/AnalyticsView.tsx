@@ -70,10 +70,12 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 	const [fullItems, setFullItems] = useState<AnalyticsCategoryItem[]>([]);
 	const [fullTotal, setFullTotal] = useState(0);
 	const [fullLoading, setFullLoading] = useState(false);
+	const [fullError, setFullError] = useState<string | null>(null);
 	const [fullSort, setFullSort] = useState<AnalyticsSort>("count_desc");
 	const [fullQuery, setFullQuery] = useState("");
 	const prevFullQueryRef = useRef("");
 	const refreshAbortRef = useRef<AbortController | null>(null);
+	const summaryReqIdRef = useRef(0);
 
 	useEscapeToClose({
 		onEscape: () => {
@@ -85,11 +87,13 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 		},
 	});
 
-	const loadSummary = useCallback(async (signal?: AbortSignal) => {
+	const loadSummary = useCallback(async (signal?: AbortSignal, reqId?: number) => {
+		const capturedReqId = reqId;
 		setIsLoading(true);
 		try {
 			const data = await fetchAnalyticsSummary({ signal });
 			if (signal?.aborted) return;
+			if (capturedReqId !== undefined && capturedReqId !== summaryReqIdRef.current) return;
 			setSummary(data);
 		} catch (err) {
 			if (
@@ -97,10 +101,14 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 				(err && typeof err === "object" && (err as { name?: string }).name === "AbortError")
 			)
 				return;
+			if (capturedReqId !== undefined && capturedReqId !== summaryReqIdRef.current) return;
 			setSummary(null);
 			throw err;
 		} finally {
-			if (!signal?.aborted) {
+			if (
+				!signal?.aborted &&
+				(capturedReqId === undefined || capturedReqId === summaryReqIdRef.current)
+			) {
 				setIsLoading(false);
 			}
 		}
@@ -108,13 +116,16 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 
 	useEffect(() => {
 		const controller = new AbortController();
-		loadSummary(controller.signal).catch(() => {});
+		summaryReqIdRef.current += 1;
+		const reqId = summaryReqIdRef.current;
+		loadSummary(controller.signal, reqId).catch(() => {});
 		return () => controller.abort();
 	}, [loadSummary]);
 
 	const loadFullList = useCallback(
 		async (category: AnalyticsCategory, sort: AnalyticsSort, q: string, signal?: AbortSignal) => {
 			setFullLoading(true);
+			setFullError(null);
 			try {
 				const { data, total } = await fetchAnalyticsCategory(category, {
 					limit: 500,
@@ -132,8 +143,9 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 					(err && typeof err === "object" && (err as { name?: string }).name === "AbortError")
 				)
 					return;
-				setFullItems([]);
-				setFullTotal(0);
+				const message =
+					err instanceof Error ? err.message : typeof err === "string" ? err : "Unknown error";
+				setFullError(message);
 				throw err;
 			} finally {
 				if (!signal?.aborted) {
@@ -175,7 +187,9 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 		try {
 			await refreshAnalytics({ signal });
 			if (signal.aborted) return;
-			await loadSummary(signal);
+			summaryReqIdRef.current += 1;
+			const reqId = summaryReqIdRef.current;
+			await loadSummary(signal, reqId);
 			if (signal.aborted) return;
 			if (expandedCategory) {
 				await loadFullList(expandedCategory, fullSort, fullQuery, signal);
@@ -282,6 +296,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 						className="meld-analytics-close"
 						onClick={onClose}
 						title="Close and return to gallery"
+						aria-label="Close and return to gallery"
 					>
 						<X size={16} />
 					</button>
@@ -327,6 +342,10 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 						</div>
 						{fullLoading ? (
 							<div className="meld-gallery__loading">Loading...</div>
+						) : fullError ? (
+							<div className="meld-gallery__empty" role="alert">
+								Failed to load: {fullError}
+							</div>
 						) : (
 							<div className={styles.meldAnalytics__fullList}>
 								{fullItems.map((item, idx) => {
