@@ -172,6 +172,14 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 			}
 			if (signal.aborted) return;
 			dispatch({ type: "SHOW_TOAST", payload: "Analytics refreshed" });
+		} catch (err) {
+			if (signal.aborted) return;
+			const message =
+				err instanceof Error ? err.message : typeof err === "string" ? err : "Unknown error";
+			dispatch({
+				type: "SHOW_TOAST",
+				payload: `Analytics refresh failed: ${message}`,
+			});
 		} finally {
 			if (!signal.aborted) {
 				setIsRefreshing(false);
