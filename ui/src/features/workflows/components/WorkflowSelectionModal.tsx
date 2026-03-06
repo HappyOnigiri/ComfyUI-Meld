@@ -75,22 +75,29 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 		return sortedWorkflows.filter((wf) => wf.name.toLowerCase().includes(query));
 	}, [sortedWorkflows, searchQuery]);
 
-	const loadWorkflows = useCallback(async () => {
-		try {
-			setLoading(true);
-			const data = await fetchWorkflows();
-			setWorkflows(data);
-			setError(null);
-		} catch (err) {
-			setError(err instanceof Error ? err.message : String(err));
-		} finally {
-			setLoading(false);
-		}
-	}, []);
-
 	useEffect(() => {
-		loadWorkflows();
-	}, [loadWorkflows]);
+		let isMounted = true;
+		const run = async () => {
+			try {
+				setLoading(true);
+				const data = await fetchWorkflows();
+				if (isMounted) {
+					setWorkflows(data);
+					setError(null);
+				}
+			} catch (err) {
+				if (isMounted) {
+					setError(err instanceof Error ? err.message : String(err));
+				}
+			} finally {
+				if (isMounted) setLoading(false);
+			}
+		};
+		run();
+		return () => {
+			isMounted = false;
+		};
+	}, []);
 
 	useEffect(() => {
 		if (!loading && searchInputRef.current) {
@@ -133,6 +140,7 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 			}
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
+		} finally {
 			setExecuting(false);
 		}
 	};

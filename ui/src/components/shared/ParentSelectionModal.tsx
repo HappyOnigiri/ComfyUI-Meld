@@ -52,21 +52,32 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({ imag
 
 	const image = state.images.find((img) => img.id === imageId);
 
-	const loadSuggestions = useCallback(async () => {
-		setIsLoading(true);
-		try {
-			const threshold = state.settings["gallery.suggest_phash_threshold"];
-			const results = await imagesApi.suggestParents(imageId, threshold);
-			setSuggestions(results);
-		} catch (err) {
-			logger.error("Failed to load suggestions:", err);
-		} finally {
-			setIsLoading(false);
-		}
-	}, [imageId, state.settings]);
+	const loadSuggestions = useCallback(
+		async (signal: AbortSignal) => {
+			setIsLoading(true);
+			try {
+				const threshold = state.settings["gallery.suggest_phash_threshold"];
+				const results = await imagesApi.suggestParents(imageId, threshold, signal);
+				if (!signal.aborted) {
+					setSuggestions(results);
+				}
+			} catch (err) {
+				if (!signal.aborted) {
+					logger.error("Failed to load suggestions:", err);
+				}
+			} finally {
+				if (!signal.aborted) {
+					setIsLoading(false);
+				}
+			}
+		},
+		[imageId, state.settings],
+	);
 
 	useEffect(() => {
-		loadSuggestions();
+		const controller = new AbortController();
+		loadSuggestions(controller.signal);
+		return () => controller.abort();
 	}, [loadSuggestions]);
 
 	const handleSelect = async (parentId: number) => {
@@ -316,8 +327,18 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({ imag
 											return (
 												<div
 													key={sug.id}
+													role="button"
+													tabIndex={0}
+													aria-pressed={isCurrent}
+													aria-current={isCurrent ? "true" : undefined}
 													className={`meld-suggestion-card ${isCurrent ? "meld-suggestion-card--current" : ""}`}
 													onClick={() => !isCurrent && handleSelect(sug.id)}
+													onKeyDown={(e) => {
+														if (e.key === "Enter" || e.key === " ") {
+															e.preventDefault();
+															if (!isCurrent) handleSelect(sug.id);
+														}
+													}}
 													style={{
 														cursor: isCurrent ? "default" : "pointer",
 														...(isCurrent
@@ -360,8 +381,18 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({ imag
 											return (
 												<div
 													key={sug.id}
+													role="button"
+													tabIndex={0}
+													aria-pressed={isCurrent}
+													aria-current={isCurrent ? "true" : undefined}
 													className={`meld-suggestion-card ${isCurrent ? "meld-suggestion-card--current" : ""}`}
 													onClick={() => !isCurrent && handleSelect(sug.id)}
+													onKeyDown={(e) => {
+														if (e.key === "Enter" || e.key === " ") {
+															e.preventDefault();
+															if (!isCurrent) handleSelect(sug.id);
+														}
+													}}
 													style={{
 														cursor: isCurrent ? "default" : "pointer",
 														...(isCurrent

@@ -152,6 +152,7 @@ export type ActiveModal =
 			maskFilename?: string;
 			isMaskSequence?: boolean;
 			onSuccess?: () => void;
+			onError?: () => void;
 	  }
 	| {
 			type: "delete_confirm";

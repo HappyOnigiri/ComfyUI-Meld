@@ -63,12 +63,12 @@ export const useSearchLogic = () => {
 
 	// Fetch search config on mount
 	useEffect(() => {
-		searchApi.fetchSearchConfig().then((config) => {
-			setSearchConfig(config);
-		});
-		// Fetch keywords if showAllKeywords is true
+		searchApi
+			.fetchSearchConfig()
+			.then((config) => setSearchConfig(config))
+			.catch((err) => logger.error("Failed to fetch search config:", err));
 		if (showAllKeywords) {
-			fetchKeywords();
+			fetchKeywords().catch((err) => logger.error("Failed to fetch keywords:", err));
 		}
 	}, [fetchKeywords, showAllKeywords]);
 
@@ -95,9 +95,13 @@ export const useSearchLogic = () => {
 			return;
 		}
 
-		searchApi.fetchSearchSuggestions().then((results) => {
-			setSearchSuggestions(results);
-		});
+		searchApi
+			.fetchSearchSuggestions()
+			.then((results) => setSearchSuggestions(results))
+			.catch((err) => {
+				logger.error("Failed to fetch search suggestions:", err);
+				setSearchSuggestions([]);
+			});
 	}, [state.settings["search.quick_suggestions"]]);
 
 	// Synchronize inputValue with state.searchQuery if changed externally
