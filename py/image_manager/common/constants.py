@@ -14,6 +14,7 @@ SEARCH_PREFIX_NOTE = "note"
 SEARCH_PREFIX_SORT = "sort"
 SEARCH_PREFIX_ID = "id"
 SEARCH_PREFIX_FILENAME = "filename"
+SEARCH_PREFIX_RESOLUTION = "resolution"
 
 # Prefix Categories
 SEARCH_PREFIX_MAP = {
@@ -30,5 +31,13 @@ ALL_SEARCH_PREFIXES = (
     sorted(list(SEARCH_PREFIX_MAP.keys()))
     + sorted(list(SEARCH_DATE_PREFIXES))
     + sorted(list(SEARCH_BOOLEAN_PREFIXES))
-    + sorted([SEARCH_PREFIX_NOTE, SEARCH_PREFIX_SORT, SEARCH_PREFIX_ID, SEARCH_PREFIX_FILENAME])
+    + sorted(
+        [
+            SEARCH_PREFIX_NOTE,
+            SEARCH_PREFIX_SORT,
+            SEARCH_PREFIX_ID,
+            SEARCH_PREFIX_FILENAME,
+            SEARCH_PREFIX_RESOLUTION,
+        ]
+    )
 )

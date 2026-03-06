@@ -57,6 +57,37 @@ describe("useGalleryLogic", () => {
 		expect(result.current.lastSearchQuery).toBe("test");
 	});
 
+	it("handles setViewMode to analytics", () => {
+		const mockState = {
+			images: [],
+			activeModal: { type: "none" },
+			selectedIds: new Set(),
+			pagination: { hasMore: true, limit: 100 },
+			settings: {},
+			searchQuery: "",
+			viewScope: "default",
+			viewerImageId: null,
+		};
+
+		vi.mocked(useGallery).mockReturnValue({
+			state: mockState,
+			dispatch: vi.fn(),
+			refreshImages: vi.fn(),
+			loadMoreImages: vi.fn(),
+			updateSetting: vi.fn(),
+		} as unknown as ReturnType<typeof useGallery>);
+
+		const { result } = renderHook(() => useGalleryLogic());
+
+		expect(result.current.viewMode).toBe("gallery");
+
+		act(() => {
+			result.current.setViewMode("analytics");
+		});
+
+		expect(result.current.viewMode).toBe("analytics");
+	});
+
 	it("filters out hidden images (in light table buckets)", () => {
 		setupUseLightTableStoreMock({ default: ["1"] });
 

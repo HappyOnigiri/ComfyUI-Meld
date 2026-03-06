@@ -10,15 +10,13 @@ sys.modules["comfy.utils"] = MagicMock()
 sys.modules["comfy.samplers"] = MagicMock()
 sys.modules["nodes"] = MagicMock()
 
-import folder_paths  # noqa: E402
-
 # Import test target
 from py.load_image_configs import MetadataHelper  # noqa: E402
 
 
 class TestFuzzySearch(unittest.TestCase):
     def setUp(self) -> None:
-        # Define available models list
+        # Define available models list (passed directly to avoid folder_paths mock)
         self.available_models = [
             "SDXL_v1.0.safetensors",
             "RealVision_v4.0.safetensors",
@@ -26,13 +24,15 @@ class TestFuzzySearch(unittest.TestCase):
             "ponyDiffusionV6XL.safetensors",
             "checkpoints\\subfolder\\model_v2.ckpt",
         ]
-        # folder_paths is mocked via sys.modules
-        folder_paths.get_filename_list.return_value = self.available_models
+
+    def _find_match(self, query: str) -> tuple[str | None, float, str]:
+        """Call find_best_match_model with available_models to avoid folder_paths."""
+        return MetadataHelper.find_best_match_model(query, available_models=self.available_models)
 
     def test_exact_match(self) -> None:
         """Test for exact match"""
         query = "SDXL_v1.0.safetensors"
-        match, score, log = MetadataHelper.find_best_match_model(query)
+        match, score, log = self._find_match(query)
         self.assertEqual(match, "SDXL_v1.0.safetensors")
         self.assertEqual(score, 1.0)
         self.assertIn("Exact match", log)
@@ -40,7 +40,7 @@ class TestFuzzySearch(unittest.TestCase):
     def test_exact_match_no_extension(self) -> None:
         """Test for exact match without extension"""
         query = "SDXL_v1.0"
-        match, score, log = MetadataHelper.find_best_match_model(query)
+        match, score, log = self._find_match(query)
         self.assertEqual(match, "SDXL_v1.0.safetensors")
         self.assertEqual(score, 1.0)
         self.assertIn("Exact match", log)
@@ -49,7 +49,7 @@ class TestFuzzySearch(unittest.TestCase):
         """Fuzzy search for version differences, etc."""
         query = "RealVision_v5.0.safetensors"
         # RealVision_v4.0 and RealVision_v5.0 are very similar
-        match, score, log = MetadataHelper.find_best_match_model(query)
+        match, score, log = self._find_match(query)
         self.assertEqual(match, "RealVision_v4.0.safetensors")
         self.assertGreater(score, 0.8)
         self.assertIn("Best match", log)
@@ -57,7 +57,7 @@ class TestFuzzySearch(unittest.TestCase):
     def test_fuzzy_match_case_and_symbol(self) -> None:
         """Differences in casing and symbols"""
         query = "Pony-Diffusion-V6-XL"
-        match, score, log = MetadataHelper.find_best_match_model(query)
+        match, score, log = self._find_match(query)
         # ponyDiffusionV6XL and Pony-Diffusion-V6-XL
         self.assertEqual(match, "ponyDiffusionV6XL.safetensors")
         self.assertGreater(score, 0.6)
@@ -66,7 +66,7 @@ class TestFuzzySearch(unittest.TestCase):
     def test_match_even_with_low_similarity(self) -> None:
         """Return the closest match even if similarity is low"""
         query = "Completely_Different_Model.safetensors"
-        match, score, log = MetadataHelper.find_best_match_model(query)
+        match, score, log = self._find_match(query)
         # Returns something (the one with the better score in this case)
         self.assertIsNotNone(match)
         self.assertIn("Best match", log)
@@ -74,7 +74,7 @@ class TestFuzzySearch(unittest.TestCase):
     def test_path_handling(self) -> None:
         """Handling of paths including subdirectories"""
         query = "model_v2"
-        match, score, log = MetadataHelper.find_best_match_model(query)
+        match, score, log = self._find_match(query)
         self.assertEqual(match, "checkpoints\\subfolder\\model_v2.ckpt")
         self.assertEqual(score, 1.0)
 

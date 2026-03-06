@@ -6,6 +6,7 @@ import server
 from aiohttp import web
 
 from .common.schemas import ApiResponse
+from .features.analytics.router import routes as analytics_routes
 from .features.images.router import routes as image_routes
 from .features.importer.router import routes as import_routes
 from .features.importer.service import perform_cleanup
@@ -41,6 +42,7 @@ async def test_endpoint(request: web.Request) -> web.Response:
 
 
 if server.PromptServer.instance is not None:
+    _register_routes(analytics_routes)
     _register_routes(tag_routes)
     _register_routes(workflow_routes)
     _register_routes(import_routes)
@@ -53,6 +55,10 @@ else:
 
 
 # --- Automatic cleanup (at extension load time) ---
+# Synchronization: analytics aggregation waits for cleanup to finish before running.
+_cleanup_done_event = threading.Event()
+
+
 def _run_auto_cleanup() -> None:
     """Run cleanup in the background"""
     import time
@@ -64,6 +70,21 @@ def _run_auto_cleanup() -> None:
             logging.info(f"[Meld] Extension load cleanup: Removed {count} missing images from database.")
     except Exception as e:
         logging.warning(f"[Meld] Extension load cleanup failed: {e}")
+    finally:
+        _cleanup_done_event.set()
+
+
+def _run_analytics_aggregation() -> None:
+    """Run analytics aggregation in the background. Waits for cleanup to complete first."""
+    from .features.analytics.service import run_aggregation
+
+    if not _cleanup_done_event.wait(timeout=60):
+        logging.warning("[Meld] Analytics aggregation: cleanup did not complete within 60s, proceeding anyway.")
+    try:
+        run_aggregation()
+    except Exception as e:
+        logging.warning(f"[Meld] Analytics aggregation failed: {e}")
 
 
 threading.Thread(target=_run_auto_cleanup, daemon=True).start()
+threading.Thread(target=_run_analytics_aggregation, daemon=True).start()

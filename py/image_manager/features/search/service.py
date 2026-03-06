@@ -13,6 +13,7 @@ from ...common.constants import (
     SEARCH_PREFIX_ID,
     SEARCH_PREFIX_MAP,
     SEARCH_PREFIX_NOTE,
+    SEARCH_PREFIX_RESOLUTION,
     SEARCH_PREFIX_SORT,
 )
 
@@ -25,6 +26,7 @@ class SearchService:
     SORT_PREFIX = SEARCH_PREFIX_SORT
     ID_PREFIX = SEARCH_PREFIX_ID
     FILENAME_PREFIX = SEARCH_PREFIX_FILENAME
+    RESOLUTION_PREFIX = SEARCH_PREFIX_RESOLUTION
 
     @staticmethod
     def parse_query(query_str: str | None) -> list[dict[str, Any]]:
@@ -73,6 +75,7 @@ class SearchService:
                     or prefix == SearchService.SORT_PREFIX
                     or prefix == SearchService.ID_PREFIX
                     or prefix == SearchService.FILENAME_PREFIX
+                    or prefix == SearchService.RESOLUTION_PREFIX
                 ):
                     is_partial = True
                     # If value is quoted, it's exact match
@@ -249,6 +252,20 @@ class SearchService:
                     op = "=" if not is_negative else "!="
                     sub_queries.append(f"i.filename {op} ? COLLATE NOCASE")
                     all_params.append(cond["value"])
+
+            elif cond["prefix"] == cls.RESOLUTION_PREFIX:
+                # Resolution: width x height (e.g. 1024x768). Filter on images table.
+                res_expr = "CAST(i.width AS TEXT) || 'x' || CAST(i.height AS TEXT)"
+                sub_queries.append("i.width IS NOT NULL AND i.height IS NOT NULL")
+                if cond["is_partial"]:
+                    op = "LIKE" if not is_negative else "NOT LIKE"
+                    sub_queries.append(f"({res_expr}) {op} ? COLLATE NOCASE")
+                    all_params.append(f"%{cond['value']}%")
+                else:
+                    op = "=" if not is_negative else "!="
+                    sub_queries.append(f"({res_expr}) {op} ? COLLATE NOCASE")
+                    all_params.append(cond["value"])
+
             else:
                 # Targeted search (tags, models, etc.)
                 prefix = cond["prefix"]
@@ -312,6 +329,20 @@ class SearchService:
         # Special handling for id and filename prefixes (no suggestions)
         if prefix_filter in (cls.ID_PREFIX, cls.FILENAME_PREFIX):
             return []
+
+        # Special handling for resolution prefix
+        if prefix_filter == cls.RESOLUTION_PREFIX:
+            sql = """
+                SELECT DISTINCT (CAST(width AS TEXT) || 'x' || CAST(height AS TEXT)) as res
+                FROM images
+                WHERE width IS NOT NULL AND height IS NOT NULL
+                AND (CAST(width AS TEXT) || 'x' || CAST(height AS TEXT)) LIKE ? COLLATE NOCASE
+                ORDER BY res LIMIT ?
+            """
+            cursor.execute(sql, (f"%{partial_query}%", limit))
+            for (res,) in cursor.fetchall():
+                results.append({"type": cls.RESOLUTION_PREFIX, "value": res, "count": 0})
+            return results
 
         # Special handling for note prefix (no suggestions)
         if prefix_filter == cls.NOTE_PREFIX:
@@ -432,6 +463,9 @@ class SearchService:
         # Note prefix
         keywords.append({"type": cls.NOTE_PREFIX, "value": "text"})
 
+        # Resolution prefix
+        keywords.append({"type": cls.RESOLUTION_PREFIX, "value": "1024x1024"})
+
         return keywords
 
     @classmethod
@@ -444,5 +478,5 @@ class SearchService:
             "boolean_prefixes": list(cls.BOOLEAN_PREFIXES),
             "date_prefixes": list(cls.DATE_PREFIXES),
             "sort_prefix": cls.SORT_PREFIX,
-            "no_quote_prefixes": list(cls.DATE_PREFIXES) + list(cls.BOOLEAN_PREFIXES),
+            "no_quote_prefixes": list(cls.DATE_PREFIXES) + list(cls.BOOLEAN_PREFIXES) + [cls.RESOLUTION_PREFIX],
         }

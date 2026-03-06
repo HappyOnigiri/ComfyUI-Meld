@@ -236,6 +236,68 @@ def init_db() -> None:
         )
     """)
 
+    # Analytics cache tables (for image analytics feature)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS analytics_meta (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL
+        )
+    """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS analytics_positive_prompts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            count INTEGER NOT NULL,
+            updated_at REAL NOT NULL
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_analytics_pp_count ON analytics_positive_prompts(count DESC)")
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS analytics_negative_prompts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            count INTEGER NOT NULL,
+            updated_at REAL NOT NULL
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_analytics_np_count ON analytics_negative_prompts(count DESC)")
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS analytics_tags (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            count INTEGER NOT NULL,
+            updated_at REAL NOT NULL
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_analytics_tags_count ON analytics_tags(count DESC)")
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS analytics_models (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            count INTEGER NOT NULL,
+            updated_at REAL NOT NULL
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_analytics_models_count ON analytics_models(count DESC)")
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS analytics_by_date (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date TEXT NOT NULL,
+            count INTEGER NOT NULL,
+            updated_at REAL NOT NULL
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_analytics_by_date_date ON analytics_by_date(date DESC)")
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS analytics_by_resolution (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            resolution TEXT NOT NULL,
+            count INTEGER NOT NULL,
+            updated_at REAL NOT NULL
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_analytics_resolution_count ON analytics_by_resolution(count DESC)")
+
     # Indices
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_images_created_at ON images(created_at)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_images_parent_id ON images(parent_id)")

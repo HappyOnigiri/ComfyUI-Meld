@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { useGalleryLogic } from "../hooks/useGalleryLogic";
 import { GalleryPanel } from "./GalleryPanel";
 
 // Mock global api
@@ -38,32 +39,7 @@ const mockSetViewMode = vi.fn();
 const mockSetLastSearchQuery = vi.fn();
 
 vi.mock("../hooks/useGalleryLogic", () => ({
-	useGalleryLogic: () => ({
-		state: {
-			viewScope: "default",
-			settings: {},
-			favorites: [],
-			images: [],
-			activeModal: { type: "none" },
-			searchQuery: "",
-			pagination: { hasMore: false },
-			viewerImageId: null,
-			error: null,
-			selection: new Set(),
-			importProgress: { isRunning: false, progress: 0 },
-		},
-		dispatch: mockDispatch,
-		refreshImages: mockRefreshImages,
-		updateSetting: mockUpdateSetting,
-		viewMode: "gallery",
-		setViewMode: mockSetViewMode,
-		lastSearchQuery: "",
-		setLastSearchQuery: mockSetLastSearchQuery,
-		displayedImages: [],
-		visibleImages: [],
-		isSearchActive: false,
-		loadMoreRef: { current: null },
-	}),
+	useGalleryLogic: vi.fn(),
 }));
 
 vi.mock("../../light-table/store", () => ({
@@ -127,11 +103,65 @@ vi.mock("../../viewer/components/ImageViewer", () => ({
 vi.mock("../../search/components/FavoritesContextMenu", () => ({
 	FavoritesContextMenu: () => <div data-testid="favorites-menu" />,
 }));
+vi.mock("../../analytics/components/AnalyticsView", () => ({
+	AnalyticsView: () => <div data-testid="analytics-view" />,
+}));
+
+const defaultUseGalleryLogicReturn = {
+	state: {
+		viewScope: "default",
+		settings: {},
+		favorites: [],
+		images: [],
+		activeModal: { type: "none" },
+		searchQuery: "",
+		pagination: { hasMore: false },
+		viewerImageId: null,
+		error: null,
+		selection: new Set(),
+		importProgress: { isRunning: false, progress: 0 },
+	},
+	dispatch: mockDispatch,
+	refreshImages: mockRefreshImages,
+	loadMoreImages: vi.fn().mockResolvedValue(undefined),
+	updateSetting: mockUpdateSetting,
+	viewMode: "gallery" as const,
+	setViewMode: mockSetViewMode,
+	lastSearchQuery: "",
+	setLastSearchQuery: mockSetLastSearchQuery,
+	localLimit: 100,
+	displayedImages: [],
+	visibleImages: [],
+	isSearchActive: false,
+	loadMoreRef: { current: null },
+};
 
 describe("GalleryPanel", () => {
+	beforeEach(() => {
+		vi.mocked(useGalleryLogic).mockReturnValue(
+			defaultUseGalleryLogicReturn as unknown as ReturnType<typeof useGalleryLogic>,
+		);
+	});
+
 	it("renders correctly", () => {
 		render(<GalleryPanel />);
 		expect(screen.getByTitle("Search")).toBeInTheDocument();
+	});
+
+	it("calls setViewMode with analytics when Image Analytics button is clicked", () => {
+		render(<GalleryPanel />);
+		const analyticsBtn = screen.getByTitle("Image Analytics");
+		fireEvent.click(analyticsBtn);
+		expect(mockSetViewMode).toHaveBeenCalledWith("analytics");
+	});
+
+	it("renders AnalyticsView when viewMode is analytics", () => {
+		vi.mocked(useGalleryLogic).mockReturnValue({
+			...defaultUseGalleryLogicReturn,
+			viewMode: "analytics",
+		} as unknown as ReturnType<typeof useGalleryLogic>);
+		render(<GalleryPanel />);
+		expect(screen.getByTestId("analytics-view")).toBeInTheDocument();
 	});
 
 	it("handles action buttons clicks", async () => {

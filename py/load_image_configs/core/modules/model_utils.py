@@ -7,12 +7,15 @@ from .utils import Utils
 class ModelUtils:
     @staticmethod
     def find_best_match_model(
-        model_name_query: str | None, model_type: str = "checkpoints"
+        model_name_query: str | None,
+        model_type: str = "checkpoints",
+        available_models: list[str] | None = None,
     ) -> tuple[str | None, float, str]:
         if not model_name_query:
             return None, 0.0, "No model name in metadata."
 
-        available_models = folder_paths.get_filename_list(model_type)
+        if available_models is None:
+            available_models = folder_paths.get_filename_list(model_type)
         if not available_models:
             return None, 0.0, f"No models available in {model_type}."
 

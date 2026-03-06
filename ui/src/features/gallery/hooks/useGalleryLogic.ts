@@ -5,7 +5,7 @@ import { useGallery } from "../../../store/GalleryContext";
 import { stopKeyboardEvent } from "../../../utils/keyboard";
 import { useLightTableStore } from "../../light-table/store";
 
-export type SidebarView = "gallery" | "search" | "tags";
+export type SidebarView = "gallery" | "search" | "tags" | "analytics";
 
 /**
  * NOTE: For image-specific data operations (deletion, tagging, lineage, etc.),

@@ -2,6 +2,30 @@ import { api } from "/scripts/api.js";
 import { handleResponse } from "../../../api";
 import type { MeldImage } from "../../../types";
 
+export interface NormalizedImagesResult {
+	images: MeldImage[];
+	total: number;
+	offset: number;
+	limit: number;
+}
+
+/**
+ * Normalizes raw API response to a stable typed shape.
+ * Use fallback when the API returns invalid values to avoid premature pagination stop.
+ */
+export function normalizeImagesResponse(
+	raw: unknown,
+	fallback?: { total?: number; offset?: number; limit?: number },
+): NormalizedImagesResult {
+	const r = raw as Record<string, unknown> | null | undefined;
+	return {
+		images: Array.isArray(r?.images) ? (r.images as MeldImage[]) : [],
+		total: typeof r?.total === "number" ? r.total : (fallback?.total ?? 0),
+		offset: typeof r?.offset === "number" ? r.offset : (fallback?.offset ?? 0),
+		limit: typeof r?.limit === "number" ? r.limit : (fallback?.limit ?? 0),
+	};
+}
+
 export const fetchImages = async (
 	offset = 0,
 	limit = 30,

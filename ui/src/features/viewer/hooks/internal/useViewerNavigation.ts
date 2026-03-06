@@ -3,6 +3,7 @@ import { useCallback } from "react";
 import { logger } from "../../../../logger";
 import type { GalleryAction, GalleryState, MeldImage, Settings } from "../../../../types";
 import * as imagesApi from "../../../images/api/imagesApi";
+import { normalizeImagesResponse } from "../../../images/api/imagesApi";
 import type { ViewerMountRefs } from "./types";
 
 interface UseViewerNavigationParams {
@@ -59,12 +60,17 @@ export const useViewerNavigation = ({
 
 				const result = await imagesApi.fetchImages(lastOffset, pageSize, searchQuery);
 				if (!mountRefs.isMountedRef.current) return;
-				dispatch({ type: "APPEND_IMAGES", payload: result });
+				const payload = normalizeImagesResponse(result, {
+					total: pagination.total,
+					offset: lastOffset,
+					limit: pageSize,
+				});
+				dispatch({ type: "APPEND_IMAGES", payload });
 
 				if (mountRefs.viewerImageIdRef.current === null) return;
 
-				if (result.images.length > 0) {
-					const lastImg = result.images.at(-1);
+				if (payload.images.length > 0) {
+					const lastImg = payload.images.at(-1);
 					if (!lastImg) return;
 					dispatch({
 						type: "OPEN_VIEWER",

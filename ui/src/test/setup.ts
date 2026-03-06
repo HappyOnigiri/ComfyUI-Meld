@@ -15,6 +15,15 @@ global.IntersectionObserver = class IntersectionObserver {
 	disconnect() {}
 } as unknown as typeof IntersectionObserver;
 
+// requestAnimationFrame/cancelAnimationFrame are not available in jsdom; required by portalRoots.ts
+if (typeof global.requestAnimationFrame === "undefined") {
+	global.requestAnimationFrame = (cb: FrameRequestCallback) =>
+		setTimeout(cb, 0) as unknown as number;
+}
+if (typeof global.cancelAnimationFrame === "undefined") {
+	global.cancelAnimationFrame = (id: number) => clearTimeout(id);
+}
+
 declare global {
 	// Test environment shims for ComfyUI globals.
 	// Keep these declarations in setup so production code stays strict.
