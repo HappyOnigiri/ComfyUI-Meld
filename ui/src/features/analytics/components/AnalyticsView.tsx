@@ -38,15 +38,15 @@ function buildSearchQuery(category: string, value: string): string {
 	return needsQuotes ? `${prefix}:"${value.replace(/"/g, '\\"')}"` : `${prefix}:${value}`;
 }
 
-function getItemDisplayValue(item: AnalyticsCategoryItem, _category: string): string {
+function getItemDisplayValue(item: AnalyticsCategoryItem): string {
 	if (item.name !== undefined) return item.name;
 	if (item.date !== undefined) return item.date;
 	if (item.resolution !== undefined) return item.resolution;
 	return "";
 }
 
-function getItemValue(item: AnalyticsCategoryItem, category: string): string {
-	return getItemDisplayValue(item, category);
+function getItemValue(item: AnalyticsCategoryItem): string {
+	return getItemDisplayValue(item);
 }
 
 interface AnalyticsViewProps {
@@ -95,7 +95,9 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 	}, []);
 
 	useEffect(() => {
-		loadSummary();
+		const controller = new AbortController();
+		loadSummary(controller.signal);
+		return () => controller.abort();
 	}, [loadSummary]);
 
 	const loadFullList = useCallback(
@@ -209,7 +211,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 				</button>
 			</div>
 			{items.map((item, idx) => {
-				const val = getItemValue(item, category);
+				const val = getItemValue(item);
 				return (
 					<div
 						key={`${val}-${idx}`}
@@ -265,28 +267,11 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 				{expandedCategory ? (
 					<div className={styles.meldAnalytics__fullView}>
 						<div className={styles.meldAnalytics__fullViewToolbar}>
-							<div
-								style={{
-									display: "flex",
-									alignItems: "center",
-									gap: 8,
-									flex: 1,
-									minWidth: 0,
-									background: "var(--comfy-input-bg)",
-									padding: "6px 10px",
-									borderRadius: "6px",
-									border: "1px solid var(--meld-border-color)",
-								}}
-							>
-								<Search size={14} style={{ flexShrink: 0, color: "var(--meld-text-secondary)" }} />
+							<div className={styles.meldAnalytics__searchContainer}>
+								<Search size={14} className={styles.meldAnalytics__searchIcon} />
 								<input
 									type="text"
 									className={styles.meldAnalytics__searchInput}
-									style={{
-										border: "none",
-										background: "transparent",
-										width: "100%",
-									}}
 									placeholder="Filter..."
 									value={fullQuery}
 									onChange={(e) => setFullQuery(e.target.value)}
@@ -322,7 +307,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 						) : (
 							<div className={styles.meldAnalytics__fullList}>
 								{fullItems.map((item, idx) => {
-									const val = getItemValue(item, expandedCategory);
+									const val = getItemValue(item);
 									return (
 										<div
 											key={`${val}-${idx}`}

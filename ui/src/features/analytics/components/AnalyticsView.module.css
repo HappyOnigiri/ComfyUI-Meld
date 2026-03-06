@@ -159,9 +159,29 @@
 	flex-wrap: wrap;
 }
 
+.meldAnalytics__searchContainer {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex: 1;
+	min-width: 0;
+	background: var(--comfy-input-bg);
+	padding: 6px 10px;
+	border-radius: 6px;
+	border: 1px solid var(--meld-border-color);
+}
+
+.meldAnalytics__searchIcon {
+	flex-shrink: 0;
+	color: var(--meld-text-secondary);
+}
+
 .meldAnalytics__searchInput {
 	color: var(--meld-text-color);
 	font-size: 13px;
+	border: none;
+	background: transparent;
+	width: 100%;
 }
 
 .meldAnalytics__searchInput:focus-visible {
