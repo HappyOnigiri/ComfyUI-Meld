@@ -1,10 +1,11 @@
+# mypy: disable-error-code="union-attr,misc"
+# pyright: reportOptionalCall=false, reportOptionalIterable=false
 import sqlite3
 import sys
-import types
 import unittest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
-# Mock ComfyUI deps before import; tearDownModule restores so other tests are unaffected.
+# Mock ComfyUI deps only during import; patch.dict restores automatically.
 _MOCK_KEYS = (
     "folder_paths",
     "server",
@@ -15,26 +16,22 @@ _MOCK_KEYS = (
     "comfy.utils",
     "comfy.samplers",
 )
-_saved_modules: dict[str, object | None] = {k: sys.modules.get(k) for k in _MOCK_KEYS}
 
-for k in _MOCK_KEYS:
-    sys.modules[k] = MagicMock()
-
-from py.image_manager.features.analytics.service import (  # noqa: E402
-    CATEGORIES,
-    get_category_list,
-    get_summary,
-)
+CATEGORIES: tuple[str, ...] | None = None
+get_category_list = None
+get_summary = None
 
 
-def tearDownModule() -> None:
-    """Restore sys.modules so other test modules are not affected."""
-    for k in _MOCK_KEYS:
-        orig = _saved_modules.get(k)
-        if orig is None:
-            sys.modules.pop(k, None)
-        elif isinstance(orig, types.ModuleType):
-            sys.modules[k] = orig
+def setUpModule() -> None:
+    """Import analytics service with scoped sys.modules mocks."""
+    global CATEGORIES, get_category_list, get_summary
+    mock_dict = {k: MagicMock() for k in _MOCK_KEYS}
+    with patch.dict(sys.modules, mock_dict):
+        import py.image_manager.features.analytics.service as _svc  # noqa: E402
+
+        CATEGORIES = _svc.CATEGORIES
+        get_category_list = _svc.get_category_list
+        get_summary = _svc.get_summary
 
 
 def create_analytics_schema(cursor: sqlite3.Cursor) -> None:
