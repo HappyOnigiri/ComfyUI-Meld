@@ -1,15 +1,243 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
 language: "en-US"
-tone_instructions: "Please provide the PR summary and review comments in both English and Japanese. Use <details> tags to make the Japanese translation collapsible."
+tone_instructions: "Provide the PR summary and review comments in both English and Japanese. Use <details> tags to make the Japanese translation collapsible."
 
 reviews:
   profile: "chill"
   request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  sequence_diagrams: false
+  collapse_walkthrough: false
+  review_status: true
+  enable_prompt_for_ai_agents: true
+  in_progress_fortune: false
+
   auto_review:
     enabled: true
     auto_incremental_review: true
     auto_pause_after_reviewed_commits: 0
-  high_level_summary: true
-  poem: false
-  sequence_diagrams: true
+    ignore_title_keywords:
+      - "WIP"
+      - "DO NOT MERGE"
+      - "DRAFT"
+
   path_filters:
     - "!web/**"
+    - "!**/package-lock.json"
+    - "!**/*.min.js"
+
+  path_instructions:
+    - path: "check_scripts/**/*.py"
+      instructions: |
+        These are CI enforcement scripts (z-index policy, unused CSS, property conflicts, etc.).
+        Do NOT flag the following:
+
+        SUPPRESS - Refactoring preferences:
+        - Requests to consolidate overlapping helper functions into a shared scanner
+          utility (e.g., merging _marker_in_comment, _is_within_string, _find_string_end).
+          Internal structure of these scripts is maintained by the team.
+        - Requests to narrow exception types (e.g., except Exception -> except OSError).
+          The current broad exception handling is intentional for simplicity.
+
+        STILL FLAG (these are real CI correctness issues):
+        - Regex patterns that silently miss invalid values or incorrectly match valid ones.
+        - Exception handlers that swallow errors instead of failing CI
+          (i.e., print-only error handling that lets the script exit 0 on failure).
+        - Path resolution that depends on the working directory (os.getcwd())
+          rather than the script location (__file__), causing failures when invoked
+          from different directories.
+        - Ignore-marker logic that incorrectly suppresses more or fewer declarations
+          than intended (e.g., count-based vs. occurrence-based ignore tracking).
+        - Multi-line block comment parsing that incorrectly includes commented-out code.
+
+    - path: "ui/src/**/*.test.{ts,tsx}"
+      instructions: |
+        This project has mass-coverage test files (massComponent, massHooks,
+        massFunctions, massUtility) whose sole purpose is to exercise code paths
+        for coverage metrics. Do NOT flag the following in ANY test file:
+
+        SUPPRESS - Test quality / structure:
+        - Adding assertions to smoke tests or mass-coverage tests that intentionally
+          swallow exceptions. The pattern is deliberate for coverage purposes.
+        - Adding explanatory comments describing test intent or the mass-coverage pattern.
+        - Converting empty/silent catch blocks into logged or tracked errors.
+        - Converting suite-scoped fixtures into per-test fixtures.
+        - Restoring global mocks (navigator.clipboard, global.fetch, etc.) in teardown.
+        - Adding failure-path responses to shared test mocks (e.g., comfyApi mock).
+        - Commenting on intentional double-renders or StrictMode simulations.
+        - Replacing setTimeout-based waits with waitFor/act.
+
+        SUPPRESS - Typing in test files:
+        - Replacing as any / as never / as unknown with stricter types.
+        - Typing mock selectors or store selectors more strictly.
+        - Using vi.mocked() instead of (x as any).mock... casts.
+
+        SUPPRESS - Query and assertion style:
+        - Replacing document.querySelectorAll / class-name selectors with
+          Testing Library queries (screen.getByRole, screen.getByText, etc.).
+        - Replacing btn.click() with fireEvent.click(btn) for consistency.
+        - Debating render assertion style: expect(container).toBeTruthy() vs
+          expect(() => render(...)).not.toThrow() are both acceptable patterns.
+
+        STILL FLAG: structurally broken tests (always-pass logic, mock not applied),
+        incorrect assertion values, security-sensitive setup issues.
+
+    - path: "ui/src/**/!(*.test).ts"
+      instructions: |
+        Do NOT flag the following in UI source files:
+
+        SUPPRESS - Styling:
+        - Moving inline styles to CSS modules (.module.css).
+          Styling strategy is managed at team level and is always out of PR scope.
+
+        SUPPRESS - Minor code style:
+        - Converting index-based for loops to for...of loops.
+        - Adding console.warn / logger.warn to early-return guards.
+        - Adding JSDoc, docstrings, or inline explanatory comments.
+        - Renaming variables, functions, or parameters for style reasons.
+
+        SUPPRESS - Minor design preferences:
+        - Deduplicating code that appears in only 1-2 places.
+        - Consolidating response normalization helpers across multiple fetch sites.
+
+        STILL FLAG: security vulnerabilities, accessibility issues, functional bugs,
+        memory leaks or OOM risks, missing AbortController causing post-unmount state
+        updates, thread safety issues, HTTP status code misuse, resource leaks.
+
+    - path: "ui/src/**/!(*.test).tsx"
+      instructions: |
+        Do NOT flag the following in UI source files:
+
+        SUPPRESS - Styling:
+        - Moving inline styles to CSS modules (.module.css).
+          Styling strategy is managed at team level and is always out of PR scope.
+
+        SUPPRESS - Minor code style:
+        - Converting index-based for loops to for...of loops.
+        - Adding console.warn / logger.warn to early-return guards.
+        - Adding JSDoc, docstrings, or inline explanatory comments.
+        - Renaming variables, functions, or parameters for style reasons.
+
+        SUPPRESS - Minor design preferences:
+        - Deduplicating code that appears in only 1-2 places.
+        - Consolidating response normalization helpers across multiple fetch sites.
+
+        STILL FLAG: security vulnerabilities, accessibility issues (missing aria-label,
+        role, focus-visible), functional bugs, memory leaks or OOM risks, missing
+        AbortController causing post-unmount state updates, thread safety issues,
+        HTTP status code misuse, resource leaks.
+
+    - path: "ui/src/**/*.css"
+      instructions: |
+        Do NOT flag the following in CSS files:
+
+        SUPPRESS - Ignore marker comments:
+        - Requests to add rationale or issue-tracking context to
+          /* unused-css-check-ignore */ or similar suppression markers.
+          The team manages ignore comments without inline justification.
+
+        SUPPRESS - Dead code identification:
+        - Requests to remove or add documentation to seemingly unused CSS classes
+          (e.g., meld-tree-* blocks). Unused class analysis is handled by the
+          check_scripts/check_unused_css.py CI script, not by code review.
+
+        STILL FLAG: actual CSS property conflicts, specificity bugs, missing
+        accessibility styles (e.g., focus-visible), and browser compatibility issues.
+
+    - path: "py/**/*.py"
+      instructions: |
+        Do NOT flag the following in Python source files:
+        - Adding docstrings or inline comments to explain field semantics.
+        - Adding a secondary sort key to SQL ORDER BY for tie-breaking stability.
+
+        STILL FLAG: SQL injection, resource leaks (missing conn.close() in
+        try/finally), thread safety issues, functional bugs.
+
+    - path: "tests/**/*.py"
+      instructions: |
+        Do NOT flag the following in Python test files:
+        - Changing sys.modules mocking from manual management to patch.dict(),
+          or vice versa. The implementation is an internal team decision.
+        - Changing mock scope, teardown, or restoration strategy.
+
+        STILL FLAG: structural issues that cause tests to always pass,
+        functional logic errors.
+
+  tools:
+    # Disabled: CI already runs ruff, biome, mypy, pyright, tsc. Avoid duplicate findings.
+    ruff:
+      enabled: false
+    flake8:
+      enabled: false
+    pylint:
+      enabled: false
+    biome:
+      enabled: false
+    eslint:
+      enabled: false
+    oxc:
+      enabled: false
+    shellcheck:
+      enabled: true
+    markdownlint:
+      enabled: true
+    yamllint:
+      enabled: true
+    gitleaks:
+      enabled: true
+    trufflehog:
+      enabled: true
+    actionlint:
+      enabled: true
+    github-checks:
+      enabled: true
+    phpstan:
+      enabled: false
+    phpmd:
+      enabled: false
+    phpcs:
+      enabled: false
+    swiftlint:
+      enabled: false
+    golangci-lint:
+      enabled: false
+    rubocop:
+      enabled: false
+    brakeman:
+      enabled: false
+    detekt:
+      enabled: false
+    pmd:
+      enabled: false
+    buf:
+      enabled: false
+    regal:
+      enabled: false
+    fortitudeLint:
+      enabled: false
+    prismaLint:
+      enabled: false
+    shopifyThemeCheck:
+      enabled: false
+    luacheck:
+      enabled: false
+    psscriptanalyzer:
+      enabled: false
+    blinter:
+      enabled: false
+    circleci:
+      enabled: false
+    clippy:
+      enabled: false
+    cppcheck:
+      enabled: false
+    clang:
+      enabled: false
+    sqlfluff:
+      enabled: false
+
+knowledge_base:
+  learnings:
+    scope: "local"
