@@ -1,4 +1,22 @@
 /* Analytics Modal - BEM with meld- prefix */
+
+.meldAnalytics__headerRow {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.meldAnalytics__title {
+	margin: 0;
+	font-size: 14px;
+}
+
+.meldAnalytics__controls {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
 .meldAnalytics {
 	display: flex;
 	flex-direction: column;

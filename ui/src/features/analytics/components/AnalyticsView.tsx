@@ -66,6 +66,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 	const [fullSort, setFullSort] = useState<AnalyticsSort>("count_desc");
 	const [fullQuery, setFullQuery] = useState("");
 	const prevFullQueryRef = useRef("");
+	const refreshAbortRef = useRef<AbortController | null>(null);
 
 	useEscapeToClose({
 		onEscape: () => {
@@ -77,15 +78,19 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 		},
 	});
 
-	const loadSummary = useCallback(async () => {
+	const loadSummary = useCallback(async (signal?: AbortSignal) => {
 		setIsLoading(true);
 		try {
-			const data = await fetchAnalyticsSummary();
+			const data = await fetchAnalyticsSummary({ signal });
+			if (signal?.aborted) return;
 			setSummary(data);
 		} catch {
+			if (signal?.aborted) return;
 			setSummary(null);
 		} finally {
-			setIsLoading(false);
+			if (!signal?.aborted) {
+				setIsLoading(false);
+			}
 		}
 	}, []);
 
@@ -142,18 +147,34 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 	}, [expandedCategory, fullSort, fullQuery, loadFullList]);
 
 	const handleRefresh = useCallback(async () => {
+		refreshAbortRef.current?.abort();
+		const controller = new AbortController();
+		refreshAbortRef.current = controller;
+		const signal = controller.signal;
+
 		setIsRefreshing(true);
 		try {
 			await refreshAnalytics();
-			await loadSummary();
+			if (signal.aborted) return;
+			await loadSummary(signal);
+			if (signal.aborted) return;
 			if (expandedCategory) {
-				await loadFullList(expandedCategory, fullSort, fullQuery);
+				await loadFullList(expandedCategory, fullSort, fullQuery, signal);
 			}
+			if (signal.aborted) return;
 			dispatch({ type: "SHOW_TOAST", payload: "Analytics refreshed" });
 		} finally {
-			setIsRefreshing(false);
+			if (!signal.aborted) {
+				setIsRefreshing(false);
+			}
 		}
 	}, [loadSummary, loadFullList, expandedCategory, fullSort, fullQuery, dispatch]);
+
+	useEffect(() => {
+		return () => {
+			refreshAbortRef.current?.abort();
+		};
+	}, []);
 
 	const handleItemClick = useCallback(
 		(category: string, value: string) => {
@@ -214,11 +235,11 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 	return (
 		<div className="meld-analytics-view">
 			<div className="meld-analytics-header">
-				<div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+				<div className={styles.meldAnalytics__headerRow}>
 					<BarChart2 size={16} />
-					<h3 style={{ margin: 0, fontSize: "14px" }}>Image Analytics</h3>
+					<h3 className={styles.meldAnalytics__title}>Image Analytics</h3>
 				</div>
-				<div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+				<div className={styles.meldAnalytics__controls}>
 					<button
 						type="button"
 						className={styles.meldAnalytics__refreshBtn}
