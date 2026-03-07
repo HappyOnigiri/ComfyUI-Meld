@@ -12,6 +12,7 @@ interface ViewTabProps {
 	thumbnailWindowSizeInput: string;
 	maxPositivePromptLinesInput: string;
 	maxNegativePromptLinesInput: string;
+	viewerCorePromptCountInput: string;
 }
 
 export const ViewTab: React.FC<ViewTabProps> = ({
@@ -23,6 +24,7 @@ export const ViewTab: React.FC<ViewTabProps> = ({
 	thumbnailWindowSizeInput,
 	maxPositivePromptLinesInput,
 	maxNegativePromptLinesInput,
+	viewerCorePromptCountInput,
 }) => {
 	return (
 		<div className="meld-settings-list">
@@ -255,6 +257,46 @@ export const ViewTab: React.FC<ViewTabProps> = ({
 						/>
 						<span className="meld-switch__slider" />
 					</label>
+				</SettingItem>
+
+				<SettingItem
+					label="Show Core Prompt"
+					description="Display a subset of keywords from the positive prompt based on rarity (bottom analytics counts)."
+				>
+					<label className="meld-switch">
+						<input
+							type="checkbox"
+							checked={localSettings["viewer.details.show_core_prompt"]}
+							onChange={() =>
+								handleToggle(
+									"viewer.details.show_core_prompt",
+									localSettings["viewer.details.show_core_prompt"],
+								)
+							}
+						/>
+						<span className="meld-switch__slider" />
+					</label>
+				</SettingItem>
+
+				<SettingItem
+					label="Core Prompt Keyword Count"
+					description="Number of rarity keywords to display."
+				>
+					<input
+						type="number"
+						className="meld-number-input"
+						value={viewerCorePromptCountInput}
+						min={1}
+						max={100}
+						onChange={(e) =>
+							handleNumberChange("viewer.details.core_prompt_count", e.target.value, 1, 100)
+						}
+						onBlur={() =>
+							handleNumberBlur({
+								key: "viewer.details.core_prompt_count",
+							})
+						}
+					/>
 				</SettingItem>
 
 				<SettingItem

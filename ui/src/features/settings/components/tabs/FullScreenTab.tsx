@@ -11,6 +11,7 @@ interface FullScreenTabProps {
 	// Input states
 	maxPositivePromptLinesInput: string;
 	maxNegativePromptLinesInput: string;
+	fullscreenCorePromptCountInput: string;
 }
 
 export const FullScreenTab: React.FC<FullScreenTabProps> = ({
@@ -21,6 +22,7 @@ export const FullScreenTab: React.FC<FullScreenTabProps> = ({
 	handleNumberBlur,
 	maxPositivePromptLinesInput,
 	maxNegativePromptLinesInput,
+	fullscreenCorePromptCountInput,
 }) => {
 	return (
 		<div className="meld-settings-list">
@@ -229,6 +231,46 @@ export const FullScreenTab: React.FC<FullScreenTabProps> = ({
 						/>
 						<span className="meld-switch__slider" />
 					</label>
+				</SettingItem>
+
+				<SettingItem
+					label="Show Core Prompt"
+					description="Display a subset of keywords from the positive prompt based on rarity (bottom analytics counts)."
+				>
+					<label className="meld-switch">
+						<input
+							type="checkbox"
+							checked={localSettings["fullscreen.details.show_core_prompt"]}
+							onChange={() =>
+								handleToggle(
+									"fullscreen.details.show_core_prompt",
+									localSettings["fullscreen.details.show_core_prompt"],
+								)
+							}
+						/>
+						<span className="meld-switch__slider" />
+					</label>
+				</SettingItem>
+
+				<SettingItem
+					label="Core Prompt Keyword Count"
+					description="Number of rarity keywords to display in fullscreen."
+				>
+					<input
+						type="number"
+						className="meld-number-input"
+						value={fullscreenCorePromptCountInput}
+						min={1}
+						max={100}
+						onChange={(e) =>
+							handleNumberChange("fullscreen.details.core_prompt_count", e.target.value, 1, 100)
+						}
+						onBlur={() =>
+							handleNumberBlur({
+								key: "fullscreen.details.core_prompt_count",
+							})
+						}
+					/>
 				</SettingItem>
 
 				<SettingItem
