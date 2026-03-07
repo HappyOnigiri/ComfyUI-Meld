@@ -271,15 +271,19 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({ children })
 
 	const fetchFullImageDetails = useCallback(
 		async (id: number): Promise<MeldImage> => {
-			// 1. Check current images for non-minimal version
+			// 1. Check current images for full-detail version (includes positive_prompt_keywords from details API)
 			const existing = state.images.find((img) => img.id === id);
-			if (existing && !existing.is_minimal) {
+			if (existing && !existing.is_minimal && "positive_prompt_keywords" in existing) {
 				return existing;
 			}
 
-			// 2. Check lineage images for non-minimal version
+			// 2. Check lineage images for full-detail version
 			const existingLineage = state.lineageImages.find((img) => img.id === id);
-			if (existingLineage && !existingLineage.is_minimal) {
+			if (
+				existingLineage &&
+				!existingLineage.is_minimal &&
+				"positive_prompt_keywords" in existingLineage
+			) {
 				return existingLineage;
 			}
 
