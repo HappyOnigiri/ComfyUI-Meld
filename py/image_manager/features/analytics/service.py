@@ -8,7 +8,7 @@ Runs in background on startup; API reads from cache for instant response.
 import logging
 import sqlite3
 import time
-from typing import Any
+from typing import Any, Dict, List
 
 from ...common.db.client import get_db_connection
 
@@ -229,3 +229,27 @@ def get_category_list(
         items = [{"name": r[0], "count": r[1]} for r in rows]
 
     return items, total
+
+
+def get_counts(
+    cursor: sqlite3.Cursor,
+    category: str,
+    names: List[str],
+) -> Dict[str, int]:
+    """
+    Read counts for specific names in a category.
+    Returns {name: count}.
+    """
+    if category not in CATEGORY_TABLE_MAP or not names:
+        return {}
+
+    table = CATEGORY_TABLE_MAP[category]
+    name_col = CATEGORY_NAME_COL[category]
+
+    placeholders = ",".join(["?"] * len(names))
+    sql = f"SELECT {name_col}, count FROM {table} WHERE {name_col} IN ({placeholders})"
+
+    cursor.execute(sql, names)
+    rows = cursor.fetchall()
+
+    return {r[0]: r[1] for r in rows}
