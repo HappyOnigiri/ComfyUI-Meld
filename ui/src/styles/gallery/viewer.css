@@ -356,7 +356,12 @@
 	font-size: 11px;
 	text-shadow: none;
 	border: 1px solid var(--comfy-menu-border, rgba(255, 255, 255, 0.1));
-	/* color-check-ignore */
+}
+
+.meld-viewer-details-tag-count {
+	color: var(--meld-text-secondary);
+	font-size: 0.8em;
+	margin-left: 4px;
 }
 
 .meld-viewer-details-item--notes {

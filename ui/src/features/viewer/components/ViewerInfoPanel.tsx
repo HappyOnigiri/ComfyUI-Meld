@@ -415,10 +415,7 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 								className="meld-viewer-details-tag"
 								title={`Usage count: ${cp.count}`}
 							>
-								{cp.name}{" "}
-								<span style={{ opacity: 0.6, fontSize: "0.8em", marginLeft: "4px" }}>
-									({cp.count})
-								</span>
+								{cp.name} <span className="meld-viewer-details-tag-count">({cp.count})</span>
 							</span>
 						))}
 					</div>

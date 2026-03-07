@@ -14,6 +14,7 @@ describe("FullScreenTab", () => {
 				handleToggle={vi.fn()}
 				handleNumberChange={vi.fn()}
 				handleNumberBlur={vi.fn()}
+				fullscreenCorePromptCountInput="30"
 				maxPositivePromptLinesInput="5"
 				maxNegativePromptLinesInput="5"
 			/>,
