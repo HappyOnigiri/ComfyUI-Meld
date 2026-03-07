@@ -6715,7 +6715,7 @@ const rs = async (e = 0, t = 30, n = "", r = "default", s = !1) => {
   "fullscreen.details.show_user_notes": "always",
   "fullscreen.details.show_source": !0,
   "fullscreen.details.show_core_prompt": !1,
-  "fullscreen.details.core_prompt_count": 30,
+  "fullscreen.details.core_prompt_count": 10,
   "fullscreen.details.max_positive_prompt_lines": 7,
   "fullscreen.details.max_negative_prompt_lines": 7,
   "viewer.show_details_by_default": !0,
@@ -6729,7 +6729,7 @@ const rs = async (e = 0, t = 30, n = "", r = "default", s = !1) => {
   "viewer.details.show_user_notes": "always",
   "viewer.details.show_source": !0,
   "viewer.details.show_core_prompt": !1,
-  "viewer.details.core_prompt_count": 30,
+  "viewer.details.core_prompt_count": 10,
   "viewer.details.max_positive_prompt_lines": 7,
   "viewer.details.max_negative_prompt_lines": 7,
   "gallery.initial_load_count": 100,
@@ -7204,7 +7204,7 @@ const my = {
     "fullscreen.details.show_user_notes": "always",
     "fullscreen.details.show_source": !0,
     "fullscreen.details.show_core_prompt": !1,
-    "fullscreen.details.core_prompt_count": 30,
+    "fullscreen.details.core_prompt_count": 10,
     "fullscreen.details.max_positive_prompt_lines": 7,
     "fullscreen.details.max_negative_prompt_lines": 7,
     "viewer.show_details_by_default": !0,
@@ -7218,7 +7218,7 @@ const my = {
     "viewer.details.show_user_notes": "always",
     "viewer.details.show_source": !0,
     "viewer.details.show_core_prompt": !1,
-    "viewer.details.core_prompt_count": 30,
+    "viewer.details.core_prompt_count": 10,
     "viewer.details.max_positive_prompt_lines": 7,
     "viewer.details.max_negative_prompt_lines": 7,
     "gallery.initial_load_count": 100,
@@ -7443,10 +7443,10 @@ const Df = p.createContext(void 0), hy = ({ children: e }) => {
   ), b = p.useCallback(
     async (w) => {
       const x = t.images.find((u) => u.id === w);
-      if (x && !x.is_minimal)
+      if (x && !x.is_minimal && "positive_prompt_keywords" in x)
         return x;
       const S = t.lineageImages.find((u) => u.id === w);
-      if (S && !S.is_minimal)
+      if (S && !S.is_minimal && "positive_prompt_keywords" in S)
         return S;
       const f = a.current.get(w);
       if (f)
