@@ -38,8 +38,6 @@ ENV/
 !.cursor/commands/
 !.cursor/skills/
 !.cursor/skills/**
-.agents/
-.aiignore
 *.swp
 *.swo
 .history/

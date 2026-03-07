@@ -80,13 +80,22 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 
 	const [isDragging, setIsDragging] = useState(false);
 	const [activeTool, setActiveTool] = useState<MaskTool>(() => {
-		const saved = localStorage.getItem("meld-mask-tool");
-		return isMaskTool(saved) ? saved : "rect";
+		try {
+			const saved =
+				typeof localStorage !== "undefined" ? localStorage.getItem("meld-mask-tool") : null;
+			return isMaskTool(saved) ? saved : "rect";
+		} catch (_e) {
+			return "rect";
+		}
 	});
 
 	useEffect(() => {
-		if (isMaskTool(activeTool)) {
-			localStorage.setItem("meld-mask-tool", activeTool);
+		try {
+			if (typeof localStorage !== "undefined" && isMaskTool(activeTool)) {
+				localStorage.setItem("meld-mask-tool", activeTool);
+			}
+		} catch (_e) {
+			// Ignore localStorage errors
 		}
 	}, [activeTool]);
 

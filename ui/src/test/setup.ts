@@ -24,6 +24,52 @@ if (typeof global.cancelAnimationFrame === "undefined") {
 	global.cancelAnimationFrame = (id: number) => clearTimeout(id);
 }
 
+// Mock localStorage and sessionStorage
+const createStorageMock = () => {
+	let store: Record<string, string> = {};
+	return {
+		getItem: vi.fn((key: string) => store[key] || null),
+		setItem: vi.fn((key: string, value: string) => {
+			store[key] = value.toString();
+		}),
+		removeItem: vi.fn((key: string) => {
+			delete store[key];
+		}),
+		clear: vi.fn(() => {
+			store = {};
+		}),
+		length: 0,
+		key: vi.fn((index: number) => Object.keys(store)[index] || null),
+	};
+};
+
+if (typeof window !== "undefined") {
+	Object.defineProperty(window, "localStorage", {
+		value: createStorageMock(),
+		configurable: true,
+	});
+	Object.defineProperty(window, "sessionStorage", {
+		value: createStorageMock(),
+		configurable: true,
+	});
+}
+
+if (typeof global !== "undefined") {
+	try {
+		Object.defineProperty(global, "localStorage", {
+			value: createStorageMock(),
+			configurable: true,
+		});
+		Object.defineProperty(global, "sessionStorage", {
+			value: createStorageMock(),
+			configurable: true,
+		});
+	} catch (_e) {
+		// If global is sealed or otherwise incompatible, we might need a different approach
+		// but usually in Vitest this works if done in setup.
+	}
+}
+
 declare global {
 	// Test environment shims for ComfyUI globals.
 	// Keep these declarations in setup so production code stays strict.

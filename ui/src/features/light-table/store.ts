@@ -130,8 +130,9 @@ export const useLightTableStore = create<TrayState>()(
 					};
 				}),
 
-			removeImages: (imageIds: number[]) =>
+			removeImages: (imageIds: number[] | undefined | null) =>
 				set((state: TrayState) => {
+					if (!imageIds) return state;
 					const idStrings = imageIds.map(String);
 					const idSet = new Set(idStrings);
 					const newBuckets = { ...state.buckets };
