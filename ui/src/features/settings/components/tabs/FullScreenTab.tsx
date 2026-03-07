@@ -236,10 +236,13 @@ export const FullScreenTab: React.FC<FullScreenTabProps> = ({
 				<SettingItem
 					label="Show Core Prompt"
 					description="Display a subset of keywords from the positive prompt based on rarity (bottom analytics counts)."
+					labelId="fullscreen-show-core-prompt-label"
 				>
 					<label className="meld-switch">
 						<input
 							type="checkbox"
+							id="fullscreen-core-prompt-checkbox"
+							aria-labelledby="fullscreen-show-core-prompt-label"
 							checked={localSettings["fullscreen.details.show_core_prompt"]}
 							onChange={() =>
 								handleToggle(
@@ -255,9 +258,12 @@ export const FullScreenTab: React.FC<FullScreenTabProps> = ({
 				<SettingItem
 					label="Core Prompt Keyword Count"
 					description="Number of rarity keywords to display in fullscreen."
+					labelId="fullscreen-core-prompt-count-label"
 				>
 					<input
 						type="number"
+						id="fullscreen-core-prompt-count"
+						aria-labelledby="fullscreen-core-prompt-count-label"
 						className="meld-number-input"
 						value={fullscreenCorePromptCountInput}
 						min={1}

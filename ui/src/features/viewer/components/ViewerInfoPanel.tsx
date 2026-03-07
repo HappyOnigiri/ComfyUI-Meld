@@ -99,11 +99,14 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 		}
 
 		let isMounted = true;
+		const controller = new AbortController();
 		const fetchCore = async () => {
 			setIsLoadingCorePrompts(true);
 			try {
 				const { fetchAnalyticsCounts } = await import("../../analytics/api/analyticsApi");
-				const counts = await fetchAnalyticsCounts("positive_prompts", keywords);
+				const counts = await fetchAnalyticsCounts("positive_prompts", keywords, {
+					signal: controller.signal,
+				});
 				if (!isMounted) return;
 
 				const sorted = keywords
@@ -115,6 +118,7 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 
 				setCorePrompts(sorted.slice(0, corePromptCountSetting));
 			} catch (err) {
+				if (err instanceof Error && err.name === "AbortError") return;
 				logger.error("Failed to fetch core prompt counts", err);
 			} finally {
 				if (isMounted) setIsLoadingCorePrompts(false);
@@ -125,6 +129,7 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 
 		return () => {
 			isMounted = false;
+			controller.abort();
 		};
 	}, [image.positive_prompt, image.positive, showCorePromptSetting, corePromptCountSetting]);
 

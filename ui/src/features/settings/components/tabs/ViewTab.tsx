@@ -262,10 +262,13 @@ export const ViewTab: React.FC<ViewTabProps> = ({
 				<SettingItem
 					label="Show Core Prompt"
 					description="Display a subset of keywords from the positive prompt based on rarity (bottom analytics counts)."
+					labelId="viewer-details-show-core-prompt-label"
 				>
 					<label className="meld-switch">
 						<input
 							type="checkbox"
+							id="viewer-details-show-core-prompt-checkbox"
+							aria-labelledby="viewer-details-show-core-prompt-label"
 							checked={localSettings["viewer.details.show_core_prompt"]}
 							onChange={() =>
 								handleToggle(
@@ -281,9 +284,12 @@ export const ViewTab: React.FC<ViewTabProps> = ({
 				<SettingItem
 					label="Core Prompt Keyword Count"
 					description="Number of rarity keywords to display."
+					labelId="viewer-details-core-prompt-count-label"
 				>
 					<input
 						type="number"
+						id="viewer-details-core-prompt-count"
+						aria-labelledby="viewer-details-core-prompt-count-label"
 						className="meld-number-input"
 						value={viewerCorePromptCountInput}
 						min={1}
