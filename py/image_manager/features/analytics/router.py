@@ -131,7 +131,20 @@ async def post_analytics_counts(request: web.Request) -> web.Response:
     """Return counts for specific names in a given category."""
     conn = None
     try:
-        body = await request.json()
+        try:
+            body = await request.json()
+        except Exception:
+            return web.json_response(
+                ApiResponse(success=False, error="Invalid JSON body").to_dict(),
+                status=400,
+            )
+
+        if not isinstance(body, dict):
+            return web.json_response(
+                ApiResponse(success=False, error="Request body must be a JSON object").to_dict(),
+                status=400,
+            )
+
         category = body.get("category")
         names = body.get("names", [])
 
@@ -150,9 +163,18 @@ async def post_analytics_counts(request: web.Request) -> web.Response:
         if not names:
             return web.json_response(ApiResponse(success=True, data={}).to_dict())
 
-        # limit to prevent abuse
+        if any(not isinstance(n, str) for n in names):
+            return web.json_response(
+                ApiResponse(success=False, error="All names must be strings").to_dict(),
+                status=400,
+            )
+
+        # Reject requests that exceed the name limit to prevent abuse
         if len(names) > 500:
-            names = names[:500]
+            return web.json_response(
+                ApiResponse(success=False, error="Too many names, max 500").to_dict(),
+                status=400,
+            )
 
         conn = get_db_connection()
         cursor = conn.cursor()

@@ -74,16 +74,21 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 
 	useEffect(() => {
 		if (!showCorePromptSetting) {
+			setIsLoadingCorePrompts(false);
 			setCorePrompts([]);
 			return;
 		}
 
 		const positiveMsg = image.positive_prompt || image.positive || "";
 		if (!positiveMsg.trim()) {
+			setIsLoadingCorePrompts(false);
 			setCorePrompts([]);
 			return;
 		}
 
+		// Core Prompt selection: split positiveMsg by comma -> deduplicate -> fetch global
+		// usage counts per keyword -> sort ascending by count (least-used = most distinctive)
+		// -> take top corePromptCountSetting results.
 		const keywords = Array.from(
 			new Set(
 				positiveMsg
@@ -94,11 +99,11 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 		);
 
 		if (keywords.length === 0) {
+			setIsLoadingCorePrompts(false);
 			setCorePrompts([]);
 			return;
 		}
 
-		let isMounted = true;
 		const controller = new AbortController();
 		const fetchCore = async () => {
 			setIsLoadingCorePrompts(true);
@@ -107,7 +112,7 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 				const counts = await fetchAnalyticsCounts("positive_prompts", keywords, {
 					signal: controller.signal,
 				});
-				if (!isMounted) return;
+				if (controller.signal.aborted) return;
 
 				const sorted = keywords
 					.map((name) => ({
@@ -118,18 +123,23 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 
 				setCorePrompts(sorted.slice(0, corePromptCountSetting));
 			} catch (err) {
-				if (err instanceof Error && err.name === "AbortError") return;
+				if (err instanceof Error && err.name === "AbortError") {
+					setIsLoadingCorePrompts(false);
+					setCorePrompts([]);
+					return;
+				}
 				logger.error("Failed to fetch core prompt counts", err);
 			} finally {
-				if (isMounted) setIsLoadingCorePrompts(false);
+				if (!controller.signal.aborted) setIsLoadingCorePrompts(false);
 			}
 		};
 
 		fetchCore();
 
 		return () => {
-			isMounted = false;
 			controller.abort();
+			setIsLoadingCorePrompts(false);
+			setCorePrompts([]);
 		};
 	}, [image.positive_prompt, image.positive, showCorePromptSetting, corePromptCountSetting]);
 
