@@ -120,3 +120,72 @@
 	overflow: hidden;
 	padding: 4px 0;
 }
+
+/* Tab Select Modal */
+.meld-tab-select-modal__overlay {
+	position: fixed;
+	inset: 0;
+	background: var(--comfy-input-bg, rgba(0, 0, 0, 0.5));
+	z-index: var(--meld-z-modal-overlay);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.meld-tab-select-modal__dialog {
+	background: var(--comfy-menu-bg, #222);
+	border: 1px solid var(--comfy-menu-border, #444);
+	border-radius: 6px;
+	padding: 16px;
+	min-width: 200px;
+	box-shadow: 0 4px 20px var(--comfy-menu-shadow, rgba(0, 0, 0, 0.6));
+}
+
+.meld-tab-select-modal__title {
+	color: var(--meld-text-color);
+	font-size: 13px;
+	font-weight: bold;
+	margin: 0 0 12px;
+}
+
+.meld-tab-select-modal__list {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.meld-tab-select-modal__tab-btn {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 12px;
+	background: transparent;
+	border: 1px solid var(--tab-color, #444);
+	border-radius: 4px;
+	color: var(--meld-text-color);
+	font-size: 13px;
+	cursor: pointer;
+	width: 100%;
+	text-align: left;
+	transition: background-color 0.15s;
+}
+
+.meld-tab-select-modal__tab-btn::before {
+	content: "";
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: var(--tab-color, #888);
+	flex-shrink: 0;
+}
+
+.meld-tab-select-modal__tab-btn:hover {
+	background: var(--tab-color, #444);
+	color: white;
+}
+
+.meld-tab-select-modal__tab-btn:focus-visible {
+	outline: 2px solid var(--meld-accent-color, #4488ff);
+	outline-offset: 2px;
+}
