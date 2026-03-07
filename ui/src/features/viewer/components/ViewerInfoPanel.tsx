@@ -1,6 +1,7 @@
 import { Check, Copy } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { logger } from "../../../logger";
 import type { GalleryAction, MeldImage, Settings } from "../../../types";
 
 interface ViewerInfoPanelProps {
@@ -60,6 +61,72 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 		: settings["viewer.details.show_user_notes"];
 	const shouldShowNotes =
 		showNotesSetting === "always" || (showNotesSetting === "if_present" && image.user_notes);
+
+	const [corePrompts, setCorePrompts] = useState<{ name: string; count: number }[]>([]);
+	const [isLoadingCorePrompts, setIsLoadingCorePrompts] = useState(false);
+
+	const showCorePromptSetting = isFullscreen
+		? settings["fullscreen.details.show_core_prompt"]
+		: settings["viewer.details.show_core_prompt"];
+	const corePromptCountSetting = isFullscreen
+		? settings["fullscreen.details.core_prompt_count"]
+		: settings["viewer.details.core_prompt_count"];
+
+	useEffect(() => {
+		if (!showCorePromptSetting) {
+			setCorePrompts([]);
+			return;
+		}
+
+		const positiveMsg = image.positive_prompt || image.positive || "";
+		if (!positiveMsg.trim()) {
+			setCorePrompts([]);
+			return;
+		}
+
+		const keywords = Array.from(
+			new Set(
+				positiveMsg
+					.split(",")
+					.map((k) => k.trim())
+					.filter((k) => k.length > 0),
+			),
+		);
+
+		if (keywords.length === 0) {
+			setCorePrompts([]);
+			return;
+		}
+
+		let isMounted = true;
+		const fetchCore = async () => {
+			setIsLoadingCorePrompts(true);
+			try {
+				const { fetchAnalyticsCounts } = await import("../../analytics/api/analyticsApi");
+				const counts = await fetchAnalyticsCounts("positive_prompts", keywords);
+				if (!isMounted) return;
+
+				const sorted = keywords
+					.map((name) => ({
+						name,
+						count: counts[name] ?? 0,
+					}))
+					.sort((a, b) => a.count - b.count);
+
+				setCorePrompts(sorted.slice(0, corePromptCountSetting));
+			} catch (err) {
+				logger.error("Failed to fetch core prompt counts", err);
+			} finally {
+				if (isMounted) setIsLoadingCorePrompts(false);
+			}
+		};
+
+		fetchCore();
+
+		return () => {
+			isMounted = false;
+		};
+	}, [image.positive_prompt, image.positive, showCorePromptSetting, corePromptCountSetting]);
 
 	return (
 		<div
@@ -318,6 +385,45 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 						</div>
 					</div>
 				)}
+
+			{showCorePromptSetting && (isLoadingCorePrompts || corePrompts.length > 0) && (
+				<div className="meld-viewer-details-item">
+					<div className="meld-viewer-details-item__header">
+						<div className="meld-viewer-details-label">
+							Core Prompt
+							{isLoadingCorePrompts && <span className="meld-notes__status">Loading...</span>}
+						</div>
+						{!isLoadingCorePrompts && corePrompts.length > 0 && (
+							<button
+								type="button"
+								className="meld-viewer-details-copy-btn"
+								title="Copy"
+								aria-label="Copy core prompt"
+								onClick={(e) => {
+									e.stopPropagation();
+									handleCopy(corePrompts.map((cp) => cp.name).join(", "), "core_prompt");
+								}}
+							>
+								{copiedField === "core_prompt" ? <Check size={16} /> : <Copy size={16} />}
+							</button>
+						)}
+					</div>
+					<div className="meld-viewer-details-tags">
+						{corePrompts.map((cp, idx) => (
+							<span
+								key={`${cp.name}-${idx}`}
+								className="meld-viewer-details-tag"
+								title={`Usage count: ${cp.count}`}
+							>
+								{cp.name}{" "}
+								<span style={{ opacity: 0.6, fontSize: "0.8em", marginLeft: "4px" }}>
+									({cp.count})
+								</span>
+							</span>
+						))}
+					</div>
+				</div>
+			)}
 
 			{(isFullscreen
 				? settings["fullscreen.details.show_negative_prompt"]
