@@ -1,6 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { api } from "/scripts/api.js";
-import { fetchAnalyticsCategory, fetchAnalyticsSummary, refreshAnalytics } from "./analyticsApi";
+import {
+	fetchAnalyticsCategory,
+	fetchAnalyticsCounts,
+	fetchAnalyticsSummary,
+	refreshAnalytics,
+} from "./analyticsApi";
 
 vi.mock("/scripts/api.js", () => ({
 	api: { fetchApi: vi.fn() },
@@ -117,6 +122,35 @@ describe("analyticsApi", () => {
 			);
 
 			await expect(refreshAnalytics()).rejects.toThrow("Refresh failed");
+		});
+	});
+
+	describe("fetchAnalyticsCounts", () => {
+		it("fetches counts and returns dictionary", async () => {
+			const mockData = { "1girl": 100, solo: 50 };
+			vi.mocked(api.fetchApi).mockResolvedValueOnce(
+				jsonResponse({ success: true, data: mockData }),
+			);
+
+			const controller = new AbortController();
+			const result = await fetchAnalyticsCounts("positive_prompts", ["1girl", "solo"], {
+				signal: controller.signal,
+			});
+
+			expect(api.fetchApi).toHaveBeenCalledWith("/meld/analytics/counts", {
+				method: "POST",
+				body: JSON.stringify({ category: "positive_prompts", names: ["1girl", "solo"] }),
+				signal: controller.signal,
+			});
+			expect(result).toEqual(mockData);
+		});
+
+		it("throws error when fetch fails", async () => {
+			vi.mocked(api.fetchApi).mockResolvedValueOnce(
+				jsonResponse({ success: false, error: "Network error" }),
+			);
+
+			await expect(fetchAnalyticsCounts("tags", ["tag1"])).rejects.toThrow("Network error");
 		});
 	});
 });

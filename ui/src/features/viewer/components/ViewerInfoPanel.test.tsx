@@ -3,7 +3,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { initialState } from "../../../store/galleryReducer";
 import { createTestImage, resetImageIdCounter } from "../../../test/factories/image";
 import type { GalleryAction, Settings } from "../../../types";
+import { fetchAnalyticsCounts } from "../../analytics/api/analyticsApi";
 import { ViewerInfoPanel } from "./ViewerInfoPanel";
+
+vi.mock("../../analytics/api/analyticsApi", () => ({
+	fetchAnalyticsCounts: vi.fn(),
+}));
 
 // Default settings for testing
 const defaultSettings: Settings = { ...initialState.settings };
@@ -307,5 +312,46 @@ describe("ViewerInfoPanel", () => {
 			},
 		});
 		expect(screen.getByText("Filename")).toBeInTheDocument();
+	});
+
+	it("renders core prompt tags sorted by usage count", async () => {
+		vi.mocked(fetchAnalyticsCounts).mockResolvedValue({
+			"1girl": 100,
+			solo: 50,
+			masterpiece: 10,
+		});
+
+		renderPanel({
+			image: createTestImage({
+				positive_prompt_keywords: ["1girl", "solo", "masterpiece"],
+			}),
+			settings: {
+				...defaultSettings,
+				"viewer.details.show_core_prompt": true,
+				"viewer.details.core_prompt_count": 2, // Only show top 2 least used
+			},
+		});
+
+		// Ensure Core Prompt section appears
+		expect(await screen.findByText("Core Prompt")).toBeInTheDocument();
+		// masterpiece (10) should be first, solo (50) second. 1girl (100) should be sliced out.
+		expect(await screen.findByText("masterpiece")).toBeInTheDocument();
+		expect(await screen.findByText("(10)")).toBeInTheDocument();
+		expect(await screen.findByText("solo")).toBeInTheDocument();
+		expect(await screen.findByText("(50)")).toBeInTheDocument();
+		expect(screen.queryByText("1girl")).not.toBeInTheDocument();
+	});
+
+	it("hides core prompt when show_core_prompt setting is false", () => {
+		renderPanel({
+			image: createTestImage({
+				positive_prompt_keywords: ["1girl"],
+			}),
+			settings: {
+				...defaultSettings,
+				"viewer.details.show_core_prompt": false,
+			},
+		});
+		expect(screen.queryByText("Core Prompt")).not.toBeInTheDocument();
 	});
 });

@@ -20,11 +20,12 @@ _MOCK_KEYS = (
 CATEGORIES: tuple[str, ...] | None = None
 get_category_list = None
 get_summary = None
+get_counts = None
 
 
 def setUpModule() -> None:
     """Import analytics service with scoped sys.modules mocks."""
-    global CATEGORIES, get_category_list, get_summary
+    global CATEGORIES, get_category_list, get_summary, get_counts
     mock_dict = {k: MagicMock() for k in _MOCK_KEYS}
     with patch.dict(sys.modules, mock_dict):
         import py.image_manager.features.analytics.service as _svc  # noqa: E402
@@ -32,6 +33,7 @@ def setUpModule() -> None:
         CATEGORIES = _svc.CATEGORIES
         get_category_list = _svc.get_category_list
         get_summary = _svc.get_summary
+        get_counts = _svc.get_counts
 
 
 def create_analytics_schema(cursor: sqlite3.Cursor) -> None:
@@ -252,6 +254,46 @@ class TestAnalyticsService(unittest.TestCase):
 
         res_items, _ = get_category_list(self.cursor, "by_resolution")
         self.assertEqual(res_items[0], {"resolution": "1024x1024", "count": 3})
+
+    def test_get_counts_valid_category_and_names(self) -> None:
+        """get_counts returns correct counts for specific names."""
+        self.cursor.execute(
+            "INSERT INTO analytics_positive_prompts (name, count, updated_at) VALUES (?, ?, ?)",
+            ("1girl", 100, 1.0),
+        )
+        self.cursor.execute(
+            "INSERT INTO analytics_positive_prompts (name, count, updated_at) VALUES (?, ?, ?)",
+            ("solo", 50, 1.0),
+        )
+        self.cursor.execute(
+            "INSERT INTO analytics_positive_prompts (name, count, updated_at) VALUES (?, ?, ?)",
+            ("masterpiece", 10, 1.0),
+        )
+        self.conn.commit()
+
+        counts = get_counts(self.cursor, "positive_prompts", ["1girl", "masterpiece"])
+        self.assertEqual(counts, {"1girl": 100, "masterpiece": 10})
+
+    def test_get_counts_invalid_category(self) -> None:
+        """get_counts returns empty dict for invalid category."""
+        counts = get_counts(self.cursor, "invalid_category", ["1girl"])
+        self.assertEqual(counts, {})
+
+    def test_get_counts_empty_names(self) -> None:
+        """get_counts returns empty dict for empty names list."""
+        counts = get_counts(self.cursor, "positive_prompts", [])
+        self.assertEqual(counts, {})
+
+    def test_get_counts_missing_names(self) -> None:
+        """get_counts does not return keys for names not in db."""
+        self.cursor.execute(
+            "INSERT INTO analytics_positive_prompts (name, count, updated_at) VALUES (?, ?, ?)",
+            ("1girl", 100, 1.0),
+        )
+        self.conn.commit()
+
+        counts = get_counts(self.cursor, "positive_prompts", ["1girl", "unknown"])
+        self.assertEqual(counts, {"1girl": 100})
 
 
 if __name__ == "__main__":
