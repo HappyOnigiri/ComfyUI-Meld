@@ -1,4 +1,14 @@
-import { Download, FileJson, Menu, RefreshCw, ScanLine, Tag, Trash2, X } from "lucide-react";
+import {
+	Download,
+	FileJson,
+	LayoutGrid,
+	Menu,
+	RefreshCw,
+	ScanLine,
+	Tag,
+	Trash2,
+	X,
+} from "lucide-react";
 import type React from "react";
 import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -7,14 +17,60 @@ import { useOnPointerDownOutside } from "../../../hooks/useOnPointerDownOutside"
 import { getPortalRoot } from "../../../portals/portalRoots";
 import { useGallery } from "../../../store/GalleryContext";
 import { useImageActions } from "../../images/hooks/useImageActions";
+import { useLightTableStore } from "../../light-table/store";
+import type { SlotConfig } from "../../light-table/types";
+
+/**
+ * Modal for selecting which Light Table tab to send images to.
+ * Shown when 2+ tabs exist; for single tab, images are sent directly without this modal.
+ */
+const TabSelectModal: React.FC<{
+	slots: SlotConfig[];
+	onSelect: (slotId: string, slotLabel: string) => void;
+	onCancel: () => void;
+}> = ({ slots, onSelect, onCancel }) => {
+	useEscapeToClose({ onEscape: onCancel });
+	return (
+		<div className="meld-tab-select-modal__overlay" onClick={onCancel} role="presentation">
+			<div
+				className="meld-tab-select-modal__dialog"
+				onClick={(e) => e.stopPropagation()}
+				onKeyDown={(e) => e.stopPropagation()}
+				role="dialog"
+				aria-modal="true"
+				aria-label="Select Light Table tab"
+			>
+				<p className="meld-tab-select-modal__title">Select a tab</p>
+				<div className="meld-tab-select-modal__list">
+					{slots.map((slot) => (
+						<button
+							key={slot.id}
+							type="button"
+							className="meld-tab-select-modal__tab-btn"
+							style={{ "--tab-color": slot.color } as React.CSSProperties}
+							onClick={() => onSelect(slot.id, slot.label)}
+						>
+							{slot.label}
+						</button>
+					))}
+				</div>
+			</div>
+		</div>
+	);
+};
 
 export const BulkActionBar: React.FC = () => {
 	const { state, dispatch, deleteSelected, restoreSelected } = useGallery();
 	const { handleRunWithWorkflow, handleRunWithMask } = useImageActions(state, dispatch);
 	const count = state.selectedIds.size;
 
+	const slots = useLightTableStore((s) => s.slots);
+	const addToBucket = useLightTableStore((s) => s.addToBucket);
+	const showToast = useLightTableStore((s) => s.showToast);
+
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [menuAnchorRect, setMenuAnchorRect] = useState<DOMRect | null>(null);
+	const [showTabSelectModal, setShowTabSelectModal] = useState(false);
 	const actionButtonRef = useRef<HTMLButtonElement>(null);
 	const menuRef = useRef<HTMLDivElement>(null);
 	const portalRoot = getPortalRoot("bulkActionBar");
@@ -98,6 +154,31 @@ export const BulkActionBar: React.FC = () => {
 		});
 	};
 
+	const handleBulkSendToLightTable = () => {
+		const firstSlot = slots[0];
+		if (!firstSlot) return;
+		if (slots.length === 1) {
+			// Single tab: send directly without showing a selection modal
+			for (const id of state.selectedIds) {
+				addToBucket(firstSlot.id, String(id));
+			}
+			showToast(`${count} image(s) sent to "${firstSlot.label}"`);
+			setIsMenuOpen(false);
+		} else {
+			// Multiple tabs: show tab selection modal
+			setIsMenuOpen(false);
+			setShowTabSelectModal(true);
+		}
+	};
+
+	const handleTabSelect = (slotId: string, slotLabel: string) => {
+		for (const id of state.selectedIds) {
+			addToBucket(slotId, String(id));
+		}
+		showToast(`${count} image(s) sent to "${slotLabel}"`);
+		setShowTabSelectModal(false);
+	};
+
 	const bulkBarJSX = (
 		<div className={`meld-bulk-bar ${isTrashMode ? "meld-bulk-bar--trash" : ""}`}>
 			<span className="meld-bulk-bar__info">{count} items selected</span>
@@ -178,6 +259,14 @@ export const BulkActionBar: React.FC = () => {
 							>
 								<Download size={14} /> Download
 							</button>
+							<button
+								type="button"
+								className="meld-bulk-bar-menu__item"
+								onClick={handleBulkSendToLightTable}
+								disabled={slots.length === 0}
+							>
+								<LayoutGrid size={14} /> Send to Light Table
+							</button>
 							<div className="meld-bulk-bar-menu__divider" />
 							<button
 								type="button"
@@ -189,6 +278,13 @@ export const BulkActionBar: React.FC = () => {
 						</>
 					)}
 				</div>
+			)}
+			{showTabSelectModal && (
+				<TabSelectModal
+					slots={slots}
+					onSelect={handleTabSelect}
+					onCancel={() => setShowTabSelectModal(false)}
+				/>
 			)}
 		</div>
 	);
