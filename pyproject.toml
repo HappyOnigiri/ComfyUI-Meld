@@ -45,7 +45,7 @@ Repository = "https://github.com/HappyOnigiri/ComfyUI-Meld"
 
 [tool.comfy]
 PublisherId = "happyonigiri"
-DisplayName = "Meld: Workflow Consolidator"
+DisplayName = "ComfyUI-Meld"
 Icon = ""
 
 [tool.ruff]
