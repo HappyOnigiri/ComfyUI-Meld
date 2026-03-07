@@ -79,24 +79,12 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 			return;
 		}
 
-		const positiveMsg = image.positive_prompt || image.positive || "";
-		if (!positiveMsg.trim()) {
-			setIsLoadingCorePrompts(false);
-			setCorePrompts([]);
-			return;
-		}
-
-		// Core Prompt selection: split positiveMsg by comma -> deduplicate -> fetch global
-		// usage counts per keyword -> sort ascending by count (least-used = most distinctive)
-		// -> take top corePromptCountSetting results.
-		const keywords = Array.from(
-			new Set(
-				positiveMsg
-					.split(",")
-					.map((k) => k.trim())
-					.filter((k) => k.length > 0),
-			),
-		);
+		// Use parsed keywords from positive_prompt_image_relations (backend).
+		// Do not parse from raw prompt string; complex prompts require smart_split.
+		const keywords =
+			Array.isArray(image.positive_prompt_keywords) && image.positive_prompt_keywords.length > 0
+				? image.positive_prompt_keywords
+				: [];
 
 		if (keywords.length === 0) {
 			setIsLoadingCorePrompts(false);
@@ -141,7 +129,7 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 			setIsLoadingCorePrompts(false);
 			setCorePrompts([]);
 		};
-	}, [image.positive_prompt, image.positive, showCorePromptSetting, corePromptCountSetting]);
+	}, [image.positive_prompt_keywords, showCorePromptSetting, corePromptCountSetting]);
 
 	return (
 		<div

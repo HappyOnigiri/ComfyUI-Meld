@@ -235,6 +235,7 @@ class ImageListItem(BaseSchema):
     user_notes: str | None = None
     exists: bool = False
     ancestors: list[dict[str, Any]] = field(default_factory=list)
+    positive_prompt_keywords: list[str] = field(default_factory=list)
 
 
 @dataclass

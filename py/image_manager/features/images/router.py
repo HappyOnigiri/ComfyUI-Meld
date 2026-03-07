@@ -156,6 +156,13 @@ async def get_image_details(request: web.Request) -> web.Response:
         )
         tags = [row[0] for row in cursor.fetchall()]
 
+        # Fetch parsed positive prompt keywords from relations (for Core Prompt feature)
+        cursor.execute(
+            "SELECT pp.name FROM positive_prompts pp JOIN positive_prompt_image_relations r ON pp.id = r.positive_prompt_id WHERE r.image_id = ?",
+            (image_id,),
+        )
+        positive_prompt_keywords = [row[0] for row in cursor.fetchall()]
+
         # Reconstruct prompts if necessary
         positive = db_positive
         if positive is None:
@@ -207,6 +214,7 @@ async def get_image_details(request: web.Request) -> web.Response:
             user_notes=user_notes,
             exists=True,
             ancestors=ancestors,
+            positive_prompt_keywords=positive_prompt_keywords,
         )
 
         return web.json_response(ApiResponse(success=True, data=item.to_dict()).to_dict())

@@ -7,6 +7,7 @@ export interface MeldImage {
 	positive: string;
 	negative: string;
 	positive_prompt?: string | null;
+	positive_prompt_keywords?: string[];
 	negative_prompt?: string | null;
 	model_name?: string | null;
 	workflow?: string | null;
