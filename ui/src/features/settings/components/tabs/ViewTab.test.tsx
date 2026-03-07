@@ -36,10 +36,12 @@ describe("ViewTab", () => {
 							"viewer.details.show_created_at": false,
 							"viewer.details.show_source": false,
 							"viewer.details.show_model_name": false,
+							"viewer.details.show_core_prompt": false,
 							"viewer.details.show_positive_prompt": false,
 							"viewer.details.show_negative_prompt": false,
 							"viewer.details.show_user_notes": "always",
 							"viewer.details.show_tags": false,
+							"viewer.details.core_prompt_count": 10,
 						} as unknown as Settings
 					}
 					setLocalSettings={setLocalSettings}
@@ -47,6 +49,7 @@ describe("ViewTab", () => {
 					handleNumberChange={handleNumberChange}
 					handleNumberBlur={handleNumberBlur}
 					thumbnailWindowSizeInput="10"
+					viewerCorePromptCountInput="10"
 					maxPositivePromptLinesInput="5"
 					maxNegativePromptLinesInput="5"
 				/>,
@@ -61,28 +64,41 @@ describe("ViewTab", () => {
 		fireEvent.blur(numberInputs[0]!);
 		expect(handleNumberBlur).toHaveBeenCalledWith({ key: "viewer.thumbnail_window_size" });
 
+		// core prompt count
+		fireEvent.change(numberInputs[1]!, { target: { value: "30" } });
+		expect(handleNumberChange).toHaveBeenCalledWith(
+			"viewer.details.core_prompt_count",
+			"30",
+			1,
+			100,
+		);
+		fireEvent.blur(numberInputs[1]!);
+		expect(handleNumberBlur).toHaveBeenCalledWith({
+			key: "viewer.details.core_prompt_count",
+		});
+
 		// max pos lines
-		fireEvent.change(numberInputs[1]!, { target: { value: "10" } });
+		fireEvent.change(numberInputs[2]!, { target: { value: "10" } });
 		expect(handleNumberChange).toHaveBeenCalledWith(
 			"viewer.details.max_positive_prompt_lines",
 			"10",
 			1,
 			100,
 		);
-		fireEvent.blur(numberInputs[1]!);
+		fireEvent.blur(numberInputs[2]!);
 		expect(handleNumberBlur).toHaveBeenCalledWith({
 			key: "viewer.details.max_positive_prompt_lines",
 		});
 
 		// max neg lines
-		fireEvent.change(numberInputs[2]!, { target: { value: "10" } });
+		fireEvent.change(numberInputs[3]!, { target: { value: "10" } });
 		expect(handleNumberChange).toHaveBeenCalledWith(
 			"viewer.details.max_negative_prompt_lines",
 			"10",
 			1,
 			100,
 		);
-		fireEvent.blur(numberInputs[2]!);
+		fireEvent.blur(numberInputs[3]!);
 		expect(handleNumberBlur).toHaveBeenCalledWith({
 			key: "viewer.details.max_negative_prompt_lines",
 		});
@@ -124,12 +140,16 @@ describe("ViewTab", () => {
 		await user.click(toggles[8]!);
 		expect(handleToggle).toHaveBeenCalledWith("viewer.details.show_positive_prompt", false);
 
-		// details.show_negative_prompt
+		// details.show_core_prompt
 		await user.click(toggles[9]!);
+		expect(handleToggle).toHaveBeenCalledWith("viewer.details.show_core_prompt", false);
+
+		// details.show_negative_prompt
+		await user.click(toggles[10]!);
 		expect(handleToggle).toHaveBeenCalledWith("viewer.details.show_negative_prompt", false);
 
 		// details.show_tags
-		await user.click(toggles[10]!);
+		await user.click(toggles[11]!);
 		expect(handleToggle).toHaveBeenCalledWith("viewer.details.show_tags", false);
 
 		const selects = screen.getAllByRole("combobox");

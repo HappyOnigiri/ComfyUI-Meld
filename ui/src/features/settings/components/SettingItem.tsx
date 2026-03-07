@@ -4,13 +4,21 @@ interface SettingItemProps {
 	label: string;
 	description: string;
 	children: React.ReactNode;
+	labelId?: string;
 }
 
-export const SettingItem: React.FC<SettingItemProps> = ({ label, description, children }) => {
+export const SettingItem: React.FC<SettingItemProps> = ({
+	label,
+	description,
+	children,
+	labelId,
+}) => {
 	return (
 		<div className="meld-settings-item">
 			<div className="meld-settings-item__info">
-				<div className="meld-settings-item__label">{label}</div>
+				<div className="meld-settings-item__label" id={labelId}>
+					{label}
+				</div>
 				<div className="meld-settings-item__description">{description}</div>
 			</div>
 			<div className="meld-settings-item__control">{children}</div>

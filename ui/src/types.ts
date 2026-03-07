@@ -7,6 +7,7 @@ export interface MeldImage {
 	positive: string;
 	negative: string;
 	positive_prompt?: string | null;
+	positive_prompt_keywords?: string[];
 	negative_prompt?: string | null;
 	model_name?: string | null;
 	workflow?: string | null;
@@ -72,6 +73,8 @@ export interface Settings {
 	"fullscreen.details.show_negative_prompt": boolean;
 	"fullscreen.details.show_user_notes": "always" | "if_present" | "hidden";
 	"fullscreen.details.show_source": boolean;
+	"fullscreen.details.show_core_prompt": boolean;
+	"fullscreen.details.core_prompt_count": number;
 	"fullscreen.details.max_positive_prompt_lines": number;
 	"fullscreen.details.max_negative_prompt_lines": number;
 	"viewer.show_details_by_default": boolean;
@@ -84,6 +87,8 @@ export interface Settings {
 	"viewer.details.show_negative_prompt": boolean;
 	"viewer.details.show_user_notes": "always" | "if_present" | "hidden";
 	"viewer.details.show_source": boolean;
+	"viewer.details.show_core_prompt": boolean;
+	"viewer.details.core_prompt_count": number;
 	"viewer.details.max_positive_prompt_lines": number;
 	"viewer.details.max_negative_prompt_lines": number;
 	"gallery.initial_load_count": number;

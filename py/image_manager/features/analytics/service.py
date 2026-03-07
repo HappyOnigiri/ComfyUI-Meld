@@ -229,3 +229,27 @@ def get_category_list(
         items = [{"name": r[0], "count": r[1]} for r in rows]
 
     return items, total
+
+
+def get_counts(
+    cursor: sqlite3.Cursor,
+    category: str,
+    names: list[str],
+) -> dict[str, int]:
+    """
+    Read counts for specific names in a category.
+    Returns {name: count}.
+    """
+    if category not in CATEGORY_TABLE_MAP or not names:
+        return {}
+
+    table = CATEGORY_TABLE_MAP[category]
+    name_col = CATEGORY_NAME_COL[category]
+
+    placeholders = ",".join(["?"] * len(names))
+    sql = f"SELECT {name_col}, count FROM {table} WHERE {name_col} IN ({placeholders})"
+
+    cursor.execute(sql, names)
+    rows = cursor.fetchall()
+
+    return {r[0]: r[1] for r in rows}

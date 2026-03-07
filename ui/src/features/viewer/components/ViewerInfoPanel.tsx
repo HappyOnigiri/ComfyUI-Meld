@@ -1,6 +1,7 @@
 import { Check, Copy } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { logger } from "../../../logger";
 import type { GalleryAction, MeldImage, Settings } from "../../../types";
 
 interface ViewerInfoPanelProps {
@@ -60,6 +61,85 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 		: settings["viewer.details.show_user_notes"];
 	const shouldShowNotes =
 		showNotesSetting === "always" || (showNotesSetting === "if_present" && image.user_notes);
+
+	const [corePrompts, setCorePrompts] = useState<{ name: string; count: number }[]>([]);
+	const [isLoadingCorePrompts, setIsLoadingCorePrompts] = useState(false);
+
+	const showCorePromptSetting = isFullscreen
+		? settings["fullscreen.details.show_core_prompt"]
+		: settings["viewer.details.show_core_prompt"];
+	const corePromptCountSetting = isFullscreen
+		? settings["fullscreen.details.core_prompt_count"]
+		: settings["viewer.details.core_prompt_count"];
+
+	useEffect(() => {
+		if (!showCorePromptSetting) {
+			setIsLoadingCorePrompts(false);
+			setCorePrompts([]);
+			return;
+		}
+
+		// Use parsed keywords from positive_prompt_image_relations (backend).
+		// Do not parse from raw prompt string; complex prompts require smart_split.
+		const keywords =
+			Array.isArray(image.positive_prompt_keywords) && image.positive_prompt_keywords.length > 0
+				? image.positive_prompt_keywords
+				: [];
+
+		const uniqueKeywords = Array.from(new Set(keywords));
+
+		if (uniqueKeywords.length === 0) {
+			setIsLoadingCorePrompts(false);
+			setCorePrompts([]);
+			return;
+		}
+
+		const controller = new AbortController();
+		const fetchCore = async () => {
+			setIsLoadingCorePrompts(true);
+			try {
+				const { fetchAnalyticsCounts } = await import("../../analytics/api/analyticsApi");
+				const counts = await fetchAnalyticsCounts("positive_prompts", uniqueKeywords, {
+					signal: controller.signal,
+				});
+				if (controller.signal.aborted) {
+					setIsLoadingCorePrompts(false);
+					setCorePrompts([]);
+					return;
+				}
+
+				// Core Prompt selection: pair each keyword with its global usage count from counts,
+				// sort by ascending count (least-used first), then slice to corePromptCountSetting.
+				const sorted = uniqueKeywords
+					.map((name) => ({
+						name,
+						count: counts[name] ?? 0,
+					}))
+					.sort((a, b) => a.count - b.count);
+
+				setCorePrompts(sorted.slice(0, corePromptCountSetting));
+			} catch (err) {
+				if (err instanceof Error && err.name === "AbortError") {
+					setIsLoadingCorePrompts(false);
+					setCorePrompts([]);
+					return;
+				}
+				logger.error("Failed to fetch core prompt counts", err);
+				setIsLoadingCorePrompts(false);
+				setCorePrompts([]);
+			} finally {
+				if (!controller.signal.aborted) setIsLoadingCorePrompts(false);
+			}
+		};
+
+		fetchCore();
+
+		return () => {
+			controller.abort();
+			setIsLoadingCorePrompts(false);
+			setCorePrompts([]);
+		};
+	}, [image.positive_prompt_keywords, showCorePromptSetting, corePromptCountSetting]);
 
 	return (
 		<div
@@ -318,6 +398,46 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 						</div>
 					</div>
 				)}
+
+			{showCorePromptSetting && (isLoadingCorePrompts || corePrompts.length > 0) && (
+				<div className="meld-viewer-details-item">
+					<div className="meld-viewer-details-item__header">
+						<div className="meld-viewer-details-label">
+							Core Prompt
+							{isLoadingCorePrompts && (
+								<span className="meld-notes__status" role="status" aria-live="polite">
+									Loading...
+								</span>
+							)}
+						</div>
+						{!isLoadingCorePrompts && corePrompts.length > 0 && (
+							<button
+								type="button"
+								className="meld-viewer-details-copy-btn"
+								title="Copy"
+								aria-label="Copy core prompt"
+								onClick={(e) => {
+									e.stopPropagation();
+									handleCopy(corePrompts.map((cp) => cp.name).join(", "), "core_prompt");
+								}}
+							>
+								{copiedField === "core_prompt" ? <Check size={16} /> : <Copy size={16} />}
+							</button>
+						)}
+					</div>
+					<div className="meld-viewer-details-tags">
+						{corePrompts.map((cp, idx) => (
+							<span
+								key={`${cp.name}-${idx}`}
+								className="meld-viewer-details-tag"
+								title={`Usage count: ${cp.count}`}
+							>
+								{cp.name} <span className="meld-viewer-details-tag-count">({cp.count})</span>
+							</span>
+						))}
+					</div>
+				</div>
+			)}
 
 			{(isFullscreen
 				? settings["fullscreen.details.show_negative_prompt"]

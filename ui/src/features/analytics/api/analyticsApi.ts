@@ -78,3 +78,28 @@ export const refreshAnalytics = async (options?: { signal?: AbortSignal }): Prom
 	});
 	await handleResponse(res);
 };
+
+export const fetchAnalyticsCounts = async (
+	category: string,
+	names: string[],
+	options?: { signal?: AbortSignal },
+): Promise<Record<string, number>> => {
+	if (!names || names.length === 0) return {};
+
+	const res = await api.fetchApi("/meld/analytics/counts", {
+		method: "POST",
+		body: JSON.stringify({ category, names }),
+		signal: options?.signal,
+	});
+	const json = await parseJsonResponse<{
+		success: boolean;
+		data: Record<string, number>;
+		error?: string;
+	}>(res);
+
+	if (!json.success) {
+		throw new Error(json.error || "Failed to fetch analytics counts");
+	}
+
+	return json.data ?? {};
+};

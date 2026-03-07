@@ -39,6 +39,8 @@ export const SettingsModal: React.FC = () => {
 		maxNegativePromptLinesInput,
 		fullscreenMaxPositivePromptLinesInput,
 		fullscreenMaxNegativePromptLinesInput,
+		viewerCorePromptCountInput,
+		fullscreenCorePromptCountInput,
 		thumbnailSizeInput,
 	} = useSettingsModalLogic();
 
@@ -128,6 +130,7 @@ export const SettingsModal: React.FC = () => {
 						thumbnailWindowSizeInput={thumbnailWindowSizeInput}
 						maxPositivePromptLinesInput={maxPositivePromptLinesInput}
 						maxNegativePromptLinesInput={maxNegativePromptLinesInput}
+						viewerCorePromptCountInput={viewerCorePromptCountInput}
 					/>
 				);
 			case "Full Screen":
@@ -140,6 +143,7 @@ export const SettingsModal: React.FC = () => {
 						handleNumberBlur={handleNumberBlur}
 						maxPositivePromptLinesInput={fullscreenMaxPositivePromptLinesInput}
 						maxNegativePromptLinesInput={fullscreenMaxNegativePromptLinesInput}
+						fullscreenCorePromptCountInput={fullscreenCorePromptCountInput}
 					/>
 				);
 			case "Shortcuts":

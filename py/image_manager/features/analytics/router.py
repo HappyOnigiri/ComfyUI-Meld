@@ -5,7 +5,7 @@ from aiohttp import web
 
 from ...common.db.client import get_db_connection
 from ...common.schemas import ApiResponse
-from .service import CATEGORIES, get_category_list, get_summary, run_aggregation
+from .service import CATEGORIES, get_category_list, get_counts, get_summary, run_aggregation
 
 routes = web.RouteTableDef()
 
@@ -120,6 +120,71 @@ async def get_analytics_category(request: web.Request) -> web.Response:
             cursor.close()
     except Exception as e:
         logging.exception(f"[Meld] Failed to get analytics category: {e}")
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    finally:
+        if conn is not None:
+            conn.close()
+
+
+@routes.post("/meld/analytics/counts")
+async def post_analytics_counts(request: web.Request) -> web.Response:
+    """Return counts for specific names in a given category."""
+    conn = None
+    try:
+        try:
+            body = await request.json()
+        except Exception:
+            return web.json_response(
+                ApiResponse(success=False, error="Invalid JSON body").to_dict(),
+                status=400,
+            )
+
+        if not isinstance(body, dict):
+            return web.json_response(
+                ApiResponse(success=False, error="Request body must be a JSON object").to_dict(),
+                status=400,
+            )
+
+        category = body.get("category")
+        names = body.get("names", [])
+
+        if not category or category not in CATEGORIES:
+            return web.json_response(
+                ApiResponse(success=False, error=f"Invalid or missing category: {category}").to_dict(),
+                status=400,
+            )
+
+        if not isinstance(names, list):
+            return web.json_response(
+                ApiResponse(success=False, error="Names must be a list of strings").to_dict(),
+                status=400,
+            )
+
+        if not names:
+            return web.json_response(ApiResponse(success=True, data={}).to_dict())
+
+        if any(not isinstance(n, str) for n in names):
+            return web.json_response(
+                ApiResponse(success=False, error="All names must be strings").to_dict(),
+                status=400,
+            )
+
+        # Reject requests that exceed the name limit to prevent abuse
+        if len(names) > 500:
+            return web.json_response(
+                ApiResponse(success=False, error="Too many names, max 500").to_dict(),
+                status=400,
+            )
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        try:
+            counts = get_counts(cursor, category, names)
+            return web.json_response(ApiResponse(success=True, data=counts).to_dict())
+        finally:
+            cursor.close()
+    except Exception as e:
+        logging.exception(f"[Meld] Failed to get analytics counts: {e}")
         return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
     finally:
         if conn is not None:

@@ -43,10 +43,16 @@ export const useSettingsModalLogic = () => {
 	const [maxNegativePromptLinesInput, setMaxNegativePromptLinesInput] = useState<string>(
 		state.settings["viewer.details.max_negative_prompt_lines"].toString(),
 	);
+	const [viewerCorePromptCountInput, setViewerCorePromptCountInput] = useState<string>(
+		state.settings["viewer.details.core_prompt_count"].toString(),
+	);
 	const [fullscreenMaxPositivePromptLinesInput, setFullscreenMaxPositivePromptLinesInput] =
 		useState<string>(state.settings["fullscreen.details.max_positive_prompt_lines"].toString());
 	const [fullscreenMaxNegativePromptLinesInput, setFullscreenMaxNegativePromptLinesInput] =
 		useState<string>(state.settings["fullscreen.details.max_negative_prompt_lines"].toString());
+	const [fullscreenCorePromptCountInput, setFullscreenCorePromptCountInput] = useState<string>(
+		state.settings["fullscreen.details.core_prompt_count"].toString(),
+	);
 	const [thumbnailSizeInput, setThumbnailSizeInput] = useState<string>(
 		state.settings["sidebar.thumbnail_size"].toString(),
 	);
@@ -100,10 +106,14 @@ export const useSettingsModalLogic = () => {
 			setMaxPositivePromptLinesInput(value);
 		} else if (key === "viewer.details.max_negative_prompt_lines") {
 			setMaxNegativePromptLinesInput(value);
+		} else if (key === "viewer.details.core_prompt_count") {
+			setViewerCorePromptCountInput(value);
 		} else if (key === "fullscreen.details.max_positive_prompt_lines") {
 			setFullscreenMaxPositivePromptLinesInput(value);
 		} else if (key === "fullscreen.details.max_negative_prompt_lines") {
 			setFullscreenMaxNegativePromptLinesInput(value);
+		} else if (key === "fullscreen.details.core_prompt_count") {
+			setFullscreenCorePromptCountInput(value);
 		} else if (key === "sidebar.thumbnail_size") {
 			setThumbnailSizeInput(value);
 		}
@@ -144,6 +154,8 @@ export const useSettingsModalLogic = () => {
 			setMaxNegativePromptLinesInput(
 				localSettings["viewer.details.max_negative_prompt_lines"].toString(),
 			);
+		} else if (config.key === "viewer.details.core_prompt_count") {
+			setViewerCorePromptCountInput(localSettings["viewer.details.core_prompt_count"].toString());
 		} else if (config.key === "fullscreen.details.max_positive_prompt_lines") {
 			setFullscreenMaxPositivePromptLinesInput(
 				localSettings["fullscreen.details.max_positive_prompt_lines"].toString(),
@@ -151,6 +163,10 @@ export const useSettingsModalLogic = () => {
 		} else if (config.key === "fullscreen.details.max_negative_prompt_lines") {
 			setFullscreenMaxNegativePromptLinesInput(
 				localSettings["fullscreen.details.max_negative_prompt_lines"].toString(),
+			);
+		} else if (config.key === "fullscreen.details.core_prompt_count") {
+			setFullscreenCorePromptCountInput(
+				localSettings["fullscreen.details.core_prompt_count"].toString(),
 			);
 		} else if (config.key === "sidebar.thumbnail_size") {
 			setThumbnailSizeInput(localSettings["sidebar.thumbnail_size"].toString());
@@ -230,6 +246,8 @@ export const useSettingsModalLogic = () => {
 		maxNegativePromptLinesInput,
 		fullscreenMaxPositivePromptLinesInput,
 		fullscreenMaxNegativePromptLinesInput,
+		viewerCorePromptCountInput,
+		fullscreenCorePromptCountInput,
 		thumbnailSizeInput,
 	};
 };
