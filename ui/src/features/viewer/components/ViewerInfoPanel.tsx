@@ -100,8 +100,14 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 				const counts = await fetchAnalyticsCounts("positive_prompts", keywords, {
 					signal: controller.signal,
 				});
-				if (controller.signal.aborted) return;
+				if (controller.signal.aborted) {
+					setIsLoadingCorePrompts(false);
+					setCorePrompts([]);
+					return;
+				}
 
+				// Core Prompt selection: pair each keyword with its global usage count from counts,
+				// sort by ascending count (least-used first), then slice to corePromptCountSetting.
 				const sorted = keywords
 					.map((name) => ({
 						name,
@@ -117,6 +123,8 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 					return;
 				}
 				logger.error("Failed to fetch core prompt counts", err);
+				setIsLoadingCorePrompts(false);
+				setCorePrompts([]);
 			} finally {
 				if (!controller.signal.aborted) setIsLoadingCorePrompts(false);
 			}
