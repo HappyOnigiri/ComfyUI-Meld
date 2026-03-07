@@ -154,6 +154,7 @@ class MeldSaveImage:
         matching_strategy = db_settings.get("gallery.matching_strategy", "phash_created")
         parent_id = None
 
+        explicit_origin_match = False
         imagehash = MetadataHelper.get_imagehash()
         if origin_image is not None and imagehash is not None:
             try:
@@ -165,6 +166,8 @@ class MeldSaveImage:
                 parent_id = find_closest_parent(
                     o_phash, cursor, before_timestamp=time.time(), sort_strategy=matching_strategy
                 )
+                if parent_id is not None:
+                    explicit_origin_match = True
             except Exception:
                 pass
 
@@ -189,41 +192,41 @@ class MeldSaveImage:
                 pass
 
         # When positive is unconnected and Source Image is specified, prefer Source Image's prompts
-        if origin_image is not None and parent_id is not None:
+        if explicit_origin_match and parent_id is not None:
             if not resolved_positive:
-                cursor.execute(
-                    "SELECT pp.name, r.strength FROM positive_prompts pp "
-                    "JOIN positive_prompt_image_relations r ON pp.id = r.positive_prompt_id "
-                    "WHERE r.image_id = ?",
-                    (parent_id,),
-                )
-                parent_pos_rows = cursor.fetchall()
-                if parent_pos_rows:
-                    resolved_positive = ", ".join(
-                        row[0] if row[1] == 1.0 else f"({row[0]}:{row[1]})" for row in parent_pos_rows
-                    )
+                cursor.execute("SELECT positive_prompt FROM images WHERE id = ?", (parent_id,))
+                row = cursor.fetchone()
+                if row and row[0]:
+                    resolved_positive = row[0]
                 else:
-                    cursor.execute("SELECT positive_prompt FROM images WHERE id = ?", (parent_id,))
-                    row = cursor.fetchone()
-                    if row and row[0]:
-                        resolved_positive = row[0]
+                    cursor.execute(
+                        "SELECT pp.name, r.strength FROM positive_prompts pp "
+                        "JOIN positive_prompt_image_relations r ON pp.id = r.positive_prompt_id "
+                        "WHERE r.image_id = ?",
+                        (parent_id,),
+                    )
+                    parent_pos_rows = cursor.fetchall()
+                    if parent_pos_rows:
+                        resolved_positive = ", ".join(
+                            row[0] if row[1] == 1.0 else f"({row[0]}:{row[1]})" for row in parent_pos_rows
+                        )
             if not resolved_negative:
-                cursor.execute(
-                    "SELECT np.name, r.strength FROM negative_prompts np "
-                    "JOIN negative_prompt_image_relations r ON np.id = r.negative_prompt_id "
-                    "WHERE r.image_id = ?",
-                    (parent_id,),
-                )
-                parent_neg_rows = cursor.fetchall()
-                if parent_neg_rows:
-                    resolved_negative = ", ".join(
-                        row[0] if row[1] == 1.0 else f"({row[0]}:{row[1]})" for row in parent_neg_rows
-                    )
+                cursor.execute("SELECT negative_prompt FROM images WHERE id = ?", (parent_id,))
+                row = cursor.fetchone()
+                if row and row[0]:
+                    resolved_negative = row[0]
                 else:
-                    cursor.execute("SELECT negative_prompt FROM images WHERE id = ?", (parent_id,))
-                    row = cursor.fetchone()
-                    if row and row[0]:
-                        resolved_negative = row[0]
+                    cursor.execute(
+                        "SELECT np.name, r.strength FROM negative_prompts np "
+                        "JOIN negative_prompt_image_relations r ON np.id = r.negative_prompt_id "
+                        "WHERE r.image_id = ?",
+                        (parent_id,),
+                    )
+                    parent_neg_rows = cursor.fetchall()
+                    if parent_neg_rows:
+                        resolved_negative = ", ".join(
+                            row[0] if row[1] == 1.0 else f"({row[0]}:{row[1]})" for row in parent_neg_rows
+                        )
 
         # Rebuild pos_list/neg_list after potential parent inheritance
         pos_list = MetadataHelper.smart_split(resolved_positive) if resolved_positive else []

@@ -86,7 +86,9 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 				? image.positive_prompt_keywords
 				: [];
 
-		if (keywords.length === 0) {
+		const uniqueKeywords = Array.from(new Set(keywords));
+
+		if (uniqueKeywords.length === 0) {
 			setIsLoadingCorePrompts(false);
 			setCorePrompts([]);
 			return;
@@ -97,7 +99,7 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 			setIsLoadingCorePrompts(true);
 			try {
 				const { fetchAnalyticsCounts } = await import("../../analytics/api/analyticsApi");
-				const counts = await fetchAnalyticsCounts("positive_prompts", keywords, {
+				const counts = await fetchAnalyticsCounts("positive_prompts", uniqueKeywords, {
 					signal: controller.signal,
 				});
 				if (controller.signal.aborted) {
@@ -108,7 +110,7 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 
 				// Core Prompt selection: pair each keyword with its global usage count from counts,
 				// sort by ascending count (least-used first), then slice to corePromptCountSetting.
-				const sorted = keywords
+				const sorted = uniqueKeywords
 					.map((name) => ({
 						name,
 						count: counts[name] ?? 0,
@@ -146,53 +148,51 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 			{(isFullscreen
 				? settings["fullscreen.details.show_filename"]
 				: settings["viewer.details.show_filename"]) !== "none" && (
-				<div className="meld-viewer-details-item">
-					<div className="meld-viewer-details-item__header">
-						<div className="meld-viewer-details-label">
-							{(isFullscreen
-								? settings["fullscreen.details.show_filename"]
-								: settings["viewer.details.show_filename"]) === "filepath"
-								? "Filepath"
-								: "Filename"}
-						</div>
-						<button
-							type="button"
-							className="meld-viewer-details-copy-btn"
-							title="Copy"
-							aria-label={
-								(isFullscreen
+					<div className="meld-viewer-details-item">
+						<div className="meld-viewer-details-item__header">
+							<div className="meld-viewer-details-label">
+								{(isFullscreen
 									? settings["fullscreen.details.show_filename"]
 									: settings["viewer.details.show_filename"]) === "filepath"
-									? "Copy filepath"
-									: "Copy filename"
-							}
-							onClick={(e) => {
-								e.stopPropagation();
-								const text =
+									? "Filepath"
+									: "Filename"}
+							</div>
+							<button
+								type="button"
+								className="meld-viewer-details-copy-btn"
+								title="Copy"
+								aria-label={
 									(isFullscreen
 										? settings["fullscreen.details.show_filename"]
 										: settings["viewer.details.show_filename"]) === "filepath"
-										? `${image.type !== "custom" ? `${image.type}/` : ""}${
-												image.subfolder ? `${image.subfolder}/` : ""
+										? "Copy filepath"
+										: "Copy filename"
+								}
+								onClick={(e) => {
+									e.stopPropagation();
+									const text =
+										(isFullscreen
+											? settings["fullscreen.details.show_filename"]
+											: settings["viewer.details.show_filename"]) === "filepath"
+											? `${image.type !== "custom" ? `${image.type}/` : ""}${image.subfolder ? `${image.subfolder}/` : ""
 											}${image.filename}`
-										: image.filename;
-								handleCopy(text, "filepath");
-							}}
-						>
-							{copiedField === "filepath" ? <Check size={16} /> : <Copy size={16} />}
-						</button>
-					</div>
-					<div className="meld-viewer-details-value">
-						{(isFullscreen
-							? settings["fullscreen.details.show_filename"]
-							: settings["viewer.details.show_filename"]) === "filepath"
-							? `${image.type !== "custom" ? `${image.type}/` : ""}${
-									image.subfolder ? `${image.subfolder}/` : ""
+											: image.filename;
+									handleCopy(text, "filepath");
+								}}
+							>
+								{copiedField === "filepath" ? <Check size={16} /> : <Copy size={16} />}
+							</button>
+						</div>
+						<div className="meld-viewer-details-value">
+							{(isFullscreen
+								? settings["fullscreen.details.show_filename"]
+								: settings["viewer.details.show_filename"]) === "filepath"
+								? `${image.type !== "custom" ? `${image.type}/` : ""}${image.subfolder ? `${image.subfolder}/` : ""
 								}${image.filename}`
-							: image.filename}
+								: image.filename}
+						</div>
 					</div>
-				</div>
-			)}
+				)}
 
 			{(isFullscreen
 				? settings["fullscreen.details.show_dimensions"]
@@ -224,27 +224,27 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 			{(isFullscreen
 				? settings["fullscreen.details.show_created_at"]
 				: settings["viewer.details.show_created_at"]) && (
-				<div className="meld-viewer-details-item">
-					<div className="meld-viewer-details-item__header">
-						<div className="meld-viewer-details-label">Created At</div>
-						<button
-							type="button"
-							className="meld-viewer-details-copy-btn"
-							title="Copy"
-							aria-label="Copy created timestamp"
-							onClick={(e) => {
-								e.stopPropagation();
-								handleCopy(new Date(image.created_at * 1000).toLocaleString(), "created_at");
-							}}
-						>
-							{copiedField === "created_at" ? <Check size={16} /> : <Copy size={16} />}
-						</button>
+					<div className="meld-viewer-details-item">
+						<div className="meld-viewer-details-item__header">
+							<div className="meld-viewer-details-label">Created At</div>
+							<button
+								type="button"
+								className="meld-viewer-details-copy-btn"
+								title="Copy"
+								aria-label="Copy created timestamp"
+								onClick={(e) => {
+									e.stopPropagation();
+									handleCopy(new Date(image.created_at * 1000).toLocaleString(), "created_at");
+								}}
+							>
+								{copiedField === "created_at" ? <Check size={16} /> : <Copy size={16} />}
+							</button>
+						</div>
+						<div className="meld-viewer-details-value">
+							{new Date(image.created_at * 1000).toLocaleString()}
+						</div>
 					</div>
-					<div className="meld-viewer-details-value">
-						{new Date(image.created_at * 1000).toLocaleString()}
-					</div>
-				</div>
-			)}
+				)}
 
 			{image.deleted_at && (
 				<div className="meld-viewer-details-item">
@@ -402,7 +402,7 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 					<div className="meld-viewer-details-item__header">
 						<div className="meld-viewer-details-label">
 							Core Prompt
-							{isLoadingCorePrompts && <span className="meld-notes__status">Loading...</span>}
+							{isLoadingCorePrompts && <span className="meld-notes__status" role="status" aria-live="polite">Loading...</span>}
 						</div>
 						{!isLoadingCorePrompts && corePrompts.length > 0 && (
 							<button
