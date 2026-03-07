@@ -8794,6 +8794,7 @@ const ae = Ry()(
         };
       }),
       removeImages: (t) => e((n) => {
+        if (!t) return n;
         const r = t.map(String), s = new Set(r), a = { ...n.buckets };
         let o = !1;
         for (const [c, d] of Object.entries(a)) {
@@ -9069,11 +9070,18 @@ const Bc = (e) => e === "rect" || e === "ellipse" || e === "lasso", Si = ({
   const d = i ?? c.current, { injectMaskToGraph: h } = Wy(), { executeWorkflow: v } = ki();
   Me({ onEscape: s });
   const g = p.useRef(null), b = p.useRef(null), w = p.useRef(null), x = p.useRef(null), [S, m] = p.useState(!1), [f, u] = p.useState(() => {
-    const V = localStorage.getItem("meld-mask-tool");
-    return Bc(V) ? V : "rect";
+    try {
+      const V = typeof localStorage < "u" ? localStorage.getItem("meld-mask-tool") : null;
+      return Bc(V) ? V : "rect";
+    } catch {
+      return "rect";
+    }
   });
   p.useEffect(() => {
-    Bc(f) && localStorage.setItem("meld-mask-tool", f);
+    try {
+      typeof localStorage < "u" && Bc(f) && localStorage.setItem("meld-mask-tool", f);
+    } catch {
+    }
   }, [f]);
   const [y, _] = p.useState({ x: 0, y: 0 }), [k, j] = p.useState({ x: 0, y: 0 }), [N, D] = p.useState([]), [I, L] = p.useState(null), [O, Q] = p.useState(!1), [E, P] = p.useState(1), [M, A] = p.useState({ x: 0, y: 0 }), [C, T] = p.useState(!1), [z, U] = p.useState(!1), R = p.useRef(null), $ = p.useCallback(() => {
     const V = w.current, H = b.current;
