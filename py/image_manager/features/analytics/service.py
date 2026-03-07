@@ -8,7 +8,7 @@ Runs in background on startup; API reads from cache for instant response.
 import logging
 import sqlite3
 import time
-from typing import Any, Dict, List
+from typing import Any
 
 from ...common.db.client import get_db_connection
 
@@ -234,8 +234,8 @@ def get_category_list(
 def get_counts(
     cursor: sqlite3.Cursor,
     category: str,
-    names: List[str],
-) -> Dict[str, int]:
+    names: list[str],
+) -> dict[str, int]:
     """
     Read counts for specific names in a category.
     Returns {name: count}.

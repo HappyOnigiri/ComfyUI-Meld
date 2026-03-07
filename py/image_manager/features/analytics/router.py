@@ -125,6 +125,7 @@ async def get_analytics_category(request: web.Request) -> web.Response:
         if conn is not None:
             conn.close()
 
+
 @routes.post("/meld/analytics/counts")
 async def post_analytics_counts(request: web.Request) -> web.Response:
     """Return counts for specific names in a given category."""
