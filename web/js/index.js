@@ -17811,7 +17811,6 @@ const yw = () => {
   {
     className: "meld-tab-select-modal__dialog",
     onClick: (r) => r.stopPropagation(),
-    onKeyDown: (r) => r.stopPropagation(),
     role: "dialog",
     "aria-modal": "true",
     "aria-label": "Select Light Table tab",

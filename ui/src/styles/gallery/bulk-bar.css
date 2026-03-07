@@ -184,3 +184,8 @@
 	background: var(--tab-color, #444);
 	color: white;
 }
+
+.meld-tab-select-modal__tab-btn:focus-visible {
+	outline: 2px solid var(--meld-accent-color, #4488ff);
+	outline-offset: 2px;
+}

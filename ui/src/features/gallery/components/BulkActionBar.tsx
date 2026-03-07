@@ -35,7 +35,6 @@ const TabSelectModal: React.FC<{
 			<div
 				className="meld-tab-select-modal__dialog"
 				onClick={(e) => e.stopPropagation()}
-				onKeyDown={(e) => e.stopPropagation()}
 				role="dialog"
 				aria-modal="true"
 				aria-label="Select Light Table tab"
