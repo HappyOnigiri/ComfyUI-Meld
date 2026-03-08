@@ -1,6 +1,6 @@
 ---
 description: Rules for maintaining the architecture map and project structure awareness
-globs: ["**/*"]
+alwaysApply: true
 ---
 
 # Architecture Map Maintenance Rules
