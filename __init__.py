@@ -40,7 +40,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
 }
 
 # Conditional registration of Meld
-if os.environ.get("MELD_DEV") == "true":
+if os.environ.get("COMFYUI_MELD_DEV") == "true":
     NODE_CLASS_MAPPINGS["MeldSaveImage"] = MeldSaveImage
     NODE_DISPLAY_NAME_MAPPINGS["MeldSaveImage"] = "Meld Save Image"
     print("\033[34m[Meld] Meld enabled (Dev Mode)\033[0m")

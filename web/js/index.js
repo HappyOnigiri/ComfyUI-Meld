@@ -6456,7 +6456,7 @@ const zg = async () => {
 };
 let Ns = !1;
 const Og = (e) => {
-  Ns = e, Ns && console.log("[Meld] Logger initialized in DEV mode (MELD_DEV=true).");
+  Ns = e, Ns && console.log("[Meld] Logger initialized in DEV mode (COMFYUI_MELD_DEV=true).");
 }, Fg = (...e) => {
   Ns && console.log("[Meld]", ...e);
 }, $g = (...e) => {

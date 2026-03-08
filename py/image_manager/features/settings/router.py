@@ -18,7 +18,7 @@ async def get_settings(request: web.Request) -> web.Response:
         conn.close()
 
         settings = {
-            "dev_mode": os.environ.get("MELD_DEV") == "true",
+            "dev_mode": os.environ.get("COMFYUI_MELD_DEV") == "true",
             "gallery.show_parent_image": True,
             "gallery.show_parent_images": False,
             "gallery.trash_retention_days": 30,

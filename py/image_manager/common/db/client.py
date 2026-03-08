@@ -73,7 +73,7 @@ class TraceConnection(sqlite3.Connection):
 
 def get_db_connection() -> sqlite3.Connection:
     conn: sqlite3.Connection
-    meld_dev = os.environ.get("MELD_DEV", "").strip().lower()
+    meld_dev = os.environ.get("COMFYUI_MELD_DEV", "").strip().lower()
     if meld_dev in ("true", "1", "yes"):
         conn = sqlite3.connect(DB_PATH, factory=TraceConnection)
     else:

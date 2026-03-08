@@ -1,6 +1,6 @@
 /**
  * Meld dedicated logger.
- * Investigation logs (log/warn) are only output when MELD_DEV=true (dev mode).
+ * Investigation logs (log/warn) are only output when COMFYUI_MELD_DEV=true (dev mode).
  * Error logs are output regardless of dev mode.
  *
  * This file is the canonical implementation of logging; biome-ignore is required
@@ -16,7 +16,7 @@ export const initLogger = (devMode: boolean) => {
 	isDevMode = devMode;
 	if (isDevMode) {
 		// biome-ignore lint/suspicious/noConsole: Logger implementation
-		console.log("[Meld] Logger initialized in DEV mode (MELD_DEV=true).");
+		console.log("[Meld] Logger initialized in DEV mode (COMFYUI_MELD_DEV=true).");
 	}
 };
 
@@ -43,7 +43,7 @@ export const warn = (...args: unknown[]) => {
 
 /**
  * Log error message.
- * Error logs are output regardless of dev mode (MELD_DEV status).
+ * Error logs are output regardless of dev mode (COMFYUI_MELD_DEV status).
  */
 export const error = (...args: unknown[]) => {
 	// biome-ignore lint/suspicious/noConsole: Logger implementation
