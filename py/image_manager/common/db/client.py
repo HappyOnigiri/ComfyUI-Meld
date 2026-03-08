@@ -7,6 +7,8 @@ from collections.abc import Callable, Iterable
 from datetime import datetime
 from typing import Any, TypeVar, overload
 
+from ..env import is_dev_mode
+
 # --- DB Settings ---
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "data")
 os.makedirs(DATA_DIR, exist_ok=True)
@@ -73,8 +75,7 @@ class TraceConnection(sqlite3.Connection):
 
 def get_db_connection() -> sqlite3.Connection:
     conn: sqlite3.Connection
-    meld_dev = os.environ.get("MELD_DEV", "").strip().lower()
-    if meld_dev in ("true", "1", "yes"):
+    if is_dev_mode():
         conn = sqlite3.connect(DB_PATH, factory=TraceConnection)
     else:
         conn = sqlite3.connect(DB_PATH)

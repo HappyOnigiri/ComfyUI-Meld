@@ -30,7 +30,9 @@ describe("logger", () => {
 	describe("initLogger", () => {
 		it("outputs initialization message when dev mode is enabled", () => {
 			initLogger(true);
-			expect(logSpy).toHaveBeenCalledWith("[Meld] Logger initialized in DEV mode (MELD_DEV=true).");
+			expect(logSpy).toHaveBeenCalledWith(
+				"[Meld] Logger initialized in DEV mode (COMFYUI_MELD_DEV=true).",
+			);
 		});
 
 		it("does not output initialization message when dev mode is disabled", () => {
