@@ -1,8 +1,7 @@
-import os
-
 from aiohttp import web
 
 from ...common.db.client import get_db_connection
+from ...common.env import is_dev_mode
 from ...common.schemas import ApiResponse, UpdateSettingsRequest
 from .repository import get_all_settings, upsert_setting
 
@@ -18,7 +17,7 @@ async def get_settings(request: web.Request) -> web.Response:
         conn.close()
 
         settings = {
-            "dev_mode": os.environ.get("COMFYUI_MELD_DEV") == "true",
+            "dev_mode": is_dev_mode(),
             "gallery.show_parent_image": True,
             "gallery.show_parent_images": False,
             "gallery.trash_retention_days": 30,

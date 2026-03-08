@@ -1,6 +1,5 @@
-import os
-
 from .py.auto_exposure.nodes import MeldAutoExposure
+from .py.image_manager.common.env import is_dev_mode
 from .py.load_image_configs import (
     MeldImageLoader,
     MeldImageLoaderBatch,
@@ -39,10 +38,9 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "MeldSaveImage": "Meld Save Image",
 }
 
-# Conditional registration of Meld
-if os.environ.get("COMFYUI_MELD_DEV") == "true":
-    NODE_CLASS_MAPPINGS["MeldSaveImage"] = MeldSaveImage
-    NODE_DISPLAY_NAME_MAPPINGS["MeldSaveImage"] = "Meld Save Image"
+
+# Conditional dev mode logging
+if is_dev_mode():
     print("\033[34m[Meld] Meld enabled (Dev Mode)\033[0m")
 
 WEB_DIRECTORY = "web"
