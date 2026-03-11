@@ -1,7 +1,14 @@
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 
 language: "en-US"
-tone_instructions: "Provide the PR summary and review comments in both English and Japanese. Use <details> tags to make the Japanese translation collapsible."
+tone_instructions: |
+  Provide the PR summary and review comments in both English and Japanese.
+  Use <details> tags to make the Japanese translation collapsible.
+  Do not post review comments that are framed as "acceptable for now, but worth addressing in the future."
+  Only flag issues that are genuinely problematic and require attention.
+  Avoid advisory or low-priority suggestions about future improvements.
+  Do not point out code formatting issues or minor refactoring.
+  However, "Nitpick" comments are allowed and should not be entirely suppressed if they contain important insights or logical concerns.
 
 reviews:
   profile: "chill"
