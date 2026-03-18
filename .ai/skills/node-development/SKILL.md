@@ -118,7 +118,7 @@ def tensor2pil(image):
 
 ```
 
-## 4. Registration (**init**.py)
+## 4. Registration (`__init__.py`)
 
 Always remind me to update `__init__.py` to export the node.
 
