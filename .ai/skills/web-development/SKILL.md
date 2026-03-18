@@ -40,11 +40,8 @@ const ext: ComfyExtension = {
     if (nodeData.name === "MyTargetNode") {
       // Safe prototype patching
       const orig = nodeType.prototype.onExecuted;
-      nodeType.prototype.onExecuted = function (
-        this: ComfyNode,
-        message: unknown,
-      ) {
-        orig?.apply(this, arguments);
+      nodeType.prototype.onExecuted = function (this: ComfyNode, ...args: unknown[]) {
+        orig?.apply(this, args);
         // logic...
       };
     }
