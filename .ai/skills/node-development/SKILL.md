@@ -214,7 +214,8 @@ Rules:
 
 When modifying custom node functionality (adding features or changing behavior), you MUST update the documentation.
 
-- **Trigger**: Functional changes or new features (not required for bug fixes).
+- **Trigger**: User-visible functional changes or new features.
+  (Not required for internal refactors, development-only guidance updates, bug fixes, or non-user-visible maintenance.)
 - **Scope**: Update both Japanese (`docs/ja/`) and English (`docs/en/`) documentation.
 - **Tool**: Use the `document-custom-node` skill to ensure correct formatting.
 - **Location**: Documentation files are located in the `docs/` directory.
