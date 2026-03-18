@@ -39,7 +39,7 @@ Before creating a Pull Request, run `git log --oneline --decorate -n 30` and det
 2.  **Check for Existing PR:** Run `gh pr view --json number` to see if a PR already exists for the current branch.
 3.  **Create or Update:**
     - If no PR exists: Use the detected base branch and run:
-      `gh pr create --base <base_branch> --title "..." --body-file tmp/pr_body.txt`
+      `gh pr create --draft --base <base_branch> --title "..." --body-file tmp/pr_body.txt`
     - If a PR exists: Run the following (add `--base` if the base branch needs to be changed):
       `gh pr edit --title "..." --body-file tmp/pr_body.txt`
 4.  **Verification:** Run `gh pr view --json body --jq .body` to check formatting and line breaks.
