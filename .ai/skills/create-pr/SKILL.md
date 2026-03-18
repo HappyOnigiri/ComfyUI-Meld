@@ -15,7 +15,7 @@ Before creating a Pull Request, run `git log --oneline --decorate -n 30` and det
   1. Look for the first labeled branch name in the commit history that appears "below" (older than) the current branch (`HEAD -> ...`).
   2. Targeted names are those in parentheses, such as `(origin/main, main)` or `(origin/release/..., release/...)`.
   3. **Ignore the current branch name.**
-  4. Use the identified name (e.g., `main` or `release/summary-extensions`) as the base branch.
+  4. When selecting the base branch name from the parentheses, **prefer the plain branch name** (one that does not start with `origin/`). For example, from `(origin/main, main)` choose `main`. If only remote-tracking references exist (e.g., `(origin/main)`), strip the `origin/` prefix and use the remainder (e.g., `main`). Never pass an `origin/`-prefixed name to `--base`.
 - **Note:** If the base branch cannot be determined with certainty, default to `main`.
 
 ## 2. Prerequisites (Git/Remote)
