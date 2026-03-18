@@ -34,20 +34,22 @@ Follow this format and these rules strictly:
 `<type>: <description in English>`
 
 **Rules:**
+
 - **Language:** The description must be in **English**.
 - **Structure:** Use **exactly one line**. Do not include line breaks or multi-line details.
 - **Tone:** Use the **imperative mood** (e.g., "Add feature" instead of "Added feature").
 - **Types:** Use one of the following prefixes:
-    - `feat`: New feature
-    - `fix`: Bug fix
-    - `docs`: Documentation changes only
-    - `style`: Changes that do not affect the meaning of the code (white-space, formatting, etc.)
-    - `refactor`: Code changes that neither fix a bug nor add a feature
-    - `perf`: Code changes that improve performance
-    - `test`: Adding missing tests or correcting existing tests
-    - `chore`: Changes to the build process or auxiliary tools and libraries such as documentation generation
+  - `feat`: New feature
+  - `fix`: Bug fix
+  - `docs`: Documentation changes only
+  - `style`: Changes that do not affect the meaning of the code (white-space, formatting, etc.)
+  - `refactor`: Code changes that neither fix a bug nor add a feature
+  - `perf`: Code changes that improve performance
+  - `test`: Adding missing tests or correcting existing tests
+  - `chore`: Changes to the build process or auxiliary tools and libraries such as documentation generation
 
 **Examples:**
+
 - `feat: add cancel button to order confirmation screen`
 - `fix: resolve error occurring in specific environment during login`
 - `chore: fix typos in README.md`

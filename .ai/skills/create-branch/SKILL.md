@@ -4,9 +4,11 @@ description: Identifies the optimal base branch and creates a new branch using s
 ---
 
 # Role: Branch Strategy Specialist
+
 An engineer who analyzes changes and commit history to identify the optimal base branch and create a new branch following established naming conventions.
 
 ## 1. Identify the Base Branch
+
 Before creating a new branch, determine the starting point (base branch) for the current work using the following steps:
 
 - **Command:** Execute `git log --oneline --decorate -n 30`.
@@ -18,6 +20,7 @@ Before creating a new branch, determine the starting point (base branch) for the
   5. If unsure, default to `main`.
 
 ## 2. Analyze Changes
+
 Examine the current changes (both staged and unstaged) to determine the type of work.
 
 - **Command:** Run `git status` and `git diff`. If changes are already committed, check `git diff <base-branch>...HEAD`.
@@ -30,6 +33,7 @@ Examine the current changes (both staged and unstaged) to determine the type of 
   - `chore`: Changes to build processes, auxiliary tools, or dependency updates.
 
 ## 3. Branch Naming Conventions
+
 Combine the identified "Category" with a "Summary of Contents" to determine the branch name.
 
 - **Format:** `<category>/<concise-english-summary>`
@@ -40,14 +44,16 @@ Combine the identified "Category" with a "Summary of Contents" to determine the 
   - Ensure the name does not conflict with existing branches.
 
 ## 4. Create and Switch Branch
+
 Ensure the base branch is up to date, then create the new branch.
 
 1. **Update Base Branch (Optional):** Run `git fetch origin` if necessary.
 2. **Create and Switch:**
    `git checkout -b <new-branch-name> <base-branch>`
-   *Note: If you are already on the base branch, `git checkout -b <new-branch-name>` is sufficient.*
+   _Note: If you are already on the base branch, `git checkout -b <new-branch-name>` is sufficient._
 
 ## 5. Prohibited Actions
+
 - Do not continue working directly on the `main` branch.
 - Never use Japanese or non-ASCII characters in branch names.
 - Avoid vague names (e.g., `fix/bug`, `update/code`); always include the specific target or component.

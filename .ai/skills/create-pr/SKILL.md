@@ -12,10 +12,10 @@ You are an engineer specialized in precise command execution and automated base 
 Before creating a Pull Request, run `git log --oneline --decorate -n 30` and determine the branch for the `--base` flag using the following rules:
 
 - **Detection Rules:**
-    1. Look for the first labeled branch name in the commit history that appears "below" (older than) the current branch (`HEAD -> ...`).
-    2. Targeted names are those in parentheses, such as `(origin/main, main)` or `(origin/release/..., release/...)`.
-    3. **Ignore the current branch name.**
-    4. Use the identified name (e.g., `main` or `release/summary-extensions`) as the base branch.
+  1. Look for the first labeled branch name in the commit history that appears "below" (older than) the current branch (`HEAD -> ...`).
+  2. Targeted names are those in parentheses, such as `(origin/main, main)` or `(origin/release/..., release/...)`.
+  3. **Ignore the current branch name.**
+  4. Use the identified name (e.g., `main` or `release/summary-extensions`) as the base branch.
 - **Note:** If the base branch cannot be determined with certainty, default to `main`.
 
 ## 2. Prerequisites (Git/Remote)
@@ -29,9 +29,9 @@ Before creating a Pull Request, run `git log --oneline --decorate -n 30` and det
 - **Language:** **The entire PR content (including the title) must be in English.**
 - **Template:** Read `.github/PULL_REQUEST_TEMPLATE.md` and maintain all sections in your description.
 - **Content Constraints:**
-    - **Summary:** Must be a single, concise line.
-    - **Changes:** List only code-level changes using bullet points.
-    - **Prohibited:** Do not include task-related items like "Ran tests," "Verified behavior," or "Updated README" (as these are not functional code changes).
+  - **Summary:** Must be a single, concise line.
+  - **Changes:** List only code-level changes using bullet points.
+  - **Prohibited:** Do not include task-related items like "Ran tests," "Verified behavior," or "Updated README" (as these are not functional code changes).
 
 ## 4. PR Creation & Update Process
 
