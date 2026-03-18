@@ -65,6 +65,8 @@ class ExampleNode:
                 "image": ("IMAGE",),
                 "int_val": ("INT", {"default": 0, "min": 0, "max": 10}),
             },
+            "optional": {},
+            "hidden": {},
         }
 
     RETURN_TYPES = ("IMAGE",)
@@ -91,7 +93,9 @@ def INPUT_TYPES(s):
     return {
         "required": {
             "ckpt_name": (folder_paths.get_filename_list("checkpoints"), ),
-        }
+        },
+        "optional": {},
+        "hidden": {},
     }
 
 ```
