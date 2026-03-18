@@ -33,11 +33,6 @@ ENV/
 # IDEs and editors
 .vscode/
 .idea/
-.cursor/*
-!.cursor/rules/
-!.cursor/commands/
-!.cursor/skills/
-!.cursor/skills/**
 *.swp
 *.swo
 .history/
@@ -79,3 +74,13 @@ package-lock.json
 
 # Keep directories
 !.gitkeep
+
+# AI Rules
+/AGENTS.md
+/.cursor
+/.agent
+/.agents
+/.claude
+/.cursorignore
+/.aiignore
+/.claudeignore
