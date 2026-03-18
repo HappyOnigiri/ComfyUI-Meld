@@ -1,7 +1,8 @@
-.PHONY: ci test-all lint lint-py lint-ui lint-misc lint-scripts build-ui watch-ui local-check-scripts check-scripts check-ts-rules check-non-ascii repomix loc setup-hooks sync
+.PHONY: ci test-all lint lint-py lint-ui lint-misc lint-scripts build-ui watch-ui local-check-scripts check-scripts check-ts-rules check-non-ascii repomix loc setup sync-ruler
 
-setup-hooks:
+setup:
 	git config core.hooksPath scripts/git-hooks
+	@echo "setup: git hooks configured (scripts/git-hooks)"
 
 
 # -----------------------------------------------------------------------------
@@ -106,13 +107,5 @@ repomix:
 repomix-%:
 	$(PYTHON) scripts/generate_repomix.py repomix-$*
 
-sync:
-	@$(PYTHON) scripts/sync_agent_config.py
-	@echo "Synchronized from agent-config/ (source of truth):"
-	@echo "  - agent-config/ -> .cursor/, .agents/"
-	@echo "  - agent-config/rules/ -> CLAUDE.md, CLAUDE.local.md"
-	@echo "  - agent-config/skills/ -> .claude/skills/"
-	@echo "  - agent-config/ignore -> .cursorignore, .aiignore, .claudeignore"
-	@echo "Note: .agents/ and .aiignore: exclude via .git/info/exclude for Antigravity."
-	@echo "Note: CLAUDE.local.md is git-ignored (*.local.* pattern)."
-	@echo "Note: Commit agent-config/, CLAUDE.md, .claude/, .claudeignore to git."
+sync-ruler:
+	@sh scripts/sync.sh
