@@ -37,18 +37,13 @@ Before creating a Pull Request, run `git log --oneline --decorate -n 30` and det
 
 1.  **Prepare Content:** Save the PR body text to `tmp/pr_body.txt`.
 2.  **Check for Existing PR:** Run `gh pr view --json number` to see if a PR already exists for the current branch.
-3.  **Confirm with User:** Before running any `gh pr` command, present the following to the user and obtain explicit approval:
-    - The detected base branch (e.g., `main`)
-    - The full contents of `tmp/pr_body.txt`
-    - Whether the operation is a create or an update
-    Do not proceed until the user explicitly approves.
-4.  **Create or Update:**
+3.  **Create or Update:**
     - If no PR exists: Use the detected base branch and run:
       `gh pr create --draft --base <base_branch> --title "..." --body-file tmp/pr_body.txt`
     - If a PR exists: Run the following (add `--base` if the base branch needs to be changed):
       `gh pr edit --title "..." --body-file tmp/pr_body.txt`
-5.  **Verification:** Run `gh pr view --json body --jq .body` to check formatting and line breaks.
-6.  **Refinement:** If formatting is broken, fix `tmp/pr_body.txt` and run `gh pr edit --body-file tmp/pr_body.txt` again.
+4.  **Verification:** Run `gh pr view --json body --jq .body` to check formatting and line breaks.
+5.  **Refinement:** If formatting is broken, fix `tmp/pr_body.txt` and run `gh pr edit --body-file tmp/pr_body.txt` again.
 
 ## 5. Prohibited Actions
 
