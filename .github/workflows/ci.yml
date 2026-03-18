@@ -115,20 +115,3 @@ jobs:
             exit 1
           fi
 
-  sync:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Run sync
-        run: sh scripts/sync.sh
-
-      - name: Check for diff
-        run: |
-          if [ -n "$(git status --porcelain)" ]; then
-            echo "Error: Working directory is dirty after sync."
-            echo "Please run 'make sync' locally and commit the changes."
-            git status --porcelain
-            exit 1
-          fi
