@@ -9,20 +9,20 @@
 
 ### Required
 
-| Name | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
+| Name           | Type   | Default       | Description                                                   |
+| :------------- | :----- | :------------ | :------------------------------------------------------------ |
 | **param_name** | `TYPE` | `default_val` | Description of the parameter.<br>Use line breaks for details. |
 
 ### Optional
 
-| Name | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
+| Name           | Type   | Default       | Description                   |
+| :------------- | :----- | :------------ | :---------------------------- |
 | **param_name** | `TYPE` | `default_val` | Description of the parameter. |
 
 ## Output
 
-| Name | Type | Description |
-| :--- | :--- | :--- |
+| Name            | Type   | Description                |
+| :-------------- | :----- | :------------------------- |
 | **output_name** | `TYPE` | Description of the output. |
 
 ## Tips & Mechanism

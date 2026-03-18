@@ -12,6 +12,7 @@ When writing code, you must strictly adhere to the ComfyUI architecture and API 
 Do NOT write generic Python scripts; always structure code as a ComfyUI Node Class.
 
 ## 1. Node Class Structure (Mandatory)
+
 Every node must be a Python class with the following specific attributes and methods:
 
 - **@classmethod INPUT_TYPES(s)**:
@@ -27,11 +28,13 @@ Every node must be a Python class with the following specific attributes and met
 ## 2. Critical Implementation Rules
 
 ### Return Values (Most Important)
+
 - **ALWAYS return a tuple**, even if there is only one output.
   - Correct: `return (output_image,)`
   - Incorrect: `return output_image`
 
 ### Data Types & Widgets
+
 - **Standard Types**: "IMAGE", "MASK", "LATENT", "MODEL", "CLIP", "VAE", "CONDITIONING".
 - **Primitives**: "INT", "FLOAT", "STRING", "BOOLEAN".
 - **Dropdowns**: Lists of strings (e.g., `["option1", "option2"]`).
@@ -39,6 +42,7 @@ Every node must be a Python class with the following specific attributes and met
   - Example: `{"default": 1.0, "min": 0.0, "max": 10.0, "step": 0.01}`
 
 ### Tensor Shape Conventions
+
 - **Images**: `[Batch, Height, Width, Channels]` (BHWC), range 0.0-1.0 (float32).
   - Use `torch.from_numpy` and `permute` if converting from standard libraries like PIL or OpenCV.
 - **Masks**: `[Batch, Height, Width]`, range 0.0-1.0.
@@ -46,6 +50,7 @@ Every node must be a Python class with the following specific attributes and met
 ## 3. Code Snippets & Patterns
 
 ### Basic Node Template
+
 ```python
 import torch
 
@@ -113,7 +118,7 @@ def tensor2pil(image):
 
 ```
 
-## 4. Registration (__init__.py)
+## 4. Registration (**init**.py)
 
 Always remind me to update `__init__.py` to export the node.
 
@@ -132,22 +137,25 @@ NODE_DISPLAY_NAME_MAPPINGS = {
 
 ## 5. Prohibitions
 
-* DO NOT use `argparse`. Inputs come from `INPUT_TYPES`.
-* DO NOT use `cv2.imshow` or `plt.show`. Output images via `RETURN_TYPES`.
-* DO NOT forget the trailing comma in single-item tuples.
+- DO NOT use `argparse`. Inputs come from `INPUT_TYPES`.
+- DO NOT use `cv2.imshow` or `plt.show`. Output images via `RETURN_TYPES`.
+- DO NOT forget the trailing comma in single-item tuples.
 
 ## 6. Module Layout Safety
 
 ### Prohibiting Coexistence of Modules and Packages with the Same Name
 
 **Prohibited Pattern**:
+
 - Do not have both `py/image_manager.py` (standalone file) and `py/image_manager/` (package directory) simultaneously.
 
 Reason:
+
 - Import resolution becomes ambiguous, and **the unintended implementation may be loaded**.
 - This leads to bugs such as defined endpoints not being registered or only one of the implementations functioning.
 
 **Recommended Pattern**:
+
 - If there are multiple roles (DB, API, nodes, etc.), **unify them into a package**:
   - `py/image_manager/__init__.py`
   - `py/image_manager/api.py`
@@ -167,6 +175,7 @@ Reason:
   - Register via `api.fetchApi("/meld/register", { method: "POST", ... })`.
 
 Note:
+
 - The backend should handle `output`, `input`, and `temp` types, and **must implement path traversal countermeasures**.
 
 ## 8. API Response Format (Python side)
@@ -187,6 +196,7 @@ return web.json_response(ApiResponse(success=False, error="Error message").to_di
 ```
 
 Rules:
+
 1. **Always wrap**: Never return a raw list or object. Always wrap in `ApiResponse`.
 2. **Status Codes**:
    - `200 OK`: Success (even if data is empty).
