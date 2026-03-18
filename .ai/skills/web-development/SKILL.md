@@ -263,4 +263,4 @@ When modifying Web Extension features, update user-facing docs only when the cha
 
 - **Trigger**: Update `docs/{lang}/ImageManager.md` only for user-visible behavior/UI changes. Do not require docs updates for internal refactors, implementation-only changes, or development-only guidance.
 - **Scope**: For user-visible Image Manager changes, update both Japanese (`docs/ja/ImageManager.md`) and English (`docs/en/ImageManager.md`).
-- **Development guidance**: Reflect development-related notes in source code comments or under `.ai/rules/` instead of user-facing docs.
+- **Development guidance**: Reflect development-related notes in source code comments or under `.ai/skills/` instead of user-facing docs.
