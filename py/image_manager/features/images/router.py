@@ -1038,7 +1038,12 @@ async def suggest_parents_endpoint(request: web.Request) -> web.Response:
 
             db_settings = get_all_settings(cursor)
             default_threshold = db_settings.get("gallery.suggest_phash_threshold", 82)
-            threshold_pct = float(request.query.get("threshold", default_threshold))
+            try:
+                threshold_pct = float(request.query.get("threshold", default_threshold))
+            except (ValueError, TypeError):
+                return web.json_response(
+                    ApiResponse(success=False, error="threshold must be a valid number").to_dict(), status=400
+                )
             threshold = round(64 * (1 - threshold_pct / 100))
 
             if not image_id:
