@@ -1,8 +1,14 @@
-.PHONY: ci test-all lint lint-py lint-ui lint-misc lint-scripts build-ui watch-ui local-check-scripts check-scripts check-ts-rules check-non-ascii repomix loc setup sync-ruler
+.PHONY: ci test-all lint lint-py lint-ui lint-misc lint-scripts build-ui watch-ui local-check-scripts check-scripts check-ts-rules check-non-ascii repomix loc setup install-hooks setup-hooks sync-rule
 
+# Like Refix: setup runs ShareSettings sync only. Git hooks are optional (make install-hooks).
 setup:
+	@$(MAKE) sync-rule
+
+install-hooks:
 	git config core.hooksPath scripts/git-hooks
-	@echo "setup: git hooks configured (scripts/git-hooks)"
+	@echo "install-hooks: core.hooksPath -> scripts/git-hooks"
+
+setup-hooks: install-hooks
 
 
 # -----------------------------------------------------------------------------
@@ -22,6 +28,9 @@ setup:
 #   py -3.10 -m venv venv
 #   .\venv\Scripts\python.exe -m pip install -U pip
 #   .\venv\Scripts\python.exe -m pip install -r requirements.txt
+#
+# AI rules: .ai/ is source of truth; make sync-rule fetches and runs ShareSettings
+# SyncRule/run.sh (needs curl, bash, network). Same as Refix setup.
 # -----------------------------------------------------------------------------
 
 ifeq ($(OS),Windows_NT)
@@ -39,6 +48,8 @@ PYTHON ?= $(VENV_PY)
 else
 PYTHON ?= python
 endif
+
+SHARESETTINGS_SYNCRULE_URL ?= https://raw.githubusercontent.com/HappyOnigiri/ShareSettings/main/SyncRule/run.sh
 
 # CI: Execution of all checks and tests via Python script
 ci:
@@ -107,5 +118,5 @@ repomix:
 repomix-%:
 	$(PYTHON) scripts/generate_repomix.py repomix-$*
 
-sync-ruler:
-	@sh scripts/sync.sh
+sync-rule:
+	@curl -fsSL "$(SHARESETTINGS_SYNCRULE_URL)" | bash

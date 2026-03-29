@@ -1,2 +1,2 @@
 #!/bin/sh
-make sync-ruler
+make sync-rule
