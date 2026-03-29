@@ -4,7 +4,7 @@ export const InformationTab: React.FC = () => {
 	return (
 		<div className="meld-settings-list meld-information-tab">
 			<div className="meld-settings-group">
-				<div className="meld-settings-group-title">ComfyUI Meld</div>
+				<div className="meld-settings-group-title">ComfyUI-Meld</div>
 				<div className="meld-settings-item">
 					<div className="meld-settings-item__info">
 						<div className="meld-settings-item__label">Version</div>
