@@ -149,7 +149,7 @@ const hooksToTest: { run: (...args: unknown[]) => unknown; args?: unknown[] }[] 
 ];
 
 describe("Mass Hooks Coverage", () => {
-	it("renders hooks and calls returned functions", async () => {
+	it("renders hooks without throwing", async () => {
 		const errors: Error[] = [];
 		for (const item of hooksToTest) {
 			try {
