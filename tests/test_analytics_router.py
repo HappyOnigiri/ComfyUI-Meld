@@ -124,17 +124,14 @@ class TestAnalyticsRouter(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(data["error"], "Too many names, max 500")
 
     async def test_post_analytics_counts_db_error(self) -> None:
-        """DB Error results in 500 status."""
+        """DB Error (sqlite3.Error) propagates to aiohttp default handler.
+        Since sqlite3.Error is not a MeldError, it is not caught by the router
+        and propagates up for aiohttp to handle as an unhandled exception."""
         request = self._make_request({"category": "positive_prompts", "names": ["error_please"]})
         self.mock_get_counts.side_effect = sqlite3.Error("DB Offline")
 
-        resp = await post_analytics_counts(request)
-        self.assertEqual(resp.status, 500)
-        assert isinstance(resp, web.Response)
-        assert resp.text is not None
-        data = json.loads(resp.text)
-        self.assertFalse(data["success"])
-        self.assertEqual(data["error"], "DB Offline")
+        with self.assertRaises(sqlite3.Error):
+            await post_analytics_counts(request)
 
 
 if __name__ == "__main__":

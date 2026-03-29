@@ -25,6 +25,7 @@ import py.image_manager.common.db.runtime_state as runtime_state  # noqa: E402
 import py.image_manager.common.db.schema as schema  # noqa: E402
 import py.image_manager.features.databases.service as database_service  # noqa: E402
 import py.image_manager.features.importer.service as importer_service  # noqa: E402
+from py.image_manager.common.exceptions import ConflictError  # noqa: E402
 
 
 class TestDatabaseManager(unittest.TestCase):
@@ -127,7 +128,7 @@ class TestDatabaseManager(unittest.TestCase):
         database_service.create_database_and_get_payload("project_a", False)
         importer_service.set_scan_running(True)
         try:
-            with self.assertRaises(RuntimeError):
+            with self.assertRaises(ConflictError):
                 database_service.switch_database_and_get_payload("project_a")
         finally:
             importer_service.set_scan_running(False)
@@ -136,7 +137,7 @@ class TestDatabaseManager(unittest.TestCase):
         database_service.create_database_and_get_payload("project_a", False)
         runtime_state.set_analytics_refresh_running(True)
         try:
-            with self.assertRaises(RuntimeError):
+            with self.assertRaises(ConflictError):
                 database_service.switch_database_and_get_payload("project_a")
         finally:
             runtime_state.set_analytics_refresh_running(False)
