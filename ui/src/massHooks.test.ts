@@ -57,17 +57,20 @@ vi.mock("./store/GalleryContext", () => ({
 	}),
 }));
 
-vi.mock("./features/databases/api/databasesApi", () => ({
-	fetchDatabases: vi.fn().mockResolvedValue({
+vi.mock("./features/databases/api/databasesApi", () => {
+	const payload = {
 		databases: [],
 		active_database: "default",
 		database_generation: 1,
-	}),
-	createDatabase: vi.fn(),
-	switchDatabase: vi.fn(),
-	deleteDatabase: vi.fn(),
-	renameDatabase: vi.fn(),
-}));
+	};
+	return {
+		fetchDatabases: vi.fn().mockResolvedValue(payload),
+		createDatabase: vi.fn().mockResolvedValue(payload),
+		switchDatabase: vi.fn().mockResolvedValue(payload),
+		deleteDatabase: vi.fn().mockResolvedValue(payload),
+		renameDatabase: vi.fn().mockResolvedValue(payload),
+	};
+});
 
 Object.assign(navigator, {
 	clipboard: { writeText: vi.fn() },

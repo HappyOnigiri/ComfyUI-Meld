@@ -9870,10 +9870,10 @@ const Bc = (e) => e === "rect" || e === "ellipse" || e === "lasso", bi = ({
             c(!0);
             try {
               const _ = await Jy(u.name, g);
-              n(_), o((v) => ({
-                ...v,
-                [g]: g
-              }));
+              n(_), o((v) => {
+                const { [u.name]: C, ...I } = v;
+                return { ...I, [g]: g };
+              }), u.is_active && h(_);
             } catch (_) {
               throw F.error("Failed to rename database", _), e({
                 type: "SET_ERROR",
@@ -9886,7 +9886,7 @@ const Bc = (e) => e === "rect" || e === "ellipse" || e === "lasso", bi = ({
         }
       });
     },
-    [e, x]
+    [e, h, x]
   );
   return p.useMemo(
     () => ({
@@ -15444,9 +15444,9 @@ const Ks = ({
   return t.push(n), t;
 }, uw = () => {
   const { state: e, dispatch: t, updateSetting: n } = fe(), [r, s] = p.useState(e.searchQuery), [a, o] = p.useState([]), [i, c] = p.useState(!1), [d, h] = p.useState([]), [w, y] = p.useState([]), S = e.settings["search.show_all_keywords"], [x, k] = p.useState(-1), [b, m] = p.useState(null), f = p.useRef(null), u = p.useRef(e.searchQuery), g = p.useRef(!0);
-  p.useEffect(() => () => {
+  p.useEffect(() => (g.current = !0, () => {
     g.current = !1;
-  }, []);
+  }), []);
   const _ = p.useCallback(async () => {
     if (w.length > 0) return;
     const j = await ey();
