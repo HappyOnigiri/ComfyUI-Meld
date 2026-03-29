@@ -256,8 +256,9 @@ Important backend settings.
     *   **Inherit Tags from Source**: When ON, tags from the parent image are automatically copied to child images.
 *   **Lineage**:
     *   **Max Lineage Depth**: How many generations to show in the tree. Reduce if performance is slow.
-*   **Database**: From `Settings -> System`, you can create, switch, and delete the database used by Meld.
-    *   **Create Database**: Create a new empty database. A confirmation modal is shown before creation.
+*   **Database**: From `Settings -> System`, you can create, rename, switch, and delete the database used by Meld.
+    *   **Create Database**: Create a new empty database. A confirmation modal is shown before creation, including a note that settings are stored per database.
+    *   **Rename Database**: Rename an existing database. After confirmation, the DB file name and database-specific runtime directory are renamed together. Because the contents stay the same, this does not trigger the soft reset used during database switching.
     *   **Switch Database**: Switch to another database. The confirmation modal warns that `Light Table` contents are cleared, search suggestions and caches are reinitialized, current selection/viewer/open modal state is reset, and database-specific settings may change.
     *   **Delete Database**: Permanently delete a database. Deletion requires both a confirmation modal and typing `delete`. If you delete the currently active database, Meld automatically switches to another database or recreates an empty `default.db` if needed.
     *   **Busy guard**: Database switching and deletion are blocked while an import scan or analytics refresh is running.

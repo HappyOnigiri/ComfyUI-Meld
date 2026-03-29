@@ -29,7 +29,7 @@ This document serves as a comprehensive guide for AI agents and developers to un
 | `image_manager/api.py` | **API Entry Point**. Integrates feature-specific routers and registers them with ComfyUI. |
 | `image_manager/common/` | **Shared Backend Logic**. Database connection, constants, and common schemas. |
 | `image_manager/features/` | **Feature Modules**. Modularized logic for images, tags, search, settings, importer, and workflows. |
-| `image_manager/features/databases/` | **Database Management**. Lists, creates, switches, and deletes SQLite databases and coordinates active DB state. |
+| `image_manager/features/databases/` | **Database Management**. Lists, creates, renames, switches, and deletes SQLite databases and coordinates active DB state. |
 | `image_manager/nodes/` | Custom nodes related to saving/management (e.g., `MeldSaveImage`). |
 | `load_image_configs/` | Logic for loading images and parsing metadata (Unified Loader). |
 | `auto_exposure/`, `pixelate/`, etc. | Standalone utility nodes for image processing. |
@@ -70,11 +70,12 @@ This document serves as a comprehensive guide for AI agents and developers to un
    - Backend `search/router.py` receives request -> `SearchService` queries SQLite.
    - Results returned as JSON and rendered by `GalleryPanel`.
 
-3. **Database Switching**:
+3. **Database Lifecycle Management**:
    - User opens `Settings -> System` and selects a database action.
    - Frontend `features/databases/api/databasesApi.ts` calls `/meld/databases...`.
    - Backend `features/databases/router.py` updates the active DB via `common/db/client.py` and persists `active_database.json`.
-   - Frontend dispatches `meld-database-changed`, resets Light Table persistence, and remounts `GalleryProvider` so cached state and in-flight requests do not leak across databases.
+   - Switch and delete operations dispatch `meld-database-changed`, reset Light Table persistence, and remount `GalleryProvider` so cached state and in-flight requests do not leak across databases.
+   - Rename operations move the SQLite file and per-database runtime directory together without forcing a frontend soft reset, because the underlying DB contents remain the same.
 
 ### Critical Files
 - **Database Schema**: `py/image_manager/common/db/schema.py` (Defines tables: `images` (with `user_notes`), `tags`, `favorites`, etc.).

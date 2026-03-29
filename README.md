@@ -21,9 +21,12 @@ The Image Manager is an integrated image management system added to ComfyUI's si
 - **Detail Viewer**: Inspect and edit prompts, models, generation settings, notes, and tags
 - **Advanced Search**: Filter flexibly by prompt/tags/date/model name and more
 - **Lineage Tracking**: Visualize parent-child relationships such as img2img
+- **Database Management**: Create, rename, switch, and delete multiple image databases from `Settings -> System`
 - **Workflow Integration**: One-click load images and assist restoring settings and workflows
 
 By default, **output images are automatically registered** when a workflow execution completes. If you additionally use [Meld Save Image](./docs/en/nodes/MeldSaveImage.md), you can enhance management with features like automatic tagging and explicitly specifying a source (parent) image.
+
+The Image Manager also supports **multiple SQLite databases**. You can manage them from `Settings -> System`, and database switching is designed to clear Light Table state and frontend caches so data does not leak across databases.
 
 For detailed usage, shortcuts, and search syntax, see [`docs/en/ImageManager.md`](./docs/en/ImageManager.md).
 
