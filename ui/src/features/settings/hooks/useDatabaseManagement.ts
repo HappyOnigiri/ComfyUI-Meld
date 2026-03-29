@@ -16,6 +16,7 @@ export const useDatabaseManagement = () => {
 	const { dispatch } = useGallery();
 	const [payload, setPayload] = useState<DatabasesPayload | null>(null);
 	const [databaseNameInput, setDatabaseNameInput] = useState("");
+	const [renameDrafts, setRenameDrafts] = useState<Record<string, string>>({});
 	const [isLoading, setIsLoading] = useState(false);
 
 	const loadDatabases = useCallback(async () => {
@@ -45,6 +46,18 @@ export const useDatabaseManagement = () => {
 	const activeDatabaseName = payload?.active_database ?? null;
 	const databases = payload?.databases ?? [];
 
+	const setRenameDraftForDatabase = useCallback((databaseName: string, nextValue: string) => {
+		setRenameDrafts((prev) => ({
+			...prev,
+			[databaseName]: nextValue,
+		}));
+	}, []);
+
+	const getRenameDraftForDatabase = useCallback(
+		(databaseName: string) => renameDrafts[databaseName] ?? databaseName,
+		[renameDrafts],
+	);
+
 	const submitCreateDatabase = useCallback(async () => {
 		const trimmed = databaseNameInput.trim();
 		if (!trimmed) {
@@ -59,6 +72,7 @@ export const useDatabaseManagement = () => {
 				message: `Create a new empty database named "${trimmed}"?`,
 				details: [
 					"The new database will be created without switching immediately.",
+					"Settings are stored per database, so the new database starts with its own settings state.",
 					"You can switch to it afterwards from the database list.",
 				],
 				confirmLabel: "Create",
@@ -174,15 +188,66 @@ export const useDatabaseManagement = () => {
 		[dispatch, emitDatabaseChanged, payload?.active_database, payload?.database_generation],
 	);
 
+	const confirmRenameDatabase = useCallback(
+		(database: DatabaseSummary) => {
+			const nextName = getRenameDraftForDatabase(database.name).trim();
+			if (!nextName) {
+				dispatch({ type: "SET_ERROR", payload: "New database name is required" });
+				return;
+			}
+			if (nextName === database.name) {
+				dispatch({ type: "SET_ERROR", payload: "New database name must be different" });
+				return;
+			}
+
+			dispatch({
+				type: "OPEN_CONFIRM_MODAL",
+				payload: {
+					title: "Rename Database",
+					message: `Rename database "${database.name}" to "${nextName}"?`,
+					details: [
+						"The database file and runtime directories will be renamed together.",
+						"Current database contents are preserved.",
+					],
+					confirmLabel: "Rename Database",
+					onConfirm: async () => {
+						setIsLoading(true);
+						try {
+							const nextPayload = await databasesApi.renameDatabase(database.name, nextName);
+							setPayload(nextPayload);
+							setRenameDrafts((prev) => ({
+								...prev,
+								[nextName]: nextName,
+							}));
+						} catch (error) {
+							logger.error("Failed to rename database", error);
+							dispatch({
+								type: "SET_ERROR",
+								payload: error instanceof Error ? error.message : "Failed to rename database",
+							});
+							throw error;
+						} finally {
+							setIsLoading(false);
+						}
+					},
+				},
+			});
+		},
+		[dispatch, getRenameDraftForDatabase],
+	);
+
 	return useMemo(
 		() => ({
 			databases,
 			activeDatabaseName,
 			databaseNameInput,
 			setDatabaseNameInput,
+			getRenameDraftForDatabase,
+			setRenameDraftForDatabase,
 			isLoading,
 			loadDatabases,
 			submitCreateDatabase,
+			confirmRenameDatabase,
 			confirmSwitchDatabase,
 			confirmDeleteDatabase,
 		}),
@@ -190,9 +255,12 @@ export const useDatabaseManagement = () => {
 			databases,
 			activeDatabaseName,
 			databaseNameInput,
+			getRenameDraftForDatabase,
+			setRenameDraftForDatabase,
 			isLoading,
 			loadDatabases,
 			submitCreateDatabase,
+			confirmRenameDatabase,
 			confirmSwitchDatabase,
 			confirmDeleteDatabase,
 		],

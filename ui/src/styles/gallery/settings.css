@@ -158,4 +158,9 @@
 	display: flex;
 	gap: 8px;
 	flex-shrink: 0;
+	align-items: center;
+}
+
+.meld-settings-database-card__rename-input {
+	min-width: 160px;
 }

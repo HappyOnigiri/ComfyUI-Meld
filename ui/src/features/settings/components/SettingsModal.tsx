@@ -46,8 +46,11 @@ export const SettingsModal: React.FC = () => {
 		activeDatabaseName,
 		databaseNameInput,
 		setDatabaseNameInput,
+		getRenameDraftForDatabase,
+		setRenameDraftForDatabase,
 		isLoading,
 		submitCreateDatabase,
+		confirmRenameDatabase,
 		confirmSwitchDatabase,
 		confirmDeleteDatabase,
 	} = useSettingsModalLogic();
@@ -116,8 +119,11 @@ export const SettingsModal: React.FC = () => {
 						activeDatabaseName={activeDatabaseName}
 						databaseNameInput={databaseNameInput}
 						setDatabaseNameInput={setDatabaseNameInput}
+						getRenameDraftForDatabase={getRenameDraftForDatabase}
+						setRenameDraftForDatabase={setRenameDraftForDatabase}
 						isDatabaseLoading={isLoading}
 						handleCreateDatabase={submitCreateDatabase}
+						handleRenameDatabase={confirmRenameDatabase}
 						handleSwitchDatabase={confirmSwitchDatabase}
 						handleDeleteDatabase={confirmDeleteDatabase}
 					/>

@@ -52,6 +52,27 @@ const deletedPayload: DatabasesPayload = {
 
 const fetchDatabases = vi.fn().mockResolvedValue(initialPayload);
 const createDatabase = vi.fn().mockResolvedValue(initialPayload);
+const renameDatabase = vi.fn().mockResolvedValue({
+	...initialPayload,
+	databases: [
+		{
+			name: "project_b",
+			filename: "project_b.db",
+			is_active: true,
+			image_count: 4,
+			can_delete: true,
+		},
+		{
+			name: "project_a",
+			filename: "project_a.db",
+			is_active: false,
+			image_count: 1,
+			can_delete: true,
+		},
+	],
+	active_database: "project_b",
+	database_generation: 2,
+});
 const switchDatabase = vi.fn().mockResolvedValue(switchedPayload);
 const deleteDatabase = vi.fn().mockResolvedValue(deletedPayload);
 
@@ -64,12 +85,13 @@ vi.mock("../../../store/GalleryContext", () => ({
 vi.mock("../../databases/api/databasesApi", () => ({
 	fetchDatabases: (...args: unknown[]) => fetchDatabases(...args),
 	createDatabase: (...args: unknown[]) => createDatabase(...args),
+	renameDatabase: (...args: unknown[]) => renameDatabase(...args),
 	switchDatabase: (...args: unknown[]) => switchDatabase(...args),
 	deleteDatabase: (...args: unknown[]) => deleteDatabase(...args),
 }));
 
 describe("useDatabaseManagement", () => {
-	it("loads databases and dispatches create, switch, and delete confirms", async () => {
+	it("loads databases and dispatches create, rename, switch, and delete confirms", async () => {
 		const dispatchEventSpy = vi.spyOn(window, "dispatchEvent");
 		const { result } = renderHook(() => useDatabaseManagement());
 
@@ -86,10 +108,26 @@ describe("useDatabaseManagement", () => {
 
 		const createModal = mockDispatch.mock.calls.at(-1)?.[0]?.payload;
 		expect(createModal.title).toBe("Create Database");
+		expect(createModal.details).toContain(
+			"Settings are stored per database, so the new database starts with its own settings state.",
+		);
 		await act(async () => {
 			await createModal.onConfirm();
 		});
 		expect(createDatabase).toHaveBeenCalledWith("project_b", false);
+
+		act(() => {
+			result.current.setRenameDraftForDatabase("default", "project_b");
+		});
+		await act(async () => {
+			result.current.confirmRenameDatabase(initialPayload.databases[0]!);
+		});
+		const renameModal = mockDispatch.mock.calls.at(-1)?.[0]?.payload;
+		expect(renameModal.title).toBe("Rename Database");
+		await act(async () => {
+			await renameModal.onConfirm();
+		});
+		expect(renameDatabase).toHaveBeenCalledWith("default", "project_b");
 
 		await act(async () => {
 			result.current.confirmSwitchDatabase(initialPayload.databases[1]!);

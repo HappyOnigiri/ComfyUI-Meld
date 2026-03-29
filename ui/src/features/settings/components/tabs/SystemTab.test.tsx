@@ -25,8 +25,11 @@ describe("SystemTab", () => {
 				activeDatabaseName={null}
 				databaseNameInput=""
 				setDatabaseNameInput={vi.fn()}
+				getRenameDraftForDatabase={(databaseName) => databaseName}
+				setRenameDraftForDatabase={vi.fn()}
 				isDatabaseLoading={false}
 				handleCreateDatabase={vi.fn()}
+				handleRenameDatabase={vi.fn()}
 				handleSwitchDatabase={vi.fn()}
 				handleDeleteDatabase={vi.fn()}
 			/>,
@@ -43,8 +46,10 @@ describe("SystemTab", () => {
 		const handleViewTrash = vi.fn();
 		const handleClearThumbnailCache = vi.fn();
 		const handleCreateDatabase = vi.fn();
+		const handleRenameDatabase = vi.fn();
 		const handleSwitchDatabase = vi.fn();
 		const handleDeleteDatabase = vi.fn();
+		const setRenameDraftForDatabase = vi.fn();
 
 		const dummySettings = {
 			"gallery.matching_strategy": "phash_created",
@@ -83,8 +88,13 @@ describe("SystemTab", () => {
 				activeDatabaseName="default"
 				databaseNameInput="new_db"
 				setDatabaseNameInput={vi.fn()}
+				getRenameDraftForDatabase={(databaseName) =>
+					databaseName === "default" ? "default_renamed" : databaseName
+				}
+				setRenameDraftForDatabase={setRenameDraftForDatabase}
 				isDatabaseLoading={false}
 				handleCreateDatabase={handleCreateDatabase}
+				handleRenameDatabase={handleRenameDatabase}
 				handleSwitchDatabase={handleSwitchDatabase}
 				handleDeleteDatabase={handleDeleteDatabase}
 			/>,
@@ -164,6 +174,15 @@ describe("SystemTab", () => {
 		expect(handleSwitchDatabase).toHaveBeenCalledWith(
 			expect.objectContaining({ name: "project_a" }),
 		);
+
+		const renameInput = getByLabelText("Rename default");
+		await user.clear(renameInput);
+		await user.type(renameInput, "default_renamed");
+		expect(setRenameDraftForDatabase).toHaveBeenCalled();
+
+		const renameButtons = screen.getAllByRole("button", { name: "Rename" });
+		await user.click(renameButtons[0] as HTMLElement);
+		expect(handleRenameDatabase).toHaveBeenCalledWith(expect.objectContaining({ name: "default" }));
 
 		const deleteButtons = screen.getAllByRole("button", { name: "Delete" });
 		await user.click(deleteButtons[0] as HTMLElement);

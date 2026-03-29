@@ -19,8 +19,11 @@ interface SystemTabProps {
 	activeDatabaseName: string | null;
 	databaseNameInput: string;
 	setDatabaseNameInput: React.Dispatch<React.SetStateAction<string>>;
+	getRenameDraftForDatabase: (databaseName: string) => string;
+	setRenameDraftForDatabase: (databaseName: string, nextValue: string) => void;
 	isDatabaseLoading: boolean;
 	handleCreateDatabase: () => void | Promise<void>;
+	handleRenameDatabase: (database: DatabaseSummary) => void;
 	handleSwitchDatabase: (database: DatabaseSummary) => void;
 	handleDeleteDatabase: (database: DatabaseSummary) => void;
 }
@@ -41,8 +44,11 @@ export const SystemTab: React.FC<SystemTabProps> = ({
 	activeDatabaseName,
 	databaseNameInput,
 	setDatabaseNameInput,
+	getRenameDraftForDatabase,
+	setRenameDraftForDatabase,
 	isDatabaseLoading,
 	handleCreateDatabase,
+	handleRenameDatabase,
 	handleSwitchDatabase,
 	handleDeleteDatabase,
 }) => {
@@ -184,6 +190,27 @@ export const SystemTab: React.FC<SystemTabProps> = ({
 								</div>
 							</div>
 							<div className="meld-settings-database-card__actions">
+								<input
+									type="text"
+									className="meld-input meld-settings-database-card__rename-input"
+									value={getRenameDraftForDatabase(database.name)}
+									onChange={(e) => setRenameDraftForDatabase(database.name, e.target.value)}
+									placeholder="new_database_name"
+									disabled={isDatabaseLoading}
+									aria-label={`Rename ${database.name}`}
+								/>
+								<button
+									type="button"
+									className="meld-button meld-button--secondary"
+									onClick={() => handleRenameDatabase(database)}
+									disabled={
+										isDatabaseLoading ||
+										getRenameDraftForDatabase(database.name).trim().length === 0 ||
+										getRenameDraftForDatabase(database.name).trim() === database.name
+									}
+								>
+									Rename
+								</button>
 								<button
 									type="button"
 									className="meld-button meld-button--secondary"

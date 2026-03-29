@@ -140,6 +140,17 @@ def _delete_sqlite_files(db_path: str) -> None:
             os.remove(candidate)
 
 
+def _move_sqlite_files(source_db_path: str, target_db_path: str) -> None:
+    os.makedirs(os.path.dirname(target_db_path), exist_ok=True)
+    for suffix in ("", "-wal", "-shm", "-journal"):
+        source_candidate = f"{source_db_path}{suffix}"
+        target_candidate = f"{target_db_path}{suffix}"
+        if os.path.exists(source_candidate):
+            if os.path.exists(target_candidate):
+                raise FileExistsError(f"Database already exists: {os.path.basename(target_db_path)}")
+            shutil.move(source_candidate, target_candidate)
+
+
 def _load_active_state() -> ActiveDatabaseState:
     stored = _read_state_file()
     if stored is None:
@@ -305,6 +316,41 @@ def delete_database(name: str) -> ActiveDatabaseState:
 
         _delete_sqlite_files(get_database_path(normalized))
         shutil.rmtree(get_database_runtime_dir(normalized), ignore_errors=True)
+        return get_active_database_state()
+
+
+def rename_database(name: str, new_name: str) -> ActiveDatabaseState:
+    normalized = _normalize_database_name(name)
+    normalized_new = _normalize_database_name(new_name)
+    if normalized == normalized_new:
+        raise ValueError("New database name must be different")
+
+    with _state_lock:
+        existing = list_database_names()
+        if normalized not in existing:
+            raise FileNotFoundError(f"Database not found: {normalized}")
+        if normalized_new in existing:
+            raise FileExistsError(f"Database already exists: {normalized_new}")
+
+        source_db_path = get_database_path(normalized)
+        target_db_path = get_database_path(normalized_new)
+        _move_sqlite_files(source_db_path, target_db_path)
+
+        source_runtime_dir = get_database_runtime_dir(normalized)
+        target_runtime_dir = get_database_runtime_dir(normalized_new)
+        if os.path.exists(target_runtime_dir):
+            raise FileExistsError(f"Runtime directory already exists for database: {normalized_new}")
+        if os.path.isdir(source_runtime_dir):
+            shutil.move(source_runtime_dir, target_runtime_dir)
+        else:
+            _ensure_runtime_dirs(normalized_new)
+
+        if normalized == ACTIVE_DATABASE_NAME:
+            next_state = _build_state(normalized_new, ACTIVE_DATABASE_GENERATION + 1)
+            _write_state_file(next_state.name, next_state.generation)
+            _sync_legacy_globals(next_state)
+            return next_state
+
         return get_active_database_state()
 
 

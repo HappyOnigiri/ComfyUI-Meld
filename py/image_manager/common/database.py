@@ -18,6 +18,7 @@ from .db.client import (
     get_trash_dir,
     list_database_names,
     refresh_active_database_state,
+    rename_database,
     switch_active_database,
 )
 from .db.schema import init_db
@@ -47,6 +48,7 @@ __all__ = [
     "create_database",
     "switch_active_database",
     "delete_database",
+    "rename_database",
     "TagRecord",
     "get_all_settings",
     "upsert_setting",

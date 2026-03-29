@@ -39,3 +39,12 @@ export const deleteDatabase = async (
 	});
 	return handleResponse<DatabasesPayload>(res);
 };
+
+export const renameDatabase = async (name: string, newName: string): Promise<DatabasesPayload> => {
+	const res = await api.fetchApi("/meld/databases/rename", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ name, new_name: newName }),
+	});
+	return handleResponse<DatabasesPayload>(res);
+};

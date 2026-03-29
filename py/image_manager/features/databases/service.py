@@ -8,6 +8,7 @@ from ...common.db.client import (
     get_active_database_state,
     get_database_path,
     list_database_names,
+    rename_database,
     switch_active_database,
 )
 from ...common.db.runtime_state import (
@@ -83,4 +84,11 @@ def delete_database_and_get_payload(name: str) -> dict[str, Any]:
     ensure_database_change_allowed()
     with database_change_guard():
         delete_database(name)
+        return get_database_payload()
+
+
+def rename_database_and_get_payload(name: str, new_name: str) -> dict[str, Any]:
+    ensure_database_change_allowed()
+    with database_change_guard():
+        rename_database(name, new_name)
         return get_database_payload()

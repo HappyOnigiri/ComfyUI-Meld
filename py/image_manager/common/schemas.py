@@ -221,6 +221,12 @@ class DeleteDatabaseRequest(BaseSchema):
     confirm_text: str
 
 
+@dataclass
+class RenameDatabaseRequest(BaseSchema):
+    name: str
+    new_name: str
+
+
 # --- Complex Response Objects ---
 
 

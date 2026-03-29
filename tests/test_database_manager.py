@@ -98,6 +98,24 @@ class TestDatabaseManager(unittest.TestCase):
         self.assertEqual(payload["active_database"], "default")
         self.assertFalse(os.path.exists(os.path.join(self.databases_dir, "project_a.db")))
 
+    def test_rename_inactive_database_moves_db_and_runtime(self) -> None:
+        database_service.create_database_and_get_payload("project_a", False)
+        os.makedirs(client.get_database_runtime_dir("project_a"), exist_ok=True)
+
+        payload = database_service.rename_database_and_get_payload("project_a", "project_b")
+
+        self.assertTrue(os.path.exists(os.path.join(self.databases_dir, "project_b.db")))
+        self.assertFalse(os.path.exists(os.path.join(self.databases_dir, "project_a.db")))
+        self.assertTrue(os.path.isdir(client.get_database_runtime_dir("project_b")))
+        self.assertIn("project_b", [db["name"] for db in payload["databases"]])
+
+    def test_rename_active_database_updates_active_state(self) -> None:
+        payload = database_service.rename_database_and_get_payload("default", "renamed_default")
+
+        self.assertEqual(payload["active_database"], "renamed_default")
+        self.assertEqual(client.get_active_database_state().name, "renamed_default")
+        self.assertTrue(os.path.exists(client.get_database_path("renamed_default")))
+
     def test_delete_last_default_recreates_empty_default_database(self) -> None:
         payload = database_service.delete_database_and_get_payload("default")
 
