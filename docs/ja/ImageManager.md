@@ -228,12 +228,17 @@ ComfyUI 画面左側のサイドバーに表示されるパネルです。
     *   **Inherit Tags from Source**: ONにすると、親画像のタグを生成された子画像に自動的にコピーします。
 *   **Lineage**:
     *   **Max Lineage Depth**: 系統図を何世代先まで表示するかを設定します。動作が重い場合は小さくしてください。
+*   **Database**: `Settings -> System` から、Meld が使用するデータベースの作成・切り替え・削除ができます。
+    *   **Create Database**: 空のデータベースを新規作成します。作成時は確認モーダルが表示されます。
+    *   **Switch Database**: 別のデータベースへ切り替えます。切り替え確認モーダルには、`Light Table` の内容が消去されること、検索候補やキャッシュが再初期化されること、選択状態・ビューアー状態・開いているモーダルがリセットされること、データベースごとの設定値に切り替わることが表示されます。
+    *   **Delete Database**: データベースを完全削除します。削除時は確認モーダルに加えて `delete` の入力が必須です。現在使用中のデータベースを削除した場合は、Meld が別のデータベースへ自動切り替えするか、必要に応じて空の `default.db` を再作成します。
+    *   **Busy guard**: スキャン中や Analytics の再集計中は、データベース切り替えや削除は実行できません。
 *   **Thumbnail Cache（サムネイルキャッシュ）**: サムネイルはディスク上でキャッシュされ、表示が高速化されます。
     *   **Clear Thumbnail Cache**: キャッシュされたサムネイルをすべて削除します。次回表示時に再生成されます。
 *   **Trash**: ゴミ箱（Trash）表示時には、選択した画像を **Restore**（元に戻す）したり **Delete Permanently**（完全に削除）したりできます。
     *   **Trash Retention Days**: ゴミ箱に入れた画像を何日後に完全に削除するかを設定します。現状の実装では `0` は「自動削除しない」ではなく、クリーンアップ実行時に削除対象になり得ます（自動削除を無効化する設定は未実装）。
 
-**Thumbnail API（サムネイルAPI）**: ギャラリー、ビューアー、系統図はサムネイル表示に `/api/meld/view-thumb` エンドポイントを使用します。クエリパラメータ: `filename`, `subfolder`, `type`（output/input/temp/custom/trash）, `size`（最大辺のピクセル数、デフォルト200、上限400）。キャッシュされたサムネイルは `data/thumbnails/` 以下（WebP形式）に保存され、HTTP Cache-Control により高速に配信されます。
+**Thumbnail API（サムネイルAPI）**: ギャラリー、ビューアー、系統図はサムネイル表示に `/api/meld/view-thumb` エンドポイントを使用します。クエリパラメータ: `filename`, `subfolder`, `type`（output/input/temp/custom/trash）, `size`（最大辺のピクセル数、デフォルト200、上限400）。キャッシュされたサムネイルはデータベースごとに分離され、`data/runtime/<database_name>/thumbnails/` 以下（WebP形式）に保存されます。
 
 ### ギャラリー・表示設定
 *   **Gallery**: サムネイルのサイズや、一度に読み込む画像の数を調整し、パフォーマンスを最適化できます。
