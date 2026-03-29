@@ -29,6 +29,7 @@ This document serves as a comprehensive guide for AI agents and developers to un
 | `image_manager/api.py` | **API Entry Point**. Integrates feature-specific routers and registers them with ComfyUI. |
 | `image_manager/common/` | **Shared Backend Logic**. Database connection, constants, and common schemas. |
 | `image_manager/features/` | **Feature Modules**. Modularized logic for images, tags, search, settings, importer, and workflows. |
+| `image_manager/features/databases/` | **Database Management**. Lists, creates, renames, switches, and deletes SQLite databases and coordinates active DB state. |
 | `image_manager/nodes/` | Custom nodes related to saving/management (e.g., `MeldSaveImage`). |
 | `load_image_configs/` | Logic for loading images and parsing metadata (Unified Loader). |
 | `auto_exposure/`, `pixelate/`, etc. | Standalone utility nodes for image processing. |
@@ -45,6 +46,7 @@ This document serves as a comprehensive guide for AI agents and developers to un
 | `src/features/mask-editor/` | **Mask Editor**. Drawing and editing interface for image masks (img2img). |
 | `src/features/viewer/` | **Image Viewer**. Full-screen image viewing components. |
 | `src/features/workflows/` | **Workflows**. Management and execution of ComfyUI workflows (queuing, etc.). |
+| `src/features/databases/` | **Database API Clients**. Typed frontend API wrappers for database management actions. |
 | `src/components/shared/` | **Reusable UI Components**. Shared parts like modals, buttons, and basic cards. |
 | `src/store/` | State management (Context/Reducer) for the Gallery UI. |
 | `src/styles/` | Global and component-specific CSS files. |
@@ -68,8 +70,16 @@ This document serves as a comprehensive guide for AI agents and developers to un
    - Backend `search/router.py` receives request -> `SearchService` queries SQLite.
    - Results returned as JSON and rendered by `GalleryPanel`.
 
+3. **Database Lifecycle Management**:
+   - User opens `Settings -> System` and selects a database action.
+   - Frontend `features/databases/api/databasesApi.ts` calls `/meld/databases...`.
+   - Backend `features/databases/router.py` updates the active DB via `common/db/client.py` and persists `active_database.json`.
+   - Switch and delete operations dispatch `meld-database-changed`, reset Light Table persistence, and remount `GalleryProvider` so cached state and in-flight requests do not leak across databases.
+   - Rename operations move the SQLite file and per-database runtime directory together without forcing a frontend soft reset, because the underlying DB contents remain the same.
+
 ### Critical Files
 - **Database Schema**: `py/image_manager/common/db/schema.py` (Defines tables: `images` (with `user_notes`), `tags`, `favorites`, etc.).
+- **Active Database Resolver**: `py/image_manager/common/db/client.py` (Tracks the active database, generation, and per-database runtime directories such as trash and thumbnail cache).
 - **Metadata Extraction**: `py/load_image_configs/core/metadata_helper.py` (Parses PNG info, Exif, and ComfyUI workflows).
 - **Search Logic**: `py/image_manager/features/search/service.py` (Parses search queries and builds SQL).
 
@@ -79,6 +89,8 @@ This document serves as a comprehensive guide for AI agents and developers to un
 - **Backend**:
   - `image_manager` is the central dependency. Other nodes (like `load_image_configs`) should NOT depend on `image_manager` if possible to avoid circular imports, but `image_manager` relies on `load_image_configs` for metadata parsing.
   - **NO** absolute imports of project root. Use relative imports (e.g., `from ..utils import X`) within packages.
+  - Active DB metadata must be stored outside the SQLite `settings` table. Use `py/data/active_database.json` plus `common/db/client.py` as the source of truth.
+  - Runtime side effects that must be isolated per database (trash, thumbnail cache) belong under `py/data/runtime/<database_name>/`.
 
 - **Frontend**:
   - Use `api.fetchApi` for all network requests. **DO NOT** use native `fetch` directly for backend communication (to handle ComfyUI auth/routing).

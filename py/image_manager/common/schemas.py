@@ -204,6 +204,29 @@ class UpdateSettingsRequest(BaseSchema):
     value: Any
 
 
+@dataclass
+class CreateDatabaseRequest(BaseSchema):
+    name: str
+    switch_to_new: bool = False
+
+
+@dataclass
+class SwitchDatabaseRequest(BaseSchema):
+    name: str
+
+
+@dataclass
+class DeleteDatabaseRequest(BaseSchema):
+    name: str
+    confirm_text: str
+
+
+@dataclass
+class RenameDatabaseRequest(BaseSchema):
+    name: str
+    new_name: str
+
+
 # --- Complex Response Objects ---
 
 

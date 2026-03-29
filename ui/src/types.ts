@@ -125,6 +125,33 @@ export interface Settings {
 	"search.show_all_keywords": boolean;
 }
 
+export interface DatabaseSummary {
+	name: string;
+	filename: string;
+	is_active: boolean;
+	image_count: number;
+	can_delete: boolean;
+}
+
+export interface DatabasesPayload {
+	databases: DatabaseSummary[];
+	active_database: string;
+	database_generation: number;
+}
+
+export interface ConfirmModalConfig {
+	message: string;
+	title?: string;
+	details?: string[];
+	confirmLabel?: string;
+	cancelLabel?: string;
+	danger?: boolean;
+	requiredText?: string;
+	requiredTextLabel?: string;
+	onConfirm: (inputValue?: string) => void | Promise<void>;
+	onCancel?: () => void;
+}
+
 export type ScanStatus = {
 	isRunning: boolean;
 	isFinished: boolean;
@@ -218,11 +245,7 @@ export interface GalleryState {
 	favorites: Favorite[];
 	toastMessage: string | null;
 	toastType: "info" | "error";
-	confirmModal: {
-		message: string;
-		onConfirm: () => void;
-		onCancel?: () => void;
-	} | null;
+	confirmModal: ConfirmModalConfig | null;
 }
 
 export type GalleryAction =
@@ -290,11 +313,7 @@ export type GalleryAction =
 	| { type: "HIDE_TOAST" }
 	| {
 			type: "OPEN_CONFIRM_MODAL";
-			payload: {
-				message: string;
-				onConfirm: () => void;
-				onCancel?: () => void;
-			};
+			payload: ConfirmModalConfig;
 	  }
 	| { type: "CLOSE_CONFIRM_MODAL" };
 

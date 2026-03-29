@@ -16,7 +16,7 @@ from aiohttp import web
 from PIL import Image
 
 from ....load_image_configs.core.metadata_helper import MetadataHelper
-from ...common.db.client import THUMBNAIL_CACHE_DIR, TRASH_DIR, get_db_connection
+from ...common.db.client import get_db_connection, get_thumbnail_cache_dir, get_trash_dir
 from ...common.model_repo import add_model_relation, get_or_create_model
 from ...common.schemas import (
     ApiResponse,
@@ -536,7 +536,7 @@ async def list_images(request: web.Request) -> web.Response:
             base_dir = None
             effective_subfolder = ""
             if effective_type == "trash":
-                base_dir = TRASH_DIR
+                base_dir = get_trash_dir()
                 effective_subfolder = ""
             elif img_type == "output":
                 base_dir = folder_paths.get_output_directory()
@@ -671,7 +671,7 @@ async def restore_images(request: web.Request) -> web.Response:
             else:
                 continue
 
-            trash_full_path = os.path.normpath(os.path.join(TRASH_DIR, trash_filename))
+            trash_full_path = os.path.normpath(os.path.join(get_trash_dir(), trash_filename))
             if not os.path.exists(trash_full_path):
                 cursor.execute("UPDATE images SET deleted_at = NULL WHERE id = ?", (img_id,))
                 restored_ids.append(img_id)
@@ -734,7 +734,7 @@ async def bulk_delete_images(request: web.Request) -> web.Response:
 
         for img_id, filename, subfolder, img_type, deleted_at in images:
             if deleted_at is not None:
-                base_dir = TRASH_DIR
+                base_dir = get_trash_dir()
                 current_subfolder = ""
             else:
                 if img_type == "output":
@@ -771,7 +771,7 @@ async def bulk_delete_images(request: web.Request) -> web.Response:
 
                 if os.path.exists(current_full_path):
                     new_filename = f"{int(now)}_{filename}"
-                    new_full_path = os.path.join(TRASH_DIR, new_filename)
+                    new_full_path = os.path.join(get_trash_dir(), new_filename)
                     try:
                         shutil.move(current_full_path, new_full_path)
                         cursor.execute(
@@ -936,7 +936,7 @@ async def delete_image_endpoint(request: web.Request) -> web.Response:
         now = time.time()
         for img_id, img_filename, subfolder, img_type, deleted_at in images:
             if deleted_at is not None:
-                base_dir = TRASH_DIR
+                base_dir = get_trash_dir()
                 current_subfolder = ""
             else:
                 if img_type == "output":
@@ -971,7 +971,7 @@ async def delete_image_endpoint(request: web.Request) -> web.Response:
                 if deleted_at is None:
                     if os.path.exists(current_full_path):
                         new_filename = f"{int(now)}_{img_filename}"
-                        new_full_path = os.path.join(TRASH_DIR, new_filename)
+                        new_full_path = os.path.join(get_trash_dir(), new_filename)
                         try:
                             shutil.move(current_full_path, new_full_path)
                             cursor.execute(
@@ -1231,7 +1231,7 @@ def _resolve_image_path_for_thumb(
     effective_subfolder = ""
 
     if img_type == "trash":
-        base_dir = TRASH_DIR
+        base_dir = get_trash_dir()
         effective_subfolder = ""
     elif img_type == "output":
         base_dir = folder_paths.get_output_directory()
@@ -1256,7 +1256,7 @@ def _resolve_image_path_for_thumb(
             folder_paths.get_output_directory(),
             folder_paths.get_input_directory(),
             folder_paths.get_temp_directory(),
-            TRASH_DIR,
+            get_trash_dir(),
         ):
             if d:
                 allowed_roots.append(os.path.abspath(d))
@@ -1326,9 +1326,10 @@ async def view_thumb_endpoint(request: web.Request) -> web.StreamResponse:
 
         source_path = resolved
 
-        os.makedirs(THUMBNAIL_CACHE_DIR, exist_ok=True)
+        thumb_dir = get_thumbnail_cache_dir()
+        os.makedirs(thumb_dir, exist_ok=True)
         cache_key = hashlib.sha256(f"{source_path}_{size}".encode()).hexdigest()
-        cache_path = os.path.join(THUMBNAIL_CACHE_DIR, f"{cache_key}.webp")
+        cache_path = os.path.join(thumb_dir, f"{cache_key}.webp")
 
         cache_hit = False
         if os.path.exists(cache_path):
@@ -1362,10 +1363,11 @@ async def view_thumb_endpoint(request: web.Request) -> web.StreamResponse:
 async def clear_thumbnail_cache_endpoint(request: web.Request) -> web.Response:
     try:
         deleted_count = 0
-        if os.path.isdir(THUMBNAIL_CACHE_DIR):
-            for name in os.listdir(THUMBNAIL_CACHE_DIR):
+        thumb_dir = get_thumbnail_cache_dir()
+        if os.path.isdir(thumb_dir):
+            for name in os.listdir(thumb_dir):
                 if name.lower().endswith(".webp"):
-                    fp = os.path.join(THUMBNAIL_CACHE_DIR, name)
+                    fp = os.path.join(thumb_dir, name)
                     try:
                         os.remove(fp)
                         deleted_count += 1
@@ -1390,7 +1392,7 @@ async def view_trash_endpoint(request: web.Request) -> web.StreamResponse:
         if os.path.basename(filename) != filename:
             return web.Response(status=403)
 
-        file_path = os.path.normpath(os.path.join(TRASH_DIR, filename))
+        file_path = os.path.normpath(os.path.join(get_trash_dir(), filename))
         if not os.path.exists(file_path):
             return web.Response(status=404)
 

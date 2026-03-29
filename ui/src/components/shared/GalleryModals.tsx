@@ -181,9 +181,9 @@ export const GalleryModals: React.FC = () => {
 			{state.confirmModal &&
 				createPortal(
 					<ConfirmModal
-						message={state.confirmModal.message}
-						onConfirm={() => {
-							state.confirmModal?.onConfirm();
+						{...state.confirmModal}
+						onConfirm={async (inputValue) => {
+							await state.confirmModal?.onConfirm(inputValue);
 							dispatch({ type: "CLOSE_CONFIRM_MODAL" });
 						}}
 						onCancel={() => {

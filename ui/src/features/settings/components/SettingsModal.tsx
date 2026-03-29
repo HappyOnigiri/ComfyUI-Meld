@@ -42,6 +42,17 @@ export const SettingsModal: React.FC = () => {
 		viewerCorePromptCountInput,
 		fullscreenCorePromptCountInput,
 		thumbnailSizeInput,
+		databases,
+		activeDatabaseName,
+		databaseNameInput,
+		setDatabaseNameInput,
+		getRenameDraftForDatabase,
+		setRenameDraftForDatabase,
+		isLoading,
+		submitCreateDatabase,
+		confirmRenameDatabase,
+		confirmSwitchDatabase,
+		confirmDeleteDatabase,
 	} = useSettingsModalLogic();
 
 	useEscapeToClose({ onEscape: handleClose });
@@ -104,6 +115,17 @@ export const SettingsModal: React.FC = () => {
 						trashRetentionDaysInput={trashRetentionDaysInput}
 						autoLinkPhashThresholdInput={autoLinkPhashThresholdInput}
 						suggestPhashThresholdInput={suggestPhashThresholdInput}
+						databases={databases}
+						activeDatabaseName={activeDatabaseName}
+						databaseNameInput={databaseNameInput}
+						setDatabaseNameInput={setDatabaseNameInput}
+						getRenameDraftForDatabase={getRenameDraftForDatabase}
+						setRenameDraftForDatabase={setRenameDraftForDatabase}
+						isDatabaseLoading={isLoading}
+						handleCreateDatabase={submitCreateDatabase}
+						handleRenameDatabase={confirmRenameDatabase}
+						handleSwitchDatabase={confirmSwitchDatabase}
+						handleDeleteDatabase={confirmDeleteDatabase}
 					/>
 				);
 			case "Gallery":

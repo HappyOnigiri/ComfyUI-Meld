@@ -8,6 +8,7 @@ function renderModal(overrides = {}) {
 		message: "Are you sure?",
 		onConfirm: vi.fn(),
 		onCancel: vi.fn(),
+		details: [],
 		...overrides,
 	};
 	render(<ConfirmModal {...props} />);
@@ -49,6 +50,27 @@ describe("ConfirmModal", () => {
 	it("has alertdialog role for accessibility", () => {
 		renderModal();
 		expect(screen.getByRole("alertdialog")).toBeInTheDocument();
+	});
+
+	it("renders details when provided", () => {
+		renderModal({ details: ["Light Table contents will be cleared."] });
+		expect(screen.getByText("Light Table contents will be cleared.")).toBeInTheDocument();
+	});
+
+	it("requires matching text when requiredText is set", async () => {
+		const props = renderModal({
+			requiredText: "delete",
+			requiredTextLabel: 'Type "delete" to continue.',
+			confirmLabel: "Delete Database",
+		});
+		const confirmButton = screen.getByRole("button", { name: "Delete Database" });
+		expect(confirmButton).toBeDisabled();
+
+		await userEvent.type(screen.getByRole("textbox"), "delete");
+		expect(confirmButton).not.toBeDisabled();
+
+		await userEvent.click(confirmButton);
+		expect(props.onConfirm).toHaveBeenCalledWith("delete");
 	});
 
 	it("focuses the first button on mount", () => {

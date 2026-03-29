@@ -12,8 +12,8 @@ from PIL import Image
 
 from ....load_image_configs.core.metadata_helper import MetadataHelper
 from ...common.db.client import (
-    TRASH_DIR,
     get_db_connection,
+    get_trash_dir,
 )
 from ...common.model_repo import add_model_relation, get_or_create_model
 from ...common.schemas import ScanStatus
@@ -83,7 +83,7 @@ def perform_cleanup() -> int:
         to_delete = cursor.fetchall()
 
         for img_id, trash_filename in to_delete:
-            trash_path = os.path.join(TRASH_DIR, trash_filename)
+            trash_path = os.path.join(get_trash_dir(), trash_filename)
             if os.path.exists(trash_path):
                 try:
                     os.remove(trash_path)

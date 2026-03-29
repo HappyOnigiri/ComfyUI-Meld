@@ -54,11 +54,21 @@ export const useSearchLogic = () => {
 	const [searchConfig, setSearchConfig] = useState<SearchConfig | null>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const lastSearchedValueRef = useRef(state.searchQuery);
+	const isMountedRef = useRef(true);
+
+	useEffect(() => {
+		isMountedRef.current = true;
+		return () => {
+			isMountedRef.current = false;
+		};
+	}, []);
 
 	const fetchKeywords = useCallback(async () => {
 		if (allKeywords.length > 0) return;
 		const results = await searchApi.fetchSearchKeywords();
-		setAllKeywords(results);
+		if (isMountedRef.current) {
+			setAllKeywords(results);
+		}
 	}, [allKeywords.length]);
 
 	// Fetch search config on mount

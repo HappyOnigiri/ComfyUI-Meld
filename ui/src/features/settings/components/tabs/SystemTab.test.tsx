@@ -21,6 +21,17 @@ describe("SystemTab", () => {
 				trashRetentionDaysInput="30"
 				autoLinkPhashThresholdInput="92"
 				suggestPhashThresholdInput="82"
+				databases={[]}
+				activeDatabaseName={null}
+				databaseNameInput=""
+				setDatabaseNameInput={vi.fn()}
+				getRenameDraftForDatabase={(databaseName) => databaseName}
+				setRenameDraftForDatabase={vi.fn()}
+				isDatabaseLoading={false}
+				handleCreateDatabase={vi.fn()}
+				handleRenameDatabase={vi.fn()}
+				handleSwitchDatabase={vi.fn()}
+				handleDeleteDatabase={vi.fn()}
 			/>,
 		);
 		expect(container).toBeTruthy();
@@ -34,6 +45,11 @@ describe("SystemTab", () => {
 		const handleToggle = vi.fn();
 		const handleViewTrash = vi.fn();
 		const handleClearThumbnailCache = vi.fn();
+		const handleCreateDatabase = vi.fn();
+		const handleRenameDatabase = vi.fn();
+		const handleSwitchDatabase = vi.fn();
+		const handleDeleteDatabase = vi.fn();
+		const setRenameDraftForDatabase = vi.fn();
 
 		const dummySettings = {
 			"gallery.matching_strategy": "phash_created",
@@ -53,6 +69,34 @@ describe("SystemTab", () => {
 				trashRetentionDaysInput="30"
 				autoLinkPhashThresholdInput="92"
 				suggestPhashThresholdInput="82"
+				databases={[
+					{
+						name: "default",
+						filename: "default.db",
+						is_active: true,
+						image_count: 4,
+						can_delete: true,
+					},
+					{
+						name: "project_a",
+						filename: "project_a.db",
+						is_active: false,
+						image_count: 1,
+						can_delete: true,
+					},
+				]}
+				activeDatabaseName="default"
+				databaseNameInput="new_db"
+				setDatabaseNameInput={vi.fn()}
+				getRenameDraftForDatabase={(databaseName) =>
+					databaseName === "default" ? "default_renamed" : databaseName
+				}
+				setRenameDraftForDatabase={setRenameDraftForDatabase}
+				isDatabaseLoading={false}
+				handleCreateDatabase={handleCreateDatabase}
+				handleRenameDatabase={handleRenameDatabase}
+				handleSwitchDatabase={handleSwitchDatabase}
+				handleDeleteDatabase={handleDeleteDatabase}
 			/>,
 		);
 
@@ -104,6 +148,10 @@ describe("SystemTab", () => {
 		expect(handleNumberBlur).toHaveBeenCalledWith({ key: "gallery.lineage_max_depth" });
 
 		// Clear Thumbnail Cache button
+		const createBtn = screen.getByRole("button", { name: "Create" });
+		await user.click(createBtn);
+		expect(handleCreateDatabase).toHaveBeenCalled();
+
 		const clearBtn = screen.getByRole("button", { name: "Clear Thumbnail Cache" });
 		await user.click(clearBtn);
 		expect(handleClearThumbnailCache).toHaveBeenCalled();
@@ -120,5 +168,24 @@ describe("SystemTab", () => {
 		const viewTrashBtn = screen.getByRole("button", { name: "View Trash" });
 		await user.click(viewTrashBtn);
 		expect(handleViewTrash).toHaveBeenCalled();
+
+		const switchButtons = screen.getAllByRole("button", { name: "Switch" });
+		await user.click(switchButtons[1] as HTMLElement);
+		expect(handleSwitchDatabase).toHaveBeenCalledWith(
+			expect.objectContaining({ name: "project_a" }),
+		);
+
+		const renameInput = getByLabelText("Rename default");
+		await user.clear(renameInput);
+		await user.type(renameInput, "default_renamed");
+		expect(setRenameDraftForDatabase).toHaveBeenCalled();
+
+		const renameButtons = screen.getAllByRole("button", { name: "Rename" });
+		await user.click(renameButtons[0] as HTMLElement);
+		expect(handleRenameDatabase).toHaveBeenCalledWith(expect.objectContaining({ name: "default" }));
+
+		const deleteButtons = screen.getAllByRole("button", { name: "Delete" });
+		await user.click(deleteButtons[0] as HTMLElement);
+		expect(handleDeleteDatabase).toHaveBeenCalledWith(expect.objectContaining({ name: "default" }));
 	});
 });

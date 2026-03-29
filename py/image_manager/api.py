@@ -5,8 +5,10 @@ import threading
 import server
 from aiohttp import web
 
+from .common.db.runtime_state import set_startup_cleanup_running
 from .common.schemas import ApiResponse
 from .features.analytics.router import routes as analytics_routes
+from .features.databases.router import routes as database_routes
 from .features.images.router import routes as image_routes
 from .features.importer.router import routes as import_routes
 from .features.importer.service import perform_cleanup
@@ -48,6 +50,7 @@ if server.PromptServer.instance is not None:
     _register_routes(import_routes)
     _register_routes(search_routes)
     _register_routes(image_routes)
+    _register_routes(database_routes)
     _register_routes(setting_routes)
     _register_routes(utility_routes)
 else:
@@ -64,6 +67,7 @@ def _run_auto_cleanup() -> None:
     import time
 
     time.sleep(5)  # Wait a bit to prioritize other initialization tasks
+    set_startup_cleanup_running(True)
     try:
         count = perform_cleanup()
         if count > 0:
@@ -71,6 +75,7 @@ def _run_auto_cleanup() -> None:
     except Exception as e:
         logging.warning(f"[Meld] Extension load cleanup failed: {e}")
     finally:
+        set_startup_cleanup_running(False)
         _cleanup_done_event.set()
 
 
