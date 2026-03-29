@@ -215,10 +215,13 @@ export const useDatabaseManagement = () => {
 						try {
 							const nextPayload = await databasesApi.renameDatabase(database.name, nextName);
 							setPayload(nextPayload);
-							setRenameDrafts((prev) => ({
-								...prev,
-								[nextName]: nextName,
-							}));
+							setRenameDrafts((prev) => {
+								const { [database.name]: _, ...rest } = prev;
+								return { ...rest, [nextName]: nextName };
+							});
+							if (database.is_active) {
+								emitDatabaseChanged(nextPayload);
+							}
 						} catch (error) {
 							logger.error("Failed to rename database", error);
 							dispatch({
@@ -233,7 +236,7 @@ export const useDatabaseManagement = () => {
 				},
 			});
 		},
-		[dispatch, getRenameDraftForDatabase],
+		[dispatch, emitDatabaseChanged, getRenameDraftForDatabase],
 	);
 
 	return useMemo(
