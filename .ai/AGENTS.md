@@ -51,3 +51,11 @@ You must update `architecture.md` if your changes involve:
 ## 4. Path Convention
 - Refer to backend files relative to the root (e.g., `py/image_manager/...`).
 - Refer to frontend files relative to `ui/src/`.
+
+## 5. Error Handling
+- Raise `MeldError` subclasses (`py/image_manager/common/exceptions.py`) in
+  service/common code. Never raise Python builtins (`ValueError`,
+  `FileNotFoundError`) for domain errors.
+- In routers, catch `MeldError` with `status=e.status_code`. Do not catch `Exception`.
+- Keep `except (TypeError, ValueError)` for `from_dict()` schema parsing (request
+  DTO construction at the router boundary).
