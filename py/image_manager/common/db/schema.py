@@ -1,12 +1,12 @@
 import os
 import sqlite3
 
-from .client import TRASH_DIR, get_db_connection
+from .client import get_db_connection, get_trash_dir
 
 
-def init_db() -> None:
-    os.makedirs(TRASH_DIR, exist_ok=True)
-    conn = get_db_connection()
+def init_db(db_path: str | None = None, trash_dir: str | None = None) -> None:
+    os.makedirs(trash_dir or get_trash_dir(), exist_ok=True)
+    conn = get_db_connection(db_path=db_path)
     cursor = conn.cursor()
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS images (
