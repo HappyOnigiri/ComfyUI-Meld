@@ -6,6 +6,13 @@ import { useSettingsModalLogic } from "./features/settings/hooks/useSettingsModa
 import { useWorkflowExecution } from "./features/workflows/hooks/useWorkflowExecution";
 import type { MeldImage } from "./types";
 
+// Stable references to avoid infinite re-renders from useCallback/useEffect dependency changes
+const mockDispatch = vi.fn();
+const mockRefreshImages = vi.fn();
+const mockUpdateSetting = vi.fn();
+const mockLoadMoreImages = vi.fn();
+const mockFetchFullImageDetails = vi.fn();
+
 vi.mock("./store/GalleryContext", () => ({
 	useGallery: () => ({
 		state: {
@@ -42,12 +49,24 @@ vi.mock("./store/GalleryContext", () => ({
 			viewerImageId: 1,
 			isProcessing: false,
 		},
-		dispatch: vi.fn(),
-		refreshImages: vi.fn(),
-		updateSetting: vi.fn(),
-		loadMoreImages: vi.fn(),
-		fetchFullImageDetails: vi.fn(),
+		dispatch: mockDispatch,
+		refreshImages: mockRefreshImages,
+		updateSetting: mockUpdateSetting,
+		loadMoreImages: mockLoadMoreImages,
+		fetchFullImageDetails: mockFetchFullImageDetails,
 	}),
+}));
+
+vi.mock("./features/databases/api/databasesApi", () => ({
+	fetchDatabases: vi.fn().mockResolvedValue({
+		databases: [],
+		active_database: "default",
+		database_generation: 1,
+	}),
+	createDatabase: vi.fn(),
+	switchDatabase: vi.fn(),
+	deleteDatabase: vi.fn(),
+	renameDatabase: vi.fn(),
 }));
 
 Object.assign(navigator, {
