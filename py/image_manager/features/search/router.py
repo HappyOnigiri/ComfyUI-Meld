@@ -3,6 +3,7 @@ import time
 from aiohttp import web
 
 from ...common.db.client import db_connection
+from ...common.exceptions import MeldError
 from ...common.schemas import (
     ApiResponse,
     CreateFavoriteRequest,
@@ -26,8 +27,8 @@ async def suggest_endpoint(request: web.Request) -> web.Response:
             suggestions = SearchService.get_suggestions(cursor, query, prefix_filter=prefix)
 
         return web.json_response(ApiResponse(success=True, data=suggestions).to_dict())
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.get("/meld/search-suggestions")
@@ -38,8 +39,8 @@ async def search_suggestions_endpoint(request: web.Request) -> web.Response:
             suggestions = SearchService.get_random_search_suggestions(cursor)
 
         return web.json_response(ApiResponse(success=True, data=suggestions).to_dict())
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.get("/meld/search-keywords")
@@ -47,8 +48,8 @@ async def search_keywords_endpoint(request: web.Request) -> web.Response:
     try:
         keywords = SearchService.get_all_available_keywords()
         return web.json_response(ApiResponse(success=True, data=keywords).to_dict())
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.get("/meld/search-config")
@@ -56,8 +57,8 @@ async def search_config_endpoint(request: web.Request) -> web.Response:
     try:
         config = SearchService.get_search_config()
         return web.json_response(ApiResponse(success=True, data=config).to_dict())
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.get("/meld/favorites")
@@ -71,8 +72,8 @@ async def list_favorites(request: web.Request) -> web.Response:
         favorites = [FavoriteRecord(id=row[0], name=row[1], query=row[2], created_at=row[3]).to_dict() for row in rows]
 
         return web.json_response(ApiResponse(success=True, data=favorites).to_dict())
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.post("/meld/favorites")
@@ -95,8 +96,8 @@ async def save_favorite(request: web.Request) -> web.Response:
             conn.commit()
 
         return web.json_response(ApiResponse(success=True).to_dict())
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.post("/meld/favorites/update")
@@ -120,8 +121,8 @@ async def update_favorite(request: web.Request) -> web.Response:
             conn.commit()
 
         return web.json_response(ApiResponse(success=True).to_dict())
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.post("/meld/favorites/delete")
@@ -142,5 +143,5 @@ async def delete_favorite(request: web.Request) -> web.Response:
             conn.commit()
 
         return web.json_response(ApiResponse(success=True).to_dict())
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)

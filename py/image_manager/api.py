@@ -31,11 +31,8 @@ def _register_routes(source_routes: web.RouteTableDef) -> None:
 # Common/Utility routes
 @utility_routes.get("/meld/home-dir")
 async def get_home_dir(request: web.Request) -> web.Response:
-    try:
-        home_dir = os.path.expanduser("~")
-        return web.json_response(ApiResponse(success=True, data={"home": home_dir}).to_dict())
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    home_dir = os.path.expanduser("~")
+    return web.json_response(ApiResponse(success=True, data={"home": home_dir}).to_dict())
 
 
 @utility_routes.get("/meld/test")

@@ -2,6 +2,7 @@ from aiohttp import web
 
 from ...common.db.client import db_connection
 from ...common.env import is_dev_mode
+from ...common.exceptions import MeldError
 from ...common.schemas import ApiResponse, UpdateSettingsRequest
 from .repository import get_all_settings, upsert_setting
 
@@ -46,8 +47,8 @@ async def get_settings(request: web.Request) -> web.Response:
         settings.update(db_settings)
 
         return web.json_response(ApiResponse(success=True, data=settings).to_dict())
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.post("/meld/settings")
@@ -68,5 +69,5 @@ async def save_settings(request: web.Request) -> web.Response:
             conn.commit()
 
         return web.json_response(ApiResponse(success=True).to_dict())
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)

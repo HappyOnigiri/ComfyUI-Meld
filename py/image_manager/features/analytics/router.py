@@ -5,6 +5,7 @@ from aiohttp import web
 
 from ...common.db.client import db_connection
 from ...common.db.runtime_state import set_analytics_refresh_running
+from ...common.exceptions import MeldError
 from ...common.schemas import ApiResponse
 from .service import CATEGORIES, get_category_list, get_counts, get_summary, run_aggregation
 
@@ -44,12 +45,12 @@ async def refresh_analytics(request: web.Request) -> web.Response:
 
         threading.Thread(target=_run, daemon=True).start()
         return web.json_response(ApiResponse(success=True, message="Analytics refresh started in background").to_dict())
-    except Exception as e:
+    except MeldError as e:
         with _refresh_lock:
             _refresh_running = False
             set_analytics_refresh_running(False)
         logging.exception(f"[Meld] Failed to start analytics refresh: {e}")
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.get("/meld/analytics")
@@ -63,9 +64,9 @@ async def get_analytics_summary(request: web.Request) -> web.Response:
                 return web.json_response(ApiResponse(success=True, data=data).to_dict())
             finally:
                 cursor.close()
-    except Exception as e:
+    except MeldError as e:
         logging.exception(f"[Meld] Failed to get analytics summary: {e}")
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 def _parse_limit_offset(request: web.Request) -> tuple[int, int] | None:
@@ -117,9 +118,9 @@ async def get_analytics_category(request: web.Request) -> web.Response:
                 return web.json_response(ApiResponse(success=True, data=items, count=len(items), total=total).to_dict())
             finally:
                 cursor.close()
-    except Exception as e:
+    except MeldError as e:
         logging.exception(f"[Meld] Failed to get analytics category: {e}")
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.post("/meld/analytics/counts")
@@ -178,6 +179,6 @@ async def post_analytics_counts(request: web.Request) -> web.Response:
                 return web.json_response(ApiResponse(success=True, data=counts).to_dict())
             finally:
                 cursor.close()
-    except Exception as e:
+    except MeldError as e:
         logging.exception(f"[Meld] Failed to get analytics counts: {e}")
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
