@@ -370,9 +370,16 @@ async def list_images(request: web.Request) -> web.Response:
     try:
         start_time = time.time()
         is_minimal = request.query.get("minimal", "false").lower() == "true"
+        try:
+            offset = int(request.query.get("offset", 0))
+            limit = int(request.query.get("limit", 1000000))
+        except (ValueError, TypeError):
+            return web.json_response(
+                ApiResponse(success=False, error="offset and limit must be integers").to_dict(), status=400
+            )
         req = SearchImagesRequest(
-            offset=int(request.query.get("offset", 0)),
-            limit=int(request.query.get("limit", 1000000)),
+            offset=offset,
+            limit=limit,
             query=request.query.get("query", ""),
             view=request.query.get("view", "default"),
         )
@@ -383,7 +390,10 @@ async def list_images(request: web.Request) -> web.Response:
             search_sql, search_params, order_sql = SearchService.build_search_sql(req.query)
 
             db_settings = get_all_settings(cursor)
-            lineage_max_depth = int(db_settings.get("gallery.lineage_max_depth", 5))
+            try:
+                lineage_max_depth = int(db_settings.get("gallery.lineage_max_depth", 5))
+            except (ValueError, TypeError):
+                lineage_max_depth = 5
 
             deleted_filter = "i.deleted_at IS NOT NULL" if req.view == "trash" else "i.deleted_at IS NULL"
 
