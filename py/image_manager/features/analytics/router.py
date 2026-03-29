@@ -4,6 +4,7 @@ import threading
 from aiohttp import web
 
 from ...common.db.client import get_db_connection
+from ...common.db.runtime_state import set_analytics_refresh_running
 from ...common.schemas import ApiResponse
 from .service import CATEGORIES, get_category_list, get_counts, get_summary, run_aggregation
 
@@ -28,6 +29,7 @@ async def refresh_analytics(request: web.Request) -> web.Response:
                     status=400,
                 )
             _refresh_running = True
+            set_analytics_refresh_running(True)
 
         def _run() -> None:
             global _refresh_running
@@ -38,12 +40,14 @@ async def refresh_analytics(request: web.Request) -> web.Response:
             finally:
                 with _refresh_lock:
                     _refresh_running = False
+                    set_analytics_refresh_running(False)
 
         threading.Thread(target=_run, daemon=True).start()
         return web.json_response(ApiResponse(success=True, message="Analytics refresh started in background").to_dict())
     except Exception as e:
         with _refresh_lock:
             _refresh_running = False
+            set_analytics_refresh_running(False)
         logging.exception(f"[Meld] Failed to start analytics refresh: {e}")
         return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
