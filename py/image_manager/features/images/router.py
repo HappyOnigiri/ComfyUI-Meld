@@ -694,6 +694,8 @@ async def restore_images(request: web.Request) -> web.Response:
         return web.json_response(
             ApiResponse(success=True, count=len(restored_ids), data={"restored_ids": restored_ids}).to_dict()
         )
+    except json.JSONDecodeError:
+        return web.json_response(ApiResponse(success=False, error="Malformed JSON").to_dict(), status=400)
     except MeldError as e:
         logging.exception("[Meld] Restore failed")
         return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
@@ -784,6 +786,8 @@ async def bulk_delete_images(request: web.Request) -> web.Response:
             conn.commit()
 
         return web.json_response(ApiResponse(success=True, count=deleted_count).to_dict())
+    except json.JSONDecodeError:
+        return web.json_response(ApiResponse(success=False, error="Malformed JSON").to_dict(), status=400)
     except MeldError as e:
         logging.exception("[Meld] Bulk delete failed")
         return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
@@ -887,6 +891,8 @@ async def update_image_notes(request: web.Request) -> web.Response:
         )
 
         return web.json_response(ApiResponse(success=True, data=item.to_dict()).to_dict())
+    except json.JSONDecodeError:
+        return web.json_response(ApiResponse(success=False, error="Malformed JSON").to_dict(), status=400)
     except MeldError as e:
         logging.exception("[Meld] Failed to update image notes")
         return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
@@ -979,6 +985,8 @@ async def delete_image_endpoint(request: web.Request) -> web.Response:
             conn.commit()
 
         return web.json_response(ApiResponse(success=True).to_dict())
+    except json.JSONDecodeError:
+        return web.json_response(ApiResponse(success=False, error="Malformed JSON").to_dict(), status=400)
     except MeldError as e:
         return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
@@ -1024,6 +1032,8 @@ async def link_parent_endpoint(request: web.Request) -> web.Response:
             conn.commit()
 
         return web.json_response(ApiResponse(success=True).to_dict())
+    except json.JSONDecodeError:
+        return web.json_response(ApiResponse(success=False, error="Malformed JSON").to_dict(), status=400)
     except MeldError as e:
         return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
@@ -1591,6 +1601,8 @@ async def register_image_endpoint(request: web.Request) -> web.Response:
         server.PromptServer.instance.send_sync("meld-image-saved", {"count": 1})
 
         return web.json_response(ApiResponse(success=True, data={"id": image_id}).to_dict())
+    except json.JSONDecodeError:
+        return web.json_response(ApiResponse(success=False, error="Malformed JSON").to_dict(), status=400)
     except MeldError as e:
         logging.exception("[Meld] Failed to register image")
         return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
@@ -1920,6 +1932,8 @@ async def download_zip(request: web.Request) -> web.Response:
             content_type="application/zip",
             headers={"Content-Disposition": 'attachment; filename="meld_images.zip"'},
         )
+    except json.JSONDecodeError:
+        return web.json_response(ApiResponse(success=False, error="Malformed JSON").to_dict(), status=400)
     except MeldError as e:
         import traceback
 
@@ -1976,6 +1990,8 @@ async def download_raw(request: web.Request) -> web.Response:
 
         headers = {"Content-Disposition": f'attachment; filename="{filename}"'}
         return web.Response(body=img_bytes, content_type=content_type, headers=headers)
+    except json.JSONDecodeError:
+        return web.json_response(ApiResponse(success=False, error="Malformed JSON").to_dict(), status=400)
     except MeldError as e:
         import traceback
 
