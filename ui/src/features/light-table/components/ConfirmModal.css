@@ -30,7 +30,7 @@
 	border-radius: 10px;
 	padding: 24px 28px;
 	min-width: 300px;
-	max-width: 420px;
+	max-width: 520px;
 	box-shadow: 0 8px 32px var(--comfy-menu-shadow, transparent);
 	animation: meld-dialog-slidein 0.15s ease;
 	font-family: var(--comfy-ui-font, sans-serif);
@@ -48,11 +48,50 @@
 	}
 }
 
+.meld-confirm-modal__title {
+	color: var(--fg-color, #eee);
+	font-size: 18px;
+	margin: 0 0 12px;
+}
+
 .meld-confirm-modal__message {
 	color: var(--fg-color, #eee);
 	font-size: 14px;
 	line-height: 1.6;
 	margin: 0 0 20px;
+}
+
+.meld-confirm-modal__details {
+	margin: -8px 0 20px;
+	padding-left: 18px;
+	color: var(--fg-color, #eee);
+	font-size: 13px;
+	line-height: 1.5;
+}
+
+.meld-confirm-modal__details li + li {
+	margin-top: 6px;
+}
+
+.meld-confirm-modal__input-group {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin-bottom: 18px;
+}
+
+.meld-confirm-modal__input-label {
+	font-size: 12px;
+	color: var(--fg-color, #eee);
+}
+
+.meld-confirm-modal__input {
+	width: 100%;
+	padding: 8px 10px;
+	border: 1px solid var(--comfy-menu-border, #444);
+	border-radius: 6px;
+	background: var(--comfy-input-bg, #2a2e38);
+	color: var(--fg-color, #eee);
 }
 
 .meld-confirm-modal__actions {
@@ -75,12 +114,22 @@
 	filter: brightness(1.15);
 }
 
+.meld-confirm-modal__btn:disabled {
+	cursor: not-allowed;
+	filter: none;
+	color: var(--meld-text-secondary);
+}
+
 .meld-confirm-modal__btn--cancel {
 	background: var(--comfy-input-bg, #2a2e38);
 	color: var(--fg-color, #eee);
 }
 
 .meld-confirm-modal__btn--confirm {
-	background: var(--error-color, #ff4c4c);
+	background: var(--meld-accent-color, #3b82f6);
 	color: var(--fg-color, #eee);
+}
+
+.meld-confirm-modal__btn--danger {
+	background: var(--error-color, #ff4c4c);
 }

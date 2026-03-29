@@ -26,11 +26,13 @@ const defaultSlots: SlotConfig[] = [
 
 let toastTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
+const cloneDefaultSlots = (): SlotConfig[] => defaultSlots.map((slot) => ({ ...slot }));
+
 export const useLightTableStore = create<TrayState>()(
 	persist(
 		(set) => ({
 			isOpen: false,
-			slots: defaultSlots,
+			slots: cloneDefaultSlots(),
 			buckets: {},
 			images: {},
 			toastMessage: null,
@@ -184,3 +186,20 @@ export const useLightTableStore = create<TrayState>()(
 		},
 	),
 );
+
+export const resetLightTableStore = () => {
+	if (toastTimeoutId) {
+		clearTimeout(toastTimeoutId);
+		toastTimeoutId = null;
+	}
+	useLightTableStore.setState((state) => ({
+		...state,
+		isOpen: false,
+		slots: cloneDefaultSlots(),
+		buckets: {},
+		images: {},
+		toastMessage: null,
+		toastType: "info",
+	}));
+	useLightTableStore.persist?.clearStorage?.();
+};

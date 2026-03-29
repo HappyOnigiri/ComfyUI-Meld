@@ -4,6 +4,7 @@ import { api } from "/scripts/api.js";
 import { app } from "/scripts/app.js";
 import { GalleryPanel } from "./features/gallery/components/GalleryPanel";
 import * as imagesApi from "./features/images/api/imagesApi";
+import { resetLightTableStore } from "./features/light-table/store";
 import * as settingsApi from "./features/settings/api/settingsApi";
 import { logger } from "./logger";
 import { startPortalRootAutoAttach } from "./portals/portalRoots";
@@ -35,6 +36,27 @@ if (!existingStyle) {
 
 let galleryRoot: Root | null = null;
 let galleryContainer: HTMLDivElement | null = null;
+
+const GalleryTree: React.FC = () =>
+	React.createElement(GalleryProvider, null, React.createElement(GalleryPanel));
+
+const MeldRoot: React.FC = () => {
+	const [databaseSessionKey, setDatabaseSessionKey] = React.useState(0);
+
+	React.useEffect(() => {
+		const handleDatabaseChanged = () => {
+			resetLightTableStore();
+			setDatabaseSessionKey((prev) => prev + 1);
+		};
+
+		window.addEventListener("meld-database-changed", handleDatabaseChanged);
+		return () => {
+			window.removeEventListener("meld-database-changed", handleDatabaseChanged);
+		};
+	}, []);
+
+	return React.createElement(GalleryTree, { key: databaseSessionKey });
+};
 
 app.registerExtension({
 	name: "ComfyUI.Meld",
@@ -208,9 +230,7 @@ app.registerExtension({
 					if (!galleryRoot) {
 						logger.log("Creating new gallery root");
 						galleryRoot = createRoot(galleryContainer);
-						galleryRoot.render(
-							React.createElement(GalleryProvider, null, React.createElement(GalleryPanel)),
-						);
+						galleryRoot.render(React.createElement(MeldRoot));
 					} else {
 						logger.log("Gallery root already exists, React should handle re-render if needed");
 					}

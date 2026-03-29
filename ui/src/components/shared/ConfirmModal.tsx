@@ -1,28 +1,33 @@
 import type React from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useEscapeToClose } from "../../hooks/useEscapeToClose";
+import type { ConfirmModalConfig } from "../../types";
 
 // Use the same CSS as the light-table's ConfirmModal for consistency
 import "../../features/light-table/components/ConfirmModal.css";
-
-interface ConfirmModalProps {
-	/** Message to display in the modal */
-	message: string;
-	/** Callback when the confirm button is pressed */
-	onConfirm: () => void;
-	/** Callback when cancelled */
-	onCancel: () => void;
-}
 
 /**
  * Global confirmation modal component.
  * Can be cancelled with ESC key or overlay click.
  * Implements focus management for accessibility.
  */
-export const ConfirmModal: React.FC<ConfirmModalProps> = ({ message, onConfirm, onCancel }) => {
+export const ConfirmModal: React.FC<ConfirmModalConfig> = ({
+	title,
+	message,
+	details,
+	confirmLabel = "OK",
+	cancelLabel = "Cancel",
+	danger = false,
+	requiredText,
+	requiredTextLabel,
+	onConfirm,
+	onCancel,
+}) => {
 	const dialogRef = useRef<HTMLDivElement>(null);
 	const previousFocusRef = useRef<Element | null>(null);
-	useEscapeToClose({ onEscape: onCancel });
+	const [inputValue, setInputValue] = useState("");
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	useEscapeToClose({ onEscape: isSubmitting ? () => {} : (onCancel ?? (() => {})) });
 
 	// Focus management: Trap Tab, ESC handler, and focus restore
 	useEffect(() => {
@@ -83,12 +88,18 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({ message, onConfirm, 
 		};
 	}, []);
 
+	const isConfirmDisabled = isSubmitting || (!!requiredText && inputValue !== requiredText);
+
 	return (
 		<div
 			className="meld-confirm-modal__overlay"
-			onClick={onCancel}
+			onClick={() => {
+				if (!isSubmitting) {
+					onCancel?.();
+				}
+			}}
 			onKeyDown={(e) => {
-				if (e.key === "Enter") onCancel();
+				if (e.key === "Enter" && !isSubmitting) onCancel?.();
 			}}
 			role="presentation"
 		>
@@ -99,24 +110,66 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({ message, onConfirm, 
 				onKeyDown={(e) => e.stopPropagation()}
 				role="alertdialog"
 				aria-modal="true"
-				aria-label={message}
+				aria-label={title || message}
 				tabIndex={-1}
 			>
+				{title && <h3 className="meld-confirm-modal__title">{title}</h3>}
 				<p className="meld-confirm-modal__message">{message}</p>
+				{details && details.length > 0 && (
+					<ul className="meld-confirm-modal__details">
+						{details.map((detail) => (
+							<li key={detail}>{detail}</li>
+						))}
+					</ul>
+				)}
+				{requiredText && (
+					<div className="meld-confirm-modal__input-group">
+						<label className="meld-confirm-modal__input-label" htmlFor="meld-confirm-modal-input">
+							{requiredTextLabel || `Type "${requiredText}" to confirm.`}
+						</label>
+						<input
+							id="meld-confirm-modal-input"
+							type="text"
+							className="meld-confirm-modal__input"
+							value={inputValue}
+							onChange={(e) => setInputValue(e.target.value)}
+							autoComplete="off"
+							autoCapitalize="off"
+							spellCheck={false}
+							disabled={isSubmitting}
+						/>
+					</div>
+				)}
 				<div className="meld-confirm-modal__actions">
 					<button
 						type="button"
 						className="meld-confirm-modal__btn meld-confirm-modal__btn--cancel"
-						onClick={onCancel}
+						onClick={() => onCancel?.()}
+						disabled={isSubmitting}
 					>
-						Cancel
+						{cancelLabel}
 					</button>
 					<button
 						type="button"
-						className="meld-confirm-modal__btn meld-confirm-modal__btn--confirm"
-						onClick={onConfirm}
+						className={`meld-confirm-modal__btn meld-confirm-modal__btn--confirm${
+							danger ? " meld-confirm-modal__btn--danger" : ""
+						}`}
+						onClick={async () => {
+							if (isConfirmDisabled) {
+								return;
+							}
+							setIsSubmitting(true);
+							try {
+								await Promise.resolve(onConfirm(inputValue));
+							} catch {
+								// The caller handles error reporting.
+							} finally {
+								setIsSubmitting(false);
+							}
+						}}
+						disabled={isConfirmDisabled}
 					>
-						OK
+						{confirmLabel}
 					</button>
 				</div>
 			</div>
