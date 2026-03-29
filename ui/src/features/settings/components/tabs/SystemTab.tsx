@@ -1,5 +1,5 @@
 import type React from "react";
-import type { Settings } from "../../../../types";
+import type { DatabaseSummary, Settings } from "../../../../types";
 import { SettingItem } from "../SettingItem";
 
 interface SystemTabProps {
@@ -15,6 +15,14 @@ interface SystemTabProps {
 	trashRetentionDaysInput: string;
 	autoLinkPhashThresholdInput: string;
 	suggestPhashThresholdInput: string;
+	databases: DatabaseSummary[];
+	activeDatabaseName: string | null;
+	databaseNameInput: string;
+	setDatabaseNameInput: React.Dispatch<React.SetStateAction<string>>;
+	isDatabaseLoading: boolean;
+	handleCreateDatabase: () => void | Promise<void>;
+	handleSwitchDatabase: (database: DatabaseSummary) => void;
+	handleDeleteDatabase: (database: DatabaseSummary) => void;
 }
 
 export const SystemTab: React.FC<SystemTabProps> = ({
@@ -29,6 +37,14 @@ export const SystemTab: React.FC<SystemTabProps> = ({
 	trashRetentionDaysInput,
 	autoLinkPhashThresholdInput,
 	suggestPhashThresholdInput,
+	databases,
+	activeDatabaseName,
+	databaseNameInput,
+	setDatabaseNameInput,
+	isDatabaseLoading,
+	handleCreateDatabase,
+	handleSwitchDatabase,
+	handleDeleteDatabase,
 }) => {
 	return (
 		<div className="meld-settings-list">
@@ -122,6 +138,72 @@ export const SystemTab: React.FC<SystemTabProps> = ({
 						onBlur={() => handleNumberBlur({ key: "gallery.lineage_max_depth" })}
 					/>
 				</SettingItem>
+			</div>
+
+			<div className="meld-settings-group">
+				<div className="meld-settings-group-title">Database</div>
+				<SettingItem
+					label="Create Database"
+					description="Create a new empty database file. Creation uses a confirmation modal."
+				>
+					<div className="meld-settings-inline-actions">
+						<input
+							type="text"
+							className="meld-input"
+							value={databaseNameInput}
+							onChange={(e) => setDatabaseNameInput(e.target.value)}
+							placeholder="database_name"
+							disabled={isDatabaseLoading}
+							aria-label="Database name"
+						/>
+						<button
+							type="button"
+							className="meld-button meld-button--secondary"
+							onClick={handleCreateDatabase}
+							disabled={isDatabaseLoading || databaseNameInput.trim().length === 0}
+						>
+							Create
+						</button>
+					</div>
+				</SettingItem>
+
+				<div className="meld-settings-database-list" role="list" aria-label="Database list">
+					{databases.map((database) => (
+						<div key={database.name} className="meld-settings-database-card" role="listitem">
+							<div className="meld-settings-database-card__info">
+								<div className="meld-settings-database-card__title-row">
+									<span className="meld-settings-database-card__title">{database.name}</span>
+									{database.is_active && (
+										<span className="meld-settings-database-card__badge">Active</span>
+									)}
+								</div>
+								<div className="meld-settings-database-card__meta">
+									<span>{database.filename}</span>
+									<span>{database.image_count} images</span>
+									{activeDatabaseName === database.name && <span>Currently loaded</span>}
+								</div>
+							</div>
+							<div className="meld-settings-database-card__actions">
+								<button
+									type="button"
+									className="meld-button meld-button--secondary"
+									onClick={() => handleSwitchDatabase(database)}
+									disabled={isDatabaseLoading || database.is_active}
+								>
+									Switch
+								</button>
+								<button
+									type="button"
+									className="meld-btn meld-btn--danger"
+									onClick={() => handleDeleteDatabase(database)}
+									disabled={isDatabaseLoading || !database.can_delete}
+								>
+									Delete
+								</button>
+							</div>
+						</div>
+					))}
+				</div>
 			</div>
 
 			<div className="meld-settings-group">

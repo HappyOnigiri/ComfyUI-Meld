@@ -4,11 +4,13 @@ import { useGallery } from "../../../store/GalleryContext";
 import type { Settings } from "../../../types";
 import * as settingsApi from "../api/settingsApi";
 import { validateShortcutCommand } from "../utils/shortcutGrammar";
+import { useDatabaseManagement } from "./useDatabaseManagement";
 
 export type Category = "Gallery" | "View" | "Full Screen" | "Shortcuts" | "System" | "Information";
 
 export const useSettingsModalLogic = () => {
 	const { state, dispatch, updateSetting } = useGallery();
+	const databaseManagement = useDatabaseManagement();
 	const [activeTab, setActiveTab] = useState<Category>("Gallery");
 	const [localSettings, setLocalSettings] = useState<Settings>({
 		...state.settings,
@@ -249,5 +251,6 @@ export const useSettingsModalLogic = () => {
 		viewerCorePromptCountInput,
 		fullscreenCorePromptCountInput,
 		thumbnailSizeInput,
+		...databaseManagement,
 	};
 };
