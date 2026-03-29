@@ -67,7 +67,7 @@ comfy node install HappyOnigiri/ComfyUI-Meld
 git clone https://github.com/HappyOnigiri/ComfyUI-Meld.git
 cd ComfyUI-Meld
 pip install -r requirements.txt
-make setup-hooks  # Git フックの有効化 (推奨)
+make install-hooks  # 任意: Git フックの有効化 (推奨)
 
 ```
 
@@ -105,7 +105,7 @@ make setup-hooks  # Git フックの有効化 (推奨)
 
 **Pull Request (PR) は、ドキュメントの誤字修正から新機能の実装まで、どんな小さなものでも大歓迎です！**
 
-このリポジトリでは `main` ブランチへの直接コミットを禁止しています。開発の際は、新しいブランチを作成して PR を作成してください（`make setup-hooks` を実行すると、自動チェックが有効になります）。
+このリポジトリでは `main` ブランチへの直接コミットを禁止しています。開発の際は、新しいブランチを作成して PR を作成してください（`make install-hooks` を実行すると、自動チェックが有効になります）。
 
 完璧なコードである必要はありません。「とりあえず動く」状態でも問題ありません。
 
