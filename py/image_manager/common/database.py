@@ -10,10 +10,10 @@ from .db.client import (
     TRASH_DIR,
     ActiveDatabaseState,
     create_database,
+    db_connection,
     delete_database,
     get_active_database_state,
     get_database_path,
-    get_db_connection,
     get_thumbnail_cache_dir,
     get_trash_dir,
     list_database_names,
@@ -26,7 +26,7 @@ from .model_repo import add_model_relation, get_or_create_model
 from .schemas import TagRecord
 
 # --- DB Settings ---
-# Constants and get_db_connection moved to .db.client
+# Constants and connection helpers moved to .db.client
 # CRUD functions moved to .features.*.repository
 
 __all__ = [
@@ -36,7 +36,7 @@ __all__ = [
     "ACTIVE_DATABASE_STATE_PATH",
     "DB_PATH",
     "TRASH_DIR",
-    "get_db_connection",
+    "db_connection",
     "get_trash_dir",
     "get_thumbnail_cache_dir",
     "init_db",
