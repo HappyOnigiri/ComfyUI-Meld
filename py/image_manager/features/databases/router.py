@@ -1,3 +1,5 @@
+import json
+
 from aiohttp import web
 
 from ...common.exceptions import MeldError
@@ -38,6 +40,8 @@ async def create_database_endpoint(request: web.Request) -> web.Response:
 
         payload = create_database_and_get_payload(req.name, req.switch_to_new)
         return web.json_response(ApiResponse(success=True, data=payload).to_dict())
+    except json.JSONDecodeError:
+        return web.json_response(ApiResponse(success=False, error="Malformed JSON").to_dict(), status=400)
     except MeldError as e:
         return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
@@ -56,6 +60,8 @@ async def switch_database_endpoint(request: web.Request) -> web.Response:
 
         payload = switch_database_and_get_payload(req.name)
         return web.json_response(ApiResponse(success=True, data=payload).to_dict())
+    except json.JSONDecodeError:
+        return web.json_response(ApiResponse(success=False, error="Malformed JSON").to_dict(), status=400)
     except MeldError as e:
         return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
@@ -79,6 +85,8 @@ async def delete_database_endpoint(request: web.Request) -> web.Response:
 
         payload = delete_database_and_get_payload(req.name)
         return web.json_response(ApiResponse(success=True, data=payload).to_dict())
+    except json.JSONDecodeError:
+        return web.json_response(ApiResponse(success=False, error="Malformed JSON").to_dict(), status=400)
     except MeldError as e:
         return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
@@ -99,5 +107,7 @@ async def rename_database_endpoint(request: web.Request) -> web.Response:
 
         payload = rename_database_and_get_payload(req.name, req.new_name)
         return web.json_response(ApiResponse(success=True, data=payload).to_dict())
+    except json.JSONDecodeError:
+        return web.json_response(ApiResponse(success=False, error="Malformed JSON").to_dict(), status=400)
     except MeldError as e:
         return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
