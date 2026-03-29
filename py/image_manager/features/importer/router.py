@@ -5,6 +5,7 @@ import os
 import folder_paths
 from aiohttp import web
 
+from ...common.exceptions import MeldError
 from ...common.schemas import (
     ApiResponse,
     FolderItem,
@@ -31,8 +32,8 @@ async def cleanup_endpoint(request: web.Request) -> web.Response:
     try:
         count = perform_cleanup()
         return web.json_response(ApiResponse(success=True, count=count).to_dict())
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.get("/meld/folders")
@@ -137,8 +138,8 @@ async def list_folders(request: web.Request) -> web.Response:
             image_count=total_recursive_count,
         )
         return web.json_response(ApiResponse(success=True, data=response.to_dict()).to_dict())
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.get("/meld/folder-metadata")
@@ -188,8 +189,8 @@ async def get_folder_metadata_endpoint(request: web.Request) -> web.Response:
                 results[name] = FolderMetadata(count=sub_count, preview=preview).to_dict()
 
         return web.json_response(ApiResponse(success=True, data=results).to_dict())
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.get("/meld/path-image-count")
@@ -212,8 +213,8 @@ async def get_path_image_count(request: web.Request) -> web.Response:
             count = await loop.run_in_executor(None, count_images_recursive, target_path)
             return web.json_response(ApiResponse(success=True, count=count).to_dict())
         return web.json_response(ApiResponse(success=True, count=0).to_dict())
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.post("/meld/scan")
@@ -265,8 +266,8 @@ async def start_scan(request: web.Request) -> web.Response:
         )
 
         return web.json_response(ApiResponse(success=True, message="started").to_dict())
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.post("/meld/scan/cancel")

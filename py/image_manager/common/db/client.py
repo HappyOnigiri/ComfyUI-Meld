@@ -14,6 +14,7 @@ from datetime import datetime
 from typing import Any, TypeVar, overload
 
 from ..env import is_dev_mode
+from ..exceptions import ConflictError, NotFoundError, ValidationError
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "data")
 DATABASES_DIR = os.path.join(DATA_DIR, "databases")
@@ -53,9 +54,9 @@ def _normalize_database_name(name: str) -> str:
     if normalized.lower().endswith(".db"):
         normalized = normalized[:-3]
     if not normalized:
-        raise ValueError("Database name is required")
+        raise ValidationError("Database name is required")
     if not _DB_NAME_PATTERN.fullmatch(normalized):
-        raise ValueError("Database name must match [A-Za-z0-9][A-Za-z0-9._-]{0,63}")
+        raise ValidationError("Database name must match [A-Za-z0-9][A-Za-z0-9._-]{0,63}")
     return normalized
 
 
@@ -148,7 +149,7 @@ def _move_sqlite_files(source_db_path: str, target_db_path: str) -> None:
         target_candidate = f"{target_db_path}{suffix}"
         if os.path.exists(source_candidate):
             if os.path.exists(target_candidate):
-                raise FileExistsError(f"Database already exists: {os.path.basename(target_db_path)}")
+                raise ConflictError(f"Database already exists: {os.path.basename(target_db_path)}")
             shutil.move(source_candidate, target_candidate)
 
 
@@ -272,7 +273,7 @@ def create_database(name: str, switch_to_new: bool = False) -> ActiveDatabaseSta
     normalized = _normalize_database_name(name)
     db_path = get_database_path(normalized)
     if os.path.exists(db_path):
-        raise FileExistsError(f"Database already exists: {normalized}")
+        raise ConflictError(f"Database already exists: {normalized}")
 
     from .schema import init_db
 
@@ -290,7 +291,7 @@ def switch_active_database(name: str) -> ActiveDatabaseState:
     normalized = _normalize_database_name(name)
     db_path = get_database_path(normalized)
     if not os.path.exists(db_path):
-        raise FileNotFoundError(f"Database not found: {normalized}")
+        raise NotFoundError(f"Database not found: {normalized}")
     from .schema import init_db
 
     with _state_lock:
@@ -306,7 +307,7 @@ def delete_database(name: str) -> ActiveDatabaseState:
     with _state_lock:
         existing = list_database_names()
         if normalized not in existing:
-            raise FileNotFoundError(f"Database not found: {normalized}")
+            raise NotFoundError(f"Database not found: {normalized}")
 
         if normalized == ACTIVE_DATABASE_NAME:
             remaining = [item for item in existing if item != normalized]
@@ -335,14 +336,14 @@ def rename_database(name: str, new_name: str) -> ActiveDatabaseState:
     normalized = _normalize_database_name(name)
     normalized_new = _normalize_database_name(new_name)
     if normalized == normalized_new:
-        raise ValueError("New database name must be different")
+        raise ValidationError("New database name must be different")
 
     with _state_lock:
         existing = list_database_names()
         if normalized not in existing:
-            raise FileNotFoundError(f"Database not found: {normalized}")
+            raise NotFoundError(f"Database not found: {normalized}")
         if normalized_new in existing:
-            raise FileExistsError(f"Database already exists: {normalized_new}")
+            raise ConflictError(f"Database already exists: {normalized_new}")
 
         source_db_path = get_database_path(normalized)
         target_db_path = get_database_path(normalized_new)
@@ -351,7 +352,7 @@ def rename_database(name: str, new_name: str) -> ActiveDatabaseState:
         source_runtime_dir = get_database_runtime_dir(normalized)
         target_runtime_dir = get_database_runtime_dir(normalized_new)
         if os.path.exists(target_runtime_dir):
-            raise FileExistsError(f"Runtime directory already exists for database: {normalized_new}")
+            raise ConflictError(f"Runtime directory already exists for database: {normalized_new}")
         if os.path.isdir(source_runtime_dir):
             shutil.move(source_runtime_dir, target_runtime_dir)
         else:

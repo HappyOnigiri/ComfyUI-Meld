@@ -17,6 +17,7 @@ from PIL import Image
 
 from ....load_image_configs.core.metadata_helper import MetadataHelper
 from ...common.db.client import db_connection, get_thumbnail_cache_dir, get_trash_dir
+from ...common.exceptions import MeldError, ValidationError
 from ...common.model_repo import add_model_relation, get_or_create_model
 from ...common.schemas import (
     ApiResponse,
@@ -215,8 +216,8 @@ async def get_image_details(request: web.Request) -> web.Response:
         )
 
         return web.json_response(ApiResponse(success=True, data=item.to_dict()).to_dict())
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.get("/meld/image/{image_id}/workflow")
@@ -238,8 +239,8 @@ async def get_image_workflow(request: web.Request) -> web.Response:
                 )
 
         return web.json_response(ApiResponse(success=False, error="Workflow not found").to_dict(), status=404)
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.get("/meld/image/{image_id}/snapshot_data")
@@ -359,9 +360,9 @@ async def get_image_snapshot_data(request: web.Request) -> web.Response:
                     data.clip_device = str(clip_params.get("clip_device") or "")
 
         return web.json_response(ApiResponse(success=True, data=data.to_dict()).to_dict())
-    except Exception as e:
+    except MeldError as e:
         logging.exception(f"[Meld] Failed to get snapshot data: {e}")
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.get("/meld/list")
@@ -369,9 +370,16 @@ async def list_images(request: web.Request) -> web.Response:
     try:
         start_time = time.time()
         is_minimal = request.query.get("minimal", "false").lower() == "true"
+        try:
+            offset = int(request.query.get("offset", 0))
+            limit = int(request.query.get("limit", 1000000))
+        except (ValueError, TypeError):
+            return web.json_response(
+                ApiResponse(success=False, error="offset and limit must be integers").to_dict(), status=400
+            )
         req = SearchImagesRequest(
-            offset=int(request.query.get("offset", 0)),
-            limit=int(request.query.get("limit", 1000000)),
+            offset=offset,
+            limit=limit,
             query=request.query.get("query", ""),
             view=request.query.get("view", "default"),
         )
@@ -382,7 +390,10 @@ async def list_images(request: web.Request) -> web.Response:
             search_sql, search_params, order_sql = SearchService.build_search_sql(req.query)
 
             db_settings = get_all_settings(cursor)
-            lineage_max_depth = int(db_settings.get("gallery.lineage_max_depth", 5))
+            try:
+                lineage_max_depth = int(db_settings.get("gallery.lineage_max_depth", 5))
+            except (ValueError, TypeError):
+                lineage_max_depth = 5
 
             deleted_filter = "i.deleted_at IS NOT NULL" if req.view == "trash" else "i.deleted_at IS NULL"
 
@@ -601,9 +612,9 @@ async def list_images(request: web.Request) -> web.Response:
                 count=total_count,  # Keep it in data
             ).to_dict()
         )
-    except Exception as e:
+    except MeldError as e:
         logging.exception("[Meld] Failed to list images")
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.post("/meld/restore")
@@ -693,9 +704,11 @@ async def restore_images(request: web.Request) -> web.Response:
         return web.json_response(
             ApiResponse(success=True, count=len(restored_ids), data={"restored_ids": restored_ids}).to_dict()
         )
-    except Exception as e:
+    except json.JSONDecodeError:
+        return web.json_response(ApiResponse(success=False, error="Malformed JSON").to_dict(), status=400)
+    except MeldError as e:
         logging.exception("[Meld] Restore failed")
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.post("/meld/bulk-delete")
@@ -783,9 +796,11 @@ async def bulk_delete_images(request: web.Request) -> web.Response:
             conn.commit()
 
         return web.json_response(ApiResponse(success=True, count=deleted_count).to_dict())
-    except Exception as e:
+    except json.JSONDecodeError:
+        return web.json_response(ApiResponse(success=False, error="Malformed JSON").to_dict(), status=400)
+    except MeldError as e:
         logging.exception("[Meld] Bulk delete failed")
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.post("/meld/image-notes")
@@ -886,9 +901,11 @@ async def update_image_notes(request: web.Request) -> web.Response:
         )
 
         return web.json_response(ApiResponse(success=True, data=item.to_dict()).to_dict())
-    except Exception as e:
+    except json.JSONDecodeError:
+        return web.json_response(ApiResponse(success=False, error="Malformed JSON").to_dict(), status=400)
+    except MeldError as e:
         logging.exception("[Meld] Failed to update image notes")
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.post("/meld/delete")
@@ -978,8 +995,10 @@ async def delete_image_endpoint(request: web.Request) -> web.Response:
             conn.commit()
 
         return web.json_response(ApiResponse(success=True).to_dict())
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except json.JSONDecodeError:
+        return web.json_response(ApiResponse(success=False, error="Malformed JSON").to_dict(), status=400)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.post("/meld/link-parent")
@@ -1023,8 +1042,10 @@ async def link_parent_endpoint(request: web.Request) -> web.Response:
             conn.commit()
 
         return web.json_response(ApiResponse(success=True).to_dict())
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except json.JSONDecodeError:
+        return web.json_response(ApiResponse(success=False, error="Malformed JSON").to_dict(), status=400)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.get("/meld/suggest-parents")
@@ -1037,7 +1058,12 @@ async def suggest_parents_endpoint(request: web.Request) -> web.Response:
 
             db_settings = get_all_settings(cursor)
             default_threshold = db_settings.get("gallery.suggest_phash_threshold", 82)
-            threshold_pct = float(request.query.get("threshold", default_threshold))
+            try:
+                threshold_pct = float(request.query.get("threshold", default_threshold))
+            except (ValueError, TypeError):
+                return web.json_response(
+                    ApiResponse(success=False, error="threshold must be a valid number").to_dict(), status=400
+                )
             threshold = round(64 * (1 - threshold_pct / 100))
 
             if not image_id:
@@ -1067,9 +1093,9 @@ async def suggest_parents_endpoint(request: web.Request) -> web.Response:
             )
 
         return web.json_response(ApiResponse(success=True, data=[s.to_dict() for s in suggestions[:20]]).to_dict())
-    except Exception as e:
+    except MeldError as e:
         logging.exception("[Meld] Failed to suggest parents")
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.get("/meld/lineage")
@@ -1146,9 +1172,9 @@ async def get_lineage_endpoint(request: web.Request) -> web.Response:
                 )
 
         return web.json_response(ApiResponse(success=True, data=result).to_dict())
-    except Exception as e:
+    except MeldError as e:
         logging.exception("[Meld] Failed to get lineage")
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 _thumb_executor: ThreadPoolExecutor | None = None
@@ -1363,11 +1389,11 @@ async def clear_thumbnail_cache_endpoint(request: web.Request) -> web.Response:
                     except OSError as e:
                         logging.warning("[Meld] Failed to remove cache file %s: %s", fp, e)
         return web.json_response(ApiResponse(success=True, data={"deleted_count": deleted_count}).to_dict())
-    except Exception as e:
+    except MeldError as e:
         logging.exception("[Meld] Error in clear_thumbnail_cache: %s", e)
         return web.json_response(
             ApiResponse(success=False, error=str(e)).to_dict(),
-            status=500,
+            status=e.status_code,
         )
 
 
@@ -1585,9 +1611,11 @@ async def register_image_endpoint(request: web.Request) -> web.Response:
         server.PromptServer.instance.send_sync("meld-image-saved", {"count": 1})
 
         return web.json_response(ApiResponse(success=True, data={"id": image_id}).to_dict())
-    except Exception as e:
+    except json.JSONDecodeError:
+        return web.json_response(ApiResponse(success=False, error="Malformed JSON").to_dict(), status=400)
+    except MeldError as e:
         logging.exception("[Meld] Failed to register image")
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 def _get_image_path(img_type: str, subfolder: str, filename: str) -> str | None:
@@ -1741,7 +1769,7 @@ def _strip_metadata(image_path: str) -> bytes:
             return buffer.getvalue()
     except Exception as e:
         logging.error(f"[Meld] Failed to process image {image_path}: {e}")
-        raise ValueError("Invalid image file") from e
+        raise ValidationError("Invalid image file") from e
 
 
 # Resize filter name -> Pillow Resampling constant mapping
@@ -1914,11 +1942,13 @@ async def download_zip(request: web.Request) -> web.Response:
             content_type="application/zip",
             headers={"Content-Disposition": 'attachment; filename="meld_images.zip"'},
         )
-    except Exception as e:
+    except json.JSONDecodeError:
+        return web.json_response(ApiResponse(success=False, error="Malformed JSON").to_dict(), status=400)
+    except MeldError as e:
         import traceback
 
         traceback.print_exc()
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.post("/meld/download/raw")
@@ -1970,8 +2000,10 @@ async def download_raw(request: web.Request) -> web.Response:
 
         headers = {"Content-Disposition": f'attachment; filename="{filename}"'}
         return web.Response(body=img_bytes, content_type=content_type, headers=headers)
-    except Exception as e:
+    except json.JSONDecodeError:
+        return web.json_response(ApiResponse(success=False, error="Malformed JSON").to_dict(), status=400)
+    except MeldError as e:
         import traceback
 
         traceback.print_exc()
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)

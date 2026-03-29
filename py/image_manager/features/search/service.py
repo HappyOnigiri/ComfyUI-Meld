@@ -16,6 +16,7 @@ from ...common.constants import (
     SEARCH_PREFIX_RESOLUTION,
     SEARCH_PREFIX_SORT,
 )
+from ...common.exceptions import ValidationError
 
 
 class SearchService:
@@ -235,7 +236,7 @@ class SearchService:
                 try:
                     parsed_id = int(cond["value"])
                 except ValueError:
-                    raise ValueError(f"Invalid ID format: {cond['value']}. ID must be an integer.") from None
+                    raise ValidationError(f"Invalid ID format: {cond['value']}. ID must be an integer.") from None
 
                 if is_negative:
                     sub_queries.append("i.id != ?")

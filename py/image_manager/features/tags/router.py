@@ -2,6 +2,7 @@ from aiohttp import web
 
 from ...common.constants import RESERVED_TAG_KEYWORD
 from ...common.db.client import db_connection
+from ...common.exceptions import MeldError
 from ...common.schemas import (
     ApiResponse,
     BulkUpdateImageTagsRequest,
@@ -56,8 +57,8 @@ async def update_image_tags(request: web.Request) -> web.Response:
             conn.commit()
 
         return web.json_response(ApiResponse(success=True).to_dict())
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.post("/meld/bulk-image-tags")
@@ -116,8 +117,8 @@ async def bulk_update_image_tags(request: web.Request) -> web.Response:
             conn.commit()
 
         return web.json_response(ApiResponse(success=True).to_dict())
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.get("/meld/tags")
@@ -127,8 +128,8 @@ async def list_tags(request: web.Request) -> web.Response:
             cursor = conn.cursor()
             tags = get_all_tags(cursor)
         return web.json_response(ApiResponse(success=True, data=[tag.to_dict() for tag in tags]).to_dict())
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.post("/meld/tags")
@@ -164,8 +165,8 @@ async def create_tag(request: web.Request) -> web.Response:
                 ApiResponse(success=True, data=TagRecord(id=row[0], name=row[1]).to_dict()).to_dict()
             )
         return web.json_response(ApiResponse(success=False, error="Failed to create tag").to_dict(), status=500)
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.delete("/meld/tags")
@@ -186,8 +187,8 @@ async def remove_tag(request: web.Request) -> web.Response:
         if success:
             return web.json_response(ApiResponse(success=True).to_dict())
         return web.json_response(ApiResponse(success=False, error="Tag not found").to_dict(), status=404)
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.post("/meld/tags/rename")
@@ -220,5 +221,5 @@ async def tag_rename_endpoint(request: web.Request) -> web.Response:
             ApiResponse(success=False, error="Failed to rename tag (maybe name already exists?)").to_dict(),
             status=400,
         )
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)

@@ -1,5 +1,8 @@
+import json
+
 from aiohttp import web
 
+from ...common.exceptions import MeldError
 from ...common.schemas import (
     ApiResponse,
     CreateDatabaseRequest,
@@ -20,10 +23,7 @@ routes = web.RouteTableDef()
 
 @routes.get("/meld/databases")
 async def get_databases(request: web.Request) -> web.Response:
-    try:
-        return web.json_response(ApiResponse(success=True, data=get_database_payload()).to_dict())
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    return web.json_response(ApiResponse(success=True, data=get_database_payload()).to_dict())
 
 
 @routes.post("/meld/databases")
@@ -40,14 +40,10 @@ async def create_database_endpoint(request: web.Request) -> web.Response:
 
         payload = create_database_and_get_payload(req.name, req.switch_to_new)
         return web.json_response(ApiResponse(success=True, data=payload).to_dict())
-    except FileExistsError as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=409)
-    except RuntimeError as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=409)
-    except ValueError as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=400)
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except json.JSONDecodeError:
+        return web.json_response(ApiResponse(success=False, error="Malformed JSON").to_dict(), status=400)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.post("/meld/databases/switch")
@@ -64,14 +60,10 @@ async def switch_database_endpoint(request: web.Request) -> web.Response:
 
         payload = switch_database_and_get_payload(req.name)
         return web.json_response(ApiResponse(success=True, data=payload).to_dict())
-    except FileNotFoundError as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=404)
-    except RuntimeError as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=409)
-    except ValueError as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=400)
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except json.JSONDecodeError:
+        return web.json_response(ApiResponse(success=False, error="Malformed JSON").to_dict(), status=400)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.post("/meld/databases/delete")
@@ -93,14 +85,10 @@ async def delete_database_endpoint(request: web.Request) -> web.Response:
 
         payload = delete_database_and_get_payload(req.name)
         return web.json_response(ApiResponse(success=True, data=payload).to_dict())
-    except FileNotFoundError as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=404)
-    except RuntimeError as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=409)
-    except ValueError as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=400)
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except json.JSONDecodeError:
+        return web.json_response(ApiResponse(success=False, error="Malformed JSON").to_dict(), status=400)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)
 
 
 @routes.post("/meld/databases/rename")
@@ -119,11 +107,7 @@ async def rename_database_endpoint(request: web.Request) -> web.Response:
 
         payload = rename_database_and_get_payload(req.name, req.new_name)
         return web.json_response(ApiResponse(success=True, data=payload).to_dict())
-    except FileNotFoundError as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=404)
-    except (FileExistsError, RuntimeError) as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=409)
-    except ValueError as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=400)
-    except Exception as e:
-        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
+    except json.JSONDecodeError:
+        return web.json_response(ApiResponse(success=False, error="Malformed JSON").to_dict(), status=400)
+    except MeldError as e:
+        return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=e.status_code)

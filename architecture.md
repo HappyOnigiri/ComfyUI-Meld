@@ -85,6 +85,23 @@ This document serves as a comprehensive guide for AI agents and developers to un
 
 ## 4. Implementation Rules
 
+### Error Handling
+- **Domain exceptions**: All anticipated error conditions in the service/common
+  layer MUST raise a subclass of `MeldError` (`py/image_manager/common/exceptions.py`).
+  Available: `NotFoundError` (404), `ValidationError` (400), `ConflictError` (409),
+  `DatabaseError` (500). Do NOT raise Python builtins (`ValueError`,
+  `FileNotFoundError`, etc.) for domain errors.
+- **Router catch pattern**: Catch `MeldError` with `status=e.status_code`.
+  Do NOT catch bare `Exception` in routers — let programming errors propagate to
+  aiohttp's default handler.
+- **`from_dict()` parsing**: Keep `except (TypeError, ValueError)` → 400 for
+  request DTO construction (separate from domain exceptions).
+- **Binary endpoints** (view_thumb, view_trash, view_custom): Return plain
+  `web.Response` without ApiResponse wrapper; catch `Exception` with plain
+  `web.Response(status=5xx)`.
+- **Background threads**: Catch `Exception` with `logging.exception()` to prevent
+  silent thread death.
+
 ### Dependency Rules
 - **Backend**:
   - `image_manager` is the central dependency. Other nodes (like `load_image_configs`) should NOT depend on `image_manager` if possible to avoid circular imports, but `image_manager` relies on `load_image_configs` for metadata parsing.
