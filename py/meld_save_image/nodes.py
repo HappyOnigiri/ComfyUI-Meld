@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import re
 import time
@@ -110,7 +111,7 @@ class MeldSaveImage:
                     formatted_date = datetime.now().strftime(py_format)
                     filename_prefix = filename_prefix.replace(f"%{token}%", formatted_date)
                 except Exception:
-                    pass
+                    logging.warning("[Meld] Failed to format date token: %s", token)
             elif token == "date":
                 formatted_date = datetime.now().strftime("%Y-%m-%d")
                 filename_prefix = filename_prefix.replace("%date%", formatted_date)
@@ -169,7 +170,7 @@ class MeldSaveImage:
                     if parent_id is not None:
                         explicit_origin_match = True
                 except Exception:
-                    pass
+                    logging.warning("[Meld] Failed to find parent from origin_image", exc_info=True)
 
             if parent_id is None:
                 # Fallback to metadata-based inference (same as scan/register)
@@ -189,7 +190,7 @@ class MeldSaveImage:
                         prompt_json=prompt,
                     )
                 except Exception:
-                    pass
+                    logging.warning("[Meld] Failed to infer parent via metadata", exc_info=True)
 
             # When positive is unconnected and Source Image is specified, prefer Source Image's prompts
             if explicit_origin_match and parent_id is not None:
@@ -280,7 +281,7 @@ class MeldSaveImage:
                     try:
                         phash = str(imagehash.phash(img))
                     except Exception:
-                        pass
+                        logging.warning("[Meld] Failed to calculate pHash for image", exc_info=True)
 
                 # Insert Image
                 sql = """
