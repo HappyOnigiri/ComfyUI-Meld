@@ -91,6 +91,7 @@ This document serves as a comprehensive guide for AI agents and developers to un
   - **NO** absolute imports of project root. Use relative imports (e.g., `from ..utils import X`) within packages.
   - Active DB metadata must be stored outside the SQLite `settings` table. Use `py/data/active_database.json` plus `common/db/client.py` as the source of truth.
   - Runtime side effects that must be isolated per database (trash, thumbnail cache) belong under `py/data/runtime/<database_name>/`.
+  - **Database connections** must use the `db_connection()` context manager (`common/db/client.py`). Do NOT call `sqlite3.connect()` or raw connection functions directly. The context manager ensures connections are always closed, even on exceptions.
 
 - **Frontend**:
   - Use `api.fetchApi` for all network requests. **DO NOT** use native `fetch` directly for backend communication (to handle ComfyUI auth/routing).
