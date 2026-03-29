@@ -68,7 +68,7 @@ Run the following commands under your `custom_nodes` directory, then restart Com
 git clone https://github.com/HappyOnigiri/ComfyUI-Meld.git
 cd ComfyUI-Meld
 pip install -r requirements.txt
-make setup-hooks  # Enable Git hooks (recommended)
+make install-hooks  # Optional: enable Git hooks (recommended)
 
 ```
 
@@ -106,7 +106,7 @@ Please feel free to open an issue on GitHub.
 
 **Pull Requests (PRs) are welcome, from fixing typos in documentation to implementing new features!**
 
-Direct commits to the `main` branch are restricted. Please create a new branch and submit a PR for your changes (Running `make setup-hooks` will enable automatic checks).
+Direct commits to the `main` branch are restricted. Please create a new branch and submit a PR for your changes (Running `make install-hooks` enables automatic checks).
 
 Your code doesn't have to be perfect. Please feel free to submit even if it's just "functional" for now.
 
