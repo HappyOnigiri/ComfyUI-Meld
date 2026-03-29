@@ -10,7 +10,7 @@ import sqlite3
 import time
 from typing import Any
 
-from ...common.db.client import get_db_connection
+from ...common.db.client import db_connection
 
 CATEGORIES = (
     "positive_prompts",
@@ -48,113 +48,110 @@ def run_aggregation() -> None:
     Called from background thread on startup.
     """
     start_ms = time.perf_counter() * 1000
-    conn = get_db_connection()
-    cursor = conn.cursor()
     updated_at = time.time()
-    try:
-        # Total images
-        cursor.execute("SELECT COUNT(*) FROM images WHERE deleted_at IS NULL")
-        total = cursor.fetchone()[0]
-        cursor.execute(
-            "INSERT OR REPLACE INTO analytics_meta (key, value) VALUES (?, ?)",
-            ("total_images", str(total)),
-        )
-        cursor.execute(
-            "INSERT OR REPLACE INTO analytics_meta (key, value) VALUES (?, ?)",
-            ("updated_at", str(updated_at)),
-        )
+    with db_connection() as conn:
+        cursor = conn.cursor()
+        try:
+            # Total images
+            cursor.execute("SELECT COUNT(*) FROM images WHERE deleted_at IS NULL")
+            total = cursor.fetchone()[0]
+            cursor.execute(
+                "INSERT OR REPLACE INTO analytics_meta (key, value) VALUES (?, ?)",
+                ("total_images", str(total)),
+            )
+            cursor.execute(
+                "INSERT OR REPLACE INTO analytics_meta (key, value) VALUES (?, ?)",
+                ("updated_at", str(updated_at)),
+            )
 
-        # Positive prompts
-        cursor.execute("DELETE FROM analytics_positive_prompts")
-        cursor.execute("""
-            SELECT pp.name, COUNT(DISTINCT r.image_id) as cnt
-            FROM positive_prompts pp
-            JOIN positive_prompt_image_relations r ON pp.id = r.positive_prompt_id
-            JOIN images i ON r.image_id = i.id AND i.deleted_at IS NULL
-            GROUP BY pp.id ORDER BY cnt DESC
-        """)
-        cursor.executemany(
-            "INSERT INTO analytics_positive_prompts (name, count, updated_at) VALUES (?, ?, ?)",
-            [(row[0], row[1], updated_at) for row in cursor.fetchall()],
-        )
+            # Positive prompts
+            cursor.execute("DELETE FROM analytics_positive_prompts")
+            cursor.execute("""
+                SELECT pp.name, COUNT(DISTINCT r.image_id) as cnt
+                FROM positive_prompts pp
+                JOIN positive_prompt_image_relations r ON pp.id = r.positive_prompt_id
+                JOIN images i ON r.image_id = i.id AND i.deleted_at IS NULL
+                GROUP BY pp.id ORDER BY cnt DESC
+            """)
+            cursor.executemany(
+                "INSERT INTO analytics_positive_prompts (name, count, updated_at) VALUES (?, ?, ?)",
+                [(row[0], row[1], updated_at) for row in cursor.fetchall()],
+            )
 
-        # Negative prompts
-        cursor.execute("DELETE FROM analytics_negative_prompts")
-        cursor.execute("""
-            SELECT np.name, COUNT(DISTINCT r.image_id) as cnt
-            FROM negative_prompts np
-            JOIN negative_prompt_image_relations r ON np.id = r.negative_prompt_id
-            JOIN images i ON r.image_id = i.id AND i.deleted_at IS NULL
-            GROUP BY np.id ORDER BY cnt DESC
-        """)
-        cursor.executemany(
-            "INSERT INTO analytics_negative_prompts (name, count, updated_at) VALUES (?, ?, ?)",
-            [(row[0], row[1], updated_at) for row in cursor.fetchall()],
-        )
+            # Negative prompts
+            cursor.execute("DELETE FROM analytics_negative_prompts")
+            cursor.execute("""
+                SELECT np.name, COUNT(DISTINCT r.image_id) as cnt
+                FROM negative_prompts np
+                JOIN negative_prompt_image_relations r ON np.id = r.negative_prompt_id
+                JOIN images i ON r.image_id = i.id AND i.deleted_at IS NULL
+                GROUP BY np.id ORDER BY cnt DESC
+            """)
+            cursor.executemany(
+                "INSERT INTO analytics_negative_prompts (name, count, updated_at) VALUES (?, ?, ?)",
+                [(row[0], row[1], updated_at) for row in cursor.fetchall()],
+            )
 
-        # Tags
-        cursor.execute("DELETE FROM analytics_tags")
-        cursor.execute("""
-            SELECT t.name, COUNT(DISTINCT r.image_id) as cnt
-            FROM tags t
-            JOIN tag_image_relations r ON t.id = r.tag_id
-            JOIN images i ON r.image_id = i.id AND i.deleted_at IS NULL
-            GROUP BY t.id ORDER BY cnt DESC
-        """)
-        cursor.executemany(
-            "INSERT INTO analytics_tags (name, count, updated_at) VALUES (?, ?, ?)",
-            [(row[0], row[1], updated_at) for row in cursor.fetchall()],
-        )
+            # Tags
+            cursor.execute("DELETE FROM analytics_tags")
+            cursor.execute("""
+                SELECT t.name, COUNT(DISTINCT r.image_id) as cnt
+                FROM tags t
+                JOIN tag_image_relations r ON t.id = r.tag_id
+                JOIN images i ON r.image_id = i.id AND i.deleted_at IS NULL
+                GROUP BY t.id ORDER BY cnt DESC
+            """)
+            cursor.executemany(
+                "INSERT INTO analytics_tags (name, count, updated_at) VALUES (?, ?, ?)",
+                [(row[0], row[1], updated_at) for row in cursor.fetchall()],
+            )
 
-        # Models
-        cursor.execute("DELETE FROM analytics_models")
-        cursor.execute("""
-            SELECT m.name, COUNT(DISTINCT r.image_id) as cnt
-            FROM models m
-            JOIN model_image_relations r ON m.id = r.model_id
-            JOIN images i ON r.image_id = i.id AND i.deleted_at IS NULL
-            GROUP BY m.id ORDER BY cnt DESC
-        """)
-        cursor.executemany(
-            "INSERT INTO analytics_models (name, count, updated_at) VALUES (?, ?, ?)",
-            [(row[0], row[1], updated_at) for row in cursor.fetchall()],
-        )
+            # Models
+            cursor.execute("DELETE FROM analytics_models")
+            cursor.execute("""
+                SELECT m.name, COUNT(DISTINCT r.image_id) as cnt
+                FROM models m
+                JOIN model_image_relations r ON m.id = r.model_id
+                JOIN images i ON r.image_id = i.id AND i.deleted_at IS NULL
+                GROUP BY m.id ORDER BY cnt DESC
+            """)
+            cursor.executemany(
+                "INSERT INTO analytics_models (name, count, updated_at) VALUES (?, ?, ?)",
+                [(row[0], row[1], updated_at) for row in cursor.fetchall()],
+            )
 
-        # By date (LocalTime)
-        cursor.execute("DELETE FROM analytics_by_date")
-        cursor.execute("""
-            SELECT strftime('%Y-%m-%d', created_at, 'unixepoch', 'localtime') as d, COUNT(*) as cnt
-            FROM images
-            WHERE deleted_at IS NULL AND created_at IS NOT NULL
-            GROUP BY d ORDER BY d DESC
-        """)
-        cursor.executemany(
-            "INSERT INTO analytics_by_date (date, count, updated_at) VALUES (?, ?, ?)",
-            [(row[0], row[1], updated_at) for row in cursor.fetchall()],
-        )
+            # By date (LocalTime)
+            cursor.execute("DELETE FROM analytics_by_date")
+            cursor.execute("""
+                SELECT strftime('%Y-%m-%d', created_at, 'unixepoch', 'localtime') as d, COUNT(*) as cnt
+                FROM images
+                WHERE deleted_at IS NULL AND created_at IS NOT NULL
+                GROUP BY d ORDER BY d DESC
+            """)
+            cursor.executemany(
+                "INSERT INTO analytics_by_date (date, count, updated_at) VALUES (?, ?, ?)",
+                [(row[0], row[1], updated_at) for row in cursor.fetchall()],
+            )
 
-        # By resolution
-        cursor.execute("DELETE FROM analytics_by_resolution")
-        cursor.execute("""
-            SELECT CAST(width AS TEXT) || 'x' || CAST(height AS TEXT) as res, COUNT(*) as cnt
-            FROM images
-            WHERE deleted_at IS NULL AND width IS NOT NULL AND height IS NOT NULL
-            GROUP BY width, height ORDER BY cnt DESC
-        """)
-        cursor.executemany(
-            "INSERT INTO analytics_by_resolution (resolution, count, updated_at) VALUES (?, ?, ?)",
-            [(row[0], row[1], updated_at) for row in cursor.fetchall()],
-        )
+            # By resolution
+            cursor.execute("DELETE FROM analytics_by_resolution")
+            cursor.execute("""
+                SELECT CAST(width AS TEXT) || 'x' || CAST(height AS TEXT) as res, COUNT(*) as cnt
+                FROM images
+                WHERE deleted_at IS NULL AND width IS NOT NULL AND height IS NOT NULL
+                GROUP BY width, height ORDER BY cnt DESC
+            """)
+            cursor.executemany(
+                "INSERT INTO analytics_by_resolution (resolution, count, updated_at) VALUES (?, ?, ?)",
+                [(row[0], row[1], updated_at) for row in cursor.fetchall()],
+            )
 
-        conn.commit()
-        elapsed_ms = (time.perf_counter() * 1000) - start_ms
-        logging.info("[Meld] Analytics aggregation completed in %.0f ms", elapsed_ms)
-    except Exception as e:
-        conn.rollback()
-        logging.exception(f"[Meld] Analytics aggregation failed: {e}")
-        raise
-    finally:
-        conn.close()
+            conn.commit()
+            elapsed_ms = (time.perf_counter() * 1000) - start_ms
+            logging.info("[Meld] Analytics aggregation completed in %.0f ms", elapsed_ms)
+        except Exception as e:
+            logging.exception(f"[Meld] Analytics aggregation failed: {e}")
+            raise
 
 
 def get_summary(cursor: sqlite3.Cursor) -> dict[str, Any]:

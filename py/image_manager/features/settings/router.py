@@ -1,6 +1,6 @@
 from aiohttp import web
 
-from ...common.db.client import get_db_connection
+from ...common.db.client import db_connection
 from ...common.env import is_dev_mode
 from ...common.schemas import ApiResponse, UpdateSettingsRequest
 from .repository import get_all_settings, upsert_setting
@@ -11,10 +11,9 @@ routes = web.RouteTableDef()
 @routes.get("/meld/settings")
 async def get_settings(request: web.Request) -> web.Response:
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        db_settings = get_all_settings(cursor)
-        conn.close()
+        with db_connection() as conn:
+            cursor = conn.cursor()
+            db_settings = get_all_settings(cursor)
 
         settings = {
             "dev_mode": is_dev_mode(),
@@ -63,11 +62,10 @@ async def save_settings(request: web.Request) -> web.Response:
         if req.key is None:
             return web.json_response(ApiResponse(success=False, error="key is required").to_dict(), status=400)
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        upsert_setting(cursor, req.key, req.value)
-        conn.commit()
-        conn.close()
+        with db_connection() as conn:
+            cursor = conn.cursor()
+            upsert_setting(cursor, req.key, req.value)
+            conn.commit()
 
         return web.json_response(ApiResponse(success=True).to_dict())
     except Exception as e:

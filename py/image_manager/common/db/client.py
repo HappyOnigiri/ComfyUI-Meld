@@ -7,7 +7,8 @@ import shutil
 import sqlite3
 import threading
 import time
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Generator, Iterable
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, TypeVar, overload
@@ -246,7 +247,8 @@ class TraceConnection(sqlite3.Connection):
         return self.cursor().executescript(sql_script)
 
 
-def get_db_connection(db_path: str | None = None) -> sqlite3.Connection:
+def _get_db_connection(db_path: str | None = None) -> sqlite3.Connection:
+    """Internal: use `db_connection()` context manager instead."""
     target_db_path = db_path or DB_PATH
     conn: sqlite3.Connection
     if is_dev_mode():
@@ -254,6 +256,16 @@ def get_db_connection(db_path: str | None = None) -> sqlite3.Connection:
     else:
         conn = sqlite3.connect(target_db_path)
     return conn
+
+
+@contextmanager
+def db_connection(db_path: str | None = None) -> Generator[sqlite3.Connection, None, None]:
+    """Context manager that opens a DB connection and closes it on exit."""
+    conn = _get_db_connection(db_path)
+    try:
+        yield conn
+    finally:
+        conn.close()
 
 
 def create_database(name: str, switch_to_new: bool = False) -> ActiveDatabaseState:

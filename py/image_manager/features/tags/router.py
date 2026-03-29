@@ -1,7 +1,7 @@
 from aiohttp import web
 
 from ...common.constants import RESERVED_TAG_KEYWORD
-from ...common.db.client import get_db_connection
+from ...common.db.client import db_connection
 from ...common.schemas import (
     ApiResponse,
     BulkUpdateImageTagsRequest,
@@ -28,10 +28,9 @@ async def update_image_tags(request: web.Request) -> web.Response:
         if req.imageId is None:
             return web.json_response(ApiResponse(success=False, error="imageId is required").to_dict(), status=400)
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        with db_connection() as conn:
+            cursor = conn.cursor()
 
-        try:
             # 1. Clear existing tags for this image
             cursor.execute("DELETE FROM tag_image_relations WHERE image_id = ?", (req.imageId,))
 
@@ -55,13 +54,8 @@ async def update_image_tags(request: web.Request) -> web.Response:
                     )
 
             conn.commit()
-            return web.json_response(ApiResponse(success=True).to_dict())
-        except Exception as e:
-            conn.rollback()
-            raise e
-        finally:
-            conn.close()
 
+        return web.json_response(ApiResponse(success=True).to_dict())
     except Exception as e:
         return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
@@ -78,10 +72,9 @@ async def bulk_update_image_tags(request: web.Request) -> web.Response:
         if not req.imageIds:
             return web.json_response(ApiResponse(success=False, error="imageIds is required").to_dict(), status=400)
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        with db_connection() as conn:
+            cursor = conn.cursor()
 
-        try:
             # 1. Process tags to add
             # Deduplicate tags from request
             unique_add_tags = list(dict.fromkeys(req.addTags))
@@ -121,13 +114,8 @@ async def bulk_update_image_tags(request: web.Request) -> web.Response:
                     )
 
             conn.commit()
-            return web.json_response(ApiResponse(success=True).to_dict())
-        except Exception as e:
-            conn.rollback()
-            raise e
-        finally:
-            conn.close()
 
+        return web.json_response(ApiResponse(success=True).to_dict())
     except Exception as e:
         return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
 
@@ -135,10 +123,9 @@ async def bulk_update_image_tags(request: web.Request) -> web.Response:
 @routes.get("/meld/tags")
 async def list_tags(request: web.Request) -> web.Response:
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        tags = get_all_tags(cursor)
-        conn.close()
+        with db_connection() as conn:
+            cursor = conn.cursor()
+            tags = get_all_tags(cursor)
         return web.json_response(ApiResponse(success=True, data=[tag.to_dict() for tag in tags]).to_dict())
     except Exception as e:
         return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
@@ -165,13 +152,12 @@ async def create_tag(request: web.Request) -> web.Response:
                 status=400,
             )
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("INSERT OR IGNORE INTO tags (name) VALUES (?)", (req.name,))
-        conn.commit()
-        cursor.execute("SELECT id, name FROM tags WHERE name = ?", (req.name,))
-        row = cursor.fetchone()
-        conn.close()
+        with db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("INSERT OR IGNORE INTO tags (name) VALUES (?)", (req.name,))
+            conn.commit()
+            cursor.execute("SELECT id, name FROM tags WHERE name = ?", (req.name,))
+            row = cursor.fetchone()
 
         if row:
             return web.json_response(
@@ -194,9 +180,8 @@ async def remove_tag(request: web.Request) -> web.Response:
         except ValueError:
             return web.json_response(ApiResponse(success=False, error="id must be an integer").to_dict(), status=400)
 
-        conn = get_db_connection()
-        success = delete_tag(conn, req.id)
-        conn.close()
+        with db_connection() as conn:
+            success = delete_tag(conn, req.id)
 
         if success:
             return web.json_response(ApiResponse(success=True).to_dict())
@@ -226,16 +211,14 @@ async def tag_rename_endpoint(request: web.Request) -> web.Response:
                 status=400,
             )
 
-        conn = get_db_connection()
-        try:
+        with db_connection() as conn:
             success = rename_tag(conn, req.id, req.name)
-            if success:
-                return web.json_response(ApiResponse(success=True).to_dict())
-            return web.json_response(
-                ApiResponse(success=False, error="Failed to rename tag (maybe name already exists?)").to_dict(),
-                status=400,
-            )
-        finally:
-            conn.close()
+
+        if success:
+            return web.json_response(ApiResponse(success=True).to_dict())
+        return web.json_response(
+            ApiResponse(success=False, error="Failed to rename tag (maybe name already exists?)").to_dict(),
+            status=400,
+        )
     except Exception as e:
         return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)

@@ -25,12 +25,15 @@ from py.image_manager.features.analytics.router import post_analytics_counts  # 
 
 class TestAnalyticsRouter(unittest.IsolatedAsyncioTestCase):
     def setUp(self) -> None:
-        self.patcher_db = patch("py.image_manager.features.analytics.router.get_db_connection")
-        self.mock_get_db = self.patcher_db.start()
+        self.patcher_db = patch("py.image_manager.features.analytics.router.db_connection")
+        self.mock_db_ctx = self.patcher_db.start()
         self.mock_conn = MagicMock(spec=sqlite3.Connection)
         self.mock_cursor = MagicMock(spec=sqlite3.Cursor)
         self.mock_conn.cursor.return_value = self.mock_cursor
-        self.mock_get_db.return_value = self.mock_conn
+        self.mock_db_cm = MagicMock()
+        self.mock_db_cm.__enter__ = MagicMock(return_value=self.mock_conn)
+        self.mock_db_cm.__exit__ = MagicMock(return_value=False)
+        self.mock_db_ctx.return_value = self.mock_db_cm
 
         self.patcher_get_counts = patch("py.image_manager.features.analytics.router.get_counts")
         self.mock_get_counts = self.patcher_get_counts.start()
@@ -61,7 +64,6 @@ class TestAnalyticsRouter(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(data["success"])
         self.assertEqual(data["data"], {"1girl": 100, "solo": 50})
         self.mock_get_counts.assert_called_once_with(self.mock_cursor, "positive_prompts", ["1girl", "solo"])
-        self.mock_conn.close.assert_called_once()
         self.mock_cursor.close.assert_called_once()
 
     async def test_post_analytics_counts_invalid_json(self) -> None:
