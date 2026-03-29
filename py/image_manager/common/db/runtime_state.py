@@ -2,6 +2,8 @@ import threading
 from collections.abc import Iterator
 from contextlib import contextmanager
 
+from ..exceptions import ConflictError
+
 _state_lock = threading.Lock()
 _startup_cleanup_running = False
 _analytics_refresh_running = False
@@ -40,7 +42,7 @@ def database_change_guard() -> Iterator[None]:
     global _database_change_running
     with _state_lock:
         if _database_change_running:
-            raise RuntimeError("Database change already in progress")
+            raise ConflictError("Database change already in progress")
         _database_change_running = True
     try:
         yield

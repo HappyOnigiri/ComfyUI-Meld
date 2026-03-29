@@ -16,6 +16,7 @@ from ...common.db.runtime_state import (
     is_analytics_refresh_running,
     is_startup_cleanup_running,
 )
+from ...common.exceptions import ConflictError
 from ..importer.service import get_scan_state
 
 
@@ -59,11 +60,11 @@ def get_database_payload() -> dict[str, Any]:
 def ensure_database_change_allowed() -> None:
     scan_state = get_scan_state()
     if scan_state.is_running:
-        raise RuntimeError("Cannot change database while scan is running")
+        raise ConflictError("Cannot change database while scan is running")
     if is_analytics_refresh_running():
-        raise RuntimeError("Cannot change database while analytics refresh is running")
+        raise ConflictError("Cannot change database while analytics refresh is running")
     if is_startup_cleanup_running():
-        raise RuntimeError("Cannot change database while startup cleanup is running")
+        raise ConflictError("Cannot change database while startup cleanup is running")
 
 
 def create_database_and_get_payload(name: str, switch_to_new: bool) -> dict[str, Any]:
