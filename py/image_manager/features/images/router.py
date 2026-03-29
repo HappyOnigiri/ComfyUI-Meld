@@ -16,7 +16,7 @@ from aiohttp import web
 from PIL import Image
 
 from ....load_image_configs.core.metadata_helper import MetadataHelper
-from ...common.db.client import get_db_connection, get_thumbnail_cache_dir, get_trash_dir
+from ...common.db.client import db_connection, get_thumbnail_cache_dir, get_trash_dir
 from ...common.model_repo import add_model_relation, get_or_create_model
 from ...common.schemas import (
     ApiResponse,
@@ -103,89 +103,86 @@ def _extract_guidance_from_json(json_text: str | None) -> float | None:
 async def get_image_details(request: web.Request) -> web.Response:
     try:
         image_id = request.match_info["image_id"]
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        with db_connection() as conn:
+            cursor = conn.cursor()
 
-        # Fetch full image details from DB
-        sql = """
-            SELECT i.id, i.filename, i.subfolder, i.type, i.created_at, i.phash, i.sha256, i.parent_id,
-                   p.filename as parent_filename, p.subfolder as parent_subfolder, p.type as parent_type,
-                   EXISTS(SELECT 1 FROM images c WHERE c.parent_id = i.id AND c.deleted_at IS NULL) as has_children,
-                   i.positive_prompt, i.negative_prompt,
-                   (SELECT GROUP_CONCAT(m.name, ', ') FROM models m
-                    JOIN model_image_relations mir ON m.id = mir.model_id
-                    WHERE mir.image_id = i.id) as model_name,
-                   i.workflow, i.width, i.height, i.deleted_at, i.user_notes
-            FROM images i LEFT JOIN images p ON i.parent_id = p.id
-            WHERE i.id = ?
-        """
-        cursor.execute(sql, (image_id,))
-        img = cursor.fetchone()
+            # Fetch full image details from DB
+            sql = """
+                SELECT i.id, i.filename, i.subfolder, i.type, i.created_at, i.phash, i.sha256, i.parent_id,
+                       p.filename as parent_filename, p.subfolder as parent_subfolder, p.type as parent_type,
+                       EXISTS(SELECT 1 FROM images c WHERE c.parent_id = i.id AND c.deleted_at IS NULL) as has_children,
+                       i.positive_prompt, i.negative_prompt,
+                       (SELECT GROUP_CONCAT(m.name, ', ') FROM models m
+                        JOIN model_image_relations mir ON m.id = mir.model_id
+                        WHERE mir.image_id = i.id) as model_name,
+                       i.workflow, i.width, i.height, i.deleted_at, i.user_notes
+                FROM images i LEFT JOIN images p ON i.parent_id = p.id
+                WHERE i.id = ?
+            """
+            cursor.execute(sql, (image_id,))
+            img = cursor.fetchone()
 
-        if not img:
-            conn.close()
-            return web.json_response(ApiResponse(success=False, error="Image not found").to_dict(), status=404)
+            if not img:
+                return web.json_response(ApiResponse(success=False, error="Image not found").to_dict(), status=404)
 
-        (
-            img_id,
-            filename,
-            subfolder,
-            img_type,
-            created_at,
-            phash,
-            sha256,
-            parent_id,
-            p_filename,
-            p_subfolder,
-            p_type,
-            has_children,
-            db_positive,
-            db_negative,
-            model_name,
-            workflow,
-            width,
-            height,
-            deleted_at,
-            user_notes,
-        ) = img
+            (
+                img_id,
+                filename,
+                subfolder,
+                img_type,
+                created_at,
+                phash,
+                sha256,
+                parent_id,
+                p_filename,
+                p_subfolder,
+                p_type,
+                has_children,
+                db_positive,
+                db_negative,
+                model_name,
+                workflow,
+                width,
+                height,
+                deleted_at,
+                user_notes,
+            ) = img
 
-        # Fetch tags
-        cursor.execute(
-            "SELECT t.name FROM tags t JOIN tag_image_relations r ON t.id = r.tag_id WHERE r.image_id = ?",
-            (image_id,),
-        )
-        tags = [row[0] for row in cursor.fetchall()]
-
-        # Fetch parsed positive prompt keywords from relations (for Core Prompt feature)
-        cursor.execute(
-            "SELECT pp.name FROM positive_prompts pp JOIN positive_prompt_image_relations r ON pp.id = r.positive_prompt_id WHERE r.image_id = ?",
-            (image_id,),
-        )
-        positive_prompt_keywords = [row[0] for row in cursor.fetchall()]
-
-        # Reconstruct prompts if necessary
-        positive = db_positive
-        if positive is None:
+            # Fetch tags
             cursor.execute(
-                "SELECT pp.name, r.strength FROM positive_prompts pp JOIN positive_prompt_image_relations r ON pp.id = r.positive_prompt_id WHERE r.image_id = ?",
+                "SELECT t.name FROM tags t JOIN tag_image_relations r ON t.id = r.tag_id WHERE r.image_id = ?",
                 (image_id,),
             )
-            positive = ", ".join([row[0] if row[1] == 1.0 else f"({row[0]}:{row[1]})" for row in cursor.fetchall()])
+            tags = [row[0] for row in cursor.fetchall()]
 
-        negative = db_negative
-        if negative is None:
+            # Fetch parsed positive prompt keywords from relations (for Core Prompt feature)
             cursor.execute(
-                "SELECT np.name, r.strength FROM negative_prompts np JOIN negative_prompt_image_relations r ON np.id = r.negative_prompt_id WHERE r.image_id = ?",
+                "SELECT pp.name FROM positive_prompts pp JOIN positive_prompt_image_relations r ON pp.id = r.positive_prompt_id WHERE r.image_id = ?",
                 (image_id,),
             )
-            negative = ", ".join([row[0] if row[1] == 1.0 else f"({row[0]}:{row[1]})" for row in cursor.fetchall()])
+            positive_prompt_keywords = [row[0] for row in cursor.fetchall()]
 
-        # Ancestors
-        ancestors = []
-        if parent_id and p_filename:
-            ancestors = [{"id": parent_id, "filename": p_filename, "subfolder": p_subfolder, "type": p_type}]
+            # Reconstruct prompts if necessary
+            positive = db_positive
+            if positive is None:
+                cursor.execute(
+                    "SELECT pp.name, r.strength FROM positive_prompts pp JOIN positive_prompt_image_relations r ON pp.id = r.positive_prompt_id WHERE r.image_id = ?",
+                    (image_id,),
+                )
+                positive = ", ".join([row[0] if row[1] == 1.0 else f"({row[0]}:{row[1]})" for row in cursor.fetchall()])
 
-        conn.close()
+            negative = db_negative
+            if negative is None:
+                cursor.execute(
+                    "SELECT np.name, r.strength FROM negative_prompts np JOIN negative_prompt_image_relations r ON np.id = r.negative_prompt_id WHERE r.image_id = ?",
+                    (image_id,),
+                )
+                negative = ", ".join([row[0] if row[1] == 1.0 else f"({row[0]}:{row[1]})" for row in cursor.fetchall()])
+
+            # Ancestors
+            ancestors = []
+            if parent_id and p_filename:
+                ancestors = [{"id": parent_id, "filename": p_filename, "subfolder": p_subfolder, "type": p_type}]
 
         item = ImageListItem(
             id=img_id,
@@ -226,12 +223,10 @@ async def get_image_details(request: web.Request) -> web.Response:
 async def get_image_workflow(request: web.Request) -> web.Response:
     try:
         image_id = request.match_info["image_id"]
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        cursor.execute("SELECT workflow FROM images WHERE id = ? AND deleted_at IS NULL", (image_id,))
-        row = cursor.fetchone()
-        conn.close()
+        with db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT workflow FROM images WHERE id = ? AND deleted_at IS NULL", (image_id,))
+            row = cursor.fetchone()
 
         if row and row[0]:
             try:
@@ -251,22 +246,20 @@ async def get_image_workflow(request: web.Request) -> web.Response:
 async def get_image_snapshot_data(request: web.Request) -> web.Response:
     try:
         image_id = request.match_info["image_id"]
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        cursor.execute(
-            """
-            SELECT i.filename, i.subfolder, i.type, i.positive_prompt, i.negative_prompt, i.workflow,
-                   (SELECT m.name FROM models m
-                    JOIN model_image_relations mir ON m.id = mir.model_id
-                    WHERE mir.image_id = i.id LIMIT 1) as model_name,
-                   i.width, i.height
-            FROM images i WHERE i.id = ? AND i.deleted_at IS NULL
-        """,
-            (image_id,),
-        )
-        row = cursor.fetchone()
-        conn.close()
+        with db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                SELECT i.filename, i.subfolder, i.type, i.positive_prompt, i.negative_prompt, i.workflow,
+                       (SELECT m.name FROM models m
+                        JOIN model_image_relations mir ON m.id = mir.model_id
+                        WHERE mir.image_id = i.id LIMIT 1) as model_name,
+                       i.width, i.height
+                FROM images i WHERE i.id = ? AND i.deleted_at IS NULL
+            """,
+                (image_id,),
+            )
+            row = cursor.fetchone()
 
         if not row:
             return web.json_response(ApiResponse(success=False, error="Image not found").to_dict(), status=404)
@@ -383,112 +376,112 @@ async def list_images(request: web.Request) -> web.Response:
             view=request.query.get("view", "default"),
         )
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        with db_connection() as conn:
+            cursor = conn.cursor()
 
-        search_sql, search_params, order_sql = SearchService.build_search_sql(req.query)
+            search_sql, search_params, order_sql = SearchService.build_search_sql(req.query)
 
-        db_settings = get_all_settings(cursor)
-        lineage_max_depth = int(db_settings.get("gallery.lineage_max_depth", 5))
+            db_settings = get_all_settings(cursor)
+            lineage_max_depth = int(db_settings.get("gallery.lineage_max_depth", 5))
 
-        deleted_filter = "i.deleted_at IS NOT NULL" if req.view == "trash" else "i.deleted_at IS NULL"
+            deleted_filter = "i.deleted_at IS NOT NULL" if req.view == "trash" else "i.deleted_at IS NULL"
 
-        count_sql = f"SELECT COUNT(*) FROM images i WHERE {deleted_filter}{search_sql}"
-        cursor.execute(count_sql, search_params)
-        total_count = cursor.fetchone()[0]
+            count_sql = f"SELECT COUNT(*) FROM images i WHERE {deleted_filter}{search_sql}"
+            cursor.execute(count_sql, search_params)
+            total_count = cursor.fetchone()[0]
 
-        if order_sql:
-            final_order = order_sql
-        else:
-            final_order = "i.deleted_at DESC" if req.view == "trash" else "i.created_at DESC"
+            if order_sql:
+                final_order = order_sql
+            else:
+                final_order = "i.deleted_at DESC" if req.view == "trash" else "i.created_at DESC"
 
-        fetch_sql = f"""
-            SELECT i.id, i.filename, i.subfolder, i.type, i.created_at, i.phash, i.sha256, i.parent_id,
-                   p.filename as parent_filename, p.subfolder as parent_subfolder, p.type as parent_type,
-                   EXISTS(SELECT 1 FROM images c WHERE c.parent_id = i.id AND c.deleted_at IS NULL) as has_children,
-                   i.positive_prompt, i.negative_prompt,
-                   (SELECT GROUP_CONCAT(m.name, ', ') FROM models m
-                    JOIN model_image_relations mir ON m.id = mir.model_id
-                    WHERE mir.image_id = i.id) as model_name,
-                   NULL as workflow, i.width, i.height, i.deleted_at, i.user_notes
-            FROM images i LEFT JOIN images p ON i.parent_id = p.id
-            WHERE {deleted_filter}{search_sql} ORDER BY {final_order} LIMIT ? OFFSET ?
-        """
-        cursor.execute(fetch_sql, (*search_params, req.limit, req.offset))
-        images = cursor.fetchall()
+            fetch_sql = f"""
+                SELECT i.id, i.filename, i.subfolder, i.type, i.created_at, i.phash, i.sha256, i.parent_id,
+                       p.filename as parent_filename, p.subfolder as parent_subfolder, p.type as parent_type,
+                       EXISTS(SELECT 1 FROM images c WHERE c.parent_id = i.id AND c.deleted_at IS NULL) as has_children,
+                       i.positive_prompt, i.negative_prompt,
+                       (SELECT GROUP_CONCAT(m.name, ', ') FROM models m
+                        JOIN model_image_relations mir ON m.id = mir.model_id
+                        WHERE mir.image_id = i.id) as model_name,
+                       NULL as workflow, i.width, i.height, i.deleted_at, i.user_notes
+                FROM images i LEFT JOIN images p ON i.parent_id = p.id
+                WHERE {deleted_filter}{search_sql} ORDER BY {final_order} LIMIT ? OFFSET ?
+            """
+            cursor.execute(fetch_sql, (*search_params, req.limit, req.offset))
+            images = cursor.fetchall()
 
-        image_ids = [img[0] for img in images]
-        ancestors_map: dict[int, list[dict[str, Any]]] = {}
-        tags_map: dict[int, list[str]] = {}
-        reconstructed_pos_map: dict[int, list[str]] = {}
-        reconstructed_neg_map: dict[int, list[str]] = {}
+            image_ids = [img[0] for img in images]
+            ancestors_map: dict[int, list[dict[str, Any]]] = {}
+            tags_map: dict[int, list[str]] = {}
+            reconstructed_pos_map: dict[int, list[str]] = {}
+            reconstructed_neg_map: dict[int, list[str]] = {}
 
-        if image_ids:
-            placeholders = ",".join(["?"] * len(image_ids))
+            if image_ids:
+                placeholders = ",".join(["?"] * len(image_ids))
 
-            cursor.execute(
-                f"SELECT r.image_id, t.name FROM tags t JOIN tag_image_relations r ON t.id = r.tag_id WHERE r.image_id IN ({placeholders})",
-                image_ids,
-            )
-            for row_img_id, tag_name in cursor.fetchall():
-                iid: int = int(row_img_id)
-                if iid not in tags_map:
-                    tags_map[iid] = []
-                tags_map[iid].append(tag_name)
+                cursor.execute(
+                    f"SELECT r.image_id, t.name FROM tags t JOIN tag_image_relations r ON t.id = r.tag_id WHERE r.image_id IN ({placeholders})",
+                    image_ids,
+                )
+                for row_img_id, tag_name in cursor.fetchall():
+                    iid: int = int(row_img_id)
+                    if iid not in tags_map:
+                        tags_map[iid] = []
+                    tags_map[iid].append(tag_name)
 
-            if lineage_max_depth > 1:
-                ancestor_sql = f"""
-                    WITH RECURSIVE lineage AS (
-                        SELECT i.id as start_id, i.parent_id, 1 as depth
-                        FROM images i
-                        WHERE i.id IN ({placeholders}) AND i.parent_id IS NOT NULL
-                        UNION ALL
-                        SELECT l.start_id, i.parent_id, l.depth + 1
-                        FROM images i
-                        JOIN lineage l ON i.id = l.parent_id
-                        WHERE i.parent_id IS NOT NULL AND l.depth < ?
-                    )
-                    SELECT l.start_id, i.id, i.filename, i.subfolder, i.type
-                    FROM lineage l
-                    JOIN images i ON l.parent_id = i.id
-                    WHERE i.deleted_at IS NULL
-                    ORDER BY l.start_id, l.depth
-                """
-                cursor.execute(ancestor_sql, (*image_ids, lineage_max_depth))
-                for start_id, a_id, a_fname, a_subf, a_type in cursor.fetchall():
-                    sid: int = int(start_id)
-                    if sid not in ancestors_map:
-                        ancestors_map[sid] = []
-                    if len(ancestors_map[sid]) < lineage_max_depth:
-                        ancestors_map[sid].append(
-                            {"id": a_id, "filename": a_fname, "subfolder": a_subf, "type": a_type}
+                if lineage_max_depth > 1:
+                    ancestor_sql = f"""
+                        WITH RECURSIVE lineage AS (
+                            SELECT i.id as start_id, i.parent_id, 1 as depth
+                            FROM images i
+                            WHERE i.id IN ({placeholders}) AND i.parent_id IS NOT NULL
+                            UNION ALL
+                            SELECT l.start_id, i.parent_id, l.depth + 1
+                            FROM images i
+                            JOIN lineage l ON i.id = l.parent_id
+                            WHERE i.parent_id IS NOT NULL AND l.depth < ?
                         )
+                        SELECT l.start_id, i.id, i.filename, i.subfolder, i.type
+                        FROM lineage l
+                        JOIN images i ON l.parent_id = i.id
+                        WHERE i.deleted_at IS NULL
+                        ORDER BY l.start_id, l.depth
+                    """
+                    cursor.execute(ancestor_sql, (*image_ids, lineage_max_depth))
+                    for start_id, a_id, a_fname, a_subf, a_type in cursor.fetchall():
+                        sid: int = int(start_id)
+                        if sid not in ancestors_map:
+                            ancestors_map[sid] = []
+                        if len(ancestors_map[sid]) < lineage_max_depth:
+                            ancestors_map[sid].append(
+                                {"id": a_id, "filename": a_fname, "subfolder": a_subf, "type": a_type}
+                            )
 
-            needs_reconstruction_pos = [img[0] for img in images if img[12] is None] if not is_minimal else []
-            if needs_reconstruction_pos:
-                ph = ",".join(["?"] * len(needs_reconstruction_pos))
-                cursor.execute(
-                    f"SELECT r.image_id, pp.name, r.strength FROM positive_prompts pp JOIN positive_prompt_image_relations r ON pp.id = r.positive_prompt_id WHERE r.image_id IN ({ph})",
-                    needs_reconstruction_pos,
-                )
-                for row_img_id, name, strength in cursor.fetchall():
-                    iid = int(row_img_id)
-                    if iid not in reconstructed_pos_map:
-                        reconstructed_pos_map[iid] = []
-                    reconstructed_pos_map[iid].append(name if strength == 1.0 else f"({name}:{strength})")
+                needs_reconstruction_pos = [img[0] for img in images if img[12] is None] if not is_minimal else []
+                if needs_reconstruction_pos:
+                    ph = ",".join(["?"] * len(needs_reconstruction_pos))
+                    cursor.execute(
+                        f"SELECT r.image_id, pp.name, r.strength FROM positive_prompts pp JOIN positive_prompt_image_relations r ON pp.id = r.positive_prompt_id WHERE r.image_id IN ({ph})",
+                        needs_reconstruction_pos,
+                    )
+                    for row_img_id, name, strength in cursor.fetchall():
+                        iid = int(row_img_id)
+                        if iid not in reconstructed_pos_map:
+                            reconstructed_pos_map[iid] = []
+                        reconstructed_pos_map[iid].append(name if strength == 1.0 else f"({name}:{strength})")
 
-            needs_reconstruction_neg = [img[0] for img in images if img[13] is None] if not is_minimal else []
-            if needs_reconstruction_neg:
-                ph = ",".join(["?"] * len(needs_reconstruction_neg))
-                cursor.execute(
-                    f"SELECT r.image_id, np.name, r.strength FROM negative_prompts np JOIN negative_prompt_image_relations r ON np.id = r.negative_prompt_id WHERE r.image_id IN ({ph})",
-                    needs_reconstruction_neg,
-                )
-                for row_img_id, name, strength in cursor.fetchall():
-                    iid = int(row_img_id)
-                    if iid not in reconstructed_neg_map:
-                        reconstructed_neg_map[iid] = []
-                    reconstructed_neg_map[iid].append(name if strength == 1.0 else f"({name}:{strength})")
+                needs_reconstruction_neg = [img[0] for img in images if img[13] is None] if not is_minimal else []
+                if needs_reconstruction_neg:
+                    ph = ",".join(["?"] * len(needs_reconstruction_neg))
+                    cursor.execute(
+                        f"SELECT r.image_id, np.name, r.strength FROM negative_prompts np JOIN negative_prompt_image_relations r ON np.id = r.negative_prompt_id WHERE r.image_id IN ({ph})",
+                        needs_reconstruction_neg,
+                    )
+                    for row_img_id, name, strength in cursor.fetchall():
+                        iid = int(row_img_id)
+                        if iid not in reconstructed_neg_map:
+                            reconstructed_neg_map[iid] = []
+                        reconstructed_neg_map[iid].append(name if strength == 1.0 else f"({name}:{strength})")
 
         result_list = []
 
@@ -591,7 +584,6 @@ async def list_images(request: web.Request) -> web.Response:
                 )
             )
 
-        conn.close()
         response = ImageListResponse(
             images=result_list,
             total=total_count,
@@ -626,78 +618,78 @@ async def restore_images(request: web.Request) -> web.Response:
         if not req.ids:
             return web.json_response(ApiResponse(success=False, error="ids are required").to_dict(), status=400)
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        with db_connection() as conn:
+            cursor = conn.cursor()
 
-        all_ids_to_restore = set(req.ids)
-        placeholders = ",".join(["?"] * len(req.ids))
+            all_ids_to_restore = set(req.ids)
+            placeholders = ",".join(["?"] * len(req.ids))
 
-        ancestor_query = f"""
-            WITH RECURSIVE lineage AS (
-                SELECT id, parent_id, deleted_at FROM images WHERE id IN ({placeholders})
-                UNION ALL
-                SELECT i.id, i.parent_id, i.deleted_at FROM images i
-                JOIN lineage l ON i.id = l.parent_id
-                WHERE l.deleted_at IS NOT NULL
-            )
-            SELECT id FROM lineage WHERE deleted_at IS NOT NULL
-        """
-        cursor.execute(ancestor_query, req.ids)
-        for (ancestor_id,) in cursor.fetchall():
-            all_ids_to_restore.add(ancestor_id)
-
-        final_ids = list(all_ids_to_restore)
-        placeholders = ",".join(["?"] * len(final_ids))
-
-        cursor.execute(
-            f"SELECT id, filename, subfolder, type, deleted_at FROM images WHERE id IN ({placeholders}) ORDER BY created_at ASC",
-            final_ids,
-        )
-        images = cursor.fetchall()
-
-        restored_ids = []
-        for img_id, trash_filename, subfolder, img_type, deleted_at in images:
-            if deleted_at is None:
-                continue
-
-            if img_type == "output":
-                base_dir = folder_paths.get_output_directory()
-            elif img_type == "input":
-                base_dir = folder_paths.get_input_directory()
-            elif img_type == "temp":
-                base_dir = folder_paths.get_temp_directory()
-            elif img_type == "custom":
-                base_dir = ""
-            else:
-                continue
-
-            trash_full_path = os.path.normpath(os.path.join(get_trash_dir(), trash_filename))
-            if not os.path.exists(trash_full_path):
-                cursor.execute("UPDATE images SET deleted_at = NULL WHERE id = ?", (img_id,))
-                restored_ids.append(img_id)
-                continue
-
-            parts = trash_filename.split("_", 1)
-            original_filename = parts[1] if len(parts) > 1 else trash_filename
-
-            target_dir = os.path.join(base_dir, subfolder)
-            os.makedirs(target_dir, exist_ok=True)
-
-            final_filename = get_unique_filename(base_dir, subfolder, original_filename)
-            target_full_path = os.path.join(target_dir, final_filename)
-
-            try:
-                shutil.move(trash_full_path, target_full_path)
-                cursor.execute(
-                    "UPDATE images SET deleted_at = NULL, filename = ? WHERE id = ?", (final_filename, img_id)
+            ancestor_query = f"""
+                WITH RECURSIVE lineage AS (
+                    SELECT id, parent_id, deleted_at FROM images WHERE id IN ({placeholders})
+                    UNION ALL
+                    SELECT i.id, i.parent_id, i.deleted_at FROM images i
+                    JOIN lineage l ON i.id = l.parent_id
+                    WHERE l.deleted_at IS NOT NULL
                 )
-                restored_ids.append(img_id)
-            except Exception as e:
-                logging.error(f"[Meld] Failed to restore file {trash_filename}: {e}")
-                continue
+                SELECT id FROM lineage WHERE deleted_at IS NOT NULL
+            """
+            cursor.execute(ancestor_query, req.ids)
+            for (ancestor_id,) in cursor.fetchall():
+                all_ids_to_restore.add(ancestor_id)
 
-        conn.commit()
-        conn.close()
+            final_ids = list(all_ids_to_restore)
+            placeholders = ",".join(["?"] * len(final_ids))
+
+            cursor.execute(
+                f"SELECT id, filename, subfolder, type, deleted_at FROM images WHERE id IN ({placeholders}) ORDER BY created_at ASC",
+                final_ids,
+            )
+            images = cursor.fetchall()
+
+            restored_ids = []
+            for img_id, trash_filename, subfolder, img_type, deleted_at in images:
+                if deleted_at is None:
+                    continue
+
+                if img_type == "output":
+                    base_dir = folder_paths.get_output_directory()
+                elif img_type == "input":
+                    base_dir = folder_paths.get_input_directory()
+                elif img_type == "temp":
+                    base_dir = folder_paths.get_temp_directory()
+                elif img_type == "custom":
+                    base_dir = ""
+                else:
+                    continue
+
+                trash_full_path = os.path.normpath(os.path.join(get_trash_dir(), trash_filename))
+                if not os.path.exists(trash_full_path):
+                    cursor.execute("UPDATE images SET deleted_at = NULL WHERE id = ?", (img_id,))
+                    restored_ids.append(img_id)
+                    continue
+
+                parts = trash_filename.split("_", 1)
+                original_filename = parts[1] if len(parts) > 1 else trash_filename
+
+                target_dir = os.path.join(base_dir, subfolder)
+                os.makedirs(target_dir, exist_ok=True)
+
+                final_filename = get_unique_filename(base_dir, subfolder, original_filename)
+                target_full_path = os.path.join(target_dir, final_filename)
+
+                try:
+                    shutil.move(trash_full_path, target_full_path)
+                    cursor.execute(
+                        "UPDATE images SET deleted_at = NULL, filename = ? WHERE id = ?", (final_filename, img_id)
+                    )
+                    restored_ids.append(img_id)
+                except Exception as e:
+                    logging.error(f"[Meld] Failed to restore file {trash_filename}: {e}")
+                    continue
+
+            conn.commit()
+
         return web.json_response(
             ApiResponse(success=True, count=len(restored_ids), data={"restored_ids": restored_ids}).to_dict()
         )
@@ -720,73 +712,76 @@ async def bulk_delete_images(request: web.Request) -> web.Response:
 
         permanent = req.permanent or req.delete_files
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        with db_connection() as conn:
+            cursor = conn.cursor()
 
-        placeholders = ",".join(["?"] * len(req.ids))
-        cursor.execute(
-            f"SELECT id, filename, subfolder, type, deleted_at FROM images WHERE id IN ({placeholders})", req.ids
-        )
-        images = cursor.fetchall()
+            placeholders = ",".join(["?"] * len(req.ids))
+            cursor.execute(
+                f"SELECT id, filename, subfolder, type, deleted_at FROM images WHERE id IN ({placeholders})", req.ids
+            )
+            images = cursor.fetchall()
 
-        deleted_count = 0
-        now = time.time()
+            deleted_count = 0
+            now = time.time()
 
-        for img_id, filename, subfolder, img_type, deleted_at in images:
-            if deleted_at is not None:
-                base_dir = get_trash_dir()
-                current_subfolder = ""
-            else:
-                if img_type == "output":
-                    base_dir = folder_paths.get_output_directory()
-                elif img_type == "input":
-                    base_dir = folder_paths.get_input_directory()
-                elif img_type == "temp":
-                    base_dir = folder_paths.get_temp_directory()
-                elif img_type == "custom":
-                    base_dir = ""
-                else:
-                    continue
-                current_subfolder = subfolder
-
-            current_full_path = os.path.normpath(os.path.abspath(os.path.join(base_dir, current_subfolder, filename)))
-
-            if permanent:
-                if os.path.exists(current_full_path):
-                    try:
-                        os.remove(current_full_path)
-                    except Exception as e:
-                        logging.warning(f"[Meld] Failed to permanently delete file {current_full_path}: {e}")
-
-                cursor.execute("UPDATE images SET parent_id = NULL WHERE parent_id = ?", (img_id,))
-                cursor.execute("DELETE FROM images WHERE id = ?", (img_id,))
-                cursor.execute("DELETE FROM positive_prompt_image_relations WHERE image_id = ?", (img_id,))
-                cursor.execute("DELETE FROM negative_prompt_image_relations WHERE image_id = ?", (img_id,))
-                cursor.execute("DELETE FROM model_image_relations WHERE image_id = ?", (img_id,))
-                cursor.execute("DELETE FROM tag_image_relations WHERE image_id = ?", (img_id,))
-
-            else:
+            for img_id, filename, subfolder, img_type, deleted_at in images:
                 if deleted_at is not None:
-                    continue
-
-                if os.path.exists(current_full_path):
-                    new_filename = f"{int(now)}_{filename}"
-                    new_full_path = os.path.join(get_trash_dir(), new_filename)
-                    try:
-                        shutil.move(current_full_path, new_full_path)
-                        cursor.execute(
-                            "UPDATE images SET deleted_at = ?, filename = ? WHERE id = ?", (now, new_filename, img_id)
-                        )
-                    except Exception as e:
-                        logging.error(f"[Meld] Failed to move file to trash {current_full_path}: {e}")
-                        continue
+                    base_dir = get_trash_dir()
+                    current_subfolder = ""
                 else:
-                    cursor.execute("UPDATE images SET deleted_at = ? WHERE id = ?", (now, img_id))
+                    if img_type == "output":
+                        base_dir = folder_paths.get_output_directory()
+                    elif img_type == "input":
+                        base_dir = folder_paths.get_input_directory()
+                    elif img_type == "temp":
+                        base_dir = folder_paths.get_temp_directory()
+                    elif img_type == "custom":
+                        base_dir = ""
+                    else:
+                        continue
+                    current_subfolder = subfolder
 
-            deleted_count += 1
+                current_full_path = os.path.normpath(
+                    os.path.abspath(os.path.join(base_dir, current_subfolder, filename))
+                )
 
-        conn.commit()
-        conn.close()
+                if permanent:
+                    if os.path.exists(current_full_path):
+                        try:
+                            os.remove(current_full_path)
+                        except Exception as e:
+                            logging.warning(f"[Meld] Failed to permanently delete file {current_full_path}: {e}")
+
+                    cursor.execute("UPDATE images SET parent_id = NULL WHERE parent_id = ?", (img_id,))
+                    cursor.execute("DELETE FROM images WHERE id = ?", (img_id,))
+                    cursor.execute("DELETE FROM positive_prompt_image_relations WHERE image_id = ?", (img_id,))
+                    cursor.execute("DELETE FROM negative_prompt_image_relations WHERE image_id = ?", (img_id,))
+                    cursor.execute("DELETE FROM model_image_relations WHERE image_id = ?", (img_id,))
+                    cursor.execute("DELETE FROM tag_image_relations WHERE image_id = ?", (img_id,))
+
+                else:
+                    if deleted_at is not None:
+                        continue
+
+                    if os.path.exists(current_full_path):
+                        new_filename = f"{int(now)}_{filename}"
+                        new_full_path = os.path.join(get_trash_dir(), new_filename)
+                        try:
+                            shutil.move(current_full_path, new_full_path)
+                            cursor.execute(
+                                "UPDATE images SET deleted_at = ?, filename = ? WHERE id = ?",
+                                (now, new_filename, img_id),
+                            )
+                        except Exception as e:
+                            logging.error(f"[Meld] Failed to move file to trash {current_full_path}: {e}")
+                            continue
+                    else:
+                        cursor.execute("UPDATE images SET deleted_at = ? WHERE id = ?", (now, img_id))
+
+                deleted_count += 1
+
+            conn.commit()
+
         return web.json_response(ApiResponse(success=True, count=deleted_count).to_dict())
     except Exception as e:
         logging.exception("[Meld] Bulk delete failed")
@@ -802,65 +797,64 @@ async def update_image_notes(request: web.Request) -> web.Response:
         except (TypeError, ValueError) as e:
             return web.json_response(ApiResponse(success=False, error=f"Invalid schema: {e}").to_dict(), status=400)
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        with db_connection() as conn:
+            cursor = conn.cursor()
 
-        # Check if image exists
-        cursor.execute("SELECT id FROM images WHERE id = ?", (req.imageId,))
-        if not cursor.fetchone():
-            conn.close()
-            return web.json_response(ApiResponse(success=False, error="Image not found").to_dict(), status=404)
+            # Check if image exists
+            cursor.execute("SELECT id FROM images WHERE id = ?", (req.imageId,))
+            if not cursor.fetchone():
+                return web.json_response(ApiResponse(success=False, error="Image not found").to_dict(), status=404)
 
-        # Update notes (trash images are also allowed)
-        cursor.execute("UPDATE images SET user_notes = ? WHERE id = ?", (req.userNotes, req.imageId))
-        conn.commit()
+            # Update notes (trash images are also allowed)
+            cursor.execute("UPDATE images SET user_notes = ? WHERE id = ?", (req.userNotes, req.imageId))
+            conn.commit()
 
-        # Fetch updated image details to return
-        # Using a simplified version of get_image_details logic
-        sql = """
-            SELECT i.id, i.filename, i.subfolder, i.type, i.created_at, i.phash, i.sha256, i.parent_id,
-                   p.filename as parent_filename, p.subfolder as parent_subfolder, p.type as parent_type,
-                   EXISTS(SELECT 1 FROM images c WHERE c.parent_id = i.id AND c.deleted_at IS NULL) as has_children,
-                   i.positive_prompt, i.negative_prompt,
-                   (SELECT GROUP_CONCAT(m.name, ', ') FROM models m
-                    JOIN model_image_relations mir ON m.id = mir.model_id
-                    WHERE mir.image_id = i.id) as model_name,
-                   i.workflow, i.width, i.height, i.deleted_at, i.user_notes
-            FROM images i LEFT JOIN images p ON i.parent_id = p.id
-            WHERE i.id = ?
-        """
-        cursor.execute(sql, (req.imageId,))
-        img = cursor.fetchone()
+            # Fetch updated image details to return
+            # Using a simplified version of get_image_details logic
+            sql = """
+                SELECT i.id, i.filename, i.subfolder, i.type, i.created_at, i.phash, i.sha256, i.parent_id,
+                       p.filename as parent_filename, p.subfolder as parent_subfolder, p.type as parent_type,
+                       EXISTS(SELECT 1 FROM images c WHERE c.parent_id = i.id AND c.deleted_at IS NULL) as has_children,
+                       i.positive_prompt, i.negative_prompt,
+                       (SELECT GROUP_CONCAT(m.name, ', ') FROM models m
+                        JOIN model_image_relations mir ON m.id = mir.model_id
+                        WHERE mir.image_id = i.id) as model_name,
+                       i.workflow, i.width, i.height, i.deleted_at, i.user_notes
+                FROM images i LEFT JOIN images p ON i.parent_id = p.id
+                WHERE i.id = ?
+            """
+            cursor.execute(sql, (req.imageId,))
+            img = cursor.fetchone()
 
-        # Reconstruct prompts and tags (same as get_image_details)
-        cursor.execute(
-            "SELECT t.name FROM tags t JOIN tag_image_relations r ON t.id = r.tag_id WHERE r.image_id = ?",
-            (req.imageId,),
-        )
-        tags = [row[0] for row in cursor.fetchall()]
+            # Reconstruct prompts and tags (same as get_image_details)
+            cursor.execute(
+                "SELECT t.name FROM tags t JOIN tag_image_relations r ON t.id = r.tag_id WHERE r.image_id = ?",
+                (req.imageId,),
+            )
+            tags = [row[0] for row in cursor.fetchall()]
 
-        (
-            img_id,
-            filename,
-            subfolder,
-            img_type,
-            created_at,
-            phash,
-            sha256,
-            parent_id,
-            p_filename,
-            p_subfolder,
-            p_type,
-            has_children,
-            db_positive,
-            db_negative,
-            model_name,
-            workflow,
-            width,
-            height,
-            deleted_at,
-            user_notes,
-        ) = img
+            (
+                img_id,
+                filename,
+                subfolder,
+                img_type,
+                created_at,
+                phash,
+                sha256,
+                parent_id,
+                p_filename,
+                p_subfolder,
+                p_type,
+                has_children,
+                db_positive,
+                db_negative,
+                model_name,
+                workflow,
+                width,
+                height,
+                deleted_at,
+                user_notes,
+            ) = img
 
         item = ImageListItem(
             id=img_id,
@@ -891,7 +885,6 @@ async def update_image_notes(request: web.Request) -> web.Response:
             ancestors=[],  # Simplified
         )
 
-        conn.close()
         return web.json_response(ApiResponse(success=True, data=item.to_dict()).to_dict())
     except Exception as e:
         logging.exception("[Meld] Failed to update image notes")
@@ -915,76 +908,75 @@ async def delete_image_endpoint(request: web.Request) -> web.Response:
         if req.id:
             ids = [req.id]
         else:
-            conn = get_db_connection()
-            cursor = conn.cursor()
-            cursor.execute("SELECT id FROM images WHERE filename = ?", (req.filename,))
-            ids = [row[0] for row in cursor.fetchall()]
-            conn.close()
+            with db_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT id FROM images WHERE filename = ?", (req.filename,))
+                ids = [row[0] for row in cursor.fetchall()]
 
         if not ids:
             return web.json_response(ApiResponse(success=False, error="Image not found").to_dict(), status=404)
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        with db_connection() as conn:
+            cursor = conn.cursor()
 
-        placeholders = ",".join(["?"] * len(ids))
-        cursor.execute(
-            f"SELECT id, filename, subfolder, type, deleted_at FROM images WHERE id IN ({placeholders})", ids
-        )
-        images = cursor.fetchall()
-
-        now = time.time()
-        for img_id, img_filename, subfolder, img_type, deleted_at in images:
-            if deleted_at is not None:
-                base_dir = get_trash_dir()
-                current_subfolder = ""
-            else:
-                if img_type == "output":
-                    base_dir = folder_paths.get_output_directory()
-                elif img_type == "input":
-                    base_dir = folder_paths.get_input_directory()
-                elif img_type == "temp":
-                    base_dir = folder_paths.get_temp_directory()
-                elif img_type == "custom":
-                    base_dir = ""
-                else:
-                    continue
-                current_subfolder = subfolder
-
-            current_full_path = os.path.normpath(
-                os.path.abspath(os.path.join(base_dir, current_subfolder, img_filename))
+            placeholders = ",".join(["?"] * len(ids))
+            cursor.execute(
+                f"SELECT id, filename, subfolder, type, deleted_at FROM images WHERE id IN ({placeholders})", ids
             )
+            images = cursor.fetchall()
 
-            if req.permanent:
-                if os.path.exists(current_full_path):
-                    try:
-                        os.remove(current_full_path)
-                    except Exception:
-                        pass
-                cursor.execute("UPDATE images SET parent_id = NULL WHERE parent_id = ?", (img_id,))
-                cursor.execute("DELETE FROM images WHERE id = ?", (img_id,))
-                cursor.execute("DELETE FROM positive_prompt_image_relations WHERE image_id = ?", (img_id,))
-                cursor.execute("DELETE FROM negative_prompt_image_relations WHERE image_id = ?", (img_id,))
-                cursor.execute("DELETE FROM model_image_relations WHERE image_id = ?", (img_id,))
-                cursor.execute("DELETE FROM tag_image_relations WHERE image_id = ?", (img_id,))
-            else:
-                if deleted_at is None:
-                    if os.path.exists(current_full_path):
-                        new_filename = f"{int(now)}_{img_filename}"
-                        new_full_path = os.path.join(get_trash_dir(), new_filename)
-                        try:
-                            shutil.move(current_full_path, new_full_path)
-                            cursor.execute(
-                                "UPDATE images SET deleted_at = ?, filename = ? WHERE id = ?",
-                                (now, new_filename, img_id),
-                            )
-                        except Exception:
-                            continue
+            now = time.time()
+            for img_id, img_filename, subfolder, img_type, deleted_at in images:
+                if deleted_at is not None:
+                    base_dir = get_trash_dir()
+                    current_subfolder = ""
+                else:
+                    if img_type == "output":
+                        base_dir = folder_paths.get_output_directory()
+                    elif img_type == "input":
+                        base_dir = folder_paths.get_input_directory()
+                    elif img_type == "temp":
+                        base_dir = folder_paths.get_temp_directory()
+                    elif img_type == "custom":
+                        base_dir = ""
                     else:
-                        cursor.execute("UPDATE images SET deleted_at = ? WHERE id = ?", (now, img_id))
+                        continue
+                    current_subfolder = subfolder
 
-        conn.commit()
-        conn.close()
+                current_full_path = os.path.normpath(
+                    os.path.abspath(os.path.join(base_dir, current_subfolder, img_filename))
+                )
+
+                if req.permanent:
+                    if os.path.exists(current_full_path):
+                        try:
+                            os.remove(current_full_path)
+                        except Exception:
+                            pass
+                    cursor.execute("UPDATE images SET parent_id = NULL WHERE parent_id = ?", (img_id,))
+                    cursor.execute("DELETE FROM images WHERE id = ?", (img_id,))
+                    cursor.execute("DELETE FROM positive_prompt_image_relations WHERE image_id = ?", (img_id,))
+                    cursor.execute("DELETE FROM negative_prompt_image_relations WHERE image_id = ?", (img_id,))
+                    cursor.execute("DELETE FROM model_image_relations WHERE image_id = ?", (img_id,))
+                    cursor.execute("DELETE FROM tag_image_relations WHERE image_id = ?", (img_id,))
+                else:
+                    if deleted_at is None:
+                        if os.path.exists(current_full_path):
+                            new_filename = f"{int(now)}_{img_filename}"
+                            new_full_path = os.path.join(get_trash_dir(), new_filename)
+                            try:
+                                shutil.move(current_full_path, new_full_path)
+                                cursor.execute(
+                                    "UPDATE images SET deleted_at = ?, filename = ? WHERE id = ?",
+                                    (now, new_filename, img_id),
+                                )
+                            except Exception:
+                                continue
+                        else:
+                            cursor.execute("UPDATE images SET deleted_at = ? WHERE id = ?", (now, img_id))
+
+            conn.commit()
+
         return web.json_response(ApiResponse(success=True).to_dict())
     except Exception as e:
         return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
@@ -1007,28 +999,29 @@ async def link_parent_endpoint(request: web.Request) -> web.Response:
                 ApiResponse(success=False, error="Cannot set an image as its own parent").to_dict(), status=400
             )
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        with db_connection() as conn:
+            cursor = conn.cursor()
 
-        if req.parentId is not None:
-            cursor.execute("SELECT created_at FROM images WHERE id = ?", (req.childId,))
-            child_row = cursor.fetchone()
-            cursor.execute("SELECT created_at FROM images WHERE id = ?", (req.parentId,))
-            parent_row = cursor.fetchone()
+            if req.parentId is not None:
+                cursor.execute("SELECT created_at FROM images WHERE id = ?", (req.childId,))
+                child_row = cursor.fetchone()
+                cursor.execute("SELECT created_at FROM images WHERE id = ?", (req.parentId,))
+                parent_row = cursor.fetchone()
 
-            if child_row and parent_row:
-                child_created = child_row[0]
-                parent_created = parent_row[0]
-                if parent_created >= child_created:
-                    conn.close()
-                    return web.json_response(
-                        ApiResponse(success=False, error="Parent image must be older than the child image").to_dict(),
-                        status=400,
-                    )
+                if child_row and parent_row:
+                    child_created = child_row[0]
+                    parent_created = parent_row[0]
+                    if parent_created >= child_created:
+                        return web.json_response(
+                            ApiResponse(
+                                success=False, error="Parent image must be older than the child image"
+                            ).to_dict(),
+                            status=400,
+                        )
 
-        cursor.execute("UPDATE images SET parent_id = ? WHERE id = ?", (req.parentId, req.childId))
-        conn.commit()
-        conn.close()
+            cursor.execute("UPDATE images SET parent_id = ? WHERE id = ?", (req.parentId, req.childId))
+            conn.commit()
+
         return web.json_response(ApiResponse(success=True).to_dict())
     except Exception as e:
         return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
@@ -1039,43 +1032,40 @@ async def suggest_parents_endpoint(request: web.Request) -> web.Response:
     try:
         image_id = request.query.get("id")
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        with db_connection() as conn:
+            cursor = conn.cursor()
 
-        db_settings = get_all_settings(cursor)
-        default_threshold = db_settings.get("gallery.suggest_phash_threshold", 82)
-        threshold_pct = float(request.query.get("threshold", default_threshold))
-        threshold = round(64 * (1 - threshold_pct / 100))
+            db_settings = get_all_settings(cursor)
+            default_threshold = db_settings.get("gallery.suggest_phash_threshold", 82)
+            threshold_pct = float(request.query.get("threshold", default_threshold))
+            threshold = round(64 * (1 - threshold_pct / 100))
 
-        if not image_id:
-            conn.close()
-            return web.json_response(ApiResponse(success=False, error="id is required").to_dict(), status=400)
-        strategy = db_settings.get("gallery.matching_strategy", "phash_created")
+            if not image_id:
+                return web.json_response(ApiResponse(success=False, error="id is required").to_dict(), status=400)
+            strategy = db_settings.get("gallery.matching_strategy", "phash_created")
 
-        cursor.execute(
-            "SELECT phash, created_at, filename, subfolder, type FROM images WHERE id = ?",
-            (image_id,),
-        )
-        row = cursor.fetchone()
-        if not row:
-            conn.close()
-            return web.json_response(ApiResponse(success=True, data=[]).to_dict())
+            cursor.execute(
+                "SELECT phash, created_at, filename, subfolder, type FROM images WHERE id = ?",
+                (image_id,),
+            )
+            row = cursor.fetchone()
+            if not row:
+                return web.json_response(ApiResponse(success=True, data=[]).to_dict())
 
-        target_phash, target_created_at, filename, subfolder, img_type = row
+            target_phash, target_created_at, filename, subfolder, img_type = row
 
-        suggestions = get_parent_suggestions(
-            cursor,
-            int(image_id),
-            target_phash,
-            target_created_at,
-            filename,
-            subfolder,
-            img_type,
-            strategy=strategy,
-            threshold=threshold,
-        )
+            suggestions = get_parent_suggestions(
+                cursor,
+                int(image_id),
+                target_phash,
+                target_created_at,
+                filename,
+                subfolder,
+                img_type,
+                strategy=strategy,
+                threshold=threshold,
+            )
 
-        conn.close()
         return web.json_response(ApiResponse(success=True, data=[s.to_dict() for s in suggestions[:20]]).to_dict())
     except Exception as e:
         logging.exception("[Meld] Failed to suggest parents")
@@ -1089,73 +1079,72 @@ async def get_lineage_endpoint(request: web.Request) -> web.Response:
         if not image_id:
             return web.json_response(ApiResponse(success=False, error="id is required").to_dict(), status=400)
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        with db_connection() as conn:
+            cursor = conn.cursor()
 
-        sql = """
-        WITH RECURSIVE
-        ancestors(id) AS (
-            SELECT id FROM images WHERE id = ?
-            UNION
-            SELECT i.parent_id FROM images i JOIN ancestors a ON i.id = a.id WHERE i.parent_id IS NOT NULL
-        ),
-        descendants(id) AS (
-            SELECT id FROM images WHERE id = ?
-            UNION
-            SELECT i.id FROM images i JOIN descendants d ON i.parent_id = d.id
-        )
-        SELECT i.id, i.filename, i.subfolder, i.type, i.created_at, i.parent_id, i.phash,
-               p.filename as parent_filename, p.subfolder as parent_subfolder, p.type as parent_type,
-               i.positive_prompt, i.negative_prompt,
-               (SELECT GROUP_CONCAT(m.name, ', ') FROM models m
-                JOIN model_image_relations mir ON m.id = mir.model_id
-                WHERE mir.image_id = i.id) as model_name,
-               i.workflow, i.width, i.height, i.user_notes
-        FROM images i LEFT JOIN images p ON i.parent_id = p.id
-        WHERE (i.id IN (SELECT id FROM ancestors) OR i.id IN (SELECT id FROM descendants)) AND i.deleted_at IS NULL
-        ORDER BY i.created_at
-        """
-
-        cursor.execute(sql, (image_id, image_id))
-        rows = cursor.fetchall()
-
-        result = []
-        for row in rows:
-            img_id = row[0]
-
-            cursor.execute(
-                "SELECT t.name FROM tags t JOIN tag_image_relations r ON t.id = r.tag_id WHERE r.image_id = ?",
-                (img_id,),
+            sql = """
+            WITH RECURSIVE
+            ancestors(id) AS (
+                SELECT id FROM images WHERE id = ?
+                UNION
+                SELECT i.parent_id FROM images i JOIN ancestors a ON i.id = a.id WHERE i.parent_id IS NOT NULL
+            ),
+            descendants(id) AS (
+                SELECT id FROM images WHERE id = ?
+                UNION
+                SELECT i.id FROM images i JOIN descendants d ON i.parent_id = d.id
             )
-            tag_rows = cursor.fetchall()
-            tags = [t[0] for t in tag_rows]
+            SELECT i.id, i.filename, i.subfolder, i.type, i.created_at, i.parent_id, i.phash,
+                   p.filename as parent_filename, p.subfolder as parent_subfolder, p.type as parent_type,
+                   i.positive_prompt, i.negative_prompt,
+                   (SELECT GROUP_CONCAT(m.name, ', ') FROM models m
+                    JOIN model_image_relations mir ON m.id = mir.model_id
+                    WHERE mir.image_id = i.id) as model_name,
+                   i.workflow, i.width, i.height, i.user_notes
+            FROM images i LEFT JOIN images p ON i.parent_id = p.id
+            WHERE (i.id IN (SELECT id FROM ancestors) OR i.id IN (SELECT id FROM descendants)) AND i.deleted_at IS NULL
+            ORDER BY i.created_at
+            """
 
-            result.append(
-                LineageItem(
-                    id=img_id,
-                    filename=row[1],
-                    subfolder=row[2],
-                    type=row[3],
-                    created_at=row[4],
-                    parent_id=row[5],
-                    phash=row[6],
-                    parent_filename=row[7],
-                    parent_subfolder=row[8],
-                    parent_type=row[9],
-                    positive=row[10] or "",
-                    negative=row[11] or "",
-                    positive_prompt=row[10],
-                    negative_prompt=row[11],
-                    model_name=row[12],
-                    workflow=row[13],
-                    width=row[14],
-                    height=row[15],
-                    user_notes=row[16],
-                    tags=tags,
-                ).to_dict()
-            )
+            cursor.execute(sql, (image_id, image_id))
+            rows = cursor.fetchall()
 
-        conn.close()
+            result = []
+            for row in rows:
+                img_id = row[0]
+
+                cursor.execute(
+                    "SELECT t.name FROM tags t JOIN tag_image_relations r ON t.id = r.tag_id WHERE r.image_id = ?",
+                    (img_id,),
+                )
+                tag_rows = cursor.fetchall()
+                tags = [t[0] for t in tag_rows]
+
+                result.append(
+                    LineageItem(
+                        id=img_id,
+                        filename=row[1],
+                        subfolder=row[2],
+                        type=row[3],
+                        created_at=row[4],
+                        parent_id=row[5],
+                        phash=row[6],
+                        parent_filename=row[7],
+                        parent_subfolder=row[8],
+                        parent_type=row[9],
+                        positive=row[10] or "",
+                        negative=row[11] or "",
+                        positive_prompt=row[10],
+                        negative_prompt=row[11],
+                        model_name=row[12],
+                        workflow=row[13],
+                        width=row[14],
+                        height=row[15],
+                        user_notes=row[16],
+                        tags=tags,
+                    ).to_dict()
+                )
+
         return web.json_response(ApiResponse(success=True, data=result).to_dict())
     except Exception as e:
         logging.exception("[Meld] Failed to get lineage")
@@ -1470,129 +1459,128 @@ async def register_image_endpoint(request: web.Request) -> web.Response:
                 ApiResponse(success=False, error=f"File not found: {full_path}").to_dict(), status=404
             )
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        with db_connection() as conn:
+            cursor = conn.cursor()
 
-        db_settings = get_all_settings(cursor)
-        matching_strategy = db_settings.get("gallery.matching_strategy", "phash_created")
+            db_settings = get_all_settings(cursor)
+            matching_strategy = db_settings.get("gallery.matching_strategy", "phash_created")
 
-        sha256 = calculate_sha256(full_path)
+            sha256 = calculate_sha256(full_path)
 
-        cursor.execute(
-            "SELECT id FROM images WHERE sha256 = ? AND deleted_at IS NULL",
-            (sha256,),
-        )
-        existing_sha = cursor.fetchone()
-        if existing_sha:
-            conn.close()
-            return web.json_response(
-                ApiResponse(
-                    success=True, message="Already registered (hash match)", data={"id": existing_sha[0]}
-                ).to_dict()
+            cursor.execute(
+                "SELECT id FROM images WHERE sha256 = ? AND deleted_at IS NULL",
+                (sha256,),
             )
+            existing_sha = cursor.fetchone()
+            if existing_sha:
+                return web.json_response(
+                    ApiResponse(
+                        success=True, message="Already registered (hash match)", data={"id": existing_sha[0]}
+                    ).to_dict()
+                )
 
-        cursor.execute(
-            "SELECT id FROM images WHERE filename = ? AND subfolder = ? AND deleted_at IS NULL",
-            (req.filename, req.subfolder),
-        )
-        existing = cursor.fetchone()
-        if existing:
-            conn.close()
-            return web.json_response(
-                ApiResponse(success=True, message="Already registered (path match)", data={"id": existing[0]}).to_dict()
+            cursor.execute(
+                "SELECT id FROM images WHERE filename = ? AND subfolder = ? AND deleted_at IS NULL",
+                (req.filename, req.subfolder),
             )
+            existing = cursor.fetchone()
+            if existing:
+                return web.json_response(
+                    ApiResponse(
+                        success=True, message="Already registered (path match)", data={"id": existing[0]}
+                    ).to_dict()
+                )
 
-        pos, neg, model, wf_json, pr_json, a1111_text, logs = MetadataHelper.extract_metadata(full_path)
+            pos, neg, model, wf_json, pr_json, a1111_text, logs = MetadataHelper.extract_metadata(full_path)
 
-        timestamp = os.path.getmtime(full_path)
+            timestamp = os.path.getmtime(full_path)
 
-        width, height = 0, 0
-        try:
-            with Image.open(full_path) as img:
-                width, height = img.size
-        except Exception:
-            pass
-
-        imagehash = MetadataHelper.get_imagehash()
-        phash = None
-        if imagehash is not None:
+            width, height = 0, 0
             try:
                 with Image.open(full_path) as img:
-                    phash = str(imagehash.phash(img))
+                    width, height = img.size
             except Exception:
-                logging.warning(f"[Meld] Failed to calculate phash for {full_path}")
+                pass
 
-        parent_id = infer_parent_id(
-            cursor, req.filename, req.subfolder, req.type, phash, timestamp, strategy=matching_strategy
-        )
+            imagehash = MetadataHelper.get_imagehash()
+            phash = None
+            if imagehash is not None:
+                try:
+                    with Image.open(full_path) as img:
+                        phash = str(imagehash.phash(img))
+                except Exception:
+                    logging.warning(f"[Meld] Failed to calculate phash for {full_path}")
 
-        sql = """
-            INSERT INTO images
-            (filename, subfolder, type, created_at, phash, sha256, width, height, parent_id, deleted_at, positive_prompt, negative_prompt, workflow)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?)
-        """
-        cursor.execute(
-            sql,
-            (
-                req.filename,
-                req.subfolder,
-                req.type,
-                timestamp,
-                phash,
-                sha256,
-                width,
-                height,
-                parent_id,
-                pos,
-                neg,
-                wf_json,
-            ),
-        )
-        image_id = cursor.lastrowid
+            parent_id = infer_parent_id(
+                cursor, req.filename, req.subfolder, req.type, phash, timestamp, strategy=matching_strategy
+            )
 
-        # Inherit tags if enabled and parent exists
-        if image_id is not None and parent_id and db_settings.get("gallery.inherit_tags", True):
-            inherit_tags(cursor, image_id, parent_id)
+            sql = """
+                INSERT INTO images
+                (filename, subfolder, type, created_at, phash, sha256, width, height, parent_id, deleted_at, positive_prompt, negative_prompt, workflow)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?)
+            """
+            cursor.execute(
+                sql,
+                (
+                    req.filename,
+                    req.subfolder,
+                    req.type,
+                    timestamp,
+                    phash,
+                    sha256,
+                    width,
+                    height,
+                    parent_id,
+                    pos,
+                    neg,
+                    wf_json,
+                ),
+            )
+            image_id = cursor.lastrowid
 
-        if model:
-            m_id = get_or_create_model(cursor, model)
-            add_model_relation(cursor, image_id, m_id)
+            # Inherit tags if enabled and parent exists
+            if image_id is not None and parent_id and db_settings.get("gallery.inherit_tags", True):
+                inherit_tags(cursor, image_id, parent_id)
 
-        pos_list = MetadataHelper.smart_split(pos) if pos else []
-        neg_list = MetadataHelper.smart_split(neg) if neg else []
+            if model:
+                m_id = get_or_create_model(cursor, model)
+                add_model_relation(cursor, image_id, m_id)
 
-        for p in pos_list:
-            prompt_results = MetadataHelper.parse_prompt_with_weight(p)
-            for clean_name, strength in prompt_results:
-                if not clean_name:
-                    continue
-                cursor.execute("INSERT OR IGNORE INTO positive_prompts (name) VALUES (?)", (clean_name,))
-                cursor.execute("SELECT id FROM positive_prompts WHERE name = ?", (clean_name,))
-                row = cursor.fetchone()
-                if row:
-                    pp_id = row[0]
-                    cursor.execute(
-                        "INSERT INTO positive_prompt_image_relations (image_id, positive_prompt_id, strength) VALUES (?, ?, ?)",
-                        (image_id, pp_id, strength),
-                    )
+            pos_list = MetadataHelper.smart_split(pos) if pos else []
+            neg_list = MetadataHelper.smart_split(neg) if neg else []
 
-        for n in neg_list:
-            prompt_results = MetadataHelper.parse_prompt_with_weight(n)
-            for clean_name, strength in prompt_results:
-                if not clean_name:
-                    continue
-                cursor.execute("INSERT OR IGNORE INTO negative_prompts (name) VALUES (?)", (clean_name,))
-                cursor.execute("SELECT id FROM negative_prompts WHERE name = ?", (clean_name,))
-                row = cursor.fetchone()
-                if row:
-                    np_id = row[0]
-                    cursor.execute(
-                        "INSERT INTO negative_prompt_image_relations (image_id, negative_prompt_id, strength) VALUES (?, ?, ?)",
-                        (image_id, np_id, strength),
-                    )
+            for p in pos_list:
+                prompt_results = MetadataHelper.parse_prompt_with_weight(p)
+                for clean_name, strength in prompt_results:
+                    if not clean_name:
+                        continue
+                    cursor.execute("INSERT OR IGNORE INTO positive_prompts (name) VALUES (?)", (clean_name,))
+                    cursor.execute("SELECT id FROM positive_prompts WHERE name = ?", (clean_name,))
+                    row = cursor.fetchone()
+                    if row:
+                        pp_id = row[0]
+                        cursor.execute(
+                            "INSERT INTO positive_prompt_image_relations (image_id, positive_prompt_id, strength) VALUES (?, ?, ?)",
+                            (image_id, pp_id, strength),
+                        )
 
-        conn.commit()
-        conn.close()
+            for n in neg_list:
+                prompt_results = MetadataHelper.parse_prompt_with_weight(n)
+                for clean_name, strength in prompt_results:
+                    if not clean_name:
+                        continue
+                    cursor.execute("INSERT OR IGNORE INTO negative_prompts (name) VALUES (?)", (clean_name,))
+                    cursor.execute("SELECT id FROM negative_prompts WHERE name = ?", (clean_name,))
+                    row = cursor.fetchone()
+                    if row:
+                        np_id = row[0]
+                        cursor.execute(
+                            "INSERT INTO negative_prompt_image_relations (image_id, negative_prompt_id, strength) VALUES (?, ?, ?)",
+                            (image_id, np_id, strength),
+                        )
+
+            conn.commit()
 
         server.PromptServer.instance.send_sync("meld-image-saved", {"count": 1})
 
@@ -1892,12 +1880,11 @@ async def download_zip(request: web.Request) -> web.Response:
         if not image_ids:
             return web.json_response(ApiResponse(success=False, error="No image IDs provided").to_dict(), status=400)
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        placeholders = ",".join(["?"] * len(image_ids))
-        cursor.execute(f"SELECT id, filename, subfolder, type FROM images WHERE id IN ({placeholders})", image_ids)
-        rows = cursor.fetchall()
-        conn.close()
+        with db_connection() as conn:
+            cursor = conn.cursor()
+            placeholders = ",".join(["?"] * len(image_ids))
+            cursor.execute(f"SELECT id, filename, subfolder, type FROM images WHERE id IN ({placeholders})", image_ids)
+            rows = cursor.fetchall()
 
         import io
         import zipfile
@@ -1952,11 +1939,10 @@ async def download_raw(request: web.Request) -> web.Response:
         if not image_id:
             return web.json_response(ApiResponse(success=False, error="No image ID provided").to_dict(), status=400)
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT filename, subfolder, type FROM images WHERE id = ?", (image_id,))
-        row = cursor.fetchone()
-        conn.close()
+        with db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT filename, subfolder, type FROM images WHERE id = ?", (image_id,))
+            row = cursor.fetchone()
 
         if not row:
             return web.json_response(ApiResponse(success=False, error="Image not found").to_dict(), status=404)

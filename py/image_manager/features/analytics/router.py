@@ -3,7 +3,7 @@ import threading
 
 from aiohttp import web
 
-from ...common.db.client import get_db_connection
+from ...common.db.client import db_connection
 from ...common.db.runtime_state import set_analytics_refresh_running
 from ...common.schemas import ApiResponse
 from .service import CATEGORIES, get_category_list, get_counts, get_summary, run_aggregation
@@ -55,21 +55,17 @@ async def refresh_analytics(request: web.Request) -> web.Response:
 @routes.get("/meld/analytics")
 async def get_analytics_summary(request: web.Request) -> web.Response:
     """Return summary: total_images + top 5 per category."""
-    conn = None
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        try:
-            data = get_summary(cursor)
-            return web.json_response(ApiResponse(success=True, data=data).to_dict())
-        finally:
-            cursor.close()
+        with db_connection() as conn:
+            cursor = conn.cursor()
+            try:
+                data = get_summary(cursor)
+                return web.json_response(ApiResponse(success=True, data=data).to_dict())
+            finally:
+                cursor.close()
     except Exception as e:
         logging.exception(f"[Meld] Failed to get analytics summary: {e}")
         return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
-    finally:
-        if conn is not None:
-            conn.close()
 
 
 def _parse_limit_offset(request: web.Request) -> tuple[int, int] | None:
@@ -89,7 +85,6 @@ def _parse_limit_offset(request: web.Request) -> tuple[int, int] | None:
 @routes.get("/meld/analytics/{category}")
 async def get_analytics_category(request: web.Request) -> web.Response:
     """Return full list for a category with limit, offset, sort, q."""
-    conn = None
     try:
         category = request.match_info["category"]
         if category not in CATEGORIES:
@@ -115,25 +110,21 @@ async def get_analytics_category(request: web.Request) -> web.Response:
         if sort not in ("count_desc", "count_asc"):
             sort = "count_desc"
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        try:
-            items, total = get_category_list(cursor, category, limit=limit, offset=offset, sort=sort, q=q)
-            return web.json_response(ApiResponse(success=True, data=items, count=len(items), total=total).to_dict())
-        finally:
-            cursor.close()
+        with db_connection() as conn:
+            cursor = conn.cursor()
+            try:
+                items, total = get_category_list(cursor, category, limit=limit, offset=offset, sort=sort, q=q)
+                return web.json_response(ApiResponse(success=True, data=items, count=len(items), total=total).to_dict())
+            finally:
+                cursor.close()
     except Exception as e:
         logging.exception(f"[Meld] Failed to get analytics category: {e}")
         return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
-    finally:
-        if conn is not None:
-            conn.close()
 
 
 @routes.post("/meld/analytics/counts")
 async def post_analytics_counts(request: web.Request) -> web.Response:
     """Return counts for specific names in a given category."""
-    conn = None
     try:
         try:
             body = await request.json()
@@ -180,16 +171,13 @@ async def post_analytics_counts(request: web.Request) -> web.Response:
                 status=400,
             )
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        try:
-            counts = get_counts(cursor, category, names)
-            return web.json_response(ApiResponse(success=True, data=counts).to_dict())
-        finally:
-            cursor.close()
+        with db_connection() as conn:
+            cursor = conn.cursor()
+            try:
+                counts = get_counts(cursor, category, names)
+                return web.json_response(ApiResponse(success=True, data=counts).to_dict())
+            finally:
+                cursor.close()
     except Exception as e:
         logging.exception(f"[Meld] Failed to get analytics counts: {e}")
         return web.json_response(ApiResponse(success=False, error=str(e)).to_dict(), status=500)
-    finally:
-        if conn is not None:
-            conn.close()
