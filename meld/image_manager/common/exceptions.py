@@ -40,3 +40,7 @@ class DatabaseError(MeldError):
     """Raised on unrecoverable database-layer failures (HTTP 500)."""
 
     status_code: int = 500
+
+
+class MigrationError(DatabaseError):
+    """Raised when a database migration fails (HTTP 500)."""

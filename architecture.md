@@ -81,7 +81,8 @@ This document serves as a comprehensive guide for AI agents and developers to un
    - Rename operations move the SQLite file and per-database runtime directory together without forcing a frontend soft reset, because the underlying DB contents remain the same.
 
 ### Critical Files
-- **Database Schema**: `meld/image_manager/common/db/schema.py` (Single source of truth for all DDL. `create_schema(cursor)` creates tables and indexes idempotently; `init_db()` calls it then runs migration logic).
+- **Database Schema**: `meld/image_manager/common/db/schema.py` (Single source of truth for DDL. `create_schema(cursor)` creates tables and indexes idempotently; `init_db()` delegates to `migrate()` in `migrations.py`).
+- **Migration Runner**: `meld/image_manager/common/db/migrations.py` (`migrate(cursor)` applies versioned migrations tracked in the `schema_version` table; `LATEST_VERSION` is the current schema version; add new entries to `_MIGRATIONS` to extend).
 - **Active Database Resolver**: `meld/image_manager/common/db/client.py` (Tracks the active database, generation, and per-database runtime directories such as trash and thumbnail cache).
 - **Metadata Extraction**: `meld/load_image_configs/core/metadata_helper.py` (Parses PNG info, Exif, and ComfyUI workflows).
 - **Search Logic**: `meld/image_manager/features/search/service.py` (`SearchService` class; delegates to `query_parser.py` for tokenising query strings and `sql_builder.py` for building SQL WHERE/ORDER BY clauses).
@@ -179,11 +180,13 @@ All items from scenario B, plus:
 4. `architecture.md` — update Section 2 module table and Section 3 data flow.
 
 #### D. Modifying Database Schema
-1. `meld/image_manager/common/db/schema.py` — add `ALTER TABLE ADD COLUMN` (wrapped in try/except) and update `CREATE TABLE IF NOT EXISTS`.
-2. `meld/image_manager/common/schemas.py` — update the record dataclass.
-3. `meld/image_manager/features/X/service.py` or `repository.py` — update queries.
-4. `ui/src/types.ts` — update TypeScript interfaces if the field is exposed to the frontend.
-5. Update related tests.
+1. `meld/image_manager/common/db/schema.py` — update `CREATE TABLE IF NOT EXISTS` DDL to reflect the final target schema.
+2. `meld/image_manager/common/db/migrations.py` — add a new `_migrate_vN(cursor)` function with the `ALTER TABLE` / data-migration logic, register it in `_MIGRATIONS`, and increment `LATEST_VERSION`.
+3. `meld/image_manager/common/schemas.py` — update the record dataclass.
+4. `meld/image_manager/features/X/service.py` or `repository.py` — update queries.
+5. `ui/src/types.ts` — update TypeScript interfaces if the field is exposed to the frontend.
+6. `tests/test_migrations.py` — add a test for the new migration.
+7. Update related feature tests.
 
 #### E. Adding a New ComfyUI Custom Node
 1. `meld/X/nodes.py` — define a class with `INPUT_TYPES`, `RETURN_TYPES`, `FUNCTION`, and `CATEGORY`.
