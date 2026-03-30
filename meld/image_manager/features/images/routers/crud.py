@@ -1038,8 +1038,8 @@ async def register_image_endpoint(request: web.Request) -> web.Response:
                 )
 
             cursor.execute(
-                "SELECT id FROM images WHERE filename = ? AND subfolder = ? AND deleted_at IS NULL",
-                (req.filename, req.subfolder),
+                "SELECT id FROM images WHERE filename = ? AND subfolder = ? AND type = ? AND deleted_at IS NULL",
+                (req.filename, req.subfolder, req.type),
             )
             existing = cursor.fetchone()
             if existing:
