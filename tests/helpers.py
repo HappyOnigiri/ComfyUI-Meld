@@ -67,7 +67,7 @@ def create_test_db() -> sqlite3.Connection:
     We reinstall them permanently here if absent; the stubs are harmless for
     the purposes of schema-only test fixtures.
     """
-    if "server" not in sys.modules:
+    if any(k not in sys.modules for k in COMFYUI_MOCK_KEYS):
         install_comfyui_mocks()
 
     conn = sqlite3.connect(":memory:")
