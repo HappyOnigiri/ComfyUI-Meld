@@ -11,7 +11,6 @@ sys.modules.setdefault("comfy.cli_args", MagicMock())
 sys.modules.setdefault("nodes", MagicMock())
 
 from meld.image_manager.common.db.migrations import LATEST_VERSION, migrate  # noqa: E402
-from meld.image_manager.common.db.schema import create_schema  # noqa: E402
 from meld.image_manager.common.exceptions import MigrationError  # noqa: E402
 
 
@@ -70,12 +69,47 @@ class TestMigrateNewDb(unittest.TestCase):
 
 
 class TestMigrateLegacyDb(unittest.TestCase):
-    """Legacy DB (images exists, schema_version absent): stamp only, no DDL re-run."""
+    """Legacy DB (images exists, schema_version absent): v1 DDL/data changes applied then stamped."""
 
     def setUp(self) -> None:
         self.conn, self.cursor = _open_memory_db()
-        # Simulate a legacy database by creating the schema without a version table
-        create_schema(self.cursor)
+        # Simulate a true pre-versioned legacy DB: images table exists but
+        # lacks the columns added by v1 DDL migrations (phash, user_notes,
+        # width, height, sha256, etc.).  Relation tables exist without the
+        # 'strength' column.  No schema_version table is present.
+        self.cursor.executescript("""
+            CREATE TABLE images (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                filename TEXT,
+                subfolder TEXT,
+                created_at REAL,
+                is_deleted INTEGER DEFAULT 0
+            );
+            CREATE TABLE positive_prompts (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE);
+            CREATE TABLE negative_prompts (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE);
+            CREATE TABLE models (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE);
+            CREATE TABLE tags (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE);
+            CREATE TABLE positive_prompt_image_relations (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                image_id INTEGER,
+                positive_prompt_id INTEGER
+            );
+            CREATE TABLE negative_prompt_image_relations (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                image_id INTEGER,
+                negative_prompt_id INTEGER
+            );
+            CREATE TABLE model_image_relations (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                image_id INTEGER,
+                model_id INTEGER
+            );
+            CREATE TABLE tag_image_relations (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                image_id INTEGER,
+                tag_id INTEGER
+            );
+        """)
 
     def tearDown(self) -> None:
         self.conn.close()
@@ -96,6 +130,22 @@ class TestMigrateLegacyDb(unittest.TestCase):
         self.cursor.execute("SELECT COUNT(*) FROM schema_version")
         count = self.cursor.fetchone()[0]
         self.assertEqual(count, 1)
+
+    def test_v1_columns_added_to_images(self) -> None:
+        """v1 DDL changes must be applied: missing columns added to the images table."""
+        migrate(self.cursor)
+        self.cursor.execute("PRAGMA table_info(images)")
+        columns = {row[1] for row in self.cursor.fetchall()}
+        for col in ("phash", "user_notes", "width", "height", "sha256"):
+            self.assertIn(col, columns, f"Column '{col}' missing after v1 migration")
+
+    def test_v1_strength_column_added_to_relations(self) -> None:
+        """v1 DDL changes must add the strength column to prompt relation tables."""
+        migrate(self.cursor)
+        for table in ("positive_prompt_image_relations", "negative_prompt_image_relations"):
+            self.cursor.execute(f"PRAGMA table_info({table})")  # noqa: S608
+            columns = {row[1] for row in self.cursor.fetchall()}
+            self.assertIn("strength", columns, f"'strength' missing from {table} after v1 migration")
 
 
 class TestMigrateIdempotent(unittest.TestCase):
