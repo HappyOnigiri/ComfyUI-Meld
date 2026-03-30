@@ -1,5 +1,6 @@
 import sqlite3
 import sys
+import types
 import unittest
 from unittest.mock import MagicMock
 
@@ -7,7 +8,9 @@ from unittest.mock import MagicMock
 # Track which keys were absent so tearDownModule can restore sys.modules and
 # prevent these stubs from leaking into other test modules in the session.
 _COMFY_STUB_KEYS = ["folder_paths", "server", "comfy", "comfy.cli_args", "nodes"]
-_original_sys_modules: dict[str, object] = {key: sys.modules[key] for key in _COMFY_STUB_KEYS if key in sys.modules}
+_original_sys_modules: dict[str, types.ModuleType] = {
+    key: sys.modules[key] for key in _COMFY_STUB_KEYS if key in sys.modules
+}
 for _key in _COMFY_STUB_KEYS:
     sys.modules.setdefault(_key, MagicMock())
 
