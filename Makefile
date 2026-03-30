@@ -1,8 +1,12 @@
 .PHONY: ci test-all lint lint-py lint-ui lint-misc lint-scripts build-ui watch-ui local-check-scripts check-scripts check-ts-rules check-non-ascii repomix loc setup install-hooks setup-hooks sync-rule
 
 # Like Refix: setup runs ShareSettings sync only. Git hooks are optional (make install-hooks).
+# Also installs Python dev deps and UI npm deps required for `make ci`.
 setup:
 	@$(MAKE) sync-rule
+	$(PYTHON) -m pip install -e ".[dev]"
+	cd ui && npm install
+	@touch ui/node_modules/.install-stamp
 
 install-hooks:
 	git config core.hooksPath scripts/git-hooks
@@ -54,6 +58,10 @@ SHARESETTINGS_SYNCRULE_URL ?= https://raw.githubusercontent.com/HappyOnigiri/Sha
 # CI: Execution of all checks and tests via Python script
 ci:
 	@$(PYTHON) scripts/ci.py
+
+ui/node_modules/.install-stamp: ui/package.json
+	cd ui && npm install
+	@touch $@
 
 build-ui: ui/node_modules/.install-stamp
 	cd ui && npm run build
