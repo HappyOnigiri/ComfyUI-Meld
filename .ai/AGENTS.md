@@ -1,10 +1,6 @@
 # Basic Rules
 
 - **Mandatory CI Execution**: After modifying the code, you must run `make ci` and ensure that all linting, tests, and static analysis complete successfully.
-- **No Automatic Commits or Git Operations**: You must NOT perform any `git commit`, `git checkout -b`, or use the `commit`, `create-branch`, `create-pr`, or `ship` skills automatically. Always seek explicit user approval and instructions before:
-  - Committing any changes.
-  - Creating a new branch.
-  - Creating or updating a Pull Request.
 - **Temporary File Creation**: When creating temporary files such as log outputs, validation scripts, or temporary notes, always create them within the `tmp/` directory at the repository root.
 
 # Implementation Rules
