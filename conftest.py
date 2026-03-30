@@ -19,6 +19,7 @@ def pytest_configure() -> None:  # type: ignore[override]
     (which uses relative imports and cannot be imported as a standalone module
     by pytest) is caught and silently skipped.
     """
+    import _pytest.nodes
     import _pytest.python
 
     _orig_package_setup = _pytest.python.Package.setup
