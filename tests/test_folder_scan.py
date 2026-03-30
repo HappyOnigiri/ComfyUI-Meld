@@ -87,8 +87,8 @@ class TestFolderScan(unittest.TestCase):
         self.conn: sqlite3.Connection = create_test_db()
         self.cursor: sqlite3.Cursor = self.conn.cursor()
         self.factory: TestDataFactory = TestDataFactory(self.cursor)
-        # Reset cancellation state left by previous tests
-        _scan_state.should_cancel = False
+        # Reset scan state left by previous tests (mark_finished clears is_running and should_cancel)
+        _scan_state.mark_finished()
 
     def tearDown(self) -> None:
         self.conn.close()
@@ -171,7 +171,7 @@ class TestFolderScan(unittest.TestCase):
 
     def test_cancellation_stops_scan(self) -> None:
         """Setting should_cancel before the scan prevents any new registrations."""
-        _scan_state.should_cancel = True
+        _scan_state.request_cancel()
         self._run_scan(["/base/sub/img1.png", "/base/sub/img2.png"])
         self.assertEqual(self._image_count(), 0, "No images should be registered after cancel")
 

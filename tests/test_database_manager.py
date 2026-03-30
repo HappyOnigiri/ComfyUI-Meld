@@ -60,13 +60,13 @@ class TestDatabaseManager(unittest.TestCase):
 
         runtime_state.set_startup_cleanup_running(False)
         runtime_state.set_analytics_refresh_running(False)
-        importer_service.set_scan_running(False)
+        importer_service._scan_state.mark_finished()
 
         client.refresh_active_database_state()
         schema.init_db()
 
     def tearDown(self) -> None:
-        importer_service.set_scan_running(False)
+        importer_service._scan_state.mark_finished()
         runtime_state.set_startup_cleanup_running(False)
         runtime_state.set_analytics_refresh_running(False)
         for patcher in reversed(self.patchers):
@@ -126,12 +126,12 @@ class TestDatabaseManager(unittest.TestCase):
 
     def test_switch_is_blocked_while_scan_is_running(self) -> None:
         database_service.create_database_and_get_payload("project_a", False)
-        importer_service.set_scan_running(True)
+        importer_service._scan_state.try_start()
         try:
             with self.assertRaises(ConflictError):
                 database_service.switch_database_and_get_payload("project_a")
         finally:
-            importer_service.set_scan_running(False)
+            importer_service._scan_state.mark_finished()
 
     def test_switch_is_blocked_while_analytics_refresh_is_running(self) -> None:
         database_service.create_database_and_get_payload("project_a", False)
