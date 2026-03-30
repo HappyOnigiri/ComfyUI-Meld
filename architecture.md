@@ -145,12 +145,50 @@ Meld supports a rich query syntax in the search bar. The available prefixes are 
 - **Negation**: Prefix with `-` or `!` (e.g., `-tag:boy`).
 - **Exact Match**: Wrap value in double quotes (e.g., `tag:"best"`).
 
-### Modification Protocol
-- When adding a new API endpoint:
-  1. Define handler in a feature-specific router (e.g., `meld/image_manager/features/X/router.py`) and ensure it's integrated in `api.py`.
-  2. Add typed wrapper in the corresponding frontend feature directory (e.g., `ui/src/features/X/api/XApi.ts`).
-  3. If the logic is shared across multiple features (like basic image operations), place it in `features/images`.
-  4. Update `architecture.md` if a new major service/module is created.
+### Change Scenario Map
+
+Use this map to identify which files to read and modify for each common change type.
+
+#### A. Adding a Search Prefix
+1. `meld/image_manager/common/constants.py` — add `SEARCH_PREFIX_X` constant; register in `SEARCH_PREFIX_MAP`, `SEARCH_DATE_PREFIXES`, `SEARCH_BOOLEAN_PREFIXES`, and `ALL_SEARCH_PREFIXES`.
+2. `meld/image_manager/features/search/service.py` — add handling logic in `SearchService`.
+3. `tests/test_search_service.py` — add tests for the new prefix.
+4. `architecture.md` — update the "Search Query Syntax" list above.
+
+#### B. Adding a New API Endpoint
+1. `meld/image_manager/features/X/router.py` — define handler on `routes = web.RouteTableDef()`.
+2. `meld/image_manager/common/schemas.py` — add request/response DTOs.
+3. `meld/image_manager/api.py` — import and register in `_register_routes()` (new feature modules only).
+4. `ui/src/features/X/api/XApi.ts` — add typed wrapper using `api.fetchApi`.
+5. `tests/test_X_*.py` — add tests.
+6. `architecture.md` — update if a new module or route group is introduced.
+
+#### C. Adding a New Feature Module
+All items from scenario B, plus:
+1. `meld/image_manager/features/X/` — create `__init__.py`, `router.py`, `service.py`, and optionally `repository.py`.
+2. `ui/src/features/X/` — create frontend feature directory.
+3. `ui/src/types.ts` — add TypeScript type definitions.
+4. `architecture.md` — update Section 2 module table and Section 3 data flow.
+
+#### D. Modifying Database Schema
+1. `meld/image_manager/common/db/schema.py` — add `ALTER TABLE ADD COLUMN` (wrapped in try/except) and update `CREATE TABLE IF NOT EXISTS`.
+2. `meld/image_manager/common/schemas.py` — update the record dataclass.
+3. `meld/image_manager/features/X/service.py` or `repository.py` — update queries.
+4. `ui/src/types.ts` — update TypeScript interfaces if the field is exposed to the frontend.
+5. Update related tests.
+
+#### E. Adding a New ComfyUI Custom Node
+1. `meld/X/nodes.py` — define a class with `INPUT_TYPES`, `RETURN_TYPES`, `FUNCTION`, and `CATEGORY`.
+2. `__init__.py` (root) — add to `NODE_CLASS_MAPPINGS` and `NODE_DISPLAY_NAME_MAPPINGS`.
+3. `docs/en/nodes/MeldX.md` / `docs/ja/nodes/MeldX.md` — add bilingual documentation.
+4. `architecture.md` — update the backend module table in Section 2.
+
+#### F. Adding a Frontend UI Feature
+1. `ui/src/features/X/` — add components, hooks, and API client.
+2. `ui/src/store/galleryReducer.ts` — add action types and reducer cases (if state changes).
+3. `ui/src/store/GalleryContext.tsx` — expose via context (if state changes).
+4. `ui/src/types.ts` — add type definitions.
+5. `ui/src/styles/Gallery.css` — add `--meld-z-*` tokens for new UI layers.
 
 ## 5. Documentation
 
