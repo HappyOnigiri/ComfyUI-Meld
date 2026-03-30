@@ -25,7 +25,7 @@ TASKS: list[tuple[str, str] | tuple[str, str, str]] = [
     ("Check-TS-Rules", f"{sys.executable} scripts/check_ts_rules.py"),
     ("Check-Scripts", "make --no-print-directory check-scripts"),
     ("Local-Check-Scripts", "make --no-print-directory local-check-scripts"),
-    ("Python-Tests", f"{sys.executable} -m pytest tests -v"),
+    ("Python-Tests", f"{sys.executable} -m unittest discover tests"),
     # Run vitest from ui/ directory to ensure consistent path resolution
     # for v8 coverage on Windows (avoids duplicate file entries).
     ("UI-Tests", "npx vitest run --coverage", "ui"),
