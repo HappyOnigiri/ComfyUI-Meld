@@ -856,9 +856,7 @@ async def update_image_notes(request: web.Request) -> web.Response:
                     "SELECT pp.name, r.strength FROM positive_prompts pp JOIN positive_prompt_image_relations r ON pp.id = r.positive_prompt_id WHERE r.image_id = ?",
                     (req.imageId,),
                 )
-                positive = ", ".join(
-                    [row[0] if row[1] == 1.0 else f"({row[0]}:{row[1]})" for row in cursor.fetchall()]
-                )
+                positive = ", ".join([row[0] if row[1] == 1.0 else f"({row[0]}:{row[1]})" for row in cursor.fetchall()])
 
             negative = db_negative
             if negative is None:
@@ -866,9 +864,7 @@ async def update_image_notes(request: web.Request) -> web.Response:
                     "SELECT np.name, r.strength FROM negative_prompts np JOIN negative_prompt_image_relations r ON np.id = r.negative_prompt_id WHERE r.image_id = ?",
                     (req.imageId,),
                 )
-                negative = ", ".join(
-                    [row[0] if row[1] == 1.0 else f"({row[0]}:{row[1]})" for row in cursor.fetchall()]
-                )
+                negative = ", ".join([row[0] if row[1] == 1.0 else f"({row[0]}:{row[1]})" for row in cursor.fetchall()])
 
         item = ImageListItem(
             id=img_id,
