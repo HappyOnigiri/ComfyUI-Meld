@@ -22,7 +22,7 @@ This document serves as a comprehensive guide for AI agents and developers to un
 - `package.json` (in `ui/`): Frontend dependencies.
 - `.ai/`: **Source of truth for AI agent configuration** (rules, skills, ignore patterns). Run `make sync-rule` or `make setup` to fetch and run [ShareSettings `SyncRule/run.sh`](https://github.com/HappyOnigiri/ShareSettings/blob/main/SyncRule/run.sh) (aligned with [Refix](https://github.com/HappyOnigiri/Refix) `make setup`): propagates per upstream script (requires `curl`, `bash`, network, and `rsync` for skills). Git hooks are optional: `make install-hooks` (same idea as Refix); `make setup-hooks` is an alias.
 
-### Backend (`py/`)
+### Backend (`meld/`)
 | Directory | Responsibility |
 |-----------|----------------|
 | `image_manager/` | **Core System**. Handles database operations, REST API, and image management logic. |
@@ -56,7 +56,7 @@ This document serves as a comprehensive guide for AI agents and developers to un
 ### Entry Points
 - **Python Load**: `__init__.py` imports nodes from submodules and defines `NODE_CLASS_MAPPINGS`.
 - **Web Load**: ComfyUI loads `web/js/gallery_extension.js` (compiled from `ui/src/index.ts`), which calls `app.registerExtension`.
-- **API Routes**: Defined in `py/image_manager/features/*/router.py` and integrated into `py/image_manager/api.py`.
+- **API Routes**: Defined in `meld/image_manager/features/*/router.py` and integrated into `meld/image_manager/api.py`.
 
 ### Core Data Flow
 1. **Image Generation**:
@@ -78,16 +78,16 @@ This document serves as a comprehensive guide for AI agents and developers to un
    - Rename operations move the SQLite file and per-database runtime directory together without forcing a frontend soft reset, because the underlying DB contents remain the same.
 
 ### Critical Files
-- **Database Schema**: `py/image_manager/common/db/schema.py` (Defines tables: `images` (with `user_notes`), `tags`, `favorites`, etc.).
-- **Active Database Resolver**: `py/image_manager/common/db/client.py` (Tracks the active database, generation, and per-database runtime directories such as trash and thumbnail cache).
-- **Metadata Extraction**: `py/load_image_configs/core/metadata_helper.py` (Parses PNG info, Exif, and ComfyUI workflows).
-- **Search Logic**: `py/image_manager/features/search/service.py` (Parses search queries and builds SQL).
+- **Database Schema**: `meld/image_manager/common/db/schema.py` (Single source of truth for all DDL. `create_schema(cursor)` creates tables and indexes idempotently; `init_db()` calls it then runs migration logic).
+- **Active Database Resolver**: `meld/image_manager/common/db/client.py` (Tracks the active database, generation, and per-database runtime directories such as trash and thumbnail cache).
+- **Metadata Extraction**: `meld/load_image_configs/core/metadata_helper.py` (Parses PNG info, Exif, and ComfyUI workflows).
+- **Search Logic**: `meld/image_manager/features/search/service.py` (Parses search queries and builds SQL).
 
 ## 4. Implementation Rules
 
 ### Error Handling
 - **Domain exceptions**: All anticipated error conditions in the service/common
-  layer MUST raise a subclass of `MeldError` (`py/image_manager/common/exceptions.py`).
+  layer MUST raise a subclass of `MeldError` (`meld/image_manager/common/exceptions.py`).
   Available: `NotFoundError` (404), `ValidationError` (400), `ConflictError` (409),
   `DatabaseError` (500). Do NOT raise Python builtins (`ValueError`,
   `FileNotFoundError`, etc.) for domain errors.
@@ -106,8 +106,8 @@ This document serves as a comprehensive guide for AI agents and developers to un
 - **Backend**:
   - `image_manager` is the central dependency. Other nodes (like `load_image_configs`) should NOT depend on `image_manager` if possible to avoid circular imports, but `image_manager` relies on `load_image_configs` for metadata parsing.
   - **NO** absolute imports of project root. Use relative imports (e.g., `from ..utils import X`) within packages.
-  - Active DB metadata must be stored outside the SQLite `settings` table. Use `py/data/active_database.json` plus `common/db/client.py` as the source of truth.
-  - Runtime side effects that must be isolated per database (trash, thumbnail cache) belong under `py/data/runtime/<database_name>/`.
+  - Active DB metadata must be stored outside the SQLite `settings` table. Use `meld/data/active_database.json` plus `common/db/client.py` as the source of truth.
+  - Runtime side effects that must be isolated per database (trash, thumbnail cache) belong under `meld/data/runtime/<database_name>/`.
   - **Database connections** must use the `db_connection()` context manager (`common/db/client.py`). Do NOT call `sqlite3.connect()` or raw connection functions directly. The context manager ensures connections are always closed, even on exceptions.
 
 - **Frontend**:
@@ -131,7 +131,7 @@ This document serves as a comprehensive guide for AI agents and developers to un
 - **Naming**: Use `snake_case` for both Python and JSON keys to remain consistent with DB schema.
 
 ### Search Query Syntax
-Meld supports a rich query syntax in the search bar. The available prefixes are managed in `py/image_manager/common/constants.py` and fetched dynamically by the frontend:
+Meld supports a rich query syntax in the search bar. The available prefixes are managed in `meld/image_manager/common/constants.py` and fetched dynamically by the frontend:
 - **Free Text**: Partial match across positive prompts, tags, model names, and user notes.
 - **Prefixes**:
   - `tag:name`: Exact or partial tag match.
@@ -147,7 +147,7 @@ Meld supports a rich query syntax in the search bar. The available prefixes are 
 
 ### Modification Protocol
 - When adding a new API endpoint:
-  1. Define handler in a feature-specific router (e.g., `py/image_manager/features/X/router.py`) and ensure it's integrated in `api.py`.
+  1. Define handler in a feature-specific router (e.g., `meld/image_manager/features/X/router.py`) and ensure it's integrated in `api.py`.
   2. Add typed wrapper in the corresponding frontend feature directory (e.g., `ui/src/features/X/api/XApi.ts`).
   3. If the logic is shared across multiple features (like basic image operations), place it in `features/images`.
   4. Update `architecture.md` if a new major service/module is created.

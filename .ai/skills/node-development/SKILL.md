@@ -2,7 +2,7 @@
 name: node-development
 description: >
   ComfyUI custom node development rules for Python.
-  Reference when editing files under py/ or __init__.py.
+  Reference when editing files under meld/ or __init__.py.
 ---
 
 # ComfyUI Custom Node Development Rules
@@ -151,7 +151,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
 
 **Prohibited Pattern**:
 
-- Do not have both `py/image_manager.py` (standalone file) and `py/image_manager/` (package directory) simultaneously.
+- Do not have both `meld/image_manager.py` (standalone file) and `meld/image_manager/` (package directory) simultaneously.
 
 Reason:
 
@@ -161,10 +161,10 @@ Reason:
 **Recommended Pattern**:
 
 - If there are multiple roles (DB, API, nodes, etc.), **unify them into a package**:
-  - `py/image_manager/__init__.py`
-  - `py/image_manager/api.py`
-  - `py/image_manager/database.py`
-  - `py/image_manager/nodes.py`
+  - `meld/image_manager/__init__.py`
+  - `meld/image_manager/api.py`
+  - `meld/image_manager/database.py`
+  - `meld/image_manager/nodes.py`
 
 ### Use Explicit Import Paths
 
