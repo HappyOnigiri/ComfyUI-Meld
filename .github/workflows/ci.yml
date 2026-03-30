@@ -36,7 +36,7 @@ jobs:
         run: python -m ruff check . --fix
 
       - name: Mypy
-        run: python -m mypy py tests
+        run: python -m mypy meld tests
 
       - name: Pyright
         run: npx pyright

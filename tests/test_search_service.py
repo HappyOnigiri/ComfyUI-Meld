@@ -13,8 +13,8 @@ sys.modules["comfy.sd"] = MagicMock()
 sys.modules["comfy.utils"] = MagicMock()
 sys.modules["comfy.samplers"] = MagicMock()
 
-from py.image_manager.common.constants import RESERVED_TAG_KEYWORD  # noqa: E402
-from py.image_manager.features.search.service import SearchService  # noqa: E402
+from meld.image_manager.common.constants import RESERVED_TAG_KEYWORD  # noqa: E402
+from meld.image_manager.features.search.service import SearchService  # noqa: E402
 
 
 class TestSearchService(unittest.TestCase):
@@ -118,7 +118,7 @@ class TestSearchService(unittest.TestCase):
         self.assertEqual(results[0][0], 2)
 
     def test_search_id_invalid(self) -> None:
-        from py.image_manager.common.exceptions import ValidationError
+        from meld.image_manager.common.exceptions import ValidationError
 
         with self.assertRaises(ValidationError) as cm:
             SearchService.build_search_sql("id:abc")

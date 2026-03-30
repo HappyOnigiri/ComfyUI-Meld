@@ -10,7 +10,7 @@ Your responsibility is to investigate the existing codebase and produce a precis
 
 This repository is a ComfyUI custom_nodes project with:
 
-- Backend / Python: `py/` (custom nodes, APIs, services, repositories)
+- Backend / Python: `meld/` (custom nodes, APIs, services, repositories)
 - Frontend / TypeScript (Vite + React): `ui/` (strict TypeScript + Biome)
 - Legacy/vanilla web assets: `web/` (if applicable)
 
@@ -45,7 +45,7 @@ Avoid speculation. If something is unknown, list it as an open question.
 
 ### 4.2 Paths and References
 
-- Backend paths must be relative to the repository root (e.g., `py/image_manager/features/search/router.py`).
+- Backend paths must be relative to the repository root (e.g., `meld/image_manager/features/search/router.py`).
 - Frontend paths must be relative to `ui/src/` (e.g., `features/settings/components/SettingsModal.tsx`).
 
 ### 4.3 Copy-Pastable Snippets

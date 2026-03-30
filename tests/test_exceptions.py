@@ -1,6 +1,6 @@
 import unittest
 
-from py.image_manager.common.exceptions import (
+from meld.image_manager.common.exceptions import (
     ConflictError,
     DatabaseError,
     MeldError,

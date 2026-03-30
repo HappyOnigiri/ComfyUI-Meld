@@ -68,7 +68,7 @@ def main() -> None:
         ("repomix-ui", "ui/**,*.md,*.toml,requirements.txt,Makefile,__init__.py", None),
         (
             "repomix-image-manager",
-            "ui/**,py/image_manager/**,py/meld_save_image/**,agent-config/rules/**,*.md,*.toml,requirements.txt,Makefile,__init__.py",
+            "ui/**,meld/image_manager/**,meld/meld_save_image/**,agent-config/rules/**,*.md,*.toml,requirements.txt,Makefile,__init__.py",
             "tests/**",
         ),
         (
@@ -79,11 +79,11 @@ def main() -> None:
     ]
 
     # Add nodes
-    py_dir = Path("py")
+    py_dir = Path("meld")
     if py_dir.exists():
         for node_dir in py_dir.iterdir():
             if node_dir.is_dir() and node_dir.name != "__pycache__" and node_dir.name != "data":
-                all_tasks.append((f"repomix-node-{node_dir.name}", f"py/{node_dir.name}/**,pyproject.toml", None))
+                all_tasks.append((f"repomix-node-{node_dir.name}", f"meld/{node_dir.name}/**,pyproject.toml", None))
 
     if args.target:
         if args.target == "repomix-nodes":

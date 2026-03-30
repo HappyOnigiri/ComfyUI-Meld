@@ -1,16 +1,16 @@
-from .py.auto_exposure.nodes import MeldAutoExposure
-from .py.image_manager.common.env import is_dev_mode
-from .py.load_image_configs import (
+from .meld.auto_exposure.nodes import MeldAutoExposure
+from .meld.image_manager.common.env import is_dev_mode
+from .meld.load_image_configs import (
     MeldImageLoader,
     MeldImageLoaderBatch,
     MeldSettingsUnpacker,
     MeldUnifiedFluxLoader,
     MeldUnifiedLoader,
 )
-from .py.meld_save_image.nodes import MeldSaveImage
-from .py.pattern_heart.nodes import MeldPatternHeart
-from .py.pixelate.nodes import MeldPixelate
-from .py.prompt_constructor.nodes import MeldPromptConstructor
+from .meld.meld_save_image.nodes import MeldSaveImage
+from .meld.pattern_heart.nodes import MeldPatternHeart
+from .meld.pixelate.nodes import MeldPixelate
+from .meld.prompt_constructor.nodes import MeldPromptConstructor
 
 NODE_CLASS_MAPPINGS = {
     "MeldAutoExposure": MeldAutoExposure,

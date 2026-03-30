@@ -36,7 +36,16 @@ from ...common.schemas import (
 from ...features.settings.repository import get_all_settings
 from ..importer.service import infer_parent_id
 from ..search.service import SearchService
-from .repository import calculate_sha256, inherit_tags
+from .repository import (
+    calculate_sha256,
+    collect_deleted_ancestors,
+    inherit_tags,
+    permanent_delete,
+    restore_image,
+    restore_image_with_rename,
+    soft_delete,
+    soft_delete_to_trash,
+)
 from .service import get_parent_suggestions, get_unique_filename
 
 routes = web.RouteTableDef()
@@ -632,22 +641,7 @@ async def restore_images(request: web.Request) -> web.Response:
         with db_connection() as conn:
             cursor = conn.cursor()
 
-            all_ids_to_restore = set(req.ids)
-            placeholders = ",".join(["?"] * len(req.ids))
-
-            ancestor_query = f"""
-                WITH RECURSIVE lineage AS (
-                    SELECT id, parent_id, deleted_at FROM images WHERE id IN ({placeholders})
-                    UNION ALL
-                    SELECT i.id, i.parent_id, i.deleted_at FROM images i
-                    JOIN lineage l ON i.id = l.parent_id
-                    WHERE l.deleted_at IS NOT NULL
-                )
-                SELECT id FROM lineage WHERE deleted_at IS NOT NULL
-            """
-            cursor.execute(ancestor_query, req.ids)
-            for (ancestor_id,) in cursor.fetchall():
-                all_ids_to_restore.add(ancestor_id)
+            all_ids_to_restore = collect_deleted_ancestors(cursor, req.ids)
 
             final_ids = list(all_ids_to_restore)
             placeholders = ",".join(["?"] * len(final_ids))
@@ -676,7 +670,7 @@ async def restore_images(request: web.Request) -> web.Response:
 
                 trash_full_path = os.path.normpath(os.path.join(get_trash_dir(), trash_filename))
                 if not os.path.exists(trash_full_path):
-                    cursor.execute("UPDATE images SET deleted_at = NULL WHERE id = ?", (img_id,))
+                    restore_image(cursor, img_id)
                     restored_ids.append(img_id)
                     continue
 
@@ -691,9 +685,7 @@ async def restore_images(request: web.Request) -> web.Response:
 
                 try:
                     shutil.move(trash_full_path, target_full_path)
-                    cursor.execute(
-                        "UPDATE images SET deleted_at = NULL, filename = ? WHERE id = ?", (final_filename, img_id)
-                    )
+                    restore_image_with_rename(cursor, img_id, final_filename)
                     restored_ids.append(img_id)
                 except Exception as e:
                     logging.error(f"[Meld] Failed to restore file {trash_filename}: {e}")
@@ -765,12 +757,7 @@ async def bulk_delete_images(request: web.Request) -> web.Response:
                         except Exception as e:
                             logging.warning(f"[Meld] Failed to permanently delete file {current_full_path}: {e}")
 
-                    cursor.execute("UPDATE images SET parent_id = NULL WHERE parent_id = ?", (img_id,))
-                    cursor.execute("DELETE FROM images WHERE id = ?", (img_id,))
-                    cursor.execute("DELETE FROM positive_prompt_image_relations WHERE image_id = ?", (img_id,))
-                    cursor.execute("DELETE FROM negative_prompt_image_relations WHERE image_id = ?", (img_id,))
-                    cursor.execute("DELETE FROM model_image_relations WHERE image_id = ?", (img_id,))
-                    cursor.execute("DELETE FROM tag_image_relations WHERE image_id = ?", (img_id,))
+                    permanent_delete(cursor, img_id)
 
                 else:
                     if deleted_at is not None:
@@ -781,15 +768,12 @@ async def bulk_delete_images(request: web.Request) -> web.Response:
                         new_full_path = os.path.join(get_trash_dir(), new_filename)
                         try:
                             shutil.move(current_full_path, new_full_path)
-                            cursor.execute(
-                                "UPDATE images SET deleted_at = ?, filename = ? WHERE id = ?",
-                                (now, new_filename, img_id),
-                            )
+                            soft_delete_to_trash(cursor, img_id, now, new_filename)
                         except Exception as e:
                             logging.error(f"[Meld] Failed to move file to trash {current_full_path}: {e}")
                             continue
                     else:
-                        cursor.execute("UPDATE images SET deleted_at = ? WHERE id = ?", (now, img_id))
+                        soft_delete(cursor, img_id, now)
 
                 deleted_count += 1
 
@@ -970,12 +954,7 @@ async def delete_image_endpoint(request: web.Request) -> web.Response:
                             os.remove(current_full_path)
                         except Exception:
                             pass
-                    cursor.execute("UPDATE images SET parent_id = NULL WHERE parent_id = ?", (img_id,))
-                    cursor.execute("DELETE FROM images WHERE id = ?", (img_id,))
-                    cursor.execute("DELETE FROM positive_prompt_image_relations WHERE image_id = ?", (img_id,))
-                    cursor.execute("DELETE FROM negative_prompt_image_relations WHERE image_id = ?", (img_id,))
-                    cursor.execute("DELETE FROM model_image_relations WHERE image_id = ?", (img_id,))
-                    cursor.execute("DELETE FROM tag_image_relations WHERE image_id = ?", (img_id,))
+                    permanent_delete(cursor, img_id)
                 else:
                     if deleted_at is None:
                         if os.path.exists(current_full_path):
@@ -983,14 +962,11 @@ async def delete_image_endpoint(request: web.Request) -> web.Response:
                             new_full_path = os.path.join(get_trash_dir(), new_filename)
                             try:
                                 shutil.move(current_full_path, new_full_path)
-                                cursor.execute(
-                                    "UPDATE images SET deleted_at = ?, filename = ? WHERE id = ?",
-                                    (now, new_filename, img_id),
-                                )
+                                soft_delete_to_trash(cursor, img_id, now, new_filename)
                             except Exception:
                                 continue
                         else:
-                            cursor.execute("UPDATE images SET deleted_at = ? WHERE id = ?", (now, img_id))
+                            soft_delete(cursor, img_id, now)
 
             conn.commit()
 

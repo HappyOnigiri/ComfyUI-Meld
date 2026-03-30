@@ -17,7 +17,7 @@ from ...common.db.client import (
 )
 from ...common.model_repo import add_model_relation, get_or_create_model
 from ...common.schemas import ScanStatus
-from ..images.repository import calculate_sha256, find_closest_parent, inherit_tags
+from ..images.repository import calculate_sha256, find_closest_parent, inherit_tags, permanent_delete, soft_delete
 from ..settings.repository import get_all_settings
 
 # State for scanning
@@ -69,7 +69,7 @@ def perform_cleanup() -> int:
 
             # If file does not exist, record deletion timestamp (move to "ghost" trash)
             if not os.path.exists(full_path):
-                cursor.execute("UPDATE images SET deleted_at = ? WHERE id = ?", (now, img_id))
+                soft_delete(cursor, img_id, now)
                 missing_count += 1
 
         # 2. Permanent delete old trash items
@@ -88,14 +88,7 @@ def perform_cleanup() -> int:
                     os.remove(trash_path)
                 except Exception:
                     pass
-            # Update children and delete from DB
-            cursor.execute("UPDATE images SET parent_id = NULL WHERE parent_id = ?", (img_id,))
-            cursor.execute("DELETE FROM images WHERE id = ?", (img_id,))
-            # Cleanup relations
-            cursor.execute("DELETE FROM positive_prompt_image_relations WHERE image_id = ?", (img_id,))
-            cursor.execute("DELETE FROM negative_prompt_image_relations WHERE image_id = ?", (img_id,))
-            cursor.execute("DELETE FROM model_image_relations WHERE image_id = ?", (img_id,))
-            cursor.execute("DELETE FROM tag_image_relations WHERE image_id = ?", (img_id,))
+            permanent_delete(cursor, img_id)
 
         if missing_count > 0 or to_delete:
             conn.commit()

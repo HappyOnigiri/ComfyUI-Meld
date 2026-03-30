@@ -22,7 +22,7 @@ class SqliteCursorTypeChecker(ASTChecker):
 
     def get_target_files(self) -> list[str]:
         targets = []
-        for root, _, files in os.walk("py"):
+        for root, _, files in os.walk("meld"):
             if any(x in root for x in ["node_modules", ".git", "__pycache__"]):
                 continue
             for file in files:

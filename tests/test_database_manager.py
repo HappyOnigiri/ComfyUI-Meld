@@ -20,12 +20,12 @@ for k in _MOCK_KEYS:
     if k not in sys.modules:
         sys.modules[k] = MagicMock()
 
-import py.image_manager.common.db.client as client  # noqa: E402
-import py.image_manager.common.db.runtime_state as runtime_state  # noqa: E402
-import py.image_manager.common.db.schema as schema  # noqa: E402
-import py.image_manager.features.databases.service as database_service  # noqa: E402
-import py.image_manager.features.importer.service as importer_service  # noqa: E402
-from py.image_manager.common.exceptions import ConflictError  # noqa: E402
+import meld.image_manager.common.db.client as client  # noqa: E402
+import meld.image_manager.common.db.runtime_state as runtime_state  # noqa: E402
+import meld.image_manager.common.db.schema as schema  # noqa: E402
+import meld.image_manager.features.databases.service as database_service  # noqa: E402
+import meld.image_manager.features.importer.service as importer_service  # noqa: E402
+from meld.image_manager.common.exceptions import ConflictError  # noqa: E402
 
 
 class TestDatabaseManager(unittest.TestCase):

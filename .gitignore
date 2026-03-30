@@ -62,7 +62,7 @@ local_check_scripts/
 
 tmp/*
 data/*
-py/data/*
+meld/data/*
 
 # Node / JS
 node_modules/
