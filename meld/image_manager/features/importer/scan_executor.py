@@ -50,9 +50,9 @@ def _scan_thread(
     link_strategy: str = "new_only",
 ) -> None:
     # Import state management from service to avoid circular dependency at module load.
-    # service.py defines _scan_state and set_scan_running before importing scan_executor,
-    # so these names are always available by the time this function is called.
-    from .service import _scan_state, set_scan_running
+    # service.py defines _scan_state before importing scan_executor,
+    # so _scan_state is always available by the time this function is called.
+    from .service import _scan_state
 
     newly_registered_ids = set()
     updated_ids = set()
@@ -129,7 +129,7 @@ def _scan_thread(
                         if tags:
                             add_tags_to_image(image_id, tags)
                             updated_ids.add(image_id)
-                            _scan_state.updated_count = len(updated_ids)
+                            _scan_state.set_updated_count(len(updated_ids))
 
                         processed += 1
                         server.PromptServer.instance.send_sync(
@@ -282,7 +282,7 @@ def _scan_thread(
                                     inherit_tags(cursor, img_id, parent_id)
                                 if img_id not in newly_registered_ids:
                                     updated_ids.add(img_id)
-                                    _scan_state.updated_count = len(updated_ids)
+                                    _scan_state.set_updated_count(len(updated_ids))
 
                     processed_linking += 1
                     if processed_linking % 5 == 0 or processed_linking == total_linking:
@@ -296,8 +296,7 @@ def _scan_thread(
     except Exception as e:
         logging.exception(f"[Meld] Scan thread failed: {e}")
     finally:
-        set_scan_running(False)
-        _scan_state.should_cancel = False
+        _scan_state.mark_finished()
         server.PromptServer.instance.send_sync(
             "meld-scan-finished",
             {
@@ -317,10 +316,12 @@ def start_scan_thread(
     auto_link_parent: bool,
     tags: list[str] | None = None,
     link_strategy: str = "new_only",
-) -> None:
-    from .service import set_scan_running
+) -> bool:
+    """Start the scan background thread. Returns False if a scan is already running."""
+    from .service import _scan_state
 
-    set_scan_running(True)
+    if not _scan_state.try_start():
+        return False
     thread = threading.Thread(
         target=_scan_thread,
         args=(
@@ -334,3 +335,4 @@ def start_scan_thread(
         ),
     )
     thread.start()
+    return True
