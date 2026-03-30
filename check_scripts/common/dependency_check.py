@@ -158,7 +158,7 @@ class DependencyChecker(ASTChecker):
     def get_target_files(self) -> list[str]:
         # Logic to find all .py files in py/ and root __init__.py
         targets = []
-        for root, _, files in os.walk("py"):
+        for root, _, files in os.walk("meld"):
             if any(x in root for x in ["node_modules", ".git", "__pycache__"]):
                 continue
             for file in files:
@@ -183,7 +183,7 @@ class DependencyChecker(ASTChecker):
     def _check_import(self, module_name: str, lineno: int) -> None:
         imp = module_name.split(".")[0]
         # Allow self-referencing modules
-        if imp == "py" or imp == "":
+        if imp == "meld" or imp == "":
             return
 
         if imp not in ALLOWED_PACKAGES and not self._is_standard_library(imp):

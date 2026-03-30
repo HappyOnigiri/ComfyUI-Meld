@@ -11,7 +11,7 @@ sys.modules["comfy.samplers"] = MagicMock()
 sys.modules["nodes"] = MagicMock()
 
 # Import test target
-from py.load_image_configs import MetadataHelper  # noqa: E402
+from meld.load_image_configs import MetadataHelper  # noqa: E402
 
 
 class TestFuzzySearch(unittest.TestCase):

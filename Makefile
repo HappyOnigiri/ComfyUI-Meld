@@ -62,7 +62,10 @@ watch-ui: ui/node_modules/.install-stamp
 	cd ui && npm run dev
 
 test-all:
-	$(PYTHON) -m unittest discover tests
+	$(PYTHON) -m pytest tests -v
+
+test-cov:
+	$(PYTHON) -m pytest tests -v --cov=meld --cov-report=term-missing
 
 # Linting tasks organized by type
 lint: lint-py lint-ui lint-misc lint-scripts
@@ -71,7 +74,7 @@ lint-py:
 	@echo "Running Python linting (ruff, mypy, pyright)..."
 	$(PYTHON) -m ruff format .
 	$(PYTHON) -m ruff check . --fix
-	$(PYTHON) -m mypy py tests
+	$(PYTHON) -m mypy meld tests
 	npx pyright
 
 lint-ui: ui/node_modules/.install-stamp

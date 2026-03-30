@@ -13,7 +13,7 @@ COLOR_RESET = "\033[0m"
 TASKS: list[tuple[str, str] | tuple[str, str, str]] = [
     ("Python-Lint-ruff-format", f"{sys.executable} -m ruff format ."),
     ("Python-Lint-ruff-check", f"{sys.executable} -m ruff check . --fix"),
-    ("Python-Lint-mypy", f"{sys.executable} -m mypy py tests"),
+    ("Python-Lint-mypy", f"{sys.executable} -m mypy meld tests"),
     ("Python-Lint-pyright", "npx pyright"),
     (
         "UI-Lint-biome",
@@ -25,7 +25,7 @@ TASKS: list[tuple[str, str] | tuple[str, str, str]] = [
     ("Check-TS-Rules", f"{sys.executable} scripts/check_ts_rules.py"),
     ("Check-Scripts", "make --no-print-directory check-scripts"),
     ("Local-Check-Scripts", "make --no-print-directory local-check-scripts"),
-    ("Python-Tests", f"{sys.executable} -m unittest discover tests"),
+    ("Python-Tests", f"{sys.executable} -m pytest tests -v"),
     # Run vitest from ui/ directory to ensure consistent path resolution
     # for v8 coverage on Windows (avoids duplicate file entries).
     ("UI-Tests", "npx vitest run --coverage", "ui"),

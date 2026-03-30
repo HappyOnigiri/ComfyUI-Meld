@@ -20,12 +20,12 @@ for k in _MOCK_KEYS:
 
 from aiohttp import web  # noqa: E402
 
-from py.image_manager.features.analytics.router import post_analytics_counts  # noqa: E402
+from meld.image_manager.features.analytics.router import post_analytics_counts  # noqa: E402
 
 
 class TestAnalyticsRouter(unittest.IsolatedAsyncioTestCase):
     def setUp(self) -> None:
-        self.patcher_db = patch("py.image_manager.features.analytics.router.db_connection")
+        self.patcher_db = patch("meld.image_manager.features.analytics.router.db_connection")
         self.mock_db_ctx = self.patcher_db.start()
         self.mock_conn = MagicMock(spec=sqlite3.Connection)
         self.mock_cursor = MagicMock(spec=sqlite3.Cursor)
@@ -35,7 +35,7 @@ class TestAnalyticsRouter(unittest.IsolatedAsyncioTestCase):
         self.mock_db_cm.__exit__ = MagicMock(return_value=False)
         self.mock_db_ctx.return_value = self.mock_db_cm
 
-        self.patcher_get_counts = patch("py.image_manager.features.analytics.router.get_counts")
+        self.patcher_get_counts = patch("meld.image_manager.features.analytics.router.get_counts")
         self.mock_get_counts = self.patcher_get_counts.start()
 
     def tearDown(self) -> None:

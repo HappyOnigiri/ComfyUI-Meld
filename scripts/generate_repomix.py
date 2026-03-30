@@ -79,7 +79,7 @@ def main() -> None:
     ]
 
     # Add nodes
-    py_dir = Path("py")
+    py_dir = Path("meld")
     if py_dir.exists():
         for node_dir in py_dir.iterdir():
             if node_dir.is_dir() and node_dir.name != "__pycache__" and node_dir.name != "data":

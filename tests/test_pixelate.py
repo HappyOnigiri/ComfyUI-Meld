@@ -7,7 +7,7 @@ import torch
 # Add project root to path to enable imports
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from py.pixelate.nodes import MeldPixelate
+from meld.pixelate.nodes import MeldPixelate
 
 
 class TestPixelate(unittest.TestCase):

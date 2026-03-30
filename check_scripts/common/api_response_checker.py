@@ -8,10 +8,10 @@ from .abstract_check import ASTChecker
 class ApiResponseChecker(ASTChecker):
     def get_target_files(self) -> list[str]:
         # Target all router.py files in features
-        pattern = os.path.join("py", "image_manager", "features", "**", "router.py")
+        pattern = os.path.join("meld", "image_manager", "features", "**", "router.py")
         files = glob.glob(pattern, recursive=True)
         # Also include the main api.py
-        api_py = os.path.join("py", "image_manager", "api.py")
+        api_py = os.path.join("meld", "image_manager", "api.py")
         if os.path.exists(api_py):
             files.append(api_py)
         return files

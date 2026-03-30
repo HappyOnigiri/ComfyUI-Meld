@@ -28,7 +28,7 @@ def setUpModule() -> None:
     global CATEGORIES, get_category_list, get_summary, get_counts
     mock_dict = {k: MagicMock() for k in _MOCK_KEYS}
     with patch.dict(sys.modules, mock_dict):
-        import py.image_manager.features.analytics.service as _svc  # noqa: E402
+        import meld.image_manager.features.analytics.service as _svc  # noqa: E402
 
         CATEGORIES = _svc.CATEGORIES
         get_category_list = _svc.get_category_list

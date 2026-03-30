@@ -126,3 +126,76 @@ def inherit_tags(cursor: sqlite3.Cursor, child_id: int, parent_id: int) -> None:
     """,
         (child_id, parent_id),
     )
+
+
+def permanent_delete(cursor: sqlite3.Cursor, img_id: int) -> None:
+    """Permanently remove an image row and cascade to all relation tables.
+
+    Clears parent_id on any child images so they are not left with a dangling
+    foreign key reference.
+    """
+    cursor.execute("UPDATE images SET parent_id = NULL WHERE parent_id = ?", (img_id,))
+    cursor.execute("DELETE FROM images WHERE id = ?", (img_id,))
+    cursor.execute("DELETE FROM positive_prompt_image_relations WHERE image_id = ?", (img_id,))
+    cursor.execute("DELETE FROM negative_prompt_image_relations WHERE image_id = ?", (img_id,))
+    cursor.execute("DELETE FROM model_image_relations WHERE image_id = ?", (img_id,))
+    cursor.execute("DELETE FROM tag_image_relations WHERE image_id = ?", (img_id,))
+
+
+def soft_delete(cursor: sqlite3.Cursor, img_id: int, timestamp: float) -> None:
+    """Mark an image as soft-deleted by setting its deleted_at timestamp."""
+    cursor.execute("UPDATE images SET deleted_at = ? WHERE id = ?", (timestamp, img_id))
+
+
+def soft_delete_to_trash(cursor: sqlite3.Cursor, img_id: int, timestamp: float, new_filename: str) -> None:
+    """Soft-delete an image and update its filename to the trash filename.
+
+    Used when the physical file has been moved to the trash directory; the
+    filename column is updated to the new trash-prefixed name so the file
+    can be found and restored later.
+    """
+    cursor.execute(
+        "UPDATE images SET deleted_at = ?, filename = ? WHERE id = ?",
+        (timestamp, new_filename, img_id),
+    )
+
+
+def restore_image(cursor: sqlite3.Cursor, img_id: int) -> None:
+    """Clear the deleted_at timestamp to restore a soft-deleted image."""
+    cursor.execute("UPDATE images SET deleted_at = NULL WHERE id = ?", (img_id,))
+
+
+def restore_image_with_rename(cursor: sqlite3.Cursor, img_id: int, new_filename: str) -> None:
+    """Restore a soft-deleted image and update its filename.
+
+    Used when the physical file has been moved back from the trash directory
+    with a new (de-duplicated) name.
+    """
+    cursor.execute(
+        "UPDATE images SET deleted_at = NULL, filename = ? WHERE id = ?",
+        (new_filename, img_id),
+    )
+
+
+def collect_deleted_ancestors(cursor: sqlite3.Cursor, ids: list[int]) -> set[int]:
+    """Return the set of deleted image ids (seeds + ancestors) that need restoring.
+
+    Walks up the parent chain via a recursive CTE.  The traversal continues
+    through a node only if that node itself is deleted, so live ancestors stop
+    the walk — they do not need to be (and must not be) included in the result.
+    """
+    if not ids:
+        return set()
+    placeholders = ",".join(["?"] * len(ids))
+    ancestor_query = f"""
+        WITH RECURSIVE lineage AS (
+            SELECT id, parent_id, deleted_at FROM images WHERE id IN ({placeholders})
+            UNION ALL
+            SELECT i.id, i.parent_id, i.deleted_at FROM images i
+            JOIN lineage l ON i.id = l.parent_id
+            WHERE l.deleted_at IS NOT NULL
+        )
+        SELECT id FROM lineage WHERE deleted_at IS NOT NULL
+    """
+    cursor.execute(ancestor_query, ids)
+    return {row[0] for row in cursor.fetchall()}

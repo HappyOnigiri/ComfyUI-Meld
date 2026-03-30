@@ -28,7 +28,7 @@ dependencies = [
 ]
 
 [tool.setuptools]
-packages = ["py"]
+packages = ["meld"]
 
 [project.optional-dependencies]
 dev = [
@@ -37,7 +37,19 @@ dev = [
     "types-Pillow",
     "types-requests",
     "types-setuptools",
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--import-mode=importlib"
+
+[tool.coverage.run]
+source = ["meld"]
+
+[tool.coverage.report]
+show_missing = true
 
 [project.urls]
 Repository = "https://github.com/HappyOnigiri/ComfyUI-Meld"
@@ -73,4 +85,4 @@ ignore = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["py"]
+known-first-party = ["meld"]
