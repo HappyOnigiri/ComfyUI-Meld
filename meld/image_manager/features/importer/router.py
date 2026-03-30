@@ -21,7 +21,7 @@ from .service import (
     get_first_image_recursive,
     get_scan_state,
     perform_cleanup,
-    start_scan_thread,
+    start_scan_thread,  # returns bool: False means already running
 )
 
 routes = web.RouteTableDef()
@@ -219,9 +219,6 @@ async def get_path_image_count(request: web.Request) -> web.Response:
 
 @routes.post("/meld/scan")
 async def start_scan(request: web.Request) -> web.Response:
-    if get_scan_state().is_running:
-        return web.json_response(ApiResponse(success=False, error="Scan already running").to_dict(), status=400)
-
     try:
         data = await request.json()
         try:
@@ -255,7 +252,9 @@ async def start_scan(request: web.Request) -> web.Response:
         # In custom mode, base_dir for relative path calculation should be the target itself
         calc_base = target_base if req.type == "custom" else base_dir
 
-        start_scan_thread(
+        # start_scan_thread atomically checks-and-sets the running flag (no TOCTOU race).
+        # Returns False if another scan is already in progress.
+        started = start_scan_thread(
             calc_base,
             req.subfolder if req.type != "custom" else "",
             req.type,
@@ -264,6 +263,8 @@ async def start_scan(request: web.Request) -> web.Response:
             req.tags,
             req.link_strategy,
         )
+        if not started:
+            return web.json_response(ApiResponse(success=False, error="Scan already running").to_dict(), status=409)
 
         return web.json_response(ApiResponse(success=True, message="started").to_dict())
     except MeldError as e:
