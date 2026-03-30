@@ -187,11 +187,33 @@ async def get_image_details(request: web.Request) -> web.Response:
             if parent_id and p_filename:
                 ancestors = [{"id": parent_id, "filename": p_filename, "subfolder": p_subfolder, "type": p_type}]
 
+        effective_type = "trash" if deleted_at is not None else img_type
+        base_dir = None
+        effective_subfolder = ""
+        if effective_type == "trash":
+            base_dir = get_trash_dir()
+        elif img_type == "output":
+            base_dir = folder_paths.get_output_directory()
+            effective_subfolder = subfolder
+        elif img_type == "input":
+            base_dir = folder_paths.get_input_directory()
+            effective_subfolder = subfolder
+        elif img_type == "temp":
+            base_dir = folder_paths.get_temp_directory()
+            effective_subfolder = subfolder
+        elif img_type == "custom":
+            base_dir = ""
+            effective_subfolder = subfolder
+        exists = False
+        if base_dir is not None:
+            full_path = os.path.normpath(os.path.abspath(os.path.join(base_dir, effective_subfolder, filename)))
+            exists = os.path.exists(full_path)
+
         item = ImageListItem(
             id=img_id,
             filename=filename,
             subfolder=subfolder,
-            type="trash" if deleted_at is not None else img_type,
+            type=effective_type,
             created_at=created_at,
             deleted_at=deleted_at,
             phash=phash,
@@ -212,7 +234,7 @@ async def get_image_details(request: web.Request) -> web.Response:
             is_minimal=False,
             tags=tags,
             user_notes=user_notes,
-            exists=True,
+            exists=exists,
             ancestors=ancestors,
             positive_prompt_keywords=positive_prompt_keywords,
         )
@@ -866,11 +888,33 @@ async def update_image_notes(request: web.Request) -> web.Response:
                 )
                 negative = ", ".join([row[0] if row[1] == 1.0 else f"({row[0]}:{row[1]})" for row in cursor.fetchall()])
 
+        effective_type = "trash" if deleted_at is not None else img_type
+        base_dir = None
+        effective_subfolder = ""
+        if effective_type == "trash":
+            base_dir = get_trash_dir()
+        elif img_type == "output":
+            base_dir = folder_paths.get_output_directory()
+            effective_subfolder = subfolder
+        elif img_type == "input":
+            base_dir = folder_paths.get_input_directory()
+            effective_subfolder = subfolder
+        elif img_type == "temp":
+            base_dir = folder_paths.get_temp_directory()
+            effective_subfolder = subfolder
+        elif img_type == "custom":
+            base_dir = ""
+            effective_subfolder = subfolder
+        exists = False
+        if base_dir is not None:
+            full_path = os.path.normpath(os.path.abspath(os.path.join(base_dir, effective_subfolder, filename)))
+            exists = os.path.exists(full_path)
+
         item = ImageListItem(
             id=img_id,
             filename=filename,
             subfolder=subfolder,
-            type="trash" if deleted_at is not None else img_type,
+            type=effective_type,
             created_at=created_at,
             deleted_at=deleted_at,
             phash=phash,
@@ -891,7 +935,7 @@ async def update_image_notes(request: web.Request) -> web.Response:
             is_minimal=False,
             tags=tags,
             user_notes=user_notes,
-            exists=True,
+            exists=exists,
             ancestors=[],  # Simplified
         )
 
