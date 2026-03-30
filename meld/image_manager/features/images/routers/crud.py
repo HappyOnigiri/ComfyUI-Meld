@@ -757,7 +757,7 @@ async def bulk_delete_images(request: web.Request) -> web.Response:
                         continue
 
                     if os.path.exists(current_full_path):
-                        new_filename = f"{int(now)}_{filename}"
+                        new_filename = get_unique_filename(get_trash_dir(), "", f"{int(now)}_{filename}")
                         new_full_path = os.path.join(get_trash_dir(), new_filename)
                         try:
                             shutil.move(current_full_path, new_full_path)
@@ -951,7 +951,7 @@ async def delete_image_endpoint(request: web.Request) -> web.Response:
                 else:
                     if deleted_at is None:
                         if os.path.exists(current_full_path):
-                            new_filename = f"{int(now)}_{img_filename}"
+                            new_filename = get_unique_filename(get_trash_dir(), "", f"{int(now)}_{img_filename}")
                             new_full_path = os.path.join(get_trash_dir(), new_filename)
                             try:
                                 shutil.move(current_full_path, new_full_path)
