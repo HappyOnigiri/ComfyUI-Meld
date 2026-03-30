@@ -31,7 +31,7 @@ This document serves as a comprehensive guide for AI agents and developers to un
 | `image_manager/features/` | **Feature Modules**. Modularized logic for images, tags, search, settings, importer, and workflows. |
 | `image_manager/features/images/routers/` | **Image Router Package**. Splits the images API surface into four sub-modules: `crud.py` (9 CRUD endpoints), `lineage.py` (3 lineage endpoints), `serving.py` (4 thumbnail/trash/custom endpoints), `export.py` (zip and raw-download endpoints). `__init__.py` aggregates all route lists; `router.py` is a thin shim re-exporting `routes`. |
 | `image_manager/features/search/` | **Search**. `service.py` exposes `SearchService`; delegates to `query_parser.py` (tokenises query strings) and `sql_builder.py` (builds SQL WHERE/ORDER BY clauses). |
-| `image_manager/features/importer/` | **Importer**. `service.py` owns scan state management and re-exports public symbols. `parent_resolver.py` contains `infer_parent_id`; `scan_executor.py` contains `start_scan_thread` and recursive helpers. |
+| `image_manager/features/importer/` | **Importer**. `service.py` owns scan state management and re-exports public symbols. `scan_state.py` contains `ScanState` (thread-safe wrapper using `threading.Lock`). `parent_resolver.py` contains `infer_parent_id`; `scan_executor.py` contains `start_scan_thread` and recursive helpers. |
 | `image_manager/features/databases/` | **Database Management**. Lists, creates, renames, switches, and deletes SQLite databases and coordinates active DB state. |
 | `image_manager/nodes/` | Custom nodes related to saving/management (e.g., `MeldSaveImage`). |
 | `load_image_configs/` | Logic for loading images and parsing metadata (Unified Loader). |
@@ -87,7 +87,7 @@ This document serves as a comprehensive guide for AI agents and developers to un
 - **Metadata Extraction**: `meld/load_image_configs/core/metadata_helper.py` (Parses PNG info, Exif, and ComfyUI workflows).
 - **Search Logic**: `meld/image_manager/features/search/service.py` (`SearchService` class; delegates to `query_parser.py` for tokenising query strings and `sql_builder.py` for building SQL WHERE/ORDER BY clauses).
 - **Image API Routes**: `meld/image_manager/features/images/routers/` package (`crud.py`, `lineage.py`, `serving.py`, `export.py`). `router.py` is a thin shim re-exporting the combined route list.
-- **Importer State**: `meld/image_manager/features/importer/service.py` (scan state, `perform_cleanup`, re-exports). `parent_resolver.py` (`infer_parent_id`), `scan_executor.py` (`start_scan_thread`, recursive helpers).
+- **Importer State**: `meld/image_manager/features/importer/service.py` (scan state, `perform_cleanup`, re-exports). `scan_state.py` (`ScanState` — thread-safe state via `threading.Lock`; use `try_start()` / `mark_finished()` / `request_cancel()`). `parent_resolver.py` (`infer_parent_id`), `scan_executor.py` (`start_scan_thread` returns `bool`, recursive helpers).
 - **Mask Canvas Hook**: `ui/src/features/mask-editor/hooks/useMaskCanvas.ts` (all canvas drawing, zoom/pan, mouse/keyboard logic extracted from `MaskEditorModal`).
 
 ## 4. Implementation Rules
