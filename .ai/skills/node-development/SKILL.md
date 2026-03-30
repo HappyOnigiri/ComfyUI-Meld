@@ -169,8 +169,8 @@ Reason:
 ### Use Explicit Import Paths
 
 - In entry points like `__init__.py`, use **explicit import paths**.
-  - ✅ `from .py.meld_save_image.nodes import MeldSaveImage`
-  - ❌ `from .py.image_manager import MeldSaveImage` (Dangerous due to potential name conflicts)
+  - ✅ `from .meld.meld_save_image.nodes import MeldSaveImage`
+  - ❌ `from .meld.image_manager import MeldSaveImage` (Dangerous due to potential name conflicts)
 
 ## 7. Automatic Image Registration Pattern
 
