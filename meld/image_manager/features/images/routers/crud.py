@@ -850,6 +850,26 @@ async def update_image_notes(request: web.Request) -> web.Response:
                 user_notes,
             ) = img
 
+            positive = db_positive
+            if positive is None:
+                cursor.execute(
+                    "SELECT pp.name, r.strength FROM positive_prompts pp JOIN positive_prompt_image_relations r ON pp.id = r.positive_prompt_id WHERE r.image_id = ?",
+                    (req.imageId,),
+                )
+                positive = ", ".join(
+                    [row[0] if row[1] == 1.0 else f"({row[0]}:{row[1]})" for row in cursor.fetchall()]
+                )
+
+            negative = db_negative
+            if negative is None:
+                cursor.execute(
+                    "SELECT np.name, r.strength FROM negative_prompts np JOIN negative_prompt_image_relations r ON np.id = r.negative_prompt_id WHERE r.image_id = ?",
+                    (req.imageId,),
+                )
+                negative = ", ".join(
+                    [row[0] if row[1] == 1.0 else f"({row[0]}:{row[1]})" for row in cursor.fetchall()]
+                )
+
         item = ImageListItem(
             id=img_id,
             filename=filename,
@@ -864,8 +884,8 @@ async def update_image_notes(request: web.Request) -> web.Response:
             parent_subfolder=p_subfolder,
             parent_type=p_type,
             has_children=bool(has_children),
-            positive=db_positive or "",
-            negative=db_negative or "",
+            positive=positive,
+            negative=negative,
             positive_prompt=db_positive,
             negative_prompt=db_negative,
             model_name=model_name,
