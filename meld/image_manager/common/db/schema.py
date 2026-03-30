@@ -196,14 +196,14 @@ def create_schema(cursor: sqlite3.Cursor) -> None:
     # it is always applied by the end of initialisation.
     try:
         cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_tag_rel_unique ON tag_image_relations(tag_id, image_id)")
-    except sqlite3.OperationalError:
+    except (sqlite3.OperationalError, sqlite3.IntegrityError):
         pass
 
     try:
         cursor.execute(
             "CREATE UNIQUE INDEX IF NOT EXISTS idx_model_rel_unique ON model_image_relations(model_id, image_id)"
         )
-    except sqlite3.OperationalError:
+    except (sqlite3.OperationalError, sqlite3.IntegrityError):
         pass
 
     # Added indices for frequency analysis
