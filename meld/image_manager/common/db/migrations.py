@@ -3,7 +3,8 @@
 Design:
 - schema_version table tracks applied migration versions.
 - Legacy DB detection: images table exists but schema_version does not
-  -> stamp v1 without re-running DDL (idempotent: create_schema already ran).
+  -> run _migrate_v1 (idempotent) then stamp v1, so any missing DDL/data
+  changes from old init_db are applied before marking the DB as current.
 - Version overflow: current DB version > LATEST_VERSION -> MigrationError
   (prevents old code from running against a newer schema).
 - Each migration function receives a cursor and performs its changes.
@@ -51,7 +52,7 @@ def _is_legacy_db(cursor: sqlite3.Cursor) -> bool:
     """Return True if images table exists but schema_version does not.
 
     This indicates a database created before versioned migrations were
-    introduced.  In this case we stamp v1 without re-running DDL.
+    introduced.  In this case we run _migrate_v1 (idempotent) then stamp v1.
     """
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='images'")
     has_images = cursor.fetchone() is not None
@@ -71,15 +72,16 @@ def _migrate_v1(cursor: sqlite3.Cursor) -> None:
     This combines the original create_schema() DDL with all the ALTER TABLE
     and data-migration logic that previously lived inline in init_db().
 
+    Ordering requirement: ALTER TABLE statements on the images and relation
+    tables must run before create_schema() so that the indexes create_schema
+    creates on those columns (e.g. idx_images_parent_id) do not fail with
+    "no such column" on a legacy database that is missing them.
+
     Lazy import of create_schema avoids a circular import between schema.py
     (which imports migrate from this module) and this module.
     """
-    # Lazy import to break the schema.py <-> migrations.py circular dependency.
-    from .schema import create_schema  # noqa: PLC0415
-
-    create_schema(cursor)
-
-    # --- Legacy column additions (idempotent via try/except) ---
+    # --- Step 1: Legacy column additions (idempotent via try/except) ---
+    # Must run before create_schema so that indexes on these columns succeed.
 
     for alter_sql in [
         "ALTER TABLE images ADD COLUMN phash TEXT",
@@ -98,6 +100,27 @@ def _migrate_v1(cursor: sqlite3.Cursor) -> None:
             cursor.execute(alter_sql)
         except sqlite3.OperationalError:
             pass
+
+    # Add strength column to prompt relation tables (also before create_schema)
+    for alter_sql in [
+        "ALTER TABLE positive_prompt_image_relations ADD COLUMN strength REAL DEFAULT 1.0",
+        "ALTER TABLE negative_prompt_image_relations ADD COLUMN strength REAL DEFAULT 1.0",
+    ]:
+        try:
+            cursor.execute(alter_sql)
+        except sqlite3.OperationalError:
+            pass
+
+    # --- Step 2: Create any missing tables and all indexes ---
+    # CREATE TABLE IF NOT EXISTS is a no-op for existing tables.
+    # All indexes (including those on columns added in step 1) are now safe.
+
+    # Lazy import to break the schema.py <-> migrations.py circular dependency.
+    from .schema import create_schema  # noqa: PLC0415
+
+    create_schema(cursor)
+
+    # --- Step 3: Data migrations ---
 
     # Backfill NULL user_notes to empty string
     try:
@@ -149,16 +172,6 @@ def _migrate_v1(cursor: sqlite3.Cursor) -> None:
                     continue
     except Exception:
         pass
-
-    # Add strength column to prompt relation tables
-    for alter_sql in [
-        "ALTER TABLE positive_prompt_image_relations ADD COLUMN strength REAL DEFAULT 1.0",
-        "ALTER TABLE negative_prompt_image_relations ADD COLUMN strength REAL DEFAULT 1.0",
-    ]:
-        try:
-            cursor.execute(alter_sql)
-        except sqlite3.OperationalError:
-            pass
 
     # Remove duplicate relation rows then ensure unique indexes exist
     for delete_sql, index_sql in [
@@ -220,7 +233,8 @@ def migrate(cursor: sqlite3.Cursor) -> None:
     Handles three cases:
     1. Fresh database: runs every migration in order.
     2. Legacy database (images table present, schema_version absent):
-       creates schema_version and stamps v1 without re-running DDL.
+       runs _migrate_v1 (all ALTERs are idempotent) then creates
+       schema_version and stamps v1 so missing columns/data are applied.
     3. Already-versioned database: applies only migrations newer than
        the current version.
 
@@ -228,8 +242,11 @@ def migrate(cursor: sqlite3.Cursor) -> None:
     (e.g. the database was created by a newer version of the software).
     """
     if _is_legacy_db(cursor):
-        # Legacy DB: tables were already created by the old init_db path.
-        # Just stamp the current state as v1 and return.
+        # Legacy DB: may be missing columns/data changes bundled into v1.
+        # All ALTER TABLE statements inside _migrate_v1 are idempotent
+        # (wrapped in try/except), so running it here is safe even when
+        # some changes are already present.
+        _migrate_v1(cursor)
         cursor.execute(_CREATE_VERSION_TABLE)
         description, _ = _MIGRATIONS[1]
         _stamp(cursor, 1, description)
