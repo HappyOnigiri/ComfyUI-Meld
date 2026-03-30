@@ -1,6 +1,6 @@
 """
 Integration tests for the lineage recursive CTEs used in
-py/image_manager/features/images/router.py.
+meld/image_manager/features/images/router.py.
 
 The SQL is extracted from the router into local helpers so that the traversal
 logic can be tested against an in-memory SQLite database without requiring the

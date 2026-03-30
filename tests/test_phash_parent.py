@@ -1,5 +1,5 @@
 """
-Integration tests for find_closest_parent() in py/image_manager/features/images/repository.py
+Integration tests for find_closest_parent() in meld/image_manager/features/images/repository.py
 
 All tests use an in-memory SQLite database. phash values are 16-character hex
 strings representing 64-bit perceptual hashes; hamming distance is computed by

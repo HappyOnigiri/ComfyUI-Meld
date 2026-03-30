@@ -6,7 +6,7 @@ from .abstract_check import ASTChecker
 
 class ApiUsageChecker(ASTChecker):
     def get_target_files(self) -> list[str]:
-        # Target specific file: py/image_manager/api.py
+        # Target specific file: meld/image_manager/api.py
         target = os.path.join("meld", "image_manager", "api.py")
         if os.path.exists(target):
             return [target]

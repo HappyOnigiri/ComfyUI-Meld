@@ -1,5 +1,5 @@
 """
-Integration tests for py/image_manager/features/settings/repository.py
+Integration tests for meld/image_manager/features/settings/repository.py
 
 Tests cover upsert_setting and get_all_settings using an in-memory SQLite
 database. No ComfyUI runtime is required because settings/repository.py
@@ -17,7 +17,7 @@ from unittest.mock import MagicMock, patch
 from tests.helpers import COMFYUI_MOCK_KEYS, create_test_db
 
 # Module-level references populated in setUpModule to avoid importing
-# py.image_manager before ComfyUI mocks are in place.
+# meld.image_manager before ComfyUI mocks are in place.
 get_all_settings = None
 upsert_setting = None
 

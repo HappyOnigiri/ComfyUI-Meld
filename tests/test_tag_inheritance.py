@@ -1,5 +1,5 @@
 """
-Integration tests for inherit_tags() in py/image_manager/features/images/repository.py
+Integration tests for inherit_tags() in meld/image_manager/features/images/repository.py
 
 Tests verify that tag copying from parent to child works correctly using an
 in-memory SQLite database. No ComfyUI runtime dependencies are required.

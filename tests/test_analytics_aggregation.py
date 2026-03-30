@@ -1,5 +1,5 @@
 """
-Integration tests for py/image_manager/features/analytics/service.py
+Integration tests for meld/image_manager/features/analytics/service.py
 
 Tests for run_aggregation() patch db_connection to use an in-memory SQLite
 database so the function writes to a controlled state.  Tests for the

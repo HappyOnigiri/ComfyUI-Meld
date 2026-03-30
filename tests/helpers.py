@@ -10,7 +10,7 @@ import sys
 from unittest.mock import MagicMock
 
 # Modules that must be mocked before any meld.image_manager import,
-# because py/image_manager/__init__.py imports api.py which transitively
+# because meld/image_manager/__init__.py imports api.py which transitively
 # imports folder_paths, server, and comfy.* from the ComfyUI runtime.
 COMFYUI_MOCK_KEYS = (
     "folder_paths",

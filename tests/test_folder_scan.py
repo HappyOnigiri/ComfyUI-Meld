@@ -1,6 +1,6 @@
 """
 Integration tests for the folder-scan pipeline in
-py/image_manager/features/importer/service.py (_scan_thread).
+meld/image_manager/features/importer/service.py (_scan_thread).
 
 Heavy mocking is required because _scan_thread relies on:
   - db_connection  (patched to return in-memory SQLite)
