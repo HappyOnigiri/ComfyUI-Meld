@@ -29,6 +29,9 @@ This document serves as a comprehensive guide for AI agents and developers to un
 | `image_manager/api.py` | **API Entry Point**. Integrates feature-specific routers and registers them with ComfyUI. |
 | `image_manager/common/` | **Shared Backend Logic**. Database connection, constants, and common schemas. |
 | `image_manager/features/` | **Feature Modules**. Modularized logic for images, tags, search, settings, importer, and workflows. |
+| `image_manager/features/images/routers/` | **Image Router Package**. Splits the images API surface into four sub-modules: `crud.py` (9 CRUD endpoints), `lineage.py` (3 lineage endpoints), `serving.py` (4 thumbnail/trash/custom endpoints), `export.py` (zip and raw-download endpoints). `__init__.py` aggregates all route lists; `router.py` is a thin shim re-exporting `routes`. |
+| `image_manager/features/search/` | **Search**. `service.py` exposes `SearchService`; delegates to `query_parser.py` (tokenises query strings) and `sql_builder.py` (builds SQL WHERE/ORDER BY clauses). |
+| `image_manager/features/importer/` | **Importer**. `service.py` owns scan state management and re-exports public symbols. `parent_resolver.py` contains `infer_parent_id`; `scan_executor.py` contains `start_scan_thread` and recursive helpers. |
 | `image_manager/features/databases/` | **Database Management**. Lists, creates, renames, switches, and deletes SQLite databases and coordinates active DB state. |
 | `image_manager/nodes/` | Custom nodes related to saving/management (e.g., `MeldSaveImage`). |
 | `load_image_configs/` | Logic for loading images and parsing metadata (Unified Loader). |
@@ -43,7 +46,7 @@ This document serves as a comprehensive guide for AI agents and developers to un
 | `src/features/gallery/` | **Gallery**. Main gallery UI and layout components for the resource manager. |
 | `src/features/images/` | **Shared Image Logic**. Core image CRUD API and common hooks (lineage, actions) used across the app. |
 | `src/features/light-table/` | **Light Table**. Logic and UI components for temporarily holding, comparing, and managing multiple images. |
-| `src/features/mask-editor/` | **Mask Editor**. Drawing and editing interface for image masks (img2img). |
+| `src/features/mask-editor/` | **Mask Editor**. Drawing and editing interface for image masks (img2img). `components/MaskEditorModal.tsx` handles image resolution, mask history, and upload/action logic. `hooks/useMaskCanvas.ts` encapsulates all canvas drawing, zoom/pan state, and mouse/keyboard event handling. |
 | `src/features/viewer/` | **Image Viewer**. Full-screen image viewing components. |
 | `src/features/workflows/` | **Workflows**. Management and execution of ComfyUI workflows (queuing, etc.). |
 | `src/features/databases/` | **Database API Clients**. Typed frontend API wrappers for database management actions. |
@@ -56,7 +59,7 @@ This document serves as a comprehensive guide for AI agents and developers to un
 ### Entry Points
 - **Python Load**: `__init__.py` imports nodes from submodules and defines `NODE_CLASS_MAPPINGS`.
 - **Web Load**: ComfyUI loads `web/js/gallery_extension.js` (compiled from `ui/src/index.ts`), which calls `app.registerExtension`.
-- **API Routes**: Defined in `meld/image_manager/features/*/router.py` and integrated into `meld/image_manager/api.py`.
+- **API Routes**: Defined in `meld/image_manager/features/*/router.py` (or `routers/*.py` for the images package) and integrated into `meld/image_manager/api.py`.
 
 ### Core Data Flow
 1. **Image Generation**:
@@ -81,7 +84,10 @@ This document serves as a comprehensive guide for AI agents and developers to un
 - **Database Schema**: `meld/image_manager/common/db/schema.py` (Single source of truth for all DDL. `create_schema(cursor)` creates tables and indexes idempotently; `init_db()` calls it then runs migration logic).
 - **Active Database Resolver**: `meld/image_manager/common/db/client.py` (Tracks the active database, generation, and per-database runtime directories such as trash and thumbnail cache).
 - **Metadata Extraction**: `meld/load_image_configs/core/metadata_helper.py` (Parses PNG info, Exif, and ComfyUI workflows).
-- **Search Logic**: `meld/image_manager/features/search/service.py` (Parses search queries and builds SQL).
+- **Search Logic**: `meld/image_manager/features/search/service.py` (`SearchService` class; delegates to `query_parser.py` for tokenising query strings and `sql_builder.py` for building SQL WHERE/ORDER BY clauses).
+- **Image API Routes**: `meld/image_manager/features/images/routers/` package (`crud.py`, `lineage.py`, `serving.py`, `export.py`). `router.py` is a thin shim re-exporting the combined route list.
+- **Importer State**: `meld/image_manager/features/importer/service.py` (scan state, `perform_cleanup`, re-exports). `parent_resolver.py` (`infer_parent_id`), `scan_executor.py` (`start_scan_thread`, recursive helpers).
+- **Mask Canvas Hook**: `ui/src/features/mask-editor/hooks/useMaskCanvas.ts` (all canvas drawing, zoom/pan, mouse/keyboard logic extracted from `MaskEditorModal`).
 
 ## 4. Implementation Rules
 
@@ -151,9 +157,11 @@ Use this map to identify which files to read and modify for each common change t
 
 #### A. Adding a Search Prefix
 1. `meld/image_manager/common/constants.py` — add `SEARCH_PREFIX_X` constant; register in `SEARCH_PREFIX_MAP`, `SEARCH_DATE_PREFIXES`, `SEARCH_BOOLEAN_PREFIXES`, and `ALL_SEARCH_PREFIXES`.
-2. `meld/image_manager/features/search/service.py` — add handling logic in `SearchService`.
-3. `tests/test_search_service.py` — add tests for the new prefix.
-4. `architecture.md` — update the "Search Query Syntax" list above.
+2. `meld/image_manager/features/search/query_parser.py` — add token classification logic for the new prefix.
+3. `meld/image_manager/features/search/sql_builder.py` — add SQL generation logic for the new prefix.
+4. `meld/image_manager/features/search/service.py` — update `SearchService` if the public API surface changes.
+5. `tests/test_search_service.py` — add tests for the new prefix.
+6. `architecture.md` — update the "Search Query Syntax" list above.
 
 #### B. Adding a New API Endpoint
 1. `meld/image_manager/features/X/router.py` — define handler on `routes = web.RouteTableDef()`.

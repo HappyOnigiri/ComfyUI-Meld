@@ -28,6 +28,8 @@ from tests.helpers import COMFYUI_MOCK_KEYS, TestDataFactory, create_test_db, ma
 _COMFYUI_SYS_MOCKS: dict[str, MagicMock] = {}
 
 _IMPORTER_SVC = "meld.image_manager.features.importer.service"
+# _scan_thread and its dependencies now live in scan_executor; patch targets moved there.
+_SCAN_EXEC = "meld.image_manager.features.importer.scan_executor"
 
 # Populated in setUpModule.
 _scan_thread = None
@@ -57,9 +59,10 @@ def setUpModule() -> None:
     _COMFYUI_SYS_MOCKS.update({k: MagicMock() for k in COMFYUI_MOCK_KEYS})
     sys.modules.update(_COMFYUI_SYS_MOCKS)
 
+    from meld.image_manager.features.importer import scan_executor as _exec
     from meld.image_manager.features.importer import service as _svc
 
-    _scan_thread = _svc._scan_thread
+    _scan_thread = _exec._scan_thread
     _scan_state = _svc._scan_state
     cancel_scan = _svc.cancel_scan
 
@@ -118,13 +121,13 @@ class TestFolderScan(unittest.TestCase):
         meta_mock.get_imagehash.return_value = None  # skip phash computation
 
         with (
-            patch(f"{_IMPORTER_SVC}.db_connection", return_value=make_db_ctx(self.conn)),
-            patch(f"{_IMPORTER_SVC}.os.walk", return_value=iter(walk_result)),
-            patch(f"{_IMPORTER_SVC}.os.path.getmtime", return_value=1000.0),
-            patch(f"{_IMPORTER_SVC}.calculate_sha256", side_effect=_fake_sha256),
-            patch(f"{_IMPORTER_SVC}.MetadataHelper", meta_mock),
-            patch(f"{_IMPORTER_SVC}.Image.open", return_value=_mock_image_open()),
-            patch(f"{_IMPORTER_SVC}.server", server_mock),
+            patch(f"{_SCAN_EXEC}.db_connection", return_value=make_db_ctx(self.conn)),
+            patch(f"{_SCAN_EXEC}.os.walk", return_value=iter(walk_result)),
+            patch(f"{_SCAN_EXEC}.os.path.getmtime", return_value=1000.0),
+            patch(f"{_SCAN_EXEC}.calculate_sha256", side_effect=_fake_sha256),
+            patch(f"{_SCAN_EXEC}.MetadataHelper", meta_mock),
+            patch(f"{_SCAN_EXEC}.Image.open", return_value=_mock_image_open()),
+            patch(f"{_SCAN_EXEC}.server", server_mock),
         ):
             _scan_thread(
                 base_dir="/base",
@@ -276,13 +279,13 @@ class TestFolderScan(unittest.TestCase):
         meta_mock.get_imagehash.return_value = imagehash_mock
 
         with (
-            patch(f"{_IMPORTER_SVC}.db_connection", return_value=make_db_ctx(self.conn)),
-            patch(f"{_IMPORTER_SVC}.os.walk", return_value=iter(walk_result)),
-            patch(f"{_IMPORTER_SVC}.os.path.getmtime", return_value=1000.0),
-            patch(f"{_IMPORTER_SVC}.calculate_sha256", side_effect=_fake_sha),
-            patch(f"{_IMPORTER_SVC}.MetadataHelper", meta_mock),
-            patch(f"{_IMPORTER_SVC}.Image.open", return_value=_mock_image_open()),
-            patch(f"{_IMPORTER_SVC}.server", server_mock),
+            patch(f"{_SCAN_EXEC}.db_connection", return_value=make_db_ctx(self.conn)),
+            patch(f"{_SCAN_EXEC}.os.walk", return_value=iter(walk_result)),
+            patch(f"{_SCAN_EXEC}.os.path.getmtime", return_value=1000.0),
+            patch(f"{_SCAN_EXEC}.calculate_sha256", side_effect=_fake_sha),
+            patch(f"{_SCAN_EXEC}.MetadataHelper", meta_mock),
+            patch(f"{_SCAN_EXEC}.Image.open", return_value=_mock_image_open()),
+            patch(f"{_SCAN_EXEC}.server", server_mock),
         ):
             _scan_thread(
                 base_dir="/base",

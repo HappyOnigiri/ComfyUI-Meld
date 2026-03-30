@@ -21,7 +21,7 @@ from .features.workflows.router import routes as workflow_routes
 utility_routes = web.RouteTableDef()
 
 
-def _register_routes(source_routes: web.RouteTableDef) -> None:
+def _register_routes(source_routes: web.RouteTableDef | list[web.RouteDef]) -> None:
     for r in source_routes:
         if isinstance(r, web.RouteDef):
             # RouteTableDef.route() returns a decorator, which we call immediately
