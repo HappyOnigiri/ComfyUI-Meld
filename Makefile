@@ -126,6 +126,9 @@ check-non-ascii:
 repomix:
 	$(PYTHON) scripts/generate_repomix.py
 
+loc:
+	@$(PYTHON) scripts/loc.py
+
 repomix-%:
 	$(PYTHON) scripts/generate_repomix.py repomix-$*
 
