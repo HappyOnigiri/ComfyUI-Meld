@@ -275,6 +275,8 @@ async def get_image_snapshot_data(request: web.Request) -> web.Response:
             base_dir = folder_paths.get_input_directory()
         elif img_type == "temp":
             base_dir = folder_paths.get_temp_directory()
+        elif img_type == "custom":
+            base_dir = ""
         else:
             base_dir = None
 
@@ -297,7 +299,7 @@ async def get_image_snapshot_data(request: web.Request) -> web.Response:
             is_flux=_is_flux_metadata(model_name, workflow_json, None, None),
         )
 
-        if base_dir:
+        if base_dir is not None:
             full_path = os.path.join(base_dir, subfolder, filename)
             if os.path.exists(full_path):
                 with Image.open(full_path) as img:
