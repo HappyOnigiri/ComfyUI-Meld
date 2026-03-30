@@ -61,6 +61,31 @@ def _is_legacy_db(cursor: sqlite3.Cursor) -> bool:
     return has_images and not has_version
 
 
+def _should_add_column(cursor: sqlite3.Cursor, table: str, column: str) -> bool:
+    """Return True if ALTER TABLE ADD COLUMN should be executed for this column.
+
+    Uses PRAGMA table_info to inspect the table so that genuine errors
+    (database locked, disk full, etc.) are not silently swallowed:
+    - Table absent: returns False; CREATE TABLE IF NOT EXISTS in create_schema
+      will create it with all required columns, so no ALTER is needed.
+    - Table present, column absent: returns True; caller executes ALTER TABLE
+      and any real OperationalError propagates.
+    - Table present, column present: returns False; ALTER TABLE would fail anyway.
+    """
+    cursor.execute(f"PRAGMA table_info({table})")  # noqa: S608
+    rows = cursor.fetchall()
+    if not rows:
+        # Table does not exist yet; CREATE TABLE IF NOT EXISTS will include the column.
+        return False
+    return not any(row[1] == column for row in rows)
+
+
+def _column_exists(cursor: sqlite3.Cursor, table: str, column: str) -> bool:
+    """Return True if column exists in table (used to gate data-only migrations)."""
+    cursor.execute(f"PRAGMA table_info({table})")  # noqa: S608
+    return any(row[1] == column for row in cursor.fetchall())
+
+
 # ---------------------------------------------------------------------------
 # Individual migration functions
 # ---------------------------------------------------------------------------
@@ -80,36 +105,40 @@ def _migrate_v1(cursor: sqlite3.Cursor) -> None:
     Lazy import of create_schema avoids a circular import between schema.py
     (which imports migrate from this module) and this module.
     """
-    # --- Step 1: Legacy column additions (idempotent via try/except) ---
+    # --- Step 1: Legacy column additions ---
     # Must run before create_schema so that indexes on these columns succeed.
+    # _should_add_column checks existence via PRAGMA so that genuine errors
+    # (database locked, disk full, etc.) are not silently suppressed.
 
-    for alter_sql in [
-        "ALTER TABLE images ADD COLUMN phash TEXT",
-        "ALTER TABLE images ADD COLUMN user_notes TEXT DEFAULT ''",
-        "ALTER TABLE images ADD COLUMN width INTEGER",
-        "ALTER TABLE images ADD COLUMN height INTEGER",
-        "ALTER TABLE images ADD COLUMN sha256 TEXT",
-        "ALTER TABLE images ADD COLUMN parent_id INTEGER",
-        "ALTER TABLE images ADD COLUMN positive_prompt TEXT",
-        "ALTER TABLE images ADD COLUMN negative_prompt TEXT",
-        "ALTER TABLE images ADD COLUMN workflow TEXT",
-        "ALTER TABLE images ADD COLUMN type TEXT DEFAULT 'output'",
-        "ALTER TABLE images ADD COLUMN deleted_at REAL",
+    for col, alter_sql in [
+        ("phash", "ALTER TABLE images ADD COLUMN phash TEXT"),
+        ("user_notes", "ALTER TABLE images ADD COLUMN user_notes TEXT DEFAULT ''"),
+        ("width", "ALTER TABLE images ADD COLUMN width INTEGER"),
+        ("height", "ALTER TABLE images ADD COLUMN height INTEGER"),
+        ("sha256", "ALTER TABLE images ADD COLUMN sha256 TEXT"),
+        ("parent_id", "ALTER TABLE images ADD COLUMN parent_id INTEGER"),
+        ("positive_prompt", "ALTER TABLE images ADD COLUMN positive_prompt TEXT"),
+        ("negative_prompt", "ALTER TABLE images ADD COLUMN negative_prompt TEXT"),
+        ("workflow", "ALTER TABLE images ADD COLUMN workflow TEXT"),
+        ("type", "ALTER TABLE images ADD COLUMN type TEXT DEFAULT 'output'"),
+        ("deleted_at", "ALTER TABLE images ADD COLUMN deleted_at REAL"),
     ]:
-        try:
+        if _should_add_column(cursor, "images", col):
             cursor.execute(alter_sql)
-        except sqlite3.OperationalError:
-            pass
 
     # Add strength column to prompt relation tables (also before create_schema)
-    for alter_sql in [
-        "ALTER TABLE positive_prompt_image_relations ADD COLUMN strength REAL DEFAULT 1.0",
-        "ALTER TABLE negative_prompt_image_relations ADD COLUMN strength REAL DEFAULT 1.0",
+    for table, alter_sql in [
+        (
+            "positive_prompt_image_relations",
+            "ALTER TABLE positive_prompt_image_relations ADD COLUMN strength REAL DEFAULT 1.0",
+        ),
+        (
+            "negative_prompt_image_relations",
+            "ALTER TABLE negative_prompt_image_relations ADD COLUMN strength REAL DEFAULT 1.0",
+        ),
     ]:
-        try:
+        if _should_add_column(cursor, table, "strength"):
             cursor.execute(alter_sql)
-        except sqlite3.OperationalError:
-            pass
 
     # --- Step 2: Create any missing tables and all indexes ---
     # CREATE TABLE IF NOT EXISTS is a no-op for existing tables.
@@ -122,23 +151,18 @@ def _migrate_v1(cursor: sqlite3.Cursor) -> None:
 
     # --- Step 3: Data migrations ---
 
-    # Backfill NULL user_notes to empty string
-    try:
-        cursor.execute("UPDATE images SET user_notes = '' WHERE user_notes IS NULL")
-    except sqlite3.OperationalError:
-        pass
+    # Backfill NULL user_notes to empty string.
+    # user_notes always exists after step 1; no exception suppression needed.
+    cursor.execute("UPDATE images SET user_notes = '' WHERE user_notes IS NULL")
 
-    # Migration: is_deleted -> deleted_at
-    try:
+    # Migration: is_deleted -> deleted_at (is_deleted absent in new databases)
+    if _column_exists(cursor, "images", "is_deleted"):
         cursor.execute("SELECT id FROM images WHERE is_deleted = 1 AND deleted_at IS NULL")
         rows = cursor.fetchall()
         if rows:
             now = time.time()
             for (img_id,) in rows:
                 cursor.execute("UPDATE images SET deleted_at = ? WHERE id = ?", (now, img_id))
-    except sqlite3.OperationalError:
-        # is_deleted column does not exist in new databases
-        pass
 
     # Backfill width/height from image files on disk
     try:
@@ -170,7 +194,8 @@ def _migrate_v1(cursor: sqlite3.Cursor) -> None:
                             )
                 except Exception:
                     continue
-    except Exception:
+    except ImportError:
+        # PIL or folder_paths not available; skip width/height backfill
         pass
 
     # Remove duplicate relation rows then ensure unique indexes exist
@@ -190,14 +215,13 @@ def _migrate_v1(cursor: sqlite3.Cursor) -> None:
             "CREATE UNIQUE INDEX IF NOT EXISTS idx_model_rel_unique ON model_image_relations(model_id, image_id)",
         ),
     ]:
-        try:
-            cursor.execute(delete_sql)
-            cursor.execute(index_sql)
-        except sqlite3.OperationalError:
-            pass
+        # Tables always exist after create_schema (step 2); no suppression needed.
+        cursor.execute(delete_sql)
+        cursor.execute(index_sql)
 
     # Data migration: model_name column -> models normalisation table
-    try:
+    # model_name column does not exist in new databases; check before querying.
+    if _column_exists(cursor, "images", "model_name"):
         cursor.execute("SELECT id, model_name FROM images WHERE model_name IS NOT NULL AND model_name != ''")
         rows = cursor.fetchall()
         for img_id, model_name in rows:
@@ -208,9 +232,6 @@ def _migrate_v1(cursor: sqlite3.Cursor) -> None:
                 "INSERT OR IGNORE INTO model_image_relations (image_id, model_id) VALUES (?, ?)",
                 (img_id, m_id),
             )
-    except sqlite3.OperationalError:
-        # model_name column does not exist in new databases
-        pass
 
 
 # ---------------------------------------------------------------------------
@@ -244,8 +265,8 @@ def migrate(cursor: sqlite3.Cursor) -> None:
     if _is_legacy_db(cursor):
         # Legacy DB: may be missing columns/data changes bundled into v1.
         # All ALTER TABLE statements inside _migrate_v1 are idempotent
-        # (wrapped in try/except), so running it here is safe even when
-        # some changes are already present.
+        # (guarded by _should_add_column), so running it here is safe even
+        # when some changes are already present.
         _migrate_v1(cursor)
         cursor.execute(_CREATE_VERSION_TABLE)
         description, _ = _MIGRATIONS[1]
