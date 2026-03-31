@@ -6,13 +6,14 @@ license = { text = "Apache-2.0" } # DO NOT change this to a string; table format
 authors = [
     { name = "HappyOnigiri", email = "nodemeld+happy-onigiri@gmail.com" }
 ]
-requires-python = ">=3.10,<3.12" # DO NOT change this range; specific versioning is required for CI/Release stability
+requires-python = ">=3.10,<3.13" # Range extended to <3.13 to support CI environments running Python 3.12. Recommended version for running ComfyUI is 3.10 or 3.11.
 readme = "README.md"
 keywords = ["comfyui", "prompt-constructor", "metadata", "exif", "workflow", "optimization", "meld"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "License :: OSI Approved :: Apache Software License", # DO NOT remove; required for correct package metadata
     "Operating System :: OS Independent",
     "Framework :: IDE",
