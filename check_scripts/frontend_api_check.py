@@ -3,8 +3,8 @@ import os
 import sys
 from pathlib import Path
 
-# Endpoints returning binary (blob) instead of JSON. These cannot use handleResponse
-# or parseJsonResponse. Add path segment or exact path that matches api.fetchApi URL.
+# Endpoints returning binary (blob) instead of JSON. These cannot use handleApiResponse
+# or parseApiJsonResponse. Add path segment or exact path that matches api.fetchApi URL.
 # - "download": matches /meld/api/download/zip, /meld/api/download/raw (ZIP/image binary)
 BLOB_ENDPOINTS = ("download",)
 
@@ -68,7 +68,7 @@ def check_frontend_api_usage() -> int:
                     continue
 
                 errors.append(
-                    f"{file_path}:{i + 1}: Forbidden direct .json() call. Use handleResponse(res) or parseJsonResponse(res) instead."
+                    f"{file_path}:{i + 1}: Forbidden direct .json() call. Use handleApiResponse(res) or parseApiJsonResponse(res) instead."
                 )
 
             # Rule 2: If api.fetchApi is used, one of the response handlers should be used
@@ -103,11 +103,11 @@ def check_frontend_api_usage() -> int:
                     )
                     if is_meld:
                         errors.append(
-                            f"{file_path}:{i + 1}: api.fetchApi call to /meld/ should use handleResponse(res) or parseJsonResponse(res)."
+                            f"{file_path}:{i + 1}: api.fetchApi call to /meld/ should use handleApiResponse(res) or parseApiJsonResponse(res)."
                         )
                     else:
                         errors.append(
-                            f"{file_path}:{i + 1}: api.fetchApi call should use handleResponse or parseJsonResponse, or add to BLOB_ENDPOINTS if binary."
+                            f"{file_path}:{i + 1}: api.fetchApi call should use handleApiResponse or parseApiJsonResponse, or add to BLOB_ENDPOINTS if binary."
                         )
 
     if errors:
