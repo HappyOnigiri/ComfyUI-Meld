@@ -189,14 +189,15 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 			dispatch({ type: "SET_LOADING", payload: false });
 			return;
 		}
-		if (!isMounted.current) return;
 
-		if (state.activeModal.type === "delete_confirm") {
-			state.activeModal.onSuccess?.();
-		}
-
-		if (!isPermanent && onSuccess) {
-			onSuccess(deletedImages);
+		// Only skip optional UI-specific callbacks if unmounted; always dispatch shared cleanup
+		if (isMounted.current) {
+			if (state.activeModal.type === "delete_confirm") {
+				state.activeModal.onSuccess?.();
+			}
+			if (!isPermanent && onSuccess) {
+				onSuccess(deletedImages);
+			}
 		}
 		dispatch({ type: "REMOVE_IMAGES", payload: imageIds });
 		dispatch({ type: "CLEAR_SELECTION" });
@@ -212,7 +213,10 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 		// Fetch lineage for each selected image to find all related images
 		for (const id of imageIds) {
 			const lineage = await imagesApi.fetchLineage(id);
-			if (!isMounted.current) return;
+			if (!isMounted.current) {
+				dispatch({ type: "SET_LOADING", payload: false });
+				return;
+			}
 			for (const img of lineage) {
 				allIdsToDelete.add(img.id);
 			}
@@ -227,14 +231,15 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 			dispatch({ type: "SET_LOADING", payload: false });
 			return;
 		}
-		if (!isMounted.current) return;
 
-		if (state.activeModal.type === "delete_confirm") {
-			state.activeModal.onSuccess?.();
-		}
-
-		if (!isPermanent && onSuccess) {
-			onSuccess(deletedImages);
+		// Only skip optional UI-specific callbacks if unmounted; always dispatch shared cleanup
+		if (isMounted.current) {
+			if (state.activeModal.type === "delete_confirm") {
+				state.activeModal.onSuccess?.();
+			}
+			if (!isPermanent && onSuccess) {
+				onSuccess(deletedImages);
+			}
 		}
 		dispatch({
 			type: "REMOVE_IMAGES",
