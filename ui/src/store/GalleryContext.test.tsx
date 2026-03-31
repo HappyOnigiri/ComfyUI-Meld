@@ -29,7 +29,7 @@ const DummyChild = () => {
 		await gallery.refreshFavorites();
 		await gallery.deleteSelected();
 		await gallery.restoreSelected();
-		await gallery.updateSetting("test", true);
+		await gallery.updateSetting("dev_mode", true);
 		await gallery.fetchFullImageDetails(1);
 	};
 

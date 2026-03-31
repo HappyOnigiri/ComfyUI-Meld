@@ -1,4 +1,5 @@
 import type React from "react";
+import { viewerShortcutKey } from "../../../settings";
 import type { Settings } from "../../../types";
 
 interface ViewerCheatSheetProps {
@@ -16,7 +17,7 @@ export const ViewerCheatSheet: React.FC<ViewerCheatSheetProps> = ({
 		<div className="meld-viewer-cheat-sheet">
 			{[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((num) => {
 				const numStr = String(num);
-				const cmd = settings[`viewer.shortcut.${numStr}` as keyof Settings];
+				const cmd = settings[viewerShortcutKey(numStr)];
 				if (typeof cmd === "string" && cmd) {
 					return (
 						<div

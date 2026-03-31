@@ -1,4 +1,5 @@
 import type React from "react";
+import { galleryQuickShortcutKey } from "../../../../settings";
 import type { Settings } from "../../../../types";
 import { QUICK_SHORTCUT_ACTIONS } from "../../../viewer/utils/shortcutActions";
 import { SettingItem } from "../SettingItem";
@@ -289,7 +290,7 @@ export const GalleryTab: React.FC<GalleryTabProps> = ({
 					>
 						<select
 							className="meld-select"
-							value={localSettings[`gallery.quick_shortcut.${slot}` as keyof Settings] as string}
+							value={localSettings[galleryQuickShortcutKey(slot)] as string}
 							onChange={(e) =>
 								setLocalSettings((prev) => ({
 									...prev,
