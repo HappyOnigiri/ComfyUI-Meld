@@ -9,7 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.10', '3.11', '3.12']
+        # Cost trade-off: run full Python CI only on 3.12 for now.
+        # Older supported versions should be validated locally when needed.
+        python-version: ['3.12']
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
