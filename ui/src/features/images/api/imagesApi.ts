@@ -1,5 +1,5 @@
 import { api } from "/scripts/api.js";
-import { handleResponse } from "../../../api";
+import { type ApiResult, handleApiResponse, unwrapOr } from "../../../api";
 import type { MeldImage } from "../../../types";
 
 export interface NormalizedImagesResult {
@@ -32,157 +32,218 @@ export const fetchImages = async (
 	query = "",
 	view = "default",
 	minimal = false,
-): Promise<{
-	images: MeldImage[];
-	total: number;
-	offset: number;
-	limit: number;
-}> => {
-	const res = await api.fetchApi(
-		`/meld/list?offset=${offset}&limit=${limit}&query=${encodeURIComponent(query)}&view=${view}${minimal ? "&minimal=true" : ""}`,
-	);
-	return handleResponse(res);
+): Promise<
+	ApiResult<{
+		images: MeldImage[];
+		total: number;
+		offset: number;
+		limit: number;
+	}>
+> => {
+	try {
+		const res = await api.fetchApi(
+			`/meld/list?offset=${offset}&limit=${limit}&query=${encodeURIComponent(query)}&view=${view}${minimal ? "&minimal=true" : ""}`,
+		);
+		return handleApiResponse(res);
+	} catch (e) {
+		return { ok: false, error: e instanceof Error ? e.message : String(e) };
+	}
 };
 
-export const fetchImageDetails = async (id: number): Promise<MeldImage> => {
-	const res = await api.fetchApi(`/meld/image/${id}/details`);
-	return handleResponse(res);
+export const fetchImageDetails = async (id: number): Promise<ApiResult<MeldImage>> => {
+	try {
+		const res = await api.fetchApi(`/meld/image/${id}/details`);
+		return handleApiResponse<MeldImage>(res);
+	} catch (e) {
+		return { ok: false, error: e instanceof Error ? e.message : String(e) };
+	}
 };
 
-export const deleteImages = async (ids: number[], permanent = false): Promise<void> => {
-	const res = await api.fetchApi("/meld/bulk-delete", {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({
-			ids,
-			permanent,
-		}),
-	});
-	await handleResponse(res);
+export const deleteImages = async (ids: number[], permanent = false): Promise<ApiResult<void>> => {
+	try {
+		const res = await api.fetchApi("/meld/bulk-delete", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				ids,
+				permanent,
+			}),
+		});
+		return handleApiResponse<void>(res);
+	} catch (e) {
+		return { ok: false, error: e instanceof Error ? e.message : String(e) };
+	}
 };
 
-export const restoreImages = async (ids: number[]): Promise<{ restored_ids: number[] }> => {
-	const res = await api.fetchApi("/meld/restore", {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ ids }),
-	});
-	return handleResponse(res);
+export const restoreImages = async (
+	ids: number[],
+): Promise<ApiResult<{ restored_ids: number[] }>> => {
+	try {
+		const res = await api.fetchApi("/meld/restore", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ ids }),
+		});
+		return handleApiResponse<{ restored_ids: number[] }>(res);
+	} catch (e) {
+		return { ok: false, error: e instanceof Error ? e.message : String(e) };
+	}
 };
 
 export const registerImage = async (image: {
 	filename: string;
 	subfolder: string;
 	type: string;
-}): Promise<{ id: number }> => {
-	const res = await api.fetchApi("/meld/register", {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify(image),
-	});
-	return handleResponse(res);
+}): Promise<ApiResult<{ id: number }>> => {
+	try {
+		const res = await api.fetchApi("/meld/register", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(image),
+		});
+		return handleApiResponse<{ id: number }>(res);
+	} catch (e) {
+		return { ok: false, error: e instanceof Error ? e.message : String(e) };
+	}
 };
 
-export const linkParent = async (childId: number, parentId: number | null): Promise<void> => {
-	const res = await api.fetchApi("/meld/link-parent", {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ childId, parentId }),
-	});
-	await handleResponse(res);
+export const linkParent = async (
+	childId: number,
+	parentId: number | null,
+): Promise<ApiResult<void>> => {
+	try {
+		const res = await api.fetchApi("/meld/link-parent", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ childId, parentId }),
+		});
+		return handleApiResponse<void>(res);
+	} catch (e) {
+		return { ok: false, error: e instanceof Error ? e.message : String(e) };
+	}
+};
+
+type SuggestParentsItem = {
+	id: number;
+	filename: string;
+	subfolder: string;
+	type: string;
+	distance: number;
+	created_at: number;
+	is_source_match: boolean;
 };
 
 export const suggestParents = async (
 	id: number,
 	threshold?: number,
 	signal?: AbortSignal,
-): Promise<
-	{
-		id: number;
-		filename: string;
-		subfolder: string;
-		type: string;
-		distance: number;
-		created_at: number;
-		is_source_match: boolean;
-	}[]
-> => {
-	const thresholdParam = threshold !== undefined ? `&threshold=${threshold}` : "";
-	const res = await api.fetchApi(`/meld/suggest-parents?id=${id}${thresholdParam}`, { signal });
+): Promise<SuggestParentsItem[]> => {
 	try {
-		return await handleResponse(res);
+		const thresholdParam = threshold !== undefined ? `&threshold=${threshold}` : "";
+		const res = await api.fetchApi(`/meld/suggest-parents?id=${id}${thresholdParam}`, { signal });
+		return unwrapOr(await handleApiResponse<SuggestParentsItem[]>(res), []);
 	} catch (_e) {
 		return [];
 	}
 };
 
 export const fetchLineage = async (id: number): Promise<MeldImage[]> => {
-	const res = await api.fetchApi(`/meld/lineage?id=${id}`);
 	try {
-		return await handleResponse(res);
+		const res = await api.fetchApi(`/meld/lineage?id=${id}`);
+		return unwrapOr(await handleApiResponse<MeldImage[]>(res), []);
 	} catch (_e) {
 		return [];
 	}
 };
 
-export const updateImageTags = async (imageId: number, tags: string[]): Promise<void> => {
-	const res = await api.fetchApi("/meld/image-tags", {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ imageId, tags }),
-	});
-	await handleResponse(res);
+export const updateImageTags = async (
+	imageId: number,
+	tags: string[],
+): Promise<ApiResult<void>> => {
+	try {
+		const res = await api.fetchApi("/meld/image-tags", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ imageId, tags }),
+		});
+		return handleApiResponse<void>(res);
+	} catch (e) {
+		return { ok: false, error: e instanceof Error ? e.message : String(e) };
+	}
 };
 
-export const updateImageNotes = async (imageId: number, userNotes: string): Promise<MeldImage> => {
-	const res = await api.fetchApi("/meld/image-notes", {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ imageId, userNotes }),
-	});
-	return handleResponse(res);
+export const updateImageNotes = async (
+	imageId: number,
+	userNotes: string,
+): Promise<ApiResult<MeldImage>> => {
+	try {
+		const res = await api.fetchApi("/meld/image-notes", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ imageId, userNotes }),
+		});
+		return handleApiResponse<MeldImage>(res);
+	} catch (e) {
+		return { ok: false, error: e instanceof Error ? e.message : String(e) };
+	}
 };
 
 export const bulkUpdateImageTags = async (
 	imageIds: number[],
 	addTags: string[],
 	removeTags: string[],
-): Promise<void> => {
-	const res = await api.fetchApi("/meld/bulk-image-tags", {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ imageIds, addTags, removeTags }),
-	});
-	await handleResponse(res);
+): Promise<ApiResult<void>> => {
+	try {
+		const res = await api.fetchApi("/meld/bulk-image-tags", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ imageIds, addTags, removeTags }),
+		});
+		return handleApiResponse<void>(res);
+	} catch (e) {
+		return { ok: false, error: e instanceof Error ? e.message : String(e) };
+	}
 };
 
-export const fetchImageWorkflow = async (imageId: number): Promise<{ workflow: unknown }> => {
-	const res = await api.fetchApi(`/meld/image/${imageId}/workflow`);
-	return handleResponse(res);
+export const fetchImageWorkflow = async (
+	imageId: number,
+): Promise<ApiResult<{ workflow: unknown }>> => {
+	try {
+		const res = await api.fetchApi(`/meld/image/${imageId}/workflow`);
+		return handleApiResponse<{ workflow: unknown }>(res);
+	} catch (e) {
+		return { ok: false, error: e instanceof Error ? e.message : String(e) };
+	}
 };
 
 export const fetchSnapshotData = async (
 	imageId: number,
-): Promise<{
-	model_name: string;
-	positive: string;
-	negative: string;
-	seed: number;
-	steps: number;
-	cfg: number;
-	guidance: number;
-	clip_name1: string;
-	clip_name2: string;
-	clip_type: string;
-	clip_device: string;
-	sampler_name: string;
-	scheduler: string;
-	width: number;
-	height: number;
-	is_flux: boolean;
-}> => {
-	const res = await api.fetchApi(`/meld/image/${imageId}/snapshot_data`);
-	return handleResponse(res);
+): Promise<
+	ApiResult<{
+		model_name: string;
+		positive: string;
+		negative: string;
+		seed: number;
+		steps: number;
+		cfg: number;
+		guidance: number;
+		clip_name1: string;
+		clip_name2: string;
+		clip_type: string;
+		clip_device: string;
+		sampler_name: string;
+		scheduler: string;
+		width: number;
+		height: number;
+		is_flux: boolean;
+	}>
+> => {
+	try {
+		const res = await api.fetchApi(`/meld/image/${imageId}/snapshot_data`);
+		return handleApiResponse(res);
+	} catch (e) {
+		return { ok: false, error: e instanceof Error ? e.message : String(e) };
+	}
 };
 
 // Sanitize a filename from a Content-Disposition header: ensure safe basename,
@@ -231,13 +292,9 @@ const fetchImageBlob = async (
 	});
 	if (!res.ok) {
 		let errMsg = `Failed to fetch image ${imageId}: ${res.statusText || res.status}`;
-		try {
-			await handleResponse(res.clone());
-		} catch (e: unknown) {
-			const extracted = e instanceof Error ? e.message : String(e);
-			if (extracted) {
-				errMsg = `Failed to fetch image ${imageId}: ${extracted}`;
-			}
+		const errResult = await handleApiResponse(res.clone());
+		if (!errResult.ok) {
+			errMsg = `Failed to fetch image ${imageId}: ${errResult.error}`;
 		}
 		throw new Error(errMsg);
 	}
@@ -246,17 +303,14 @@ const fetchImageBlob = async (
 	// Even a 2xx JSON response cannot be treated as binary data.
 	const contentType = (res.headers.get("Content-Type") || "").toLowerCase();
 	if (contentType.includes("application/json") || contentType.includes("+json")) {
-		// Attempt to extract a meaningful error message via handleResponse, then always throw.
+		// Attempt to extract a meaningful error message via handleApiResponse, then always throw.
 		let jsonErrMsg = `Image ${imageId}: server returned JSON instead of binary data`;
-		try {
-			await handleResponse(res.clone());
-			// Even if handleResponse succeeds, JSON is not acceptable on the binary path.
+		const jsonResult = await handleApiResponse(res.clone());
+		if (!jsonResult.ok) {
+			jsonErrMsg = jsonResult.error;
+		} else {
+			// Even if handleApiResponse succeeds, JSON is not acceptable on the binary path.
 			jsonErrMsg = `Image ${imageId}: server returned a JSON response on the binary download path`;
-		} catch (e: unknown) {
-			const extracted = e instanceof Error ? e.message : String(e);
-			if (extracted) {
-				jsonErrMsg = extracted;
-			}
 		}
 		throw new Error(jsonErrMsg);
 	}

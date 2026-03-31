@@ -1,5 +1,5 @@
 import { api } from "/scripts/api.js";
-import { handleResponse } from "../../../api";
+import { type ApiResult, handleApiResponse } from "../../../api";
 
 export interface WorkflowInfo {
 	name: string;
@@ -10,12 +10,22 @@ export interface WorkflowInfo {
 	reason: string;
 }
 
-export const fetchWorkflows = async (): Promise<WorkflowInfo[]> => {
-	const res = await api.fetchApi("/meld/workflows");
-	return handleResponse(res);
+export const fetchWorkflows = async (): Promise<ApiResult<WorkflowInfo[]>> => {
+	try {
+		const res = await api.fetchApi("/meld/workflows");
+		return handleApiResponse<WorkflowInfo[]>(res);
+	} catch (e) {
+		return { ok: false, error: e instanceof Error ? e.message : String(e) };
+	}
 };
 
-export const fetchWorkflowRaw = async (name: string): Promise<Record<string, unknown>> => {
-	const res = await api.fetchApi(`/meld/workflow/raw?name=${encodeURIComponent(name)}`);
-	return handleResponse(res);
+export const fetchWorkflowRaw = async (
+	name: string,
+): Promise<ApiResult<Record<string, unknown>>> => {
+	try {
+		const res = await api.fetchApi(`/meld/workflow/raw?name=${encodeURIComponent(name)}`);
+		return handleApiResponse<Record<string, unknown>>(res);
+	} catch (e) {
+		return { ok: false, error: e instanceof Error ? e.message : String(e) };
+	}
 };
