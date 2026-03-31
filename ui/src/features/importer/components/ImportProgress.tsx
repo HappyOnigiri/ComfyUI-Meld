@@ -14,7 +14,11 @@ export const ImportProgress: React.FC = () => {
 
 	const handleCancel = async () => {
 		try {
-			await importerApi.cancelScan();
+			const result = await importerApi.cancelScan();
+			if (!result.ok) {
+				logger.error("Failed to cancel scan:", result.error);
+				return;
+			}
 			dispatch({ type: "SET_SCAN_STATUS", payload: { shouldCancel: true } });
 		} catch (err) {
 			logger.error("Failed to cancel scan:", err);
