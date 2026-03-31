@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { FC } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { logger } from "../../logger";
 import { ErrorBoundary } from "./ErrorBoundary";
@@ -25,7 +26,7 @@ beforeEach(() => {
 });
 
 /** Helper component that throws during render when `shouldThrow` is true. */
-const ThrowingComponent: React.FC<{ shouldThrow?: boolean }> = ({ shouldThrow = false }) => {
+const ThrowingComponent: FC<{ shouldThrow?: boolean }> = ({ shouldThrow = false }) => {
 	if (shouldThrow) {
 		throw new Error("test render error");
 	}
@@ -87,7 +88,7 @@ describe("ErrorBoundary", () => {
 
 		// Use a controlled flag so we can make the component stop throwing after retry.
 		let shouldThrow = true;
-		const ControlledThrower: React.FC = () => {
+		const ControlledThrower: FC = () => {
 			if (shouldThrow) throw new Error("retry test error");
 			return <div>recovered content</div>;
 		};
