@@ -376,6 +376,7 @@ export const useViewerActionsBridge = ({
 				if (!tagsResult.ok) {
 					logger.error("Failed to update tags via shortcut:", tagsResult.error);
 					dispatch({ type: "SET_ERROR", payload: tagsResult.error });
+					return;
 				} else {
 					const newTags = [...currentImageTags];
 					for (const tag of addTags) {
