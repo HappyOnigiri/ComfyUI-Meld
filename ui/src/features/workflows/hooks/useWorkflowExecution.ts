@@ -42,7 +42,11 @@ export const useWorkflowExecution = () => {
 				targetLoaderNodeId,
 			});
 			// 1. Fetch the raw workflow JSON
-			const workflow = await fetchWorkflowRaw(workflowName);
+			const workflowResult = await fetchWorkflowRaw(workflowName);
+			if (!workflowResult.ok) {
+				throw new Error(`Failed to fetch workflow "${workflowName}": ${workflowResult.error}`);
+			}
+			const workflow = workflowResult.data;
 			logger.log("Workflow fetched:", workflowName);
 
 			// 2. Find the MeldImageLoader, LoadImage, and LoadImageMask nodes

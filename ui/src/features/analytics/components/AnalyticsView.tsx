@@ -91,10 +91,14 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 		const capturedReqId = reqId;
 		setIsLoading(true);
 		try {
-			const data = await fetchAnalyticsSummary({ signal });
+			const result = await fetchAnalyticsSummary({ signal });
 			if (signal?.aborted) return;
 			if (capturedReqId !== undefined && capturedReqId !== summaryReqIdRef.current) return;
-			setSummary(data);
+			if (!result.ok) {
+				setSummary(null);
+				return;
+			}
+			setSummary(result.data);
 		} catch (err) {
 			if (
 				signal?.aborted ||
@@ -103,7 +107,6 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 				return;
 			if (capturedReqId !== undefined && capturedReqId !== summaryReqIdRef.current) return;
 			setSummary(null);
-			throw err;
 		} finally {
 			if (
 				!signal?.aborted &&
@@ -127,7 +130,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 			setFullLoading(true);
 			setFullError(null);
 			try {
-				const { data, total } = await fetchAnalyticsCategory(category, {
+				const result = await fetchAnalyticsCategory(category, {
 					limit: 500,
 					offset: 0,
 					sort,
@@ -135,8 +138,12 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 					signal,
 				});
 				if (signal?.aborted) return;
-				setFullItems(data);
-				setFullTotal(total);
+				if (!result.ok) {
+					setFullError(result.error);
+					return;
+				}
+				setFullItems(result.data.data);
+				setFullTotal(result.data.total);
 			} catch (err) {
 				if (
 					signal?.aborted ||
@@ -146,7 +153,6 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 				const message =
 					err instanceof Error ? err.message : typeof err === "string" ? err : "Unknown error";
 				setFullError(message);
-				throw err;
 			} finally {
 				if (!signal?.aborted) {
 					setFullLoading(false);
@@ -185,8 +191,15 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ onClose, onSearchA
 
 		setIsRefreshing(true);
 		try {
-			await refreshAnalytics({ signal });
+			const refreshResult = await refreshAnalytics({ signal });
 			if (signal.aborted) return;
+			if (!refreshResult.ok) {
+				dispatch({
+					type: "SHOW_TOAST",
+					payload: `Analytics refresh failed: ${refreshResult.error}`,
+				});
+				return;
+			}
 			summaryReqIdRef.current += 1;
 			const reqId = summaryReqIdRef.current;
 			await loadSummary(signal, reqId);

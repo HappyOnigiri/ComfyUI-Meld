@@ -65,23 +65,18 @@ export const useSearchLogic = () => {
 
 	const fetchKeywords = useCallback(async () => {
 		if (allKeywords.length > 0) return;
-		const results = await searchApi.fetchSearchKeywords();
-		if (isMountedRef.current) {
-			setAllKeywords(results);
+		const result = await searchApi.fetchSearchKeywords();
+		if (isMountedRef.current && result.ok) {
+			setAllKeywords(result.data);
 		}
 	}, [allKeywords.length]);
 
 	// Fetch search config on mount
 	useEffect(() => {
 		let isMounted = true;
-		searchApi
-			.fetchSearchConfig()
-			.then((config) => {
-				if (isMounted) setSearchConfig(config);
-			})
-			.catch((err) => {
-				if (isMounted) logger.error("Failed to fetch search config:", err);
-			});
+		searchApi.fetchSearchConfig().then((result) => {
+			if (isMounted && result.ok) setSearchConfig(result.data);
+		});
 		if (showAllKeywords) {
 			fetchKeywords().catch((err) => {
 				if (isMounted) logger.error("Failed to fetch keywords:", err);
@@ -116,17 +111,12 @@ export const useSearchLogic = () => {
 		}
 
 		let isMounted = true;
-		searchApi
-			.fetchSearchSuggestions()
-			.then((results) => {
-				if (isMounted) setSearchSuggestions(results);
-			})
-			.catch((err) => {
-				if (isMounted) {
-					logger.error("Failed to fetch search suggestions:", err);
-					setSearchSuggestions([]);
-				}
-			});
+		searchApi.fetchSearchSuggestions().then((result) => {
+			if (isMounted) {
+				if (result.ok) setSearchSuggestions(result.data);
+				else setSearchSuggestions([]);
+			}
+		});
 		return () => {
 			isMounted = false;
 		};
@@ -191,7 +181,8 @@ export const useSearchLogic = () => {
 						subQuery = subQuery.substring(0, subQuery.length - 1);
 					}
 
-					const results = await searchApi.fetchSuggestions(subQuery, normalizedPrefix);
+					const suggResult = await searchApi.fetchSuggestions(subQuery, normalizedPrefix);
+					const results = suggResult.ok ? suggResult.data : [];
 					setSuggestions(results);
 					setShowSuggestions(results.length > 0);
 					setSelectedIndex(-1);

@@ -28,12 +28,12 @@ export const useFavoritesLogic = () => {
 			const confirmMsg = `Are you sure you want to delete the favorite "${name}"?`;
 			if (!window.confirm(confirmMsg)) return;
 
-			try {
-				await searchApi.deleteFavorite(id);
-				await refreshFavorites();
-			} catch (err) {
-				logger.error("Failed to delete favorite", err);
+			const result = await searchApi.deleteFavorite(id);
+			if (!result.ok) {
+				logger.error("Failed to delete favorite", result.error);
+				return;
 			}
+			await refreshFavorites();
 		},
 		[refreshFavorites],
 	);
@@ -48,18 +48,21 @@ export const useFavoritesLogic = () => {
 	const handleSaveEditFavorite = useCallback(async () => {
 		if (!editingFavorite || !editFavoriteName.trim() || !editFavoriteQuery.trim()) return;
 
-		try {
-			setIsSaving(true);
-			await searchApi.updateFavorite(editingFavorite.id, editFavoriteName, editFavoriteQuery);
-			await refreshFavorites();
-			setEditingFavorite(null);
-		} catch (err) {
-			logger.error("Failed to update favorite", err);
+		setIsSaving(true);
+		const result = await searchApi.updateFavorite(
+			editingFavorite.id,
+			editFavoriteName,
+			editFavoriteQuery,
+		);
+		setIsSaving(false);
+		if (!result.ok) {
+			logger.error("Failed to update favorite", result.error);
 			setToastMessage("Failed to update favorite.");
 			setToastType("error");
-		} finally {
-			setIsSaving(false);
+			return;
 		}
+		await refreshFavorites();
+		setEditingFavorite(null);
 	}, [editingFavorite, editFavoriteName, editFavoriteQuery, refreshFavorites]);
 
 	const handleSaveFavorite = useCallback(async (): Promise<boolean> => {
@@ -70,31 +73,27 @@ export const useFavoritesLogic = () => {
 			const fav = state.favorites.find((f) => f.query === state.searchQuery);
 			if (fav) {
 				setIsSaving(true);
-				try {
-					await searchApi.deleteFavorite(fav.id);
-					await refreshFavorites();
-					return true;
-				} catch (err) {
-					logger.error("Failed to delete favorite:", err);
+				const result = await searchApi.deleteFavorite(fav.id);
+				setIsSaving(false);
+				if (!result.ok) {
+					logger.error("Failed to delete favorite:", result.error);
 					return false;
-				} finally {
-					setIsSaving(false);
 				}
+				await refreshFavorites();
+				return true;
 			}
 			return false;
 		}
 
 		setIsSaving(true);
-		try {
-			await searchApi.saveFavorite(state.searchQuery, state.searchQuery);
-			await refreshFavorites();
-			return true;
-		} catch (err) {
-			logger.error("Failed to save favorite:", err);
+		const result = await searchApi.saveFavorite(state.searchQuery, state.searchQuery);
+		setIsSaving(false);
+		if (!result.ok) {
+			logger.error("Failed to save favorite:", result.error);
 			return false;
-		} finally {
-			setIsSaving(false);
 		}
+		await refreshFavorites();
+		return true;
 	}, [state.searchQuery, state.favorites, isSaving, refreshFavorites]);
 
 	return {

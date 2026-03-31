@@ -80,10 +80,14 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 		const run = async () => {
 			try {
 				setLoading(true);
-				const data = await fetchWorkflows();
+				const result = await fetchWorkflows();
 				if (isMounted) {
-					setWorkflows(data);
-					setError(null);
+					if (result.ok) {
+						setWorkflows(result.data);
+						setError(null);
+					} else {
+						setError(result.error);
+					}
 				}
 			} catch (err) {
 				if (isMounted) {
@@ -150,7 +154,12 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 
 		try {
 			setLoadingNodes((prev) => ({ ...prev, [workflowName]: true }));
-			const workflow = await fetchWorkflowRaw(workflowName);
+			const workflowResult = await fetchWorkflowRaw(workflowName);
+			if (!workflowResult.ok) {
+				logger.error("Failed to fetch workflow nodes:", workflowResult.error);
+				return;
+			}
+			const workflow = workflowResult.data;
 			const loaders: LoaderNodeInfo[] = [];
 
 			const isTargetNode = (type: string | undefined) => {
@@ -164,7 +173,10 @@ export const WorkflowSelectionModal: React.FC<WorkflowSelectionModalProps> = ({
 
 			if (workflow.nodes && Array.isArray(workflow.nodes)) {
 				// UI Format
-				logger.log("Extracting nodes from UI format workflow", workflow.nodes.length);
+				logger.log(
+					"Extracting nodes from UI format workflow",
+					(workflow.nodes as unknown[]).length,
+				);
 				for (const node of workflow.nodes as WorkflowNode[]) {
 					if (isTargetNode(node.type)) {
 						logger.log("Found target node (UI):", node.id, node.type, node.title);

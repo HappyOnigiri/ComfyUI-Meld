@@ -124,11 +124,15 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({ imag
 			// 1. Upload file to ComfyUI
 			const uploaded = await importerApi.uploadImage(file);
 			// 2. Register it in Meld
-			const { id } = await imagesApi.registerImage({
+			const registerResult = await imagesApi.registerImage({
 				filename: uploaded.name,
 				subfolder: uploaded.subfolder || "",
 				type: uploaded.type || "input",
 			});
+			if (!registerResult.ok) {
+				throw new Error(registerResult.error);
+			}
+			const { id } = registerResult.data;
 			// 3. Link it immediately as the parent
 			if (id === imageId) {
 				alert("Uploaded image is identical to the current image. Cannot set as source.");

@@ -162,14 +162,13 @@ app.registerExtension({
 			if (e.detail.output?.images) {
 				for (const img of e.detail.output.images) {
 					if (img.type === "output") {
-						try {
-							await imagesApi.registerImage({
-								filename: img.filename,
-								subfolder: img.subfolder,
-								type: img.type,
-							});
-						} catch (err) {
-							logger.error("Failed to auto-register image:", err);
+						const result = await imagesApi.registerImage({
+							filename: img.filename,
+							subfolder: img.subfolder,
+							type: img.type,
+						});
+						if (!result.ok) {
+							logger.error("Failed to auto-register image:", result.error);
 						}
 					}
 				}

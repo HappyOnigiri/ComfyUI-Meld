@@ -53,14 +53,14 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 		let isMounted = true;
 		const run = async () => {
 			setIsLoading(true);
-			try {
-				const data = await tagsApi.fetchTags();
-				if (isMounted) setAllTags(data || []);
-			} catch (error) {
-				if (isMounted) logger.error("Failed to fetch tags:", error);
-			} finally {
-				if (isMounted) setIsLoading(false);
+			const result = await tagsApi.fetchTags();
+			if (!isMounted) return;
+			setIsLoading(false);
+			if (!result.ok) {
+				logger.error("Failed to fetch tags:", result.error);
+				return;
 			}
+			setAllTags(result.data || []);
 		};
 		run();
 		return () => {
@@ -103,30 +103,33 @@ export const TagEditModal: React.FC<TagEditModalProps> = ({
 
 	const handleSave = async () => {
 		setIsSaving(true);
-		try {
-			if (isBulk) {
-				// Calculate diff
-				const tagsToAdd = selectedTags.filter((t) => !initialTags.includes(t));
-				const tagsToRemove = initialTags.filter((t) => !selectedTags.includes(t));
-
-				await imagesApi.bulkUpdateImageTags(imageIds, tagsToAdd, tagsToRemove);
-			} else {
-				const singleImageId = imageIds[0];
-				if (singleImageId === undefined) {
-					throw new Error("No image selected");
-				}
-				await imagesApi.updateImageTags(singleImageId, selectedTags);
+		let result:
+			| Awaited<ReturnType<typeof imagesApi.bulkUpdateImageTags>>
+			| Awaited<ReturnType<typeof imagesApi.updateImageTags>>;
+		if (isBulk) {
+			// Calculate diff
+			const tagsToAdd = selectedTags.filter((t) => !initialTags.includes(t));
+			const tagsToRemove = initialTags.filter((t) => !selectedTags.includes(t));
+			result = await imagesApi.bulkUpdateImageTags(imageIds, tagsToAdd, tagsToRemove);
+		} else {
+			const singleImageId = imageIds[0];
+			if (singleImageId === undefined) {
+				setIsSaving(false);
+				alert("No image selected");
+				return;
 			}
-			await refreshImages();
-			dispatch({ type: "CLEAR_SELECTION" });
-			onSuccess?.();
-			onClose();
-		} catch (error) {
-			logger.error("Failed to update tags:", error);
-			alert("Failed to update tags.");
-		} finally {
-			setIsSaving(false);
+			result = await imagesApi.updateImageTags(singleImageId, selectedTags);
 		}
+		setIsSaving(false);
+		if (!result.ok) {
+			logger.error("Failed to update tags:", result.error);
+			alert("Failed to update tags.");
+			return;
+		}
+		await refreshImages();
+		dispatch({ type: "CLEAR_SELECTION" });
+		onSuccess?.();
+		onClose();
 	};
 
 	const handleKeyDown = (e: React.KeyboardEvent) => {

@@ -51,46 +51,46 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({ children })
 				currentOffset < Math.min(total, maxItems) &&
 				fetchId === backgroundFetchIdRef.current
 			) {
-				try {
-					const limit = Math.min(chunkSize, maxItems - currentOffset);
-					logger.log("Background fetch: starting chunk", {
-						offset: currentOffset,
-						limit,
-					});
+				const limit = Math.min(chunkSize, maxItems - currentOffset);
+				logger.log("Background fetch: starting chunk", {
+					offset: currentOffset,
+					limit,
+				});
 
-					const result = await imagesApi.fetchImages(
-						currentOffset,
-						limit,
-						state.searchQuery,
-						state.viewScope,
-						true, // minimal mode
-					);
+				const apiResult = await imagesApi.fetchImages(
+					currentOffset,
+					limit,
+					state.searchQuery,
+					state.viewScope,
+					true, // minimal mode
+				);
 
-					if (fetchId !== backgroundFetchIdRef.current) break;
+				if (fetchId !== backgroundFetchIdRef.current) break;
 
-					const { images: chunkImages, total: chunkTotal } = normalizeImagesResponse(result, {
-						total,
-					});
-					dispatch({
-						type: "APPEND_IMAGES",
-						payload: {
-							images: chunkImages,
-							total: chunkTotal,
-							offset: currentOffset,
-							limit,
-						},
-					});
-					currentOffset += chunkImages.length;
-
-					// If we reached the end or fetched nothing, stop
-					if (chunkImages.length === 0 || currentOffset >= chunkTotal) break;
-
-					// Sleep a bit to keep browser responsive (300ms)
-					await new Promise((resolve) => setTimeout(resolve, 300));
-				} catch (err) {
-					logger.error("Background fetch failed", err);
+				if (!apiResult.ok) {
+					logger.error("Background fetch failed", apiResult.error);
 					break;
 				}
+
+				const { images: chunkImages, total: chunkTotal } = normalizeImagesResponse(apiResult.data, {
+					total,
+				});
+				dispatch({
+					type: "APPEND_IMAGES",
+					payload: {
+						images: chunkImages,
+						total: chunkTotal,
+						offset: currentOffset,
+						limit,
+					},
+				});
+				currentOffset += chunkImages.length;
+
+				// If we reached the end or fetched nothing, stop
+				if (chunkImages.length === 0 || currentOffset >= chunkTotal) break;
+
+				// Sleep a bit to keep browser responsive (300ms)
+				await new Promise((resolve) => setTimeout(resolve, 300));
 			}
 		},
 		[state.searchQuery, state.viewScope, state.settings],
@@ -102,49 +102,48 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({ children })
 		// Increment fetch ID to cancel previous background fetches
 		const fetchId = ++backgroundFetchIdRef.current;
 
-		try {
-			const isSearch = state.searchQuery.trim() !== "";
-			// Initial load from settings
-			const initialLimit = state.settings["gallery.initial_load_count"];
+		const isSearch = state.searchQuery.trim() !== "";
+		// Initial load from settings
+		const initialLimit = state.settings["gallery.initial_load_count"];
 
-			logger.log("refreshImages: starting initial fetch", {
-				isSearch,
-				fetchLimit: initialLimit,
-				query: state.searchQuery,
-				scope: state.viewScope,
-			});
+		logger.log("refreshImages: starting initial fetch", {
+			isSearch,
+			fetchLimit: initialLimit,
+			query: state.searchQuery,
+			scope: state.viewScope,
+		});
 
-			const result = await imagesApi.fetchImages(
-				0,
-				initialLimit,
-				state.searchQuery,
-				state.viewScope,
-				false, // not minimal for initial load
-			);
-			const payload = normalizeImagesResponse(result, {
-				total: state.pagination.total,
-				offset: 0,
-				limit: initialLimit,
-			});
-			const fetchTime = performance.now() - startTime;
-			logger.log("refreshImages: initial fetch complete", {
-				count: payload.images.length,
-				total: payload.total,
-				offset: payload.offset,
-				durationMs: fetchTime.toFixed(2),
-			});
-			dispatch({ type: "SET_IMAGES", payload });
+		const apiResult = await imagesApi.fetchImages(
+			0,
+			initialLimit,
+			state.searchQuery,
+			state.viewScope,
+			false, // not minimal for initial load
+		);
 
-			// Start background fetch if there's more
-			if (payload.total > initialLimit) {
-				startBackgroundFetch(initialLimit, payload.total, fetchId);
-			}
-		} catch (err: unknown) {
-			logger.error("refreshImages: fetch failed", err);
-			dispatch({
-				type: "SET_ERROR",
-				payload: err instanceof Error ? err.message : String(err),
-			});
+		if (!apiResult.ok) {
+			logger.error("refreshImages: fetch failed", apiResult.error);
+			dispatch({ type: "SET_ERROR", payload: apiResult.error });
+			return;
+		}
+
+		const payload = normalizeImagesResponse(apiResult.data, {
+			total: state.pagination.total,
+			offset: 0,
+			limit: initialLimit,
+		});
+		const fetchTime = performance.now() - startTime;
+		logger.log("refreshImages: initial fetch complete", {
+			count: payload.images.length,
+			total: payload.total,
+			offset: payload.offset,
+			durationMs: fetchTime.toFixed(2),
+		});
+		dispatch({ type: "SET_IMAGES", payload });
+
+		// Start background fetch if there's more
+		if (payload.total > initialLimit) {
+			startBackgroundFetch(initialLimit, payload.total, fetchId);
 		}
 	}, [
 		state.searchQuery,
@@ -159,44 +158,43 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({ children })
 
 		dispatch({ type: "SET_LOADING", payload: true });
 		const startTime = performance.now();
-		try {
-			const nextOffset = imagesLengthRef.current;
-			const isSearch = state.searchQuery.trim() !== "";
-			const fetchLimit = state.pagination.limit;
+		const nextOffset = imagesLengthRef.current;
+		const isSearch = state.searchQuery.trim() !== "";
+		const fetchLimit = state.pagination.limit;
 
-			logger.log("loadMoreImages: starting fetch", {
-				nextOffset,
-				fetchLimit,
-				isSearch,
-			});
+		logger.log("loadMoreImages: starting fetch", {
+			nextOffset,
+			fetchLimit,
+			isSearch,
+		});
 
-			const result = await imagesApi.fetchImages(
-				nextOffset,
-				fetchLimit,
-				state.searchQuery,
-				state.viewScope,
-				true, // use minimal mode for scroll-triggered loads
-			);
-			const payload = normalizeImagesResponse(result, {
-				total: state.pagination.total,
-				offset: nextOffset,
-				limit: fetchLimit,
-			});
-			const fetchTime = performance.now() - startTime;
-			logger.log("loadMoreImages: fetch complete", {
-				count: payload.images.length,
-				total: payload.total,
-				offset: payload.offset,
-				durationMs: fetchTime.toFixed(2),
-			});
-			dispatch({ type: "APPEND_IMAGES", payload });
-		} catch (err: unknown) {
-			logger.error("loadMoreImages: fetch failed", err);
-			dispatch({
-				type: "SET_ERROR",
-				payload: err instanceof Error ? err.message : String(err),
-			});
+		const apiResult = await imagesApi.fetchImages(
+			nextOffset,
+			fetchLimit,
+			state.searchQuery,
+			state.viewScope,
+			true, // use minimal mode for scroll-triggered loads
+		);
+
+		if (!apiResult.ok) {
+			logger.error("loadMoreImages: fetch failed", apiResult.error);
+			dispatch({ type: "SET_ERROR", payload: apiResult.error });
+			return;
 		}
+
+		const payload = normalizeImagesResponse(apiResult.data, {
+			total: state.pagination.total,
+			offset: nextOffset,
+			limit: fetchLimit,
+		});
+		const fetchTime = performance.now() - startTime;
+		logger.log("loadMoreImages: fetch complete", {
+			count: payload.images.length,
+			total: payload.total,
+			offset: payload.offset,
+			durationMs: fetchTime.toFixed(2),
+		});
+		dispatch({ type: "APPEND_IMAGES", payload });
 	}, [
 		state.isLoading,
 		state.pagination.hasMore,
@@ -207,12 +205,12 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({ children })
 	]);
 
 	const refreshFavorites = useCallback(async () => {
-		try {
-			const favorites = await searchApi.fetchFavorites();
-			dispatch({ type: "SET_FAVORITES", payload: favorites });
-		} catch (err) {
-			logger.error("Failed to load favorites", err);
+		const result = await searchApi.fetchFavorites();
+		if (!result.ok) {
+			logger.error("Failed to load favorites", result.error);
+			return;
 		}
+		dispatch({ type: "SET_FAVORITES", payload: result.data });
 	}, []);
 
 	const deleteSelected = useCallback(async () => {
@@ -237,34 +235,28 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({ children })
 	const restoreSelected = useCallback(async () => {
 		if (state.selectedIds.size === 0) return;
 		const ids = Array.from(state.selectedIds) as number[];
-		try {
-			dispatch({ type: "SET_LOADING", payload: true });
-			const result = await imagesApi.restoreImages(ids);
-			const restoredIds = result.restored_ids || ids;
-			if (state.viewScope === "trash") {
-				dispatch({ type: "REMOVE_IMAGES", payload: restoredIds });
-			}
-			dispatch({ type: "CLEAR_SELECTION" });
-			dispatch({ type: "SET_LOADING", payload: false });
-		} catch (err: unknown) {
-			dispatch({
-				type: "SET_ERROR",
-				payload: err instanceof Error ? err.message : String(err),
-			});
+		dispatch({ type: "SET_LOADING", payload: true });
+		const result = await imagesApi.restoreImages(ids);
+		if (!result.ok) {
+			dispatch({ type: "SET_ERROR", payload: result.error });
+			return;
 		}
+		const restoredIds = result.data.restored_ids || ids;
+		if (state.viewScope === "trash") {
+			dispatch({ type: "REMOVE_IMAGES", payload: restoredIds });
+		}
+		dispatch({ type: "CLEAR_SELECTION" });
+		dispatch({ type: "SET_LOADING", payload: false });
 	}, [state.selectedIds, state.viewScope]);
 
 	const updateSetting = useCallback(
 		async (key: keyof Settings, value: string | number | boolean | null) => {
-			try {
-				await settingsApi.saveSetting(key, value);
-				dispatch({ type: "SET_SETTINGS", payload: { [key]: value } as Partial<Settings> });
-			} catch (err: unknown) {
-				dispatch({
-					type: "SET_ERROR",
-					payload: err instanceof Error ? err.message : String(err),
-				});
+			const result = await settingsApi.saveSetting(key, value);
+			if (!result.ok) {
+				dispatch({ type: "SET_ERROR", payload: result.error });
+				return;
 			}
+			dispatch({ type: "SET_SETTINGS", payload: { [key]: value } as Partial<Settings> });
 		},
 		[],
 	);
@@ -297,9 +289,12 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({ children })
 			const fetchPromise = (async () => {
 				try {
 					logger.log("fetchFullImageDetails: fetching full data", { id });
-					const fullImage = await imagesApi.fetchImageDetails(id);
-					dispatch({ type: "UPDATE_IMAGE", payload: fullImage });
-					return fullImage;
+					const result = await imagesApi.fetchImageDetails(id);
+					if (!result.ok) {
+						throw new Error(result.error);
+					}
+					dispatch({ type: "UPDATE_IMAGE", payload: result.data });
+					return result.data;
 				} finally {
 					detailsInFlightRef.current.delete(id);
 				}

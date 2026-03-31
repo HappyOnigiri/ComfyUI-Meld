@@ -203,19 +203,19 @@ export const useSettingsModalLogic = () => {
 			payload: {
 				message: "Are you sure you want to delete all cached thumbnails?",
 				onConfirm: async () => {
-					try {
-						await settingsApi.clearThumbnailCache();
-						dispatch({
-							type: "SHOW_TOAST",
-							payload: "Thumbnail cache cleared",
-						});
-					} catch (e) {
-						logger.error("Failed to clear thumbnail cache:", e);
+					const result = await settingsApi.clearThumbnailCache();
+					if (!result.ok) {
+						logger.error("Failed to clear thumbnail cache:", result.error);
 						dispatch({
 							type: "SET_ERROR",
 							payload: "Failed to clear thumbnail cache",
 						});
+						return;
 					}
+					dispatch({
+						type: "SHOW_TOAST",
+						payload: "Thumbnail cache cleared",
+					});
 				},
 			},
 		});

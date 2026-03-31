@@ -177,78 +177,72 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 	);
 
 	const handleDeleteSelected = async () => {
-		try {
-			dispatch({ type: "SET_LOADING", payload: true });
+		dispatch({ type: "SET_LOADING", payload: true });
 
-			const idsToDeleteSet = new Set(imageIds);
-			const deletedImages = currentList.filter((img: MeldImage) => idsToDeleteSet.has(img.id));
-			navigateViewerIfNeeded(idsToDeleteSet);
+		const idsToDeleteSet = new Set(imageIds);
+		const deletedImages = currentList.filter((img: MeldImage) => idsToDeleteSet.has(img.id));
+		navigateViewerIfNeeded(idsToDeleteSet);
 
-			await deleteImagesAndSyncLightTable(imageIds, isPermanent);
-			if (!isMounted.current) return;
-
-			if (state.activeModal.type === "delete_confirm") {
-				state.activeModal.onSuccess?.();
-			}
-
-			if (!isPermanent && onSuccess) {
-				onSuccess(deletedImages);
-			}
-			dispatch({ type: "REMOVE_IMAGES", payload: imageIds });
-			dispatch({ type: "CLEAR_SELECTION" });
-			dispatch({ type: "CLOSE_MODAL" });
-		} catch (err: unknown) {
-			dispatch({
-				type: "SET_ERROR",
-				payload: err instanceof Error ? err.message : String(err),
-			});
-		} finally {
+		const result = await deleteImagesAndSyncLightTable(imageIds, isPermanent);
+		if (!result.ok) {
+			dispatch({ type: "SET_ERROR", payload: result.error });
 			dispatch({ type: "SET_LOADING", payload: false });
+			return;
 		}
+		if (!isMounted.current) return;
+
+		if (state.activeModal.type === "delete_confirm") {
+			state.activeModal.onSuccess?.();
+		}
+
+		if (!isPermanent && onSuccess) {
+			onSuccess(deletedImages);
+		}
+		dispatch({ type: "REMOVE_IMAGES", payload: imageIds });
+		dispatch({ type: "CLEAR_SELECTION" });
+		dispatch({ type: "CLOSE_MODAL" });
+		dispatch({ type: "SET_LOADING", payload: false });
 	};
 
 	const handleDeleteAllInLineage = async () => {
-		try {
-			dispatch({ type: "SET_LOADING", payload: true });
+		dispatch({ type: "SET_LOADING", payload: true });
 
-			const allIdsToDelete = new Set<number>(imageIds);
+		const allIdsToDelete = new Set<number>(imageIds);
 
-			// Fetch lineage for each selected image to find all related images
-			for (const id of imageIds) {
-				const lineage = await imagesApi.fetchLineage(id);
-				if (!isMounted.current) return;
-				for (const img of lineage) {
-					allIdsToDelete.add(img.id);
-				}
-			}
-
-			const deletedImages = currentList.filter((img: MeldImage) => allIdsToDelete.has(img.id));
-			navigateViewerIfNeeded(allIdsToDelete);
-
-			await deleteImagesAndSyncLightTable(Array.from(allIdsToDelete), isPermanent);
+		// Fetch lineage for each selected image to find all related images
+		for (const id of imageIds) {
+			const lineage = await imagesApi.fetchLineage(id);
 			if (!isMounted.current) return;
-
-			if (state.activeModal.type === "delete_confirm") {
-				state.activeModal.onSuccess?.();
+			for (const img of lineage) {
+				allIdsToDelete.add(img.id);
 			}
-
-			if (!isPermanent && onSuccess) {
-				onSuccess(deletedImages);
-			}
-			dispatch({
-				type: "REMOVE_IMAGES",
-				payload: Array.from(allIdsToDelete),
-			});
-			dispatch({ type: "CLEAR_SELECTION" });
-			dispatch({ type: "CLOSE_MODAL" });
-		} catch (err: unknown) {
-			dispatch({
-				type: "SET_ERROR",
-				payload: err instanceof Error ? err.message : String(err),
-			});
-		} finally {
-			dispatch({ type: "SET_LOADING", payload: false });
 		}
+
+		const deletedImages = currentList.filter((img: MeldImage) => allIdsToDelete.has(img.id));
+		navigateViewerIfNeeded(allIdsToDelete);
+
+		const result = await deleteImagesAndSyncLightTable(Array.from(allIdsToDelete), isPermanent);
+		if (!result.ok) {
+			dispatch({ type: "SET_ERROR", payload: result.error });
+			dispatch({ type: "SET_LOADING", payload: false });
+			return;
+		}
+		if (!isMounted.current) return;
+
+		if (state.activeModal.type === "delete_confirm") {
+			state.activeModal.onSuccess?.();
+		}
+
+		if (!isPermanent && onSuccess) {
+			onSuccess(deletedImages);
+		}
+		dispatch({
+			type: "REMOVE_IMAGES",
+			payload: Array.from(allIdsToDelete),
+		});
+		dispatch({ type: "CLEAR_SELECTION" });
+		dispatch({ type: "CLOSE_MODAL" });
+		dispatch({ type: "SET_LOADING", payload: false });
 	};
 
 	return createPortal(
