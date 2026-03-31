@@ -7510,7 +7510,7 @@ const Sf = p.createContext(void 0), ry = ({ children: e }) => {
           $.log("fetchFullImageDetails: fetching full data", { id: x });
           const u = await yf(x);
           if (!u.ok)
-            throw new Error(u.error);
+            throw n({ type: "SET_ERROR", payload: u.error }), new Error(u.error);
           return n({ type: "UPDATE_IMAGE", payload: u.data }), u.data;
         } finally {
           a.current.delete(x);
@@ -13338,14 +13338,17 @@ const Qf = [
       a({ type: "SET_ERROR", payload: k.error }), a({ type: "SET_LOADING", payload: !1 });
       return;
     }
-    o.current && (l.activeModal.type === "delete_confirm" && ((C = (y = l.activeModal).onSuccess) == null || C.call(y)), !n && r && r(w), a({ type: "REMOVE_IMAGES", payload: e }), a({ type: "CLEAR_SELECTION" }), a({ type: "CLOSE_MODAL" }), a({ type: "SET_LOADING", payload: !1 }));
+    o.current && (l.activeModal.type === "delete_confirm" && ((C = (y = l.activeModal).onSuccess) == null || C.call(y)), !n && r && r(w)), a({ type: "REMOVE_IMAGES", payload: e }), a({ type: "CLEAR_SELECTION" }), a({ type: "CLOSE_MODAL" }), a({ type: "SET_LOADING", payload: !1 });
   }, m = async () => {
     var y, C;
     a({ type: "SET_LOADING", payload: !0 });
     const u = new Set(e);
     for (const T of e) {
       const O = await oi(T);
-      if (!o.current) return;
+      if (!o.current) {
+        a({ type: "SET_LOADING", payload: !1 });
+        return;
+      }
       for (const M of O)
         u.add(M.id);
     }
@@ -13356,10 +13359,10 @@ const Qf = [
       a({ type: "SET_ERROR", payload: k.error }), a({ type: "SET_LOADING", payload: !1 });
       return;
     }
-    o.current && (l.activeModal.type === "delete_confirm" && ((C = (y = l.activeModal).onSuccess) == null || C.call(y)), !n && r && r(w), a({
+    o.current && (l.activeModal.type === "delete_confirm" && ((C = (y = l.activeModal).onSuccess) == null || C.call(y)), !n && r && r(w)), a({
       type: "REMOVE_IMAGES",
       payload: Array.from(u)
-    }), a({ type: "CLEAR_SELECTION" }), a({ type: "CLOSE_MODAL" }), a({ type: "SET_LOADING", payload: !1 }));
+    }), a({ type: "CLEAR_SELECTION" }), a({ type: "CLOSE_MODAL" }), a({ type: "SET_LOADING", payload: !1 });
   };
   return ue.createPortal(
     /* @__PURE__ */ s.jsx(
@@ -13530,14 +13533,24 @@ const Qf = [
     }
     if (!(!x || y === x.parent_id) && !(x.parent_id && !confirm("Are you sure you want to change the source image?")))
       try {
-        await Cc(e, y), await yf(e), await r(), h();
+        const C = await Cc(e, y);
+        if (!C.ok) {
+          $.error("Failed to link parent:", C.error);
+          return;
+        }
+        await yf(e), await r(), h();
       } catch (C) {
         $.error("Failed to link parent:", C);
       }
   }, f = async () => {
     if (confirm("Are you sure you want to remove the source image relationship?"))
       try {
-        await Cc(e, null), await r(), h();
+        const y = await Cc(e, null);
+        if (!y.ok) {
+          $.error("Failed to remove source:", y.error), alert("Failed to remove source image.");
+          return;
+        }
+        await r(), h();
       } catch (y) {
         $.error("Failed to remove source:", y), alert("Failed to remove source image.");
       }
@@ -14450,7 +14463,12 @@ const Nv = ({ onClose: e, onSearchAndNavigate: t }) => {
     return null;
   const r = async () => {
     try {
-      await my(), t({ type: "SET_SCAN_STATUS", payload: { shouldCancel: !0 } });
+      const h = await my();
+      if (!h.ok) {
+        $.error("Failed to cancel scan:", h.error);
+        return;
+      }
+      t({ type: "SET_SCAN_STATUS", payload: { shouldCancel: !0 } });
     } catch (h) {
       $.error("Failed to cancel scan:", h);
     }
@@ -16907,7 +16925,11 @@ const Ll = ({
         t({ type: "SET_ERROR", payload: L.error });
         return;
       }
-      if (!(!d.isMountedRef.current || d.viewerImageIdRef.current === null) && (Uc({
+      if (!d.isMountedRef.current || d.viewerImageIdRef.current === null) {
+        t({ type: "REMOVE_IMAGES", payload: Array.from(I) });
+        return;
+      }
+      if (Uc({
         currentThumbnails: l,
         currentIndex: a,
         removedIds: I,
@@ -16915,7 +16937,7 @@ const Ll = ({
         viewerLightTableSlotId: e.viewerLightTableSlotId,
         dispatch: t,
         removeImageIds: Array.from(I)
-      }), !V)) {
+      }), !V) {
         const Q = [...l, ...F, ...i, ...c], S = /* @__PURE__ */ new Map();
         for (const D of Q)
           S.set(D.id, D);
@@ -17044,9 +17066,7 @@ const Ll = ({
       }
       if (F.length > 0 || L.length > 0) {
         const P = await b([W], F, L);
-        if (!P.ok)
-          $.error("Failed to update tags via shortcut:", P.error), t({ type: "SET_ERROR", payload: P.error });
-        else {
+        if (P.ok) {
           const N = [...V];
           for (const R of F)
             N.includes(R) || N.push(R);
@@ -17060,6 +17080,9 @@ const Ll = ({
             addTags: [...L],
             removeTags: [...F]
           }), m(null);
+        } else {
+          $.error("Failed to update tags via shortcut:", P.error), t({ type: "SET_ERROR", payload: P.error });
+          return;
         }
       }
       Q ? await k(!0) : S ? h() : E && await v();
@@ -17810,7 +17833,11 @@ const dw = ({
           m(!1), b([]);
           return;
         }
-        const z = M.ok ? M.data : {}, W = y.map((V) => ({
+        if (!M.ok) {
+          m(!1), b([]);
+          return;
+        }
+        const z = M.data, W = y.map((V) => ({
           name: V,
           count: z[V] ?? 0
         })).sort((V, I) => V.count - I.count);
@@ -19739,11 +19766,14 @@ const fm = (e) => {
               className: "meld-image-card__meta-item meld-image-card__meta-item--clickable",
               onClick: async (S) => {
                 S.stopPropagation();
-                const E = await I(e.id);
-                a({
-                  title: "Model",
-                  text: E.model_name || "-"
-                });
+                try {
+                  const E = await I(e.id);
+                  a({
+                    title: "Model",
+                    text: E.model_name || "-"
+                  });
+                } catch {
+                }
               },
               children: [
                 /* @__PURE__ */ s.jsx(
@@ -19753,8 +19783,11 @@ const fm = (e) => {
                     title: "Click to copy",
                     onClick: async (S) => {
                       S.stopPropagation();
-                      const E = await I(e.id);
-                      x(E.model_name || "-", "Model");
+                      try {
+                        const E = await I(e.id);
+                        x(E.model_name || "-", "Model");
+                      } catch {
+                      }
                     },
                     children: c === "Model" ? "Copied!" : "Model"
                   }
@@ -19769,11 +19802,14 @@ const fm = (e) => {
               className: "meld-image-card__meta-item meld-image-card__meta-item--clickable",
               onClick: async (S) => {
                 S.stopPropagation();
-                const E = await I(e.id);
-                a({
-                  title: "Positive Prompt",
-                  text: E.positive_prompt || E.positive || "-"
-                });
+                try {
+                  const E = await I(e.id);
+                  a({
+                    title: "Positive Prompt",
+                    text: E.positive_prompt || E.positive || "-"
+                  });
+                } catch {
+                }
               },
               children: [
                 /* @__PURE__ */ s.jsx(
@@ -19783,8 +19819,11 @@ const fm = (e) => {
                     title: "Click to copy",
                     onClick: async (S) => {
                       S.stopPropagation();
-                      const E = await I(e.id);
-                      x(E.positive_prompt || E.positive || "-", "Positive");
+                      try {
+                        const E = await I(e.id);
+                        x(E.positive_prompt || E.positive || "-", "Positive");
+                      } catch {
+                      }
                     },
                     children: c === "Positive" ? "Copied!" : "Positive"
                   }
@@ -19799,11 +19838,14 @@ const fm = (e) => {
               className: "meld-image-card__meta-item meld-image-card__meta-item--clickable",
               onClick: async (S) => {
                 S.stopPropagation();
-                const E = await I(e.id);
-                a({
-                  title: "Negative Prompt",
-                  text: E.negative_prompt || E.negative || "-"
-                });
+                try {
+                  const E = await I(e.id);
+                  a({
+                    title: "Negative Prompt",
+                    text: E.negative_prompt || E.negative || "-"
+                  });
+                } catch {
+                }
               },
               children: [
                 /* @__PURE__ */ s.jsx(
@@ -19813,8 +19855,11 @@ const fm = (e) => {
                     title: "Click to copy",
                     onClick: async (S) => {
                       S.stopPropagation();
-                      const E = await I(e.id);
-                      x(E.negative_prompt || E.negative || "-", "Negative");
+                      try {
+                        const E = await I(e.id);
+                        x(E.negative_prompt || E.negative || "-", "Negative");
+                      } catch {
+                      }
                     },
                     children: c === "Negative" ? "Copied!" : "Negative"
                   }
