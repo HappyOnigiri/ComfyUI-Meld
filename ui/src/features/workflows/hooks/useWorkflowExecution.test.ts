@@ -24,8 +24,11 @@ describe("useWorkflowExecution", () => {
 
 	it("executes workflow successfully with API format", async () => {
 		vi.mocked(workflowsApi.fetchWorkflowRaw).mockResolvedValue({
-			"1": { class_type: "MeldImageLoader", inputs: {} },
-			"2": { class_type: "LoadImageMask", inputs: {} },
+			ok: true,
+			data: {
+				"1": { class_type: "MeldImageLoader", inputs: {} },
+				"2": { class_type: "LoadImageMask", inputs: {} },
+			},
 		});
 
 		(window as unknown as { api: unknown }).api = {

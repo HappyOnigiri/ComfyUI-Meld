@@ -41,7 +41,7 @@ This document serves as a comprehensive guide for AI agents and developers to un
 | Directory | Responsibility |
 |-----------|----------------|
 | `src/index.ts` | **Web Extension Entry**. Registers the extension with `app.registerExtension`. |
-| `src/api.ts` | **Global API Client**. Shared or minimal API utilities (e.g., `fetchHomeDir`). |
+| `src/api.ts` | **Global API Client**. Defines `ApiResult<T>` discriminated union (`{ ok: true; data: T } \| { ok: false; error: string }`), `unwrapOr`, `handleApiResponse`, and `parseApiJsonResponse`. All feature API functions return `ApiResult<T>` instead of throwing. `fetchHomeDir` and `cleanupDatabase` are also here. |
 | `src/features/` | **Feature Modules**. Modularized components, hooks, and **API clients** organized by feature. |
 | `src/features/gallery/` | **Gallery**. Main gallery UI and layout components for the resource manager. |
 | `src/features/images/` | **Shared Image Logic**. Core image CRUD API and common hooks (lineage, actions) used across the app. |

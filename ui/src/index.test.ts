@@ -63,8 +63,10 @@ vi.mock("./features/settings/api/settingsApi", () => ({
 }));
 
 vi.mock("./features/images/api/imagesApi", () => ({
-	registerImage: vi.fn(),
-	fetchImages: vi.fn().mockResolvedValue({ images: [], total: 0, offset: 0, limit: 30 }),
+	registerImage: vi.fn().mockResolvedValue({ ok: true, data: { id: 1 } }),
+	fetchImages: vi
+		.fn()
+		.mockResolvedValue({ ok: true, data: { images: [], total: 0, offset: 0, limit: 30 } }),
 	normalizeImagesResponse: vi.fn((value) => value),
 }));
 

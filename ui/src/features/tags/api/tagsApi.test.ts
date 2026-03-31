@@ -22,17 +22,18 @@ describe("tagsApi", () => {
 			);
 			const result = await fetchTags();
 			expect(mockFetchApi).toHaveBeenCalledWith("/meld/tags");
-			expect(result).toEqual(tags);
+			expect(result).toEqual({ ok: true, data: tags });
 		});
 
-		it("throws error when fetching fails", async () => {
+		it("returns error result when fetching fails", async () => {
 			mockFetchApi.mockResolvedValueOnce(
 				new Response(JSON.stringify({ success: false, error: "some error" }), {
 					status: 200,
 					headers: { "Content-Type": "application/json" },
 				}),
 			);
-			await expect(fetchTags()).rejects.toThrow("some error");
+			const result = await fetchTags();
+			expect(result).toEqual({ ok: false, error: "some error" });
 		});
 	});
 
@@ -51,17 +52,18 @@ describe("tagsApi", () => {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ name: "new-tag" }),
 			});
-			expect(result).toEqual(tag);
+			expect(result).toEqual({ ok: true, data: tag });
 		});
 
-		it("throws error when creation fails", async () => {
+		it("returns error result when creation fails", async () => {
 			mockFetchApi.mockResolvedValueOnce(
 				new Response(JSON.stringify({ success: false, error: "some error" }), {
 					status: 200,
 					headers: { "Content-Type": "application/json" },
 				}),
 			);
-			await expect(createTag("new-tag")).rejects.toThrow("some error");
+			const result = await createTag("new-tag");
+			expect(result).toEqual({ ok: false, error: "some error" });
 		});
 	});
 
@@ -73,20 +75,22 @@ describe("tagsApi", () => {
 					headers: { "Content-Type": "application/json" },
 				}),
 			);
-			await deleteTag(1);
+			const result = await deleteTag(1);
 			expect(mockFetchApi).toHaveBeenCalledWith("/meld/tags?id=1", {
 				method: "DELETE",
 			});
+			expect(result.ok).toBe(true);
 		});
 
-		it("throws error when deletion fails", async () => {
+		it("returns error result when deletion fails", async () => {
 			mockFetchApi.mockResolvedValueOnce(
 				new Response(JSON.stringify({ success: false, error: "some error" }), {
 					status: 200,
 					headers: { "Content-Type": "application/json" },
 				}),
 			);
-			await expect(deleteTag(1)).rejects.toThrow("some error");
+			const result = await deleteTag(1);
+			expect(result).toEqual({ ok: false, error: "some error" });
 		});
 	});
 
@@ -98,22 +102,24 @@ describe("tagsApi", () => {
 					headers: { "Content-Type": "application/json" },
 				}),
 			);
-			await renameTag(1, "renamed");
+			const result = await renameTag(1, "renamed");
 			expect(mockFetchApi).toHaveBeenCalledWith("/meld/tags/rename", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ id: 1, name: "renamed" }),
 			});
+			expect(result.ok).toBe(true);
 		});
 
-		it("throws error when renaming fails", async () => {
+		it("returns error result when renaming fails", async () => {
 			mockFetchApi.mockResolvedValueOnce(
 				new Response(JSON.stringify({ success: false, error: "some error" }), {
 					status: 200,
 					headers: { "Content-Type": "application/json" },
 				}),
 			);
-			await expect(renameTag(1, "renamed")).rejects.toThrow("some error");
+			const result = await renameTag(1, "renamed");
+			expect(result).toEqual({ ok: false, error: "some error" });
 		});
 	});
 });

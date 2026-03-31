@@ -13,7 +13,7 @@ import {
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "/scripts/api.js";
-import { parseJsonResponse } from "../../../api";
+import { parseApiJsonResponse } from "../../../api";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { logger } from "../../../logger";
 import { useGallery } from "../../../store/GalleryContext";
@@ -201,8 +201,8 @@ export const MaskEditorModal: React.FC<MaskEditorModalProps> = ({
 				body: formData,
 			});
 
-			const data = await parseJsonResponse<{ name?: string }>(response);
-			return data.name ?? null;
+			const result = await parseApiJsonResponse<{ name?: string }>(response);
+			return result.ok ? (result.data.name ?? null) : null;
 		} catch (error) {
 			logger.error("Error uploading mask:", error);
 			return null;

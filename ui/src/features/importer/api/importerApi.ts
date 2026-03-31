@@ -1,5 +1,5 @@
 import { api } from "/scripts/api.js";
-import { handleResponse, parseJsonResponse } from "../../../api";
+import { type ApiResult, handleApiResponse, parseApiJsonResponse, unwrapOr } from "../../../api";
 import { logger } from "../../../logger";
 
 export type UploadImageResponse = {
@@ -30,11 +30,14 @@ export const uploadImage = async (file: File): Promise<UploadImageResponse> => {
 	});
 
 	// /upload/image returns raw JSON (not ApiResponse-wrapped), so bypass unified parsing here.
-	const data = await parseJsonResponse<unknown>(res);
-	if (!isUploadImageResponse(data)) {
+	const result = await parseApiJsonResponse<unknown>(res);
+	if (!result.ok) {
+		throw new Error(result.error);
+	}
+	if (!isUploadImageResponse(result.data)) {
 		throw new Error("Invalid upload image response shape");
 	}
-	return data;
+	return result.data;
 };
 
 export const fetchFolders = async (
@@ -51,15 +54,20 @@ export const fetchFolders = async (
 	images: { filename: string; subfolder: string; type: string }[];
 	image_count: number;
 }> => {
-	const res = await api.fetchApi(
-		`/meld/folders?type=${type}&path=${encodeURIComponent(path)}&fast=${fast}`,
-		{ signal },
-	);
+	const fallback = { folders: [], images: [], image_count: 0 };
 	try {
-		return await handleResponse(res);
+		const res = await api.fetchApi(
+			`/meld/folders?type=${type}&path=${encodeURIComponent(path)}&fast=${fast}`,
+			{ signal },
+		);
+		const result = await handleApiResponse<typeof fallback>(res);
+		if (!result.ok) {
+			logger.error("Failed to fetch folders", result.error);
+		}
+		return unwrapOr(result, fallback);
 	} catch (e) {
 		logger.error("Failed to fetch folders", e);
-		return { folders: [], images: [], image_count: 0 };
+		return fallback;
 	}
 };
 
@@ -78,15 +86,20 @@ export const fetchFolderMetadata = async (
 	>
 > => {
 	if (folders.length === 0) return {};
-	const res = await api.fetchApi(
-		`/meld/folder-metadata?type=${type}&path=${encodeURIComponent(path)}&folders=${encodeURIComponent(folders.join(","))}`,
-		{ signal },
-	);
+	const fallback: Record<string, never> = {};
 	try {
-		return await handleResponse(res);
+		const res = await api.fetchApi(
+			`/meld/folder-metadata?type=${type}&path=${encodeURIComponent(path)}&folders=${encodeURIComponent(folders.join(","))}`,
+			{ signal },
+		);
+		const result = await handleApiResponse<typeof fallback>(res);
+		if (!result.ok) {
+			logger.error("Failed to fetch folder metadata", result.error);
+		}
+		return unwrapOr(result, fallback);
 	} catch (e) {
 		logger.error("Failed to fetch folder metadata", e);
-		return {};
+		return fallback;
 	}
 };
 
@@ -95,13 +108,13 @@ export const fetchPathImageCount = async (
 	path: string,
 	signal?: AbortSignal,
 ): Promise<number> => {
-	const res = await api.fetchApi(
-		`/meld/path-image-count?type=${type}&path=${encodeURIComponent(path)}`,
-		{ signal },
-	);
 	try {
-		const result = await handleResponse<{ count: number }>(res);
-		return result.count;
+		const res = await api.fetchApi(
+			`/meld/path-image-count?type=${type}&path=${encodeURIComponent(path)}`,
+			{ signal },
+		);
+		const result = await handleApiResponse<{ count: number }>(res);
+		return result.ok ? result.data.count : 0;
 	} catch (_e) {
 		return 0;
 	}
@@ -115,30 +128,39 @@ export const startScan = async (params: {
 	auto_link_parent: boolean;
 	link_strategy?: string;
 	tags?: string[];
-}): Promise<void> => {
-	const res = await api.fetchApi("/meld/scan", {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify(params),
-	});
-	await handleResponse(res);
+}): Promise<ApiResult<void>> => {
+	try {
+		const res = await api.fetchApi("/meld/scan", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(params),
+		});
+		return handleApiResponse<void>(res);
+	} catch (e) {
+		return { ok: false, error: e instanceof Error ? e.message : String(e) };
+	}
 };
 
-export const cancelScan = async (): Promise<void> => {
-	const res = await api.fetchApi("/meld/scan/cancel", {
-		method: "POST",
-	});
-	await handleResponse(res);
+export const cancelScan = async (): Promise<ApiResult<void>> => {
+	try {
+		const res = await api.fetchApi("/meld/scan/cancel", {
+			method: "POST",
+		});
+		return handleApiResponse<void>(res);
+	} catch (e) {
+		return { ok: false, error: e instanceof Error ? e.message : String(e) };
+	}
 };
 
 export const fetchScanStatus = async (): Promise<{
 	is_running: boolean;
 	should_cancel: boolean;
 }> => {
-	const res = await api.fetchApi("/meld/scan/status");
+	const fallback = { is_running: false, should_cancel: false };
 	try {
-		return await handleResponse(res);
+		const res = await api.fetchApi("/meld/scan/status");
+		return unwrapOr(await handleApiResponse<typeof fallback>(res), fallback);
 	} catch (_e) {
-		return { is_running: false, should_cancel: false };
+		return fallback;
 	}
 };

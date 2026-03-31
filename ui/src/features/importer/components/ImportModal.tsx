@@ -202,14 +202,13 @@ export const ImportModal: React.FC = () => {
 
 	const loadTags = useCallback(async () => {
 		setIsLoadingTags(true);
-		try {
-			const data = await tagsApi.fetchTags();
-			setAllTags(data);
-		} catch (error) {
-			logger.error("Failed to fetch tags:", error);
-		} finally {
-			setIsLoadingTags(false);
+		const result = await tagsApi.fetchTags();
+		setIsLoadingTags(false);
+		if (!result.ok) {
+			logger.error("Failed to fetch tags:", result.error);
+			return;
 		}
+		setAllTags(result.data);
 	}, []);
 
 	useEffect(() => {
@@ -254,23 +253,23 @@ export const ImportModal: React.FC = () => {
 	};
 
 	const handleStart = async () => {
-		try {
-			await importerApi.startScan(config);
-			dispatch({
-				type: "SET_SCAN_STATUS",
-				payload: {
-					isRunning: true,
-					isFinished: false,
-					shouldCancel: false,
-					newCount: 0,
-					progress: { current: 0, total: 0, phase: "registering" },
-				},
-			});
-			dispatch({ type: "CLOSE_MODAL" });
-		} catch (err) {
-			logger.error("Failed to start scan:", err);
-			alert(`Failed to start scan: ${err}`);
+		const result = await importerApi.startScan(config);
+		if (!result.ok) {
+			logger.error("Failed to start scan:", result.error);
+			alert(`Failed to start scan: ${result.error}`);
+			return;
 		}
+		dispatch({
+			type: "SET_SCAN_STATUS",
+			payload: {
+				isRunning: true,
+				isFinished: false,
+				shouldCancel: false,
+				newCount: 0,
+				progress: { current: 0, total: 0, phase: "registering" },
+			},
+		});
+		dispatch({ type: "CLOSE_MODAL" });
 	};
 
 	const enterFolder = (name: string) => {

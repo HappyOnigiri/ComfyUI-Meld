@@ -20,19 +20,15 @@ export const useDatabaseManagement = () => {
 	const [isLoading, setIsLoading] = useState(false);
 
 	const loadDatabases = useCallback(async () => {
-		try {
-			setIsLoading(true);
-			const nextPayload = await databasesApi.fetchDatabases();
-			setPayload(nextPayload);
-		} catch (error) {
-			logger.error("Failed to fetch databases", error);
-			dispatch({
-				type: "SET_ERROR",
-				payload: error instanceof Error ? error.message : "Failed to fetch databases",
-			});
-		} finally {
-			setIsLoading(false);
+		setIsLoading(true);
+		const result = await databasesApi.fetchDatabases();
+		setIsLoading(false);
+		if (!result.ok) {
+			logger.error("Failed to fetch databases", result.error);
+			dispatch({ type: "SET_ERROR", payload: result.error });
+			return;
 		}
+		setPayload(result.data);
 	}, [dispatch]);
 
 	useEffect(() => {
@@ -78,20 +74,15 @@ export const useDatabaseManagement = () => {
 				confirmLabel: "Create",
 				onConfirm: async () => {
 					setIsLoading(true);
-					try {
-						const nextPayload = await databasesApi.createDatabase(trimmed, false);
-						setPayload(nextPayload);
-						setDatabaseNameInput("");
-					} catch (error) {
-						logger.error("Failed to create database", error);
-						dispatch({
-							type: "SET_ERROR",
-							payload: error instanceof Error ? error.message : "Failed to create database",
-						});
-						throw error;
-					} finally {
-						setIsLoading(false);
+					const result = await databasesApi.createDatabase(trimmed, false);
+					setIsLoading(false);
+					if (!result.ok) {
+						logger.error("Failed to create database", result.error);
+						dispatch({ type: "SET_ERROR", payload: result.error });
+						throw new Error(result.error);
 					}
+					setPayload(result.data);
+					setDatabaseNameInput("");
 				},
 			},
 		});
@@ -112,20 +103,15 @@ export const useDatabaseManagement = () => {
 					confirmLabel: "Switch Database",
 					onConfirm: async () => {
 						setIsLoading(true);
-						try {
-							const nextPayload = await databasesApi.switchDatabase(database.name);
-							setPayload(nextPayload);
-							emitDatabaseChanged(nextPayload);
-						} catch (error) {
-							logger.error("Failed to switch database", error);
-							dispatch({
-								type: "SET_ERROR",
-								payload: error instanceof Error ? error.message : "Failed to switch database",
-							});
-							throw error;
-						} finally {
-							setIsLoading(false);
+						const result = await databasesApi.switchDatabase(database.name);
+						setIsLoading(false);
+						if (!result.ok) {
+							logger.error("Failed to switch database", result.error);
+							dispatch({ type: "SET_ERROR", payload: result.error });
+							throw new Error(result.error);
 						}
+						setPayload(result.data);
+						emitDatabaseChanged(result.data);
 					},
 				},
 			});
@@ -158,28 +144,20 @@ export const useDatabaseManagement = () => {
 					requiredTextLabel: 'Type "delete" to enable deletion.',
 					onConfirm: async (inputValue?: string) => {
 						setIsLoading(true);
-						try {
-							const nextPayload = await databasesApi.deleteDatabase(
-								database.name,
-								inputValue ?? "",
-							);
-							setPayload(nextPayload);
-							if (
-								database.is_active ||
-								payload?.active_database !== nextPayload.active_database ||
-								payload?.database_generation !== nextPayload.database_generation
-							) {
-								emitDatabaseChanged(nextPayload);
-							}
-						} catch (error) {
-							logger.error("Failed to delete database", error);
-							dispatch({
-								type: "SET_ERROR",
-								payload: error instanceof Error ? error.message : "Failed to delete database",
-							});
-							throw error;
-						} finally {
-							setIsLoading(false);
+						const result = await databasesApi.deleteDatabase(database.name, inputValue ?? "");
+						setIsLoading(false);
+						if (!result.ok) {
+							logger.error("Failed to delete database", result.error);
+							dispatch({ type: "SET_ERROR", payload: result.error });
+							throw new Error(result.error);
+						}
+						setPayload(result.data);
+						if (
+							database.is_active ||
+							payload?.active_database !== result.data.active_database ||
+							payload?.database_generation !== result.data.database_generation
+						) {
+							emitDatabaseChanged(result.data);
 						}
 					},
 				},
@@ -212,25 +190,20 @@ export const useDatabaseManagement = () => {
 					confirmLabel: "Rename Database",
 					onConfirm: async () => {
 						setIsLoading(true);
-						try {
-							const nextPayload = await databasesApi.renameDatabase(database.name, nextName);
-							setPayload(nextPayload);
-							setRenameDrafts((prev) => {
-								const { [database.name]: _, ...rest } = prev;
-								return { ...rest, [nextName]: nextName };
-							});
-							if (database.is_active) {
-								emitDatabaseChanged(nextPayload);
-							}
-						} catch (error) {
-							logger.error("Failed to rename database", error);
-							dispatch({
-								type: "SET_ERROR",
-								payload: error instanceof Error ? error.message : "Failed to rename database",
-							});
-							throw error;
-						} finally {
-							setIsLoading(false);
+						const result = await databasesApi.renameDatabase(database.name, nextName);
+						setIsLoading(false);
+						if (!result.ok) {
+							logger.error("Failed to rename database", result.error);
+							dispatch({ type: "SET_ERROR", payload: result.error });
+							throw new Error(result.error);
+						}
+						setPayload(result.data);
+						setRenameDrafts((prev) => {
+							const { [database.name]: _, ...rest } = prev;
+							return { ...rest, [nextName]: nextName };
+						});
+						if (database.is_active) {
+							emitDatabaseChanged(result.data);
 						}
 					},
 				},

@@ -39,15 +39,16 @@ describe("analyticsApi", () => {
 			const result = await fetchAnalyticsSummary();
 
 			expect(api.fetchApi).toHaveBeenCalledWith("/meld/analytics", { signal: undefined });
-			expect(result).toEqual(summary);
+			expect(result).toEqual({ ok: true, data: summary });
 		});
 
-		it("throws error when fetch fails", async () => {
+		it("returns error result when fetch fails", async () => {
 			vi.mocked(api.fetchApi).mockResolvedValueOnce(
 				jsonResponse({ success: false, error: "Database error" }),
 			);
 
-			await expect(fetchAnalyticsSummary()).rejects.toThrow("Database error");
+			const result = await fetchAnalyticsSummary();
+			expect(result).toEqual({ ok: false, error: "Database error" });
 		});
 	});
 
@@ -63,7 +64,7 @@ describe("analyticsApi", () => {
 			const url = (api.fetchApi as ReturnType<typeof vi.fn>).mock.calls[0]?.[0] as string;
 			expect(url).toMatch(/^\/meld\/analytics\/positive_prompts$/);
 			expect(url).not.toMatch(/\?$/);
-			expect(result).toEqual({ data: items, total: 1 });
+			expect(result).toEqual({ ok: true, data: { data: items, total: 1 } });
 		});
 
 		it("fetches category with limit, offset, sort, q params", async () => {
@@ -85,15 +86,16 @@ describe("analyticsApi", () => {
 			expect(url).toContain("offset=10");
 			expect(url).toContain("sort=count_asc");
 			expect(url).toContain("q=land");
-			expect(result).toEqual({ data: items, total: 1 });
+			expect(result).toEqual({ ok: true, data: { data: items, total: 1 } });
 		});
 
-		it("throws error when success is false", async () => {
+		it("returns error result when success is false", async () => {
 			vi.mocked(api.fetchApi).mockResolvedValueOnce(
 				jsonResponse({ success: false, error: "Unknown category" }),
 			);
 
-			await expect(fetchAnalyticsCategory("tags")).rejects.toThrow("Unknown category");
+			const result = await fetchAnalyticsCategory("tags");
+			expect(result).toEqual({ ok: false, error: "Unknown category" });
 		});
 
 		it("returns empty data and 0 total when data/total missing", async () => {
@@ -101,7 +103,7 @@ describe("analyticsApi", () => {
 
 			const result = await fetchAnalyticsCategory("tags");
 
-			expect(result).toEqual({ data: [], total: 0 });
+			expect(result).toEqual({ ok: true, data: { data: [], total: 0 } });
 		});
 	});
 
@@ -109,19 +111,22 @@ describe("analyticsApi", () => {
 		it("calls POST /meld/analytics/refresh", async () => {
 			vi.mocked(api.fetchApi).mockResolvedValueOnce(jsonResponse({ success: true, data: null }));
 
-			await refreshAnalytics();
+			const result = await refreshAnalytics();
 
 			expect(api.fetchApi).toHaveBeenCalledWith("/meld/analytics/refresh", {
 				method: "POST",
+				signal: undefined,
 			});
+			expect(result.ok).toBe(true);
 		});
 
-		it("throws error when refresh fails", async () => {
+		it("returns error result when refresh fails", async () => {
 			vi.mocked(api.fetchApi).mockResolvedValueOnce(
 				jsonResponse({ success: false, error: "Refresh failed" }),
 			);
 
-			await expect(refreshAnalytics()).rejects.toThrow("Refresh failed");
+			const result = await refreshAnalytics();
+			expect(result).toEqual({ ok: false, error: "Refresh failed" });
 		});
 	});
 
@@ -142,15 +147,16 @@ describe("analyticsApi", () => {
 				body: JSON.stringify({ category: "positive_prompts", names: ["1girl", "solo"] }),
 				signal: controller.signal,
 			});
-			expect(result).toEqual(mockData);
+			expect(result).toEqual({ ok: true, data: mockData });
 		});
 
-		it("throws error when fetch fails", async () => {
+		it("returns error result when fetch fails", async () => {
 			vi.mocked(api.fetchApi).mockResolvedValueOnce(
 				jsonResponse({ success: false, error: "Network error" }),
 			);
 
-			await expect(fetchAnalyticsCounts("tags", ["tag1"])).rejects.toThrow("Network error");
+			const result = await fetchAnalyticsCounts("tags", ["tag1"]);
+			expect(result).toEqual({ ok: false, error: "Network error" });
 		});
 	});
 });

@@ -1,5 +1,6 @@
 import type React from "react";
 import { useCallback, useState } from "react";
+import type { ApiResult } from "../../../../api";
 import { logger } from "../../../../logger";
 import type { GalleryAction, GalleryState, MeldImage } from "../../../../types";
 import { deleteImagesAndSyncLightTable } from "../../../images/hooks/deleteHelpers";
@@ -23,12 +24,12 @@ interface UseViewerActionsBridgeParams {
 	handleEditTags: (image: MeldImage) => void;
 	handleRestore: (image: MeldImage) => Promise<void>;
 	fetchLineage: (imageId: number) => Promise<MeldImage[]>;
-	restoreImages: (ids: number[]) => Promise<{ restored_ids: number[] }>;
+	restoreImages: (ids: number[]) => Promise<ApiResult<{ restored_ids: number[] }>>;
 	bulkUpdateImageTags: (
 		imageIds: number[],
 		addTags: string[],
 		removeTags: string[],
-	) => Promise<void>;
+	) => Promise<ApiResult<void>>;
 }
 
 interface NavigateAfterRemovalParams {
@@ -133,71 +134,69 @@ export const useViewerActionsBridge = ({
 				return;
 			}
 
-			try {
-				const isPermanent = state.viewScope === "trash";
-				const idsToDelete = new Set<number>([image.id]);
-				let lineageToDelete: MeldImage[] = [];
+			const isPermanent = state.viewScope === "trash";
+			const idsToDelete = new Set<number>([image.id]);
+			let lineageToDelete: MeldImage[] = [];
 
-				if (deleteMode === "lineage") {
-					lineageToDelete = await fetchLineage(image.id);
-					for (const lineageImage of lineageToDelete) {
-						idsToDelete.add(lineageImage.id);
+			if (deleteMode === "lineage") {
+				lineageToDelete = await fetchLineage(image.id);
+				for (const lineageImage of lineageToDelete) {
+					idsToDelete.add(lineageImage.id);
+				}
+			}
+
+			if (!mountRefs.isMountedRef.current || mountRefs.viewerImageIdRef.current === null) {
+				return;
+			}
+
+			const deleteResult = await deleteImagesAndSyncLightTable(
+				Array.from(idsToDelete),
+				isPermanent,
+			);
+			if (!deleteResult.ok) {
+				dispatch({ type: "SET_ERROR", payload: deleteResult.error });
+				return;
+			}
+
+			if (!mountRefs.isMountedRef.current || mountRefs.viewerImageIdRef.current === null) {
+				// Viewer closed during request; still remove from gallery state
+				dispatch({ type: "REMOVE_IMAGES", payload: Array.from(idsToDelete) });
+				return;
+			}
+			navigateAfterItemRemoval({
+				currentThumbnails,
+				currentIndex,
+				removedIds: idsToDelete,
+				viewerMode,
+				viewerLightTableSlotId: state.viewerLightTableSlotId,
+				dispatch,
+				removeImageIds: Array.from(idsToDelete),
+			});
+			if (!isPermanent) {
+				const candidates = [...currentThumbnails, ...lineageToDelete, ...lineageImages, ...images];
+				const byId = new Map<number, MeldImage>();
+				for (const candidate of candidates) {
+					byId.set(candidate.id, candidate);
+				}
+				const deletedImages = Array.from(idsToDelete).map((id) => {
+					const found = byId.get(id);
+					if (found) {
+						return found;
 					}
-				}
-
-				if (!mountRefs.isMountedRef.current || mountRefs.viewerImageIdRef.current === null) {
-					return;
-				}
-
-				await deleteImagesAndSyncLightTable(Array.from(idsToDelete), isPermanent);
-				if (!mountRefs.isMountedRef.current || mountRefs.viewerImageIdRef.current === null) {
-					return;
-				}
-				navigateAfterItemRemoval({
-					currentThumbnails,
-					currentIndex,
-					removedIds: idsToDelete,
-					viewerMode,
-					viewerLightTableSlotId: state.viewerLightTableSlotId,
-					dispatch,
-					removeImageIds: Array.from(idsToDelete),
+					// Keep undo coverage complete even if metadata is not available locally.
+					return {
+						id,
+						filename: `deleted_${id}`,
+						subfolder: "",
+						type: "custom",
+						created_at: 0,
+						positive: "",
+						negative: "",
+						tags: [],
+					} satisfies MeldImage;
 				});
-				if (!isPermanent) {
-					const candidates = [
-						...currentThumbnails,
-						...lineageToDelete,
-						...lineageImages,
-						...images,
-					];
-					const byId = new Map<number, MeldImage>();
-					for (const candidate of candidates) {
-						byId.set(candidate.id, candidate);
-					}
-					const deletedImages = Array.from(idsToDelete).map((id) => {
-						const found = byId.get(id);
-						if (found) {
-							return found;
-						}
-						// Keep undo coverage complete even if metadata is not available locally.
-						return {
-							id,
-							filename: `deleted_${id}`,
-							subfolder: "",
-							type: "custom",
-							created_at: 0,
-							positive: "",
-							negative: "",
-							tags: [],
-						} satisfies MeldImage;
-					});
-					setLastDeletedImages(deletedImages);
-					setLastShortcutAction(null);
-				}
-			} catch (err: unknown) {
-				dispatch({
-					type: "SET_ERROR",
-					payload: err instanceof Error ? err.message : String(err),
-				});
+				setLastDeletedImages(deletedImages);
+				setLastShortcutAction(null);
 			}
 		},
 		[
@@ -236,40 +235,37 @@ export const useViewerActionsBridge = ({
 		if (!lastDeletedImages || lastDeletedImages.length === 0) return;
 		const idsToRestore = lastDeletedImages.map((img) => img.id);
 
-		try {
-			const result = await restoreImages(idsToRestore);
-			if (!mountRefs.isMountedRef.current) return;
-			const restoredIds = result.restored_ids || idsToRestore;
-			const restoredIdSet = new Set(restoredIds);
-			const restoredImages = lastDeletedImages.filter((img) => restoredIdSet.has(img.id));
-			if (restoredImages.length > 0) {
-				dispatch({ type: "ADD_IMAGES", payload: restoredImages });
-			}
+		const result = await restoreImages(idsToRestore);
+		if (!result.ok) {
+			dispatch({ type: "SET_ERROR", payload: result.error });
+			return;
+		}
+		if (!mountRefs.isMountedRef.current) return;
+		const restoredIds = result.data.restored_ids || idsToRestore;
+		const restoredIdSet = new Set(restoredIds);
+		const restoredImages = lastDeletedImages.filter((img) => restoredIdSet.has(img.id));
+		if (restoredImages.length > 0) {
+			dispatch({ type: "ADD_IMAGES", payload: restoredImages });
+		}
 
-			if (state.viewScope === "trash") {
-				dispatch({ type: "REMOVE_IMAGES", payload: restoredIds });
-			}
+		if (state.viewScope === "trash") {
+			dispatch({ type: "REMOVE_IMAGES", payload: restoredIds });
+		}
 
-			setLastDeletedImages(null);
-			if (!mountRefs.isMountedRef.current) return;
+		setLastDeletedImages(null);
+		if (!mountRefs.isMountedRef.current) return;
 
-			const idToOpen = restoredIds[0];
-			if (idToOpen !== undefined) {
-				dispatch({
-					type: "OPEN_VIEWER",
-					payload: {
-						id: idToOpen,
-						mode: viewerMode,
-						...(viewerMode === "lighttable" && state.viewerLightTableSlotId
-							? { slotId: state.viewerLightTableSlotId }
-							: {}),
-					},
-				});
-			}
-		} catch (err: unknown) {
+		const idToOpen = restoredIds[0];
+		if (idToOpen !== undefined) {
 			dispatch({
-				type: "SET_ERROR",
-				payload: err instanceof Error ? err.message : String(err),
+				type: "OPEN_VIEWER",
+				payload: {
+					id: idToOpen,
+					mode: viewerMode,
+					...(viewerMode === "lighttable" && state.viewerLightTableSlotId
+						? { slotId: state.viewerLightTableSlotId }
+						: {}),
+				},
 			});
 		}
 	}, [
@@ -292,42 +288,39 @@ export const useViewerActionsBridge = ({
 		}
 
 		const { imageId, addTags, removeTags } = lastShortcutAction;
-		try {
-			await bulkUpdateImageTags([imageId], addTags, removeTags);
+		const result = await bulkUpdateImageTags([imageId], addTags, removeTags);
+		if (!result.ok) {
+			dispatch({ type: "SET_ERROR", payload: result.error });
+			return;
+		}
 
-			const targetImage = (viewerMode === "lineage" ? lineageImages : images).find(
-				(img) => img.id === imageId,
-			);
+		const targetImage = (viewerMode === "lineage" ? lineageImages : images).find(
+			(img) => img.id === imageId,
+		);
 
-			if (targetImage) {
-				const newTags = [...targetImage.tags];
-				for (const tag of addTags) {
-					if (!newTags.includes(tag)) newTags.push(tag);
-				}
-				const finalTags = newTags.filter((tag) => !removeTags.includes(tag));
-				dispatch({
-					type: "UPDATE_IMAGE",
-					payload: { ...targetImage, tags: finalTags },
-				});
-
-				dispatch({
-					type: "OPEN_VIEWER",
-					payload: {
-						id: imageId,
-						mode: viewerMode,
-						...(viewerMode === "lighttable" && state.viewerLightTableSlotId
-							? { slotId: state.viewerLightTableSlotId }
-							: {}),
-					},
-				});
+		if (targetImage) {
+			const newTags = [...targetImage.tags];
+			for (const tag of addTags) {
+				if (!newTags.includes(tag)) newTags.push(tag);
 			}
-			setLastShortcutAction(null);
-		} catch (err: unknown) {
+			const finalTags = newTags.filter((tag) => !removeTags.includes(tag));
 			dispatch({
-				type: "SET_ERROR",
-				payload: err instanceof Error ? err.message : String(err),
+				type: "UPDATE_IMAGE",
+				payload: { ...targetImage, tags: finalTags },
+			});
+
+			dispatch({
+				type: "OPEN_VIEWER",
+				payload: {
+					id: imageId,
+					mode: viewerMode,
+					...(viewerMode === "lighttable" && state.viewerLightTableSlotId
+						? { slotId: state.viewerLightTableSlotId }
+						: {}),
+				},
 			});
 		}
+		setLastShortcutAction(null);
 	}, [
 		dispatch,
 		handleUndoDelete,
@@ -379,8 +372,12 @@ export const useViewerActionsBridge = ({
 			}
 
 			if (addTags.length > 0 || removeTags.length > 0) {
-				try {
-					await bulkUpdateImageTags([currentImageId], addTags, removeTags);
+				const tagsResult = await bulkUpdateImageTags([currentImageId], addTags, removeTags);
+				if (!tagsResult.ok) {
+					logger.error("Failed to update tags via shortcut:", tagsResult.error);
+					dispatch({ type: "SET_ERROR", payload: tagsResult.error });
+					return;
+				} else {
 					const newTags = [...currentImageTags];
 					for (const tag of addTags) {
 						if (!newTags.includes(tag)) newTags.push(tag);
@@ -398,12 +395,6 @@ export const useViewerActionsBridge = ({
 						removeTags: [...addTags],
 					});
 					setLastDeletedImages(null);
-				} catch (err: unknown) {
-					logger.error("Failed to update tags via shortcut:", err);
-					dispatch({
-						type: "SET_ERROR",
-						payload: err instanceof Error ? err.message : String(err),
-					});
 				}
 			}
 

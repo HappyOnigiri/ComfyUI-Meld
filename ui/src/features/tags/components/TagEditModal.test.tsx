@@ -7,17 +7,20 @@ import { TagEditModal } from "./TagEditModal";
 // Mock tagsApi and imagesApi
 vi.mock("../api/tagsApi", () => ({
 	fetchTags: vi.fn(() =>
-		Promise.resolve([
-			{ id: 1, name: "tag1" },
-			{ id: 2, name: "tag2" },
-			{ id: 3, name: "none" },
-		]),
+		Promise.resolve({
+			ok: true,
+			data: [
+				{ id: 1, name: "tag1" },
+				{ id: 2, name: "tag2" },
+				{ id: 3, name: "none" },
+			],
+		}),
 	),
 }));
 
 vi.mock("../../images/api/imagesApi", () => ({
-	updateImageTags: vi.fn(() => Promise.resolve(undefined)),
-	bulkUpdateImageTags: vi.fn(() => Promise.resolve(undefined)),
+	updateImageTags: vi.fn(() => Promise.resolve({ ok: true, data: undefined })),
+	bulkUpdateImageTags: vi.fn(() => Promise.resolve({ ok: true, data: undefined })),
 }));
 
 vi.mock("../../../store/GalleryContext", () => ({

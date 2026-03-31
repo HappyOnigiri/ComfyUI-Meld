@@ -5,12 +5,19 @@ import * as searchApi from "../api/searchApi";
 import { useFavoritesLogic } from "./useFavoritesLogic";
 
 vi.mock("../../../store/GalleryContext");
-vi.mock("../api/searchApi");
+vi.mock("../api/searchApi", () => ({
+	deleteFavorite: vi.fn().mockResolvedValue({ ok: true, data: undefined }),
+	updateFavorite: vi.fn().mockResolvedValue({ ok: true, data: undefined }),
+	saveFavorite: vi.fn().mockResolvedValue({ ok: true, data: undefined }),
+}));
 vi.mock("../../../logger");
 
 describe("useFavoritesLogic", () => {
 	beforeEach(() => {
 		vi.restoreAllMocks();
+		vi.mocked(searchApi.deleteFavorite).mockResolvedValue({ ok: true, data: undefined });
+		vi.mocked(searchApi.updateFavorite).mockResolvedValue({ ok: true, data: undefined });
+		vi.mocked(searchApi.saveFavorite).mockResolvedValue({ ok: true, data: undefined });
 		vi.spyOn(window, "confirm").mockImplementation(() => true);
 	});
 

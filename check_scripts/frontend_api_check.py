@@ -3,8 +3,8 @@ import os
 import sys
 from pathlib import Path
 
-# Endpoints returning binary (blob) instead of JSON. These cannot use handleResponse
-# or parseJsonResponse. Add path segment or exact path that matches api.fetchApi URL.
+# Endpoints returning binary (blob) instead of JSON. These cannot use handleApiResponse
+# or parseApiJsonResponse. Add path segment or exact path that matches api.fetchApi URL.
 # - "download": matches /meld/api/download/zip, /meld/api/download/raw (ZIP/image binary)
 BLOB_ENDPOINTS = ("download",)
 
@@ -48,13 +48,17 @@ def check_frontend_api_usage() -> int:
             if "frontend-api-check-ignore" in line:
                 continue
 
-            # Exclude handleResponse/parseJsonResponse definition itself
+            # Exclude handleResponse/parseJsonResponse/handleApiResponse/parseApiJsonResponse definition itself
             if "export" in line:
                 import re
 
                 if re.search(r"\bexport\s+(const|let|var|function|default|type)\b.*\bhandleResponse\b", line):
                     continue
                 if re.search(r"\bexport\s+(const|let|var|function|default|type)\b.*\bparseJsonResponse\b", line):
+                    continue
+                if re.search(r"\bexport\s+(const|let|var|function|default|type)\b.*\bhandleApiResponse\b", line):
+                    continue
+                if re.search(r"\bexport\s+(const|let|var|function|default|type)\b.*\bparseApiJsonResponse\b", line):
                     continue
 
             # Rule 1: Check .json() usage
@@ -64,14 +68,19 @@ def check_frontend_api_usage() -> int:
                     continue
 
                 errors.append(
-                    f"{file_path}:{i + 1}: Forbidden direct .json() call. Use handleResponse(res) or parseJsonResponse(res) instead."
+                    f"{file_path}:{i + 1}: Forbidden direct .json() call. Use handleApiResponse(res) or parseApiJsonResponse(res) instead."
                 )
 
-            # Rule 2: If api.fetchApi is used, handleResponse or parseJsonResponse should be used
+            # Rule 2: If api.fetchApi is used, one of the response handlers should be used
             if "api.fetchApi" in line:
                 found_handle = False
                 for j in range(i, min(i + 15, len(lines))):
-                    if "handleResponse" in lines[j] or "parseJsonResponse" in lines[j]:
+                    if (
+                        "handleResponse" in lines[j]
+                        or "parseJsonResponse" in lines[j]
+                        or "handleApiResponse" in lines[j]
+                        or "parseApiJsonResponse" in lines[j]
+                    ):
                         found_handle = True
                         break
 
@@ -94,11 +103,11 @@ def check_frontend_api_usage() -> int:
                     )
                     if is_meld:
                         errors.append(
-                            f"{file_path}:{i + 1}: api.fetchApi call to /meld/ should use handleResponse(res) or parseJsonResponse(res)."
+                            f"{file_path}:{i + 1}: api.fetchApi call to /meld/ should use handleApiResponse(res) or parseApiJsonResponse(res)."
                         )
                     else:
                         errors.append(
-                            f"{file_path}:{i + 1}: api.fetchApi call should use handleResponse or parseJsonResponse, or add to BLOB_ENDPOINTS if binary."
+                            f"{file_path}:{i + 1}: api.fetchApi call should use handleApiResponse or parseApiJsonResponse, or add to BLOB_ENDPOINTS if binary."
                         )
 
     if errors:

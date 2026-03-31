@@ -94,7 +94,11 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({ imag
 		}
 
 		try {
-			await imagesApi.linkParent(imageId, parentId);
+			const result = await imagesApi.linkParent(imageId, parentId);
+			if (!result.ok) {
+				logger.error("Failed to link parent:", result.error);
+				return;
+			}
 			// Re-fetch child image details to ensure UI has latest parent info
 			await imagesApi.fetchImageDetails(imageId);
 			await refreshImages();
@@ -109,7 +113,12 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({ imag
 			return;
 		}
 		try {
-			await imagesApi.linkParent(imageId, null);
+			const result = await imagesApi.linkParent(imageId, null);
+			if (!result.ok) {
+				logger.error("Failed to remove source:", result.error);
+				alert("Failed to remove source image.");
+				return;
+			}
 			await refreshImages();
 			handleClose();
 		} catch (err) {
@@ -124,11 +133,15 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({ imag
 			// 1. Upload file to ComfyUI
 			const uploaded = await importerApi.uploadImage(file);
 			// 2. Register it in Meld
-			const { id } = await imagesApi.registerImage({
+			const registerResult = await imagesApi.registerImage({
 				filename: uploaded.name,
 				subfolder: uploaded.subfolder || "",
 				type: uploaded.type || "input",
 			});
+			if (!registerResult.ok) {
+				throw new Error(registerResult.error);
+			}
+			const { id } = registerResult.data;
 			// 3. Link it immediately as the parent
 			if (id === imageId) {
 				alert("Uploaded image is identical to the current image. Cannot set as source.");

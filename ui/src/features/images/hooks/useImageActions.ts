@@ -12,7 +12,11 @@ import { injectImageToGraph } from "../../workflows/utils/injectImageToGraph";
 import { isLoaderNodeType, isMaskNodeType } from "../../workflows/utils/nodeTypePredicates";
 import * as imagesApi from "../api/imagesApi";
 
-type SnapshotData = Awaited<ReturnType<typeof imagesApi.fetchSnapshotData>>;
+type SnapshotData = NonNullable<
+	Awaited<ReturnType<typeof imagesApi.fetchSnapshotData>> extends { ok: true; data: infer D }
+		? D
+		: never
+>;
 type LiteGraphGlobal = {
 	createNode: (type: string) => ComfyGraphNode | null;
 };
@@ -33,109 +37,107 @@ export const useImageActions = (_state: GalleryState, dispatch: React.Dispatch<G
 
 	const bulkUpdateImageTags = useCallback(
 		async (imageIds: number[], addTags: string[], removeTags: string[]) => {
-			await imagesApi.bulkUpdateImageTags(imageIds, addTags, removeTags);
+			return imagesApi.bulkUpdateImageTags(imageIds, addTags, removeTags);
 		},
 		[],
 	);
 
 	const handleRestoreWorkflow = useCallback(async (image: MeldImage) => {
-		try {
-			const data = await imagesApi.fetchImageWorkflow(image.id);
-			if (!data.workflow) {
-				alert("No workflow information is saved for this image.");
-				return false;
-			}
-
-			await (window as unknown as { app: ComfyApp }).app.loadGraphData(data.workflow);
-			logger.log("Workflow restored successfully from Meld");
-			return true;
-		} catch (error) {
-			logger.error("Error restoring workflow:", error);
+		const result = await imagesApi.fetchImageWorkflow(image.id);
+		if (!result.ok) {
+			logger.error("Error restoring workflow:", result.error);
 			alert("Failed to restore workflow.");
 			return false;
 		}
+		if (!result.data.workflow) {
+			alert("No workflow information is saved for this image.");
+			return false;
+		}
+		await (window as unknown as { app: ComfyApp }).app.loadGraphData(result.data.workflow);
+		logger.log("Workflow restored successfully from Meld");
+		return true;
 	}, []);
 
 	const handleAddUnifiedLoader = useCallback(async (image: MeldImage) => {
-		try {
-			const data = await imagesApi.fetchSnapshotData(image.id);
-			const nodeName = data.is_flux ? "MeldUnifiedFluxLoader" : "MeldUnifiedLoader";
-			const comfyApp = window.app as ComfyApp;
-			const liteGraph = (window as unknown as { LiteGraph?: LiteGraphGlobal }).LiteGraph;
-			if (!comfyApp.graph || !comfyApp.canvas || !liteGraph) {
-				alert("ComfyUI graph is not ready. Please open a workflow first.");
-				return false;
-			}
-
-			const node = liteGraph.createNode(nodeName);
-			if (!node) {
-				logger.error(`Node type ${nodeName} not found.`);
-				alert(
-					`Node type ${nodeName} not found. Please make sure the Meld Unified Loader node is installed.`,
-				);
-				return false;
-			}
-
-			const widgetMap: Partial<Record<keyof SnapshotData, string>> = data.is_flux
-				? {
-						model_name: "model_name",
-						clip_name1: "clip_name1",
-						clip_name2: "clip_name2",
-						clip_type: "clip_type",
-						clip_device: "clip_device",
-						positive: "positive",
-						seed: "seed",
-						steps: "steps",
-						guidance: "guidance",
-						sampler_name: "sampler_name",
-						scheduler: "scheduler",
-						width: "width",
-						height: "height",
-					}
-				: {
-						model_name: "model_name",
-						positive: "positive",
-						negative: "negative",
-						seed: "seed",
-						steps: "steps",
-						cfg: "cfg",
-						sampler_name: "sampler_name",
-						scheduler: "scheduler",
-						width: "width",
-						height: "height",
-					};
-
-			if (node.widgets) {
-				for (const [dataKey, widgetName] of Object.entries(widgetMap)) {
-					const val = data[dataKey as keyof SnapshotData];
-					if (val !== undefined && val !== null && val !== "") {
-						const widget = node.widgets.find((w) => w.name === widgetName);
-						if (widget) {
-							widget.value = val;
-						}
-					}
-				}
-
-				const controlWidget = node.widgets.find((w) => w.name === "control_after_generate");
-				if (controlWidget) {
-					controlWidget.value = "fixed";
-				}
-			}
-
-			const center = comfyApp.canvas.ds.offset;
-			const scale = comfyApp.canvas.ds.scale;
-
-			node.pos = [(-center[0] + 400) / scale, (-center[1] + 300) / scale];
-
-			comfyApp.graph.add(node);
-			comfyApp.canvas.selectNode(node);
-			comfyApp.canvas.centerOnNode(node);
-			return true;
-		} catch (e) {
-			logger.error("Error adding Unified Loader:", e);
+		const result = await imagesApi.fetchSnapshotData(image.id);
+		if (!result.ok) {
+			logger.error("Error adding Unified Loader:", result.error);
 			alert("Failed to load settings.");
 			return false;
 		}
+		const data = result.data;
+		const nodeName = data.is_flux ? "MeldUnifiedFluxLoader" : "MeldUnifiedLoader";
+		const comfyApp = window.app as ComfyApp;
+		const liteGraph = (window as unknown as { LiteGraph?: LiteGraphGlobal }).LiteGraph;
+		if (!comfyApp.graph || !comfyApp.canvas || !liteGraph) {
+			alert("ComfyUI graph is not ready. Please open a workflow first.");
+			return false;
+		}
+
+		const node = liteGraph.createNode(nodeName);
+		if (!node) {
+			logger.error(`Node type ${nodeName} not found.`);
+			alert(
+				`Node type ${nodeName} not found. Please make sure the Meld Unified Loader node is installed.`,
+			);
+			return false;
+		}
+
+		const widgetMap: Partial<Record<keyof SnapshotData, string>> = data.is_flux
+			? {
+					model_name: "model_name",
+					clip_name1: "clip_name1",
+					clip_name2: "clip_name2",
+					clip_type: "clip_type",
+					clip_device: "clip_device",
+					positive: "positive",
+					seed: "seed",
+					steps: "steps",
+					guidance: "guidance",
+					sampler_name: "sampler_name",
+					scheduler: "scheduler",
+					width: "width",
+					height: "height",
+				}
+			: {
+					model_name: "model_name",
+					positive: "positive",
+					negative: "negative",
+					seed: "seed",
+					steps: "steps",
+					cfg: "cfg",
+					sampler_name: "sampler_name",
+					scheduler: "scheduler",
+					width: "width",
+					height: "height",
+				};
+
+		if (node.widgets) {
+			for (const [dataKey, widgetName] of Object.entries(widgetMap)) {
+				const val = (data as Record<string, unknown>)[dataKey];
+				if (val !== undefined && val !== null && val !== "") {
+					const widget = node.widgets.find((w) => w.name === widgetName);
+					if (widget) {
+						widget.value = val;
+					}
+				}
+			}
+
+			const controlWidget = node.widgets.find((w) => w.name === "control_after_generate");
+			if (controlWidget) {
+				controlWidget.value = "fixed";
+			}
+		}
+
+		const center = comfyApp.canvas.ds.offset;
+		const scale = comfyApp.canvas.ds.scale;
+
+		node.pos = [(-center[0] + 400) / scale, (-center[1] + 300) / scale];
+
+		comfyApp.graph.add(node);
+		comfyApp.canvas.selectNode(node);
+		comfyApp.canvas.centerOnNode(node);
+		return true;
 	}, []);
 
 	const handleEditTags = useCallback(
@@ -325,9 +327,11 @@ export const useImageActions = (_state: GalleryState, dispatch: React.Dispatch<G
 			}
 
 			// For "run" mode, check if there's any workflow that supports masks
-			try {
-				const workflows = await fetchWorkflows();
-				const hasCompatibleWorkflow = workflows.some((wf) => wf.valid && wf.mask_count >= 1);
+			const workflowsResult = await fetchWorkflows();
+			if (workflowsResult.ok) {
+				const hasCompatibleWorkflow = workflowsResult.data.some(
+					(wf) => wf.valid && wf.mask_count >= 1,
+				);
 				if (!hasCompatibleWorkflow) {
 					dispatch({
 						type: "OPEN_MODAL",
@@ -339,8 +343,8 @@ export const useImageActions = (_state: GalleryState, dispatch: React.Dispatch<G
 					});
 					return;
 				}
-			} catch (err) {
-				logger.error("[Meld] Error checking workflows:", err);
+			} else {
+				logger.error("[Meld] Error checking workflows:", workflowsResult.error);
 				// Fallback: let them open the editor, they'll see errors later if no workflows exist
 			}
 
@@ -359,18 +363,15 @@ export const useImageActions = (_state: GalleryState, dispatch: React.Dispatch<G
 
 	const handleRestore = useCallback(
 		async (image: MeldImage, onSuccess?: () => void) => {
-			try {
-				const imageId = image.id;
-				const result = await imagesApi.restoreImages([imageId]);
-				const restoredIds = result.restored_ids || [imageId];
-				dispatch({ type: "REMOVE_IMAGES", payload: restoredIds });
-				onSuccess?.();
-			} catch (err: unknown) {
-				dispatch({
-					type: "SET_ERROR",
-					payload: err instanceof Error ? err.message : String(err),
-				});
+			const imageId = image.id;
+			const result = await imagesApi.restoreImages([imageId]);
+			if (!result.ok) {
+				dispatch({ type: "SET_ERROR", payload: result.error });
+				return;
 			}
+			const restoredIds = result.data.restored_ids || [imageId];
+			dispatch({ type: "REMOVE_IMAGES", payload: restoredIds });
+			onSuccess?.();
 		},
 		[dispatch],
 	);
@@ -392,15 +393,12 @@ export const useImageActions = (_state: GalleryState, dispatch: React.Dispatch<G
 
 	const handleUpdateUserNotes = useCallback(
 		async (imageId: number, userNotes: string) => {
-			try {
-				const updatedImage = await imagesApi.updateImageNotes(imageId, userNotes);
-				dispatch({ type: "UPDATE_IMAGE", payload: updatedImage });
-			} catch (err: unknown) {
-				dispatch({
-					type: "SET_ERROR",
-					payload: err instanceof Error ? err.message : String(err),
-				});
+			const result = await imagesApi.updateImageNotes(imageId, userNotes);
+			if (!result.ok) {
+				dispatch({ type: "SET_ERROR", payload: result.error });
+				return;
 			}
+			dispatch({ type: "UPDATE_IMAGE", payload: result.data });
 		},
 		[dispatch],
 	);

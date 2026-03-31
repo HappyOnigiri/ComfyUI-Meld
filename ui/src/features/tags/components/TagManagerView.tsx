@@ -24,14 +24,13 @@ export const TagManagerView: React.FC<TagManagerViewProps> = ({ onClose, onSearc
 
 	const loadTags = useCallback(async () => {
 		setIsLoading(true);
-		try {
-			const data = await tagsApi.fetchTags();
-			setTags(data);
-		} catch (error) {
-			logger.error("Failed to fetch tags:", error);
-		} finally {
-			setIsLoading(false);
+		const result = await tagsApi.fetchTags();
+		setIsLoading(false);
+		if (!result.ok) {
+			logger.error("Failed to fetch tags:", result.error);
+			return;
 		}
+		setTags(result.data);
 	}, []);
 
 	useEffect(() => {
@@ -62,26 +61,25 @@ export const TagManagerView: React.FC<TagManagerViewProps> = ({ onClose, onSearc
 		}
 
 		setIsAdding(true);
-		try {
-			await tagsApi.createTag(name);
-			setNewTagName("");
-			await loadTags();
-		} catch (error) {
-			logger.error("Failed to add tag:", error);
-		} finally {
-			setIsAdding(false);
+		const result = await tagsApi.createTag(name);
+		setIsAdding(false);
+		if (!result.ok) {
+			logger.error("Failed to add tag:", result.error);
+			return;
 		}
+		setNewTagName("");
+		await loadTags();
 	};
 
 	const handleDeleteTag = async (id: number, name: string) => {
 		if (!confirm(`Are you sure you want to delete tag "${name}"?`)) return;
 
-		try {
-			await tagsApi.deleteTag(id);
-			await loadTags();
-		} catch (error) {
-			logger.error("Failed to delete tag:", error);
+		const result = await tagsApi.deleteTag(id);
+		if (!result.ok) {
+			logger.error("Failed to delete tag:", result.error);
+			return;
 		}
+		await loadTags();
 	};
 
 	const handleStartRename = (tag: TagType) => {
@@ -117,16 +115,15 @@ export const TagManagerView: React.FC<TagManagerViewProps> = ({ onClose, onSearc
 		}
 
 		setIsRenaming(true);
-		try {
-			await tagsApi.renameTag(editingTagId, name);
-			handleCancelRename();
-			await loadTags();
-		} catch (error) {
-			logger.error("Failed to rename tag:", error);
-			alert(error instanceof Error ? error.message : "Failed to rename tag");
-		} finally {
-			setIsRenaming(false);
+		const result = await tagsApi.renameTag(editingTagId, name);
+		setIsRenaming(false);
+		if (!result.ok) {
+			logger.error("Failed to rename tag:", result.error);
+			alert(result.error);
+			return;
 		}
+		handleCancelRename();
+		await loadTags();
 	};
 
 	const handleSearchByTag = (name: string) => {
