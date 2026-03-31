@@ -10,26 +10,19 @@ from ...common.db.client import (
 from ...common.schemas import ScanStatus
 from ..images.repository import permanent_delete, soft_delete
 from ..settings.repository import get_all_settings
+from .scan_state import ScanState
 
-# State for scanning
-_scan_state = ScanStatus(is_running=False, should_cancel=False)
+# Thread-safe scan state. Access via get_scan_state() / cancel_scan() from outside;
+# scan_executor.py imports _scan_state directly for atomic try_start/mark_finished.
+_scan_state = ScanState()
 
 
 def get_scan_state() -> ScanStatus:
-    return _scan_state
+    return _scan_state.get_status()
 
 
 def cancel_scan() -> None:
-    _scan_state.should_cancel = True
-
-
-def set_scan_running(running: bool) -> None:
-    _scan_state.is_running = running
-    if running:
-        _scan_state.should_cancel = False
-        _scan_state.new_count = 0
-        _scan_state.updated_count = 0
-        _scan_state.total_count = 0
+    _scan_state.request_cancel()
 
 
 def perform_cleanup() -> int:
@@ -99,7 +92,6 @@ from .scan_executor import (  # noqa: E402
 __all__ = [
     "get_scan_state",
     "cancel_scan",
-    "set_scan_running",
     "perform_cleanup",
     "infer_parent_id",
     "start_scan_thread",
