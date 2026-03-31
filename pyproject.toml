@@ -6,7 +6,7 @@ license = { text = "Apache-2.0" } # DO NOT change this to a string; table format
 authors = [
     { name = "HappyOnigiri", email = "nodemeld+happy-onigiri@gmail.com" }
 ]
-requires-python = ">=3.10,<3.13" # DO NOT change this range; specific versioning is required for CI/Release stability
+requires-python = ">=3.10,<3.13" # Range extended to <3.13 to support CI environments running Python 3.12. Recommended version for running ComfyUI is 3.10.
 readme = "README.md"
 keywords = ["comfyui", "prompt-constructor", "metadata", "exif", "workflow", "optimization", "meld"]
 classifiers = [
