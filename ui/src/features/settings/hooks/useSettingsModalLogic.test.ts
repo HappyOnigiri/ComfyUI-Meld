@@ -57,7 +57,7 @@ vi.mock("./useDatabaseManagement", () => ({
 }));
 
 vi.mock("../api/settingsApi", () => ({
-	clearThumbnailCache: vi.fn().mockResolvedValue({ deleted_count: 3 }),
+	clearThumbnailCache: vi.fn().mockResolvedValue({ ok: true, data: { deleted_count: 3 } }),
 }));
 
 describe("useSettingsModalLogic", () => {

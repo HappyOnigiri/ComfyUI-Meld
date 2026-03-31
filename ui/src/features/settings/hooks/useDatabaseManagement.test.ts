@@ -50,31 +50,34 @@ const deletedPayload: DatabasesPayload = {
 	database_generation: 3,
 };
 
-const fetchDatabases = vi.fn().mockResolvedValue(initialPayload);
-const createDatabase = vi.fn().mockResolvedValue(initialPayload);
+const fetchDatabases = vi.fn().mockResolvedValue({ ok: true, data: initialPayload });
+const createDatabase = vi.fn().mockResolvedValue({ ok: true, data: initialPayload });
 const renameDatabase = vi.fn().mockResolvedValue({
-	...initialPayload,
-	databases: [
-		{
-			name: "project_b",
-			filename: "project_b.db",
-			is_active: true,
-			image_count: 4,
-			can_delete: true,
-		},
-		{
-			name: "project_a",
-			filename: "project_a.db",
-			is_active: false,
-			image_count: 1,
-			can_delete: true,
-		},
-	],
-	active_database: "project_b",
-	database_generation: 2,
+	ok: true,
+	data: {
+		...initialPayload,
+		databases: [
+			{
+				name: "project_b",
+				filename: "project_b.db",
+				is_active: true,
+				image_count: 4,
+				can_delete: true,
+			},
+			{
+				name: "project_a",
+				filename: "project_a.db",
+				is_active: false,
+				image_count: 1,
+				can_delete: true,
+			},
+		],
+		active_database: "project_b",
+		database_generation: 2,
+	},
 });
-const switchDatabase = vi.fn().mockResolvedValue(switchedPayload);
-const deleteDatabase = vi.fn().mockResolvedValue(deletedPayload);
+const switchDatabase = vi.fn().mockResolvedValue({ ok: true, data: switchedPayload });
+const deleteDatabase = vi.fn().mockResolvedValue({ ok: true, data: deletedPayload });
 
 vi.mock("../../../store/GalleryContext", () => ({
 	useGallery: () => ({

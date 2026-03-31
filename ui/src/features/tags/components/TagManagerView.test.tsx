@@ -28,10 +28,16 @@ describe("TagManagerView", () => {
 	beforeEach(() => {
 		user = userEvent.setup();
 		vi.clearAllMocks();
-		vi.mocked(tagsApi.fetchTags).mockResolvedValue([
-			{ id: 1, name: "landscape" },
-			{ id: 2, name: "portrait" },
-		]);
+		vi.mocked(tagsApi.fetchTags).mockResolvedValue({
+			ok: true,
+			data: [
+				{ id: 1, name: "landscape" },
+				{ id: 2, name: "portrait" },
+			],
+		});
+		vi.mocked(tagsApi.createTag).mockResolvedValue({ ok: true, data: { id: 99, name: "new-tag" } });
+		vi.mocked(tagsApi.deleteTag).mockResolvedValue({ ok: true, data: undefined });
+		vi.mocked(tagsApi.renameTag).mockResolvedValue({ ok: true, data: undefined });
 		// Mock window.confirm and alert
 		vi.spyOn(window, "confirm").mockImplementation(() => true);
 		vi.spyOn(window, "alert").mockImplementation(() => {});
@@ -74,18 +80,17 @@ describe("TagManagerView", () => {
 	});
 
 	it("shows empty message when no tags match filter", async () => {
-		vi.mocked(tagsApi.fetchTags).mockResolvedValue([]);
+		vi.mocked(tagsApi.fetchTags).mockResolvedValue({ ok: true, data: [] });
 		await renderComponent();
 		expect(screen.getByText("No tags found.")).toBeInTheDocument();
 	});
 
 	it("shows empty message and logs error when fetch fails", async () => {
-		const error = new Error("fetch failed");
-		vi.mocked(tagsApi.fetchTags).mockRejectedValueOnce(error);
+		vi.mocked(tagsApi.fetchTags).mockResolvedValueOnce({ ok: false, error: "fetch failed" });
 		await renderComponent();
 
 		expect(screen.getByText("No tags found.")).toBeInTheDocument();
-		expect(logger.error).toHaveBeenCalledWith("Failed to fetch tags:", error);
+		expect(logger.error).toHaveBeenCalledWith("Failed to fetch tags:", "fetch failed");
 	});
 
 	describe("Adding Tags", () => {
@@ -145,8 +150,7 @@ describe("TagManagerView", () => {
 		});
 
 		it("logs error if create tag fails", async () => {
-			const error = new Error("create failed");
-			vi.mocked(tagsApi.createTag).mockRejectedValueOnce(error);
+			vi.mocked(tagsApi.createTag).mockResolvedValueOnce({ ok: false, error: "create failed" });
 
 			await renderComponent();
 			const input = screen.getByPlaceholderText("Add new tag...");
@@ -157,7 +161,7 @@ describe("TagManagerView", () => {
 				await user.click(button);
 			});
 
-			expect(logger.error).toHaveBeenCalledWith("Failed to add tag:", error);
+			expect(logger.error).toHaveBeenCalledWith("Failed to add tag:", "create failed");
 		});
 	});
 
@@ -188,8 +192,7 @@ describe("TagManagerView", () => {
 		});
 
 		it("logs error if delete fails", async () => {
-			const error = new Error("delete failed");
-			vi.mocked(tagsApi.deleteTag).mockRejectedValueOnce(error);
+			vi.mocked(tagsApi.deleteTag).mockResolvedValueOnce({ ok: false, error: "delete failed" });
 
 			await renderComponent();
 			const deleteButtons = screen.getAllByTitle("Delete tag");
@@ -198,7 +201,7 @@ describe("TagManagerView", () => {
 				await user.click(deleteButtons[0]!);
 			});
 
-			expect(logger.error).toHaveBeenCalledWith("Failed to delete tag:", error);
+			expect(logger.error).toHaveBeenCalledWith("Failed to delete tag:", "delete failed");
 		});
 	});
 
@@ -328,8 +331,7 @@ describe("TagManagerView", () => {
 		});
 
 		it("logs error and alerts if rename fails", async () => {
-			const error = new Error("rename failed");
-			vi.mocked(tagsApi.renameTag).mockRejectedValueOnce(error);
+			vi.mocked(tagsApi.renameTag).mockResolvedValueOnce({ ok: false, error: "rename failed" });
 
 			await renderComponent();
 			const renameButtons = screen.getAllByTitle("Rename tag");
@@ -349,7 +351,7 @@ describe("TagManagerView", () => {
 				await user.click(saveBtn);
 			});
 
-			expect(logger.error).toHaveBeenCalledWith("Failed to rename tag:", error);
+			expect(logger.error).toHaveBeenCalledWith("Failed to rename tag:", "rename failed");
 			expect(window.alert).toHaveBeenCalledWith("rename failed");
 		});
 	});

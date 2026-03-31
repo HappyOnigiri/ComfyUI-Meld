@@ -11,13 +11,14 @@ vi.mock("../features/images/api/imagesApi", () => ({
 	fetchImages: vi.fn(),
 	restoreImages: vi.fn(),
 	fetchImageDetails: vi.fn(),
+	normalizeImagesResponse: vi.fn((data: unknown) => data),
 }));
 vi.mock("../features/search/api/searchApi", () => ({
 	fetchFavorites: vi.fn(),
 }));
 vi.mock("../features/settings/api/settingsApi", () => ({
 	fetchSettings: vi.fn(),
-	saveSetting: vi.fn(),
+	saveSetting: vi.fn().mockResolvedValue({ ok: true, data: undefined }),
 }));
 
 const DummyChild = () => {
@@ -46,18 +47,19 @@ const DummyChild = () => {
 describe("GalleryContext", () => {
 	it("renders children with provider and provides context and calls functions safely", async () => {
 		vi.mocked(imagesApi.fetchImages).mockResolvedValue({
-			images: [],
-			total: 0,
-			offset: 0,
-			limit: 30,
+			ok: true,
+			data: { images: [], total: 0, offset: 0, limit: 30 },
 		});
-		vi.mocked(searchApi.fetchFavorites).mockResolvedValue([]);
+		vi.mocked(searchApi.fetchFavorites).mockResolvedValue({ ok: true, data: [] });
 		vi.mocked(settingsApi.fetchSettings).mockResolvedValue({} as Settings);
 		vi.mocked(imagesApi.fetchImageDetails).mockResolvedValue({
-			model_name: "test-model",
-			positive_prompt: "pos",
-			negative_prompt: "neg",
-		} as unknown as import("../types").MeldImage);
+			ok: true,
+			data: {
+				model_name: "test-model",
+				positive_prompt: "pos",
+				negative_prompt: "neg",
+			} as unknown as import("../types").MeldImage,
+		});
 
 		let containerNode: HTMLElement | undefined;
 		await act(async () => {

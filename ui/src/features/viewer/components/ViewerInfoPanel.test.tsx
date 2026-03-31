@@ -316,9 +316,12 @@ describe("ViewerInfoPanel", () => {
 
 	it("renders core prompt tags sorted by usage count", async () => {
 		vi.mocked(fetchAnalyticsCounts).mockResolvedValue({
-			"1girl": 100,
-			solo: 50,
-			masterpiece: 10,
+			ok: true,
+			data: {
+				"1girl": 100,
+				solo: 50,
+				masterpiece: 10,
+			},
 		});
 
 		renderPanel({

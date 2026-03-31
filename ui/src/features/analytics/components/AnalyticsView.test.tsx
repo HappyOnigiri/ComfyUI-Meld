@@ -36,12 +36,15 @@ describe("AnalyticsView", () => {
 	beforeEach(() => {
 		user = userEvent.setup();
 		vi.clearAllMocks();
-		vi.mocked(analyticsApi.fetchAnalyticsSummary).mockResolvedValue(mockSummary);
-		vi.mocked(analyticsApi.fetchAnalyticsCategory).mockResolvedValue({
-			data: [{ name: "1girl", count: 10 }],
-			total: 1,
+		vi.mocked(analyticsApi.fetchAnalyticsSummary).mockResolvedValue({
+			ok: true,
+			data: mockSummary,
 		});
-		vi.mocked(analyticsApi.refreshAnalytics).mockResolvedValue(undefined);
+		vi.mocked(analyticsApi.fetchAnalyticsCategory).mockResolvedValue({
+			ok: true,
+			data: { data: [{ name: "1girl", count: 10 }], total: 1 },
+		});
+		vi.mocked(analyticsApi.refreshAnalytics).mockResolvedValue({ ok: true, data: undefined });
 	});
 
 	it("renders header, close button, and refresh button", async () => {
@@ -74,7 +77,10 @@ describe("AnalyticsView", () => {
 	});
 
 	it("shows error message when fetch fails", async () => {
-		vi.mocked(analyticsApi.fetchAnalyticsSummary).mockRejectedValueOnce(new Error("Network error"));
+		vi.mocked(analyticsApi.fetchAnalyticsSummary).mockResolvedValueOnce({
+			ok: false,
+			error: "Network error",
+		});
 		await act(async () => {
 			render(<AnalyticsView onClose={mockOnClose} />);
 		});
