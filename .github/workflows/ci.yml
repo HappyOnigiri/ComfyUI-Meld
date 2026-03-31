@@ -7,6 +7,11 @@ on:
 jobs:
   python:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Cost trade-off: run full Python CI only on 3.12 for now.
+        # Older supported versions should be validated locally when needed.
+        python-version: ['3.12']
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -14,7 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: ${{ matrix.python-version }}
           cache: 'pip'
 
       # pyright requires Node.js (runs via npx)
