@@ -219,11 +219,15 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(({
 						className="meld-image-card__meta-item meld-image-card__meta-item--clickable"
 						onClick={async (e) => {
 							e.stopPropagation();
-							const fullImage = await fetchFullImageDetails(image.id);
-							setPopupContent({
-								title: "Model",
-								text: fullImage.model_name || "-",
-							});
+							try {
+								const fullImage = await fetchFullImageDetails(image.id);
+								setPopupContent({
+									title: "Model",
+									text: fullImage.model_name || "-",
+								});
+							} catch (_err) {
+								// error surfaced via gallery state SET_ERROR
+							}
 						}}
 					>
 						<div
@@ -231,8 +235,12 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(({
 							title="Click to copy"
 							onClick={async (e) => {
 								e.stopPropagation();
-								const fullImage = await fetchFullImageDetails(image.id);
-								handleCopy(fullImage.model_name || "-", "Model");
+								try {
+									const fullImage = await fetchFullImageDetails(image.id);
+									handleCopy(fullImage.model_name || "-", "Model");
+								} catch (_err) {
+									// error surfaced via gallery state SET_ERROR
+								}
 							}}
 						>
 							{copiedLabel === "Model" ? "Copied!" : "Model"}
@@ -246,11 +254,15 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(({
 						className="meld-image-card__meta-item meld-image-card__meta-item--clickable"
 						onClick={async (e) => {
 							e.stopPropagation();
-							const fullImage = await fetchFullImageDetails(image.id);
-							setPopupContent({
-								title: "Positive Prompt",
-								text: fullImage.positive_prompt || fullImage.positive || "-",
-							});
+							try {
+								const fullImage = await fetchFullImageDetails(image.id);
+								setPopupContent({
+									title: "Positive Prompt",
+									text: fullImage.positive_prompt || fullImage.positive || "-",
+								});
+							} catch (_err) {
+								// error surfaced via gallery state SET_ERROR
+							}
 						}}
 					>
 						<div
@@ -258,8 +270,12 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(({
 							title="Click to copy"
 							onClick={async (e) => {
 								e.stopPropagation();
-								const fullImage = await fetchFullImageDetails(image.id);
-								handleCopy(fullImage.positive_prompt || fullImage.positive || "-", "Positive");
+								try {
+									const fullImage = await fetchFullImageDetails(image.id);
+									handleCopy(fullImage.positive_prompt || fullImage.positive || "-", "Positive");
+								} catch (_err) {
+									// error surfaced via gallery state SET_ERROR
+								}
 							}}
 						>
 							{copiedLabel === "Positive" ? "Copied!" : "Positive"}
@@ -275,11 +291,15 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(({
 						className="meld-image-card__meta-item meld-image-card__meta-item--clickable"
 						onClick={async (e) => {
 							e.stopPropagation();
-							const fullImage = await fetchFullImageDetails(image.id);
-							setPopupContent({
-								title: "Negative Prompt",
-								text: fullImage.negative_prompt || fullImage.negative || "-",
-							});
+							try {
+								const fullImage = await fetchFullImageDetails(image.id);
+								setPopupContent({
+									title: "Negative Prompt",
+									text: fullImage.negative_prompt || fullImage.negative || "-",
+								});
+							} catch (_err) {
+								// error surfaced via gallery state SET_ERROR
+							}
 						}}
 					>
 						<div
@@ -287,8 +307,12 @@ export const DetailedImageCard: React.FC<DetailedImageCardProps> = React.memo(({
 							title="Click to copy"
 							onClick={async (e) => {
 								e.stopPropagation();
-								const fullImage = await fetchFullImageDetails(image.id);
-								handleCopy(fullImage.negative_prompt || fullImage.negative || "-", "Negative");
+								try {
+									const fullImage = await fetchFullImageDetails(image.id);
+									handleCopy(fullImage.negative_prompt || fullImage.negative || "-", "Negative");
+								} catch (_err) {
+									// error surfaced via gallery state SET_ERROR
+								}
 							}}
 						>
 							{copiedLabel === "Negative" ? "Copied!" : "Negative"}

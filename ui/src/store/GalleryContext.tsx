@@ -291,6 +291,7 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({ children })
 					logger.log("fetchFullImageDetails: fetching full data", { id });
 					const result = await imagesApi.fetchImageDetails(id);
 					if (!result.ok) {
+						dispatch({ type: "SET_ERROR", payload: result.error });
 						throw new Error(result.error);
 					}
 					dispatch({ type: "UPDATE_IMAGE", payload: result.data });
