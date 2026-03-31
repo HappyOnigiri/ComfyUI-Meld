@@ -50,7 +50,7 @@ This document serves as a comprehensive guide for AI agents and developers to un
 | `src/features/viewer/` | **Image Viewer**. Full-screen image viewing components. |
 | `src/features/workflows/` | **Workflows**. Management and execution of ComfyUI workflows (queuing, etc.). |
 | `src/features/databases/` | **Database API Clients**. Typed frontend API wrappers for database management actions. |
-| `src/components/shared/` | **Reusable UI Components**. Shared parts like modals, buttons, and basic cards. |
+| `src/components/shared/` | **Reusable UI Components**. Shared parts like modals, buttons, basic cards, and `ErrorBoundary` (catches render errors per section and shows a retry fallback). |
 | `src/store/` | State management (Context/Reducer) for the Gallery UI. |
 | `src/styles/` | Global and component-specific CSS files. |
 
