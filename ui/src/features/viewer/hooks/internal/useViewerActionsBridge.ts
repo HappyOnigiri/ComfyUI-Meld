@@ -159,6 +159,8 @@ export const useViewerActionsBridge = ({
 			}
 
 			if (!mountRefs.isMountedRef.current || mountRefs.viewerImageIdRef.current === null) {
+				// Viewer closed during request; still remove from gallery state
+				dispatch({ type: "REMOVE_IMAGES", payload: Array.from(idsToDelete) });
 				return;
 			}
 			navigateAfterItemRemoval({
