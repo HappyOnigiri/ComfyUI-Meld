@@ -10,8 +10,89 @@ export interface ApiResponse<T = unknown> {
 	count?: number;
 }
 
+// ---------------------------------------------------------------------------
+// Result type: replaces throwing patterns with explicit ok/error branching.
+// All new API functions must return Promise<ApiResult<T>> instead of
+// throwing on non-2xx or success=false responses.
+// ---------------------------------------------------------------------------
+
+export type ApiResult<T> = { ok: true; data: T } | { ok: false; error: string };
+
+/** Extract data or return fallback without throwing (for silent-catch patterns). */
+export function unwrapOr<T>(result: ApiResult<T>, fallback: T): T {
+	return result.ok ? result.data : fallback;
+}
+
+// Internal helpers shared by all response parsers.
+const isObjectRecord = (value: unknown): value is Record<string, unknown> =>
+	typeof value === "object" && value !== null;
+
+const extractMessage = (value: unknown): string | undefined => {
+	if (typeof value === "string") {
+		return value;
+	}
+	if (isObjectRecord(value) && typeof value.message === "string") {
+		return value.message;
+	}
+	return undefined;
+};
+
 /**
- * Generic helper to handle wrapped API responses
+ * Result-returning helper for ApiResponse-wrapped endpoints.
+ * Does not throw; callers must check result.ok.
+ */
+export async function handleApiResponse<T>(res: Response): Promise<ApiResult<T>> {
+	if (!res.ok) {
+		let errorMsg = `API error: ${res.status} ${res.statusText}`;
+		try {
+			const errorJson = await res.json();
+			if (errorJson?.error) {
+				errorMsg = errorJson.error;
+			}
+		} catch (_e) {
+			// ignore parse error
+		}
+		return { ok: false, error: errorMsg };
+	}
+
+	const result: ApiResponse<T> = await res.json();
+	if (!result.success) {
+		return { ok: false, error: result.error || result.message || "Unknown error" };
+	}
+	return { ok: true, data: result.data as T };
+}
+
+/**
+ * Result-returning helper for raw JSON endpoints (ComfyUI core: /upload/image, /prompt).
+ * Does not throw; callers must check result.ok.
+ */
+export async function parseApiJsonResponse<T>(res: Response): Promise<ApiResult<T>> {
+	let data: unknown;
+	try {
+		data = await res.json();
+	} catch (_e) {
+		if (!res.ok) {
+			return { ok: false, error: `${res.status} ${res.statusText}` };
+		}
+		return { ok: false, error: "Failed to parse JSON response" };
+	}
+
+	if (!res.ok) {
+		let msg = `${res.status} ${res.statusText}`;
+		if (isObjectRecord(data)) {
+			const err = "error" in data ? data.error : undefined;
+			const errMsg = extractMessage(err);
+			const message = "message" in data ? extractMessage(data.message) : undefined;
+			msg = errMsg ?? message ?? msg;
+		}
+		return { ok: false, error: msg };
+	}
+	return { ok: true, data: data as T };
+}
+
+/**
+ * Generic helper to handle wrapped API responses.
+ * @deprecated Use handleApiResponse instead. Kept for backward compatibility during migration.
  */
 export async function handleResponse<T>(res: Response): Promise<T> {
 	if (!res.ok) {
@@ -37,22 +118,10 @@ export async function handleResponse<T>(res: Response): Promise<T> {
 	return result.data as T;
 }
 
-const isObjectRecord = (value: unknown): value is Record<string, unknown> =>
-	typeof value === "object" && value !== null;
-
-const extractMessage = (value: unknown): string | undefined => {
-	if (typeof value === "string") {
-		return value;
-	}
-	if (isObjectRecord(value) && typeof value.message === "string") {
-		return value.message;
-	}
-	return undefined;
-};
-
 /**
  * Helper for endpoints that return raw JSON (not ApiResponse format).
  * Use for ComfyUI core endpoints like /upload/image, /prompt.
+ * @deprecated Use parseApiJsonResponse instead. Kept for backward compatibility during migration.
  */
 export async function parseJsonResponse<T>(res: Response): Promise<T> {
 	let data: unknown;
