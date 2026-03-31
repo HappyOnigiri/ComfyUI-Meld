@@ -94,7 +94,11 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({ imag
 		}
 
 		try {
-			await imagesApi.linkParent(imageId, parentId);
+			const result = await imagesApi.linkParent(imageId, parentId);
+			if (!result.ok) {
+				logger.error("Failed to link parent:", result.error);
+				return;
+			}
 			// Re-fetch child image details to ensure UI has latest parent info
 			await imagesApi.fetchImageDetails(imageId);
 			await refreshImages();
@@ -109,7 +113,12 @@ export const ParentSelectionModal: React.FC<ParentSelectionModalProps> = ({ imag
 			return;
 		}
 		try {
-			await imagesApi.linkParent(imageId, null);
+			const result = await imagesApi.linkParent(imageId, null);
+			if (!result.ok) {
+				logger.error("Failed to remove source:", result.error);
+				alert("Failed to remove source image.");
+				return;
+			}
 			await refreshImages();
 			handleClose();
 		} catch (err) {
