@@ -5,7 +5,7 @@
 setup:
 	@$(MAKE) sync-rule
 	$(PYTHON) -m pip install -e ".[dev]"
-	cd ui && npm install
+	cd ui && npm ci
 	@touch ui/node_modules/.install-stamp
 
 install-hooks:
