@@ -177,6 +177,61 @@ def restore_image_with_rename(cursor: sqlite3.Cursor, img_id: int, new_filename:
     )
 
 
+# SQLite has a maximum of 999 bound variables per statement.
+# Reserve 1 slot for the timestamp parameter in bulk_soft_delete, so chunk at 900.
+# bulk_permanent_delete has no extra params but uses the same limit for consistency.
+_SQLITE_VAR_LIMIT = 900
+
+
+def bulk_soft_delete(cursor: sqlite3.Cursor, img_ids: list[int], timestamp: float) -> None:
+    """Soft-delete multiple images in batched UPDATE statements.
+
+    Processes ids in chunks of _SQLITE_VAR_LIMIT to stay within SQLite's
+    bound-variable limit (999).  The timestamp occupies one slot, so each
+    chunk contains at most _SQLITE_VAR_LIMIT ids (total params = chunk + 1).
+    """
+    for i in range(0, len(img_ids), _SQLITE_VAR_LIMIT):
+        chunk = img_ids[i : i + _SQLITE_VAR_LIMIT]
+        placeholders = ",".join(["?"] * len(chunk))
+        cursor.execute(
+            f"UPDATE images SET deleted_at = ? WHERE id IN ({placeholders})",
+            [timestamp, *chunk],
+        )
+
+
+def bulk_permanent_delete(cursor: sqlite3.Cursor, img_ids: list[int]) -> None:
+    """Permanently delete multiple images in batched statements.
+
+    Mirrors the operation order of permanent_delete() (single-row version):
+      1. Clear parent_id on child images to avoid dangling references.
+      2. Delete relation rows for all affected image ids.
+      3. Delete the image rows themselves.
+    Processes ids in chunks of _SQLITE_VAR_LIMIT.
+    """
+    relation_tables = (
+        "positive_prompt_image_relations",
+        "negative_prompt_image_relations",
+        "model_image_relations",
+        "tag_image_relations",
+    )
+    for i in range(0, len(img_ids), _SQLITE_VAR_LIMIT):
+        chunk = img_ids[i : i + _SQLITE_VAR_LIMIT]
+        placeholders = ",".join(["?"] * len(chunk))
+        cursor.execute(
+            f"UPDATE images SET parent_id = NULL WHERE parent_id IN ({placeholders})",
+            chunk,
+        )
+        cursor.execute(
+            f"DELETE FROM images WHERE id IN ({placeholders})",
+            chunk,
+        )
+        for table in relation_tables:
+            cursor.execute(
+                f"DELETE FROM {table} WHERE image_id IN ({placeholders})",
+                chunk,
+            )
+
+
 def collect_deleted_ancestors(cursor: sqlite3.Cursor, ids: list[int]) -> set[int]:
     """Return the set of deleted image ids (seeds + ancestors) that need restoring.
 
