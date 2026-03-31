@@ -13,7 +13,7 @@ import { normalizeImagesResponse } from "../features/images/api/imagesApi";
 import * as searchApi from "../features/search/api/searchApi";
 import * as settingsApi from "../features/settings/api/settingsApi";
 import { logger } from "../logger";
-import type { GalleryAction, GalleryState, MeldImage } from "../types";
+import type { GalleryAction, GalleryState, MeldImage, Settings } from "../types";
 import { galleryReducer, initialState } from "./galleryReducer";
 
 interface GalleryContextType {
@@ -24,7 +24,7 @@ interface GalleryContextType {
 	refreshFavorites: () => Promise<void>;
 	deleteSelected: () => Promise<void>;
 	restoreSelected: () => Promise<void>;
-	updateSetting: (key: string, value: string | number | boolean | null) => Promise<void>;
+	updateSetting: (key: keyof Settings, value: string | number | boolean | null) => Promise<void>;
 	fetchFullImageDetails: (id: number) => Promise<MeldImage>;
 }
 
@@ -255,10 +255,10 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({ children })
 	}, [state.selectedIds, state.viewScope]);
 
 	const updateSetting = useCallback(
-		async (key: string, value: string | number | boolean | null) => {
+		async (key: keyof Settings, value: string | number | boolean | null) => {
 			try {
 				await settingsApi.saveSetting(key, value);
-				dispatch({ type: "SET_SETTINGS", payload: { [key]: value } });
+				dispatch({ type: "SET_SETTINGS", payload: { [key]: value } as Partial<Settings> });
 			} catch (err: unknown) {
 				dispatch({
 					type: "SET_ERROR",

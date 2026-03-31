@@ -52,6 +52,7 @@ This document serves as a comprehensive guide for AI agents and developers to un
 | `src/features/databases/` | **Database API Clients**. Typed frontend API wrappers for database management actions. |
 | `src/components/shared/` | **Reusable UI Components**. Shared parts like modals, buttons, basic cards, and `ErrorBoundary` (catches render errors per section and shows a retry fallback). |
 | `src/store/` | State management (Context/Reducer) for the Gallery UI. |
+| `src/settings.ts` | **Settings Constants & Helpers**. `SETTING_KEYS` (camelCase aliases for all `Settings` keys), `DEFAULT_SETTINGS` (single source of truth), `viewerShortcutKey()` / `galleryQuickShortcutKey()` (dynamic key helpers). Compile-time bidirectional completeness check ensures `SETTING_KEYS` ↔ `keyof Settings`. |
 | `src/styles/` | Global and component-specific CSS files. |
 
 ## 3. Key Logic & Functions Map

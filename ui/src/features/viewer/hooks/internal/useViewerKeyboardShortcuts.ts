@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { useKeydownCapture } from "../../../../hooks/useKeydownCapture";
+import { viewerShortcutKey } from "../../../../settings";
 import type { GalleryAction, GalleryState, Settings } from "../../../../types";
 import { stopKeyboardEvent } from "../../../../utils/keyboard";
 
@@ -118,7 +119,7 @@ export const useViewerKeyboardShortcuts = ({
 			} else if (isUndoKey) {
 				void handleUndo();
 			} else if (isShortcutKey && !isTargetInput) {
-				const key = `viewer.shortcut.${e.key}` as keyof Settings;
+				const key = viewerShortcutKey(e.key);
 				const command = settings[key];
 				if (typeof command === "string" && command) {
 					setActiveShortcutKey(e.key);
