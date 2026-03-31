@@ -99,6 +99,7 @@ def _scan_thread(
                         image_files.append(os.path.join(root, f))
 
             total = len(image_files)
+            _scan_state.set_total_count(total)
 
             # Step 1: Register all images
             all_target_ids: list[int] = []
@@ -195,6 +196,7 @@ def _scan_thread(
                         newly_registered_ids.add(image_id)
                         all_target_ids.append(image_id)
                     new_count += 1
+                    _scan_state.set_new_count(new_count)
 
                     # Insert Prompts
                     pos_list = MetadataHelper.smart_split(pos) if pos else []
