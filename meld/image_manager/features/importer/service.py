@@ -8,7 +8,7 @@ from ...common.db.client import (
     get_trash_dir,
 )
 from ...common.schemas import ScanStatus
-from ..images.repository import permanent_delete, soft_delete
+from ..images.repository import bulk_permanent_delete, bulk_soft_delete
 from ..settings.repository import get_all_settings
 from .scan_state import ScanState
 
@@ -34,8 +34,9 @@ def perform_cleanup() -> int:
         cursor.execute("SELECT id, filename, subfolder, type FROM images WHERE deleted_at IS NULL")
         images = cursor.fetchall()
 
-        missing_count = 0
+        # Phase 1: collect ids of images whose files are missing, then batch-update.
         now = time.time()
+        missing_ids: list[int] = []
         for img_id, filename, subfolder, img_type in images:
             # Resolve path
             if img_type == "output":
@@ -53,10 +54,14 @@ def perform_cleanup() -> int:
 
             # If file does not exist, record deletion timestamp (move to "ghost" trash)
             if not os.path.exists(full_path):
-                soft_delete(cursor, img_id, now)
-                missing_count += 1
+                missing_ids.append(img_id)
 
-        # 2. Permanent delete old trash items
+        if missing_ids:
+            bulk_soft_delete(cursor, missing_ids, now)
+        missing_count = len(missing_ids)
+
+        # Phase 2: permanently delete expired trash items.
+        # Collect ids first; remove physical files in the loop, then batch-delete DB rows.
         db_settings = get_all_settings(cursor)
         retention_days = int(db_settings.get("gallery.trash_retention_days", 30))
         retention_seconds = retention_days * 24 * 60 * 60
@@ -65,6 +70,7 @@ def perform_cleanup() -> int:
         cursor.execute("SELECT id, filename FROM images WHERE deleted_at IS NOT NULL AND deleted_at < ?", (threshold,))
         to_delete = cursor.fetchall()
 
+        delete_ids: list[int] = []
         for img_id, trash_filename in to_delete:
             trash_path = os.path.join(get_trash_dir(), trash_filename)
             if os.path.exists(trash_path):
@@ -72,11 +78,14 @@ def perform_cleanup() -> int:
                     os.remove(trash_path)
                 except Exception:
                     pass
-            permanent_delete(cursor, img_id)
+            delete_ids.append(img_id)
 
-        if missing_count > 0 or to_delete:
+        if delete_ids:
+            bulk_permanent_delete(cursor, delete_ids)
+
+        if missing_count > 0 or delete_ids:
             conn.commit()
-        return missing_count + len(to_delete)
+        return missing_count + len(delete_ids)
 
 
 # Re-export symbols from sub-modules for backward compatibility.

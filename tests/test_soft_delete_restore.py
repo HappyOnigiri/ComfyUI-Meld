@@ -21,6 +21,8 @@ perform_cleanup = None
 _IMPORTER_SVC = "meld.image_manager.features.importer.service"
 
 # Populated in setUpModule; imported here after mocks are installed.
+bulk_permanent_delete = None
+bulk_soft_delete = None
 collect_deleted_ancestors = None
 permanent_delete = None
 restore_image = None
@@ -29,13 +31,16 @@ soft_delete = None
 
 def setUpModule() -> None:
     """Import importer service and repository functions with ComfyUI dependencies mocked."""
-    global perform_cleanup, collect_deleted_ancestors, permanent_delete, restore_image, soft_delete
+    global perform_cleanup, bulk_permanent_delete, bulk_soft_delete
+    global collect_deleted_ancestors, permanent_delete, restore_image, soft_delete
     mock_dict: dict[str, MagicMock] = {k: MagicMock() for k in COMFYUI_MOCK_KEYS}
     with patch.dict(sys.modules, mock_dict):
         from meld.image_manager.features.images import repository as _repo
         from meld.image_manager.features.importer import service as _svc
 
         perform_cleanup = _svc.perform_cleanup
+        bulk_permanent_delete = _repo.bulk_permanent_delete
+        bulk_soft_delete = _repo.bulk_soft_delete
         collect_deleted_ancestors = _repo.collect_deleted_ancestors
         permanent_delete = _repo.permanent_delete
         restore_image = _repo.restore_image
@@ -143,6 +148,86 @@ class TestRestore(unittest.TestCase):
         self.assertIn(parent, ids_to_restore)
         # grandparent is live — the CTE must stop at parent
         self.assertNotIn(grandparent, ids_to_restore)
+
+
+class TestBulkSoftDelete(unittest.TestCase):
+    def setUp(self) -> None:
+        self.conn: sqlite3.Connection = create_test_db()
+        self.cursor: sqlite3.Cursor = self.conn.cursor()
+        self.factory: TestDataFactory = TestDataFactory(self.cursor)
+
+    def tearDown(self) -> None:
+        self.conn.close()
+
+    def test_bulk_soft_delete_marks_multiple(self) -> None:
+        """bulk_soft_delete sets deleted_at on targeted images and leaves others untouched."""
+        ids = [self.factory.create_image(filename=f"img{i}.png") for i in range(5)]
+        self.conn.commit()
+
+        now = time.time()
+        target_ids = ids[:3]
+        bulk_soft_delete(self.cursor, target_ids, now)
+        self.conn.commit()
+
+        # Targeted images must have deleted_at set
+        for img_id in target_ids:
+            self.cursor.execute("SELECT deleted_at FROM images WHERE id = ?", (img_id,))
+            deleted_at = self.cursor.fetchone()[0]
+            self.assertIsNotNone(deleted_at, f"Image {img_id} must be soft-deleted")
+            self.assertAlmostEqual(deleted_at, now, places=0)
+
+        # Remaining images must be untouched
+        for img_id in ids[3:]:
+            self.cursor.execute("SELECT deleted_at FROM images WHERE id = ?", (img_id,))
+            self.assertIsNone(self.cursor.fetchone()[0], f"Image {img_id} must not be soft-deleted")
+
+    def test_bulk_soft_delete_empty_list(self) -> None:
+        """bulk_soft_delete with an empty list raises no error."""
+        bulk_soft_delete(self.cursor, [], time.time())
+
+
+class TestBulkPermanentDelete(unittest.TestCase):
+    def setUp(self) -> None:
+        self.conn: sqlite3.Connection = create_test_db()
+        self.cursor: sqlite3.Cursor = self.conn.cursor()
+        self.factory: TestDataFactory = TestDataFactory(self.cursor)
+
+    def tearDown(self) -> None:
+        self.conn.close()
+
+    def test_bulk_permanent_delete_cascades(self) -> None:
+        """bulk_permanent_delete removes image rows, clears child parent_id, and purges relations."""
+        ids = []
+        for i in range(3):
+            img_id = self.factory.create_image(filename=f"img{i}.png")
+            ids.append(img_id)
+            tag = self.factory.create_tag(f"tag{i}")
+            self.factory.tag_image(img_id, tag)
+
+        # Create a child whose parent is one of the images being deleted
+        child = self.factory.create_image(filename="child.png", parent_id=ids[0])
+        self.conn.commit()
+
+        bulk_permanent_delete(self.cursor, ids)
+        self.conn.commit()
+
+        # All target image rows must be gone
+        for img_id in ids:
+            self.cursor.execute("SELECT id FROM images WHERE id = ?", (img_id,))
+            self.assertIsNone(self.cursor.fetchone(), f"Image {img_id} must be permanently deleted")
+
+        # Child's parent_id must be cleared
+        self.cursor.execute("SELECT parent_id FROM images WHERE id = ?", (child,))
+        self.assertIsNone(self.cursor.fetchone()[0], "Child parent_id must be set to NULL")
+
+        # Relation rows for deleted images must be purged
+        for img_id in ids:
+            self.cursor.execute("SELECT COUNT(*) FROM tag_image_relations WHERE image_id = ?", (img_id,))
+            self.assertEqual(self.cursor.fetchone()[0], 0, f"Relations for image {img_id} must be removed")
+
+    def test_bulk_permanent_delete_empty_list(self) -> None:
+        """bulk_permanent_delete with an empty list raises no error."""
+        bulk_permanent_delete(self.cursor, [])
 
 
 class TestPerformCleanup(unittest.TestCase):
