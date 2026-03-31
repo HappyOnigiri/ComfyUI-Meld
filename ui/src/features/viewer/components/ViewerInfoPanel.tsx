@@ -107,7 +107,12 @@ export const ViewerInfoPanel: React.FC<ViewerInfoPanelProps> = ({
 					setCorePrompts([]);
 					return;
 				}
-				const counts = countsResult.ok ? countsResult.data : {};
+				if (!countsResult.ok) {
+					setIsLoadingCorePrompts(false);
+					setCorePrompts([]);
+					return;
+				}
+				const counts = countsResult.data;
 
 				// Core Prompt selection: pair each keyword with its global usage count from counts,
 				// sort by ascending count (least-used first), then slice to corePromptCountSetting.
