@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { useCallback, useRef, useState } from "react";
+import { ErrorBoundary } from "../../../components/shared/ErrorBoundary";
 import { GalleryModals } from "../../../components/shared/GalleryModals";
 import { logger } from "../../../logger";
 import { AnalyticsView } from "../../analytics/components/AnalyticsView";
@@ -364,92 +365,98 @@ export const GalleryPanel: React.FC = () => {
 			</div>
 
 			{/* Scrollable content area below the header */}
-			<div className="meld-gallery__content">
-				<ImportProgress />
+			<ErrorBoundary section="content">
+				<div className="meld-gallery__content">
+					<ImportProgress />
 
-				{state.error && <div className="meld-gallery__error">{state.error}</div>}
+					{state.error && <div className="meld-gallery__error">{state.error}</div>}
 
-				{viewMode === "analytics" ? (
-					<div
-						className="meld-gallery__list-wrapper"
-						style={{
-							flex: 1,
-							minHeight: 0,
-							display: "flex",
-							flexDirection: "column",
-						}}
-					>
-						<AnalyticsView
+					{viewMode === "analytics" ? (
+						<div
+							className="meld-gallery__list-wrapper"
+							style={{
+								flex: 1,
+								minHeight: 0,
+								display: "flex",
+								flexDirection: "column",
+							}}
+						>
+							<AnalyticsView
+								onClose={() => setViewMode("gallery")}
+								onSearchAndNavigate={(query) => {
+									dispatch({ type: "SET_SEARCH_QUERY", payload: query });
+									setViewMode("search");
+								}}
+							/>
+						</div>
+					) : viewMode === "tags" ? (
+						<TagManagerView
 							onClose={() => setViewMode("gallery")}
-							onSearchAndNavigate={(query) => {
+							onSearch={(query) => {
 								dispatch({ type: "SET_SEARCH_QUERY", payload: query });
 								setViewMode("search");
 							}}
 						/>
-					</div>
-				) : viewMode === "tags" ? (
-					<TagManagerView
-						onClose={() => setViewMode("gallery")}
-						onSearch={(query) => {
-							dispatch({ type: "SET_SEARCH_QUERY", payload: query });
-							setViewMode("search");
-						}}
-					/>
-				) : state.isLoading && displayedImages.length === 0 ? (
-					<div
-						className="meld-gallery__list-wrapper"
-						style={{
-							flex: 1,
-							minHeight: 0,
-							display: "flex",
-							flexDirection: "column",
-							justifyContent: "center",
-							alignItems: "center",
-						}}
-					>
-						<div className="meld-gallery__loading">Loading images...</div>
-					</div>
-				) : visibleImages.length === 0 ? (
-					<div
-						className="meld-gallery__list-wrapper"
-						style={{
-							flex: 1,
-							minHeight: 0,
-							display: "flex",
-							flexDirection: "column",
-							justifyContent: "center",
-							alignItems: "center",
-						}}
-					>
-						<div className="meld-gallery__empty">No images found.</div>
-					</div>
-				) : (
-					<div
-						className="meld-gallery__list-wrapper"
-						style={{
-							flex: 1,
-							minHeight: 0,
-							display: "flex",
-							flexDirection: "column",
-						}}
-					>
-						<VirtualizedGalleryList
-							visibleImages={visibleImages}
-							settings={state.settings}
-							loadMoreRef={loadMoreRef}
-							viewerImageId={state.viewerImageId}
-							isLoading={state.isLoading}
-							hasMore={state.pagination.hasMore}
-						/>
-					</div>
-				)}
+					) : state.isLoading && displayedImages.length === 0 ? (
+						<div
+							className="meld-gallery__list-wrapper"
+							style={{
+								flex: 1,
+								minHeight: 0,
+								display: "flex",
+								flexDirection: "column",
+								justifyContent: "center",
+								alignItems: "center",
+							}}
+						>
+							<div className="meld-gallery__loading">Loading images...</div>
+						</div>
+					) : visibleImages.length === 0 ? (
+						<div
+							className="meld-gallery__list-wrapper"
+							style={{
+								flex: 1,
+								minHeight: 0,
+								display: "flex",
+								flexDirection: "column",
+								justifyContent: "center",
+								alignItems: "center",
+							}}
+						>
+							<div className="meld-gallery__empty">No images found.</div>
+						</div>
+					) : (
+						<div
+							className="meld-gallery__list-wrapper"
+							style={{
+								flex: 1,
+								minHeight: 0,
+								display: "flex",
+								flexDirection: "column",
+							}}
+						>
+							<VirtualizedGalleryList
+								visibleImages={visibleImages}
+								settings={state.settings}
+								loadMoreRef={loadMoreRef}
+								viewerImageId={state.viewerImageId}
+								isLoading={state.isLoading}
+								hasMore={state.pagination.hasMore}
+							/>
+						</div>
+					)}
 
-				<BulkActionBar />
-			</div>
+					<BulkActionBar />
+				</div>
+			</ErrorBoundary>
 
-			{state.viewerImageId !== null && <ImageViewer />}
+			<ErrorBoundary section="viewer">
+				{state.viewerImageId !== null && <ImageViewer />}
+			</ErrorBoundary>
 
-			<GalleryModals />
+			<ErrorBoundary section="modals">
+				<GalleryModals />
+			</ErrorBoundary>
 
 			{isFavoritesOpen && (
 				<FavoritesContextMenu
@@ -460,7 +467,9 @@ export const GalleryPanel: React.FC = () => {
 			)}
 
 			{/* Rendered at the bottom of the screen via Portal */}
-			<LightTable />
+			<ErrorBoundary section="light-table">
+				<LightTable />
+			</ErrorBoundary>
 		</div>
 	);
 };
