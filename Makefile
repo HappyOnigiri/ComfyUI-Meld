@@ -1,4 +1,4 @@
-.PHONY: ci test-all lint lint-py lint-ui lint-misc lint-scripts build-ui watch-ui local-check-scripts check-scripts check-ts-rules check-non-ascii repomix loc setup install-hooks setup-hooks sync-rule
+.PHONY: ci test-all lint lint-py lint-ui lint-misc lint-scripts build-ui watch-ui local-check-scripts check-scripts check-ts-rules check-non-ascii repomix setup install-hooks setup-hooks sync-rule
 
 # Like Refix: setup runs ShareSettings sync only. Git hooks are optional (make install-hooks).
 # Also installs Python dev deps and UI npm deps required for `make ci`.
@@ -125,9 +125,6 @@ check-non-ascii:
 
 repomix:
 	$(PYTHON) scripts/generate_repomix.py
-
-loc:
-	@$(PYTHON) scripts/loc.py
 
 repomix-%:
 	$(PYTHON) scripts/generate_repomix.py repomix-$*
