@@ -66,6 +66,11 @@ def _migrate_legacy_py_data() -> None:
     new_databases = os.path.join(DATA_DIR, "databases")
     if os.path.isdir(new_databases) and any(f for f in os.listdir(new_databases) if not f.startswith(".")):
         return
+    # Also guard against a populated runtime/ directory (trash/thumbnail state),
+    # mirroring the databases/ check above to prevent overwriting live runtime data.
+    new_runtime = os.path.join(DATA_DIR, "runtime")
+    if os.path.isdir(new_runtime) and any(f for f in os.listdir(new_runtime) if not f.startswith(".")):
+        return
 
     # Step 1: copy data into meld/data.
     try:
