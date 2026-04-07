@@ -116,6 +116,18 @@ def _migrate_legacy_py_data() -> None:
                 _LEGACY_PY_DIR,
             )
 
+    # Step 2.5: remove thumbnails from the backup directory.
+    # Thumbnails were already copied into meld/data and are fully regenerable,
+    # so keeping duplicates in the backup only wastes disk space.
+    if renamed:
+        runtime_backup = os.path.join(backup_path, "data", "runtime")
+        if os.path.isdir(runtime_backup):
+            for entry in os.scandir(runtime_backup):
+                if entry.is_dir(follow_symlinks=False):
+                    thumbnails_dir = os.path.join(entry.path, "thumbnails")
+                    if os.path.isdir(thumbnails_dir):
+                        shutil.rmtree(thumbnails_dir, ignore_errors=True)
+
     # Step 3: write the marker (always, so we do not retry on next boot).
     try:
         with open(_MIGRATION_MARKER, "w", encoding="utf-8") as f:
