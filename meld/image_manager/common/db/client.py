@@ -73,11 +73,18 @@ def _migrate_legacy_py_data() -> None:
         return
 
     # Step 1: copy data into meld/data.
+    # Record existence before copy so the error handler can avoid deleting
+    # a pre-existing directory that was not created by this migration.
+    data_dir_existed = os.path.exists(DATA_DIR)
     try:
         shutil.copytree(_LEGACY_DATA_DIR, DATA_DIR, dirs_exist_ok=True)
     except OSError:
         logger.exception("Failed to copy legacy py/data to %s; leaving legacy intact", DATA_DIR)
-        shutil.rmtree(DATA_DIR, ignore_errors=True)
+        # Only remove DATA_DIR if this migration created it; never delete a
+        # pre-existing directory, as it may contain user data that passed the
+        # guard (e.g. dotfiles or other entries not covered by the checks above).
+        if not data_dir_existed:
+            shutil.rmtree(DATA_DIR, ignore_errors=True)
         return
 
     # Step 2: rename <repo>/py so it no longer shadows the PyPI `py` package.
