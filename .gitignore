@@ -75,6 +75,10 @@ package-lock.json
 # Keep directories
 !.gitkeep
 
+# Legacy py/ data directory (pre-migration) and backup (post-migration)
+py/data/
+py_legacy_backup_*/
+
 # AI Rules
 /AGENTS.md
 /CLAUDE.md

@@ -25,6 +25,125 @@ DEFAULT_DATABASE_NAME = "default"
 _DB_NAME_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
 _state_lock = threading.RLock()
 
+# Legacy py/ -> meld/ data migration (PR #113).
+# __file__ = <repo>/meld/image_manager/common/db/client.py
+# dirname x5 = <repo>
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
+_LEGACY_PY_DIR = os.path.join(_REPO_ROOT, "py")
+_LEGACY_DATA_DIR = os.path.join(_LEGACY_PY_DIR, "data")
+_MIGRATION_MARKER = os.path.join(DATA_DIR, ".migrated_from_py")
+
+
+def _migrate_legacy_py_data() -> None:
+    """One-time migration from <repo>/py/data to <repo>/meld/data.
+
+    PR #113 renamed py/ -> meld/ to eliminate PyPI `py` namespace-package
+    shadowing. Users upgrading from before that PR have their SQLite DBs and
+    runtime files left behind in <repo>/py/data. This function copies them
+    into the new meld/data, then renames the entire <repo>/py directory so
+    `import py` stops resolving to the local namespace package.
+
+    The function is idempotent: a marker file prevents re-runs, and strict
+    "new dir is empty" guards prevent clobbering work users already did on
+    the new layout.
+    """
+    logger = logging.getLogger(__name__)
+
+    if os.path.exists(_MIGRATION_MARKER):
+        return
+    if not os.path.isdir(_LEGACY_DATA_DIR):
+        return
+
+    # Legacy must have meaningful content.
+    legacy_signals = ("active_database.json", "default.db", "databases", "runtime")
+    if not any(os.path.exists(os.path.join(_LEGACY_DATA_DIR, s)) for s in legacy_signals):
+        return
+
+    # New DATA_DIR must look empty; never clobber in-progress work.
+    new_signals = ("active_database.json", "default.db")
+    if any(os.path.exists(os.path.join(DATA_DIR, s)) for s in new_signals):
+        return
+    new_databases = os.path.join(DATA_DIR, "databases")
+    if os.path.isdir(new_databases) and any(f for f in os.listdir(new_databases) if not f.startswith(".")):
+        return
+    # Also guard against a populated runtime/ directory (trash/thumbnail state),
+    # mirroring the databases/ check above to prevent overwriting live runtime data.
+    new_runtime = os.path.join(DATA_DIR, "runtime")
+    if os.path.isdir(new_runtime) and any(f for f in os.listdir(new_runtime) if not f.startswith(".")):
+        return
+
+    # Step 1: copy data into meld/data.
+    # Record existence before copy so the error handler can avoid deleting
+    # a pre-existing directory that was not created by this migration.
+    data_dir_existed = os.path.exists(DATA_DIR)
+    try:
+        shutil.copytree(_LEGACY_DATA_DIR, DATA_DIR, dirs_exist_ok=True)
+    except OSError:
+        logger.exception("Failed to copy legacy py/data to %s; leaving legacy intact", DATA_DIR)
+        # Only remove DATA_DIR if this migration created it; never delete a
+        # pre-existing directory, as it may contain user data that passed the
+        # guard (e.g. dotfiles or other entries not covered by the checks above).
+        if not data_dir_existed:
+            shutil.rmtree(DATA_DIR, ignore_errors=True)
+        return
+
+    # Step 2: rename <repo>/py so it no longer shadows the PyPI `py` package.
+    now = datetime.now()
+    backup_name = f"py_legacy_backup_{now.strftime('%Y%m%d')}"
+    backup_path = os.path.join(_REPO_ROOT, backup_name)
+    if os.path.exists(backup_path):
+        backup_path = os.path.join(_REPO_ROOT, f"py_legacy_backup_{now.strftime('%Y%m%d_%H%M%S')}")
+    renamed = False
+    try:
+        os.rename(_LEGACY_PY_DIR, backup_path)
+        renamed = True
+    except OSError:
+        # On Windows, Python holds open handles to __pycache__/*.pyc files that
+        # were imported during ComfyUI startup, blocking os.rename. Remove the
+        # pycache dirs (they are regenerable) and retry.
+        for dirpath, dirnames, _ in os.walk(_LEGACY_PY_DIR, topdown=False):
+            for d in list(dirnames):
+                if d == "__pycache__":
+                    shutil.rmtree(os.path.join(dirpath, d), ignore_errors=True)
+        try:
+            os.rename(_LEGACY_PY_DIR, backup_path)
+            renamed = True
+        except OSError:
+            logger.warning(
+                "Copied legacy data but failed to rename %s. Please rename or "
+                "delete this directory manually to avoid shadowing the PyPI "
+                "`py` package.",
+                _LEGACY_PY_DIR,
+            )
+
+    # Step 2.5: remove thumbnails from the backup directory.
+    # Thumbnails were already copied into meld/data and are fully regenerable,
+    # so keeping duplicates in the backup only wastes disk space.
+    if renamed:
+        runtime_backup = os.path.join(backup_path, "data", "runtime")
+        if os.path.isdir(runtime_backup):
+            for entry in os.scandir(runtime_backup):
+                if entry.is_dir(follow_symlinks=False):
+                    thumbnails_dir = os.path.join(entry.path, "thumbnails")
+                    if os.path.isdir(thumbnails_dir):
+                        shutil.rmtree(thumbnails_dir, ignore_errors=True)
+
+    # Step 3: write the marker (always, so we do not retry on next boot).
+    try:
+        with open(_MIGRATION_MARKER, "w", encoding="utf-8") as f:
+            f.write(f"{now.isoformat()}\nbackup={backup_path if renamed else '(rename failed; py/ still present)'}\n")
+    except OSError:
+        logger.exception("Failed to write migration marker at %s", _MIGRATION_MARKER)
+
+    if renamed:
+        logger.info(
+            "Migrated legacy data from py/data to %s. Old directory preserved at %s (safe to delete once verified).",
+            DATA_DIR,
+            backup_path,
+        )
+
+
+_migrate_legacy_py_data()
 os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(DATABASES_DIR, exist_ok=True)
 os.makedirs(RUNTIME_ROOT_DIR, exist_ok=True)
