@@ -98,12 +98,23 @@ def _migrate_legacy_py_data() -> None:
         os.rename(_LEGACY_PY_DIR, backup_path)
         renamed = True
     except OSError:
-        logger.warning(
-            "Copied legacy data but failed to rename %s. Please rename or "
-            "delete this directory manually to avoid shadowing the PyPI "
-            "`py` package.",
-            _LEGACY_PY_DIR,
-        )
+        # On Windows, Python holds open handles to __pycache__/*.pyc files that
+        # were imported during ComfyUI startup, blocking os.rename. Remove the
+        # pycache dirs (they are regenerable) and retry.
+        for dirpath, dirnames, _ in os.walk(_LEGACY_PY_DIR, topdown=False):
+            for d in list(dirnames):
+                if d == "__pycache__":
+                    shutil.rmtree(os.path.join(dirpath, d), ignore_errors=True)
+        try:
+            os.rename(_LEGACY_PY_DIR, backup_path)
+            renamed = True
+        except OSError:
+            logger.warning(
+                "Copied legacy data but failed to rename %s. Please rename or "
+                "delete this directory manually to avoid shadowing the PyPI "
+                "`py` package.",
+                _LEGACY_PY_DIR,
+            )
 
     # Step 3: write the marker (always, so we do not retry on next boot).
     try:
