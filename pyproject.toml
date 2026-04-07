@@ -1,7 +1,7 @@
 [project]
 name = "comfyui-meld"
 description = "High-performance nodes for Prompt Construction, Metadata Extraction, and Workflow Consolidation."
-version = "1.1.0"
+version = "1.2.0"
 license = { text = "Apache-2.0" } # DO NOT change this to a string; table format is required for Release Action
 authors = [
     { name = "HappyOnigiri", email = "nodemeld+happy-onigiri@gmail.com" }

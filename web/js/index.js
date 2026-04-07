@@ -11045,7 +11045,7 @@ const Qf = [
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-group-title", children: "ComfyUI-Meld" }),
     /* @__PURE__ */ s.jsx("div", { className: "meld-settings-item", children: /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-item__info", children: [
       /* @__PURE__ */ s.jsx("div", { className: "meld-settings-item__label", children: "Version" }),
-      /* @__PURE__ */ s.jsx("div", { className: "meld-settings-item__description", children: "1.1.0" })
+      /* @__PURE__ */ s.jsx("div", { className: "meld-settings-item__description", children: "1.2.0" })
     ] }) })
   ] }),
   /* @__PURE__ */ s.jsxs("div", { className: "meld-settings-group", children: [
