@@ -203,36 +203,7 @@ All items from scenario B, plus:
 4. `ui/src/types.ts` — add type definitions.
 5. `ui/src/styles/Gallery.css` — add `--meld-z-*` tokens for new UI layers.
 
-## 5. Release Flow
-
-The release process is fully automated via GitHub Actions. No manual version bumping or skill invocation is required.
-
-### Triggering a Release
-
-```bash
-gh workflow run release.yml -f version=X.Y.Z
-```
-
-This dispatches `.github/workflows/release.yml`, which:
-1. Checks out the repository and installs Node.js 24 and Python 3.12 dependencies.
-2. Calls `HappyOnigiri/ShareSettings/actions/prepare-release@main` with `version-bump-type: pyproject`.
-3. The composite action: bumps `pyproject.toml` version, runs `make ci` (rebuilds `web/js/*`), stages `web/js/gallery_extension.js`, `web/js/style.css`, and `web/js/index.js`, commits, pushes the `release/vX.Y.Z` branch, and opens a PR with auto-generated changelog.
-
-### Merging the Release PR
-
-Merging the release PR into `main` triggers two workflows in parallel:
-- `.github/workflows/publish-release.yml`: creates the git tag and GitHub Release via `HappyOnigiri/ShareSettings/actions/publish-release@main`.
-- `.github/workflows/publish_action.yml`: publishes the package to the Comfy registry (triggered by the `pyproject.toml` push on main).
-
-### Release Reminder
-
-`.github/workflows/release-reminder.yml` posts a comment on every PR indicating how many PRs have been merged since the last release, using `HappyOnigiri/ShareSettings/actions/release-reminder@main`.
-
-### Secrets Required
-
-- `GH_TOKEN`: A PAT with `contents: write` and `pull-requests: write` permissions, registered in the repository settings.
-
-## 6. Documentation
+## 5. Documentation
 
 ### Documentation Layout
 All documentation lives under `docs/` and is maintained in two languages:
