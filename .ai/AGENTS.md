@@ -22,6 +22,12 @@
 - AI agents SHOULD NOT attempt to read or analyze the content of build artifacts (especially large minified files) during the commit process.
 - If source files are changed and `make ci` (which includes the build process) is executed, any resulting changes in build artifacts are assumed to be correct and should be staged without detailed inspection.
 
+# Documentation Ownership
+
+- `architecture.md`: Source of truth for AI agents. Document module structure, data flow, and implementation rules that agents need to perform coding tasks.
+- `development.md`: Human developer reference. Document release procedures, setup instructions, and operational workflows that agents do not need to know.
+- When adding documentation, choose the file whose audience matches the content.
+
 # Architecture Map Maintenance Rules
 
 This project relies on `architecture.md` as a source of truth for AI agents to understand the codebase.
