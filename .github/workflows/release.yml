@@ -48,4 +48,4 @@ jobs:
             web/js/gallery_extension.js
             web/js/style.css
             web/js/index.js
-          github-token: ${{ secrets.GH_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
