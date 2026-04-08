@@ -28,3 +28,4 @@ Merging the release PR into `main` triggers two workflows in parallel:
 ### Secrets Required
 
 - `GH_TOKEN`: A PAT with `contents: write` and `pull-requests: write` permissions, registered in the repository settings.
+- `REGISTRY_ACCESS_TOKEN`: Token used by `.github/workflows/publish_action.yml` to publish to the Comfy registry.
