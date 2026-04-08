@@ -29,9 +29,6 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install UI dependencies
-        run: cd ui && npm ci
-
       - name: Install Python dependencies
         run: |
           # Install CPU-only torch first to avoid downloading the large CUDA build.
@@ -43,7 +40,7 @@ jobs:
           version: ${{ inputs.version }}
           version-bump-type: pyproject
           pyproject-path: pyproject.toml
-          post-bump-command: "make ci"
+          post-bump-command: "npm --prefix ui ci && make ci"
           extra-paths-to-commit: |
             web/js/gallery_extension.js
             web/js/style.css
