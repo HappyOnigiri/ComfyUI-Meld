@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: HappyOnigiri/ShareSettings/actions/publish-release@main
+      - uses: HappyOnigiri/ReleaseActions/actions/publish-release@main
         with:
           branch: ${{ github.event.pull_request.head.ref }}
           pr-body: ${{ github.event.pull_request.body }}
