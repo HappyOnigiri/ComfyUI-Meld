@@ -54,6 +54,7 @@ Every node must be a Python class with the following specific attributes and met
 ```python
 import torch
 
+
 class ExampleNode:
     def __init__(self):
         pass
@@ -78,7 +79,6 @@ class ExampleNode:
         # Processing logic here
         # Remember: input image is a torch.Tensor [B, H, W, C]
         return (image,)
-
 ```
 
 ### Loading Resources (Models, LoRAs, Images)
@@ -88,16 +88,16 @@ Use `folder_paths` to access ComfyUI standard directories.
 ```python
 import folder_paths
 
+
 @classmethod
 def INPUT_TYPES(s):
     return {
         "required": {
-            "ckpt_name": (folder_paths.get_filename_list("checkpoints"), ),
+            "ckpt_name": (folder_paths.get_filename_list("checkpoints"),),
         },
         "optional": {},
         "hidden": {},
     }
-
 ```
 
 ### Converting PIL to ComfyUI Image (Tensor)
@@ -106,9 +106,9 @@ def INPUT_TYPES(s):
 import torch
 import numpy as np
 
+
 def pil2tensor(image):
     return torch.from_numpy(np.array(image).astype(np.float32) / 255.0).unsqueeze(0)
-
 ```
 
 ### Converting ComfyUI Image (Tensor) to PIL
@@ -117,9 +117,9 @@ def pil2tensor(image):
 import numpy as np
 from PIL import Image
 
-def tensor2pil(image):
-    return Image.fromarray(np.clip(255. * image.cpu().numpy().squeeze(), 0, 255).astype(np.uint8))
 
+def tensor2pil(image):
+    return Image.fromarray(np.clip(255.0 * image.cpu().numpy().squeeze(), 0, 255).astype(np.uint8))
 ```
 
 ## 4. Registration (`__init__.py`)
@@ -129,14 +129,9 @@ Always remind me to update `__init__.py` to export the node.
 ```python
 from .my_node_file import MyNodeClass
 
-NODE_CLASS_MAPPINGS = {
-    "MyNodeUniqueName": MyNodeClass
-}
+NODE_CLASS_MAPPINGS = {"MyNodeUniqueName": MyNodeClass}
 
-NODE_DISPLAY_NAME_MAPPINGS = {
-    "MyNodeUniqueName": "My Cool Node Display Name"
-}
-
+NODE_DISPLAY_NAME_MAPPINGS = {"MyNodeUniqueName": "My Cool Node Display Name"}
 ```
 
 ## 5. Prohibitions
